@@ -296,9 +296,14 @@ jobs:
           -- "$LEGACY_EXECUTABLE"
 
       - name: Eject the 0.1.0 disk image
-        if: always() && runner.os == 'macOS' && env.LEGACY_EXECUTABLE != ''
+        # before the packaging step creates a disk image of its own
+        if: always() && runner.os == 'macOS'
         continue-on-error: true
-        run: hdiutil detach "$RUNNER_TEMP/scoresight-0.1.0/volume" || hdiutil detach -force "$RUNNER_TEMP/scoresight-0.1.0/volume"
+        run: |
+          volume="$RUNNER_TEMP/scoresight-0.1.0/volume"
+          if mount | grep -qF " on $volume "; then
+            hdiutil detach "$volume" || hdiutil detach -force "$volume"
+          fi
 
       - name: Boot time comparison
         if: always() && steps.boot.outcome != 'skipped'
