@@ -425,7 +425,7 @@ def load_dataset(
     if splits:
         samples = [s for s in samples if s.split in splits]
         subset["splits"] = list(splits)
-    if sample is not None:
+    if sample is not None and sample < len(samples):
         subset.update(
             sample=sample, seed=seed, stratified_by="field_type", of=len(samples)
         )

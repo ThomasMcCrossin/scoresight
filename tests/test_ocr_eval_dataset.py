@@ -246,14 +246,20 @@ def test_load_dataset_records_the_subset(tmp_path):
     ]
     folder = make_dataset(tmp_path / "ds", rows)
     assert load_dataset(folder).subset is None
-    dataset = load_dataset(folder, splits=["test"], sample=2, seed=3)
+    dataset = load_dataset(folder, sample=2, seed=3)
     assert {s.field_type for s in dataset.samples} == {"score", "clock"}
     assert dataset.subset == {
-        "splits": ["test"],
         "sample": 2,
         "seed": 3,
         "stratified_by": "field_type",
-        "of": 2,
+        "of": 4,
+        "n": 2,
+        "manifest_n": 4,
+    }
+    # a sample at least as large as what's left is all of it
+    assert load_dataset(folder, sample=400).subset is None
+    assert load_dataset(folder, splits=["test"], sample=2).subset == {
+        "splits": ["test"],
         "n": 2,
         "manifest_n": 4,
     }
