@@ -149,8 +149,10 @@ def test_update_never_blocks_on_an_unresponsive_vmix(make_vmix, make_result):
     assert time.monotonic() - start < 1.0  # blocking would take 15 s+
 
     flush(api)
-    # no backlog: the batch in flight, then only the latest value per field
-    assert session.sent()[-2:] == [("T.Text", "0:01"), ("H.Text", "1")]
+    # no backlog: the batch in flight, then only the latest value per field. The
+    # order of the fields isn't fixed: the worker may take a batch between the
+    # two fields of one update.
+    assert dict(session.sent()) == {"T.Text": "0:01", "H.Text": "1"}
     assert len(session.sent()) <= 10  # of 120 submitted (typically 4)
 
 
