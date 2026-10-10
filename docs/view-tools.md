@@ -34,7 +34,7 @@ Boxes are positioned on the **result** of steps 1–4. Change rotation, crop or 
 
 | Action | How |
 |---|---|
-| Zoom in / out | **Ctrl + mouse wheel** (from 0.33x to 3x, in 5% steps) |
+| Zoom in / out | **Ctrl + mouse wheel** (**⌘ Cmd + mouse wheel** on macOS), from 0.33x to 3x, in 5% steps |
 | Scroll | Mouse wheel (vertical). Use the scroll bars when zoomed in |
 | Pan | Drag with the **middle mouse button** |
 | Fit the picture to the window | **1:1** button |
