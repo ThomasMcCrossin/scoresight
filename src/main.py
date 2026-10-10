@@ -199,8 +199,11 @@ def load_translator(app, stored_language: str | None):
 
 
 def close_splash_screen():
-    # The PyInstaller splash screen (Windows/Linux builds) stays up until closed.
-    if platform.system() == "Darwin":
+    # The PyInstaller splash screen (only the Windows build has one) stays up
+    # until closed. Its bootloader passes the connection in _PYI_SPLASH_IPC;
+    # importing pyi_splash without it (it is bundled in the other builds too)
+    # logs a warning with a traceback.
+    if "_PYI_SPLASH_IPC" not in os.environ:
         return
     try:
         import pyi_splash  # type: ignore

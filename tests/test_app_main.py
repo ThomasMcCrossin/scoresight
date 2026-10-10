@@ -280,3 +280,29 @@ def test_quit_signals_end_the_app_with_a_dialog_open(tmp_path):
     )
     assert process.returncode == 0, process.stdout + process.stderr
     assert process.stdout.split() == ["closed"]
+
+
+# --- splash screen ----------------------------------------------------------------
+
+
+def test_splash_screen_is_closed_only_when_the_bootloader_started_one(monkeypatch):
+    # Only the Windows build has a splash screen. Importing PyInstaller's
+    # pyi_splash (bundled in every build) without one printed a warning with a
+    # KeyError traceback on every start of the Linux build.
+    import types
+
+    closed = []
+
+    def close():
+        closed.append(True)
+
+    fake = types.ModuleType("pyi_splash")
+    fake.close = close
+    monkeypatch.setitem(sys.modules, "pyi_splash", fake)
+    monkeypatch.delenv("_PYI_SPLASH_IPC", raising=False)
+    main.close_splash_screen()
+    assert closed == []
+
+    monkeypatch.setenv("_PYI_SPLASH_IPC", "52123")
+    main.close_splash_screen()
+    assert closed == [True]
