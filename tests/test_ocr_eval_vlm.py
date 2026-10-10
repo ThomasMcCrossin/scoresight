@@ -26,6 +26,7 @@ from ocr_eval.engines.vlm import (  # noqa: E402
     letterbox,
     parse_frame_answer,
     relative_box,
+    terminator_token_ids,
 )
 from ocr_eval.fields import FIELD_TYPES  # noqa: E402
 from ocr_eval.frames import FrameField  # noqa: E402
@@ -112,6 +113,11 @@ def test_allowed_token_ids():
     assert allowed_token_ids(tokens, "0123456789:") == [0, 1, 4, 5, 8]
 
 
+def test_terminator_token_ids():
+    tokens = [".", " .", "\n", ".\n\n", " ", "1.", "..", "!", "", "。"]
+    assert terminator_token_ids(tokens) == [0, 1, 2, 3, 6, 9]
+
+
 def test_letterbox_keeps_the_crop_centred_on_a_square():
     crop = np.zeros((10, 30, 3), np.uint8)
     crop[:, :, 2] = 200
@@ -184,7 +190,7 @@ def test_assign_regions_splits_merged_words():
 # --- recognize() with a fake model (needs torch and transformers) ---------------
 
 
-VOCAB = ["<eos>", "O", "0", "1", " 1", "a", "<pad>"]
+VOCAB = ["<eos>", "O", "0", "1", " 1", "a", "<pad>", "\n"]
 
 
 class FakeTokenizer:
@@ -317,6 +323,25 @@ def test_whitelist_constrains_decoding(fake_engine):
     results = engine.recognize([np.zeros((8, 8, 3), np.uint8)] * 2, ["score", "text"])
     assert [r.text for r in results] == ["01", "O1"]
     assert 0 < results[0].confidence <= 1
+
+
+def test_masked_terminators_end_the_answer(fake_engine):
+    make, torch = fake_engine
+    engine = make("qwen3.5-0.8b-wl")
+    # wants "1", then a newline before the end; the digit "1" comes next
+    schedule = torch.full((3, len(VOCAB) + 2), -5.0)
+    schedule[0, 3] = 5.0
+    schedule[1, 7], schedule[1, 0], schedule[1, 3] = 5.0, 4.0, 4.5
+    schedule[2, 0] = 5.0
+    engine.model.schedule = schedule
+    [result] = engine.recognize([np.zeros((8, 8, 3), np.uint8)], ["score"])
+    # the newline's probability went to the end of the answer: "1", not "11"
+    assert result.text == "1"
+    # unconstrained, the newline is read and cleaned off
+    plain = make("qwen3.5-0.8b")
+    plain.model.schedule = schedule
+    [result] = plain.recognize([np.zeros((8, 8, 3), np.uint8)], ["score"])
+    assert result.text == "1"
 
 
 def test_load_failure_is_unavailable(fake_engine, monkeypatch):

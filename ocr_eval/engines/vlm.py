@@ -13,8 +13,10 @@ Engines (each a model family; the variant picks the model and options):
 Variant suffixes:
   -wl  constrained decoding: only tokens made of the field type's characters
        (ocr_eval.fields.whitelist, what ScoreSight limits Tesseract to) and
-       spaces, and the end of the answer. The VLM counterpart of masking a CTC
-       decoder; it also stops chat models from answering in sentences.
+       spaces, and the end of the answer, whose probability includes the
+       masked tokens that only end a sentence or line (". ", "\\n"). The VLM
+       counterpart of masking a CTC decoder; it also stops chat models from
+       answering in sentences.
   -sq  (florence2) the crop is stretched to Florence's square 768x768 input as
        it is. Without it the crop is first centred on a square of its mean
        colour (letterboxed), which keeps the digits' proportions.
@@ -174,6 +176,24 @@ def allowed_token_ids(token_texts: list[str], chars: str) -> list[int]:
         token_id
         for token_id, text in enumerate(token_texts)
         if text and all(char in allowed for char in text)
+    ]
+
+
+# characters models end an answer with before the end-of-answer token
+TERMINATOR_CHARS = ".\n\r。"
+
+
+def terminator_token_ids(token_texts: list[str]) -> list[int]:
+    """The ids of the tokens that only end a line or sentence (a period, a
+    newline, with spaces). Constrained decoding counts their probability as the
+    end of the answer when it masks them: models often answer "0." or "90\\n"
+    before stopping, and masking the period alone makes them go on ("0000")."""
+    return [
+        token_id
+        for token_id, text in enumerate(token_texts)
+        if text
+        and any(char in TERMINATOR_CHARS for char in text)
+        and all(char in TERMINATOR_CHARS or char == " " for char in text)
     ]
 
 
@@ -432,6 +452,7 @@ class _TransformersVLM(Engine):
             )
             for field_type in FIELD_DESCRIPTIONS:
                 self._mask(field_type, vocab_size)
+            self._terminators(vocab_size)
 
     def _dtype(self, torch):
         # fp32 on a CPU: bf16 matmuls are slower there without AMX
@@ -502,27 +523,39 @@ class _TransformersVLM(Engine):
         (and the start, for encoder-decoder models)."""
         return self._eos_ids() | self._start_ids()
 
+    def _token_mask(self, key: str, ids, vocab_size: int):
+        if key not in self._masks:
+            mask = self._torch.zeros(vocab_size, dtype=self._torch.bool)
+            mask[[i for i in ids if i < vocab_size]] = True
+            self._masks[key] = mask
+        return self._masks[key]
+
+    def _texts(self) -> list[str]:
+        """Every token's text, decoded on its own."""
+        if self._token_texts is None:
+            tokenizer = self.tokenizer
+            self._token_texts = tokenizer.batch_decode(
+                [[i] for i in range(len(tokenizer))],
+                skip_special_tokens=False,
+                clean_up_tokenization_spaces=False,
+            )
+        return self._token_texts
+
     def _mask(self, field_type: str, vocab_size: int):
         """The bool mask (vocab_size,) of the tokens allowed for a field type."""
         chars = whitelist(field_type)
         key = f"{chars}:{vocab_size}"
-        if key not in self._masks:
-            torch = self._torch
-            if self._token_texts is None:
-                tokenizer = self.tokenizer
-                self._token_texts = tokenizer.batch_decode(
-                    [[i] for i in range(len(tokenizer))],
-                    skip_special_tokens=False,
-                    clean_up_tokenization_spaces=False,
-                )
-            mask = torch.zeros(vocab_size, dtype=torch.bool)
-            ids = [
-                i for i in allowed_token_ids(self._token_texts, chars) if i < vocab_size
-            ]
-            ids += [i for i in self._special_ids() if i < vocab_size]
-            mask[ids] = True
-            self._masks[key] = mask
-        return self._masks[key]
+        if key in self._masks:
+            return self._masks[key]
+        ids = allowed_token_ids(self._texts(), chars) + sorted(self._special_ids())
+        return self._token_mask(key, ids, vocab_size)
+
+    def _terminators(self, vocab_size: int):
+        """The bool mask (vocab_size,) of terminator_token_ids()."""
+        key = f"terminators:{vocab_size}"
+        if key in self._masks:
+            return self._masks[key]
+        return self._token_mask(key, terminator_token_ids(self._texts()), vocab_size)
 
     def _logits_processors(self, field_types: list[str]):
         if "wl" not in self.flags or not field_types:
@@ -530,12 +563,25 @@ class _TransformersVLM(Engine):
         torch = self._torch
         transformers = self._transformers
         engine = self
+        # the end of the answer the chat template uses (the first one listed)
+        eos = self.model.generation_config.eos_token_id
+        eos = eos[0] if isinstance(eos, (list, tuple)) else eos
+        if eos is None:
+            eos = self.tokenizer.eos_token_id
 
         class AllowedTokens(transformers.LogitsProcessor):
             def __call__(self, input_ids, scores):
+                vocab_size = scores.shape[-1]
                 masks = torch.stack(
-                    [engine._mask(ft, scores.shape[-1]) for ft in field_types]
+                    [engine._mask(ft, vocab_size) for ft in field_types]
                 ).to(scores.device)
+                # a masked terminator ("0." / "90\n") counts as the end
+                moved = engine._terminators(vocab_size).to(scores.device) & ~masks
+                ending = torch.logsumexp(
+                    scores.masked_fill(~moved, float("-inf")), dim=-1
+                )
+                scores = scores.clone()
+                scores[:, eos] = torch.logaddexp(scores[:, eos], ending)
                 return scores.masked_fill(~masks, float("-inf"))
 
         return transformers.LogitsProcessorList([AllowedTokens()])
