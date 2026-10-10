@@ -280,6 +280,88 @@ def test_bump_version_to_the_version_already_set(release_files):
     assert "Profiles" in versioning.changelog_section(text, "0.2.0")
 
 
+def _add_unreleased_notes(changelog, notes):
+    text = changelog.read_text(encoding="utf-8")
+    changelog.write_text(
+        text.replace("## [Unreleased]\n", f"## [Unreleased]\n\n{notes}\n", 1),
+        encoding="utf-8",
+    )
+
+
+def test_bump_version_cuts_pre_releases_of_the_version_in_development(
+    release_files,
+):
+    # src/version.py holds the version in development (0.2.0): its betas and
+    # release candidates were refused as "older than the current version"
+    version_file, changelog = release_files
+    version_file.write_text('__version__ = "0.2.0"\n', encoding="utf-8")
+
+    bump_version.bump("0.2.0-beta.1", "2026-10-01", version_file, changelog)
+    assert versioning.read_version(version_file) == "0.2.0-beta.1"
+    text = changelog.read_text(encoding="utf-8")
+    assert "Profiles" in versioning.changelog_section(text, "0.2.0-beta.1")
+    base = "https://github.com/royshil/scoresight/compare/"
+    assert f"[0.2.0-beta.1]: {base}0.1.0...0.2.0-beta.1\n" in text
+
+    _add_unreleased_notes(changelog, "### Fixed\n\n- Another crash.\n")
+    bump_version.bump("0.2.0-rc.1", "2026-10-05", version_file, changelog)
+    # an older pre-release than the newest release is still refused
+    with pytest.raises(bump_version.BumpError, match="older than the latest"):
+        bump_version.bump("0.2.0-beta.2", "2026-10-06", version_file, changelog)
+    # and a pre-release needs changes of its own
+    with pytest.raises(bump_version.BumpError, match="empty"):
+        bump_version.bump("0.2.0-rc.2", "2026-10-06", version_file, changelog)
+
+
+def test_the_final_release_takes_over_its_pre_releases_notes(release_files):
+    # After X.Y.Z-rc.N the Unreleased section is usually empty: releasing X.Y.Z
+    # was refused, and its notes (versioning.py changelog X.Y.Z, used by the
+    # release workflow) would have left out everything in the pre-releases.
+    version_file, changelog = release_files
+    version_file.write_text('__version__ = "0.2.0"\n', encoding="utf-8")
+    bump_version.bump("0.2.0-beta.1", "2026-10-01", version_file, changelog)
+    _add_unreleased_notes(changelog, "### Fixed\n\n- Another crash.\n")
+    bump_version.bump("0.2.0-rc.1", "2026-10-05", version_file, changelog)
+
+    bump_version.bump("0.2.0", "2026-10-10", version_file, changelog)
+    assert versioning.read_version(version_file) == "0.2.0"
+    text = changelog.read_text(encoding="utf-8")
+    assert versioning.changelog_section(text, "0.2.0") == (
+        "### Added\n\n"
+        "- Profiles ([#8](https://github.com/royshil/scoresight/issues/8)).\n\n"
+        "### Fixed\n\n"
+        "- Another crash.\n"
+        "- A crash.\n"
+    )
+    # the pre-releases' sections and links are folded into the release's
+    assert "## [0.2.0-" not in text and "[0.2.0-" not in text
+    base = "https://github.com/royshil/scoresight/compare/"
+    assert f"[Unreleased]: {base}0.2.0...HEAD\n[0.2.0]: {base}0.1.0...0.2.0\n" in text
+    assert "## [Unreleased]\n\n## [0.2.0] - 2026-10-10\n\n### Added" in text
+    assert "- A crash.\n\n## [0.1.0] - 2024-11-07" in text
+    # with changes after the release candidate, they come first
+    _add_unreleased_notes(changelog, "### Fixed\n\n- A third crash.\n")
+    bump_version.bump("0.2.1-rc.1", "2026-10-11", version_file, changelog)
+    _add_unreleased_notes(changelog, "### Fixed\n\n- A fourth crash.\n")
+    bump_version.bump("0.2.1", "2026-10-12", version_file, changelog)
+    text = changelog.read_text(encoding="utf-8")
+    assert versioning.changelog_section(text, "0.2.1") == (
+        "### Fixed\n\n- A fourth crash.\n- A third crash.\n"
+    )
+    assert f"[0.2.1]: {base}0.2.0...0.2.1\n" in text
+
+
+def test_folding_pre_releases_keeps_crlf_line_endings(release_files):
+    version_file, changelog = release_files
+    changelog.write_bytes(CHANGELOG.replace("\n", "\r\n").encode("utf-8"))
+    bump_version.bump("0.2.0-rc.1", "2026-10-05", version_file, changelog)
+    bump_version.bump("0.2.0", "2026-10-10", version_file, changelog)
+    data = changelog.read_bytes()
+    assert b"\r\n## [0.2.0] - 2026-10-10\r\n" in data
+    assert b"0.2.0-rc.1" not in data
+    assert data.count(b"\n") == data.count(b"\r\n")
+
+
 def test_bump_version_refuses_an_empty_unreleased_section(release_files):
     version_file, changelog = release_files
     bump_version.bump("0.2.0", "2026-10-10", version_file, changelog)
