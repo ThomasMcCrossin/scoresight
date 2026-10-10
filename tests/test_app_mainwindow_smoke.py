@@ -13,6 +13,7 @@ import pytest
 pytestmark = pytest.mark.qt
 pytest.importorskip("tesserocr")  # MainWindow imports the OCR pipeline
 
+from PySide6 import QtCore  # noqa: E402
 from PySide6.QtCore import QEvent, QObject, QTranslator, Signal  # noqa: E402
 from PySide6.QtWidgets import QApplication, QWidget  # noqa: E402
 
@@ -416,6 +417,42 @@ def test_browser_tab_says_when_the_http_port_is_busy(make_window, patched):
 
 
 # --- boxes ------------------------------------------------------------------------------
+
+
+def box_rows(window):
+    table = window.ui.tableWidget_boxes
+    return [table.item(row, 0).text() for row in range(table.rowCount())]
+
+
+def select_box_row(window, name):
+    table = window.ui.tableWidget_boxes
+    [item] = table.findItems(name, QtCore.Qt.MatchFlag.MatchExactly)
+    table.setCurrentItem(item)
+    return item
+
+
+def test_renaming_a_made_custom_box_keeps_its_row(main_window, monkeypatch):
+    import mainwindow
+
+    main_window.addBox()
+    [name] = fetch_data("scoresight.json", "custom_boxes_names")
+    item = select_box_row(main_window, name)
+    main_window.makeBox()
+    monkeypatch.setattr(
+        mainwindow.QInputDialog,
+        "getText",
+        lambda *args, **kwargs: ("Shot Clock 2", True),
+    )
+    main_window.editBoxName(item)
+    assert "Shot Clock 2" in box_rows(main_window)
+    assert name not in box_rows(main_window)
+    [renamed] = main_window.ui.tableWidget_boxes.findItems(
+        "Shot Clock 2", QtCore.Qt.MatchFlag.MatchExactly
+    )
+    assert renamed.data(QtCore.Qt.ItemDataRole.UserRole) == "checked"
+    storage = main_window.detectionTargetsStorage
+    assert [box.name for box in storage.get_data()] == ["Shot Clock 2"]
+    assert fetch_data("scoresight.json", "custom_boxes_names") == ["Shot Clock 2"]
 
 
 def test_box_edits_are_saved_without_a_viewer_click(main_window, make_target, qtbot):

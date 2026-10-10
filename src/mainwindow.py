@@ -1540,15 +1540,11 @@ class MainWindow(QMainWindow):
             # rename the item in the tableWidget_boxes
             rename_custom_box_name_in_storage(old_name, new_name)
             item.setText(new_name)
-            # rename the item in the detectionTargetsStorage
+            # rename the item in the detectionTargetsStorage (a box that isn't
+            # made yet isn't there). The row was renamed in place above, and
+            # detectionTargetsChanged keeps its icon and role.
             if not self.detectionTargetsStorage.rename_item(old_name, new_name):
                 logger.info("Error renaming item in application storage")
-                return
-            else:
-                # check if the item role isn't "templatefield"
-                if item.data(Qt.ItemDataRole.UserRole) != "templatefield":
-                    # remove the item from the tableWidget_boxes
-                    self.ui.tableWidget_boxes.removeRow(item.row())
 
     def makeBox(self):
         item = self.ui.tableWidget_boxes.currentItem()
