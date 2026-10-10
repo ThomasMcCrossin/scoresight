@@ -84,10 +84,6 @@ your outputs and sources do, and adds profiles for running several instances.
 - ScoreSight remembers the type of the last source and reopens URL/RTSP
   streams, video files, cameras, NDI sources and screen capture at the next
   start ([#10](https://github.com/royshil/scoresight/issues/10)).
-- RTSP streams are received over TCP by default, which works through
-  firewalls, NAT and VPNs. For cameras that only support UDP, set
-  `OPENCV_FFMPEG_CAPTURE_OPTIONS=rtsp_transport;udp`
-  ([#10](https://github.com/royshil/scoresight/issues/10)).
 - The per-box confidence threshold (**Conf. Th**) is the minimum Tesseract
   confidence in percent and is off (0) by default. Boxes saved by an older
   version get a threshold of 0 once, because the setting had no effect before
@@ -114,7 +110,9 @@ your outputs and sources do, and adds profiles for running several instances.
   skipped box repeats its last good value as an unchanged reading instead of
   showing a yellow `SIM`.
 - Saved **Video Settings** apply to camera sources only; their **Auto** backend
-  means the platform default (DirectShow on Windows).
+  means the platform default (DirectShow on Windows). **Capture Backend** lists
+  only the backends ScoreSight's OpenCV includes, and a saved backend that
+  can't open the camera falls back to the default one.
 - ScoreSight remembers the language chosen in **File > Language**, and regional
   system locales (for example `de_AT` or `fr_CA`) now get the matching
   translation.
@@ -136,7 +134,8 @@ your outputs and sources do, and adds profiles for running several instances.
   can install for all users or only the current user, and requires Windows 10
   version 1809 or newer.
 - The Linux download is a compressed folder build (`scoresight/scoresight`)
-  that needs glibc 2.35 or newer (Ubuntu 22.04+, Debian 12+).
+  that needs glibc 2.35 or newer (Ubuntu 22.04+, Debian 12+). It includes
+  `libxcb-cursor0` and the other xcb libraries Qt needs on X11.
 - Updated to Python 3.13 with current dependencies: PySide6-Essentials 6.12
   (Qt 6.12), NumPy 2, OpenCV (headless), tesserocr 2.11 / Tesseract 5.5,
   cyndilib 0.1 (NDI), and current FastAPI, uvicorn and obsws-python.
@@ -172,6 +171,8 @@ your outputs and sources do, and adds profiles for running several instances.
   capture gets up to 3 seconds to stop
   ([#7](https://github.com/royshil/scoresight/issues/7),
   [#33](https://github.com/royshil/scoresight/issues/33)).
+- Closing the main window while **Video Settings** or **Connect to OBS** was
+  open left ScoreSight running until that window was closed too.
 - If the HTTP server port is already in use, ScoreSight logs an error and keeps
   running without the server, and closing an instance never affects another
   instance's server ([#8](https://github.com/royshil/scoresight/issues/8)).
@@ -196,6 +197,9 @@ your outputs and sources do, and adds profiles for running several instances.
 - Clicking a box or changing a box setting emptied `results.csv`.
 - OBS text sources didn't update unless an output folder was set
   ([#30](https://github.com/royshil/scoresight/issues/30)).
+- After **Create OBS Scene**, the new text sources could keep the scene's
+  placeholder values until each box's value changed. Every box's current value
+  is now sent with the next reading.
 - The per-box confidence threshold had no effect, because Tesseract's 0–100
   confidence was compared with a 0–1 threshold. It now works, and when
   Tesseract reports a confidence of 0 for a non-empty reading, the average of
@@ -204,6 +208,8 @@ your outputs and sources do, and adds profiles for running several instances.
 - A box over plain background produced invented digits with the scoreboard
   models. It now reads as empty
   ([#30](https://github.com/royshil/scoresight/issues/30)).
+- A **Dot Counter** box over a blank area could count one dot, for example with
+  **Local** or **Adaptive** binarization. It now reports 0.
 - Template fields could show rejected readings such as `SIM`, and were sent as
   a new value on every cycle, which defeated **Update on change**.
 - **Dilate** didn't reach the OCR with every binarization method, and
@@ -213,6 +219,9 @@ your outputs and sources do, and adds profiles for running several instances.
   as it is.
 - **Average Output** could show mixed values such as `92` when the number of
   digits changed, and **Skip Similar Image** ignored one-digit changes.
+- With **Skip Similar Image** on, a new value whose first reading was rejected
+  or empty wasn't read again until the image changed once more. The image is
+  now compared with the box's last accepted reading.
 - Video processing stopped silently on an oversized crop, a very short box with
   vertical scaling, a black frame while stabilization was on, an OCR model
   change in the middle of a reading, or a box deleted while it was being read.
@@ -222,6 +231,10 @@ your outputs and sources do, and adds profiles for running several instances.
   corrupted every frame. It is now rejected and you can click again.
 - NDI sources disappeared when **Reload** was clicked again, and refreshing
   paused for a second.
+- Clicking **Reload** while a camera was selected opened the Screen Capture
+  dialog, and with two cameras could switch to the other camera.
+- In a translated interface, cancelling **Open a Video File** left the source
+  list on that entry, with the field list and the view tools disabled.
 - On Linux, device nodes that can't capture video were listed, and cameras
   could open with the wrong device number.
 - **Capture the entire screen** didn't work on macOS.
@@ -231,6 +244,11 @@ your outputs and sources do, and adds profiles for running several instances.
   the outputs once more.
 - Box setting changes, new or removed boxes and renames were lost when
   switching or reloading the source.
+- Renaming a custom field that had a box removed it from the field list until
+  another box changed or ScoreSight restarted, although its box was still read.
+- Clicking **-** with a predefined field such as *Home Score* selected deleted
+  its box and box settings. Predefined fields can't be removed, and the button
+  now leaves them alone.
 - A box's **Type** (Number/Time/Text) was lost after a restart or a
   configuration export ([#22](https://github.com/royshil/scoresight/issues/22)).
 - The **Stop Updates**/**Resume Updates** button went blank in non-English
