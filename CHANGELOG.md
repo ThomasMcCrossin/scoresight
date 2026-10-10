@@ -26,7 +26,15 @@ your outputs and sources do, and adds profiles for running several instances.
   reading a test image) that prints `SELF-TEST OK` and exits with code 0.
 - Ctrl+C, `SIGTERM` and Ctrl+Break (Windows) quit ScoreSight cleanly, saving
   the boxes and stopping the HTTP server, even with a dialog open. This is how
-  to stop an instance that runs without a window (`-platform offscreen`).
+  to stop an instance that runs without a window (`-platform offscreen`). On
+  Windows, such an instance attaches to the Command Prompt or PowerShell
+  window it was started from, so that Ctrl+C and Ctrl+Break reach it.
+- The log shows how long each start took: a `Startup:` line with the time of
+  each startup phase (until the app's code runs, loading its modules, building
+  the window) and when the HTTP server and the video sources were ready, to
+  diagnose a slow start ([#33](https://github.com/royshil/scoresight/issues/33)).
+  The `SCORESIGHT_STARTUP_REPORT` environment variable also writes these times
+  to a JSON file.
 - **File > Appearance** with System, Light and Dark colour schemes,
   remembered between runs ([#50](https://github.com/royshil/scoresight/issues/50)).
 - **File > Check for Updates** checks GitHub Releases and always shows the
@@ -44,6 +52,10 @@ your outputs and sources do, and adds profiles for running several instances.
   them.
 - Every packaged build is tested with `--self-test` on Windows, macOS and
   Linux before it is released, and the Windows installer is test-installed.
+- Every packaged build (and the app from source, on every pull request) is
+  also run end to end: headless, it reads a test scoreboard video and its
+  readings must reach the HTTP server, the files and the outbound API. Its
+  startup time is measured and compared with 0.1.0 on each platform.
 - New documentation site at <https://royshil.github.io/scoresight/>:
   quickstart, installation (including the portable version, macOS permissions
   and Linux), video sources (including RTSP,
@@ -84,6 +96,9 @@ your outputs and sources do, and adds profiles for running several instances.
   update check are handled in the background, so the window appears
   immediately and no longer freezes
   ([#33](https://github.com/royshil/scoresight/issues/33)).
+- ScoreSight starts faster: screen capture support (pywin32 on Windows,
+  Quartz on macOS) is loaded only when a screen capture source is used, and
+  NDI support is loaded in the background while the sources are listed.
 - ScoreSight remembers the type of the last source and reopens URL/RTSP
   streams, video files, cameras, NDI sources and screen capture at the next
   start ([#10](https://github.com/royshil/scoresight/issues/10)).

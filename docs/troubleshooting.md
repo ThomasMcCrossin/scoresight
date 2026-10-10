@@ -74,6 +74,21 @@ ScoreSight 0.2.0 gives up opening or reading a stream after 5 seconds, so a dead
 - **Linux**: screen capture isn't supported. Use OBS with NDI or the virtual camera.
 - Minimized windows can't be captured. Keep the window visible and at a fixed size.
 
+## Slow start
+
+Every start logs how long it took, one line per session that begins with `Startup:` in `scoresight_<date>_<time>.log` (see [Collect logs first](#collect-logs-first)), for example:
+
+```
+Startup: before main.py 0.20 s, arguments 0.00 s, imports 0.35 s, QApplication 0.00 s, main window 0.03 s, show 0.00 s, first event loop pass 0.01 s; total 0.59 s; HTTP server ready at 0.57 s, video sources discovered at 0.62 s
+```
+
+- **before main.py**: from launching the app until its Python code runs (unpacking and loading the app, which antivirus scanning or a slow disk can make long).
+- **imports**, **QApplication**, **main window**, **show**, **first event loop pass**: the steps that build the window.
+- **total**: from launching the app until its window is ready.
+- **HTTP server ready** and **video sources discovered** happen in the background and don't hold the window up. A slow camera or NDI discovery shows here; if it took longer than about 5 seconds, it has a `Startup:` line of its own.
+
+If ScoreSight is slow to start, [open an issue](https://github.com/royshil/scoresight/issues/new/choose) with the `Startup:` line (or the whole log) of a slow start, your OS and its version, how you installed ScoreSight (installer, portable zip, disk image, from source) and whether a second start right after the first is also slow.
+
 ## macOS: slow start, freezes, or hang when quitting (#33, #7)
 
 **Symptoms**: in ScoreSight 0.1.x and older on macOS, the app took up to a minute to appear ([#33](https://github.com/royshil/scoresight/issues/33)), the window froze ("beach ball") for long periods, or it showed "Not Responding" when quitting and had to be force-quit ([#7](https://github.com/royshil/scoresight/issues/7)).
@@ -89,6 +104,7 @@ ScoreSight 0.2.0 gives up opening or reading a stream after 5 seconds, so a dead
 **If you still see it**:
 
 - Update to the latest release.
+- For a slow start, look at the `Startup:` line in the log (see [Slow start](#slow-start)).
 - Turn off outputs whose target is offline (stop vMix/UNO, disconnect OBS).
 - Collect the logs and, for hangs, a sample from **Activity Monitor** (select ScoreSight > the "..." menu > **Sample Process**), and [open an issue](https://github.com/royshil/scoresight/issues/new/choose).
 
