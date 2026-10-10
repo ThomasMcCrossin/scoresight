@@ -162,6 +162,10 @@ def test_frames_command_line(frame_dataset, tmp_path, monkeypatch):
     assert subset["frames"] == 2 and subset["n"] == 3 and subset["manifest_n"] == 6
     report = (out / "report.md").read_text(encoding="utf-8")
     assert "## Whole frames" in report and "frameoracle:bad@frames-boxes" in report
+    assert (
+        "Subset: the crops of 2 of 2 frames (seed 0): 3 of the manifest's 6 crops."
+        in report
+    )
     one = tmp_path / "one"
     assert frames_module.main(args[:-3] + ["--frames", "1", "--out", str(one)]) == 0
     assert read_results(one / "results.json")["datasets"]["ds"]["subset"]["frames"] == 1

@@ -82,10 +82,17 @@ def describe_subset(subset: dict | None) -> str:
         )
     if subset.get("limit") is not None:
         parts.append(f"the first {subset['limit']}")
-    return (
-        f"Subset: {'; '.join(parts)}: {subset.get('n', '?')} of the manifest's "
-        f"{subset.get('manifest_n', '?')} crops."
+    if subset.get("frames") is not None:
+        # ocr_eval.frames: the crops of the frames read
+        parts.append(
+            f"the crops of {subset['frames']} of {subset.get('of_frames', '?')} "
+            f"frames (seed {subset.get('seed', 0)})"
+        )
+    crops = (
+        f"{subset.get('n', '?')} of the manifest's {subset.get('manifest_n', '?')} "
+        "crops."
     )
+    return f"Subset: {'; '.join(parts)}: {crops}" if parts else f"Subset: {crops}"
 
 
 def _breakdown_table(runs: list[dict], attribute: str, scoring: str) -> list[str]:
