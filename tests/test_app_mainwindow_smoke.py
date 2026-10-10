@@ -212,6 +212,33 @@ def test_obs_updates_without_an_output_folder(main_window, patched, make_result)
     ]
 
 
+def test_create_obs_scene_sends_every_current_value_again(
+    main_window, patched, make_result, monkeypatch
+):
+    # Creating the scene replaces the text sources with the scene collection's
+    # placeholder texts ("24", "18", ...); unchanged values were never sent to
+    # them, so OBS showed the placeholders until each box's value changed.
+    import mainwindow
+
+    scenes = []
+    monkeypatch.setattr(
+        mainwindow,
+        "create_obs_scene_from_export",
+        lambda client, name: scenes.append((client, name)),
+    )
+    client = FakeObsClient()
+    main_window.obs_websocket_client = client
+    main_window.ocrResult([make_result("Home Score", "3")])
+    main_window.ui.lineEdit_sceneName.setText("ScoreSight Scene")
+    main_window.createOBSScene()
+    assert scenes == [(client, "ScoreSight Scene")]
+    main_window.ocrResult([make_result("Home Score", "3", "SameNoChange")])
+    assert patched["obs"] == [
+        (client, "Home score", "3"),
+        (client, "Home score", "3"),
+    ]
+
+
 def test_template_fields_report_changes_only(main_window, make_result):
     # template-uses-failed-results: every template was reported as a new
     # Success on every cycle (defeating "update on change"), and filled with

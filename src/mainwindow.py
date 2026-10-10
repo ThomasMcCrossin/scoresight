@@ -1608,6 +1608,9 @@ class MainWindow(QMainWindow):
         scene_name = self.ui.lineEdit_sceneName.text()
         # clear or create a new scene
         create_obs_scene_from_export(self.obs_websocket_client, scene_name)
+        # the new text sources show the scene's placeholder texts (and updates
+        # sent before they existed failed): send every current value again
+        self.obs_last_sent.clear()
 
     # on destroy, close the OBS connection
     def closeEvent(self, event):
