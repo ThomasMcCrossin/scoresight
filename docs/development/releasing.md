@@ -18,7 +18,7 @@ description: "How ScoreSight versions, changelogs, tags and the release workflow
 ## Versioning
 
 - The version lives in **one** place: `__version__` in `src/version.py`. The window title, About dialog, update check, PyInstaller spec, Windows installer and release workflow all read it.
-- Versions follow `MAJOR.MINOR.PATCH`. Pre-releases use `X.Y.Z-beta.N` or `X.Y.Z-rc.N`. No other formats are accepted.
+- Versions follow `MAJOR.MINOR.PATCH`. Pre-releases use `X.Y.Z-beta.N` or `X.Y.Z-rc.N`. No other formats are accepted. A pre-release comes before its final version: `0.3.0-beta.1` < `0.3.0-rc.1` < `0.3.0`.
 - Git tags are the bare version, **without** a `v` prefix (`0.2.0`, `0.2.0-rc.1`), matching the existing tags `0.0.1` to `0.1.0`.
 
 ## Changelog
@@ -32,10 +32,14 @@ description: "How ScoreSight versions, changelogs, tags and the release workflow
 
    ```bash
    python scripts/bump_version.py 0.2.0 --dry-run   # show the changes, write nothing
-   python scripts/bump_version.py 0.2.0             # or 0.2.0-beta.1 / 0.2.0-rc.1
+   python scripts/bump_version.py 0.2.0             # or a pre-release: X.Y.Z-beta.N / X.Y.Z-rc.N
    ```
 
    It sets `__version__` in `src/version.py`, renames `## [Unreleased]` in `CHANGELOG.md` to `## [X.Y.Z] - YYYY-MM-DD` (today, or the date given with `--date YYYY-MM-DD`), adds a new empty `## [Unreleased]` section above it, and updates the comparison links at the bottom. It keeps the file's line endings. It refuses to go backwards, to reuse a version that already has a section, and to release an empty Unreleased section. If `src/version.py` already holds the new version (as it does for the first 0.2.0 release), only the changelog changes.
+
+   **Pre-releasing the version `src/version.py` already holds**: while it says `0.2.0`, `bump_version.py 0.2.0-rc.1` is refused as going backwards. Set `__version__` in `src/version.py` to the pre-release (`0.2.0-rc.1`) by hand first, then run `python scripts/bump_version.py 0.2.0-rc.1`. A pre-release of a newer version, such as `0.3.0-rc.1` after `0.2.0`, needs no manual step.
+
+   **Promoting a pre-release**: the pre-release took the Unreleased entries into its own `## [X.Y.Z-rc.N]` section, so `bump_version.py X.Y.Z` would find Unreleased empty and stop. First copy the entries of the `X.Y.Z` pre-release sections into `## [Unreleased]`, merged with any newer entries, then run `python scripts/bump_version.py X.Y.Z`. The final section, and so the release notes, then lists everything since the previous final release. The comparison link the script adds for `X.Y.Z` starts at the last pre-release tag (`0.3.0-rc.1...0.3.0`); change it to start at the previous final release if it should match the notes.
 3. **Review, commit and tag**:
 
    ```bash

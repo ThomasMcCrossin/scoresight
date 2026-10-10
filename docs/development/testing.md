@@ -75,9 +75,10 @@ ruff check --fix .      # lint and apply safe fixes
 ruff format .           # format
 ruff format --check .   # what CI runs
 python scripts/compile_ui.py --check   # are the generated src/ui_*.py up to date?
+python scripts/update_translations.py --check   # are translations/*.ts and .qm up to date?
 ```
 
-CI fails if `ruff check .`, `ruff format --check .` or `scripts/compile_ui.py --check` reports anything, so run them before you push.
+CI fails if `ruff check .`, `ruff format --check .`, `scripts/compile_ui.py --check` or `scripts/update_translations.py --check` reports anything, so run them before you push. The translations check fails when user-visible text in `src/*.ui` or a `tr()` / `translate()` string changed without a refresh of the `.ts` and `.qm` files: run `python scripts/update_translations.py` (see [Translations](translations.md)).
 
 ## pre-commit (recommended)
 
@@ -94,7 +95,7 @@ Three workflows in `.github/workflows/` run on GitHub Actions:
 
 | Workflow | Runs on | What it does |
 |---|---|---|
-| `ci.yml` | Every pull request, every push to `main`, manual runs | **Lint**: `ruff check`, `ruff format --check`, `scripts/compile_ui.py --check`, and a check that no file links to the lapsed `scoresight[.]live` domain. **Test**: `pytest` with Python 3.13 on Ubuntu 24.04 and Windows. macOS runs the tests only on pushes to `main`, to save scarce macOS runners. An extra Python 3.14 leg on Ubuntu is allowed to fail |
+| `ci.yml` | Every pull request, every push to `main`, manual runs | **Lint**: `ruff check`, `ruff format --check`, `scripts/compile_ui.py --check`, `scripts/update_translations.py --check`, and a check that no file links to the lapsed `scoresight[.]live` domain. **Test**: `pytest` with Python 3.13 on Ubuntu 24.04 and Windows. macOS runs the tests only on pushes to `main`, to save scarce macOS runners. An extra Python 3.14 leg on Ubuntu is allowed to fail |
 | `build.yml` | Pull requests that change packaging files (`scoresight.spec`, `scoresight.iss`, `entitlements.plist`, the `requirements*.txt` files except dev/tools, `scripts/ci/`, `src/main.py`, `src/resource_path.py`, `src/version.py`, `src/win32DeviceEnum/`, the workflow itself), manual runs (**Actions > Build > Run workflow**), and release tags through `release.yml` | Builds Windows x64, macOS arm64, macOS x86_64 and Linux x86_64 with PyInstaller, runs the frozen app's `--self-test`, and packages the installer, portable zip, disk images and archive. On Windows it also installs the installer silently, self-tests the installed app and uninstalls it. The packages are uploaded as workflow artifacts |
 | `release.yml` | Version tags only | See [Releasing](releasing.md) |
 

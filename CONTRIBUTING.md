@@ -59,9 +59,10 @@ The full guide, including packaging, is in the [Developer Guide](https://royshil
   ruff check .
   ruff format --check .
   python scripts/compile_ui.py --check
+  python scripts/update_translations.py --check
   ```
 
-  Run `ruff check --fix .` and `ruff format .` to fix most issues automatically.
+  Run `ruff check --fix .` and `ruff format .` to fix most issues automatically. If the translations check fails, run `python scripts/update_translations.py` and commit the updated `.ts` and `.qm` files (see [Translations](#translations)).
 - Install the [pre-commit](https://pre-commit.com/) hooks to run the checks on every commit: `pre-commit install`.
 - Follow the style of the surrounding code. Modules in `src/` import each other by bare name (`from storage import fetch_data`).
 - Use `from sc_logging import logger` for logging, not `print`.
@@ -95,20 +96,21 @@ If you change user-visible text, also update the translations (see below).
 
 A new box setting must be added in several places:
 
-1. `defaults.normalize_settings_dict`: the key and its default,
-2. `storage.TextDetectionTargetMemoryStorage.getBoxesForStorage`: so it is saved,
-3. `box_settings_ui_handler.py` and `src/mainwindow.ui`: the UI,
-4. `tesseract.py`: the processing (if any),
-5. `docs/box-settings.md`: the documentation.
+1. `defaults.normalize_settings_dict`: the key and its default (that is all saving needs: `storage.TextDetectionTargetMemoryStorage.getBoxesForStorage` saves exactly what `normalize_settings_dict` returns, and `tests/test_storage.py` checks this),
+2. `box_settings_ui_handler.py` and `src/mainwindow.ui`: the UI,
+3. `tesseract.py`: the processing (if any),
+4. `docs/box-settings.md`: the documentation.
+
+If the meaning of a stored value changes, also bump `storage.BOXES_SCHEMA_VERSION` and extend `storage.migrate_boxes`, so boxes saved by older versions are migrated when they are loaded.
 
 ## Translations
 
 UI strings are translated with Qt Linguist. After changing UI text:
 
 ```bash
-python scripts/update_translations.py   # extract strings from src/ into every .ts file
+python scripts/update_translations.py   # extract strings from src/ into every .ts file, compile the .qm files
 # translate in Qt Linguist: pyside6-linguist translations/scoresight_de_DE.ts
-for ts in translations/*.ts; do pyside6-lrelease "$ts" -qm "${ts%.ts}.qm"; done   # compile
+python scripts/update_translations.py --qm-only   # compile the .qm files after translating
 ```
 
 Commit both `.ts` and `.qm` files. Details, and how to add a new language: [Translations](https://royshil.github.io/scoresight/development/translations.html).
