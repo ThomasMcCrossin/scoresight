@@ -1,14 +1,18 @@
-cyndilib
-fastapi
-numpy==1.26.4
-obsws-python
-opencv-python==4.10.0.84
-pillow
-platformdirs
-pyinstaller==6.10.0
-pyside6==6.7.3
-python-dotenv
-requests
-tesserocr
-uvicorn
-websockets==9.1
+# Runtime dependencies for ScoreSight (Python 3.13).
+# Install together with the platform extras:
+#   Windows: pip install -r requirements.txt -r requirements-win.txt
+#   macOS:   pip install -r requirements.txt -r requirements-mac.txt
+#   Linux:   pip install -r requirements.txt
+PySide6-Essentials==6.12.0
+numpy==2.5.3
+opencv-python-headless==4.14.0.94
+# PyPI has no Windows wheels for tesserocr; Windows gets it from requirements-win.txt.
+tesserocr==2.11.0 ; sys_platform != "win32"
+cyndilib==0.1.2
+fastapi==0.141.1
+uvicorn==0.54.0
+obsws-python==1.8.0
+pillow==12.3.0
+platformdirs==4.12.4
+python-dotenv==1.2.4
+requests==2.34.2
