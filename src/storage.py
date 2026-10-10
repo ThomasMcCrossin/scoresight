@@ -1,5 +1,13 @@
 import json
 import os
+import re
+import shutil
+import tempfile
+import threading
+import time
+from collections.abc import Callable
+from datetime import datetime
+
 from PySide6.QtCore import QObject, Signal, QRectF
 from platformdirs import user_data_dir
 from defaults import default_info_for_box_name, normalize_settings_dict
@@ -7,126 +15,306 @@ from defaults import default_info_for_box_name, normalize_settings_dict
 from text_detection_target import TextDetectionTarget
 from sc_logging import logger
 
+APP_NAME = "scoresight"
+# The main settings file. With SCORESIGHT_PROFILE=<name> it maps to
+# scoresight-<name>.json (see resolve_file_name).
+SETTINGS_FILE = "scoresight.json"
 
-data_subscribers = {}
+# Serializes every read-modify-write of the JSON files in this process. It is
+# re-entrant so a helper that does fetch + store can hold it across both calls.
+_storage_lock = threading.RLock()
 
+# {logical file name: {document name: [callbacks]}}. Keyed by the logical file
+# name the callers use (e.g. "scoresight.json"), not by the resolved absolute
+# path, so subscriptions survive a change of data dir or profile.
+data_subscribers: dict[str, dict[str, list[Callable]]] = {}
 
-def subscribe_to_data(file_path: str, document_name: str, callback: callable):
-    # Subscribe to data changes in a JSON file
-    # prepend the user data directory
-    file_path = os.path.join(user_data_dir("scoresight"), file_path)
+# Corrupt files that could not be moved aside, so they are not handled again on
+# every read: {(path, size, mtime_ns): whether a backup copy exists}.
+_reported_corrupt_files: dict[tuple[str, int, int], bool] = {}
 
-    if file_path not in data_subscribers:
-        data_subscribers[file_path] = {}
-    if document_name not in data_subscribers[file_path]:
-        data_subscribers[file_path][document_name] = []
-    data_subscribers[file_path][document_name].append(callback)
-
-
-def store_data(file_path, document_name, data):
-    # Store data into a JSON file
-    # get the user data directory
-    data_dir = user_data_dir("scoresight")
-    if not os.path.exists(data_dir):
-        os.makedirs(data_dir)
-
-    # prepend the user data directory
-    file_path = os.path.join(data_dir, file_path)
-
-    if os.path.exists(file_path):
-        with open(file_path, "r") as f:
-            try:
-                documents = json.load(f)
-            except json.JSONDecodeError:
-                documents = {}
-    else:
-        documents = {}
-
-    documents[document_name] = data
-
-    # notify subscribers
-    if file_path in data_subscribers and document_name in data_subscribers[file_path]:
-        for callback in data_subscribers[file_path][document_name]:
-            callback(data)
-
-    with open(file_path, "w") as f:
-        json.dump(documents, f, indent=2)
+_PROFILE_UNSAFE_CHARS = re.compile(r"[^A-Za-z0-9._-]")
 
 
-def remove_data(file_path, document_name):
-    # Remove data from a JSON file
-    # prepend the user data directory
-    file_path = os.path.join(user_data_dir("scoresight"), file_path)
-
-    if not os.path.exists(file_path):
-        return
-
-    with open(file_path, "r") as f:
-        documents = json.load(f)
-
-    if document_name in documents:
-        del documents[document_name]
-
-    # notify subscribers
-    if file_path in data_subscribers and document_name in data_subscribers[file_path]:
-        for callback in data_subscribers[file_path][document_name]:
-            callback(None)
-
-    with open(file_path, "w") as f:
-        json.dump(documents, f, indent=2)
+def get_data_dir() -> str:
+    """The user data directory. SCORESIGHT_DATA_DIR overrides the platform default."""
+    override = os.environ.get("SCORESIGHT_DATA_DIR")
+    if override:
+        return os.path.abspath(os.path.expanduser(override))
+    return user_data_dir(APP_NAME)
 
 
-def fetch_data(file_path, document_name, default=None):
-    # Fetch data from a JSON file
-    # prepend the user data directory
-    file_path = os.path.join(user_data_dir("scoresight"), file_path)
+def get_profile() -> str | None:
+    """The active configuration profile (SCORESIGHT_PROFILE), sanitized for use in
+    a file name, or None for the default profile."""
+    profile = os.environ.get("SCORESIGHT_PROFILE", "").strip()
+    if not profile:
+        return None
+    return _PROFILE_UNSAFE_CHARS.sub("_", profile)
 
-    if not os.path.exists(file_path):
-        return default
 
-    with open(file_path, "r") as f:
-        try:
+def resolve_file_name(file_path: str) -> str:
+    """Map a logical storage file name to the file actually used on disk.
+
+    With a profile active, "scoresight.json" becomes "scoresight-<profile>.json".
+    Other names are returned unchanged.
+    """
+    profile = get_profile()
+    if profile and file_path == SETTINGS_FILE:
+        return f"{APP_NAME}-{profile}.json"
+    return file_path
+
+
+def get_storage_path(file_path: str) -> str:
+    """Absolute path of a logical storage file inside the data directory."""
+    return os.path.join(get_data_dir(), resolve_file_name(file_path))
+
+
+class _CorruptFileError(Exception):
+    pass
+
+
+def _read_documents(path: str) -> dict:
+    """Load the documents dict from path. A missing file is an empty dict.
+
+    Raises _CorruptFileError if the file exists but isn't a JSON object.
+    """
+    try:
+        with open(path, "r", encoding="utf-8") as f:
             documents = json.load(f)
-        except json.JSONDecodeError:
-            return default
+    except FileNotFoundError:
+        return {}
+    except (json.JSONDecodeError, UnicodeDecodeError) as e:
+        raise _CorruptFileError(str(e)) from e
+    if not isinstance(documents, dict):
+        raise _CorruptFileError(
+            f"expected a JSON object, found {type(documents).__name__}"
+        )
+    return documents
 
-    if document_name in documents:
-        return documents[document_name]
-    else:
-        return default
+
+def _backup_corrupt_file(path: str, reason: str) -> bool:
+    """Move a corrupt settings file aside as <name>.corrupt-<timestamp> so it is
+    never silently overwritten, and log where it went.
+
+    Returns False only if the file still exists and no backup could be made.
+    """
+    try:
+        stat = os.stat(path)
+    except OSError:
+        return True
+    signature = (path, stat.st_size, stat.st_mtime_ns)
+    if signature in _reported_corrupt_files:
+        return _reported_corrupt_files[signature]
+
+    timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    backup_path = f"{path}.corrupt-{timestamp}"
+    counter = 1
+    while os.path.exists(backup_path):
+        backup_path = f"{path}.corrupt-{timestamp}-{counter}"
+        counter += 1
+
+    try:
+        os.replace(path, backup_path)
+    except OSError:
+        # e.g. another process holds the file open on Windows: keep a copy and
+        # let the next atomic write replace the corrupt file.
+        try:
+            shutil.copy2(path, backup_path)
+        except OSError:
+            logger.exception(
+                "Settings file %s is corrupt (%s) and could not be backed up; "
+                "it will not be overwritten.",
+                path,
+                reason,
+            )
+            _reported_corrupt_files[signature] = False
+            return False
+        _reported_corrupt_files[signature] = True
+    logger.error(
+        "Settings file %s is corrupt (%s). It was backed up to %s and settings "
+        "start from defaults.",
+        path,
+        reason,
+        backup_path,
+    )
+    return True
+
+
+def _load_documents(path: str, for_write: bool = False) -> dict:
+    """Read the documents dict, backing up (never discarding) a corrupt file.
+
+    With for_write, raises OSError if the file is corrupt and could not be backed
+    up, so the caller doesn't overwrite it. Must be called with _storage_lock held.
+    """
+    try:
+        return _read_documents(path)
+    except _CorruptFileError as e:
+        backed_up = _backup_corrupt_file(path, str(e))
+        if for_write and not backed_up:
+            raise OSError(
+                f"Refusing to overwrite corrupt settings file {path}: "
+                "it could not be backed up"
+            ) from e
+        return {}
+
+
+def _replace_with_retry(src: str, dst: str, attempts: int = 10, delay: float = 0.05):
+    # On Windows os.replace fails with PermissionError while another process
+    # (antivirus, indexer, an editor) briefly has the destination open.
+    for attempt in range(attempts):
+        try:
+            os.replace(src, dst)
+            return
+        except PermissionError:
+            if attempt == attempts - 1:
+                raise
+            time.sleep(delay)
+
+
+def write_json_atomic(path: str, data, indent: int = 2):
+    """Write data as JSON to path atomically: a temp file in the same directory is
+    written, flushed and fsynced, then moved over path. A crash at any point
+    leaves either the old file or the new one, never a truncated file."""
+    directory = os.path.dirname(os.path.abspath(path))
+    os.makedirs(directory, exist_ok=True)
+    fd, tmp_path = tempfile.mkstemp(
+        prefix=os.path.basename(path) + ".", suffix=".tmp", dir=directory
+    )
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=indent)
+            f.flush()
+            os.fsync(f.fileno())
+        _replace_with_retry(tmp_path, path)
+    except BaseException:
+        try:
+            os.remove(tmp_path)
+        except OSError:
+            pass
+        raise
+
+
+def _notify_subscribers(file_path: str, document_name: str, data):
+    with _storage_lock:
+        callbacks = list(data_subscribers.get(file_path, {}).get(document_name, []))
+    # Called outside the lock: a subscriber may block (e.g. reopen a camera) or
+    # store other data. A failing subscriber must not affect the others.
+    for callback in callbacks:
+        try:
+            callback(data)
+        except Exception:
+            logger.exception(
+                "Subscriber %r for '%s' in %s failed",
+                callback,
+                document_name,
+                file_path,
+            )
+
+
+def subscribe_to_data(file_path: str, document_name: str, callback: Callable):
+    """Call callback(data) after document_name in file_path is stored, or
+    callback(None) after it is removed. Callbacks run synchronously on the thread
+    that stores the data. Subscribing the same callback twice has no effect."""
+    with _storage_lock:
+        callbacks = data_subscribers.setdefault(file_path, {}).setdefault(
+            document_name, []
+        )
+        if callback not in callbacks:
+            callbacks.append(callback)
+
+
+def unsubscribe_from_data(file_path: str, document_name: str, callback: Callable):
+    """Remove a callback registered with subscribe_to_data. Returns True if it was
+    subscribed."""
+    with _storage_lock:
+        documents = data_subscribers.get(file_path)
+        if not documents or document_name not in documents:
+            return False
+        callbacks = documents[document_name]
+        if callback not in callbacks:
+            return False
+        callbacks.remove(callback)
+        if not callbacks:
+            del documents[document_name]
+        if not documents:
+            del data_subscribers[file_path]
+        return True
+
+
+def clear_subscribers():
+    """Remove all subscriptions (used by tests)."""
+    with _storage_lock:
+        data_subscribers.clear()
+
+
+def store_data(file_path: str, document_name: str, data):
+    """Store data as document_name in file_path (relative to the data dir), then
+    notify the document's subscribers. The write is atomic; a corrupt existing
+    file is backed up rather than overwritten."""
+    path = get_storage_path(file_path)
+    with _storage_lock:
+        documents = _load_documents(path, for_write=True)
+        documents[document_name] = data
+        write_json_atomic(path, documents)
+    _notify_subscribers(file_path, document_name, data)
+
+
+def remove_data(file_path: str, document_name: str):
+    """Remove document_name from file_path, then notify its subscribers with None."""
+    path = get_storage_path(file_path)
+    with _storage_lock:
+        if not os.path.exists(path):
+            return
+        documents = _load_documents(path, for_write=True)
+        documents.pop(document_name, None)
+        write_json_atomic(path, documents)
+    _notify_subscribers(file_path, document_name, None)
+
+
+def fetch_data(file_path: str, document_name: str, default=None):
+    """Return document_name from file_path, or default if it (or the file) is
+    missing or the file is corrupt."""
+    path = get_storage_path(file_path)
+    with _storage_lock:
+        documents = _load_documents(path)
+    return documents.get(document_name, default)
 
 
 def store_custom_box_name(custom_box_name: str):
-    # get the current custom box names
-    custom_boxes_names = fetch_data("scoresight.json", "custom_boxes_names", [])
-    if custom_box_name in custom_boxes_names:
-        return
-    custom_boxes_names.append(custom_box_name)
-    # Store the custom box name in the scoresight.json file
-    store_data("scoresight.json", "custom_boxes_names", custom_boxes_names)
+    with _storage_lock:
+        # get the current custom box names
+        custom_boxes_names = fetch_data(SETTINGS_FILE, "custom_boxes_names", [])
+        if custom_box_name in custom_boxes_names:
+            return
+        custom_boxes_names.append(custom_box_name)
+        # Store the custom box name in the scoresight.json file
+        store_data(SETTINGS_FILE, "custom_boxes_names", custom_boxes_names)
 
 
 def rename_custom_box_name_in_storage(old_name: str, new_name: str):
-    # get the current custom box names
-    custom_boxes_names = fetch_data("scoresight.json", "custom_boxes_names", [])
-    if old_name in custom_boxes_names:
-        custom_boxes_names.remove(old_name)
-    custom_boxes_names.append(new_name)
-    # Store the custom box name in the scoresight.json file
-    store_data("scoresight.json", "custom_boxes_names", custom_boxes_names)
+    with _storage_lock:
+        # get the current custom box names
+        custom_boxes_names = fetch_data(SETTINGS_FILE, "custom_boxes_names", [])
+        if old_name in custom_boxes_names:
+            custom_boxes_names.remove(old_name)
+        custom_boxes_names.append(new_name)
+        # Store the custom box name in the scoresight.json file
+        store_data(SETTINGS_FILE, "custom_boxes_names", custom_boxes_names)
 
 
 def remove_custom_box_name_in_storage(custom_box_name: str):
-    # get the current custom box names
-    custom_boxes_names = fetch_data("scoresight.json", "custom_boxes_names", [])
-    if custom_box_name in custom_boxes_names:
-        custom_boxes_names.remove(custom_box_name)
-    # Store the custom box name in the scoresight.json file
-    store_data("scoresight.json", "custom_boxes_names", custom_boxes_names)
+    with _storage_lock:
+        # get the current custom box names
+        custom_boxes_names = fetch_data(SETTINGS_FILE, "custom_boxes_names", [])
+        if custom_box_name in custom_boxes_names:
+            custom_boxes_names.remove(custom_box_name)
+        # Store the custom box name in the scoresight.json file
+        store_data(SETTINGS_FILE, "custom_boxes_names", custom_boxes_names)
 
 
 def fetch_custom_box_names():
-    return fetch_data("scoresight.json", "custom_boxes_names", [])
+    return fetch_data(SETTINGS_FILE, "custom_boxes_names", [])
 
 
 class TextDetectionTargetMemoryStorage(QObject):
@@ -197,14 +385,14 @@ class TextDetectionTargetMemoryStorage(QObject):
 
     def loadBoxesFromStorage(self) -> bool:
         # load the boxes from scoresight.json
-        boxes = fetch_data("scoresight.json", "boxes")
+        boxes = fetch_data(SETTINGS_FILE, "boxes")
         if not boxes:
             return False
         return self.loadBoxesFromDict(boxes)
 
     def loadBoxesFromFile(self, file_path) -> bool:
         # load the boxes from a file
-        with open(file_path, "r") as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             boxes = json.load(f)
         return self.loadBoxesFromDict(boxes)
 
@@ -255,6 +443,10 @@ class TextDetectionTargetMemoryStorage(QObject):
         # save all the boxes to scoresight.json
         boxes = []
         for detectionTarget in self._data:
+            # normalize_settings_dict returns exactly the canonical, persisted
+            # per-box settings (runtime-only keys such as median_wh_ratio are not
+            # included), so serializing its whole output means a new setting can't
+            # be forgotten here.
             detectionTarget.settings = normalize_settings_dict(
                 detectionTarget.settings,
                 default_info_for_box_name(detectionTarget.name),
@@ -268,46 +460,7 @@ class TextDetectionTargetMemoryStorage(QObject):
                         "width": detectionTarget.width(),
                         "height": detectionTarget.height(),
                     },
-                    "settings": {
-                        "is_custom": detectionTarget.settings.get("is_custom"),
-                        "obs_source_name": detectionTarget.settings.get(
-                            "obs_source_name"
-                        ),
-                        "format_regex": detectionTarget.settings.get("format_regex"),
-                        "smoothing": detectionTarget.settings.get("smoothing"),
-                        "skip_empty": detectionTarget.settings.get("skip_empty"),
-                        "conf_thresh": detectionTarget.settings.get("conf_thresh"),
-                        "cleanup_thresh": detectionTarget.settings.get(
-                            "cleanup_thresh"
-                        ),
-                        "dilate": detectionTarget.settings.get("dilate"),
-                        "skew": detectionTarget.settings.get("skew"),
-                        "vscale": detectionTarget.settings.get("vscale"),
-                        "autocrop": detectionTarget.settings.get("autocrop"),
-                        "skip_similar_image": detectionTarget.settings.get(
-                            "skip_similar_image"
-                        ),
-                        "remove_leading_zeros": detectionTarget.settings.get(
-                            "remove_leading_zeros"
-                        ),
-                        "rescale_patch": detectionTarget.settings.get("rescale_patch"),
-                        "normalize_wh_ratio": detectionTarget.settings.get(
-                            "normalize_wh_ratio"
-                        ),
-                        "invert_patch": detectionTarget.settings.get("invert_patch"),
-                        "dot_detector": detectionTarget.settings.get("dot_detector"),
-                        "ordinal_indicator": detectionTarget.settings.get(
-                            "ordinal_indicator"
-                        ),
-                        "binarization_method": detectionTarget.settings.get(
-                            "binarization_method"
-                        ),
-                        "templatefield": detectionTarget.settings.get("templatefield"),
-                        "templatefield_text": detectionTarget.settings.get(
-                            "templatefield_text"
-                        ),
-                        "composite_box": detectionTarget.settings.get("composite_box"),
-                    },
+                    "settings": dict(detectionTarget.settings),
                     "mini_rects": [
                         {
                             "x": mini_rect.x(),
@@ -323,9 +476,8 @@ class TextDetectionTargetMemoryStorage(QObject):
 
     def saveBoxesToFile(self, file_path):
         boxes = self.getBoxesForStorage()
-        with open(file_path, "w") as f:
-            json.dump(boxes, f, indent=2)
+        write_json_atomic(file_path, boxes)
 
     def saveBoxesToStorage(self):
         boxes = self.getBoxesForStorage()
-        store_data("scoresight.json", "boxes", boxes)
+        store_data(SETTINGS_FILE, "boxes", boxes)
