@@ -455,6 +455,30 @@ def test_renaming_a_made_custom_box_keeps_its_row(main_window, monkeypatch):
     assert fetch_data("scoresight.json", "custom_boxes_names") == ["Shot Clock 2"]
 
 
+def test_the_remove_button_does_not_delete_a_default_box(main_window):
+    select_box_row(main_window, "Home Score")
+    main_window.makeBox()
+    storage = main_window.detectionTargetsStorage
+    home = storage.find_item_by_name("Home Score")
+    home.settings["conf_thresh"] = 0.4  # a tuned box
+    main_window.removeCustomBox()
+    assert storage.find_item_by_name("Home Score") is home
+    assert "Home Score" in box_rows(main_window)
+    main_window.saveBoxes()
+    [stored] = fetch_data("scoresight.json", "boxes")
+    assert (stored["name"], stored["settings"]["conf_thresh"]) == ("Home Score", 0.4)
+
+    # a custom box is removed
+    main_window.addBox()
+    [name] = fetch_data("scoresight.json", "custom_boxes_names")
+    select_box_row(main_window, name)
+    main_window.makeBox()
+    main_window.removeCustomBox()
+    assert name not in box_rows(main_window)
+    assert storage.find_item_by_name(name) is None
+    assert fetch_data("scoresight.json", "custom_boxes_names") == []
+
+
 def test_box_edits_are_saved_without_a_viewer_click(main_window, make_target, qtbot):
     # box-edits-lost-on-source-switch (part 1): only a click in the viewer or
     # closing the window saved the boxes.

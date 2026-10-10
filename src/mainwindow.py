@@ -1514,12 +1514,13 @@ class MainWindow(QMainWindow):
             return
         if item.column() != 0:
             item = self.ui.tableWidget_boxes.item(item.row(), 0)
-        self.removeBox()
-        remove_custom_box_name_in_storage(item.text())
-        # only allow removing custom boxes
+        # only allow removing custom boxes (before anything is removed: a default
+        # box keeps its placement and settings)
         if item.text() in [o["name"] for o in default_boxes]:
             logger.info("Cannot remove default box")
             return
+        self.removeBox()
+        remove_custom_box_name_in_storage(item.text())
         # remove the selected item from the tableWidget_boxes
         self.ui.tableWidget_boxes.removeRow(item.row())
 
