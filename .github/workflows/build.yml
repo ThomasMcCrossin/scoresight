@@ -222,7 +222,9 @@ jobs:
         id: boot
         # Fails only on a gross regression. The limits are for GitHub-hosted
         # runners, much slower than a desktop (a Windows desktop: cold 0.7 s,
-        # warm 0.6 s); 0.1.x took 30 s to a minute on macOS (#33).
+        # warm 0.6 s); 0.1.x took 30 s to a minute on macOS (#33). The steps
+        # above already started the app, so "cold" is the first start with
+        # fresh settings, not the first launch of the binary.
         timeout-minutes: 15
         shell: bash
         env:

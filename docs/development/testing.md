@@ -95,7 +95,7 @@ python scripts/ci/boot_benchmark.py --runs 5 -- dist/scoresight/scoresight.exe
 python scripts/ci/boot_benchmark.py --runs 5 -- python src/main.py
 ```
 
-Run 1 is reported as cold (the first launch of that binary), the others as warm (median and range), together with the startup phases the app measures itself (see below). `--max-cold-seconds` and `--max-warm-seconds` make it fail above a limit, `--json FILE` writes the results and `--compare A.json B.json` shows earlier results side by side. `--legacy` measures a 0.1.x build, which has no `--port` option and always serves on port 18099 (close any other ScoreSight first). It also ignores `SCORESIGHT_DATA_DIR` and `SCORESIGHT_LOG_DIR`, so it uses your real settings and log folders.
+Run 1 is reported as cold (the first launch of that binary), the others as warm (median and range), together with the startup phases the app measures itself (see below). In `build.yml` the self-test and the end-to-end test have already started the build, so its run 1 is the first start with fresh settings rather than the first launch of the binary (the 0.1.0 comparison's run 1 is a true first launch). `--max-cold-seconds` and `--max-warm-seconds` make it fail above a limit, `--json FILE` writes the results and `--compare A.json B.json` shows earlier results side by side. `--legacy` measures a 0.1.x build, which has no `--port` option and always serves on port 18099 (close any other ScoreSight first). It also ignores `SCORESIGHT_DATA_DIR` and `SCORESIGHT_LOG_DIR`, so it uses your real settings and log folders.
 
 ### Startup timing
 
