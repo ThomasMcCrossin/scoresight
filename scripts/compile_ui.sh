@@ -1,20 +1,20 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# Compile src/*.ui into src/ui_*.py. Thin wrapper around scripts/compile_ui.py;
+# all arguments are passed through (e.g. --check, or specific .ui files).
+# Uses $PYTHON if set, else the repo's .venv, else python3 on PATH.
+set -euo pipefail
 
-# Directory containing the .ui files
-UI_DIR="$(dirname "$0")/../src"
-# Directory to output the compiled .py files
-OUTPUT_DIR=$UI_DIR
+script_dir="$(cd "$(dirname "$0")" && pwd)"
+repo_root="$(dirname "$script_dir")"
 
-# Ensure the output directory exists
-mkdir -p "$OUTPUT_DIR"
+if [ -n "${PYTHON:-}" ]; then
+    python="$PYTHON"
+elif [ -x "$repo_root/.venv/bin/python" ]; then
+    python="$repo_root/.venv/bin/python"
+elif [ -x "$repo_root/.venv/Scripts/python.exe" ]; then
+    python="$repo_root/.venv/Scripts/python.exe"
+else
+    python="python3"
+fi
 
-# Compile each .ui file in the UI_DIR
-for ui_file in "$UI_DIR"/*.ui; do
-    # Get the base name of the file (without extension)
-    base_name=$(basename "$ui_file" .ui)
-    echo "Compiling $ui_file to $OUTPUT_DIR/ui_${base_name}.py"
-    # Compile the .ui file to a .py file
-    pyside6-uic "$ui_file" -o "$OUTPUT_DIR/ui_${base_name}.py"
-done
-
-echo "UI files compiled successfully."
+exec "$python" "$script_dir/compile_ui.py" "$@"
