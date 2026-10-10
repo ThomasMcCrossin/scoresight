@@ -712,6 +712,27 @@ def test_inno_setup_options_are_one_argument_per_line():
     ]
 
 
+def test_linux_build_installs_the_libraries_of_qts_xcb_plugin():
+    # PyInstaller bundles only the libraries it finds on the build machine.
+    # Without libxcb-cursor0 and the other xcb-util libraries, the Linux package
+    # failed to start on an X11 desktop that doesn't have them.
+    [step] = [
+        s for s in _build_steps() if s.get("name") == "Install Qt runtime libraries"
+    ]
+    packages = set(step["run"].split())
+    for package in [
+        "libxcb-cursor0",
+        "libxcb-icccm4",
+        "libxcb-image0",
+        "libxcb-keysyms1",
+        "libxcb-render-util0",
+        "libxcb-shape0",
+        "libxcb-xkb1",
+        "libxkbcommon-x11-0",
+    ]:
+        assert package in packages, package
+
+
 # --- repository configuration ---------------------------------------------------
 
 

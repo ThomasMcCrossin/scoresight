@@ -120,11 +120,17 @@ jobs:
 
       - name: Install Qt runtime libraries
         if: runner.os == 'Linux'
-        # what the bundled Qt links against; also needed by the smoke test
+        # What the bundled Qt links against; also needed by the smoke test.
+        # PyInstaller bundles only the libraries it finds here: without the
+        # xcb-util ones (not on the runner image), the app can't start on an
+        # X11 desktop that lacks them ("xcb-cursor0 or libxcb-cursor0 is
+        # needed to load the Qt xcb platform plugin").
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            libegl1 libgl1 libx11-6 libxkbcommon0 libfontconfig1 libfreetype6 libdbus-1-3
+            libegl1 libgl1 libx11-6 libxkbcommon0 libfontconfig1 libfreetype6 libdbus-1-3 \
+            libxcb-cursor0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 \
+            libxcb-shape0 libxcb-xkb1 libxkbcommon-x11-0
 
       - name: Install dependencies
         shell: bash
