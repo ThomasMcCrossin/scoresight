@@ -246,7 +246,12 @@ jobs:
         uses: Minionguyjpro/Inno-Setup-Action@v1.2.9
         with:
           path: scoresight.iss
-          options: /O+ /DAppVersion=${{ steps.version.outputs.label }} /DAppVersionNumeric=${{ steps.version.outputs.numeric }}
+          # one option per line: the action passes each line to ISCC as one
+          # argument (all on one line, ISCC took them as an /O output folder)
+          options: |
+            /O+
+            /DAppVersion=${{ steps.version.outputs.label }}
+            /DAppVersionNumeric=${{ steps.version.outputs.numeric }}
 
       - name: Package (Windows portable zip) and test the installer
         if: runner.os == 'Windows'

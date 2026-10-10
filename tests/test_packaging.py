@@ -689,6 +689,29 @@ def test_build_workflow_uploads_the_packages_the_release_expects():
         assert f'"scoresight-$VERSION-{target}.dmg"' in release
 
 
+def _build_steps():
+    yaml = pytest.importorskip("yaml")
+    workflow = yaml.safe_load((WORKFLOWS / "build.yml").read_text(encoding="utf-8"))
+    return [step for job in workflow["jobs"].values() for step in job["steps"]]
+
+
+def test_inno_setup_options_are_one_argument_per_line():
+    # The Inno Setup action reads `options` line by line and passes each line to
+    # ISCC as one argument. On one line, ISCC read "/O+ /DAppVersion=..." as an
+    # /O<output folder> and the Windows installer build failed.
+    [step] = [s for s in _build_steps() if "Inno-Setup-Action" in s.get("uses", "")]
+    options = [line.strip() for line in step["with"]["options"].splitlines()]
+    options = [option for option in options if option]
+    # an option has no spaces (only the ${{ }} expressions in its value do)
+    for option in options:
+        assert " " not in re.sub(r"\$\{\{.*?\}\}", "x", option), option
+    assert options[0] == "/O+"
+    assert sorted(option.split("=")[0] for option in options[1:]) == [
+        "/DAppVersion",
+        "/DAppVersionNumeric",
+    ]
+
+
 # --- repository configuration ---------------------------------------------------
 
 
