@@ -23,7 +23,7 @@ ScoreSight reads one video source per window. Choose it from the **Source** drop
 |---|:---:|:---:|:---:|---|
 | USB camera / capture card (UVC, HDMI/SDI capture) | ✔ | ✔ | ✔ | DirectShow on Windows, AVFoundation on macOS, `/dev/video*` on Linux |
 | NDI® | ✔ | ✔ | ✔ | Sources on your network are discovered automatically |
-| URL: RTSP / HTTP stream | ✔ | ✔ | ✔ | IP cameras, MediaMTX, encoders, HLS/HTTP streams that FFmpeg can open. RTSP uses TCP by default |
+| URL: RTSP / HTTP stream | ✔ | ✔ | ✔ | IP cameras, MediaMTX, encoders, HLS/HTTP streams that FFmpeg can open. RTSP tries TCP first |
 | Screen Capture (window or whole screen) | ✔ | ✔ | ✘ | macOS needs the Screen Recording permission |
 | Video file (`.mp4`, `.avi`, `.mov`) | ✔ | ✔ | ✔ | Loops automatically; playback speed x1 to x32 |
 
@@ -42,9 +42,9 @@ Cameras and capture cards appear in the **Source** list by name. On Linux, each 
 | **FPS** | Request a frame rate. |
 | **Resolution** | Request a resolution. 1280x720 or 1920x1080 is plenty for most scoreboards. |
 | **Video Format** (FOURCC) | Choose the pixel format, for example `MJPG` (compressed, allows higher frame rates over USB) or `YUY2`/`YUYV` (uncompressed). Only formats the device accepts are listed. |
-| **Capture Backend** | Choose the capture API: *Auto* (the platform default: DirectShow on Windows), plus *DShow*, *Microsoft Media Foundation* or *Microsoft Windows Runtime* on Windows, *V4L* or *GStreamer* on Linux, and *AVFoundation* on macOS. |
+| **Capture Backend** | Choose the capture API: *Auto* (the platform default: DirectShow on Windows) or a specific backend. Only the backends that ScoreSight's OpenCV includes are listed: *DShow* on Windows, *V4L* on Linux and *AVFoundation* on macOS. |
 
-Click **OK** to apply the settings you changed to the running camera. They are saved and applied again every time a camera source opens, in this order: capture backend, video format, resolution, frame rate. If you never chose a resolution, ScoreSight opens cameras at their highest supported resolution. The settings are shared by all cameras (they aren't saved per device), and they don't apply to NDI, URL, screen capture or file sources. The dialog also lists all the properties the device reports, which is handy for troubleshooting.
+Click **OK** to apply the settings you changed to the running camera. They are saved and applied again every time a camera source opens, in this order: capture backend, video format, resolution, frame rate. If the saved backend can't open the camera, ScoreSight opens it with the default backend instead and logs a warning, so the camera keeps working and you can choose another backend. If you never chose a resolution, ScoreSight opens cameras at their highest supported resolution. The settings are shared by all cameras (they aren't saved per device), and they don't apply to NDI, URL, screen capture or file sources. The dialog also lists all the properties the device reports, which is handy for troubleshooting.
 
 {: .new }
 In ScoreSight 0.1.x, saved Video Settings were not applied when a camera opened, and pressing **OK** could reopen the camera and lose them ([#20](https://github.com/royshil/scoresight/issues/20)). This is fixed in 0.2.0.
@@ -80,11 +80,11 @@ Opening a stream and reading each frame give up after **5 seconds** (FFmpeg's ow
 
 ### RTSP over TCP
 
-ScoreSight 0.2.0 receives RTSP streams over **TCP** by default. TCP gets through firewalls, NAT, VPNs and Wi-Fi, where UDP often fails with "Unable to play video stream", a grey or frozen picture, or heavy corruption.
+ScoreSight tries to receive RTSP streams over **TCP** first, and falls back to **UDP** when the camera refuses TCP. TCP gets through firewalls, NAT, VPNs and Wi-Fi, where UDP often fails with "Unable to play video stream", a grey or frozen picture, or heavy corruption.
 
-ScoreSight does this by setting the environment variable `OPENCV_FFMPEG_CAPTURE_OPTIONS` to `rtsp_transport;tcp` for itself, unless the variable is already set. If you set it yourself, your value is used as is.
+ScoreSight does this by setting the environment variable `OPENCV_FFMPEG_CAPTURE_OPTIONS` to `rtsp_flags;prefer_tcp` for itself, unless the variable is already set. If you set it yourself, your value is used as is.
 
-Some cameras only support RTSP over **UDP**. For those, set the variable to `rtsp_transport;udp` before you start ScoreSight:
+If a camera only supports RTSP over **UDP** and its stream still won't open, force UDP: set the variable to `rtsp_transport;udp` before you start ScoreSight:
 
 Windows (PowerShell, for this session):
 ```powershell
@@ -100,9 +100,6 @@ OPENCV_FFMPEG_CAPTURE_OPTIONS="rtsp_transport;udp" /path/to/scoresight
 ```
 
 The variable takes any FFmpeg options, as `key;value` pairs separated by `|`.
-
-{: .new }
-In ScoreSight 0.1.x, RTSP used FFmpeg's default transport and you had to set `rtsp_transport;tcp` yourself ([#10](https://github.com/royshil/scoresight/issues/10)).
 
 ### Checklist for streams that won't open
 

@@ -47,7 +47,7 @@ For even more detail, start ScoreSight with the environment variable `SCORESIGHT
 1. Make sure you run a current version. Versions before 0.0.12 tried to open URLs with DirectShow on Windows, which can never work.
 2. Test the exact URL in VLC (**Media** > **Open Network Stream**). If VLC can't play it, fix the URL, the credentials or the network first.
 3. Include user, password, port and path: `rtsp://user:password@192.168.1.50:554/stream1`. URL-encode special characters in the password.
-4. Check the RTSP transport. ScoreSight 0.2.0 uses **RTSP over TCP** by default, which fixes most streams that work in VLC but not in ScoreSight, especially across VPNs, Wi-Fi or NAT. If your camera only supports UDP, set `OPENCV_FFMPEG_CAPTURE_OPTIONS=rtsp_transport;udp` before starting ScoreSight. On 0.1.x, set `OPENCV_FFMPEG_CAPTURE_OPTIONS=rtsp_transport;tcp` to force TCP. See [RTSP over TCP](sources.md#rtsp-over-tcp).
+4. Check the RTSP transport. ScoreSight tries **RTSP over TCP** first, which works across VPNs, Wi-Fi and NAT, and falls back to UDP when the camera refuses TCP. If your camera only supports UDP and the stream still won't open, set `OPENCV_FFMPEG_CAPTURE_OPTIONS=rtsp_transport;udp` before starting ScoreSight to force UDP. See [RTSP over TCP](sources.md#rtsp-over-tcp).
 5. Try the camera's sub stream (lower resolution).
 6. Fallback: open the stream in OBS and send it to ScoreSight with NDI or OBS's Virtual Camera.
 

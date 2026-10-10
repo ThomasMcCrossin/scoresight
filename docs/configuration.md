@@ -92,7 +92,7 @@ python src/main.py --self-test
 | `SCORESIGHT_DATA_DIR` | Use this folder instead of the default settings folder. |
 | `SCORESIGHT_LOG_DIR` | Write logs to this folder instead of the default log folder. |
 | `SCORESIGHT_DEBUG` | If set (to any value), also print the log to the console, log more detail, and log every request to the HTTP server. |
-| `OPENCV_FFMPEG_CAPTURE_OPTIONS` | Options for OpenCV's FFmpeg backend, used by URL sources. If it isn't set, ScoreSight sets it to `rtsp_transport;tcp` ([RTSP over TCP](sources.md#rtsp-over-tcp)). Set it to `rtsp_transport;udp` for cameras that only support RTSP over UDP. |
+| `OPENCV_FFMPEG_CAPTURE_OPTIONS` | Options for OpenCV's FFmpeg backend, used by URL sources. If it isn't set, ScoreSight sets it to `rtsp_flags;prefer_tcp`: RTSP over TCP first, falling back to UDP ([RTSP over TCP](sources.md#rtsp-over-tcp)). Set it to `rtsp_transport;udp` to force UDP for cameras that only support RTSP over UDP. |
 | `QT_QPA_PLATFORM` | Qt platform plugin. `offscreen` runs without a display. `--self-test` sets it to `offscreen` if it isn't set. |
 
 When running from source, ScoreSight also reads a `.env` file in the repository root, which is handy for `SCORESIGHT_DEBUG=1`.

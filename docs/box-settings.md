@@ -226,12 +226,12 @@ In ScoreSight 0.1.x, Dilate changed the Binary View but didn't reach the OCR wit
 
 ### Skip Similar Image
 
-`skip_similar_image`: compares the processed box image with the image of the last OCR that ran for this box. If fewer than 2% of the text pixels (the digits, not the background) changed, OCR is skipped and the box repeats its last good value as an unchanged reading (`SameNoChange`). The comparison image isn't refreshed on skipped cycles, so slow changes add up until they are read. Resizing the box starts over.
+`skip_similar_image`: compares the processed box image with the image of the box's last accepted (`Success`) reading. If fewer than 2% of the text pixels (the digits, not the background) changed, OCR is skipped and the box repeats its last good value as an unchanged reading (`SameNoChange`). The comparison image isn't refreshed on skipped cycles, so slow changes add up until they are read. It isn't refreshed by a rejected or empty reading either, so when the first reading of a new value fails, the box is read again on the next cycle. Resizing the box starts over.
 
 **Use**: to save CPU on values that change rarely (scores, periods). Because the change is measured against the digits, a one-digit change (for example `18` to `19`) is read. Turn it off if a very small change (a single segment of a large display) is ever missed.
 
 {: .new }
-ScoreSight 0.1.x measured the change against the whole box, so a one-digit change could be skipped, and it reported skipped cycles as a yellow `SIM` reading.
+ScoreSight 0.1.x measured the change against the whole box, so a one-digit change could be skipped, and it reported skipped cycles as a yellow `SIM` reading. It also compared with the image of the last reading, even a rejected or empty one, so a new value whose first reading failed wasn't read again until the image changed once more.
 
 ## Fields
 
