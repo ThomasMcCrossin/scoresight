@@ -89,3 +89,22 @@ def test_dialog_without_a_capture(dialog, stored):
     dialog.init_ui(None)
     dialog.save_settings()
     assert stored == []
+
+
+def test_resolution_list_offers_full_hd(qapp):
+    # the list offered "1980x1080" (a typo); the numeric items aren't
+    # translatable, since they are parsed as WxH
+    from PySide6.QtWidgets import QDialog
+
+    from ui_video_settings import Ui_Dialog
+
+    dialog = QDialog()
+    ui = Ui_Dialog()
+    ui.setupUi(dialog)
+    items = [
+        ui.comboBox_resolution.itemText(i)
+        for i in range(ui.comboBox_resolution.count())
+    ]
+    assert "1920x1080" in items
+    assert "1980x1080" not in items
+    dialog.deleteLater()
