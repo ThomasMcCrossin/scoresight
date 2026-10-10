@@ -10,7 +10,13 @@ through to QApplication.
 
 The app modules are imported only after --profile has been applied: some of them
 read (and subscribe to) settings when they are imported.
+
+Startup is timed from here on (startup_timing, imported first): the log gets a
+"Startup: ..." line once the app is ready.
 """
+
+# first: the time it is imported is "main.py started"
+import startup_timing
 
 import argparse
 import importlib
@@ -49,6 +55,7 @@ SELF_TEST_MODULES = (
     "sc_logging",
     "screen_capture_source",
     "source_view",
+    "startup_timing",
     "storage",
     "template_fields",
     "tesseract",
@@ -245,6 +252,43 @@ def install_quit_signal_handlers(app, window):
     return timer
 
 
+# How long after the first event loop pass the startup timing waits for the
+# background startup work (video source discovery) before it is logged.
+STARTUP_REPORT_WAIT_S = 5.0
+STARTUP_REPORT_POLL_MS = 100
+
+
+def report_startup_when_ready(app):
+    """Mark the first event loop pass, then log the startup timing (and write
+    the SCORESIGHT_STARTUP_REPORT file) once the background startup work is
+    done, or STARTUP_REPORT_WAIT_S later. Never blocks. Returns the timer."""
+    import time
+
+    from PySide6.QtCore import QTimer
+
+    timer = QTimer(app)
+    timer.setInterval(STARTUP_REPORT_POLL_MS)
+    deadline = 0.0
+
+    def poll():
+        if startup_timing.background_done() or time.monotonic() >= deadline:
+            timer.stop()
+            startup_timing.finish()
+
+    def idle():
+        nonlocal deadline
+        startup_timing.mark("event_loop_idle")
+        deadline = time.monotonic() + STARTUP_REPORT_WAIT_S
+        if startup_timing.background_done():
+            startup_timing.finish()
+        else:
+            timer.start()
+
+    timer.timeout.connect(poll)
+    QTimer.singleShot(0, idle)
+    return timer
+
+
 def run_app(args: argparse.Namespace, qt_args: list[str]) -> int:
     from PySide6.QtWidgets import QApplication
 
@@ -254,15 +298,22 @@ def run_app(args: argparse.Namespace, qt_args: list[str]) -> int:
     from sc_logging import logger
     from storage import fetch_data
 
+    startup_timing.mark("modules_imported")
     app = QApplication([sys.argv[0], *qt_args])
+    startup_timing.mark("qapplication_created")
     apply_color_scheme(fetch_data("scoresight.json", "color_scheme"))
     translator = load_translator(app, fetch_data("scoresight.json", "language"))
 
     main_window = MainWindow(translator, app, http_port=args.port)
+    startup_timing.mark("main_window_created")
     main_window.show()
+    startup_timing.mark("window_shown")
     install_quit_signal_handlers(app, main_window)
+    report_startup_when_ready(app)
 
     exit_code = app.exec()
+    # quit before the startup timing was logged
+    startup_timing.finish()
     logger.info("Exiting...")
     stop_http_server()
     # The output threads are daemons and never block the exit; give a send in
@@ -440,6 +491,7 @@ def run_self_test() -> int:
 def main(argv: list[str] | None = None) -> int:
     args, qt_args = parse_args(sys.argv[1:] if argv is None else argv)
     apply_profile(args.profile)
+    startup_timing.mark("args_parsed")
     close_splash_screen()
     if args.self_test:
         return run_self_test()

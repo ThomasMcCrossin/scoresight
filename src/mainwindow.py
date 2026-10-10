@@ -67,6 +67,7 @@ from obs_websocket import (
     update_text_source,
 )
 
+import startup_timing
 from template_fields import apply_template_fields
 from text_detection_target import TextDetectionTarget, TextDetectionTargetWithResult
 from sc_logging import logger
@@ -1032,6 +1033,8 @@ class MainWindow(QMainWindow):
 
     @Slot(list)
     def updateSources(self, camera_sources: list[CameraInfo]):
+        # only the first discovery (at startup) counts
+        startup_timing.mark("sources_discovered")
         self.sources_discovery_running = False
         if self.closing:
             # the discovery finished after the window was closed: don't reopen

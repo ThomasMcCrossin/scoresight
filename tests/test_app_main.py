@@ -282,6 +282,53 @@ def test_quit_signals_end_the_app_with_a_dialog_open(tmp_path):
     assert process.stdout.split() == ["closed"]
 
 
+# --- startup timing -----------------------------------------------------------------
+
+
+def test_main_marks_the_parsed_arguments(timing, monkeypatch):
+    monkeypatch.setattr(main, "run_app", lambda args, qt_args: 0)
+    main.main([])
+    assert timing.elapsed("args_parsed") is not None
+
+
+@pytest.mark.qt
+def test_startup_timing_is_reported_once_the_sources_are_discovered(
+    qapp, qtbot, timing, monkeypatch
+):
+    monkeypatch.setattr(main, "STARTUP_REPORT_WAIT_S", 30.0)
+    timer = main.report_startup_when_ready(qapp)
+    try:
+        qtbot.waitUntil(lambda: timing.elapsed("event_loop_idle") is not None)
+        assert not timing._finished  # waiting for the background work
+        timing.mark("http_server_ready")
+        timing.mark("sources_discovered")
+        qtbot.waitUntil(lambda: timing._finished, timeout=2000)
+    finally:
+        timer.stop()
+
+
+@pytest.mark.qt
+def test_startup_timing_does_not_wait_long_for_the_sources(
+    qapp, qtbot, timing, monkeypatch
+):
+    monkeypatch.setattr(main, "STARTUP_REPORT_WAIT_S", 0.2)
+    timer = main.report_startup_when_ready(qapp)
+    try:
+        qtbot.waitUntil(lambda: timing._finished, timeout=3000)
+        assert timing.elapsed("sources_discovered") is None
+    finally:
+        timer.stop()
+
+
+@pytest.mark.qt
+def test_startup_timing_is_reported_right_away_when_ready(qapp, qtbot, timing):
+    timing.mark("http_server_ready")
+    timing.mark("sources_discovered")
+    timer = main.report_startup_when_ready(qapp)
+    qtbot.waitUntil(lambda: timing._finished, timeout=2000)
+    assert not timer.isActive()
+
+
 # --- splash screen ----------------------------------------------------------------
 
 
