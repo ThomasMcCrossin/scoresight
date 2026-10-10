@@ -21,6 +21,7 @@ from PySide6.QtCore import (  # noqa: E402
     QTranslator,
     Signal,
 )
+from PySide6.QtGui import QKeySequence  # noqa: E402
 from PySide6.QtWidgets import QApplication, QWidget  # noqa: E402
 
 from camera_info import CameraInfo  # noqa: E402
@@ -419,7 +420,10 @@ def test_language_change_keeps_the_runtime_texts(main_window, qapp, qtbot, make_
         assert main_window.windowTitle().startswith("⏸ ")
         assert ui.label_confThreshValue.text() == "45 %"
         assert ui.label_detectionCadenceValue.text() == "5 /s"
-        assert "(Ctrl+Shift+P)" in ui.pushButton_stopUpdates.toolTip()
+        shortcut = QKeySequence("Ctrl+Shift+P").toString(
+            QKeySequence.SequenceFormat.NativeText
+        )
+        assert f"({shortcut})" in ui.pushButton_stopUpdates.toolTip()
         assert box_value(main_window, "Home Score") == "21"
         assert main_window.statusBarWidgets.label_http.text() != ""
         checked = [
@@ -768,8 +772,6 @@ def test_pausing_the_outputs_shows_everywhere(main_window, patched, make_result)
 
 
 def test_the_keyboard_shortcuts(main_window, qtbot):
-    from PySide6.QtGui import QKeySequence
-
     ui = main_window.ui
     shortcuts = {
         action.objectName(): action.shortcut().toString()
@@ -783,9 +785,9 @@ def test_the_keyboard_shortcuts(main_window, qtbot):
     }
     from PySide6.QtTest import QTest
 
-    main_window.show()
-    main_window.activateWindow()
-    qtbot.waitActive(main_window)
+    with qtbot.waitActive(main_window):
+        main_window.show()
+        main_window.activateWindow()
     # through the window, as a real key press (shortcuts are matched there)
     QTest.keyClick(
         main_window.windowHandle(),
@@ -794,37 +796,61 @@ def test_the_keyboard_shortcuts(main_window, qtbot):
         | QtCore.Qt.KeyboardModifier.ShiftModifier,
     )
     assert ui.pushButton_stopUpdates.isChecked()
-    assert QKeySequence("Ctrl+B").toString() in ui.pushButton_binary.toolTip()
+    # the tooltip shows the shortcut as the platform writes it (⌘B on macOS)
+    native = QKeySequence.SequenceFormat.NativeText
+    assert QKeySequence("Ctrl+B").toString(native) in ui.pushButton_binary.toolTip()
     # the buttons do nothing while they are disabled (no source yet)
     assert not ui.widget_viewTools.isEnabled()
     ui.actionBinaryView.trigger()
     assert not ui.pushButton_binary.isChecked()
 
 
-def test_resuming_sends_unchanged_values_to_vmix_and_uno(main_window, make_result):
+def test_resuming_sends_unchanged_values_to_vmix_and_uno(
+    main_window, make_result, make_target
+):
+    # A value that changed while the outputs were paused is an unchanged
+    # (SameNoChange) reading after resuming, which vMix and UNO don't send.
+    # Each box's first good reading after resuming is sent anyway.
     calls = []
     vmix = main_window.vmixUiHandler.vmixUpdater
     uno = main_window.unoUiHandler.unoUpdater
-    vmix.update_vmix = lambda results, include_unchanged=False: calls.append(
-        ("vmix", include_unchanged)
+    vmix.update_vmix = lambda results, resend_unchanged=(): calls.append(
+        ("vmix", set(resend_unchanged))
     )
-    uno.update_uno = lambda results, include_unchanged=False: calls.append(
-        ("uno", include_unchanged)
+    uno.update_uno = lambda results, resend_unchanged=(): calls.append(
+        ("uno", set(resend_unchanged))
     )
-    main_window.ocrResult([make_result("Home Score", "12")])
+    storage = main_window.detectionTargetsStorage
+    storage.add_item(make_target("Home Score"))
+    storage.add_item(make_target("Time"))
+
+    def cycle(home, time):
+        calls.clear()
+        main_window.ocrResult(
+            [make_result("Home Score", *home), make_result("Time", *time)]
+        )
+        return calls[:]
+
+    assert cycle(("12", "Success"), ("1:00", "Success")) == [
+        ("vmix", set()),
+        ("uno", set()),
+    ]
     main_window.ui.pushButton_stopUpdates.setChecked(True)
-    main_window.ocrResult([make_result("Home Score", "13")])  # not sent
+    assert cycle(("13", "Success"), ("0:45", "Success")) == []  # paused
     main_window.ui.pushButton_stopUpdates.setChecked(False)
-    # 13 is unchanged now: vMix and UNO get it anyway, once
-    main_window.ocrResult([make_result("Home Score", "13", state="SameNoChange")])
-    main_window.ocrResult([make_result("Home Score", "13", state="SameNoChange")])
-    assert calls == [
-        ("vmix", False),
-        ("uno", False),
-        ("vmix", True),
-        ("uno", True),
-        ("vmix", False),
-        ("uno", False),
+    # the clock's first reading after resuming is rejected: it stays pending
+    both = {"Home Score", "Time"}
+    assert cycle(("13", "SameNoChange"), ("0:4S", "FailedFilter")) == [
+        ("vmix", both),
+        ("uno", both),
+    ]
+    assert cycle(("13", "SameNoChange"), ("0:45", "SameNoChange")) == [
+        ("vmix", {"Time"}),
+        ("uno", {"Time"}),
+    ]
+    assert cycle(("13", "SameNoChange"), ("0:45", "SameNoChange")) == [
+        ("vmix", set()),
+        ("uno", set()),
     ]
 
 
@@ -1039,6 +1065,36 @@ def test_the_obs_dialog(main_window, qapp):
     second = main_window.obs_connect_modal
     main_window.openOBSConnectModal()
     assert main_window.obs_connect_modal is second
+
+
+def test_cancel_while_connecting_to_obs(main_window, monkeypatch, qtbot):
+    # Cancel didn't stop the connection attempt: when it succeeded later, it
+    # replaced the current connection and stored the cancelled settings
+    import mainwindow
+
+    release = threading.Event()
+    finished = threading.Event()
+    client = FakeObsClient()
+
+    def slow_open(info):
+        release.wait(5)
+        finished.set()
+        return client
+
+    monkeypatch.setattr(mainwindow, "open_obs_websocket", slow_open)
+    main_window.show()
+    main_window.openOBSConnectModal()
+    ui = main_window.obs_modal_ui
+    ui.lineEdit_ip.setText("other-pc")
+    ui.pushButton_connect.click()
+    assert not ui.pushButton_connect.isEnabled()  # connecting
+    ui.pushButton_cancel.click()
+    release.set()
+    assert finished.wait(5)
+    # the (ignored) client is closed off the GUI thread
+    qtbot.waitUntil(lambda: client.disconnected)
+    assert main_window.obs_websocket_client is None
+    assert fetch_data("scoresight.json", "obs") is None
 
 
 def test_the_file_menu_is_translatable(main_window, qapp):

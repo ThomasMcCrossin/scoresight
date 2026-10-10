@@ -122,16 +122,19 @@ def test_only_new_good_values_are_sent(make_vmix, make_result):
     assert api._session.sent()[1:] == [("Home.Text", "12"), ("Away.Text", "7")]
 
 
-def test_unchanged_values_are_sent_once_on_request(make_vmix, make_result):
+def test_unchanged_values_are_sent_on_request(make_vmix, make_result):
     # after the outputs were paused, a value that changed meanwhile is an
-    # unchanged reading: the main window asks for it once
-    api = make_vmix(mapping={"Away Score": "Away.Text", "Time": "T.Text"})
+    # unchanged reading: the main window asks for it, for the boxes named
+    api = make_vmix(
+        mapping={"Home Score": "Home.Text", "Away Score": "Away.Text", "Time": "T.Text"}
+    )
     api.start()
     results = [
+        make_result("Home Score", "3", "SameNoChange"),
         make_result("Away Score", "7", "SameNoChange"),
-        make_result("Time", "SIM", "FailedFilter"),
+        make_result("Time", "SIM", "FailedFilter"),  # never sent
     ]
-    api.update_vmix(results, include_unchanged=True)
+    api.update_vmix(results, resend_unchanged={"Away Score", "Time"})
     api.update_vmix(results)
     flush(api)
     assert api._session.sent() == [("Away.Text", "7")]

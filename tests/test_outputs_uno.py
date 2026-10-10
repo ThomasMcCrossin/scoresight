@@ -75,12 +75,15 @@ def test_sends_put_with_timeout(make_uno, make_result):
     ]
 
 
-def test_unchanged_values_are_sent_once_on_request(make_uno, make_result):
+def test_unchanged_values_are_sent_on_request(make_uno, make_result):
     # after the outputs were paused (see MainWindow.ocrResult)
-    api = make_uno(mapping={"Time": "SetMatchTime"})
+    api = make_uno(mapping={"Time": "SetMatchTime", "Home Score": "SetGoalsHome"})
     api.start()
-    results = [make_result("Time", "12:00", "SameNoChange")]
-    api.update_uno(results, include_unchanged=True)
+    results = [
+        make_result("Time", "12:00", "SameNoChange"),
+        make_result("Home Score", "3", "SameNoChange"),  # not asked for
+    ]
+    api.update_uno(results, resend_unchanged={"Time"})
     api.update_uno(results)
     flush(api)
     assert [call["json"] for call in api._session.calls] == [

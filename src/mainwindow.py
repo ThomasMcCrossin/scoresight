@@ -245,9 +245,10 @@ class MainWindow(QMainWindow):
         # when the outputs were paused (Pause outputs), None while they run
         self.outputsPausedAt: datetime | None = None
         self.outputsPausedMonotonic: float | None = None
-        # vMix and UNO get every current value with the first readings after
-        # the outputs are resumed (they normally send only changed values)
-        self.resendOutputsOnResume = False
+        # After the outputs are resumed, vMix and UNO get each of these boxes'
+        # next good reading, even an unchanged one (they normally send only
+        # changed values)
+        self.resendAfterPause: set[str] = set()
         self.updateWindowTitle()
         if platform.system() == "Windows":
             # set the icon
@@ -1140,12 +1141,15 @@ class MainWindow(QMainWindow):
         if value:
             self.outputsPausedAt = datetime.now()
             self.outputsPausedMonotonic = time.monotonic()
+            self.resendAfterPause = set()
             logger.info("Outputs paused")
         else:
             if self.outputsPausedAt is not None:
                 logger.info("Outputs resumed")
                 # values that changed while paused are unchanged readings now
-                self.resendOutputsOnResume = True
+                self.resendAfterPause = {
+                    box.name for box in self.detectionTargetsStorage.get_data()
+                }
             self.outputsPausedAt = None
             self.outputsPausedMonotonic = None
         self.updatePauseUi()
@@ -1387,6 +1391,10 @@ class MainWindow(QMainWindow):
         self.obs_modal_ui.pushButton_connect.setFocus()
 
     def obsConnectDialogClosed(self):
+        if not self.obs_modal_ui.pushButton_connect.isEnabled():
+            # Cancel while connecting: ignore that attempt's result (it would
+            # replace the current connection and store the cancelled settings)
+            self.obs_connect_attempt += 1
         connected = self.obs_websocket_client is not None
         self.ui.lineEdit_sceneName.setEnabled(connected)
         self.ui.checkBox_recreate.setEnabled(connected)
@@ -1879,16 +1887,24 @@ class MainWindow(QMainWindow):
         if self.ui.checkBox_enableOutAPI.isChecked():
             update_out_api(results)
 
-        # update vmix and uno; after a pause, also the values that are unchanged
-        # since (they may have changed while the outputs were paused)
-        resend = self.resendOutputsOnResume
-        self.resendOutputsOnResume = False
+        # update vmix and uno. After a pause they also get the boxes' unchanged
+        # values (which may have changed while the outputs were paused), once
+        # per box: until the box's first good reading since
+        resend = frozenset(self.resendAfterPause)
+        if resend:
+            self.resendAfterPause -= {
+                result.name
+                for result in results
+                if result.result_state
+                in (
+                    TextDetectionTargetWithResult.ResultState.Success,
+                    TextDetectionTargetWithResult.ResultState.SameNoChange,
+                )
+            }
         if self.vmixUiHandler.vmixUpdater is not None:
-            self.vmixUiHandler.vmixUpdater.update_vmix(
-                results, include_unchanged=resend
-            )
+            self.vmixUiHandler.vmixUpdater.update_vmix(results, resend_unchanged=resend)
         if self.unoUiHandler.unoUpdater is not None:
-            self.unoUiHandler.unoUpdater.update_uno(results, include_unchanged=resend)
+            self.unoUiHandler.unoUpdater.update_uno(results, resend_unchanged=resend)
 
         # OBS text sources don't depend on the output folder (#30)
         self.updateObsTextSources(results)

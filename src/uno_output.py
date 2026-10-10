@@ -6,6 +6,8 @@ background OutputWorker sends them (latest value per command wins) through one
 HTTPS session with timeouts, so a slow or unreachable UNO never blocks the UI.
 """
 
+from collections.abc import Container
+
 import requests
 
 from output_worker import HTTP_TIMEOUT, OutputWorker, check_http_response
@@ -59,11 +61,11 @@ class UNOAPI:
     def update_uno(
         self,
         detection: list[TextDetectionTargetWithResult],
-        include_unchanged: bool = False,
+        resend_unchanged: Container[str] = (),
     ):
         """Queue the new values of the mapped fields. Never blocks.
-        include_unchanged also sends the unchanged ones (as "Send Same?" does),
-        e.g. once after the outputs were paused."""
+        The boxes named in resend_unchanged also send an unchanged value (as
+        "Send Same?" does for every box), e.g. after the outputs were paused."""
         if not self.running:
             return
 
@@ -71,12 +73,15 @@ class UNOAPI:
             logger.debug("Field mapping is not set")
             return
 
-        look_in = [TextDetectionTargetWithResult.ResultState.Success]
-        if self.update_same or include_unchanged:
-            look_in.append(TextDetectionTargetWithResult.ResultState.SameNoChange)
-
         for target in detection:
-            if target.result_state in look_in and target.name in self.field_mapping:
+            send = target.result_state == (
+                TextDetectionTargetWithResult.ResultState.Success
+            ) or (
+                target.result_state
+                == TextDetectionTargetWithResult.ResultState.SameNoChange
+                and (self.update_same or target.name in resend_unchanged)
+            )
+            if send and target.name in self.field_mapping:
                 uno_command = self.field_mapping[target.name]
                 if uno_command:
                     self.send_uno_command(uno_command, target.result)

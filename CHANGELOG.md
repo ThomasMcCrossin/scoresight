@@ -198,8 +198,8 @@ your outputs and sources do, and adds profiles for running several instances.
   list, and vMix and UNO didn't receive it until it changed (unless **Send
   Same?** was on).
 - A value that changed while the outputs were paused didn't reach vMix and UNO
-  after resuming until it changed again (unless **Send Same?** was on). They
-  now get every current value once when the outputs resume.
+  after resuming until it changed again (unless **Send Same?** was on). After
+  resuming, they now get each box's next good value even if it is unchanged.
 - Closing the **Connect to OBS** dialog without connecting left **Create OBS
   Scene** disabled, even with OBS connected.
 - Saved **Video Settings** (capture backend, video format, resolution, frame
