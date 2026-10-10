@@ -53,24 +53,38 @@ def is_valid_url_urllib(url):
         return False
 
 
+# A request waiting to be sent, or being retried while the endpoint is
+# unreachable, was built for the settings at that time: it is dropped when they
+# change or the output is turned off (the next cycle builds a new one).
+
+
 def setup_out_api_url(url):
     global out_api_url
     out_api_url = url
+    _worker.clear()
 
 
 def setup_out_api_encoding(encoding):
     global out_api_encoding
     out_api_encoding = encoding
+    _worker.clear()
 
 
 def setup_out_api_method(method):
     global out_api_method
     out_api_method = method
+    _worker.clear()
+
+
+def setup_out_api_enabled(enabled):
+    if not enabled:
+        _worker.clear()
 
 
 subscribe_to_data("scoresight.json", "out_api_url", setup_out_api_url)
 subscribe_to_data("scoresight.json", "out_api_encoding", setup_out_api_encoding)
 subscribe_to_data("scoresight.json", "out_api_method", setup_out_api_method)
+subscribe_to_data("scoresight.json", "enable_out_api", setup_out_api_enabled)
 
 
 class ApiRequest(NamedTuple):

@@ -265,3 +265,60 @@ def test_settings_subscribers(data_dir):
         assert api_output.out_api_url == "http://changed.test/"
     finally:
         api_output.setup_out_api_url(original)
+
+
+class UnreachableSession(FakeSession):
+    def request(self, *args, **kwargs):
+        super().request(*args, **kwargs)
+        raise requests.ConnectionError("refused")
+
+
+@pytest.mark.parametrize(
+    ("setting", "value"),
+    [
+        ("enable_out_api", False),
+        ("out_api_url", "http://localhost.test/scores"),
+        ("out_api_method", "PUT"),
+        ("out_api_encoding", "XML"),
+    ],
+)
+def test_turning_the_output_off_or_changing_it_drops_the_retried_request(
+    data_dir, configure, readings, monkeypatch, setting, value
+):
+    # A request to an unreachable endpoint is retried until it is sent. It used
+    # to be retried (and logged) for the rest of the session after the output
+    # was turned off, and sent with the old settings if the endpoint came back.
+    from storage import store_data, subscribe_to_data
+
+    unreachable = UnreachableSession()
+    monkeypatch.setattr(api_output, "_session", unreachable)
+    monkeypatch.setattr(api_output._worker, "_initial_backoff", 0.01)
+    monkeypatch.setattr(api_output._worker, "_max_backoff", 0.01)
+    configure(url="http://localahost.test/scores", encoding="JSON (Full)")
+    # import-time subscriptions live in the global registry, which the data_dir
+    # fixture swaps out; re-register them on the per-test registry
+    for name, callback in (
+        ("enable_out_api", api_output.setup_out_api_enabled),
+        ("out_api_url", api_output.setup_out_api_url),
+        ("out_api_method", api_output.setup_out_api_method),
+        ("out_api_encoding", api_output.setup_out_api_encoding),
+    ):
+        subscribe_to_data("scoresight.json", name, callback)
+    try:
+        api_output.update_out_api(readings)
+        deadline = time.monotonic() + 5
+        while len(unreachable.requests) < 3 and time.monotonic() < deadline:
+            time.sleep(0.01)
+        assert len(unreachable.requests) >= 3  # retried
+
+        store_data("scoresight.json", setting, value)
+        assert api_output._worker.wait_idle(5)
+        assert api_output._worker.pending() == {}
+        attempts = len(unreachable.requests)
+        time.sleep(0.1)
+        assert len(unreachable.requests) == attempts  # no more retries
+    finally:
+        api_output._worker.clear()
+        assert api_output._worker.wait_idle(10)
+        api_output._worker._retry_failures = 0
+        api_output._worker.error_log.reset()
