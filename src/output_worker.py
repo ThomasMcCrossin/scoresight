@@ -230,9 +230,11 @@ class OutputWorker:
                 self.error_log.error(_describe(e))
                 with self._cond:
                     if self._generation == generation:
-                        for k, v in items[index:]:
-                            # a newer item submitted meanwhile wins
-                            self._pending.setdefault(k, v)
+                        # retry the unsent items first; a newer item submitted
+                        # meanwhile for the same key replaces the old one
+                        retry = dict(items[index:])
+                        retry.update(self._pending)
+                        self._pending = retry
                 return True
             except Exception as e:
                 self.error_log.error(_describe(e))

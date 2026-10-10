@@ -1,9 +1,11 @@
 import logging
 import threading
 import time
+import weakref
 
 import pytest
 
+import output_worker
 from output_worker import OutputWorker, ThrottledErrorLog, stop_all_workers
 
 
@@ -212,7 +214,10 @@ def test_stop_is_bounded_while_a_request_hangs(make_worker):
     assert not worker._thread.is_alive()
 
 
-def test_stop_all_workers(make_worker):
+def test_stop_all_workers(make_worker, monkeypatch):
+    # only the workers made here: the module-level ones of api_output and
+    # obs_websocket must keep working for the other tests
+    monkeypatch.setattr(output_worker, "_workers", weakref.WeakSet())
     first = make_worker(Recorder())
     second = make_worker(Recorder())
     first.submit("a", 1)
