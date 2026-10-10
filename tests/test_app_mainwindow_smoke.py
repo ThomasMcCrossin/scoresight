@@ -14,7 +14,13 @@ pytestmark = pytest.mark.qt
 pytest.importorskip("tesserocr")  # MainWindow imports the OCR pipeline
 
 from PySide6 import QtCore  # noqa: E402
-from PySide6.QtCore import QEvent, QObject, QTranslator, Signal  # noqa: E402
+from PySide6.QtCore import (  # noqa: E402
+    QCoreApplication,
+    QEvent,
+    QObject,
+    QTranslator,
+    Signal,
+)
 from PySide6.QtWidgets import QApplication, QWidget  # noqa: E402
 
 from camera_info import CameraInfo  # noqa: E402
@@ -114,6 +120,24 @@ def make_window(qapp, qtbot, patched, memory_storage):
         qapp.removeTranslator(window.translator)
         window.deleteLater()
     qapp.processEvents()
+    # processEvents() outside an event loop doesn't delete them
+    QCoreApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+
+
+@pytest.fixture(autouse=True)
+def windows_do_not_outlive_their_test(qapp):
+    """A closed MainWindow that outlived its test kept its storage connections
+    and its box save timer, and wrote its (empty) boxes into a later test's
+    settings."""
+    yield
+    import mainwindow
+
+    alive = [
+        widget
+        for widget in QApplication.topLevelWidgets()
+        if isinstance(widget, mainwindow.MainWindow)
+    ]
+    assert alive == []
 
 
 @pytest.fixture

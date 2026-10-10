@@ -86,7 +86,8 @@ def memory_storage():
     TextDetectionTargetMemoryStorage._instance = None
     memory = TextDetectionTargetMemoryStorage()
     yield memory
-    memory.clear()
+    # without data_changed: nothing of the finished test may react to it
+    memory._data.clear()
     TextDetectionTargetMemoryStorage._instance = None
 
 
