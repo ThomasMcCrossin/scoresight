@@ -190,6 +190,27 @@ def test_cors_allows_any_origin(base_url):
     assert response.headers["access-control-allow-origin"] == "*"
 
 
+def test_requests_are_counted(base_url):
+    # the window shows "http://... · 2 clients" and when the last request came
+    before = http_server.http_server_stats()
+    for path in ("/json", "/xml?pivot", "/scoresight"):
+        get(base_url, path)
+    stats = http_server.http_server_stats()
+    assert stats.requests == before.requests + 3
+    assert stats.last_request_at is not None
+    assert before.last_request_at is None or stats.last_request_at > (
+        before.last_request_at
+    )
+    assert stats.recent_clients >= 1  # 127.0.0.1
+    assert stats.start_error is None
+    # a client that has been quiet for a while no longer counts as connected
+    later = http_server.http_server_stats(
+        now=stats.last_request_at + http_server.RECENT_CLIENT_S + 1
+    )
+    assert later.recent_clients == 0
+    assert later.requests == stats.requests
+
+
 def test_api_docs_are_served(base_url):
     assert get(base_url, "/openapi.json").json()["paths"].keys() >= {
         "/json",

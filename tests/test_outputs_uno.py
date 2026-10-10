@@ -144,6 +144,30 @@ def test_error_status_is_logged(make_uno, make_result, caplog):
     assert "returned HTTP 429" in caplog.text
 
 
+def test_status_of_the_rate_limit_and_a_new_url(make_uno, make_result):
+    import output_status
+
+    def destination(api):
+        return output_status.uno_status(
+            api.running, api.endpoint, api.field_mapping, api.status()
+        )
+
+    api = make_uno(mapping={"Time": "SetMatchTime"}, session=FakeSession(429))
+    api.start()
+    api.update_uno([make_result("Time", "1:00", "Success")])
+    flush(api)
+    status = destination(api)
+    assert (status.state, status.detail) == ("warning", "HTTP 429: too many requests")
+    assert "Send Same?" in status.hint
+    assert "abc" not in status.technical  # the URL's token
+
+    # another URL: the status starts over
+    api.set_endpoint("https://app.overlays.uno/apiv2/controlapps/other/api")
+    assert destination(api).state == "sending"
+    api.stop()
+    assert destination(api).state == "off"
+
+
 def test_set_endpoint_keeps_mapping_and_running_state(make_uno, make_result):
     api = make_uno(mapping={"Time": "SetMatchTime"})
     api.start()

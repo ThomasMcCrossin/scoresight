@@ -50,6 +50,7 @@ SELF_TEST_MODULES = (
     "ndi",
     "obs_websocket",
     "ocr_training_data",
+    "output_status",
     "output_worker",
     "readings_view",
     "resizable_rect",

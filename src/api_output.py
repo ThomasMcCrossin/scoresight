@@ -55,30 +55,41 @@ def is_valid_url_urllib(url):
 
 # A request waiting to be sent, or being retried while the endpoint is
 # unreachable, was built for the settings at that time: it is dropped when they
-# change or the output is turned off (the next cycle builds a new one).
+# change or the output is turned off (the next cycle builds a new one). The
+# status (what was sent, what failed) starts over too.
+
+
+def _restart():
+    _worker.clear()
+    _worker.reset_status()
 
 
 def setup_out_api_url(url):
     global out_api_url
     out_api_url = url
-    _worker.clear()
+    _restart()
 
 
 def setup_out_api_encoding(encoding):
     global out_api_encoding
     out_api_encoding = encoding
-    _worker.clear()
+    _restart()
 
 
 def setup_out_api_method(method):
     global out_api_method
     out_api_method = method
-    _worker.clear()
+    _restart()
 
 
 def setup_out_api_enabled(enabled):
     if not enabled:
-        _worker.clear()
+        _restart()
+
+
+def out_api_status():
+    """The sending's WorkerStatus (see output_worker)."""
+    return _worker.status()
 
 
 subscribe_to_data("scoresight.json", "out_api_url", setup_out_api_url)

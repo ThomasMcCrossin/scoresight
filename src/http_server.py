@@ -13,7 +13,9 @@ import re
 import socket
 import sys
 import threading
+import time
 import xml.etree.ElementTree as ET
+from dataclasses import dataclass
 from io import StringIO
 from typing import NamedTuple
 
@@ -76,6 +78,70 @@ app.add_middleware(
     allow_methods=["GET"],
     allow_headers=["*"],
 )
+
+# --- request statistics (for the window's output status) -----------------------
+
+# a client that made a request within this many seconds counts as connected
+RECENT_CLIENT_S = 10.0
+# at most this many client addresses are remembered
+_MAX_CLIENTS = 64
+
+_stats_lock = threading.Lock()
+_request_count = 0
+_last_request_at: float | None = None
+_client_seen_at: dict[str, float] = {}
+
+
+def _record_request(client) -> None:
+    global _request_count, _last_request_at
+    now = time.monotonic()
+    host = client[0] if client else "?"
+    with _stats_lock:
+        _request_count += 1
+        _last_request_at = now
+        _client_seen_at[host] = now
+        if len(_client_seen_at) > _MAX_CLIENTS:
+            # forget the client seen longest ago
+            del _client_seen_at[min(_client_seen_at, key=_client_seen_at.get)]
+
+
+class _RequestCounter:
+    """ASGI middleware that counts the requests (a lock and a few integers: it
+    never slows a request down)."""
+
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] == "http":
+            _record_request(scope.get("client"))
+        await self.app(scope, receive, send)
+
+
+app.add_middleware(_RequestCounter)
+
+
+@dataclass(frozen=True)
+class HttpServerStats:
+    requests: int = 0  # requests served since ScoreSight started
+    last_request_at: float | None = None  # time.monotonic()
+    recent_clients: int = 0  # addresses that made a request recently
+    # why the server isn't running, if it couldn't start
+    start_error: str | None = None
+
+
+def http_server_stats(now: float | None = None) -> HttpServerStats:
+    """The request statistics (thread-safe)."""
+    now = time.monotonic() if now is None else now
+    with _stats_lock:
+        recent = sum(
+            1 for seen in _client_seen_at.values() if now - seen <= RECENT_CLIENT_S
+        )
+        stats = (_request_count, _last_request_at, recent)
+    with _server_lock:
+        start_error = _start_error
+    return HttpServerStats(*stats, start_error=start_error)
+
 
 HTML_PAGE = """
 <!DOCTYPE html>
@@ -271,6 +337,8 @@ _server_lock = threading.Lock()
 _server: uvicorn.Server | None = None
 _server_thread: threading.Thread | None = None
 _server_port: int | None = None
+# why the last start_http_server() call couldn't start the server
+_start_error: str | None = None
 
 
 def _bind_socket(host: str, port: int) -> socket.socket:
@@ -320,7 +388,7 @@ def start_http_server(port: int = DEFAULT_PORT) -> None:
     Never raises: if the port is already in use (for example by another
     ScoreSight), the error is logged and the app continues without the server.
     """
-    global _server, _server_thread, _server_port
+    global _server, _server_thread, _server_port, _start_error
     with _server_lock:
         if _server_thread is not None and _server_thread.is_alive():
             logger.warning("HTTP server is already running on port %s", _server_port)
@@ -328,6 +396,7 @@ def start_http_server(port: int = DEFAULT_PORT) -> None:
         try:
             sock = _bind_socket(HOST, port)
         except OSError as e:
+            _start_error = f"{type(e).__name__}: {e}"
             logger.error(
                 "HTTP server: port %s is already in use or not available (%s). "
                 "Another ScoreSight or another program may be using it; start "
@@ -338,6 +407,7 @@ def start_http_server(port: int = DEFAULT_PORT) -> None:
             )
             return
 
+        _start_error = None
         actual_port = sock.getsockname()[1]
         debug = bool(os.getenv("SCORESIGHT_DEBUG"))
         for name in ("uvicorn.error", "uvicorn.access"):
