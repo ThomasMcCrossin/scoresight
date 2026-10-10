@@ -177,6 +177,8 @@ CI copies `ScoreSight.app` and a link to `/Applications` into a compressed disk 
 
 CI packs the folder as `scoresight-<version>-linux-x64.tar.gz` (`tar -czf ... -C dist scoresight`), so it extracts to `scoresight/scoresight`. The build runs on Ubuntu 22.04, so the app needs glibc 2.35 or newer.
 
+PyInstaller bundles only the shared libraries it finds on the build machine. The workflow's *Install Qt runtime libraries* step (in `build.yml`) installs `libxcb-cursor0` and the other xcb libraries that Qt's xcb platform plugin needs, so the package starts on X11 desktops that don't have them. Install the same packages before building a Linux package yourself.
+
 ## Standalone scripts
 
 `scripts/` also contains standalone Tk/OpenCV utilities for preparing OCR training data. They are not part of the app. Install their dependencies in a separate environment with `uv pip install -r requirements-tools.txt` (it uses the GUI build of OpenCV), and run any of them with `--help` for its options:

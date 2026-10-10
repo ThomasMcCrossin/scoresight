@@ -159,7 +159,7 @@ The Linux build runs on 64-bit x86_64 distributions with **glibc 2.35 or newer**
    sudo usermod -aG video "$USER"   # then log out and back in
    ```
 
-4. **Qt platform plugin errors**: if ScoreSight exits with "Could not load the Qt platform plugin xcb", install the missing X11/xcb runtime libraries. On Debian/Ubuntu:
+4. **Qt platform plugin errors**: packages older than 0.2.0 may not include `libxcb-cursor0` and the other xcb libraries that Qt needs (0.2.0 includes them). If ScoreSight exits with "Could not load the Qt platform plugin xcb", install the X11/xcb runtime libraries. On Debian/Ubuntu:
 
    ```bash
    sudo apt install libxcb-cursor0 libxkbcommon-x11-0 libegl1

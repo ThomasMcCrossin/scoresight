@@ -204,7 +204,7 @@ The Windows installer isn't code-signed yet, and unsigned PyInstaller apps are s
 
 ### Linux: "Could not load the Qt platform plugin xcb"
 
-Install the X11/xcb runtime libraries, for example on Debian/Ubuntu `sudo apt install libxcb-cursor0 libxkbcommon-x11-0 libegl1`.
+Packages older than 0.2.0 may not include `libxcb-cursor0` and the other xcb libraries Qt needs (0.2.0 includes them). Update ScoreSight, or install the X11/xcb runtime libraries, for example on Debian/Ubuntu `sudo apt install libxcb-cursor0 libxkbcommon-x11-0 libegl1`.
 
 ### Start over with clean settings
 
