@@ -203,23 +203,24 @@ def create_update_dialog(
     ui.setupUi(dialog)
     dialog.ui = ui
 
-    tr = QCoreApplication.translate
+    # QCoreApplication.translate is called by name, not through an alias, so
+    # that pyside6-lupdate finds these strings with their context
     error = result.error is not None
     ui.label_newVersion.setVisible(result.update_available)
     ui.label_noNewVersion.setVisible(not result.update_available and not error)
     ui.label_error.setVisible(error)
     dialog.setWindowTitle(
-        tr("UpdateCheck", "ScoreSight Update Available")
+        QCoreApplication.translate("UpdateCheck", "ScoreSight Update Available")
         if result.update_available
-        else tr("UpdateCheck", "ScoreSight Update Check")
+        else QCoreApplication.translate("UpdateCheck", "ScoreSight Update Check")
     )
-    versions = tr("UpdateCheck", "Installed version: {current}").format(
-        current=result.current_version
-    )
+    versions = QCoreApplication.translate(
+        "UpdateCheck", "Installed version: {current}"
+    ).format(current=result.current_version)
     if result.latest_version:
-        versions += "\n" + tr("UpdateCheck", "Latest release: {latest}").format(
-            latest=result.latest_version
-        )
+        versions += "\n" + QCoreApplication.translate(
+            "UpdateCheck", "Latest release: {latest}"
+        ).format(latest=result.latest_version)
     ui.label_versions.setText(versions)
     if result.update_available:
         ui.label_newVersion.setText(

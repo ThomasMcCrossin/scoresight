@@ -50,6 +50,11 @@ jobs:
       - name: Generated UI files are up to date
         run: python scripts/compile_ui.py --check
 
+      - name: Translations are up to date
+        # every tr() string is in translations/*.ts and every .qm is compiled
+        # from its .ts (fix: python scripts/update_translations.py)
+        run: python scripts/update_translations.py --check
+
       - name: No links to the lapsed scoresight.live domain
         # The domain is parked and for sale. Translation sources keep obsolete
         # strings until the next lupdate, so they are not checked.

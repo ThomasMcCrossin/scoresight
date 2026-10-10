@@ -1,11 +1,12 @@
-$root = Split-Path -Parent -Path $MyInvocation.MyCommand.Path
-$translationsDir = Join-Path -Path $root -ChildPath "..\translations"
-
-# Get all .ts files in the translations directory
-$tsFiles = Get-ChildItem -Path $translationsDir -Filter "*.ts" -File
-
-# Loop through each .ts file and run pyside6-lrelease
-foreach ($tsFile in $tsFiles) {
-    $outputFile = Join-Path -Path $translationsDir -ChildPath ($tsFile.BaseName + ".qm")
-    pyside6-lrelease $tsFile.FullName -qm $outputFile
+# Compile translations/*.ts to .qm (e.g. after translating in Qt Linguist),
+# without rescanning the sources. Thin wrapper around
+# scripts/update_translations.py --qm-only.
+# Uses $env:PYTHON if set, else the repo's .venv, else `python` on PATH.
+$repoRoot = Split-Path -Parent $PSScriptRoot
+$python = $env:PYTHON
+if (-not $python) {
+    $venvPython = Join-Path $repoRoot ".venv\Scripts\python.exe"
+    $python = if (Test-Path $venvPython) { $venvPython } else { "python" }
 }
+& $python (Join-Path $PSScriptRoot "update_translations.py") --qm-only @args
+exit $LASTEXITCODE
