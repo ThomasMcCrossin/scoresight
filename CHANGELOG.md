@@ -175,6 +175,10 @@ your outputs and sources do, and adds profiles for running several instances.
   and the preview refreshes about once a second at any detection rate
   ([#53](https://github.com/royshil/scoresight/issues/53),
   [#20](https://github.com/royshil/scoresight/issues/20)).
+- ScoreSight could crash at random (an access violation, most likely at
+  startup or with outputs active) when Python's memory cleanup ran on one of
+  its background threads while the window was being updated. The cleanup now
+  runs only on the window's thread.
 - The first readings after a source opened were lost. A value that never
   changed (for example a score after a restart) then didn't show in the boxes
   list, and vMix and UNO didn't receive it until it changed (unless **Send

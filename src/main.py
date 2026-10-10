@@ -43,6 +43,7 @@ SELF_TEST_MODULES = (
     "file_output",
     "frame_stabilizer",
     "get_camera_info",
+    "gui_garbage_collector",
     "http_server",
     "log_view",
     "mainwindow",
@@ -339,6 +340,7 @@ def report_startup_when_ready(app):
 def run_app(args: argparse.Namespace, qt_args: list[str]) -> int:
     from PySide6.QtWidgets import QApplication
 
+    from gui_garbage_collector import GuiThreadGarbageCollector
     from http_server import stop_http_server
     from mainwindow import MainWindow, apply_color_scheme
     from output_worker import stop_all_workers
@@ -349,6 +351,9 @@ def run_app(args: argparse.Namespace, qt_args: list[str]) -> int:
     startup_timing.mark("modules_imported")
     app = QApplication([sys.argv[0], *qt_args])
     startup_timing.mark("qapplication_created")
+    # before any background thread starts: collect reference cycles only on the
+    # GUI thread, where finalizing Qt objects is safe (kept until the app ends)
+    garbage_collector = GuiThreadGarbageCollector(app)  # noqa: F841
     apply_color_scheme(fetch_data("scoresight.json", "color_scheme"))
     translator = load_translator(app, fetch_data("scoresight.json", "language"))
 
