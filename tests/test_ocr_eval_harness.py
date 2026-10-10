@@ -468,6 +468,29 @@ def test_cli_run_compare_report(dataset, tmp_path, monkeypatch, capsys):
     assert cli.main(["requirements", "oracle"]) == 0
 
 
+def test_cli_run_on_a_stratified_sample(dataset, tmp_path, monkeypatch):
+    monkeypatch.setattr(
+        "ocr_eval.engines.discover", lambda: Registry({"oracle": OracleEngine})
+    )
+    out = tmp_path / "run"
+    args = ["run", "--dataset", str(dataset.path), "--engine", "oracle:good"]
+    assert cli.main(args + ["--out", str(out), "--sample", "3", "--quiet"]) == 0
+    results = read_results(out / "results.json")
+    info = results["datasets"]["ds"]
+    assert info["n"] == 3
+    assert info["subset"]["sample"] == 3 and info["subset"]["manifest_n"] == 4
+    # one crop of each field type (score 2 crops, clock 1, text 1)
+    ids = {p["id"] for p in results["runs"][0]["predictions"]}
+    assert len(ids) == 3 and {"s2", "s3"} <= ids
+    report = (out / "report.md").read_text(encoding="utf-8")
+    assert "Subset: a stratified sample (by field_type, seed 0) of 3 of 4" in report
+    assert "## ds (3 crops)" in report
+    # the full run has no subset
+    assert cli.main(args + ["--out", str(tmp_path / "all"), "--quiet"]) == 0
+    full = read_results(tmp_path / "all" / "results.json")
+    assert "subset" not in full["datasets"]["ds"]
+
+
 def test_cli_list(capsys):
     assert cli.main(["list"]) == 0
     output = capsys.readouterr().out

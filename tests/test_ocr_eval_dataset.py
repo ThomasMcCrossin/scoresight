@@ -12,9 +12,11 @@ from ocr_eval.dataset import (  # noqa: E402
     DatasetError,
     assign_split,
     list_datasets,
+    Sample,
     load_dataset,
     read_image,
     resolve_dataset,
+    stratified_sample,
     validate_dataset,
 )
 
@@ -188,3 +190,75 @@ def test_assign_split_is_stable():
     assert assign_split("photo1") == assign_split("photo1")
     splits = {assign_split(f"photo{i}") for i in range(100)}
     assert splits == {"dev", "test"}
+
+
+def _samples(counts):
+    samples = []
+    for field_type, count in counts.items():
+        for i in range(count):
+            samples.append(
+                Sample(
+                    id=f"{field_type}{i}",
+                    image=f"images/{field_type}{i}.png",
+                    text="1",
+                    field_type=field_type,
+                    display_tech="led7",
+                    split="test",
+                    label_source="human",
+                    license="CC0-1.0",
+                )
+            )
+    return samples
+
+
+def test_stratified_sample_is_proportional_reproducible_and_nested():
+    samples = _samples({"number": 948, "text": 185, "clock": 139, "other": 4})
+    subset = stratified_sample(samples, 200, seed=0)
+    assert len(subset) == 200
+    counts = {}
+    for s in subset:
+        counts[s.field_type] = counts.get(s.field_type, 0) + 1
+    # 200 x each share, largest remainder; the 4 "other" crops still get one
+    assert counts == {"number": 148, "text": 29, "clock": 22, "other": 1}
+    # in manifest order, reproducible, independent of the input order
+    ids = [s.id for s in subset]
+    assert ids == [s.id for s in samples if s.id in set(ids)]
+    assert stratified_sample(samples, 200, seed=0) == subset
+    shuffled = list(reversed(samples))
+    assert {s.id for s in stratified_sample(shuffled, 200)} == set(ids)
+    assert stratified_sample(samples, 200, seed=1) != subset
+    # a larger sample keeps the smaller one's crops (when no quota shrinks)
+    assert set(ids) <= {s.id for s in stratified_sample(samples, 400)}
+    # edge cases
+    assert stratified_sample(samples, 0) == []
+    assert stratified_sample(samples, 10_000) == samples
+    # fewer than one per stratum: largest remainders only
+    assert {s.field_type for s in stratified_sample(samples, 2)} == {"number"}
+    assert {s.field_type for s in stratified_sample(samples, 4)} == set(counts)
+
+
+def test_load_dataset_records_the_subset(tmp_path):
+    rows = [
+        _row(id=f"a{i}", image=f"images/a{i}.png", field_type=ft, split=split)
+        for i, (ft, split) in enumerate(
+            [("score", "dev"), ("score", "test"), ("clock", "test"), ("clock", "dev")]
+        )
+    ]
+    folder = make_dataset(tmp_path / "ds", rows)
+    assert load_dataset(folder).subset is None
+    dataset = load_dataset(folder, splits=["test"], sample=2, seed=3)
+    assert {s.field_type for s in dataset.samples} == {"score", "clock"}
+    assert dataset.subset == {
+        "splits": ["test"],
+        "sample": 2,
+        "seed": 3,
+        "stratified_by": "field_type",
+        "of": 2,
+        "n": 2,
+        "manifest_n": 4,
+    }
+    assert load_dataset(folder, limit=1).subset == {
+        "limit": 1,
+        "n": 1,
+        "manifest_n": 4,
+    }
