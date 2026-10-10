@@ -72,8 +72,14 @@ class VMixAPI:
         unsubscribe_from_data("scoresight.json", "vmix_send_same", self.set_update_same)
         self._worker.stop()
 
-    def update_vmix(self, detection: list[TextDetectionTargetWithResult]):
-        """Queue the new values of the mapped fields. Never blocks."""
+    def update_vmix(
+        self,
+        detection: list[TextDetectionTargetWithResult],
+        include_unchanged: bool = False,
+    ):
+        """Queue the new values of the mapped fields. Never blocks.
+        include_unchanged also sends the unchanged ones (as "Send Same?" does),
+        e.g. once after the outputs were paused."""
         if not self.running:
             return
 
@@ -82,7 +88,7 @@ class VMixAPI:
             return
 
         look_in = [TextDetectionTargetWithResult.ResultState.Success]
-        if self.update_same:
+        if self.update_same or include_unchanged:
             # If we want to send the same values as well
             look_in.append(TextDetectionTargetWithResult.ResultState.SameNoChange)
 

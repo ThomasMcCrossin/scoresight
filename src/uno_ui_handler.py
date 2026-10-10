@@ -1,6 +1,8 @@
 from functools import partial
 from PySide6.QtGui import QStandardItemModel, QStandardItem
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QCoreApplication, Qt
+
+from theme import button_text_color, media_icon
 
 from text_detection_target import TextDetectionTarget
 from ui_mainwindow import Ui_MainWindow
@@ -118,7 +120,22 @@ class UNOUIHandler:
         self._updateToggleText(self.unoUpdater.running)
 
     def _updateToggleText(self, running):
-        self.ui.toolButton_toggleUno.setText("🛑" if running else "▶️")
+        button = self.ui.toolButton_toggleUno
+        button.setText(
+            QCoreApplication.translate("MainWindow", "Stop sending")
+            if running
+            else QCoreApplication.translate("MainWindow", "Start sending")
+        )
+        button.setIcon(
+            media_icon(
+                "stop" if running else "play", button_text_color(button.palette())
+            )
+        )
+        button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
+
+    def refreshToggleButton(self):
+        """Redraw the start/stop button, e.g. after a light/dark switch."""
+        self._updateToggleText(self.ui.toolButton_toggleUno.isChecked())
 
     def toggleUNO(self, value):
         if not self.unoUpdater:
