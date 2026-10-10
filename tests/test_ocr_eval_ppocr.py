@@ -49,9 +49,10 @@ def test_variants_cover_every_model_preprocessing_and_decoding():
         )
     assert split_variant("v6-tiny-bin-wl") == ("v6-tiny", True, True)
     assert split_variant("v5-en-mobile") == ("v5-en-mobile", False, False)
-    # the defaults read the raw crop, with and without the whitelist
+    # the defaults read the raw crop, with and without the whitelist, with
+    # every model but the slow server one
     assert set(PaddleOCRRec.default_variants) == {
-        f"{m}{s}" for m in MODELS for s in ("", "-wl")
+        f"{m}{s}" for m in MODELS for s in ("", "-wl") if m != "v5-server"
     }
     with pytest.raises(ValueError):
         PaddleOCRRec("v6-huge")

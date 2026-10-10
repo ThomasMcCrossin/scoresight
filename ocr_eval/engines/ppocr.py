@@ -32,6 +32,10 @@ Variants: <model>[-bin][-wl]
           the same under NFKC (e.g. full-width digits) count as one; otherwise
           the unconstrained reading. info["free"] keeps the unconstrained
           reading when it differs.
+"--engine ppocr" runs every model except v5-server on the raw crop, with and
+without -wl. v5-server is left out because it is impractically slow on
+onnxruntime's CPU provider (about 0.6 s per crop on all cores and 3 s on one
+thread, nearly all of it in its convolutions); ask for it by name.
 
 Set OCR_EVAL_ORT_THREADS to the number of onnxruntime intra-op threads (default
 1, comparable with Tesseract's single thread; 0 lets onnxruntime choose).
@@ -103,6 +107,8 @@ MODELS: dict[str, RecModel] = {
         "PP-OCRv5 server (CTC), Chinese, English and Japanese",
     ),
 }
+# not run by "--engine ppocr" (see the module docstring)
+SLOW_MODELS = ("v5-server",)
 BIN_SUFFIX = "-bin"
 WHITELIST_SUFFIX = "-wl"
 THREADS_ENV = "OCR_EVAL_ORT_THREADS"
@@ -259,10 +265,13 @@ def read_input_config(config: dict) -> tuple[int, int, str]:
 class PaddleOCRRec(Engine):
     name = "ppocr"
     variants = _variant_names()
-    # every model on the raw crop, unconstrained and limited to the box's
-    # characters; "ppocr:*" adds the binarized-crop variants
+    # every model but the slow v5-server on the raw crop, unconstrained and
+    # limited to the box's characters; "ppocr:*" runs everything
     default_variants = tuple(
-        f"{m}{dec}" for dec in ("", WHITELIST_SUFFIX) for m in MODELS
+        f"{m}{dec}"
+        for dec in ("", WHITELIST_SUFFIX)
+        for m in MODELS
+        if m not in SLOW_MODELS
     )
     description = (
         "PaddleOCR PP-OCRv6/PP-OCRv5 text recognition (ONNX), greedy CTC "
