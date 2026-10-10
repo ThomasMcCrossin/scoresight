@@ -465,8 +465,17 @@ class TextDetector:
             patch = 255 - patch
 
         dot_detector = bool(settings.get("dot_detector"))
-        if not dot_detector and not has_foreground(patch):
-            return _empty_result()
+        if not has_foreground(patch):
+            # a blank box (every pixel the same): nothing to read and no lit dot
+            # to count. Counting contours would find one (the whole patch) when
+            # it is all white, which uniform areas become with Local or Adaptive
+            # binarization.
+            if not dot_detector:
+                return _empty_result()
+            if settings.get("skip_similar_image"):
+                # "0" is the box's new accepted read: compare with its image
+                rect.last_image = patch.copy()
+            return TextDetectionResult("0", ResultState.Success, None)
 
         # skip_similar_image: the patch to remember if this read is accepted
         skip_patch = None

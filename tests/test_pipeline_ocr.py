@@ -280,11 +280,50 @@ def test_blank_patch_is_empty_without_ocr(detector, make_target, value):
     assert detector.api.images == []
 
 
-def test_blank_patch_still_counts_zero_dots(detector, make_target):
-    blank = np.zeros((120, 200), np.uint8)
-    box = make_target("Home Score", rect=(10, 10, 100, 60), dot_detector=True)
+@pytest.mark.parametrize("value", [0, 40, 255])
+@pytest.mark.parametrize(
+    "method", [Binarization.GLOBAL, Binarization.LOCAL, Binarization.ADAPTIVE]
+)
+def test_blank_patch_still_counts_zero_dots(detector, make_target, value, method):
+    # Local and Adaptive binarization turn a uniform area all white, which has
+    # one contour (the whole patch): it was counted as one dot
+    blank = np.full((120, 200), value, np.uint8)
+    box = make_target(
+        "Home Score",
+        rect=(10, 10, 100, 60),
+        dot_detector=True,
+        binarization_method=method,
+    )
     [result] = detector.detect_multi_text(blank, blank, [box])
     assert (result.text, result.state) == ("0", SUCCESS)
+
+
+def test_dot_counter_with_skip_similar_image_reads_dots_after_a_blank_box(
+    detector, make_target
+):
+    # "0" from a blank box is an accepted read, so the comparison image must be
+    # the blank one: otherwise the dots coming back would look unchanged and be
+    # published as the box's last reading, "0". (A blank box is counted every
+    # time; it costs nothing.)
+    dots = np.zeros((60, 120), np.uint8)
+    for x in (20, 60, 100):
+        dots[25:35, x - 5 : x + 5] = 255
+    blank = np.zeros_like(dots)
+    box = make_target(
+        "Home Score", rect=(0, 0, 120, 60), dot_detector=True, skip_similar_image=True
+    )
+
+    def read(image):
+        [result] = detector.detect_multi_text(image, image, [box])
+        return "unchanged" if result.unchanged_image else result.text
+
+    assert [read(dots), read(dots), read(blank), read(blank), read(dots)] == [
+        "3",
+        "unchanged",
+        "0",
+        "0",
+        "3",
+    ]
 
 
 @pytest.mark.ocr
