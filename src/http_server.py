@@ -1,5 +1,4 @@
 import asyncio
-import http.server
 import http.client
 import logging
 import os
@@ -216,6 +215,7 @@ def start_http_server():
             log_level="debug" if os.getenv("SCORESIGHT_DEBUG") else "info",
             log_config=None,
             lifespan="on",
+            ws="none",
         )
         server = uvicorn.Server(config)
         loop = asyncio.new_event_loop()

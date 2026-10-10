@@ -1,6 +1,5 @@
 import cv2
 import numpy as np
-import pygetwindow as gw
 import numpy as np
 import win32gui
 import win32ui
@@ -13,9 +12,18 @@ from ctypes import windll
 class ScreenCaptureWindows:
     @staticmethod
     def list_windows():
-        # list the windows on the screen
-        windows = gw.getAllTitles()
-        return [(w, w) for w in windows if w != ""]
+        # list the titles of the visible top-level windows on the screen
+        titles = []
+
+        def collect_title(hwnd, _):
+            if win32gui.IsWindowVisible(hwnd):
+                title = win32gui.GetWindowText(hwnd)
+                if title != "":
+                    titles.append(title)
+            return True
+
+        win32gui.EnumWindows(collect_title, None)
+        return [(w, w) for w in titles]
 
     def __init__(self, window_name):
         self.capture_whole_screen = (
