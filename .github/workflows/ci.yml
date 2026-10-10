@@ -56,10 +56,12 @@ jobs:
         run: python scripts/update_translations.py --check
 
       - name: No links to the lapsed scoresight.live domain
-        # The domain is parked and for sale. Translation sources keep obsolete
+        # The domain is parked and for sale. Only links and email addresses are
+        # flagged, so mentions of the name (this step, tests asserting its
+        # absence, defanged warnings) pass. Translation sources keep obsolete
         # strings until the next lupdate, so they are not checked.
         run: |
-          if git grep -nIi 'scoresight\.live' -- . ':!translations/*.ts'; then
+          if git grep -nIiE '(https?://|www\.|@)([a-z0-9-]+\.)*scoresight\.live' -- . ':!translations/*.ts'; then
             echo "::error::Found links to scoresight.live (see above). Link to https://github.com/royshil/scoresight instead."
             exit 1
           fi
