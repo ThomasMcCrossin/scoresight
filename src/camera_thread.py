@@ -13,7 +13,6 @@ import threading
 from base_video_capture import BaseVideoCapture
 from camera_info import CameraInfo
 from ndi import NDICapture
-from screen_capture_source import ScreenCapture
 from storage import (
     SETTINGS_FILE,
     TextDetectionTargetMemoryStorage,
@@ -552,6 +551,10 @@ class TimerThread(QThread):
         if camera_type == CameraInfo.CameraType.NDI:
             return NDICapture(self.camera_info.uuid)
         if camera_type == CameraInfo.CameraType.SCREEN_CAPTURE:
+            # imported when first used: it loads pywin32 / pyobjc's Quartz,
+            # which would slow down every start
+            from screen_capture_source import ScreenCapture
+
             return ScreenCapture(self.camera_info.id)
         if camera_type == CameraInfo.CameraType.URL:
             url = str(self.camera_info.id).strip()

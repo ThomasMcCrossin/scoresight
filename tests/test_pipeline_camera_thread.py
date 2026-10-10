@@ -11,6 +11,7 @@ import pytest
 pytest.importorskip("tesserocr")  # camera_thread imports the OCR pipeline
 
 import camera_thread  # noqa: E402
+import screen_capture_source  # noqa: E402
 import storage  # noqa: E402
 from camera_info import CameraInfo  # noqa: E402
 from camera_thread import (  # noqa: E402
@@ -430,7 +431,7 @@ def test_capture_that_raises_on_open_reports_an_error(make_thread, monkeypatch):
     def window_gone(window_id):
         raise ValueError(f"No window with ID {window_id} found")
 
-    monkeypatch.setattr(camera_thread, "ScreenCapture", window_gone)
+    monkeypatch.setattr(screen_capture_source, "ScreenCapture", window_gone)
     assert thread.connect_video_capture() is False
     assert thread.errors == ["Error: Unable to play video stream"]
 
