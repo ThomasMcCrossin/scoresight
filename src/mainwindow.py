@@ -86,6 +86,9 @@ SOURCE_INDEX_URL = 2
 SOURCE_INDEX_SCREEN_CAPTURE = 3
 FIRST_CAMERA_SOURCE_INDEX = 4
 
+# Box edits are written to the settings this long after the last change.
+BOXES_SAVE_DELAY_MS = 500
+
 
 def run_in_background(name: str, function: Callable, on_done: Callable):
     """Run function() on a daemon thread, then on_done(result) on that thread.
@@ -326,6 +329,12 @@ class MainWindow(QMainWindow):
         )
         self.detectionTargetsStorage = TextDetectionTargetMemoryStorage()
         self.detectionTargetsStorage.data_changed.connect(self.detectionTargetsChanged)
+        # Box edits (settings panel, add/remove, rename, template fields) are
+        # persisted shortly after they happen, not only on a click in the viewer.
+        self.boxesSaveTimer = QTimer(self)
+        self.boxesSaveTimer.setSingleShot(True)
+        self.boxesSaveTimer.setInterval(BOXES_SAVE_DELAY_MS)
+        self.boxesSaveTimer.timeout.connect(self.saveBoxes)
         self.ui.pushButton_createOBSScene.clicked.connect(self.createOBSScene)
         self.ui.pushButton_selectFolder.clicked.connect(self.selectOutputFolder)
         self.ui.toolButton_trashFolder.clicked.connect(self.clearOutputFolder)
@@ -362,7 +371,14 @@ class MainWindow(QMainWindow):
                 self.ui.tableWidget_boxes.rowCount() - 1, 1, disabledItem
             )
 
+        # The boxes are app state (not per source): load them once at startup.
+        # From now on the in-memory storage is the source of truth, and changes
+        # are written back by saveBoxes.
+        self.detectionTargetsStorage.loadBoxesFromStorage()
+        self.detectionTargetsStorage.data_changed.connect(self.scheduleBoxesSave)
+
         self.image_viewer = None
+        self.connected_viewer = None
         self.obs_connect_modal = None
         self.source_name = None
         self.sources_discovery_running = False
@@ -726,6 +742,15 @@ class MainWindow(QMainWindow):
         # click and settings tweak; file_output starts a new CSV file by itself
         # when the set of boxes changes.
 
+    def scheduleBoxesSave(self, *_):
+        # (re)start the timer: a burst of edits (e.g. dragging a slider) is
+        # written once
+        self.boxesSaveTimer.start()
+
+    def saveBoxes(self):
+        self.boxesSaveTimer.stop()
+        self.detectionTargetsStorage.saveBoxesToStorage()
+
     def listItemClicked(self, item):
         user_role = item.data(Qt.ItemDataRole.UserRole)
         if user_role in ["checked", "templatefield"] and item.column() == 0:
@@ -967,8 +992,24 @@ class MainWindow(QMainWindow):
             "description": camera_info.description,
         }
 
+    def disconnectViewer(self):
+        """Disconnect the main window's controls from the current image viewer."""
+        viewer = self.connected_viewer
+        self.connected_viewer = None
+        if viewer is None:
+            return
+        for signal, slot in (
+            (self.ui.pushButton_fourCorner.toggled, viewer.toggleFourCorner),
+            (self.ui.pushButton_binary.clicked, viewer.toggleBinary),
+        ):
+            try:
+                signal.disconnect(slot)
+            except (RuntimeError, TypeError):
+                pass
+
     def reset_playing_source(self):
         if self.image_viewer:
+            self.disconnectViewer()
             # remove the image viewer from the layout frame_for_source_view_label
             self.ui.frame_for_source_view_label.layout().removeWidget(self.image_viewer)
             self.image_viewer.close()
@@ -1134,6 +1175,7 @@ class MainWindow(QMainWindow):
         self.globalSettingsChanged("source_selected", self.sourceToStore(camera_info))
 
         if self.image_viewer:
+            self.disconnectViewer()
             # remove the image viewer from the layout frame_for_source_view_label
             self.ui.frame_for_source_view_label.layout().removeWidget(self.image_viewer)
             self.image_viewer.close()
@@ -1165,13 +1207,18 @@ class MainWindow(QMainWindow):
         if self.image_viewer is None:
             self.updateError("Image viewer is None")
             return
-        self.ui.pushButton_fourCorner.toggled.connect(
-            self.image_viewer.toggleFourCorner
-        )
-        self.ui.pushButton_binary.clicked.connect(self.image_viewer.toggleBinary)
-        if self.image_viewer.timerThread:
-            self.image_viewer.timerThread.ocr_result_signal.connect(self.ocrResult)
-            self.image_viewer.timerThread.update_error.connect(self.updateError)
+        # The first frame is signalled again after e.g. a video settings change:
+        # connect each viewer only once, or every result would be handled twice.
+        if self.connected_viewer is not self.image_viewer:
+            self.disconnectViewer()
+            self.connected_viewer = self.image_viewer
+            self.ui.pushButton_fourCorner.toggled.connect(
+                self.image_viewer.toggleFourCorner
+            )
+            self.ui.pushButton_binary.clicked.connect(self.image_viewer.toggleBinary)
+            if self.image_viewer.timerThread:
+                self.image_viewer.timerThread.ocr_result_signal.connect(self.ocrResult)
+                self.image_viewer.timerThread.update_error.connect(self.updateError)
 
         # enable groupBox_sb_info
         self.ui.groupBox_sb_info.setEnabled(True)
@@ -1180,8 +1227,8 @@ class MainWindow(QMainWindow):
         self.ui.widget_viewTools.setEnabled(True)
         self.ui.widget_cropPanel.setEnabled(True)
 
-        # load the boxes from scoresight.json
-        self.detectionTargetsStorage.loadBoxesFromStorage()
+        # The boxes are not reloaded from scoresight.json here: they were loaded
+        # at startup and the in-memory boxes may have newer, unsaved edits.
         self.updateError(None)
 
     def updateError(self, error):
@@ -1441,6 +1488,7 @@ class MainWindow(QMainWindow):
         logger.info("Closing")
         self.closing = True
         if self.image_viewer:
+            self.disconnectViewer()
             self.image_viewer.close()
             self.image_viewer = None
 
@@ -1450,7 +1498,7 @@ class MainWindow(QMainWindow):
 
         # write pending file outputs and store the boxes to scoresight.json
         self.flushFileOutputs()
-        self.detectionTargetsStorage.saveBoxesToStorage()
+        self.saveBoxes()
         # ignore OBS connection attempts that are still running
         self.obs_connect_attempt += 1
         if self.obs_websocket_client:

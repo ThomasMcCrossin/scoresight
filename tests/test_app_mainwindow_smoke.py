@@ -13,7 +13,7 @@ import pytest
 pytestmark = pytest.mark.qt
 pytest.importorskip("tesserocr")  # MainWindow imports the OCR pipeline
 
-from PySide6.QtCore import QTranslator, Signal  # noqa: E402
+from PySide6.QtCore import QObject, QTranslator, Signal  # noqa: E402
 from PySide6.QtWidgets import QWidget  # noqa: E402
 
 from camera_info import CameraInfo  # noqa: E402
@@ -43,6 +43,11 @@ class FakeViewer(QWidget):
 
     def getCameraInfo(self):
         return self.camera_info
+
+
+class FakeTimerThread(QObject):
+    ocr_result_signal = Signal(list)
+    update_error = Signal(str)
 
 
 class FakeObsClient:
@@ -242,6 +247,73 @@ def test_box_changes_do_not_truncate_the_csv_log(
 
 
 # --- boxes ------------------------------------------------------------------------------
+
+
+def test_box_edits_are_saved_without_a_viewer_click(main_window, make_target, qtbot):
+    # box-edits-lost-on-source-switch (part 1): only a click in the viewer or
+    # closing the window saved the boxes.
+    main_window.detectionTargetsStorage.add_item(make_target("Custom 1", type=2))
+    qtbot.waitUntil(
+        lambda: fetch_data("scoresight.json", "boxes") is not None, timeout=3000
+    )
+    [box] = fetch_data("scoresight.json", "boxes")
+    assert box["name"] == "Custom 1"
+    assert box["settings"]["type"] == 2
+
+
+def test_new_source_keeps_unsaved_box_edits(make_window, make_target, qtbot):
+    # box-edits-lost-on-source-switch (part 2): every new viewer reloaded the
+    # boxes from disk, dropping in-memory edits.
+    store_data(
+        "scoresight.json",
+        "boxes",
+        [{"name": "Home Score", "rect": {"x": 1, "y": 2, "width": 3, "height": 4}}],
+    )
+    window = make_window()
+    storage = window.detectionTargetsStorage
+    box = storage.find_item_by_name("Home Score")
+    assert box is not None  # loaded at startup
+    box.settings["format_regex"] = "^edited$"
+    storage.edit_item("Home Score", box)
+
+    window.image_viewer = FakeViewer(None, None, None, None)
+    window.cameraConnectedEnableUI()
+    assert storage.find_item_by_name("Home Score").settings["format_regex"] == (
+        "^edited$"
+    )
+
+    def saved_regex():
+        [saved] = fetch_data("scoresight.json", "boxes")
+        return saved.get("settings", {}).get("format_regex")
+
+    qtbot.waitUntil(lambda: saved_regex() == "^edited$", timeout=3000)
+
+
+def test_viewer_is_connected_once(main_window, monkeypatch):
+    # The first-frame signal (and so cameraConnectedEnableUI) fires again after
+    # e.g. a video settings change; each call used to add another connection,
+    # so every OCR result was handled (and sent to every output) again.
+    import mainwindow
+
+    http_updates = []
+    monkeypatch.setattr(mainwindow, "update_http_server", http_updates.append)
+    viewer = FakeViewer(None, None, None, None)
+    viewer.timerThread = FakeTimerThread()
+    main_window.image_viewer = viewer
+    main_window.cameraConnectedEnableUI()
+    main_window.cameraConnectedEnableUI()
+    main_window.ui.pushButton_fourCorner.setChecked(True)
+    viewer.timerThread.ocr_result_signal.emit([])
+    assert viewer.four_corner_calls == [True]
+    assert http_updates == [[]]
+
+    # a new viewer replaces the old one's connections
+    new_viewer = FakeViewer(None, None, None, None)
+    main_window.image_viewer = new_viewer
+    main_window.cameraConnectedEnableUI()
+    main_window.ui.pushButton_fourCorner.setChecked(False)
+    assert viewer.four_corner_calls == [True]
+    assert new_viewer.four_corner_calls == [False]
 
 
 # --- sources (#10) -----------------------------------------------------------------------
