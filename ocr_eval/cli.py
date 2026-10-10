@@ -218,6 +218,23 @@ def cmd_import_dojo(args) -> int:
     return 0 if report.ok else 1
 
 
+def cmd_review(args) -> int:
+    from ocr_eval.report import read_results
+    from ocr_eval.review import write_review
+
+    try:
+        dataset = load_dataset(args.dataset)
+        results = read_results(args.results) if args.results else None
+    except (DatasetError, OSError, ValueError) as e:
+        print(f"error: {e}", file=sys.stderr)
+        return 2
+    runs = [r.strip() for r in args.run.split(",")] if args.run else None
+    out = Path(args.out or f"review-{dataset.name}.html")
+    write_review(dataset, out, results, runs, include_frames=not args.no_frames)
+    print(f"Wrote {out} ({len(dataset)} crops). Open it in a browser.")
+    return 0
+
+
 def cmd_requirements(args) -> int:
     registry = _registry()
     try:
@@ -350,6 +367,24 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p.add_argument("--prefix", default="dojo", help="id prefix (default dojo)")
     p.set_defaults(func=cmd_import_dojo)
+
+    p = commands.add_parser(
+        "review", help="write an HTML contact sheet for checking a dataset's labels"
+    )
+    p.add_argument("dataset", help="dataset name or folder")
+    p.add_argument("--out", help="the HTML file (default review-<dataset>.html)")
+    p.add_argument(
+        "--results", help="also show what the engines of this results file read"
+    )
+    p.add_argument(
+        "--run", help="only these runs of --results (comma-separated engine:variant)"
+    )
+    p.add_argument(
+        "--no-frames",
+        action="store_true",
+        help="leave out the photos with their boxes (frames.jsonl)",
+    )
+    p.set_defaults(func=cmd_review)
 
     p = commands.add_parser("requirements", help="print engines' pip requirements")
     p.add_argument("engine", nargs="+")
