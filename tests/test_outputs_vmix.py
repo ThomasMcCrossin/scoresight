@@ -194,9 +194,11 @@ def fake_vmix_tcp_api():
             except (TimeoutError, OSError):
                 continue
             with conn:
-                conn.sendall(b"VERSION OK 26.0.0.45\r\n")
+                conn.settimeout(5)
                 try:
-                    conn.recv(4096)
+                    conn.sendall(b"VERSION OK 26.0.0.45\r\n")
+                    while conn.recv(4096):  # until the client hangs up
+                        pass
                 except OSError:
                     pass
 
