@@ -9,7 +9,7 @@ opencv-python-headless==4.14.0.94
 # PyPI has no Windows wheels for tesserocr; Windows gets it from requirements-win.txt.
 tesserocr==2.11.0 ; sys_platform != "win32"
 cyndilib==0.1.2
-fastapi==0.141.1
+fastapi==0.142.3
 uvicorn==0.54.0
 obsws-python==1.8.0
 pillow==12.3.0
