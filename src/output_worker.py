@@ -121,6 +121,8 @@ class OutputWorker:
         self._thread: threading.Thread | None = None
         self._busy = False
         self._stopped = False
+        # incremented by clear(): the rest of a batch being sent is dropped too
+        self._generation = 0
         self._retry_failures = 0  # consecutive "unreachable" failures
         with _workers_lock:
             _workers.add(self)
@@ -140,9 +142,11 @@ class OutputWorker:
             self._cond.notify_all()
 
     def clear(self) -> None:
-        """Drop the items that haven't been sent yet."""
+        """Drop the items that haven't been sent yet (a request already in
+        flight still completes)."""
         with self._cond:
             self._pending.clear()
+            self._generation += 1
             self._cond.notify_all()
 
     def pending(self) -> dict[Hashable, object]:
@@ -168,6 +172,7 @@ class OutputWorker:
         with self._cond:
             self._stopped = True
             self._pending.clear()
+            self._generation += 1
             self._cond.notify_all()
             thread = self._thread
         if thread is None or thread is threading.current_thread():
@@ -191,9 +196,10 @@ class OutputWorker:
                 if self._stopped:
                     return
                 batch, self._pending = self._pending, {}
+                generation = self._generation
                 self._busy = True
             try:
-                unreachable = self._send_batch(list(batch.items()))
+                unreachable = self._send_batch(list(batch.items()), generation)
             except Exception:  # never let the thread die
                 logger.exception("%s: unexpected error in output thread", self.name)
                 unreachable = False
@@ -209,11 +215,13 @@ class OutputWorker:
                 with self._cond:
                     self._cond.wait_for(lambda: self._stopped, delay)
 
-    def _send_batch(self, items: list[tuple[Hashable, object]]) -> bool:
+    def _send_batch(
+        self, items: list[tuple[Hashable, object]], generation: int
+    ) -> bool:
         """Send items in order. Returns True if the endpoint was unreachable (the
         unsent items were put back for a retry)."""
         for index, (key, item) in enumerate(items):
-            if self._stopped:
+            if self._generation != generation:  # cleared or stopped meanwhile
                 return False
             try:
                 self._send(key, item)
@@ -221,7 +229,7 @@ class OutputWorker:
                 self._retry_failures += 1
                 self.error_log.error(_describe(e))
                 with self._cond:
-                    if not self._stopped:
+                    if self._generation == generation:
                         for k, v in items[index:]:
                             # a newer item submitted meanwhile wins
                             self._pending.setdefault(k, v)

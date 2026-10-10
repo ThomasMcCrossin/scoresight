@@ -149,6 +149,35 @@ def test_worker_survives_errors_and_keeps_sending(make_worker):
     assert worker.is_running
 
 
+def test_clear_drops_pending_items_and_the_rest_of_the_batch(make_worker):
+    # e.g. the user clicks "Stop vMix" while a batch of fields is being sent
+    x_gate, a_started, a_gate = threading.Event(), threading.Event(), threading.Event()
+    calls = []
+
+    def send(key, item):
+        calls.append(key)
+        if key == "x":
+            assert x_gate.wait(5)
+        if key == "a":
+            a_started.set()
+            assert a_gate.wait(5)
+
+    worker = make_worker(send)
+    worker.submit("x", 0)
+    deadline = time.monotonic() + 5
+    while not calls and time.monotonic() < deadline:
+        time.sleep(0.01)
+    for key in "abc":
+        worker.submit(key, 1)  # the next batch: a, b, c
+    x_gate.set()
+    assert a_started.wait(5)
+
+    worker.clear()
+    a_gate.set()
+    assert worker.wait_idle(5)
+    assert calls == ["x", "a"]
+
+
 def test_thread_starts_lazily_is_daemon_and_stops(make_worker):
     send = Recorder()
     worker = make_worker(send)
