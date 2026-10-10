@@ -108,3 +108,60 @@ def test_setup_falls_back_to_stderr_when_log_dir_unusable(tmp_path):
     assert log_file_path == "None"
     assert handler_type == "StreamHandler"
     assert "hello from the test" in result.stderr
+
+
+def crash_after_enabling_traces(log_dir):
+    """Run a child that enables the crash traces, then reads address 0 on a
+    worker thread: an access violation (segmentation fault), as a bug in Qt,
+    OpenCV or Tesseract would cause. (On Windows ctypes then turns it into an
+    OSError, after the trace is written.)"""
+    code = "\n".join(
+        [
+            "import ctypes, sys, threading",
+            "sys.path.insert(0, sys.argv[1])",
+            "import sc_logging",
+            "print(sc_logging.enable_crash_traces(), flush=True)",
+            "def crash_in_a_worker():",
+            "    ctypes.string_at(0)",
+            "t = threading.Thread(target=crash_in_a_worker, name='capture')",
+            "t.start()",
+            "t.join()",
+        ]
+    )
+    env = dict(os.environ, SCORESIGHT_LOG_DIR=str(log_dir))
+    env.pop("SCORESIGHT_DEBUG", None)
+    env.pop("PYTHONFAULTHANDLER", None)
+    return subprocess.run(
+        [sys.executable, "-c", code, str(SRC_DIR)],
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
+
+
+def test_a_native_crash_leaves_every_threads_stack_in_the_std_log(tmp_path):
+    result = crash_after_enabling_traces(tmp_path)
+
+    assert result.stdout.splitlines()[0] == "True"
+    [std_log] = tmp_path.glob("scoresight_std_*.log")
+    trace = std_log.read_text(encoding="utf-8", errors="replace")
+    # "Windows fatal exception: access violation" or "Fatal Python error:
+    # Segmentation fault"
+    assert "access violation" in trace or "Segmentation fault" in trace
+    assert "crash_in_a_worker" in trace  # the crashing thread's stack
+    assert "Thread 0x" in trace  # and the other threads' stacks
+
+
+def test_crash_traces_need_a_file_descriptor(monkeypatch):
+    import io
+
+    class Handler:
+        stream = io.StringIO()
+
+    monkeypatch.setattr(sc_logging, "_std_handler", Handler())
+    assert sc_logging.enable_crash_traces() is False
+    # a windowed build without a log file has no stderr either
+    monkeypatch.setattr(sc_logging, "_std_handler", None)
+    monkeypatch.setattr(sys, "stderr", None)
+    assert sc_logging.enable_crash_traces() is False

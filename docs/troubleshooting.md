@@ -29,7 +29,7 @@ The log almost always shows what went wrong.
    | macOS | `~/Library/Logs/scoresight` |
    | Linux | `~/.local/state/scoresight/log` |
 
-3. Each session writes `scoresight_<date>_<time>.log` and `scoresight_std_<date>_<time>.log`. Attach **both** files from the session with the problem to your issue.
+3. Each session writes `scoresight_<date>_<time>.log` and `scoresight_std_<date>_<time>.log`. Attach **both** files from the session with the problem to your issue. If ScoreSight closed by itself (a crash), the end of the `scoresight_std_` file shows where: `Windows fatal exception` or `Fatal Python error`, followed by what each part of the program was doing at that moment.
 
 {: .warning }
 Logs can contain host names and URLs (including any tokens in them). ScoreSight 0.1.x also logged the OBS WebSocket password; 0.2.0 doesn't. Look through the logs and remove secrets before posting them publicly.
