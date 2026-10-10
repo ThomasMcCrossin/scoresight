@@ -319,9 +319,10 @@ def start_http_server(port: int = DEFAULT_PORT) -> None:
             sock = _bind_socket(HOST, port)
         except OSError as e:
             logger.error(
-                "HTTP server: cannot listen on port %s (%s). Another program, or "
-                "another ScoreSight, may be using it; choose a different port with "
-                "--port. Continuing without the HTTP server.",
+                "HTTP server: port %s is already in use or not available (%s). "
+                "Another ScoreSight or another program may be using it; start "
+                "ScoreSight with --port to use a different port. Continuing "
+                "without the HTTP server.",
                 port,
                 e,
             )

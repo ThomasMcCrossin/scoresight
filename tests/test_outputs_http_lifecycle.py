@@ -83,7 +83,7 @@ def test_busy_port_is_logged_and_the_app_continues(blocker, caplog):
         http_server.start_http_server(port=port)  # must not raise
     assert http_server.get_http_server_port() is None
     assert server_threads() == []
-    assert f"cannot listen on port {port}" in caplog.text
+    assert f"port {port} is already in use" in caplog.text
 
 
 def test_stop_never_touches_a_server_it_did_not_start(blocker, monkeypatch):
