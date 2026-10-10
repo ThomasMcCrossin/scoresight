@@ -1,4 +1,7 @@
-# Build, smoke-test and package ScoreSight for every platform.
+# Build, smoke-test and package ScoreSight for every platform. The built app is
+# also run end to end (scripts/ci/e2e_test.py) and its boot time is measured
+# and compared with the 0.1.0 release (scripts/ci/boot_benchmark.py); the
+# results are in the job summary and the ci-results-<target> artifact.
 #
 # Runs on pull requests that change the packaging, on demand (Actions > Build >
 # Run workflow), and from release.yml for release tags. Packages are uploaded as
@@ -86,17 +89,21 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # legacy-asset: the 0.1.0 release's package for the boot time comparison
         include:
           - target: windows-x64
             runner: windows-latest
             executable: dist/scoresight/scoresight.exe
+            legacy-asset: scoresight-windows-0.1.0.zip
           - target: macos-arm64
             runner: macos-latest
             executable: dist/ScoreSight.app/Contents/MacOS/scoresight
+            legacy-asset: scoresight-macos-arm64-0.1.0.dmg
           - target: macos-x64
             # the last Intel macOS image; GitHub retires it in fall 2027
             runner: macos-15-intel
             executable: dist/ScoreSight.app/Contents/MacOS/scoresight
+            legacy-asset: scoresight-macos-x86-0.1.0.dmg
           - target: linux-x64
             # The build machine's glibc is the oldest the app runs on: Ubuntu
             # 22.04 has glibc 2.35 (PySide6 6.12 needs 2.34). The image is
@@ -104,6 +111,7 @@ jobs:
             # or ubuntu-24.04 (glibc 2.39) before then.
             runner: ubuntu-22.04
             executable: dist/scoresight/scoresight
+            legacy-asset: scoresight-linux-0.1.0.tar
     env:
       # Secrets can't be used in `if:` conditions, so decide here.
       SIGN_MACOS: ${{ inputs.release && startsWith(matrix.target, 'macos-') && secrets.APPLE_CERTIFICATE != '' && secrets.APPLE_APP_DEVELOPER_ID != '' }}
@@ -196,6 +204,121 @@ jobs:
         env:
           EXECUTABLE: ${{ matrix.executable }}
         run: python scripts/ci/smoke_test.py "$EXECUTABLE"
+
+      - name: End-to-end test
+        # the built app, headless, reading a synthetic scoreboard video: the
+        # readings must reach the HTTP server, the files and the outbound API
+        timeout-minutes: 10
+        shell: bash
+        env:
+          EXECUTABLE: ${{ matrix.executable }}
+          TARGET: ${{ matrix.target }}
+        run: >
+          python scripts/ci/e2e_test.py --label "$TARGET"
+          --json "$RUNNER_TEMP/results/e2e-$TARGET.json" --work-dir "$RUNNER_TEMP/e2e"
+          -- "$EXECUTABLE"
+
+      - name: Boot time
+        id: boot
+        # Fails only on a gross regression. The limits are for GitHub-hosted
+        # runners, much slower than a desktop (a Windows desktop: cold 0.7 s,
+        # warm 0.6 s); 0.1.x took 30 s to a minute on macOS (#33).
+        timeout-minutes: 15
+        shell: bash
+        env:
+          EXECUTABLE: ${{ matrix.executable }}
+          TARGET: ${{ matrix.target }}
+        run: >
+          python scripts/ci/boot_benchmark.py --runs 5 --label "$TARGET: this build"
+          --json "$RUNNER_TEMP/results/boot-$TARGET.json"
+          --max-cold-seconds 60 --max-warm-seconds 20
+          -- "$EXECUTABLE"
+
+      # 0.1.0, the last release before the rewrite, for comparison. These steps
+      # never fail the build: the old app may misbehave headless on a runner.
+      - name: Get ScoreSight 0.1.0 (Windows)
+        if: runner.os == 'Windows'
+        continue-on-error: true
+        timeout-minutes: 10
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          ASSET: ${{ matrix.legacy-asset }}
+        run: |
+          $dir = Join-Path $env:RUNNER_TEMP "scoresight-0.1.0"
+          gh release download 0.1.0 --repo $env:REPOSITORY --pattern $env:ASSET --dir $dir
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Expand-Archive -Path (Join-Path $dir $env:ASSET) -DestinationPath $dir
+          # the zip holds the 0.1.0 installer: install the app into a folder
+          $install = Start-Process (Join-Path $dir "scoresight-setup.exe") -Wait -PassThru -ArgumentList @(
+            "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/SP-", "/NOICONS", "/DIR=`"$dir\app`"")
+          if ($install.ExitCode -ne 0) { throw "0.1.0 installer exit code $($install.ExitCode)" }
+          if (-not (Test-Path "$dir\app\scoresight.exe")) { throw "no $dir\app\scoresight.exe" }
+          Add-Content -Path $env:GITHUB_ENV -Value "LEGACY_EXECUTABLE=$dir\app\scoresight.exe"
+
+      - name: Get ScoreSight 0.1.0 (macOS, Linux)
+        if: runner.os != 'Windows'
+        continue-on-error: true
+        timeout-minutes: 10
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          ASSET: ${{ matrix.legacy-asset }}
+        run: |
+          dir="$RUNNER_TEMP/scoresight-0.1.0"
+          gh release download 0.1.0 --repo "$REPOSITORY" --pattern "$ASSET" --dir "$dir"
+          # 0.1.0 is a one-file build (in scoresight.app on macOS)
+          if [ "$RUNNER_OS" = macOS ]; then
+            mkdir -p "$dir/volume"
+            hdiutil attach -nobrowse -readonly -mountpoint "$dir/volume" "$dir/$ASSET"
+            executable=$(find "$dir/volume" -path '*/Contents/MacOS/scoresight' -type f | head -n 1)
+          else
+            tar -xf "$dir/$ASSET" -C "$dir"
+            executable=$(find "$dir" -name scoresight -type f -perm -u+x | head -n 1)
+          fi
+          if [ -z "$executable" ]; then
+            echo "::warning::no scoresight executable in $ASSET"
+            exit 1
+          fi
+          echo "LEGACY_EXECUTABLE=$executable" >> "$GITHUB_ENV"
+
+      - name: Boot time of 0.1.0
+        if: env.LEGACY_EXECUTABLE != ''
+        continue-on-error: true
+        timeout-minutes: 15
+        shell: bash
+        env:
+          TARGET: ${{ matrix.target }}
+        run: >
+          python scripts/ci/boot_benchmark.py --legacy --runs 3 --timeout 180
+          --label "$TARGET: 0.1.0" --json "$RUNNER_TEMP/results/boot-$TARGET-0.1.0.json"
+          -- "$LEGACY_EXECUTABLE"
+
+      - name: Eject the 0.1.0 disk image
+        if: always() && runner.os == 'macOS' && env.LEGACY_EXECUTABLE != ''
+        continue-on-error: true
+        run: hdiutil detach "$RUNNER_TEMP/scoresight-0.1.0/volume" || hdiutil detach -force "$RUNNER_TEMP/scoresight-0.1.0/volume"
+
+      - name: Boot time comparison
+        if: always() && steps.boot.outcome != 'skipped'
+        shell: bash
+        env:
+          TARGET: ${{ matrix.target }}
+        run: >
+          python scripts/ci/boot_benchmark.py --compare
+          "$RUNNER_TEMP/results/boot-$TARGET.json"
+          "$RUNNER_TEMP/results/boot-$TARGET-0.1.0.json"
+
+      - name: Upload the test and benchmark results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          # not "scoresight-*": release.yml publishes those artifacts
+          name: ci-results-${{ matrix.target }}
+          path: ${{ runner.temp }}/results
+          if-no-files-found: ignore
+          retention-days: ${{ inputs.release && 30 || 7 }}
 
       - name: Notarize the app
         if: env.SIGN_MACOS == 'true'
