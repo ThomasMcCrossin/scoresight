@@ -1,4 +1,4 @@
-"""scripts/ci/e2e_test.py and app_harness.py: the synthetic
+"""scripts/ci/e2e_test.py, boot_benchmark.py and app_harness.py: the synthetic
 scoreboard video and its OCR, the settings they write against the app's own
 code, their parsers against the real outputs, and the process handling with a
 fake app. The real end-to-end run is a CI step (see docs/development/testing.md).
@@ -27,9 +27,10 @@ def _load_script(name):
     return module
 
 
-# e2e_test imports app_harness by name, as when run as a script
+# e2e_test and boot_benchmark import app_harness by name, as when run as scripts
 app_harness = _load_script("app_harness")
 e2e_test = _load_script("e2e_test")
+boot_benchmark = _load_script("boot_benchmark")
 
 
 # --- the synthetic scoreboard ---------------------------------------------------------
@@ -447,3 +448,97 @@ def test_print_diagnostics(tmp_path, capsys):
     output = capsys.readouterr().out
     assert "scoresight_1.log" in output
     assert "Traceback: boom" in output and "line 1" not in output
+
+
+# --- the boot benchmark --------------------------------------------------------------
+
+
+def test_benchmark(fake_app, tmp_path, capsys):
+    out = tmp_path / "boot.json"
+    code = boot_benchmark.main(
+        [
+            "--runs",
+            "3",
+            "--label",
+            "fake",
+            "--json",
+            str(out),
+            "--max-warm-seconds",
+            "60",
+            "--",
+            *fake_app,
+        ]
+    )
+    assert code == 0, capsys.readouterr().out
+    result = json.loads(out.read_text(encoding="utf-8"))
+    assert result["passed"] and result["failures"] == []
+    assert [run["kind"] for run in result["runs"]] == ["cold", "warm", "warm"]
+    assert all(run["exit_code"] == 0 for run in result["runs"])
+    summary = result["summary"]
+    assert summary["runs"] == 3 and summary["failed_runs"] == 0
+    assert summary["warm_min"] <= summary["warm_median"] <= summary["warm_max"]
+    # the fake app's startup report
+    assert summary["in_app"]["in-app: imports"] == {"cold": 0.3, "warm_median": 0.3}
+    assert "### Boot time: fake" in capsys.readouterr().out
+
+
+def test_legacy_benchmark_uses_the_fixed_port(fake_app, tmp_path, monkeypatch):
+    port = app_harness.free_port()
+    monkeypatch.setattr(app_harness, "LEGACY_HTTP_PORT", port)
+    monkeypatch.setenv("FAKE_APP_PORT", str(port))
+    out = tmp_path / "legacy.json"
+    assert (
+        boot_benchmark.main(
+            ["--legacy", "--runs", "1", "--json", str(out), "--", *fake_app]
+        )
+        == 0
+    )
+    result = json.loads(out.read_text(encoding="utf-8"))
+    [run] = result["runs"]
+    assert run["port"] == port and run["ready"] is not None
+    # no --port option and no startup report for 0.1.x
+    assert "startup_report" not in run
+    assert "in_app" not in result["summary"]
+
+
+def test_benchmark_fails_when_the_app_never_gets_ready(fake_app, tmp_path, monkeypatch):
+    monkeypatch.setenv("FAKE_APP_NO_HTTP", "1")
+    monkeypatch.setattr(boot_benchmark, "STOP_TIMEOUT_SECONDS", 5)
+    out = tmp_path / "boot.json"
+    code = boot_benchmark.main(
+        ["--runs", "1", "--timeout", "2", "--json", str(out), "--", *fake_app]
+    )
+    assert code == 1
+    result = json.loads(out.read_text(encoding="utf-8"))
+    assert result["failures"] == ["1 run(s) never got ready"]
+    assert "didn't answer within 2 s" in result["runs"][0]["error"]
+
+
+def test_benchmark_limits():
+    summary = boot_benchmark.summarize(
+        [{"ready": 30.0}, {"ready": 2.0}, {"ready": 4.0}, {"ready": 3.0}]
+    )
+    assert (summary["cold"], summary["warm_median"]) == (30.0, 3.0)
+    assert (summary["warm_min"], summary["warm_max"]) == (2.0, 4.0)
+    assert boot_benchmark.check_limits(summary, 60, 20) == []
+    assert boot_benchmark.check_limits(summary, 10, 2.5) == [
+        "cold start 30.00 s > 10 s",
+        "warm start median 3.00 s > 2.5 s",
+    ]
+    failed = boot_benchmark.summarize([{"ready": None}, {"ready": 1.0}])
+    assert failed["cold"] is None and failed["failed_runs"] == 1
+    assert boot_benchmark.check_limits(failed, None, None) == [
+        "1 run(s) never got ready"
+    ]
+
+
+def test_benchmark_comparison(tmp_path, capsys, monkeypatch):
+    summary = boot_benchmark.summarize([{"ready": 3.0}, {"ready": 1.0}])
+    new = tmp_path / "new.json"
+    new.write_text(json.dumps({"label": "0.2.0", "summary": summary}))
+    summary_path = tmp_path / "summary.md"
+    monkeypatch.setenv("GITHUB_STEP_SUMMARY", str(summary_path))
+    assert boot_benchmark.main(["--compare", str(new), str(tmp_path / "x.json")]) == 0
+    table = summary_path.read_text(encoding="utf-8")
+    assert "| 0.2.0 | 3.00 s | 1.00 s | 1.00-1.00 s | 2 (0) |" in table
+    assert "| x.json | no result | | | |" in table
