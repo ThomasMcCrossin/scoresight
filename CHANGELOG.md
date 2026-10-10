@@ -24,6 +24,9 @@ your outputs and sources do, and adds profiles for running several instances.
 - `--self-test` command-line option: a headless check of the installation
   (all modules, the bundled files, the main window and every bundled OCR model
   reading a test image) that prints `SELF-TEST OK` and exits with code 0.
+- Ctrl+C, `SIGTERM` and Ctrl+Break (Windows) quit ScoreSight cleanly, saving
+  the boxes and stopping the HTTP server, even with a dialog open. This is how
+  to stop an instance that runs without a window (`-platform offscreen`).
 - **File > Appearance** with System, Light and Dark colour schemes,
   remembered between runs ([#50](https://github.com/royshil/scoresight/issues/50)).
 - **File > Check for Updates** checks GitHub Releases and always shows the
