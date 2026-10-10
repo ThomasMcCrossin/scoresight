@@ -866,15 +866,31 @@ def test_startup_update_check_shows_an_available_update(
     window.update_dialog.close()
 
 
-def test_startup_update_check_respects_the_setting(make_window, monkeypatch, qapp):
+def test_startup_update_check_respects_the_setting(make_window, monkeypatch):
+    # pytest.fail() in the (background) check only killed that thread with a
+    # warning, so this passed even when the setting was ignored. The check is
+    # started (or not) synchronously by the constructor.
     import mainwindow
 
+    calls = []
     monkeypatch.setattr(
-        mainwindow, "check_for_updates", lambda: pytest.fail("update check ran")
+        mainwindow,
+        "check_for_updates",
+        lambda: calls.append(1) or UpdateCheckResult(__version__, __version__),
     )
+    started = []
+    real_run_in_background = mainwindow.run_in_background
+
+    def run_in_background(name, function, on_done):
+        started.append(name)
+        return real_run_in_background(name, function, on_done)
+
+    monkeypatch.setattr(mainwindow, "run_in_background", run_in_background)
     store_data("scoresight.json", "disable_update_checks", True)
     window = make_window()
-    qapp.processEvents()
+    assert "update check" not in started
+    assert "source discovery" in started  # the background jobs are seen
+    assert calls == []
     assert window.update_dialog is None
 
 
