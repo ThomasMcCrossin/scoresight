@@ -1189,9 +1189,10 @@ class MainWindow(QMainWindow):
                 self, "Open Video File", "", "Video Files (*.mp4 *.avi *.mov)"
             )
             if not file or not path.exists(file):
-                # no file selected - change source to "Select a source"
+                # no file selected - change source to "Select a source" (by
+                # index: its text is translated)
                 logger.error("No file selected")
-                self.ui.comboBox_camera_source.setCurrentText("Select a source")
+                self.ui.comboBox_camera_source.setCurrentIndex(SOURCE_INDEX_NONE)
                 return
             else:
                 logger.info("File selected: %s", file)

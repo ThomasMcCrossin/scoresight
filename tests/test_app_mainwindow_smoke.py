@@ -630,6 +630,27 @@ def test_refreshing_the_sources_keeps_the_selected_camera(
     assert fetch_data("scoresight.json", "source_selected") == stored
 
 
+def test_cancelling_the_file_dialog_in_a_translated_ui(
+    make_window, monkeypatch, no_dialogs
+):
+    # The cancel selected "Select a source" by its English text, which a
+    # translated combo box doesn't have: it stayed on "Open a Video File" with
+    # the boxes table and view tools disabled.
+    import mainwindow
+
+    store_data("scoresight.json", "source_selected", "rtsp://10.0.1.200:554/11")
+    window = make_window()
+    assert window.image_viewer is not None
+    combo = window.ui.comboBox_camera_source
+    combo.setItemText(0, "Wählen Sie eine Quelle")
+    monkeypatch.setattr(
+        mainwindow.QFileDialog, "getOpenFileName", lambda *args, **kwargs: ("", "")
+    )
+    combo.setCurrentIndex(1)  # "Open a Video File", then Cancel
+    assert combo.currentIndex() == 0
+    assert window.image_viewer is None  # as in English
+
+
 # --- menus, appearance (#50), dialogs ---------------------------------------------------------
 
 
