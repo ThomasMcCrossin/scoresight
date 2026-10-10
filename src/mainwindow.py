@@ -1632,6 +1632,10 @@ class MainWindow(QMainWindow):
         if self.log_dialog:
             self.log_dialog.close()
             self.log_dialog = None
+        # dialogs without a parent would keep the app running
+        for dialog in (self.video_settings_dialog, self.obs_connect_modal):
+            if dialog is not None:
+                dialog.close()
 
         # write pending file outputs and store the boxes to scoresight.json
         self.flushFileOutputs()

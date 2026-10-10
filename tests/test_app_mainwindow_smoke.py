@@ -146,6 +146,18 @@ def test_main_window_constructs_shows_and_closes(make_window, patched, qapp):
     assert leftover == []
 
 
+def test_closing_the_window_closes_its_parentless_dialogs(make_window, qapp):
+    # a visible dialog without a parent keeps Qt's event loop (and the app)
+    # running after the main window closed
+    window = make_window()
+    window.show()
+    window.openOBSConnectModal()
+    assert window.obs_connect_modal.isVisible()
+    window.close()
+    qapp.processEvents()
+    assert not window.obs_connect_modal.isVisible()
+
+
 def test_title_shows_the_profile(make_window, monkeypatch):
     monkeypatch.setenv("SCORESIGHT_PROFILE", "court2")
     window = make_window()

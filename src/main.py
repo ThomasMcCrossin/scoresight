@@ -227,6 +227,10 @@ def install_quit_signal_handlers(app, window):
     def close_window(signum, frame):
         # queued: the handler may run in the middle of another Python slot
         QTimer.singleShot(0, window.close)
+        # a dialog without a parent (Video Settings, Connect to OBS, a modal
+        # source dialog) is a window of its own and would otherwise keep the
+        # event loop running after the main window closed
+        QTimer.singleShot(0, app.quit)
 
     for name in QUIT_SIGNALS:
         signum = getattr(signal, name, None)

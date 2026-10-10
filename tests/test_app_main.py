@@ -3,6 +3,7 @@
 import os
 import subprocess
 import sys
+import textwrap
 from pathlib import Path
 
 import pytest
@@ -231,3 +232,51 @@ def test_quit_signals_close_the_main_window(qapp, monkeypatch):
         timer.stop()
         timer.deleteLater()
         window.deleteLater()
+
+
+@pytest.mark.qt
+def test_quit_signals_end_the_app_with_a_dialog_open(tmp_path):
+    # A dialog without a parent (Video Settings, Connect to OBS) is a window of
+    # its own: closing the main window didn't end the event loop, so the process
+    # kept running (with the HTTP server up) after Ctrl+C or SIGTERM. Run in a
+    # process of its own: quitting the event loop affects the whole QApplication.
+    script = textwrap.dedent(
+        """
+        import signal
+        import sys
+
+        from PySide6.QtCore import QTimer
+        from PySide6.QtWidgets import QApplication, QDialog, QWidget
+
+        import main
+
+        app = QApplication([])
+        window = QWidget()
+        window.show()
+        dialog = QDialog()  # no parent, like Connect to OBS
+        dialog.show()
+        main.install_quit_signal_handlers(app, window)
+        QTimer.singleShot(100, lambda: signal.raise_signal(signal.SIGINT))
+        QTimer.singleShot(10000, lambda: app.exit(3))  # still running: give up
+        code = app.exec()
+        print("closed" if not window.isVisible() else "visible")
+        sys.exit(code)
+        """
+    )
+    env = dict(os.environ)
+    env.update(
+        QT_QPA_PLATFORM="offscreen",
+        PYTHONPATH=str(SRC_DIR),
+        SCORESIGHT_DATA_DIR=str(tmp_path / "data"),
+        SCORESIGHT_LOG_DIR=str(tmp_path / "logs"),
+    )
+    process = subprocess.run(
+        [sys.executable, "-c", script],
+        cwd=tmp_path,
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
+    assert process.returncode == 0, process.stdout + process.stderr
+    assert process.stdout.split() == ["closed"]
