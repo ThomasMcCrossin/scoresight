@@ -1033,13 +1033,20 @@ class MainWindow(QMainWindow):
             return
         self.ui.pushButton_refresh_sources.setEnabled(True)
         self.reset_playing_source()
+        combo = self.ui.comboBox_camera_source
+        # Removing the current camera item moves the current index, which would
+        # run sourceChanged (opening another camera, or the Screen Capture
+        # dialog). Go to "none" instead: the viewer is closed, and
+        # restoreSelectedSource reopens the stored source below.
+        combo.blockSignals(True)
+        combo.setCurrentIndex(SOURCE_INDEX_NONE)
         # clear all the items after "Screen Capture"
-        for i in range(4, self.ui.comboBox_camera_source.count()):
-            self.ui.comboBox_camera_source.removeItem(4)
-
+        for _ in range(FIRST_CAMERA_SOURCE_INDEX, combo.count()):
+            combo.removeItem(FIRST_CAMERA_SOURCE_INDEX)
         # populate the combobox with the sources
         for source in camera_sources:
-            self.ui.comboBox_camera_source.addItem(source.description, source)
+            combo.addItem(source.description, source)
+        combo.blockSignals(False)
 
         self.ui.comboBox_camera_source.setEnabled(True)
         currentIndexChangedSignal = QMetaMethod.fromSignal(

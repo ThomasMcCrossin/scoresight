@@ -584,6 +584,52 @@ def test_camera_source_is_stored_and_restored(make_window, patched):
     assert restored.image_viewer.camera_info.type == "NDI"
 
 
+@pytest.fixture
+def no_dialogs(monkeypatch):
+    """Record (instead of showing) the modal dialogs the main window opens."""
+    from PySide6.QtWidgets import QDialog
+
+    shown = []
+    monkeypatch.setattr(
+        QDialog, "exec", lambda self: shown.append(self.windowTitle()) or 0
+    )
+    return shown
+
+
+@pytest.mark.parametrize("cameras", [1, 2])
+def test_refreshing_the_sources_keeps_the_selected_camera(
+    make_window, patched, qtbot, no_dialogs, cameras
+):
+    # Removing the current camera's item during a refresh ran sourceChanged: it
+    # opened the Screen Capture dialog, and with two cameras switched to (and
+    # stored) the other one.
+    patched["cameras"].extend(
+        CameraInfo(f"Cam {n}", f"uuid-{n}", n, CameraInfo.CameraType.OPENCV)
+        for n in range(cameras)
+    )
+    window = make_window()
+    combo = window.ui.comboBox_camera_source
+    combo.setCurrentIndex(combo.findText("Cam 0"))
+    stored = fetch_data("scoresight.json", "source_selected")
+    assert stored["value"] == "uuid-0"
+
+    window.getSources()  # the refresh button
+    qtbot.waitUntil(lambda: not window.sources_discovery_running)
+    assert no_dialogs == []
+    assert combo.currentText() == "Cam 0"
+    assert window.image_viewer.camera_info.uuid == "uuid-0"
+    assert fetch_data("scoresight.json", "source_selected") == stored
+
+    # the camera was unplugged: no source, and still no dialog
+    patched["cameras"].pop(0)
+    window.getSources()
+    qtbot.waitUntil(lambda: not window.sources_discovery_running)
+    assert no_dialogs == []
+    assert combo.currentIndex() == 0
+    assert window.image_viewer is None
+    assert fetch_data("scoresight.json", "source_selected") == stored
+
+
 # --- menus, appearance (#50), dialogs ---------------------------------------------------------
 
 
