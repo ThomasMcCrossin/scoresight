@@ -1,0 +1,349 @@
+"""The main window's status bar: the source with its resolution and frame rate,
+the OCR rate against the Detections / s setting, a chip while the outputs are
+paused, and the HTTP server's address with a Copy button.
+
+MainWindow builds a StatusSnapshot from what it already knows (the capture
+thread's counters, the pause state, the HTTP server's port) about once a second,
+and MainStatusBar shows it. Nothing here waits for the network.
+"""
+
+import html
+import socket
+from dataclasses import dataclass
+from urllib.parse import urlsplit, urlunsplit
+
+from PySide6.QtCore import QCoreApplication, QPoint, Qt
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtWidgets import QLabel, QStatusBar, QToolButton, QToolTip
+
+import theme
+from camera_info import CameraInfo
+
+# Source states
+SOURCE_NONE = "none"
+SOURCE_OPENING = "opening"
+SOURCE_RUNNING = "running"
+SOURCE_STALLED = "stalled"
+SOURCE_ERROR = "error"
+
+# An OCR rate below this share of the Detections / s setting is highlighted:
+# the computer can't keep up.
+SLOW_OCR_SHARE = 0.7
+
+# (glyph, theme colour) of each source state; the glyph's shape tells the
+# states apart without colour
+_SOURCE_LOOK = {
+    SOURCE_NONE: ("○", None),
+    SOURCE_OPENING: ("▲", "rejected"),
+    SOURCE_RUNNING: ("●", "new"),
+    SOURCE_STALLED: ("▲", "rejected"),
+    SOURCE_ERROR: ("■", "empty"),
+}
+
+
+@dataclass(frozen=True)
+class StatusSnapshot:
+    source_name: str | None = None
+    source_state: str = SOURCE_NONE
+    resolution: tuple[int, int] | None = None
+    fps: float | None = None
+    # detection passes per second, and the Detections / s setting
+    ocr_rate: float | None = None
+    ocr_target: float | None = None
+    # seconds since the outputs were paused, None while they aren't
+    paused_seconds: float | None = None
+    # the HTTP server's URL, None when it isn't running
+    http_url: str | None = None
+    http_urls: tuple[str, ...] = ()
+    # the port the HTTP server was asked to use
+    http_port: int | None = None
+
+
+def primary_lan_address() -> str | None:
+    """The IPv4 address of the interface that has the default route, or None
+    (no network). Connecting a UDP socket only looks up the route: nothing is
+    sent."""
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as probe:
+            # TEST-NET-1 (RFC 5737): never reached, only routed
+            probe.connect(("192.0.2.1", 9))
+            address = probe.getsockname()[0]
+    except OSError:
+        return None
+    if not address or address.startswith(("0.", "127.", "169.254.")):
+        return None
+    return address
+
+
+def http_server_urls(port: int, lan_address: str | None) -> tuple[str, ...]:
+    """The HTTP server's URLs: on the LAN address first (for other computers),
+    then on localhost."""
+    urls = [f"http://localhost:{port}"]
+    if lan_address:
+        urls.insert(0, f"http://{lan_address}:{port}")
+    return tuple(urls)
+
+
+def without_credentials(url: str) -> str:
+    """A URL without the user name and password (rtsp://user:pass@host/...)."""
+    try:
+        parts = urlsplit(url)
+    except ValueError:
+        return url
+    if parts.username is None and parts.password is None:
+        return url
+    host = parts.hostname or ""
+    if parts.port is not None:
+        host = f"{host}:{parts.port}"
+    return urlunsplit((parts.scheme, host, parts.path, parts.query, parts.fragment))
+
+
+def source_display_name(camera_info: CameraInfo | None) -> str | None:
+    """A short name for a source: a file's name, a stream's URL (without its
+    password), "Screen capture", or a camera's or NDI source's name."""
+    if camera_info is None:
+        return None
+    if camera_info.type == CameraInfo.CameraType.FILE:
+        path = str(camera_info.id)
+        return path.replace("\\", "/").rsplit("/", 1)[-1] or path
+    if camera_info.type == CameraInfo.CameraType.URL:
+        return without_credentials(str(camera_info.id))
+    if camera_info.type == CameraInfo.CameraType.SCREEN_CAPTURE:
+        return QCoreApplication.translate("StatusBar", "Screen capture")
+    return str(camera_info.description)
+
+
+def format_duration(seconds: float) -> str:
+    """mm:ss, or h:mm:ss from an hour on."""
+    seconds = max(0, int(seconds))
+    hours, rest = divmod(seconds, 3600)
+    minutes, seconds = divmod(rest, 60)
+    if hours:
+        return f"{hours}:{minutes:02d}:{seconds:02d}"
+    return f"{minutes:02d}:{seconds:02d}"
+
+
+def _elide_middle(text: str, limit: int = 48) -> str:
+    if len(text) <= limit:
+        return text
+    keep = (limit - 1) // 2
+    return f"{text[:keep]}…{text[-keep:]}"
+
+
+def source_text(snapshot: StatusSnapshot) -> str:
+    """The source part, as plain text."""
+    state = snapshot.source_state
+    if state == SOURCE_NONE or not snapshot.source_name:
+        return QCoreApplication.translate("StatusBar", "No source")
+    name = _elide_middle(snapshot.source_name)
+    if state == SOURCE_OPENING:
+        return QCoreApplication.translate("StatusBar", "Opening {source}…").format(
+            source=name
+        )
+    if state == SOURCE_ERROR:
+        return QCoreApplication.translate(
+            "StatusBar", "{source}: can't be read"
+        ).format(source=name)
+    if state == SOURCE_STALLED:
+        return QCoreApplication.translate(
+            "StatusBar", "{source}: no new frames"
+        ).format(source=name)
+    parts = [name]
+    if snapshot.resolution and all(snapshot.resolution):
+        width, height = snapshot.resolution
+        parts.append(f"{int(width)}×{int(height)}")
+    if snapshot.fps is not None:
+        parts.append(
+            QCoreApplication.translate("StatusBar", "{fps} fps").format(
+                fps=f"{snapshot.fps:.1f}"
+            )
+        )
+    return " · ".join(parts)
+
+
+def ocr_text(snapshot: StatusSnapshot) -> str:
+    """The OCR rate part ("" when no source is running)."""
+    if snapshot.source_state != SOURCE_RUNNING or snapshot.ocr_rate is None:
+        return ""
+    if snapshot.ocr_target:
+        return QCoreApplication.translate(
+            "StatusBar", "Reading {rate}/s of {target}"
+        ).format(rate=f"{snapshot.ocr_rate:.1f}", target=f"{snapshot.ocr_target:g}")
+    return QCoreApplication.translate("StatusBar", "Reading {rate}/s").format(
+        rate=f"{snapshot.ocr_rate:.1f}"
+    )
+
+
+def ocr_is_slow(snapshot: StatusSnapshot) -> bool:
+    return bool(
+        snapshot.source_state == SOURCE_RUNNING
+        and snapshot.ocr_rate is not None
+        and snapshot.ocr_target
+        and snapshot.ocr_rate < SLOW_OCR_SHARE * snapshot.ocr_target
+    )
+
+
+def paused_text(snapshot: StatusSnapshot) -> str:
+    if snapshot.paused_seconds is None:
+        return ""
+    return QCoreApplication.translate("StatusBar", "PAUSED {elapsed}").format(
+        elapsed=format_duration(snapshot.paused_seconds)
+    )
+
+
+def http_text(snapshot: StatusSnapshot) -> str:
+    if snapshot.http_url:
+        return snapshot.http_url
+    return QCoreApplication.translate(
+        "StatusBar", "HTTP server not running (port {port} busy)"
+    ).format(port=snapshot.http_port)
+
+
+def _set_style_sheet(widget, style_sheet: str):
+    # called every second: restyle only on a change
+    if widget.styleSheet() != style_sheet:
+        widget.setStyleSheet(style_sheet)
+
+
+def _colored(glyph: str, color) -> str:
+    if color is None:
+        return glyph
+    return f'<span style="color:{color.name()}">{glyph}</span>'
+
+
+class MainStatusBar:
+    """The permanent widgets of the main window's QStatusBar."""
+
+    def __init__(self, statusbar: QStatusBar):
+        self.statusbar = statusbar
+        self.snapshot = StatusSnapshot()
+
+        self.label_source = QLabel(statusbar)
+        self.label_source.setObjectName("label_statusSource")
+        self.label_source.setTextFormat(Qt.TextFormat.RichText)
+        self.label_ocr = QLabel(statusbar)
+        self.label_ocr.setObjectName("label_statusOcr")
+        self.label_paused = QLabel(statusbar)
+        self.label_paused.setObjectName("label_statusPaused")
+        self.label_paused.hide()
+        self.label_http = QLabel(statusbar)
+        self.label_http.setObjectName("label_statusHttp")
+        self.label_http.setTextFormat(Qt.TextFormat.RichText)
+        self.label_http.setTextInteractionFlags(
+            Qt.TextInteractionFlag.TextSelectableByMouse
+        )
+        self.button_copy = QToolButton(statusbar)
+        self.button_copy.setObjectName("toolButton_copyHttpUrl")
+        self.button_copy.setAutoRaise(True)
+        self.button_copy.clicked.connect(self.copyHttpUrl)
+
+        statusbar.addWidget(self.label_source)
+        statusbar.addWidget(self.label_ocr)
+        statusbar.addWidget(self.label_paused)
+        statusbar.addPermanentWidget(self.label_http)
+        statusbar.addPermanentWidget(self.button_copy)
+        self.retranslate()
+
+    def retranslate(self):
+        self.button_copy.setText(QCoreApplication.translate("StatusBar", "Copy"))
+        self.button_copy.setToolTip(
+            QCoreApplication.translate(
+                "StatusBar", "Copy the HTTP server's address to the clipboard"
+            )
+        )
+        self.button_copy.setAccessibleName(
+            QCoreApplication.translate("StatusBar", "Copy the HTTP server's address")
+        )
+        self.update(self.snapshot)
+
+    def update(self, snapshot: StatusSnapshot):
+        self.snapshot = snapshot
+        palette = self.statusbar.palette()
+
+        glyph, color_name = _SOURCE_LOOK.get(
+            snapshot.source_state, _SOURCE_LOOK[SOURCE_NONE]
+        )
+        color = theme.color(color_name, palette) if color_name else None
+        self.label_source.setText(
+            f"{_colored(glyph, color)}&nbsp;{html.escape(source_text(snapshot), quote=False)}"
+        )
+        self.label_source.setToolTip(
+            QCoreApplication.translate(
+                "StatusBar", "The video source, its resolution and frame rate"
+            )
+        )
+
+        text = ocr_text(snapshot)
+        self.label_ocr.setVisible(bool(text))
+        self.label_ocr.setText(text)
+        slow = ocr_is_slow(snapshot)
+        _set_style_sheet(
+            self.label_ocr,
+            f"color: {theme.color('rejected', palette).name()};" if slow else "",
+        )
+        tooltip = QCoreApplication.translate(
+            "StatusBar",
+            "How many times per second the boxes are read, and the Detections / s "
+            "setting. The preview picture refreshes about once per second on purpose.",
+        )
+        if slow:
+            tooltip += "\n" + QCoreApplication.translate(
+                "StatusBar",
+                "The computer can't keep up: lower Detections / s, use fewer boxes or "
+                "a lower source resolution.",
+            )
+        self.label_ocr.setToolTip(tooltip)
+
+        paused = paused_text(snapshot)
+        self.label_paused.setVisible(bool(paused))
+        self.label_paused.setText(paused)
+        _set_style_sheet(
+            self.label_paused,
+            "QLabel { background-color: %s; color: %s; font-weight: bold;"
+            " border-radius: 3px; padding: 1px 6px; }"
+            % (
+                theme.color("paused", palette).name(),
+                theme.on_color(palette).name(),
+            ),
+        )
+        self.label_paused.setToolTip(
+            QCoreApplication.translate(
+                "StatusBar", "The outputs are paused: they keep their last values"
+            )
+        )
+
+        if snapshot.http_url:
+            self.label_http.setText(html.escape(http_text(snapshot), quote=False))
+            others = "\n".join(snapshot.http_urls or (snapshot.http_url,))
+            self.label_http.setToolTip(
+                QCoreApplication.translate(
+                    "StatusBar",
+                    "The HTTP server (scoreboard page, JSON, XML, CSV). Open it in a "
+                    "browser or in other software on this computer or network:\n{urls}",
+                ).format(urls=others)
+            )
+        else:
+            self.label_http.setText(
+                f"{_colored('■', theme.color('empty', palette))}&nbsp;"
+                f"{html.escape(http_text(snapshot), quote=False)}"
+            )
+            self.label_http.setToolTip(
+                QCoreApplication.translate(
+                    "StatusBar",
+                    "Another program uses the port. Close it, or start ScoreSight "
+                    "with --port to use a different port.",
+                )
+            )
+        self.button_copy.setVisible(bool(snapshot.http_url))
+
+    def copyHttpUrl(self):
+        if not self.snapshot.http_url:
+            return
+        QGuiApplication.clipboard().setText(self.snapshot.http_url)
+        QToolTip.showText(
+            self.button_copy.mapToGlobal(QPoint(0, 0)),
+            QCoreApplication.translate("StatusBar", "Copied {url}").format(
+                url=self.snapshot.http_url
+            ),
+            self.button_copy,
+        )
