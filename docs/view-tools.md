@@ -25,8 +25,8 @@ Every frame goes through the same steps, in this order:
 2. **Crop** (left / top / right / bottom pixels)
 3. **Stabilize** (if enabled)
 4. **4-corner correction** (perspective warp, if set)
-5. Convert to grayscale and black-and-white (see [Binarize](box-settings.md#binarize)).
-6. Read every box with its own [per-box settings](box-settings.md).
+5. Convert to grayscale, plus one black-and-white version of the whole picture if a box uses [Global binarization](box-settings.md#binarize).
+6. Read every box with its own [per-box settings](box-settings.md), each on its own copy of the picture.
 
 Boxes are positioned on the **result** of steps 1–4. Change rotation, crop or 4-corner correction first, then place your boxes. If you change them later, check that the boxes still sit on the right digits.
 
@@ -47,7 +47,7 @@ See [Keyboard & Mouse](keyboard-mouse.md) for the full reference.
 
 ## Binary View
 
-**Binary View** switches the preview between the camera picture and the black-and-white image the OCR engine reads. Inside each box you see the result of that box's own settings (binarization method, cleanup, scaling, skew, dilation...).
+**Binary View** switches the preview between the camera picture and the black-and-white image the OCR engine reads. Inside each box you see the result of that box's own settings (binarization method, cleanup, vertical scale, skew and dilation), exactly as the OCR receives it.
 
 This is the most useful tuning tool: the OCR can only read what you see here. Digits should be solid and clearly separated from the background, with no stray specks touching them. See [Recognition Tuning](recognition-tuning.md).
 
@@ -61,8 +61,10 @@ When the camera looks at the scoreboard at an angle, the digits are skewed and g
 
 To redo it, click the button again (this clears the correction), then click it once more and pick new corners. To remove the correction, click the button so it is no longer highlighted.
 
+If the four points can't be used (for example the same corner clicked twice, points almost in a line, a crossed shape, or a very small area), ScoreSight shows "Invalid four-corner selection", clears the points and lets you click four new corners. An unusable correction saved by an older version is discarded at startup.
+
 {: .tip }
-Pick corners that form a real rectangle in the world, such as the outer frame of the scoreboard. Four points that are almost in a line cannot be corrected.
+Pick corners that form a real rectangle in the world, such as the outer frame of the scoreboard.
 
 ## Crop
 
@@ -74,10 +76,11 @@ Pick corners that form a real rectangle in the world, such as the outer frame of
 
 ## Stabilize
 
-**Stabilize** compensates for small camera movements, such as a tripod bumped during the game or a camera that slowly drifts. When you enable it, ScoreSight spends the next few processed frames building a reference image. After that, it aligns every new frame to the reference.
+**Stabilize** compensates for small camera movements, such as a tripod bumped during the game or a camera that slowly drifts. When you enable it, ScoreSight averages the next few processed frames into a reference image, and passes the frames through unchanged meanwhile. After that, it aligns every new frame to the reference.
 
 - Enable it after the camera is in its final position.
-- To take a new reference (for example after re-aiming the camera), turn **Stabilize** off and on again.
+- To take a new reference (for example after re-aiming the camera), turn **Stabilize** off and on again. A change of the picture size also starts over.
+- Frames that can't be aligned (black or featureless frames, or too few matching details) are passed through unchanged instead of being distorted.
 - Leave it off for fixed, rigid mounts and for screen capture, because it costs CPU.
 
 ## Box display style
@@ -91,7 +94,7 @@ The drop-down next to the view tools controls how boxes are drawn:
 | **Names** | Outlines, box names and the current reading |
 | **All** (default) | Everything in *Names*, plus a green rectangle around the area that was actually read (with [Auto Crop](box-settings.md#auto-crop)) and blue rectangles around each character the OCR found |
 
-The reading under each box is colour-coded. Green means a new value, light green an unchanged value, yellow a value rejected by a filter (`SIM` means skipped because the image didn't change), and red `EMP` means nothing was read.
+The reading under each box is colour-coded. Green means a new value, light green an unchanged value, yellow a value rejected by a filter, and red `EMP` means nothing was read.
 
 ## OSD (on-screen statistics)
 
@@ -101,7 +104,7 @@ The reading under each box is colour-coded. Green means a new value, light green
 |---|---|
 | **Frames/s** | How many frames per second ScoreSight reads from the source (capped at about 33). |
 | **Updates/s** | How many times per second the boxes are read. Follows the **Detections / s** slider (1–15, default 5). |
-| **Previews/s** | How often the preview picture is refreshed. This is about **1 per second on purpose**, to leave the CPU for OCR. It does not affect how fast values are read or sent. |
+| **Previews/s** | How often the preview picture is refreshed. This is about **1 per second on purpose**, at any Detections / s setting, to leave the CPU for OCR. It does not affect how fast values are read or sent. |
 | **Resolution** | The resolution delivered by the source. |
 
 See [Performance Tuning](performance.md) for how to interpret and improve these numbers.

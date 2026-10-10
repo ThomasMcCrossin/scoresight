@@ -27,16 +27,16 @@ Open **File** > **OCR Training Data Setup**:
 
 | Control | What it does |
 |---|---|
-| **Save Folder** | Where samples are saved. Click **...** to choose a folder. The default is the `ocr_training_data` folder inside the ScoreSight [settings folder](configuration.md#where-scoresight-keeps-its-files). |
-| **Open Folder** | Opens the folder in your file manager. |
+| **Save Folder** | Where samples are saved. Click **...** to choose a folder. The default is the `ocr_training_data` folder inside the ScoreSight [settings folder](configuration.md#where-scoresight-keeps-its-files) (and follows `SCORESIGHT_DATA_DIR`). Folders with non-ASCII characters in their path work on every platform. |
+| **Open Folder** | Opens the folder in your file manager (Windows, macOS and Linux), creating it first if it doesn't exist yet. |
 | **Save Zip File** | Packs the whole folder into a `.zip` file wherever you choose. |
-| **Max Size** | The maximum size of the folder in MB (default 10). When the folder reaches it, ScoreSight stops saving new samples and writes an error to the log. |
+| **Max Size** | The maximum size of the folder in MB (default 10). When the folder reaches it, ScoreSight stops saving new samples and writes one error to the log. It checks the folder again every 30 seconds and resumes saving when there is room again (for example after you moved samples out), or right away when you change **Max Size** or the folder. |
 | **Open OCR Training Dojo** | Opens the annotation tool (see below). |
 
-Click **OK** to apply your changes.
+Click **OK** to apply your changes. ScoreSight creates the folder if needed. If it can't (for example on a read-only drive), it shows a warning and keeps the previous settings.
 
 {: .new }
-In ScoreSight 0.1.x a changed **Save Folder** was ignored and samples always went to the default folder ([#52](https://github.com/royshil/scoresight/issues/52)). This is fixed in 0.2.0.
+In ScoreSight 0.1.x a changed **Save Folder** was ignored and samples always went to the default folder ([#52](https://github.com/royshil/scoresight/issues/52)). This is fixed in 0.2.0: the folder you choose is used right away and remembered.
 
 ## 2. Collect samples
 
@@ -44,15 +44,17 @@ Click **Save OCR Training Data** (top right of the main window) to start collect
 
 ![The Save OCR Training Data button](image-24.png)
 
-While it is on, every reading that is neither empty nor unchanged saves three files per box into the training data folder. That includes readings rejected by a filter (yellow), which are often the most useful ones to annotate:
+While it is on, every new reading (green) and every reading rejected by a filter (yellow) saves three files per box into the training data folder. The rejected readings are often the most useful ones to annotate. Empty and unchanged readings, template fields and boxes that are entirely outside the picture are not saved:
 
 | File | Content |
 |---|---|
 | `<id>.png` | The black-and-white image of the box, as the OCR saw it |
 | `<id>_gray.png` | The grayscale image of the box |
-| `<id>.txt` | The text ScoreSight recognized (you correct it in the Training Dojo) |
+| `<id>.txt` | The text ScoreSight recognized, UTF-8 (you correct it in the Training Dojo) |
 
 Collect samples from a real game or a recording, so you capture all digits and the conditions you care about (lighting, angles, changing digits). A few hundred samples per box type is a good start.
+
+Saving samples never interrupts recognition. If a sample can't be written, ScoreSight logs the error once and pauses saving for 30 seconds.
 
 ## 3. Annotate in the Training Dojo
 
@@ -60,7 +62,7 @@ Click **Open OCR Training Dojo** in the setup dialog.
 
 ![The Training Dojo](image-27.png)
 
-- **Left**: all samples. Approved samples are shown first, in green with a ✓.
+- **Left**: all samples, sorted by name. Approved samples are shown in green with a ✓. Click a sample to open it.
 - **Right**: the current image and a text box with its annotation. When a sample is approved, the image and text box are outlined in green.
 
 For each image:
@@ -71,9 +73,11 @@ For each image:
 
 2. Press **Enter** to approve it and move to the next image.
 
-Tick **Only Undone** to show only samples you haven't approved yet. Your approvals are stored in `approved_annotations.json` in the training data folder, and corrected text is written back to the sample's `.txt` file.
+Tick **Only Undone** to show only samples you haven't approved yet. Your approvals are stored in `approved_annotations.json` in the training data folder, and corrected text is written back to the sample's `.txt` file (UTF-8). An empty folder, a sample without its `.txt` file or a damaged `approved_annotations.json` doesn't stop the Dojo from opening.
 
 ### Keyboard shortcuts
+
+On macOS, use **⌘ Cmd** wherever this table says **Ctrl**.
 
 | Key | Action |
 |---|---|
@@ -81,11 +85,13 @@ Tick **Only Undone** to show only samples you haven't approved yet. Your approva
 | **Shift + Enter** | Go to the previous image |
 | **Up** / **Down** | Previous / next image |
 | **Ctrl + Up** / **Ctrl + Down** | Jump to the previous / next unapproved image |
-| **N** / **B** | Next / back |
-| **U** | Remove the approval from the current image |
+| **Ctrl + N** / **Ctrl + B** | Next / back |
+| **Ctrl + U** | Remove the approval from the current image |
 
-{: .note }
-**N**, **B** and **U** are navigation shortcuts. Scoreboard annotations are normally digits, `:` and `.`, so they rarely get in the way. If you annotate text that contains these letters, type it in a text editor and paste it into the annotation box.
+The shortcuts also work while you type in the annotation box, and plain letters are always typed into the annotation. Moving to another image saves the text you typed to the sample's `.txt` file, without approving it. The tooltips of the **<** and **>** buttons and of the annotation box show the shortcuts.
+
+{: .new }
+In ScoreSight 0.1.x, the shortcuts were the plain letters **N**, **B** and **U**, so those letters couldn't be typed into an annotation.
 
 ## 4. Export and use the data
 

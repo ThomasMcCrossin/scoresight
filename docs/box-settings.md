@@ -27,7 +27,7 @@ For a task-oriented guide, see [Recognition Tuning](recognition-tuning.md).
 | [Format](#format) | `format_regex` | regular expression | depends on the field (see below) |
 | [Average Output](#average-output) | `smoothing` | on/off | off |
 | [Skip Empty Values](#skip-empty-values) | `skip_empty` | on/off | on |
-| [Conf. Th](#conf-th-confidence-threshold) | `conf_thresh` | 0.00–0.99 (slider 0–99) | 0.50 |
+| [Conf. Th](#conf-th-confidence-threshold) | `conf_thresh` | 0.00–0.99 (slider 0–99 = Tesseract confidence in %) | 0 (off) |
 | [Binarize](#binarize) | `binarization_method` | `0` Global, `1` No Binarization, `2` Local, `3` Adaptive | `0` Global |
 | [Cleanup](#cleanup) | `cleanup_thresh` | 0.00–0.99 (slider 0–99) | 0 (off) |
 | [Dilate](#dilate) | `dilate` | 0–5 | 1 |
@@ -50,20 +50,22 @@ For a task-oriented guide, see [Recognition Tuning](recognition-tuning.md).
 
 For each box, on every detection cycle, ScoreSight:
 
-1. takes the box area from the processed picture and **binarizes** it (*Binarize*),
-2. removes small specks (*Cleanup*),
-3. squashes it vertically (*V.Scale*) and shears it (*Skew*),
-4. thickens strokes (*Dilate*),
-5. inverts it (*Invert Input*),
-6. skips OCR if the image hasn't changed (*Skip Similar Image*),
-7. crops to the text (*Auto Crop*),
-8. scales it (*Rescale Input*, *Normalize W-H Ratio*),
-9. counts dots (*Dot Counter*) **or** runs OCR with the character set of the *Type*,
-10. checks the raw text against the *Format* and the *Conf. Th* threshold,
-11. applies *Average Output*, *Remove leading 0s* and *Ordinal*,
-12. marks the reading `Empty` if no text is left, or `SameNoChange` if it equals the previous reading and **Update on change** is on.
+1. takes the part of the box that is inside the processed picture (a box that reaches past the edge is read from its visible part; its saved position isn't changed),
+2. **binarizes** it (*Binarize*),
+3. removes small specks (*Cleanup*),
+4. squashes it vertically (*V.Scale*) and shears it (*Skew*),
+5. thickens strokes (*Dilate*),
+6. inverts it (*Invert Input*),
+7. reports the box as `Empty` without running OCR if the image is blank (every pixel the same, for example a box over plain background); a *Dot Counter* box reports `0` instead,
+8. skips OCR if the image hasn't changed (*Skip Similar Image*),
+9. crops to the text (*Auto Crop*),
+10. scales it (*Rescale Input*, *Normalize W-H Ratio*),
+11. counts dots (*Dot Counter*) **or** runs OCR with the character set of the *Type*,
+12. checks the raw text against the *Format* and the *Conf. Th* threshold,
+13. applies *Average Output* (to accepted readings only), *Remove leading 0s* and *Ordinal*,
+14. marks the reading `Empty` if no text is left, or `SameNoChange` if it equals the box's last good reading and **Update on change** is on.
 
-**Binary View** shows the result of steps 1–4 for every box.
+Each box is processed on its own copy of the picture, so overlapping boxes never affect each other. **Binary View** shows the result of steps 1–5 for every box: exactly the image the OCR receives, before *Invert Input*.
 
 ## Recognition
 
@@ -113,25 +115,34 @@ The *Time mm:ss.d* expression is:
 
 ### Conf. Th (confidence threshold)
 
-`conf_thresh`: the minimum average confidence (0–99 on the slider) the OCR engine must report for the reading. Below it, the reading is marked `FailedFilter`.
+`conf_thresh`: the minimum confidence, in percent, that the Tesseract OCR engine must report for a reading. The slider goes from 0 to 99, and the setting is stored as a fraction (slider ÷ 100, so 60 % is stored as `0.6`). A reading below the threshold is marked `FailedFilter` (yellow). **0 turns the check off, and is the default.**
 
-**Use**: raise it (for example to 70) when random wrong values slip through. Lower it if correct readings turn yellow. Combine it with a strict **Format**.
+- ScoreSight uses Tesseract's mean confidence for the recognized text. Tesseract sometimes reports 0 for a correct, non-empty reading; in that case the average of the per-character confidences is used instead.
+- A value above 1 in a hand-edited settings file is taken as a percentage (`60` means 60 %).
+
+**Use**: leave it off unless wrong values get through a strict **Format**. Then try 30–50 and raise it slowly while watching for correct readings that turn yellow. Correct readings of real scoreboard footage often score only 30–50 %, so high thresholds reject good values.
+
+{: .new }
+In ScoreSight 0.1.x this setting had no effect, because a confidence of 0–100 was compared with a threshold of 0–1. ScoreSight 0.2.0 compares them correctly. Since the old default (50) never did anything, boxes saved by an older version get their threshold set to 0 (off) once, the first time 0.2.0 loads them, so they read exactly as before. The settings file records this with `"boxes_schema_version": 2`, and the log mentions it.
 
 ### Average Output
 
-`smoothing`: replaces each reading with a per-character majority vote over the last 5 readings of the box.
+`smoothing`: replaces each reading with the most common value among the box's last 5 accepted (`Success`) readings, comparing whole values. Ties go to the most recent value. Rejected and empty readings don't enter the history.
 
-**Use**: for values that flicker between two readings, for example during LED refresh. It delays changes by a few cycles, so prefer a stricter **Format** or better exposure for fast clocks.
+**Use**: for values that flicker between two readings, for example during LED refresh. A new value must win the vote before it is shown, which delays changes by a couple of detection cycles, so prefer a stricter **Format** or better exposure for fast clocks.
+
+{: .new }
+ScoreSight 0.1.x voted character by character, so a change from `12` to `9` could briefly produce `92`. 0.2.0 votes on whole values.
 
 ### Skip Empty Values
 
-`skip_empty`: when a reading is empty, don't overwrite the box's text file or OBS text source. They keep showing the last value.
+`skip_empty`: never write an empty value to the box's text file or OBS text source.
 
-**Use**: keep it on (the default) so a momentary blank (a flickering LED, a person walking in front of the board, a camera flash) doesn't blank your graphics. Turn it off if an empty board should also clear the graphics.
+**Use**: keep it on (the default). In ScoreSight 0.2.0, text files and OBS text sources receive only good readings, and an empty reading is never a good one, so they keep showing the last value when the board blanks out for a moment (a flickering LED, a person walking in front of the board, a camera flash), whether this option is on or off.
 
 ### Remove leading 0s
 
-`remove_leading_zeros`: removes zeros at the start, so `07` becomes `7` (and `00` becomes `0`).
+`remove_leading_zeros`: removes zeros at the start, so `07` becomes `7` (and `00` becomes `0`). An empty reading stays empty.
 
 **Use**: for scoreboards that zero-pad scores or fouls, when your graphics should show `7`.
 
@@ -143,7 +154,7 @@ The *Time mm:ss.d* expression is:
 
 ### Dot Counter
 
-`dot_detector`: instead of reading characters, counts the separate bright blobs (larger than about 5 square pixels) in the processed box image and reports the count, for example `3`. The reading is always considered valid.
+`dot_detector`: instead of reading characters, counts the separate bright blobs (larger than about 5 square pixels) in the processed box image and reports the count, for example `3`. The reading is always considered valid, and a box with no lit blobs reports `0`.
 
 **Use**: for indicator lights such as balls/strikes/outs, possession arrows, bonus lights or timeouts left. Use one box per row of lights, and check in **Binary View** that each lit light is a separate white blob. Use **Invert Input** if lights appear dark.
 
@@ -160,6 +171,8 @@ The *Time mm:ss.d* expression is:
 | `2` | Local | An automatic (Otsu) threshold computed for **this box only** | Dark surroundings, small board in a wide shot, low contrast. A good first thing to try |
 | `3` | Adaptive | A threshold that varies across the box (Gaussian adaptive) | Uneven lighting, glare, reflections or gradients across the digits |
 
+The whole-picture threshold is computed only when at least one box uses *Global*, so the other methods don't pay for it.
+
 ### Cleanup
 
 `cleanup_thresh`: removes connected blobs smaller than a fraction of the box area. The limit is (slider position ÷ 100) × 5% of the box area, so at the maximum, blobs smaller than about 5% of the box area are removed.
@@ -168,13 +181,16 @@ The *Time mm:ss.d* expression is:
 
 ### Dilate
 
-`dilate`: thickens the white strokes by this many passes of a 3×3 dilation (0 = off).
+`dilate`: thickens the bright strokes by this many passes of a 3×3 dilation (0 = off). It applies to the image the OCR reads with every **Binarize** method, including *No Binarization*.
 
 **Use**: raise it when the segments of 7-segment or dot-matrix digits don't touch each other. Lower it to 0 when digits merge into blobs.
 
+{: .new }
+In ScoreSight 0.1.x, Dilate changed the Binary View but didn't reach the OCR with every binarization method. In 0.2.0 what you see in Binary View is what the OCR reads.
+
 ### V.Scale
 
-`vscale`: squashes the box vertically to `value/10` of its height (10 = unchanged), keeping it centred.
+`vscale`: squashes the box vertically to `value/10` of its height (10 = unchanged), keeping it centred. It has no effect on boxes only a pixel high.
 
 **Use**: for very tall, narrow fonts that the OCR misreads. Try values of 6–8.
 
@@ -204,15 +220,18 @@ The *Time mm:ss.d* expression is:
 
 ### Normalize W-H Ratio
 
-`normalize_wh_ratio`: measures the typical width-to-height ratio of the digits in the first readings, then stretches the image horizontally so digits come out about half as wide as they are tall.
+`normalize_wh_ratio`: measures the typical width-to-height ratio of the digits (the median over the last 50 accepted characters `0` and `2`–`9`), then stretches or squeezes the image horizontally so digits come out about half as wide as they are tall. The measurement starts over when you change **Binarize**, **V.Scale**, **Skew**, **Dilate** or **Auto Crop**, and it isn't saved: it is measured again after a restart.
 
 **Use**: for unusually narrow or wide fonts.
 
 ### Skip Similar Image
 
-`skip_similar_image`: compares the processed box image with the last one that was read. If less than 5% of it differs, OCR is skipped and the reading is `SIM` with state `FailedFilter` (yellow). Outputs that only send good values (text files, OBS, vMix, UNO, the `?pivot` HTTP endpoints) keep the previous value.
+`skip_similar_image`: compares the processed box image with the image of the last OCR that ran for this box. If fewer than 2% of the text pixels (the digits, not the background) changed, OCR is skipped and the box repeats its last good value as an unchanged reading (`SameNoChange`). The comparison image isn't refreshed on skipped cycles, so slow changes add up until they are read. Resizing the box starts over.
 
-**Use**: to save CPU on values that change rarely (scores, periods). Turn it off if a real change is ever missed (for example when only a thin segment changes).
+**Use**: to save CPU on values that change rarely (scores, periods). Because the change is measured against the digits, a one-digit change (for example `18` to `19`) is read. Turn it off if a very small change (a single segment of a large display) is ever missed.
+
+{: .new }
+ScoreSight 0.1.x measured the change against the whole box, so a one-digit change could be skipped, and it reported skipped cycles as a yellow `SIM` reading.
 
 ## Fields
 
@@ -234,5 +253,7 @@ The *Time mm:ss.d* expression is:
 
 ## Other controls
 
-- **Force Format**: has no effect in this version.
 - **Defaults**: restores all settings of the selected box to the defaults for its field.
+
+{: .note }
+The **Force Format** checkbox of ScoreSight 0.1.x had no effect and was removed in 0.2.0.

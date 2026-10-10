@@ -30,7 +30,7 @@ By default, ScoreSight stores everything (source, boxes, crop and 4-corner setti
 | `--profile shotclock` | `scoresight-shotclock.json` |
 | `--profile court2` | `scoresight-court2.json` |
 
-The folder is listed in [Settings, Files & Command Line](configuration.md#where-scoresight-keeps-its-files). A profile is created the first time you start ScoreSight with a new name. Use simple names made of letters, digits and dashes.
+The folder is listed in [Settings, Files & Command Line](configuration.md#where-scoresight-keeps-its-files). A profile is created the first time you start ScoreSight with a new name. Use simple names made of letters, digits, dots, dashes and underscores. The window title shows the active profile, for example `ScoreSight - v0.2.0 [shotclock]`.
 
 ## Command-line options
 
@@ -39,7 +39,7 @@ The folder is listed in [Settings, Files & Command Line](configuration.md#where-
 | `--profile NAME` | Use the settings file `scoresight-NAME.json`. The environment variable `SCORESIGHT_PROFILE=NAME` does the same. |
 | `--port N` | Serve the [HTTP API](http_server.md) on port `N` instead of 18099. |
 
-Two instances cannot share an HTTP port. If the port is already taken, the second instance logs an error and runs without its HTTP server. Give every instance a different `--port`.
+Two instances cannot share an HTTP port. If the port is already taken, the second instance logs `HTTP server: port ... is already in use or not available` and runs without its HTTP server. Closing one instance never stops another instance's server. Give every instance a different `--port`. The **Browser** tab of each instance shows the links for its own port.
 
 ## Starting a second instance
 

@@ -26,7 +26,9 @@ Turn on **OSD** to see the statistics in the corner of the viewer:
 | **Previews/s** | How often the preview picture in the viewer refreshes. | About **1**. This is intentional |
 
 {: .important }
-A low **Previews/s** is **not** a problem. The preview is refreshed about once per second to save CPU for recognition. Readings are still taken and sent at the **Updates/s** rate. If your graphics update slowly, look at **Updates/s** and your output settings, not at the preview.
+A low **Previews/s** is **not** a problem. The preview is refreshed about once per second, at any **Detections / s** setting, to save CPU for recognition. Readings are still taken and sent at the **Updates/s** rate. If your graphics update slowly, look at **Updates/s** and your output settings, not at the preview.
+
+When a source opens, its first frame is shown and read right away, whatever the detection rate.
 
 ## How fast do you need to be?
 
@@ -40,12 +42,14 @@ A low **Previews/s** is **not** a problem. The preview is refreshed about once p
 
 Every reading costs CPU for **every** box, so the total cost is roughly *number of boxes × detections per second*. If you need a fast shot clock but slow scores, consider running the shot clock in a [second instance](profiles.md).
 
+The slider goes from 1 to 15. For values that change very rarely, you can set `detection_cadence` in the [settings file](configuration.md#recognition) to a value below 1, down to `0.1` (one reading every 10 seconds), while ScoreSight is closed. The slider then shows 1 until you move it, which replaces the value.
+
 ## Reducing CPU use
 
 1. **Lower Detections / s** to what you actually need.
 2. **Remove boxes you don't use**, and keep boxes tight around the digits.
 3. **Crop** the picture to the scoreboard. Less picture means less processing per frame.
-4. Turn on **Skip Similar Image** for values that rarely change (scores, periods). When a box's image hasn't changed, OCR is skipped for that box.
+4. Turn on **Skip Similar Image** for values that rarely change (scores, periods). When a box's image hasn't changed, OCR is skipped for that box and its last good value is repeated.
 5. Turn **Stabilize** off when the camera is fixed or you use screen capture.
 6. Use a lower source resolution. In [Video Settings](sources.md#cameras-and-capture-cards), 1280x720 with the `MJPG` format is a good choice for USB cameras. For IP cameras, use a sub stream.
 7. Prefer **General Scoreboard** over **General Scoreboard Large** if both read your board correctly. The large model is slower.
@@ -54,9 +58,9 @@ Every reading costs CPU for **every** box, so the total cost is roughly *number 
 ## Output latency
 
 - Outputs (OBS, vMix, UNO, the outbound API) send in the background. If a target is slow or unreachable, ScoreSight keeps only the latest values and drops intermediate ones. The window and the readings never wait for the network.
-- **Update on change** (on by default) means unchanged values are not resent to vMix, UNO and file outputs, which keeps traffic low. Turn on **Send Same?** in the vMix/UNO tabs only if your target needs constant refreshes.
+- **Update on change** (on by default) means unchanged values are not resent to vMix and UNO, which keeps traffic low. Turn on **Send Same?** in the vMix/UNO tabs only if your target needs constant refreshes. OBS text sources and files are only updated when their value changes anyway.
 - The [outbound HTTP API](out_api.md) sends on **every** detection cycle. Point it at a fast endpoint on your local network.
-- File outputs are written at most **Save / s** times per second (1–10, set in the **Text Files** tab).
+- OBS updates go out as soon as a value changes. File outputs are written at most **Save / s** times per second (1–10, set in the **Text Files** tab), and the last change always reaches the files.
 - The built-in [HTTP server](http_server.md) always serves the latest values. Browser overlays that poll it every 100–250 ms are fine.
 
 ## Video files

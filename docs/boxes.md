@@ -50,6 +50,8 @@ Custom fields start as a Number field with the *Any number* format. Change the *
 3. Drag the box over the value and resize it with the edge and corner handles.
 4. To take a box off the picture, select it and click **Remove Selected**. Its settings are reset the next time you add it.
 
+Boxes and their settings are saved automatically, about half a second after each change. A box that reaches past the edge of the picture (for example after you changed the crop) is read from the part that is still inside the picture. Its saved position isn't changed, so it fits again when you undo the crop.
+
 Tips for good boxes:
 
 - One value per box. Read "12:34" as one Time box, but put the home and away scores in separate boxes.
@@ -79,10 +81,15 @@ To create one:
 
 Rules:
 
-- `{% raw %}{{Box Name}}{% endraw %}` is replaced with the latest text read for the box with exactly that name. The name is case-sensitive, so `{% raw %}{{home score}}{% endraw %}` does not match *Home Score*.
+- `{% raw %}{{Box Name}}{% endraw %}` is replaced with the **last good reading** (green) of the box with exactly that name. Rejected (yellow) and empty readings never appear in a template: it keeps showing the box's last good value instead. The name is case-sensitive, so `{% raw %}{{home score}}{% endraw %}` does not match *Home Score*.
+- A template can use other template fields, for example `{% raw %}{{Score Line}} ({{Period}}){% endraw %}`. Templates that refer to each other in a circle are always empty.
 - Placeholders for boxes that don't exist are left as they are.
-- Templates are evaluated on every detection cycle, and the result is sent to every output just like a normal box. A template's value is always reported as a new `Success` reading, so outputs that only send new values resend it on every cycle.
+- Until every box the template uses has had a good reading, the template is empty (state `Empty`), so your graphics never show a half-filled line.
+- Templates are evaluated on every detection cycle, and the result is sent to every output just like a normal box. A template is reported as a new value (`Success`) when its text changes and as unchanged (`SameNoChange`) when it doesn't, so outputs that only send new values send it only when it changes.
 - Template fields don't appear on the picture and have no recognition settings.
+
+{: .new }
+In ScoreSight 0.1.x, templates used whatever text the boxes had last read, including rejected readings such as `SIM`, and a template was reported as a new value on every cycle. ScoreSight 0.2.0 uses only good readings and reports changes only.
 
 To stop using a template, untick **Template Field**. The field becomes a regular custom field that you can add to the scene.
 
@@ -92,7 +99,7 @@ The **Composite (Per-Character)** checkbox lets you draw small sub-boxes, one pe
 
 ## Import and export layouts
 
-- **File > Export Configuration** saves all boxes (names, positions, settings and composite sub-boxes) to a `.json` file.
+- **File > Export Configuration** saves all boxes (names, positions, settings including the **Type**, and composite sub-boxes) to a `.json` file.
 - **File > Import Configuration** replaces the current boxes with the ones from a file.
 
 Exported files contain **boxes only**. The source, crop/rotation/4-corner settings and output settings (folders, OBS/vMix/UNO/API connections) are not included. To keep complete, separate setups, use [profiles](profiles.md).

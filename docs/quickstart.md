@@ -28,7 +28,7 @@ Start ScoreSight. In the **Source** drop-down at the top of the window, choose w
 - **URL Source (HTTP, RTSP)** for IP cameras and network streams,
 - **Screen Capture** for a window or your whole screen (Windows and macOS).
 
-The picture appears in the viewer after a moment, and the rest of the window becomes active. If your camera isn't listed, click **Reload**. More details: [Video Sources](sources.md).
+Cameras and NDI sources are found in the background, so they may appear in the list a moment after the window opens. The picture appears in the viewer after a moment, and the rest of the window becomes active. If your camera isn't listed, click **Reload**. More details: [Video Sources](sources.md).
 
 ## 2. Straighten the picture (optional)
 
@@ -59,9 +59,9 @@ Within a second, each box shows what ScoreSight reads, and the **Value** column 
 | Colour | State | Meaning |
 |---|---|---|
 | Green | `Success` | A new value was read and sent to the outputs. |
-| Light green | `SameNoChange` | Same value as last time (with **Update on change** on). |
-| Yellow | `FailedFilter` | Something was read but rejected by the box's **Format**, or by its confidence threshold. `SIM` means the image did not change (**Skip Similar Image**). |
-| Red `EMP` | `Empty` | Nothing was read. |
+| Light green | `SameNoChange` | The same value as the last good reading (with **Update on change** on). |
+| Yellow | `FailedFilter` | Something was read but rejected by the box's **Format**, or by its confidence threshold. |
+| Red `EMP` | `Empty` | Nothing was read, or the box is over a blank area. |
 
 If readings are wrong or unstable:
 
@@ -78,17 +78,17 @@ Pick one or more tabs at the bottom left:
 | Tab | What it does | Guide |
 |---|---|---|
 | **Text Files** | Writes `<Box Name>.txt`, and optionally `results.csv` and `results.xml`, to a folder | [Text, CSV & XML Files](text-files.md) |
-| **Browser** | Serves live HTML, JSON, XML and CSV at `http://localhost:18099` | [HTTP Server API](http_server.md) |
+| **Browser** | Serves live HTML, JSON, XML and CSV at `http://localhost:18099` (or the port set with `--port`) | [HTTP Server API](http_server.md) |
 | **OBS** | Updates OBS text sources over the OBS WebSocket | [OBS Studio](obs.md) |
 | **VMix** | Updates vMix title fields through the vMix Web API (port 8088) | [vMix](vmix.md) |
 | **UNO** | Updates an overlays.uno control app | [Overlays.uno](uno.md) |
-| **API** | Sends every reading to your own HTTP endpoint | [Outbound HTTP API](out_api.md) |
+| **API** | Sends the readings to your own HTTP endpoint | [Outbound HTTP API](out_api.md) |
 
 The quickest test: open [http://localhost:18099/json?pivot](http://localhost:18099/json?pivot) in a browser on the same computer. You should see something like `{"Home Score": "65", "Away Score": "39", "Time": "4:27"}`.
 
 ## 6. Keep your setup
 
-ScoreSight remembers your source, boxes and settings between runs. To back up a box layout or move it to another computer, use **File** > **Export Configuration**, and **File** > **Import Configuration** to load it again. See [Settings, Files & Command Line](configuration.md).
+ScoreSight saves your boxes and settings automatically and reopens the last source (camera, NDI source, URL stream, video file or screen capture) at the next start. To back up a box layout or move it to another computer, use **File** > **Export Configuration**, and **File** > **Import Configuration** to load it again. See [Settings, Files & Command Line](configuration.md).
 
 ## Global controls worth knowing
 
