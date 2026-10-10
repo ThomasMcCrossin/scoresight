@@ -90,9 +90,6 @@ class DestinationsModel(QStandardItemModel):
     def rowOf(self, key: str) -> int:
         return DESTINATIONS.index(key)
 
-    def keyAt(self, row: int) -> str | None:
-        return DESTINATIONS[row] if 0 <= row < len(DESTINATIONS) else None
-
     def status(self, key: str) -> DestinationStatus | None:
         return self._statuses.get(key)
 

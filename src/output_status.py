@@ -257,9 +257,14 @@ def elide_middle(text: str, limit: int = 40) -> str:
 # --- secrets -----------------------------------------------------------------
 
 
+# a path segment this long may be a key (webhook URLs carry one in their path)
+_SECRET_SEGMENT_LENGTH = 16
+
+
 def url_secrets(url: str | None, path_is_secret: bool = False) -> list[str]:
-    """The parts of a URL that must not be shown: a password, the query (it
-    may hold a key) and, for the UNO URL, the path (it holds the token)."""
+    """The parts of a URL that must not be shown: a password, the query and
+    its values (they may hold a key), long path segments (webhook keys) and,
+    for the UNO URL, the whole path (it holds the token)."""
     if not url:
         return []
     try:
@@ -272,12 +277,18 @@ def url_secrets(url: str | None, path_is_secret: bool = False) -> list[str]:
         secrets.append(password)
     if parts.query:
         secrets.append(parts.query)
+        # the values alone (a message may show them encoded differently)
+        for pair in parts.query.split("&"):
+            _, _, value = pair.partition("=")
+            if len(value) >= 4:
+                secrets.append(value)
+    min_length = 12 if path_is_secret else _SECRET_SEGMENT_LENGTH
     if path_is_secret and parts.path not in ("", "/"):
         secrets.append(parts.path)
-        # the token alone, e.g. as the URL-encoded part of another message
-        secrets.extend(
-            segment for segment in parts.path.split("/") if len(segment) >= 12
-        )
+    # a token in the path alone, e.g. as the URL-encoded part of another message
+    secrets.extend(
+        segment for segment in parts.path.split("/") if len(segment) >= min_length
+    )
     return secrets
 
 
@@ -395,12 +406,9 @@ def describe_error(
     unreachable = error.unreachable
     state = RETRYING if unreachable else ERROR
 
-    # vMix answered like its TCP API: the port is wrong (issue #55)
-    if key == VMIX and (
-        _is_a(error, VMixTCPPortError)
-        or "version ok" in message
-        or "badstatusline" in message
-    ):
+    # vMix answered like its TCP API ("VERSION OK ..." instead of HTTP): the
+    # port is wrong (issue #55)
+    if key == VMIX and (_is_a(error, VMixTCPPortError) or "version ok" in message):
         return Problem(
             ERROR,
             QCoreApplication.translate(
@@ -477,6 +485,36 @@ def describe_error(
     # HTTP error statuses (the endpoint answered)
     if key in (VMIX, UNO, API) and error.code is not None and _is_a(error, OutputError):
         return _describe_http_status(key, error, secrets)
+
+    # retrying doesn't help with these
+    if _is_a(error, requests.exceptions.SSLError) or "certificate verify" in message:
+        return Problem(
+            ERROR,
+            QCoreApplication.translate(
+                "OutputStatus", "No secure connection to {target}"
+            ).format(target=target),
+            QCoreApplication.translate(
+                "OutputStatus",
+                "The HTTPS connection failed (for example, the server's "
+                "certificate isn't trusted). Check the URL; on your own network, "
+                "http:// may be what the receiver expects.",
+            ),
+        )
+    if _is_a(
+        error,
+        requests.exceptions.InvalidURL,
+        requests.exceptions.MissingSchema,
+        requests.exceptions.InvalidSchema,
+    ):
+        return Problem(
+            ERROR,
+            QCoreApplication.translate("OutputStatus", "The URL isn't valid"),
+            QCoreApplication.translate(
+                "OutputStatus",
+                "The URL needs a scheme and a host, for example "
+                "http://192.168.1.10:8091/scores.",
+            ),
+        )
 
     if _is_dns(error):
         return Problem(

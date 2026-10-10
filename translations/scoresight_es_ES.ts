@@ -1766,465 +1766,477 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="382"/>
+        <location filename="../src/output_status.py" line="393"/>
         <source>{problem} · retrying</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="406"/>
+        <location filename="../src/output_status.py" line="414"/>
         <source>Port {port} is vMix&apos;s TCP API: use {web_port}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="409"/>
+        <location filename="../src/output_status.py" line="417"/>
         <source>ScoreSight uses the vMix Web API. Set the port to the Web Controller port (vMix Settings › Web Controller, {web_port} by default).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="426"/>
+        <location filename="../src/output_status.py" line="434"/>
         <source>OBS needs a password</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="427"/>
+        <location filename="../src/output_status.py" line="435"/>
         <source>Enter the password of OBS&apos;s WebSocket server (in OBS: Tools › WebSocket Server Settings › Show Connect Info).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="436"/>
+        <location filename="../src/output_status.py" line="444"/>
         <source>OBS refused the connection: check the password</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="439"/>
+        <location filename="../src/output_status.py" line="447"/>
         <source>The password doesn&apos;t match the one of OBS&apos;s WebSocket server (in OBS: Tools › WebSocket Server Settings › Show Connect Info).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="453"/>
+        <location filename="../src/output_status.py" line="461"/>
         <source>OBS has no text source “{name}”</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="457"/>
+        <location filename="../src/output_status.py" line="465"/>
         <source>OBS has no text source with a field&apos;s name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="463"/>
+        <location filename="../src/output_status.py" line="471"/>
         <source>Create a text source with this name in OBS (names are case-sensitive), or use Create OBS Scene.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="471"/>
+        <location filename="../src/output_status.py" line="479"/>
         <source>OBS refused an update (code {code})</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="485"/>
+        <location filename="../src/output_status.py" line="493"/>
+        <source>No secure connection to {target}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="496"/>
+        <source>The HTTPS connection failed (for example, the server&apos;s certificate isn&apos;t trusted). Check the URL; on your own network, http:// may be what the receiver expects.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="523"/>
         <source>Can&apos;t find {host}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="490"/>
+        <location filename="../src/output_status.py" line="528"/>
         <source>The address {host} isn&apos;t known on this network: check it, or use the computer&apos;s IP address.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="501"/>
+        <location filename="../src/output_status.py" line="539"/>
         <source>Nothing answered within a few seconds.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="508"/>
+        <location filename="../src/output_status.py" line="546"/>
         <source>Nothing answered within a few seconds: the computer may be off, the address wrong, or a firewall may block port {port}.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="514"/>
+        <location filename="../src/output_status.py" line="552"/>
         <source>Nothing answered within a few seconds: check this computer&apos;s network connection.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="522"/>
+        <location filename="../src/output_status.py" line="560"/>
         <source>No answer from {target}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="534"/>
+        <location filename="../src/output_status.py" line="572"/>
         <source>Can&apos;t reach {target}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="546"/>
+        <location filename="../src/output_status.py" line="584"/>
         <source>Lost the connection to OBS at {target}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="551"/>
+        <location filename="../src/output_status.py" line="589"/>
         <source>ScoreSight reconnects by itself as soon as OBS is reachable again. Check that OBS is running.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="565"/>
+        <location filename="../src/output_status.py" line="603"/>
         <source>Check that vMix is running, that its Web Controller is enabled (vMix Settings › Web Controller) on port {port}, and that the firewall of the vMix computer allows it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="572"/>
+        <location filename="../src/output_status.py" line="610"/>
         <source>Check that OBS is running and that its WebSocket server is enabled (in OBS: Tools › WebSocket Server Settings) on port {port}.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="578"/>
+        <location filename="../src/output_status.py" line="616"/>
         <source>Check this computer&apos;s internet connection.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="581"/>
+        <location filename="../src/output_status.py" line="619"/>
         <source>Nothing answers at {target}: check the URL and that the receiving program is running.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="595"/>
+        <location filename="../src/output_status.py" line="633"/>
         <source>HTTP {code}: vMix asks for a login</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="598"/>
+        <location filename="../src/output_status.py" line="636"/>
         <source>In vMix Settings › Web Controller, tick “Allow access to following pages without login: API”. ScoreSight doesn&apos;t send a vMix login.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="608"/>
-        <location filename="../src/output_status.py" line="644"/>
+        <location filename="../src/output_status.py" line="646"/>
+        <location filename="../src/output_status.py" line="682"/>
         <source>HTTP {code}: check the UNO URL</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="611"/>
-        <location filename="../src/output_status.py" line="647"/>
+        <location filename="../src/output_status.py" line="649"/>
+        <location filename="../src/output_status.py" line="685"/>
         <source>overlays.uno refused the URL: it is wrong or no longer valid. Copy the API URL of your control app again.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="619"/>
+        <location filename="../src/output_status.py" line="657"/>
         <source>HTTP {code}: access denied</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="622"/>
+        <location filename="../src/output_status.py" line="660"/>
         <source>The endpoint refused the request. If it needs a key, put it in the URL.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="632"/>
+        <location filename="../src/output_status.py" line="670"/>
         <source>HTTP 404: this isn&apos;t the vMix Web API</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="635"/>
+        <location filename="../src/output_status.py" line="673"/>
         <source>Check the host and the port: vMix&apos;s Web Controller port ({port} by default).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="655"/>
+        <location filename="../src/output_status.py" line="693"/>
         <source>HTTP 404: check the URL</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="656"/>
+        <location filename="../src/output_status.py" line="694"/>
         <source>The endpoint has nothing at this address: check the path.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="663"/>
+        <location filename="../src/output_status.py" line="701"/>
         <source>overlays.uno limits how many updates it accepts, and drops the others. Keep Send Same? off and Update on change on.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="669"/>
+        <location filename="../src/output_status.py" line="707"/>
         <source>The endpoint limits the requests, and drops the others: lower Detections / s.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="676"/>
+        <location filename="../src/output_status.py" line="714"/>
         <source>HTTP 429: too many requests</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="681"/>
+        <location filename="../src/output_status.py" line="719"/>
         <source>Check the Input and the vMix field names in the table (for example Home Score.Text).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="692"/>
-        <location filename="../src/output_status.py" line="709"/>
+        <location filename="../src/output_status.py" line="730"/>
+        <location filename="../src/output_status.py" line="747"/>
         <source>It answered: {text}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="701"/>
+        <location filename="../src/output_status.py" line="739"/>
         <source>HTTP {code}: the receiver reported an error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="708"/>
+        <location filename="../src/output_status.py" line="746"/>
         <source>HTTP {code}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="738"/>
+        <location filename="../src/output_status.py" line="776"/>
         <source>{failing} of {total} failing: {problem}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="785"/>
+        <location filename="../src/output_status.py" line="823"/>
         <source>Folder not found: {folder}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="788"/>
+        <location filename="../src/output_status.py" line="826"/>
         <source>The output folder {folder} doesn&apos;t exist any more, so no files are written. Choose a folder to write them again.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="797"/>
-        <location filename="../src/output_status.py" line="1027"/>
-        <location filename="../src/output_status.py" line="1093"/>
-        <location filename="../src/output_status.py" line="1164"/>
+        <location filename="../src/output_status.py" line="835"/>
+        <location filename="../src/output_status.py" line="1065"/>
+        <location filename="../src/output_status.py" line="1131"/>
+        <location filename="../src/output_status.py" line="1202"/>
         <source>Off</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="798"/>
+        <location filename="../src/output_status.py" line="836"/>
         <source>Choose a folder to write the readings to files.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="807"/>
+        <location filename="../src/output_status.py" line="845"/>
         <source>Waiting for readings to write to {folder}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="816"/>
+        <location filename="../src/output_status.py" line="854"/>
         <source>Can&apos;t write {file}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="820"/>
+        <location filename="../src/output_status.py" line="858"/>
         <source>Can&apos;t write {file} and {count} more</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="828"/>
+        <location filename="../src/output_status.py" line="866"/>
         <source>Check that the folder can be written to and that no other program locks the files. ScoreSight tries again at every save.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="840"/>
+        <location filename="../src/output_status.py" line="878"/>
         <source>Writing to {folder} · 1 file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="844"/>
+        <location filename="../src/output_status.py" line="882"/>
         <source>Writing to {folder} · {count} files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="852"/>
+        <location filename="../src/output_status.py" line="890"/>
         <source>The files are in {folder}. A file is written when its value changes.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="874"/>
+        <location filename="../src/output_status.py" line="912"/>
         <source>Not running: port {port} is in use</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="879"/>
+        <location filename="../src/output_status.py" line="917"/>
         <source>Another program (or another ScoreSight) uses port {port}. Close it, or start ScoreSight with --port to use another port.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="888"/>
+        <location filename="../src/output_status.py" line="926"/>
         <source>{url} · no requests yet</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="892"/>
+        <location filename="../src/output_status.py" line="930"/>
         <source>{url} · 1 client</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="896"/>
+        <location filename="../src/output_status.py" line="934"/>
         <source>{url} · {count} clients</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="900"/>
+        <location filename="../src/output_status.py" line="938"/>
         <source>{url} · no recent requests</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="909"/>
+        <location filename="../src/output_status.py" line="947"/>
         <source>Always on. Open {url}/scoresight in a browser, or read {url}/json, /xml or /csv from other software.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="936"/>
+        <location filename="../src/output_status.py" line="974"/>
         <source>Connecting to {target}…</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="946"/>
+        <location filename="../src/output_status.py" line="984"/>
         <source>Not connected: {problem}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="953"/>
+        <location filename="../src/output_status.py" line="991"/>
         <source>Then click Connect OBS.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="964"/>
+        <location filename="../src/output_status.py" line="1002"/>
         <source>Not connected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="965"/>
+        <location filename="../src/output_status.py" line="1003"/>
         <source>Click Connect OBS to update text sources in OBS Studio.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="976"/>
+        <location filename="../src/output_status.py" line="1014"/>
         <source>Connected to {target}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="980"/>
+        <location filename="../src/output_status.py" line="1018"/>
         <source>A text source is updated when its field&apos;s value changes.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="989"/>
+        <location filename="../src/output_status.py" line="1027"/>
         <source>Reconnecting to OBS at {target}…</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="992"/>
+        <location filename="../src/output_status.py" line="1030"/>
         <source>The connection to OBS was lost. ScoreSight reconnects by itself as soon as OBS is reachable again.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1001"/>
+        <location filename="../src/output_status.py" line="1039"/>
         <source>Connected, but no field has an OBS text source</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1004"/>
+        <location filename="../src/output_status.py" line="1042"/>
         <source>The standard fields update OBS text sources with their names (Home score, Clock...). Place them on the picture.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1028"/>
+        <location filename="../src/output_status.py" line="1066"/>
         <source>Click Start vMix to update input {input} at {target}.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1036"/>
-        <location filename="../src/output_status.py" line="1115"/>
+        <location filename="../src/output_status.py" line="1074"/>
+        <location filename="../src/output_status.py" line="1153"/>
         <source>No fields to send</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1038"/>
+        <location filename="../src/output_status.py" line="1076"/>
         <source>Place fields on the picture and enter their vMix field names (for example Home Score.Text) in the table.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1049"/>
+        <location filename="../src/output_status.py" line="1087"/>
         <source>Waiting for a new value for {target}, input {input}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1053"/>
-        <location filename="../src/output_status.py" line="1067"/>
+        <location filename="../src/output_status.py" line="1091"/>
+        <location filename="../src/output_status.py" line="1105"/>
         <source>vMix gets a field&apos;s value when it changes (or every time, with Send Same?).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1063"/>
+        <location filename="../src/output_status.py" line="1101"/>
         <source>Sending to {target}, input {input}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1094"/>
+        <location filename="../src/output_status.py" line="1132"/>
         <source>Click Start sending to drive your overlays.uno overlay.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1103"/>
+        <location filename="../src/output_status.py" line="1141"/>
         <source>Enter your UNO API URL</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1105"/>
+        <location filename="../src/output_status.py" line="1143"/>
         <source>Copy the API URL of your overlay&apos;s control app in overlays.uno into URL.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1117"/>
+        <location filename="../src/output_status.py" line="1155"/>
         <source>Place fields on the picture and enter the UNO commands in the table.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1127"/>
+        <location filename="../src/output_status.py" line="1165"/>
         <source>Waiting for a new value for {host}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1136"/>
+        <location filename="../src/output_status.py" line="1174"/>
         <source>Sending to {host}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1165"/>
+        <location filename="../src/output_status.py" line="1203"/>
         <source>Tick the checkbox to send the readings to a URL on every detection cycle.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1175"/>
+        <location filename="../src/output_status.py" line="1213"/>
         <source>Enter a URL</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1177"/>
+        <location filename="../src/output_status.py" line="1215"/>
         <source>Enter the URL to send the readings to, for example http://192.168.1.10:8091/scores.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1187"/>
+        <location filename="../src/output_status.py" line="511"/>
+        <location filename="../src/output_status.py" line="1225"/>
         <source>The URL isn&apos;t valid</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1189"/>
+        <location filename="../src/output_status.py" line="512"/>
+        <location filename="../src/output_status.py" line="1227"/>
         <source>The URL needs a scheme and a host, for example http://192.168.1.10:8091/scores.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1196"/>
+        <location filename="../src/output_status.py" line="1234"/>
         <source>GET to {target}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1200"/>
+        <location filename="../src/output_status.py" line="1238"/>
         <source>{method} {encoding} to {target}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1208"/>
+        <location filename="../src/output_status.py" line="1246"/>
         <source>Waiting for readings: {request}</source>
         <translation type="unfinished"></translation>
     </message>

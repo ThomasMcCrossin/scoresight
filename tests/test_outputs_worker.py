@@ -375,6 +375,61 @@ def test_status_while_the_endpoint_is_unreachable(make_worker):
     assert not status.retrying and status.failed == 3
 
 
+def test_a_recovered_outage_does_not_hide_a_failing_field(make_worker):
+    # key "a" is rejected by the endpoint (dropped), then the endpoint is
+    # unreachable for a while: once it is back, the status is about "a" again,
+    # not about the outage that is over
+    send = Recorder(
+        errors={
+            0: OutputError("returned HTTP 500", status_code=500),
+            2: ConnectionError("refused"),
+        }
+    )
+    worker = make_worker(
+        send, retry_on=(ConnectionError,), initial_backoff=0.01, max_backoff=0.01
+    )
+    worker.submit("a", 1)  # fails: HTTP 500
+    assert worker.wait_idle(5)
+    worker.submit("b", 1)  # ok
+    assert worker.wait_idle(5)
+    worker.submit("b", 2)  # unreachable, then sent on the retry
+    wait_for(lambda: worker.status().sent == 2)
+    status = worker.status()
+    assert not status.retrying
+    assert (status.ok_keys, status.failing_keys) == (1, 1)
+    assert status.last_error.code == 500 and not status.last_error.unreachable
+
+
+def test_reset_status_ends_the_backoff_and_ignores_the_old_target(make_worker):
+    # e.g. a new vMix host while the old one is unreachable: the values are
+    # sent to the new host right away, and the old host's failure in flight
+    # isn't the new host's status
+    gate = threading.Event()
+    target = {"host": "old"}
+    calls = []
+
+    def send(key, item):
+        calls.append(target["host"])
+        if target["host"] == "old":
+            assert gate.wait(5)
+            raise ConnectionError("refused")
+
+    worker = make_worker(
+        send, retry_on=(ConnectionError,), initial_backoff=30, max_backoff=30
+    )
+    worker.submit("a", 1)
+    wait_for(lambda: calls)
+    target["host"] = "new"
+    worker.reset_status()  # while the request to "old" is in flight
+    gate.set()
+    start = time.monotonic()
+    wait_for(lambda: worker.status().sent == 1)
+    assert time.monotonic() - start < 5  # not the 30 s backoff
+    assert calls == ["old", "new"]
+    status = worker.status()
+    assert (status.failed, status.retrying, status.last_error) == (0, False, None)
+
+
 def test_reset_status(make_worker):
     send = Recorder(errors={0: ValueError("bad")})
     worker = make_worker(send)

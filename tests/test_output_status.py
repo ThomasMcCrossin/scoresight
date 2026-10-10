@@ -189,6 +189,25 @@ def test_obs_lost_connection():
     assert problem.detail == "Lost the connection to OBS at localhost:4455 · retrying"
 
 
+def test_errors_retrying_does_not_fix():
+    tls = unreachable(
+        requests.exceptions.SSLError,
+        "[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed",
+    )
+    problem = describe_error(API, tls, "hooks.example.com")
+    assert (problem.state, problem.detail) == (
+        ERROR,
+        "No secure connection to hooks.example.com",
+    )
+    problem = worker_problem(
+        API, WorkerStatus("Output API", retrying=True, last_error=tls), "h"
+    )
+    assert problem.state == ERROR  # retried, but only the user can fix it
+
+    invalid = ErrorInfo(requests.exceptions.InvalidURL, "Invalid URL 'http://'")
+    assert describe_error(API, invalid, "?").detail == "The URL isn't valid"
+
+
 def test_other_errors_are_shown_shortened():
     problem = describe_error(API, ErrorInfo(ValueError, "x" * 200), "h")
     assert problem.state == ERROR
@@ -209,6 +228,12 @@ def test_the_uno_token_and_api_keys_are_never_shown():
     shown = redact(f"POST {api_url} returned HTTP 500", secrets)
     assert "SECRET" not in shown and "pa55" not in shown
     assert url_target(api_url) == "example.com:8443"
+
+    # a webhook key in the path
+    webhook = "https://hooks.example.com/services/T0001/B0002/XyZ123456789AbCdEf0123"
+    shown = redact(f"GET {webhook} returned HTTP 404", url_secrets(webhook))
+    assert "XyZ123456789AbCdEf0123" not in shown
+    assert "/services/T0001/B0002/" in shown  # short segments stay readable
 
 
 def test_uno_status_hides_the_token():

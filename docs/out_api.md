@@ -151,6 +151,7 @@ if __name__ == "__main__":
 1. **Look at the HTTP API row** of the **Outputs** list. It says what went wrong in plain words:
    - ▲ *Can't reach 192.168.1.10:8091 · retrying* or *No answer from ... · retrying*: nothing answers at that address (a typo, the receiver isn't running, a firewall). ScoreSight retries by itself.
    - ▲ *Can't find somehost · retrying*: the host name is unknown.
+   - ■ *No secure connection to ...*: the `https://` connection failed, for example because the server's certificate isn't trusted.
    - ■ *HTTP 401: access denied*, *HTTP 404: check the URL*, *HTTP 500: the receiver reported an error*: your endpoint answered with that status. Hover the row for what it answered.
    - ▲ *HTTP 429: too many requests*: your endpoint limits the requests.
 2. **Read the log** (**File > View Current Log**). Output API errors start with `Output API:` and the type of the error, for example:
