@@ -1,0 +1,598 @@
+"""The capture thread (src/camera_thread.py): detection cadence, preview,
+frame transforms, capture settings and teardown."""
+
+import os
+import sys
+
+import cv2
+import numpy as np
+import pytest
+
+pytest.importorskip("tesserocr")  # camera_thread imports the OCR pipeline
+
+import camera_thread  # noqa: E402
+import storage  # noqa: E402
+from camera_info import CameraInfo  # noqa: E402
+from camera_thread import (  # noqa: E402
+    OpenCVVideoCaptureWithSettings,
+    TimerThread,
+    cadence_to_interval_ms,
+    crop_frame,
+)
+from storage import store_data  # noqa: E402
+from synthetic_images import seven_segment  # noqa: E402
+from text_detection_target import (  # noqa: E402
+    TextDetectionResult,
+    TextDetectionTargetWithResult,
+)
+
+SUCCESS = TextDetectionTargetWithResult.ResultState.Success
+
+
+class FakeClock:
+    def __init__(self):
+        self.now = 1000.0
+
+    def __call__(self):
+        return self.now
+
+
+class FakeDetector:
+    """Stands in for TextDetector: reads each box as its name."""
+
+    def __init__(self):
+        self.calls = []
+        self.on_call = None
+
+    def detect_multi_text(self, binary, gray, rects, display=None):
+        self.calls.append((binary, gray, list(rects), display))
+        if self.on_call is not None:
+            self.on_call()
+        return [TextDetectionResult(rect.name, SUCCESS) for rect in rects]
+
+
+@pytest.fixture
+def make_thread(memory_storage):
+    """make_thread(cadence=None) -> a TimerThread that isn't started, with a
+    fake clock and OCR, and lists of what it emits."""
+    threads = []
+
+    def _make(cadence=None, camera_type=CameraInfo.CameraType.FILE, camera_id="x"):
+        if cadence is not None:
+            store_data("scoresight.json", "detection_cadence", cadence)
+        thread = TimerThread(
+            CameraInfo("test", "test", camera_id, camera_type), memory_storage
+        )
+        thread._clock = FakeClock()
+        thread.textDetector = FakeDetector()
+        thread.previews, thread.results, thread.errors = [], [], []
+        thread.update_signal.connect(thread.previews.append)
+        thread.ocr_result_signal.connect(thread.results.append)
+        thread.update_error.connect(thread.errors.append)
+        threads.append(thread)
+        return thread
+
+    yield _make
+    for thread in threads:
+        thread.cleanup()
+
+
+def color_frame(height=240, width=320):
+    frame = np.zeros((height, width, 3), np.uint8)
+    frame[height // 4 : height // 2, width // 4 : width // 2] = 255
+    return frame
+
+
+def run_frames(thread, seconds, fps=30):
+    frame = color_frame()
+    for i in range(int(seconds * fps)):
+        thread._clock.now = 1000.0 + i / fps
+        thread.process_frame(frame)
+
+
+# --- detection cadence (#53) -------------------------------------------------------------
+
+
+def test_cadence_of_one_per_second_processes_frames(make_thread, make_target):
+    thread = make_thread(cadence=1)
+    thread.detectionTargetsStorage.add_item(make_target("Home Score"))
+    run_frames(thread, 3.5)
+    # OCR and preview at t = 0, 1, 2, 3 s
+    assert len(thread.results) == 4
+    assert len(thread.previews) == 4
+    assert thread.ups == pytest.approx(1.0, abs=0.2)
+
+
+@pytest.mark.parametrize("cadence", [2, 5, 15])
+def test_cadence_sets_the_ocr_rate(make_thread, make_target, cadence):
+    thread = make_thread(cadence=cadence)
+    thread.detectionTargetsStorage.add_item(make_target("Home Score"))
+    run_frames(thread, 4, fps=60)
+    # a pass is due on the first frame at least 1/cadence after the last one
+    assert 3 * cadence <= len(thread.results) <= 4 * cadence + 1
+    # the preview stays at about one per second
+    assert len(thread.previews) == pytest.approx(4, abs=1)
+
+
+def test_preview_does_not_wait_for_the_ocr_cadence(make_thread, make_target):
+    thread = make_thread(cadence=0.1)  # one detection every 10 s
+    thread.detectionTargetsStorage.add_item(make_target("Home Score"))
+    thread._clock.now = 1000.0
+    thread.process_frame(color_frame())
+    # the first frame is previewed (this enables the UI) and read right away
+    assert len(thread.previews) == 1
+    assert len(thread.results) == 1
+    run_frames(thread, 5)
+    assert len(thread.results) == 1
+    assert len(thread.previews) >= 5
+
+
+def test_long_gaps_are_measured_in_full(make_thread, make_target):
+    # a gap of more than 1 s (e.g. slow OCR) must not wrap around to < 1 s
+    thread = make_thread(cadence=1)
+    thread.detectionTargetsStorage.add_item(make_target("Home Score"))
+    for now in (1000.0, 1001.5, 1003.0, 1003.2):
+        thread._clock.now = now
+        thread.process_frame(color_frame())
+    assert len(thread.results) == 3
+    assert thread.fps < 1.5 * 30
+
+
+@pytest.mark.parametrize(
+    ("cadence", "interval_ms"),
+    [
+        (5, 200.0),
+        (1, 1000.0),
+        (0.5, 2000.0),
+        (0, 10000.0),
+        (-3, 10000.0),
+        (None, 200.0),
+    ],
+)
+def test_cadence_is_clamped(cadence, interval_ms):
+    assert cadence_to_interval_ms(cadence) == pytest.approx(interval_ms)
+
+
+def test_interval_set_directly_is_clamped(make_thread):
+    thread = make_thread()
+    thread.update_frame_interval = 1000 / 3
+    assert thread.update_frame_interval == pytest.approx(333.33, abs=0.01)
+    thread.update_frame_interval = -1
+    assert thread.update_frame_interval == 0
+    thread.update_frame_interval = float("inf")
+    assert thread.update_frame_interval == camera_thread.MAX_UPDATE_FRAME_INTERVAL_MS
+    thread.update_frame_interval = float("nan")
+    assert thread.update_frame_interval == 200.0
+    store_data("scoresight.json", "detection_cadence", 0)
+    assert thread.update_frame_interval == 10000.0
+
+
+# --- frame transforms ---------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("margins", "shape"),
+    [
+        ((10, 20, 30, 40), (210, 250)),
+        ((300, 300, 0, 0), (1, 320)),  # used to give an empty frame
+        ((400, 500, 0, 0), (1, 320)),
+        ((0, 0, 999, 999), (240, 1)),
+        ((-5, "x", None, 0), (240, 320)),
+    ],
+)
+def test_crop_is_clamped_to_the_frame(margins, shape):
+    assert crop_frame(color_frame(), *margins).shape[:2] == shape
+
+
+def test_crop_larger_than_the_frame_keeps_the_thread_working(make_thread, make_target):
+    thread = make_thread()
+    thread.detectionTargetsStorage.add_item(make_target("Home Score"))
+    thread.crop.isCropSet = True
+    thread.crop.cropTop, thread.crop.cropBottom = 300, 300
+    thread.process_frame(color_frame())
+    assert thread.previews[0].shape[:2] == (1, 320)
+    assert len(thread.results) == 1
+
+
+def test_rotation_and_binary_preview(make_thread, make_target):
+    thread = make_thread(cadence=0.1)
+    thread.detectionTargetsStorage.add_item(make_target("Home Score"))
+    thread.crop.rotation = 90
+    thread.show_binary = True
+    run_frames(thread, 2.1)
+    # the OCR frame's preview comes from the OCR pass, the others are rendered
+    assert [p.shape for p in thread.previews] == [(320, 240)] * 3
+    assert len(thread.textDetector.calls) == 1
+    assert thread.textDetector.calls[0][3] is thread.previews[0]
+    assert thread.frame_size == (320, 240)  # the source frame, before rotation
+
+
+def test_full_frame_binarization_only_when_needed(make_thread, make_target):
+    thread = make_thread()
+    thread.detectionTargetsStorage.add_item(make_target("Home Score"))
+    thread.process_frame(color_frame())
+    binary, gray, _, display = thread.textDetector.calls[0]
+    # the OCR computes the global binarization itself if a box uses it
+    assert binary is None and display is None
+    assert gray.ndim == 2
+
+
+def test_no_boxes_no_ocr(make_thread):
+    thread = make_thread()
+    run_frames(thread, 1.5)
+    assert thread.textDetector.calls == []
+    assert len(thread.previews) == 2
+
+
+def test_boxes_are_snapshotted_per_frame(make_thread, make_target):
+    thread = make_thread()
+    storage_ = thread.detectionTargetsStorage
+    for name in ("Home Score", "Away Score", "Period", "Time"):
+        storage_.add_item(make_target(name))
+    # the user deletes a box while the OCR runs (GUI thread)
+    thread.textDetector.on_call = lambda: storage_.remove_item("Home Score")
+    thread.process_frame(color_frame())
+    [results] = thread.results
+    assert [(r.name, r.result) for r in results] == [
+        (name, name) for name in ("Home Score", "Away Score", "Period", "Time")
+    ]
+
+
+def test_update_on_change_marks_repeated_reads(make_thread, make_target):
+    thread = make_thread(cadence=15)
+    thread.detectionTargetsStorage.add_item(make_target("Home Score"))
+    run_frames(thread, 0.2)
+    states = [r[0].result_state for r in thread.results]
+    assert states[0] == SUCCESS
+    assert set(states[1:]) == {TextDetectionTargetWithResult.ResultState.SameNoChange}
+
+
+# --- the capture loop -----------------------------------------------------------------------
+
+
+class FakeCapture:
+    def __init__(self, frames=None):
+        self.frames = frames
+        self.reads = 0
+        self.released = False
+
+    def isOpened(self):
+        return True
+
+    def read(self):
+        self.reads += 1
+        if self.frames is None:
+            return True, color_frame()
+        if self.frames:
+            return True, self.frames.pop(0)
+        return False, None
+
+    def get(self, prop):
+        return 0.0
+
+    def set(self, prop, value):
+        pass
+
+    def release(self):
+        self.released = True
+
+
+def test_processing_errors_do_not_stop_the_loop(make_thread, make_target):
+    thread = make_thread(cadence=15)
+    thread.frame_interval = 0
+    thread.detectionTargetsStorage.add_item(make_target("Home Score"))
+    thread.video_capture = FakeCapture()
+
+    def broken(*args, **kwargs):
+        raise RuntimeError("Failed to recognize. No image set?")
+
+    thread.textDetector.detect_multi_text = broken
+    for i in range(20):
+        thread._clock.now = 1000.0 + i / 10
+        thread.run_once()
+    assert not thread.should_stop
+    assert thread.video_capture.reads == 20
+    assert thread.retry_count == 0
+    # reported, but not on every frame
+    assert 1 <= len(thread.errors) <= 2
+    assert "No image set" in thread.errors[0]
+    assert len(thread.previews) >= 2
+
+
+def test_failed_open_reports_an_error_and_cleans_up(qtbot, make_thread, tmp_path):
+    thread = make_thread(camera_id=str(tmp_path / "missing.mp4"))
+    thread.update_error.disconnect()
+    with qtbot.waitSignal(thread.update_error, timeout=5000) as error:
+        thread.start()
+    assert thread.wait(5000)
+    assert "Unable to play video stream" in error.args[0]
+    assert thread.video_capture is None
+    # nothing keeps the stopped thread (or its OCR engine) alive
+    assert storage.data_subscribers == {}
+
+
+def test_capture_that_raises_on_open_reports_an_error(make_thread, monkeypatch):
+    thread = make_thread(camera_type=CameraInfo.CameraType.SCREEN_CAPTURE)
+
+    def window_gone(window_id):
+        raise ValueError(f"No window with ID {window_id} found")
+
+    monkeypatch.setattr(camera_thread, "ScreenCapture", window_gone)
+    assert thread.connect_video_capture() is False
+    assert thread.errors == ["Error: Unable to play video stream"]
+
+
+def test_stop_and_cleanup(make_thread):
+    thread = make_thread()
+    assert storage.data_subscribers != {}
+    thread.cleanup()
+    thread.cleanup()  # idempotent
+    assert storage.data_subscribers == {}
+    assert thread.stop(10) is True  # never started
+
+
+# --- OpenCVVideoCaptureWithSettings ---------------------------------------------------------
+
+
+class FakeVideoCapture:
+    """Records how cv2.VideoCapture is used."""
+
+    instances = []
+
+    def __init__(self, capture_id, backend=cv2.CAP_ANY, params=None):
+        self.capture_id = capture_id
+        self.backend = backend
+        self.params = params
+        self.calls = []
+        self.props = {
+            cv2.CAP_PROP_FRAME_WIDTH: 640.0,
+            cv2.CAP_PROP_FRAME_HEIGHT: 480.0,
+            cv2.CAP_PROP_FPS: 30.0,
+        }
+        self.released = False
+        FakeVideoCapture.instances.append(self)
+
+    def isOpened(self):
+        return True
+
+    def read(self):
+        self.calls.append("read")
+        return True, color_frame()
+
+    def set(self, prop, value):
+        self.calls.append((prop, value))
+        self.props[prop] = value
+        return True
+
+    def get(self, prop):
+        return self.props.get(prop, 0.0)
+
+    def release(self):
+        self.released = True
+
+
+@pytest.fixture
+def fake_video_capture(monkeypatch):
+    FakeVideoCapture.instances = []
+    monkeypatch.setattr(cv2, "VideoCapture", FakeVideoCapture)
+    return FakeVideoCapture
+
+
+def store_video_settings(**settings):
+    for name, value in settings.items():
+        store_data("scoresight.json", name, value)
+
+
+def test_stored_video_settings_are_applied_when_a_camera_opens(fake_video_capture):
+    store_video_settings(fps=60, width=1280, height=720, fourcc="MJPG", backend=1400)
+    capture = OpenCVVideoCaptureWithSettings(
+        0, cv2.CAP_DSHOW, apply_video_settings=True
+    )
+    [device] = fake_video_capture.instances
+    assert device.backend == 1400  # the stored backend (MSMF), not the default
+    assert device.calls == [
+        (cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG")),
+        (cv2.CAP_PROP_FRAME_WIDTH, 1280),
+        (cv2.CAP_PROP_FRAME_HEIGHT, 720),
+        (cv2.CAP_PROP_FPS, 60.0),
+    ]
+    capture.release()
+
+
+def test_without_a_stored_resolution_the_highest_is_selected(fake_video_capture):
+    store_video_settings(width=-1, height=-1, backend=cv2.CAP_ANY, fourcc="NULL")
+    OpenCVVideoCaptureWithSettings(0, cv2.CAP_DSHOW, apply_video_settings=True)
+    [device] = fake_video_capture.instances
+    assert device.backend == cv2.CAP_DSHOW  # "Auto" means the platform default
+    assert device.calls[0] == "read"
+    assert (cv2.CAP_PROP_FRAME_WIDTH, 1920) in device.calls
+
+
+def test_files_and_urls_get_no_video_settings(fake_video_capture):
+    store_video_settings(fps=60, width=1280, height=720, fourcc="MJPG", backend=1400)
+    OpenCVVideoCaptureWithSettings("clip.mp4")
+    [device] = fake_video_capture.instances
+    assert device.backend == cv2.CAP_ANY
+    assert device.calls == []
+    assert storage.data_subscribers == {}
+
+
+def test_settings_changes_are_applied_by_the_reading_thread(fake_video_capture):
+    capture = OpenCVVideoCaptureWithSettings(
+        0, cv2.CAP_DSHOW, apply_video_settings=True
+    )
+    [device] = fake_video_capture.instances
+    device.calls.clear()
+    # what VideoSettingsDialog.save_settings does on the GUI thread
+    store_video_settings(width=1280, height=720, fourcc="MJPG")
+    assert device.calls == []
+    capture.read()
+    assert device.calls == [
+        (cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG")),
+        (cv2.CAP_PROP_FRAME_WIDTH, 1280),
+        (cv2.CAP_PROP_FRAME_HEIGHT, 720),
+        "read",
+    ]
+
+
+def test_an_unchanged_backend_does_not_reopen_the_device(fake_video_capture):
+    store_video_settings(width=1280, height=720)
+    capture = OpenCVVideoCaptureWithSettings(
+        0, cv2.CAP_DSHOW, apply_video_settings=True
+    )
+    store_video_settings(backend=cv2.CAP_DSHOW)
+    store_video_settings(backend=cv2.CAP_ANY)  # Auto = the platform default
+    capture.read()
+    assert len(fake_video_capture.instances) == 1
+
+
+def test_a_backend_change_reopens_on_the_reading_thread(fake_video_capture):
+    store_video_settings(width=1280, height=720, fps=25)
+    capture = OpenCVVideoCaptureWithSettings(
+        0, cv2.CAP_DSHOW, apply_video_settings=True
+    )
+    store_video_settings(backend=cv2.CAP_MSMF)
+    # not reopened by the thread that stored the setting
+    assert len(fake_video_capture.instances) == 1
+    capture.read()
+    old, new = fake_video_capture.instances
+    assert old.released and not new.released
+    assert new.backend == cv2.CAP_MSMF
+    # with the settings re-applied
+    assert (cv2.CAP_PROP_FRAME_WIDTH, 1280) in new.calls
+    assert (cv2.CAP_PROP_FPS, 25.0) in new.calls
+
+
+def test_release_stops_following_the_settings(fake_video_capture):
+    old = OpenCVVideoCaptureWithSettings(0, cv2.CAP_DSHOW, apply_video_settings=True)
+    current = OpenCVVideoCaptureWithSettings(
+        0, cv2.CAP_DSHOW, apply_video_settings=True
+    )
+    old.release()
+    store_video_settings(backend=cv2.CAP_MSMF)
+    old.read()
+    current.read()
+    # only the live capture reopens; the released one isn't brought back
+    assert len(fake_video_capture.instances) == 3
+    assert fake_video_capture.instances[2].backend == cv2.CAP_MSMF
+    current.release()
+    assert storage.data_subscribers == {}
+
+
+# --- URL sources (#10) ----------------------------------------------------------------------
+
+
+@pytest.fixture
+def ffmpeg_env():
+    name = camera_thread.FFMPEG_CAPTURE_OPTIONS_ENV
+    original = os.environ.get(name)
+    camera_thread.set_process_env(name, None)
+    yield name
+    camera_thread.set_process_env(name, original)
+
+
+def test_url_sources_use_ffmpeg_with_timeouts_and_rtsp_over_tcp(
+    make_thread, fake_video_capture, ffmpeg_env
+):
+    thread = make_thread(
+        camera_type=CameraInfo.CameraType.URL, camera_id="  rtsp://10.0.1.200:554/11 \n"
+    )
+    assert thread.connect_video_capture()
+    [stream] = fake_video_capture.instances
+    assert stream.capture_id == "rtsp://10.0.1.200:554/11"
+    assert stream.backend == cv2.CAP_FFMPEG
+    assert stream.params == [
+        cv2.CAP_PROP_OPEN_TIMEOUT_MSEC,
+        5000,
+        cv2.CAP_PROP_READ_TIMEOUT_MSEC,
+        5000,
+    ]
+    # no Video Settings and no highest-resolution probing for streams
+    assert stream.calls == []
+    assert os.environ[ffmpeg_env] == "rtsp_transport;tcp"
+
+
+def test_user_ffmpeg_options_are_kept(make_thread, fake_video_capture, ffmpeg_env):
+    camera_thread.set_process_env(ffmpeg_env, "rtsp_transport;udp")
+    thread = make_thread(
+        camera_type=CameraInfo.CameraType.URL, camera_id="rtsp://camera/stream"
+    )
+    thread.connect_video_capture()
+    assert os.environ[ffmpeg_env] == "rtsp_transport;udp"
+
+
+def test_file_sources_skip_the_resolution_probe(make_thread, fake_video_capture):
+    thread = make_thread(camera_id="clip.mp4")
+    thread.connect_video_capture()
+    [video] = fake_video_capture.instances
+    assert video.calls == []
+
+
+@pytest.mark.skipif(
+    sys.platform != "win32", reason="msvcrt environment is Windows-only"
+)
+def test_ffmpeg_options_reach_opencvs_ffmpeg_backend(tmp_path, ffmpeg_env):
+    # The FFmpeg plugin reads OPENCV_FFMPEG_CAPTURE_OPTIONS from msvcrt's copy of
+    # the environment. A protocol whitelist without "file" makes a local file
+    # fail to open only if the option arrives.
+    path = str(tmp_path / "clip.avi")
+    writer = cv2.VideoWriter(path, cv2.VideoWriter_fourcc(*"MJPG"), 10, (64, 48))
+    for _ in range(3):
+        writer.write(np.zeros((48, 64, 3), np.uint8))
+    writer.release()
+    assert cv2.VideoCapture(path, cv2.CAP_FFMPEG).isOpened()
+    camera_thread.set_process_env(ffmpeg_env, "protocol_whitelist;tcp")
+    assert not cv2.VideoCapture(path, cv2.CAP_FFMPEG).isOpened()
+    camera_thread.set_process_env(ffmpeg_env, None)
+    assert cv2.VideoCapture(path, cv2.CAP_FFMPEG).isOpened()
+
+
+# --- end to end: a video file through the real thread ---------------------------------------
+
+
+def write_scoreboard_video(path, value="45", frames=30, size=(240, 320)):
+    digits = seven_segment(value)
+    frame = np.zeros((*size, 3), np.uint8)
+    y, x = 40, 60
+    frame[y : y + digits.shape[0], x : x + digits.shape[1]] = cv2.cvtColor(
+        digits, cv2.COLOR_GRAY2BGR
+    )
+    writer = cv2.VideoWriter(str(path), cv2.VideoWriter_fourcc(*"MJPG"), 30, size[::-1])
+    for _ in range(frames):
+        writer.write(frame)
+    writer.release()
+    return (x, y, digits.shape[1], digits.shape[0])
+
+
+@pytest.mark.ocr
+@pytest.mark.qt
+def test_video_file_at_one_detection_per_second(
+    qtbot, tmp_path, memory_storage, make_target
+):
+    video = tmp_path / "scoreboard.avi"
+    rect = write_scoreboard_video(video)
+    memory_storage.add_item(make_target("Home Score", rect=rect))
+    store_data("scoresight.json", "detection_cadence", 1)
+
+    thread = TimerThread(
+        CameraInfo(str(video), str(video), str(video), CameraInfo.CameraType.FILE),
+        memory_storage,
+    )
+    previews, results = [], []
+    thread.update_signal.connect(previews.append)
+    thread.ocr_result_signal.connect(results.append)
+    thread.start()
+    try:
+        qtbot.waitUntil(lambda: len(previews) >= 1, timeout=1500)
+        qtbot.waitUntil(lambda: len(results) >= 2, timeout=4000)
+    finally:
+        assert thread.stop(5000)
+    first = results[0][0]
+    assert (first.name, first.result, first.result_state) == (
+        "Home Score",
+        "45",
+        SUCCESS,
+    )
+    assert previews[0].shape == (240, 320, 3)
+    assert thread not in camera_thread._active_threads
+    assert storage.data_subscribers == {}
