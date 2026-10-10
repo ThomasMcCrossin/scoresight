@@ -5,6 +5,7 @@ scoresight.iss and the workflows with the code and with each other."""
 import ast
 import fnmatch
 import importlib.util
+import re
 import sys
 from pathlib import Path
 
@@ -15,6 +16,7 @@ import version
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SRC_DIR = REPO_ROOT / "src"
 SPEC_FILE = REPO_ROOT / "scoresight.spec"
+ISS_FILE = REPO_ROOT / "scoresight.iss"
 
 
 def _load_script(name, path):
@@ -491,3 +493,22 @@ def test_every_translation_is_compiled_and_bundled():
         qm = ts.with_suffix(".qm")
         assert qm.is_file(), f"{ts.name} has no compiled {qm.name}"
         assert f"translations/{qm.name}" in bundled
+
+
+# --- scoresight.iss ---------------------------------------------------------------
+
+
+def test_installer_upgrades_existing_installs_and_names_the_output():
+    iss = ISS_FILE.read_text(encoding="utf-8")
+    # 0.1.x installers had no AppId, so Inno Setup used the AppName
+    assert re.search(r'^#define AppName "ScoreSight"$', iss, re.MULTILINE)
+    assert re.search(r"^AppId=\{#AppName\}$", iss, re.MULTILINE)
+    assert re.search(
+        r"^OutputBaseFilename=scoresight-\{#AppVersion\}-windows-x64-setup$",
+        iss,
+        re.MULTILINE,
+    )
+    # the PyInstaller output folder (COLLECT name="scoresight")
+    assert 'Source: "dist\\scoresight\\*"' in iss
+    icon = re.search(r"^SetupIconFile=(.+)$", iss, re.MULTILINE).group(1)
+    assert (REPO_ROOT / icon.replace("\\", "/")).is_file()
