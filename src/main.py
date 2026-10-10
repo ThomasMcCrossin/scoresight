@@ -322,8 +322,8 @@ def _self_test_ocr() -> str:
     reads = {}
     try:
         for name, index in models.items():
-            detector.setOcrModel(index)
-            if detector.api is None:
+            # setOcrModel keeps the previous model when one fails to load
+            if not detector.setOcrModel(index):
                 raise RuntimeError(f"the OCR model {name!r} did not load")
             results = detector.detect_multi_text(binary, gray, [target])
             if len(results) != 1:

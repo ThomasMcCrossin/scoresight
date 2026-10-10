@@ -181,6 +181,25 @@ def test_self_test_passes(tmp_path):
     assert not (tmp_path / "data").exists() or not any((tmp_path / "data").iterdir())
 
 
+@pytest.mark.ocr
+@pytest.mark.parametrize("broken", ["daktronics", "scoreboard_general_large"])
+def test_self_test_fails_when_a_bundled_model_does_not_load(monkeypatch, broken):
+    # setOcrModel keeps the previous model when one fails to load: reading with
+    # that one must not pass for the broken model
+    import tesseract
+
+    real_api = tesseract.PyTessBaseAPI
+
+    def api(*args, lang=None, **kwargs):
+        if lang == broken:
+            raise RuntimeError("Failed to init API, possibly an invalid tessdata path")
+        return real_api(*args, lang=lang, **kwargs)
+
+    monkeypatch.setattr(tesseract, "PyTessBaseAPI", api)
+    with pytest.raises(RuntimeError, match=f"the OCR model '{broken}' did not load"):
+        main._self_test_ocr()
+
+
 # --- shutdown on signals ----------------------------------------------------------
 
 
