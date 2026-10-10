@@ -252,6 +252,53 @@ def install_quit_signal_handlers(app, window):
     return timer
 
 
+# console control handlers registered by attach_console_for_quit_signals (a
+# reference keeps each ctypes callback alive)
+_console_ctrl_handlers = []
+
+
+def attach_console_for_quit_signals(app) -> bool:
+    """On Windows, let Ctrl+C and Ctrl+Break stop a headless (offscreen)
+    instance of the windowed build. That build has no console, so console
+    control events never reached it, and offscreen it has no window to close:
+    it could only be killed. Attach it to the console of the program that
+    started it, if there is one (AttachConsole fails harmlessly when the
+    process already has a console or the parent has none). A visible window is
+    closed as usual, so this is only done offscreen. Returns whether it
+    attached."""
+    if sys.platform != "win32" or app.platformName() != "offscreen":
+        return False
+    import _thread
+    import ctypes
+
+    ATTACH_PARENT_PROCESS = -1
+    CTRL_C_EVENT, CTRL_BREAK_EVENT = 0, 1
+    try:
+        kernel32 = ctypes.WinDLL("kernel32")
+        if not kernel32.AttachConsole(ATTACH_PARENT_PROCESS):
+            return False
+    except (AttributeError, OSError):
+        return False
+    from ctypes import wintypes
+
+    # Attaching drops the C runtime's console control handler, which turns
+    # Ctrl+C and Ctrl+Break into SIGINT and SIGBREAK (the console's default
+    # handler would end the process right away): forward them again.
+    signals = {CTRL_C_EVENT: signal.SIGINT, CTRL_BREAK_EVENT: signal.SIGBREAK}
+
+    @ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.DWORD)
+    def forward(event):
+        signum = signals.get(event)
+        if signum is None:
+            return False  # e.g. the console is closing: the default handling
+        _thread.interrupt_main(signum)
+        return True
+
+    kernel32.SetConsoleCtrlHandler(forward, True)
+    _console_ctrl_handlers.append(forward)
+    return True
+
+
 # How long after the first event loop pass the startup timing waits for the
 # background startup work (video source discovery) before it is logged.
 STARTUP_REPORT_WAIT_S = 5.0
@@ -308,6 +355,8 @@ def run_app(args: argparse.Namespace, qt_args: list[str]) -> int:
     startup_timing.mark("main_window_created")
     main_window.show()
     startup_timing.mark("window_shown")
+    if attach_console_for_quit_signals(app):
+        logger.info("Attached to the parent console: Ctrl+C or Ctrl+Break quits")
     install_quit_signal_handlers(app, main_window)
     report_startup_when_ready(app)
 

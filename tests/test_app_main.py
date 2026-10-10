@@ -4,6 +4,7 @@ import os
 import subprocess
 import sys
 import textwrap
+import time
 from pathlib import Path
 
 import pytest
@@ -280,6 +281,89 @@ def test_quit_signals_end_the_app_with_a_dialog_open(tmp_path):
     )
     assert process.returncode == 0, process.stdout + process.stderr
     assert process.stdout.split() == ["closed"]
+
+
+class FakeApp:
+    def __init__(self, platform_name):
+        self._platform_name = platform_name
+
+    def platformName(self):
+        return self._platform_name
+
+
+def test_a_visible_window_does_not_attach_to_the_console(monkeypatch):
+    import ctypes
+
+    def no_console_calls(*args):
+        pytest.fail("the console API was used")
+
+    monkeypatch.setattr(ctypes, "WinDLL", no_console_calls, raising=False)
+    assert main.attach_console_for_quit_signals(FakeApp("windows")) is False
+    assert main.attach_console_for_quit_signals(FakeApp("cocoa")) is False
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="consoles are a Windows thing")
+def test_only_windows_attaches_to_the_console():
+    assert main.attach_console_for_quit_signals(FakeApp("offscreen")) is False
+
+
+@pytest.mark.skipif(sys.platform != "win32", reason="the Windows console API")
+def test_the_attached_console_forwards_ctrl_break_to_the_signal_handlers(
+    monkeypatch,
+):
+    # The windowed build had no console: Ctrl+Break never reached a headless
+    # instance. Attached to its parent's console, the C runtime's handler is
+    # gone (Ctrl+Break ended the process with STATUS_CONTROL_C_EXIT, skipping
+    # the shutdown), so the app forwards the events to its signal handlers.
+    import ctypes
+    import signal
+
+    calls = {}
+
+    class FakeKernel32:
+        def AttachConsole(self, process_id):
+            calls["attach"] = process_id
+            return 1
+
+        def SetConsoleCtrlHandler(self, handler, add):
+            calls["handler"] = (handler, add)
+            return 1
+
+    monkeypatch.setattr(ctypes, "WinDLL", lambda name: FakeKernel32())
+    monkeypatch.setattr(main, "_console_ctrl_handlers", [])
+    received = []
+    previous = signal.signal(
+        signal.SIGBREAK, lambda signum, frame: received.append(signum)
+    )
+    try:
+        assert main.attach_console_for_quit_signals(FakeApp("offscreen")) is True
+        assert calls["attach"] == -1  # ATTACH_PARENT_PROCESS
+        handler, add = calls["handler"]
+        assert add is True and main._console_ctrl_handlers == [handler]
+        assert handler(1)  # CTRL_BREAK_EVENT: handled
+        for _ in range(100):  # the handler runs on the main thread, soon
+            if received:
+                break
+            time.sleep(0.01)
+        assert received == [signal.SIGBREAK]
+        assert not handler(2)  # CTRL_CLOSE_EVENT: the default handling
+    finally:
+        signal.signal(signal.SIGBREAK, previous)
+
+
+def test_no_console_to_attach_to(monkeypatch):
+    import ctypes
+
+    class FakeKernel32:
+        def AttachConsole(self, process_id):
+            return 0  # the process has a console, or its parent has none
+
+        def SetConsoleCtrlHandler(self, handler, add):
+            pytest.fail("a handler was registered")
+
+    monkeypatch.setattr(sys, "platform", "win32")
+    monkeypatch.setattr(ctypes, "WinDLL", lambda name: FakeKernel32(), raising=False)
+    assert main.attach_console_for_quit_signals(FakeApp("offscreen")) is False
 
 
 # --- startup timing -----------------------------------------------------------------
