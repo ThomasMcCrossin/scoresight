@@ -8,7 +8,7 @@ description: "Reference for every per-box recognition setting in ScoreSight: UI 
 # Per-Box Settings Reference
 {: .no_toc }
 
-Each box has its own settings, shown in the settings panel when the box is selected. **Defaults** restores the defaults for the selected box. Settings are saved with your layout and included in **File > Export Configuration**. In exported files and `scoresight.json`, they appear under each box's `settings` object, using the JSON keys listed here.
+Each box has its own settings, shown in the settings panel when the box is selected. **Defaults** restores the defaults for the selected box. Every slider shows its value next to it (*Off* when the setting is off), and every setting has a tooltip. Settings are saved with your layout and included in **File > Export Configuration**. In exported files and `scoresight.json`, they appear under each box's `settings` object, using the JSON keys listed here.
 
 For a task-oriented guide, see [Recognition Tuning](recognition-tuning.md).
 

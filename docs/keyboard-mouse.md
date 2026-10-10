@@ -12,7 +12,7 @@ description: "All mouse and keyboard controls in ScoreSight's viewer, field list
 | Action | Control |
 |---|---|
 | Zoom in / out | **Ctrl + mouse wheel** (**⌘ Cmd + mouse wheel** on macOS), 0.33x to 3x |
-| Fit picture to window | **1:1** button |
+| Fit picture to window | **1:1** button, or **Ctrl+0** |
 | Scroll | Mouse wheel; scroll bars when zoomed in |
 | Pan | Hold the **middle mouse button** and drag |
 | Select a box | **Left-click** the box |
@@ -28,13 +28,25 @@ Box positions and sizes are saved automatically.
 
 | Action | Control |
 |---|---|
-| Select a field (and its box) | Click its name |
+| Select a field (and its box) | Click its name or its value |
 | Rename a custom field | Double-click its name |
 | Add a custom field | **+** |
 | Remove the selected custom field | **-** |
 | Put the selected field on the picture | **Add to Scene ->** |
 | Take the selected field off the picture | **Remove Selected** |
 | Deselect | **Esc** |
+
+## Main window shortcuts
+
+On macOS, use **⌘ Cmd** wherever this table says **Ctrl**. The tooltips of the buttons show their shortcut.
+
+| Key | Action |
+|---|---|
+| **Ctrl + Shift + P** | Pause outputs / Resume outputs |
+| **Ctrl + B** | Binary View on or off (once a source is open) |
+| **Ctrl + 0** | Fit the picture to the window (the **1:1** button) |
+| **F5** | Reload the sources (cameras and NDI) |
+| **Esc** | Deselect the box |
 
 ## Training Dojo
 
@@ -59,7 +71,7 @@ On Windows and Linux, the **File** menu is at the top of the main window. On mac
 - **View Current Log**
 - **Import Configuration**, **Export Configuration**, **Open Configuration Folder**
 - **OCR Training Data Setup**
-- **Language**: English (US), French, Spanish, German, Italian, Japanese, Korean, Dutch, Polish, Portuguese (Brazil), Portuguese (Portugal), Russian and Chinese (Simplified). The choice is remembered
+- **Language**: each language is listed in its own language: English (US), Français, Español, Deutsch, Italiano, 日本語, 한국어, Nederlands, Polski, Português (Brasil), Português (Portugal), Русский and 简体中文. The current one is ticked, and the choice is remembered
 - **Appearance**: System, Light or Dark colour scheme. The choice is remembered
 
 On macOS, **About** is in the **ScoreSight** application menu (next to the Apple menu) instead of the **File** menu.

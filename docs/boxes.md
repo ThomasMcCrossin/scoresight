@@ -59,6 +59,24 @@ Tips for good boxes:
 - Make the box wide enough for the largest value. A score box should fit "188", not just "88".
 - For digits that sometimes disappear (for example a leading "1" that only lights up above 99), size the box for the full width anyway.
 
+## Reading the field list
+
+The **Value** column shows each box's last good reading in large type, so you can check the values at a glance during a game. Next to the value, a symbol shows the state of the latest reading (the symbol's shape, not only its colour, tells the states apart), and the line under it shows that state and how long ago the last good reading was made:
+
+| Symbol | Line under the value | Meaning |
+|---|---|---|
+| ✓ (green) | *new · 0 s* | A new value was read |
+| = (grey) | *same · 2 s* | The value hasn't changed |
+| ! (amber) | *rejected ‘2l’ · 4 s* | Something was read, but it failed the box's **Format** or **Conf. Th**. The value shown is still the last good one |
+| ∅ (red) | *no reading · 4 s* | Nothing was read. The value shown is still the last good one |
+
+- The age turns amber when the box hasn't had a good reading for a while (20 detection cycles, at least 10 seconds): check the box's position and settings.
+- A dash (–) means the box hasn't had a good reading yet.
+- While the outputs are paused, the values are marked *not sent*.
+- Click a value to select its field, as with a click on the name. Hover over it for the details.
+
+Drag the divider between the left column and the picture to give either one more room; ScoreSight remembers it. When the window is too short for everything, the left column scrolls, while **Pause outputs** at its top and **Detections / s** at its bottom stay in view.
+
 ## Box settings
 
 When a box is selected, the settings panel below the field list shows its recognition settings: **Type**, **Format**, binarization, cleanup, scaling, skew, smoothing and more. Each box has its own settings. **Defaults** restores the defaults for the selected box.

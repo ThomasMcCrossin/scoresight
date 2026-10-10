@@ -58,12 +58,12 @@ flowchart LR
 4. **OCR** (`tesseract.py`): `TextDetector` holds a single `tesserocr.PyTessBaseAPI`, using PSM 8 (single word) and the models in `tesseract/tessdata/*.traineddata`. The whole Tesseract sequence for a box runs under one lock, and a model change builds the new API outside the lock and swaps it in. For each box it clamps the box to the frame (without changing the stored box), preprocesses its own copy of the patch (`preprocess_patch`: binarization, cleanup, vscale, skew, dilate; the same function renders Binary View), inverts, returns `Empty` for a blank patch (`0` for a dot counter), applies skip-similar (against the patch of the box's last `Success` read), autocrop, rescale and W/H normalization, then runs the dot counter or OCR with a character whitelist from the `FieldType`, and post-filters the text (format regex, confidence threshold against Tesseract's 0–100 confidence, whole-string smoothing, leading zeros, ordinal suffix). Results are `TextDetectionResult` objects, which `TimerThread` wraps into `TextDetectionTargetWithResult` (publishing a box skipped by skip-similar, and with "update on change" a repeated reading, as `SameNoChange`: the box's last good reading) and emits through `ocr_result_signal`.
 5. **Fan-out** (`MainWindow.ocrResult` in `mainwindow.py`, on the GUI thread):
    - evaluates template fields: `template_fields.apply_template_fields(results)` sets each template's text from the last good readings and its state (`Success`, `SameNoChange` or `Empty`),
-   - updates the field table,
+   - updates the field table: every reading is stored in its box's Value item (`readings_view.record_reading`: the last good text, the state, the time of the last good reading, a rejected text), which `readings_view.ReadingDelegate` paints,
    - publishes to `http_server.update_http_server` (which snapshots the results), the outbound API (`api_output.update_out_api`), the vMix and UNO updaters (owned by `vmix_ui_handler` / `uno_ui_handler`), OBS text sources (`obs_websocket.update_text_source`, for good values that changed) and `file_output.FileOutput` (txt/csv/xml).
    - Network outputs hand their payload to background workers (`output_worker.OutputWorker`, one daemon thread per output) that coalesce pending items per key (latest value wins), use request timeouts, back off while the target is unreachable and throttle their error logging, so the GUI thread never blocks on I/O.
    - File output is state-based and atomic: `FileOutput.record()` remembers every box's last good reading, and `flush()` (at most **Save / s** times per second, with a `QTimer` for the pending change) writes only files whose content changed or that are missing.
 
-`mainwindow.py` is the central hub. It wires the UI, sources, the OBS connection, import/export and language/appearance switching.
+`mainwindow.py` is the central hub. It wires the UI, sources, the OBS connection, import/export and language/appearance switching. While **Pause outputs** is on, `ocrResult` still updates the field table but returns before the outputs; on resume, vMix and UNO get the unchanged values once (`include_unchanged`). A 1-second timer refreshes the status bar (`status_bar.MainStatusBar`, from a `StatusSnapshot` of what the window already knows: the capture thread's counters, the pause, `get_http_server_port()`) and the readings' ages. Texts set at runtime (the pause button and banner, slider readouts, the status bar, the Appearance items, shortcut hints in tooltips) are set again by `applyRuntimeTexts()` after `retranslateUi` on a language change.
 
 ## HTTP server
 
@@ -124,7 +124,10 @@ Logging goes through `from sc_logging import logger`. It writes to `platformdirs
 | `tesseract.py` | `TextDetector`: preprocessing, Tesseract OCR, post-filters |
 | `text_detection_target.py` | Box and result types, per-character smoother |
 | `template_fields.py` | `{% raw %}{{Box Name}}{% endraw %}` template evaluation |
-| `box_settings_ui_handler.py` | Binds the per-box settings panel to the selected box |
+| `box_settings_ui_handler.py` | Binds the per-box settings panel to the selected box, and the sliders' value readouts |
+| `readings_view.py` | The field table's Value column: the readings' data roles and `ReadingDelegate` |
+| `status_bar.py` | The main window's status bar (source, OCR rate, paused, HTTP address) |
+| `theme.py` | State and paused colours for light and dark palettes, media icons |
 | `http_server.py` | Built-in FastAPI/uvicorn HTTP server |
 | `output_worker.py` | Background, latest-value-wins sender used by the network outputs |
 | `api_output.py` | Outbound HTTP API (JSON/XML/CSV/GET) |

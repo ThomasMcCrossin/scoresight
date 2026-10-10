@@ -64,7 +64,7 @@ Then open the **VMix** tab:
 | **Output Mapping** | One row per ScoreSight field. In the right column, type the exact vMix field name, for example `Home Score.Text`. The default is the ScoreSight field name, which usually needs the `.Text` suffix added. The mapping the table shows is used right away, even for rows you haven't edited. Clear a cell to stop sending that field |
 | **Send Same?** | Off: send only new values. On: also resend unchanged values on every cycle. This is useful if someone else may overwrite the title in vMix |
 
-Click **Start** to begin sending (the button changes to **Stop vMix**). Click it again to pause sending without losing the settings.
+Click **Start vMix** to begin sending (the button changes to **Stop vMix**). Click it again to pause sending without losing the settings.
 
 A change to the host, port or input takes effect when you press **Enter** or leave the field. Spaces around the values are ignored. You don't need to stop and start the output: the mapping and the Start/Stop state are kept.
 

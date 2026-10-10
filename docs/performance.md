@@ -30,6 +30,8 @@ A low **Previews/s** is **not** a problem. The preview is refreshed about once p
 
 When a source opens, its first frame is shown and read right away, whatever the detection rate.
 
+The status bar at the bottom of the window shows the same numbers without the OSD: the source with its resolution and **frames per second**, and **Reading 4.7/s of 5**, the detection rate against your **Detections / s** setting. The reading rate turns orange when it falls below 70% of the setting: the computer can't keep up, so lower **Detections / s**, use fewer boxes or a lower source resolution.
+
 ## How fast do you need to be?
 
 **Detections / s** sets how often the boxes are read:
