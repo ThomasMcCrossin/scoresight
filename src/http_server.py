@@ -22,6 +22,7 @@ from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse, Response
 
+import startup_timing
 from sc_logging import file_handler, logger
 from text_detection_target import TextDetectionTargetWithResult
 
@@ -294,6 +295,15 @@ def _bind_socket(host: str, port: int) -> socket.socket:
     return sock
 
 
+class _Server(uvicorn.Server):
+    """uvicorn's server, which marks the startup milestone once it serves."""
+
+    async def startup(self, sockets=None):
+        await super().startup(sockets=sockets)
+        if self.started:
+            startup_timing.mark("http_server_ready")
+
+
 def _serve(server: uvicorn.Server, sock: socket.socket, port: int) -> None:
     try:
         server.run(sockets=[sock])
@@ -347,7 +357,7 @@ def start_http_server(port: int = DEFAULT_PORT) -> None:
             # don't wait long for polling clients' keep-alive connections
             timeout_graceful_shutdown=1,
         )
-        server = uvicorn.Server(config)
+        server = _Server(config)
         thread = threading.Thread(
             target=_serve,
             args=(server, sock, actual_port),

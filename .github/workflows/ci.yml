@@ -119,3 +119,22 @@ jobs:
         env:
           QT_QPA_PLATFORM: offscreen
         run: python -m pytest -ra
+
+      - name: End-to-end test (from source)
+        # the real app, headless, reading a synthetic scoreboard video: the
+        # readings must reach the HTTP server, the files and the outbound API
+        timeout-minutes: 10
+        shell: bash
+        env:
+          LABEL: ${{ matrix.os }}, Python ${{ matrix.python }}, from source
+        run: python scripts/ci/e2e_test.py --label "$LABEL" --work-dir "$RUNNER_TEMP/e2e" -- python src/main.py
+
+      - name: Upload the end-to-end test's files
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-${{ matrix.os }}-python${{ matrix.python }}
+          # the video, the settings, the app's logs and outputs
+          path: ${{ runner.temp }}/e2e
+          if-no-files-found: ignore
+          retention-days: 7
