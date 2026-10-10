@@ -179,3 +179,36 @@ def test_self_test_passes(tmp_path):
     ]
     # the self-test only reads settings
     assert not (tmp_path / "data").exists() or not any((tmp_path / "data").iterdir())
+
+
+# --- shutdown on signals ----------------------------------------------------------
+
+
+@pytest.mark.qt
+def test_quit_signals_close_the_main_window(qapp, monkeypatch):
+    # Ctrl+C (or SIGTERM) used to do nothing while Qt's event loop ran, and an
+    # offscreen app has no window to close: the process could only be killed,
+    # skipping the shutdown (boxes saved, threads and servers stopped).
+    import signal
+
+    from PySide6.QtWidgets import QWidget
+
+    installed = {}
+    monkeypatch.setattr(
+        signal, "signal", lambda s, handler: installed.update({s: handler})
+    )
+    window = QWidget()
+    window.show()
+    timer = main.install_quit_signal_handlers(qapp, window)
+    try:
+        assert {signal.SIGINT, signal.SIGTERM} <= set(installed)
+        # the interpreter gets control regularly to run the handlers
+        assert timer.isActive() and timer.interval() <= 500
+        installed[signal.SIGINT](signal.SIGINT, None)
+        assert window.isVisible()  # closed from the event loop, not the handler
+        qapp.processEvents()
+        assert not window.isVisible()
+    finally:
+        timer.stop()
+        timer.deleteLater()
+        window.deleteLater()

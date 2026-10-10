@@ -16,6 +16,7 @@ import argparse
 import importlib
 import os
 import platform
+import signal
 import sys
 import traceback
 
@@ -209,6 +210,34 @@ def close_splash_screen():
         pass
 
 
+# Signals that close the app like closing its window: Ctrl+C in a terminal,
+# `kill`/service stop on macOS and Linux, Ctrl+Break on Windows.
+QUIT_SIGNALS = ("SIGINT", "SIGTERM", "SIGBREAK")
+# How often Qt's event loop lets the interpreter run pending signal handlers.
+SIGNAL_POLL_MS = 250
+
+
+def install_quit_signal_handlers(app, window):
+    """Make QUIT_SIGNALS close window, so the usual shutdown runs (boxes saved,
+    capture thread, HTTP server and outputs stopped). Python runs signal
+    handlers only when it gets control, which Qt's event loop doesn't give it
+    by itself, so a timer wakes it up. Returns the timer."""
+    from PySide6.QtCore import QTimer
+
+    def close_window(signum, frame):
+        # queued: the handler may run in the middle of another Python slot
+        QTimer.singleShot(0, window.close)
+
+    for name in QUIT_SIGNALS:
+        signum = getattr(signal, name, None)
+        if signum is not None:
+            signal.signal(signum, close_window)
+    timer = QTimer(app)
+    timer.timeout.connect(lambda: None)
+    timer.start(SIGNAL_POLL_MS)
+    return timer
+
+
 def run_app(args: argparse.Namespace, qt_args: list[str]) -> int:
     from PySide6.QtWidgets import QApplication
 
@@ -224,6 +253,7 @@ def run_app(args: argparse.Namespace, qt_args: list[str]) -> int:
 
     main_window = MainWindow(translator, app, http_port=args.port)
     main_window.show()
+    install_quit_signal_handlers(app, main_window)
 
     exit_code = app.exec()
     logger.info("Exiting...")
