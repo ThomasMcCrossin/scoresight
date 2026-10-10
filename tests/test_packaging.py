@@ -794,6 +794,61 @@ def test_inno_setup_options_are_one_argument_per_line():
     ]
 
 
+LEGACY_ASSETS = {
+    # the 0.1.0 release's packages (gh release view 0.1.0)
+    "windows-x64": "scoresight-windows-0.1.0.zip",
+    "macos-arm64": "scoresight-macos-arm64-0.1.0.dmg",
+    "macos-x64": "scoresight-macos-x86-0.1.0.dmg",
+    "linux-x64": "scoresight-linux-0.1.0.tar",
+}
+
+
+def _workflow(name):
+    yaml = pytest.importorskip("yaml")
+    return yaml.safe_load((WORKFLOWS / name).read_text(encoding="utf-8"))
+
+
+def test_build_workflow_tests_the_frozen_app_and_its_boot_time():
+    job = _workflow("build.yml")["jobs"]["build"]
+    steps = job["steps"]
+    names = [step.get("name") for step in steps]
+    # after the smoke test, against the built app of each target
+    smoke = names.index("Smoke test (--self-test)")
+    e2e, boot = names.index("End-to-end test"), names.index("Boot time")
+    assert smoke < e2e < boot
+    for step in (steps[e2e], steps[boot]):
+        assert step["env"]["EXECUTABLE"] == "${{ matrix.executable }}"
+    assert "scripts/ci/e2e_test.py" in steps[e2e]["run"]
+    # our own boot time fails the build above (generous) limits
+    run = steps[boot]["run"]
+    assert "scripts/ci/boot_benchmark.py" in run and "--legacy" not in run
+    assert "--max-cold-seconds" in run and "--max-warm-seconds" in run
+    assert not steps[boot].get("continue-on-error")
+
+    # every target compares with the 0.1.0 package for its platform
+    targets = {entry["target"]: entry for entry in job["strategy"]["matrix"]["include"]}
+    assert {t: e["legacy-asset"] for t, e in targets.items()} == LEGACY_ASSETS
+    legacy = [step for step in steps if "0.1.0" in (step.get("name") or "")]
+    assert len(legacy) >= 3
+    for step in legacy:
+        # the old app may misbehave headless: never fail the build
+        assert step.get("continue-on-error") is True, step["name"]
+    assert any("--legacy" in step.get("run", "") for step in legacy)
+
+    # the results aren't packages: release.yml publishes the scoresight-* ones
+    [upload] = [
+        s for s in steps if s.get("name") == "Upload the test and benchmark results"
+    ]
+    assert not upload["with"]["name"].startswith("scoresight-")
+
+
+def test_ci_runs_the_end_to_end_test_from_source():
+    steps = _workflow("ci.yml")["jobs"]["test"]["steps"]
+    [step] = [s for s in steps if "scripts/ci/e2e_test.py" in s.get("run", "")]
+    assert step["run"].endswith("-- python src/main.py")
+    assert not step.get("if"), "on every OS of the test matrix"
+
+
 def test_linux_build_installs_the_libraries_of_qts_xcb_plugin():
     # PyInstaller bundles only the libraries it finds on the build machine.
     # Without libxcb-cursor0 and the other xcb-util libraries, the Linux package

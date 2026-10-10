@@ -126,6 +126,19 @@ def make_result(make_target):
     return _make
 
 
+@pytest.fixture
+def timing(monkeypatch):
+    """The startup_timing module without milestones and not finished (its
+    state is global), and without SCORESIGHT_STARTUP_REPORT."""
+    import startup_timing
+
+    monkeypatch.setattr(startup_timing, "_milestones", {})
+    monkeypatch.setattr(startup_timing, "_finished", False)
+    monkeypatch.setattr(startup_timing, "_before_main_cache", [])
+    monkeypatch.delenv(startup_timing.REPORT_ENV, raising=False)
+    return startup_timing
+
+
 @pytest.fixture(scope="session")
 def text_detector():
     """A real TextDetector (default model: scoreboard_general). Tests using it

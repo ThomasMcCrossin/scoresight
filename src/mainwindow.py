@@ -40,7 +40,6 @@ from http_server import (
 )
 from ocr_training_data import OCRTrainingDataDialog
 from resource_path import resource_path
-from screen_capture_source import ScreenCapture
 from source_view import ImageViewer
 from defaults import (
     default_boxes,
@@ -67,6 +66,7 @@ from obs_websocket import (
     update_text_source,
 )
 
+import startup_timing
 from template_fields import apply_template_fields
 from text_detection_target import TextDetectionTarget, TextDetectionTargetWithResult
 from sc_logging import logger
@@ -1032,6 +1032,8 @@ class MainWindow(QMainWindow):
 
     @Slot(list)
     def updateSources(self, camera_sources: list[CameraInfo]):
+        # only the first discovery (at startup) counts
+        startup_timing.mark("sources_discovered")
         self.sources_discovery_running = False
         if self.closing:
             # the discovery finished after the window was closed: don't reopen
@@ -1099,9 +1101,18 @@ class MainWindow(QMainWindow):
         self.sourceSelectionSucessful()
 
     @staticmethod
+    def screenCaptureWindows() -> list:
+        """The windows a Screen Capture source can capture, as (title, id)."""
+        # imported when first used: it loads pywin32 / pyobjc's Quartz, which
+        # would slow down every start
+        from screen_capture_source import ScreenCapture
+
+        return ScreenCapture.list_windows()
+
+    @staticmethod
     def screenCaptureWindowIds() -> list:
         try:
-            return [window[1] for window in ScreenCapture.list_windows()]
+            return [window[1] for window in MainWindow.screenCaptureWindows()]
         except Exception:
             logger.exception("Could not list the windows for screen capture")
             return []
@@ -1242,7 +1253,7 @@ class MainWindow(QMainWindow):
                 ),
                 -1,
             )
-            for window in ScreenCapture.list_windows():
+            for window in self.screenCaptureWindows():
                 ui_screencapture.comboBox_window.addItem(window[0], window[1])
             screen_dialog.exec()
             # check if the dialog was accepted
