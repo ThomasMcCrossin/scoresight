@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-ScoreSight is a PySide6 (Qt6) desktop app that runs real-time Tesseract OCR on user-defined boxes over a live video source (camera, NDI, screen capture, URL/RTSP, video file) and pushes the results to outputs (files, a built-in HTTP server, OBS, vMix, UNO, and generic HTTP APIs).
+ScoreSight is a PySide6 (Qt6) desktop app that runs real-time Tesseract OCR on user-defined boxes over a live video source (camera, NDI, screen capture, URL/RTSP, video file) and pushes the results to outputs (files, a built-in HTTP server, OBS, vMix, UNO, and generic HTTP APIs). Developer docs live in `docs/development/` (architecture, building, testing, translations, releasing).
 
 ## Setup and commands
 
@@ -15,51 +15,50 @@ uv venv --python 3.13 .venv
 uv pip install --python .venv\Scripts\python.exe -r requirements-dev.txt -r requirements-win.txt -r requirements-build.txt
 ```
 
-- **Windows only:** build the native DirectShow device enumerator (needs MSVC) before running: `cd src/win32DeviceEnum && python setup.py build_ext --inplace`
-- **Run from source:** `python src/main.py`, from any working directory (`resource_path()` resolves `tesseract/`, `translations/`, `icons/` against the repo root). Set `QT_QPA_PLATFORM=offscreen` to run headless.
+- **Windows only:** build the native DirectShow device enumerator (needs MSVC and `requirements-build.txt`): `python src/win32DeviceEnum/setup.py build_ext --inplace`. The `.pyd` is gitignored. Without it, source discovery fails (a warning from source, an error in a frozen build).
+- **Run from source:** `python src/main.py`, from any working directory (`resource_path()` resolves `tesseract/`, `translations/`, `icons/`, `obs_data/` against the repo root). Set `QT_QPA_PLATFORM=offscreen` to run headless.
+- **CLI (`src/main.py`):** `--profile NAME` (same as `SCORESIGHT_PROFILE`), `--port N` (HTTP server port, default 18099), `--self-test` (headless: imports every module in `main.SELF_TEST_MODULES`, checks the bundled files, OCRs a synthetic image with each bundled model, loads the UI and a translation, prints `SELF-TEST OK` and exits 0, else prints the traceback and exits 1). Other arguments go to Qt (e.g. `-platform offscreen`). A new module in `src/` must be added to `SELF_TEST_MODULES` (`tests/test_app_main.py` checks it).
 - **Tests:** `python -m pytest` (config in `pyproject.toml`; `src/` is on the path). Single test: `python -m pytest tests/test_storage.py::test_unsubscribe`. Markers: `ocr` (real Tesseract with the bundled models; auto-skipped if `tesserocr` is missing) and `qt` (offscreen Qt widgets), e.g. `-m "not ocr"`.
-- **Lint/format:** `python -m ruff check .` and `python -m ruff format .` (CI runs `ruff format --check .`). Rules are ruff's defaults (E4/E7/E9/F), no import sorting; `src/ui_*.py` is excluded.
+- **Lint/format:** `python -m ruff check .` and `python -m ruff format .` (CI runs `ruff format --check .`). Rules are ruff's defaults (E4/E7/E9/F), no import sorting; `src/ui_*.py` is excluded. `.pre-commit-config.yaml` runs the same ruff version (`pre-commit install`).
 - **Compile Qt Designer UI files:** `python scripts/compile_ui.py` turns each `src/*.ui` into `src/ui_*.py` with the venv's `pyside6-uic` (`compile_ui.ps1`/`.sh` are wrappers). `--check` fails if a committed `ui_*.py` is stale. Never hand-edit `ui_*.py`: edit the `.ui` file and recompile.
-- **Build executable:** `pyinstaller --clean --noconfirm scoresight.spec -- --win` (or `-- --mac_osx`; no flag for Linux; add `--debug` for a console build on Windows).
-- **Translations:** `scripts/update_translations.ps1` runs `pyside6-lupdate` to refresh the `.ts` files, and `scripts/compile_translations.ps1` runs `pyside6-lrelease` to produce `.qm` files. The compiled `.qm` files are committed and bundled.
+- **Translations:** after changing user-visible strings (`self.tr()`, `QCoreApplication.translate("Context", ...)` called by name, or `.ui` texts), run `python scripts/update_translations.py`: `pyside6-lupdate` merges the strings of `src/*.py` and `src/*.ui` into `translations/*.ts` (existing translations are kept, new ones are unfinished and show English), then `pyside6-lrelease` compiles the committed `.qm` files. `--qm-only` only compiles; `--check` (run in CI) fails when they are stale. Mark texts that must not be translated (hosts, ports, numbers that are parsed) `notr="true"` in the `.ui`.
+- **Build executable:** `pyinstaller --clean --noconfirm scoresight.spec` on any OS (add `-- --debug` for a Windows console build). Output: `dist/scoresight/` (Windows/Linux) or `dist/ScoreSight.app`. Smoke-test it with `python scripts/ci/smoke_test.py dist/scoresight/scoresight.exe` (runs `--self-test` with throw-away settings). The Windows installer is `iscc scoresight.iss` (version from `src/version.py`).
 
 ### Version and environment variables
 
-`src/version.py` (`__version__`) is the single source of truth for the version. `.env` (gitignored, optional) is loaded at startup and is only needed for `SCORESIGHT_DEBUG`.
+`src/version.py` (`__version__`) is the single source of truth for the version (window title, About, update check, spec, installer, release workflow). `.env` (gitignored, optional) is loaded at startup and is only needed for `SCORESIGHT_DEBUG`.
 
 | Variable | Purpose |
 |---|---|
 | `SCORESIGHT_DATA_DIR` | Overrides the settings directory (default `platformdirs.user_data_dir("scoresight")`). |
 | `SCORESIGHT_LOG_DIR` | Overrides the log directory (default `platformdirs.user_log_dir("scoresight")`). |
 | `SCORESIGHT_PROFILE` | Named profile: settings live in `scoresight-<profile>.json` instead of `scoresight.json`. |
-| `SCORESIGHT_DEBUG` | Any value mirrors logs to the console and turns on uvicorn debug logging (env or `.env`). |
+| `SCORESIGHT_DEBUG` | Any value mirrors logs to the console and turns on uvicorn debug and access logging (env or `.env`). |
 
 ## Architecture
 
-All app code is a flat set of modules in `src/` that import each other by bare module name (`from storage import ...`), not as a package. Running `src/main.py` puts `src/` on `sys.path`.
+All app code is a flat set of modules in `src/` that import each other by bare module name (`from storage import ...`), not as a package. Running `src/main.py` puts `src/` on `sys.path`. `main.py` parses the CLI and applies the profile **before** importing the app modules, because some of them read settings at import time.
 
 ### Frame → OCR → outputs pipeline
 
-1. **Source discovery:** `get_camera_info.py` enumerates devices per OS (DirectShow `.pyd` on Windows, AVFoundation on macOS, `/dev/video*` on Linux, plus NDI via `cyndilib`) into `CameraInfo` objects. `CameraInfo.CameraType` covers OpenCV, NDI, file, URL and screen capture.
-2. **Capture thread:** `source_view.ImageViewer` extends `camera_view.CameraView` (a `QGraphicsView`), which owns a `camera_thread.TimerThread` (a `QThread`). The thread picks a `BaseVideoCapture` implementation:
-   - `OpenCVVideoCaptureWithSettings`, which uses `CAP_DSHOW` on Windows
-   - `ndi.NDICapture`
-   - `screen_capture_source.ScreenCapture`, which resolves to a mac or Windows (win32gui) implementation, or a dummy on Linux
-3. **Per-frame processing in `TimerThread.run()`:** rotate and crop → optional stabilization (`frame_stabilizer.py`) → optional perspective homography from the user's four corners → grayscale plus a global Otsu binary → `TextDetector.detect_multi_text()`. The loop throttles OCR to the "detection cadence" setting and emits the preview frame about once per second.
-4. **OCR (`tesseract.py`):** `TextDetector` holds a single `tesserocr` API instance guarded by a lock. It uses PSM 8 (single word), and the models live in `tesseract/tessdata/*.traineddata`. For each box it applies the preprocessing that box's settings dict selects (binarization method, cleanup, vscale, skew, dilate, invert, autocrop, rescale, dot detector), sets a character whitelist from `FieldType`, and then post-filters the text (regex, confidence threshold, smoothing, leading zeros, ordinal suffix). The results are `TextDetectionResult` objects, which `TimerThread` wraps into `TextDetectionTargetWithResult` and emits through `ocr_result_signal`. `tesserocr` (2.10+) must first be imported on the main thread; keep its import at module level.
-5. **Fan-out (`MainWindow.ocrResult` in `mainwindow.py`):**
-   - It first evaluates template fields (`template_fields.py` substitutes `{{Box Name}}`).
-   - It then sends the results to every output: `http_server.update_http_server` (a FastAPI/uvicorn server on port **18099** in a background thread), `api_output.update_out_api`, the vMix and UNO updaters (owned by `vmix_ui_handler` and `uno_ui_handler`), OBS text sources via `obs_websocket.update_text_source`, and `file_output` (txt/csv/xml).
-   - OBS and file output are rate-limited by the "aggs per second" slider.
+1. **Source discovery:** `get_camera_info.py` enumerates devices per OS (DirectShow `.pyd` on Windows, AVFoundation on macOS, `/dev/video*` on Linux, plus NDI via `cyndilib`) into `CameraInfo` objects. `MainWindow` runs it on a worker thread (`mainwindow.run_in_background`, results delivered to the GUI thread by a signal), like the OBS connection and the update check (GitHub Releases API, at startup unless disabled).
+2. **Capture thread:** `source_view.ImageViewer` extends `camera_view.CameraView` (a `QGraphicsView`), which owns a `camera_thread.TimerThread` (a `QThread`, not a Qt child of the view). The thread picks a `BaseVideoCapture` implementation: `OpenCVVideoCaptureWithSettings` (stored Video Settings apply to camera devices; URLs use FFmpeg with 5 s timeouts and RTSP over TCP), `ndi.NDICapture`, or `screen_capture_source.ScreenCapture` (mac or Windows/win32gui implementation, or a dummy on Linux). Closing a viewer waits at most `STOP_TIMEOUT_MS` (3 s) for the thread, which otherwise finishes in the background; `camera_thread` keeps running threads alive until they finish.
+3. **Per-frame processing in `TimerThread.process_frame()`:** rotate and crop → optional stabilization (`frame_stabilizer.py`) → optional four-corner homography → grayscale → `TextDetector.detect_multi_text()` on a snapshot of the boxes. OCR runs at the "Detections / s" cadence (0.1/s and up); the preview is emitted about once per second regardless.
+4. **OCR (`tesseract.py`):** `TextDetector` holds one `tesserocr` API instance; every box's whole Tesseract sequence runs under its lock, and `setOcrModel` swaps models under it. PSM 8 (single word); models in `tesseract/tessdata/*.traineddata`. Each box is read from the part inside the frame, preprocessed on its own copy of the patch (binarization, cleanup, vscale, skew, dilate, invert, autocrop, rescale, W/H normalization, dot counter), with a character whitelist from its `FieldType`, then post-filtered (format regex, confidence threshold = `conf_thresh` × 100 against Tesseract's confidence %, smoothing, leading zeros, ordinal suffix). A box skipped by "skip similar image" returns `unchanged_image=True`. `tesserocr` (2.10+) must first be imported on the main thread; keep its import at module level.
+5. **Result states (`TimerThread._published_reading`):** `Success`, `FailedFilter`, `Empty`, `SameNoChange`. `target.last_text` is the box's last *good* (Success) reading, and `SameNoChange` always means "same as that": a repeated Success with "update on change", or an unchanged image. A rejected reading never comes back as `SameNoChange`. Outputs treat Success/SameNoChange as good readings. Training data samples are snapshotted before `ocr_result_signal` is emitted.
+6. **Fan-out (`MainWindow.ocrResult`):**
+   - `template_fields.apply_template_fields(results)` fills `{{Box Name}}` templates from last good readings (Success when the text changed, SameNoChange otherwise, Empty until every referenced box has a good reading).
+   - Then every output: `http_server.update_http_server` (FastAPI/uvicorn on `--port`, default **18099**, bound to 0.0.0.0 on a daemon thread; a busy port is logged and the app runs without it; `get_http_server_port()` gives the real port), `api_output.update_out_api`, the vMix and UNO updaters (owned by `vmix_ui_handler`/`uno_ui_handler`), OBS text sources via `obs_websocket.update_text_source` (per changed good reading, **not** limited by "Save / s"), and `file_output` (txt/csv/xml, flushed at the "Save / s" rate, written only when a value changed, atomically).
+   - vMix, UNO, OBS and the outbound API never block the GUI thread: each sends from an `output_worker.OutputWorker` (one daemon thread per sink, latest value per key, request timeouts, backoff while the endpoint is unreachable, throttled error logging). `main.py` calls `stop_http_server()` and `output_worker.stop_all_workers()` after the event loop.
 
-`mainwindow.py` is the central hub. It wires the UI, sources, the OBS connection, configuration import/export, and language switching.
+`mainwindow.py` is the central hub. It wires the UI, sources, the OBS connection (replaced/closed clients go through `obs_websocket.close_obs_websocket`), configuration import/export, File > Appearance, and language switching (after `retranslateUi`, state the `.ui` defaults would reset is restored, e.g. `vmixUiHandler.restoreUiState()`).
 
 ### Detection boxes and their settings
 
-- `TextDetectionTarget` (in `text_detection_target.py`) subclasses `QRectF` and adds a `name`, a `settings` dict and optional `mini_rects`.
-- All boxes live in `storage.TextDetectionTargetMemoryStorage`, a singleton `QObject` whose `data_changed` signal drives both the main window's box table and the viewer overlay.
+- `TextDetectionTarget` (in `text_detection_target.py`) subclasses `QRectF` and adds a `name`, a `settings` dict, optional `mini_rects` and runtime OCR state (`last_text`, `last_image`, smoothing and W/H history; not persisted).
+- All boxes live in `storage.TextDetectionTargetMemoryStorage`, a singleton `QObject` whose `data_changed` signal drives both the main window's box table and the viewer overlay. `MainWindow` loads the boxes once at startup and saves them 500 ms after any change (and on close).
 - The predefined boxes (Home Score, Away Score, Time and others) and their regex presets are in `defaults.py`. Every other name is a "custom" box.
-- **To add a per-box setting**, update `defaults.normalize_settings_dict` (the canonical keys and defaults; `getBoxesForStorage` serializes exactly its output, and `tests/test_storage.py` checks that), `box_settings_ui_handler.py` (the UI binding) and `tesseract.py`, if the setting affects processing.
+- **To add a per-box setting**, update `defaults.normalize_settings_dict` (the canonical keys and defaults; `getBoxesForStorage` serializes exactly its output, and `tests/test_storage.py` checks that), `box_settings_ui_handler.py` (the UI binding) and `tesseract.py`, if the setting affects processing. If a stored value's meaning changes, bump `storage.BOXES_SCHEMA_VERSION` and extend `storage.migrate_boxes`: boxes are stored with `"boxes_schema_version"` (next to `"boxes"` in the settings file, and in exported files, which are `{"boxes_schema_version": N, "boxes": [...]}`); older ones are migrated once on load (version 2 turned 0.1.x's ineffective `conf_thresh` off).
 
 ### Persistence and settings pub/sub
 
@@ -69,21 +68,20 @@ Logging goes through `from sc_logging import logger`. Each session writes `score
 
 ### Tests
 
-`tests/conftest.py` points `SCORESIGHT_DATA_DIR`/`SCORESIGHT_LOG_DIR` at temp dirs and sets `QT_QPA_PLATFORM=offscreen` before any app module is imported (importing `sc_logging` creates log files), so tests never touch the user's settings. The autouse `data_dir` fixture gives each test its own settings dir and an empty subscriber registry. Other fixtures: `memory_storage`, `make_target`, `make_result`, `text_detector`, plus pytest-qt's `qapp`/`qtbot`. `tests/synthetic_images.py` renders 7-segment and Hershey-font digits for OCR tests. Patch `mainwindow.start_http_server`, `mainwindow.get_camera_info` and `mainwindow.check_for_updates` before constructing `MainWindow` (see `tests/test_app_mainwindow_smoke.py`).
+`tests/conftest.py` points `SCORESIGHT_DATA_DIR`/`SCORESIGHT_LOG_DIR` at temp dirs and sets `QT_QPA_PLATFORM=offscreen` before any app module is imported (importing `sc_logging` creates log files), so tests never touch the user's settings. The autouse `data_dir` fixture gives each test its own settings dir and an empty subscriber registry. Other fixtures: `memory_storage`, `make_target`, `make_result`, `text_detector`, plus pytest-qt's `qapp`/`qtbot`. `tests/synthetic_images.py` renders 7-segment and Hershey-font digits for OCR tests. Before constructing `MainWindow`, patch `mainwindow.start_http_server`, `get_http_server_port`, `get_camera_info`, `check_for_updates`, `ImageViewer` and `update_text_source` (see the `patched` fixture in `tests/test_app_mainwindow_smoke.py`). Output tests use a real uvicorn server on a free port (`start_http_server(0)`), not FastAPI's TestClient.
 
-### Packaging gotchas
+### Packaging
 
-- `scoresight.spec` lists every source module (`sources`) and every bundled asset (`datas`) **explicitly**. A new `.py` file in `src/`, a new icon, a new tessdata model or a new translation must be added there, or it will be missing from the built app even though it works from source.
-- Platform-specific modules (`screen_capture_source_windows.py`, `screen_capture_source_mac.py`, the win32 `.pyd`) are added conditionally by the `--win` and `--mac_osx` flags.
-- Bundled resources must be loaded through `resource_path(...)`, which resolves against `sys._MEIPASS` when frozen and the repo root otherwise.
-- `tesserocr` (via `cysignals`) and `cyndilib` import some submodules from compiled code, which PyInstaller can't see; they need hidden imports in the spec.
+- `scoresight.spec` has a single entry script, `src/main.py`; PyInstaller follows its imports, so new modules in `src/` are bundled automatically. Platform modules and the win32 `.pyd` are hidden imports chosen by the platform the spec runs on (it can't cross-compile; `--win`/`--mac_osx` are accepted but not needed).
+- Data files come from `DATA_GLOBS` in the spec. `tests/test_packaging.py` scans every `resource_path(...)` call in `src/` and fails if what it loads isn't matched by a glob (folder references list the files they load in `FOLDER_CONTENTS`), and checks the built-in OCR models. Load bundled resources only through `resource_path(...)` (it resolves against `sys._MEIPASS` when frozen and the repo root otherwise).
+- `tesserocr` (via `cysignals`) and `cyndilib` import some submodules from compiled code, which PyInstaller can't see; the spec collects them as hidden imports.
 
-### Releases
+### CI and releases
 
-Releases are manual: bump `src/version.py`, move the CHANGELOG's `## [Unreleased]` section to the new version, and push a tag `X.Y.Z` (or `X.Y.Z-beta.N` / `X.Y.Z-rc.N`). The tag-triggered workflow builds Windows, macOS (arm64 and x86_64) and Linux, checks the tag against `src/version.py`, and creates a **draft** GitHub release.
+Workflows: `ci.yml` (lint incl. `compile_ui.py --check`, `update_translations.py --check` and a check for the lapsed `scoresight.live` domain; tests on Linux/Windows, macOS on main), `build.yml` (PyInstaller builds for Windows, macOS arm64/x86_64 and Linux, the frozen-app smoke test, the Windows installer; runs on PRs that touch packaging, manually and for release tags) and `release.yml`. Releases are manual: `python scripts/bump_version.py X.Y.Z` (updates `src/version.py` if needed and moves the CHANGELOG's `## [Unreleased]` section to `## [X.Y.Z] - <date>`; `--dry-run` shows the diff), commit, then push a tag `X.Y.Z` (or `X.Y.Z-beta.N` / `X.Y.Z-rc.N`). The tag-triggered workflow checks the tag against `src/version.py`, builds every platform and creates a **draft** GitHub release from that CHANGELOG section with `SHA256SUMS.txt`.
 
 ### Other directories
 
-- `scripts/*.py`: standalone tkinter/OpenCV tools for cropping and annotating OCR training data. They're not part of the app (see `docs/data_annotation.md`).
+- `scripts/*.py`: standalone tkinter/OpenCV tools for cropping and annotating OCR training data. They're not part of the app (see `docs/data_annotation.md`). `scripts/ci/` holds the version helper and the smoke test used by the workflows.
 - `obs_data/`: the OBS scene collection and images used by "Create OBS Scene".
-- `docs/`: user-facing guides for the HTTP server, vMix, outbound APIs and installation.
+- `docs/`: the user guide (Jekyll site) and `docs/development/`.
