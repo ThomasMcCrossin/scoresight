@@ -1,5 +1,5 @@
 from PySide6.QtGui import QStandardItemModel, QStandardItem
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QCoreApplication, Qt
 
 from text_detection_target import TextDetectionTarget
 from ui_mainwindow import Ui_MainWindow
@@ -120,7 +120,9 @@ class VMixUIHanlder:
 
     def _updateToggleText(self, running):
         self.ui.pushButton_startvmix.setText(
-            "🛑 Stop vMix" if running else "▶️ Start vMix"
+            "🛑 " + QCoreApplication.translate("MainWindow", "Stop vMix")
+            if running
+            else "▶️ " + QCoreApplication.translate("MainWindow", "Start vMix")
         )
 
     def togglevMix(self, value):

@@ -65,16 +65,23 @@ def patched(monkeypatch):
     """Patch the main window's external dependencies; returns the call logs."""
     import mainwindow
 
-    calls = {"http": [], "camera_threads": [], "obs": []}
+    calls = {"http": [], "camera_threads": [], "obs": [], "http_port_busy": False}
     cameras = []
 
     def fake_get_camera_info():
         calls["camera_threads"].append(threading.current_thread())
         return list(cameras)
 
+    def fake_get_http_server_port():
+        # the port of the last start, or None as if that port had been busy
+        if not calls["http"] or calls["http_port_busy"]:
+            return None
+        return calls["http"][-1]["port"]
+
     monkeypatch.setattr(
         mainwindow, "start_http_server", lambda **k: calls["http"].append(k)
     )
+    monkeypatch.setattr(mainwindow, "get_http_server_port", fake_get_http_server_port)
     monkeypatch.setattr(mainwindow, "get_camera_info", fake_get_camera_info)
     monkeypatch.setattr(mainwindow, "check_for_updates", lambda *a, **k: False)
     monkeypatch.setattr(mainwindow, "ImageViewer", FakeViewer)
@@ -179,7 +186,8 @@ def test_obs_auto_connect_runs_off_the_gui_thread(make_window, monkeypatch, qtbo
     assert threads and threads[0] is not threading.main_thread()
     assert window.ui.pushButton_createOBSScene.isEnabled()
     window.close()
-    assert client.disconnected
+    # closed with obs_websocket.close_obs_websocket, off the GUI thread
+    qtbot.waitUntil(lambda: client.disconnected)
 
 
 # --- outputs ---------------------------------------------------------------------------
@@ -202,6 +210,34 @@ def test_obs_updates_without_an_output_folder(main_window, patched, make_result)
         (client, "Home score", "12"),
         (client, "Home score", "13"),
     ]
+
+
+def test_template_fields_report_changes_only(main_window, make_result):
+    # template-uses-failed-results: every template was reported as a new
+    # Success on every cycle (defeating "update on change"), and filled with
+    # rejected readings.
+    def cycle(home, away):
+        template = make_result(
+            "Score",
+            "",
+            "Empty",
+            templatefield=True,
+            templatefield_text="{{Home Score}} - {{Away Score}}",
+        )
+        results = [make_result("Home Score", *home), make_result("Away Score", *away)]
+        main_window.ocrResult([*results, template])
+        return template.result, template.result_state.name
+
+    assert cycle(("12", "Success"), ("7", "Success")) == ("12 - 7", "Success")
+    assert cycle(("12", "SameNoChange"), ("7", "SameNoChange")) == (
+        "12 - 7",
+        "SameNoChange",
+    )
+    assert cycle(("8B", "FailedFilter"), ("7", "SameNoChange")) == (
+        "12 - 7",
+        "SameNoChange",
+    )
+    assert cycle(("13", "Success"), ("7", "SameNoChange")) == ("13 - 7", "Success")
 
 
 def test_stop_updates_pauses_outputs(main_window, patched, make_result):
@@ -278,16 +314,42 @@ def test_api_output_encoding_is_restored_or_repaired(
     assert fetch_data("scoresight.json", "out_api_encoding") == "CSV"
 
 
-def test_language_change_keeps_settings_and_texts(main_window, qapp):
+def test_language_change_keeps_settings_and_texts(main_window, qapp, caplog):
     main_window.ui.comboBox_api_encode.setCurrentIndex(2)
     main_window.ui.lineEdit_vmixPort.setText("8123")
+    main_window.ui.lineEdit_vmixPort.editingFinished.emit()
+    main_window.reset_playing_source()  # e.g. the sources were reloaded
     main_window.changeLanguage("de_DE")
     try:
+        # retranslateUi stopped half-way at a label deleted by a source change
+        assert "Error retranslating UI" not in caplog.text
+        assert main_window.ui.label_12.isVisibleTo(main_window)
         assert fetch_data("scoresight.json", "language") == "de_DE"
         # retranslateUi used to store the translated item text / reset fields
         assert fetch_data("scoresight.json", "out_api_encoding") == "XML"
         assert main_window.ui.lineEdit_vmixPort.text() == "8123"
         assert main_window.windowTitle() == f"ScoreSight - v{__version__}"
+    finally:
+        qapp.removeTranslator(main_window.translator)
+
+
+def test_language_change_keeps_the_output_controls(main_window, qapp, monkeypatch):
+    # retranslateUi reset the vMix/UNO start buttons to their .ui texts
+    # ("Start"), the OBS scene name and the playback speed.
+    vmix = main_window.vmixUiHandler
+    uno = main_window.unoUiHandler
+    monkeypatch.setattr(vmix.vmixUpdater, "start", lambda: None, raising=False)
+    monkeypatch.setattr(uno.unoUpdater, "start", lambda: None, raising=False)
+    vmix_text = main_window.ui.pushButton_startvmix.text()
+    uno_text = main_window.ui.toolButton_toggleUno.text()
+    main_window.ui.lineEdit_sceneName.setText("Court 2")
+    main_window.ui.toolButton_speed.setText("x4")
+    main_window.changeLanguage("de_DE")
+    try:
+        assert main_window.ui.pushButton_startvmix.text() == vmix_text
+        assert main_window.ui.toolButton_toggleUno.text() == uno_text
+        assert main_window.ui.lineEdit_sceneName.text() == "Court 2"
+        assert main_window.ui.toolButton_speed.text() == "x4"
     finally:
         qapp.removeTranslator(main_window.translator)
 
@@ -310,8 +372,20 @@ def test_browser_tab_shows_the_http_port(make_window, patched):
     assert patched["http"] == [{"port": 18100}]
     text = window.ui.label_8.text()
     assert "http://localhost:18100/json" in text
+    assert "http://localhost:18100/csv" in text
+    assert "?pivot" in text
     assert "18099" not in text
     assert "color:#" not in text
+
+
+def test_browser_tab_says_when_the_http_port_is_busy(make_window, patched):
+    patched["http_port_busy"] = True
+    window = make_window(http_port=18100)
+    text = window.ui.label_8.text()
+    assert "not running" in text
+    assert "18100" in text
+    assert "--port" in text
+    assert "http://localhost" not in text
 
 
 # --- boxes ------------------------------------------------------------------------------
@@ -382,6 +456,28 @@ def test_viewer_is_connected_once(main_window, monkeypatch):
     main_window.ui.pushButton_fourCorner.setChecked(False)
     assert viewer.four_corner_calls == [True]
     assert new_viewer.four_corner_calls == [False]
+
+
+def test_replaced_viewers_are_deleted(make_window, qapp):
+    # A replaced viewer was removed from the layout and closed, but stayed a
+    # child widget of the main window for the rest of the session.
+    from PySide6.QtCore import QCoreApplication, QEvent
+    from shiboken6 import isValid
+
+    store_data("scoresight.json", "source_selected", "rtsp://10.0.1.200:554/11")
+    window = make_window()
+    first = window.image_viewer
+    assert first is not None
+    window.sourceSelectionSucessful()  # open the source again
+    second = window.image_viewer
+    assert second is not first
+    QCoreApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+    assert not isValid(first)
+    assert isValid(second)
+    window.reset_playing_source()
+    QCoreApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+    assert not isValid(second)
+    assert window.image_viewer is None
 
 
 # --- sources (#10) -----------------------------------------------------------------------

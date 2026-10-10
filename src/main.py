@@ -214,6 +214,7 @@ def run_app(args: argparse.Namespace, qt_args: list[str]) -> int:
 
     from http_server import stop_http_server
     from mainwindow import MainWindow, apply_color_scheme
+    from output_worker import stop_all_workers
     from sc_logging import logger
     from storage import fetch_data
 
@@ -227,6 +228,9 @@ def run_app(args: argparse.Namespace, qt_args: list[str]) -> int:
     exit_code = app.exec()
     logger.info("Exiting...")
     stop_http_server()
+    # The output threads are daemons and never block the exit; give a send in
+    # flight (vMix, UNO, OBS, outbound API) a moment to finish.
+    stop_all_workers(timeout=2)
     return exit_code
 
 

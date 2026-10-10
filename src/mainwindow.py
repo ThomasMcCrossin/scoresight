@@ -9,7 +9,6 @@ from PySide6.QtWidgets import (
     QDialog,
     QFileDialog,
     QInputDialog,
-    QLabel,
     QMainWindow,
     QMenu,
     QMessageBox,
@@ -34,7 +33,11 @@ from api_output import update_out_api
 from box_settings_ui_handler import BoxSettingsUIHandler
 from camera_info import CameraInfo
 from get_camera_info import get_camera_info
-from http_server import start_http_server, update_http_server
+from http_server import (
+    get_http_server_port,
+    start_http_server,
+    update_http_server,
+)
 from ocr_training_data import OCRTrainingDataDialog
 from resource_path import resource_path
 from screen_capture_source import ScreenCapture
@@ -58,12 +61,13 @@ from storage import (
     fetch_custom_box_names,
 )
 from obs_websocket import (
+    close_obs_websocket,
     create_obs_scene_from_export,
     open_obs_websocket,
     update_text_source,
 )
 
-from template_fields import evaluate_template_field
+from template_fields import apply_template_fields
 from text_detection_target import TextDetectionTarget, TextDetectionTargetWithResult
 from sc_logging import logger
 from uno_ui_handler import UNOUIHandler
@@ -164,17 +168,6 @@ def stored_source_value(stored) -> dict | None:
     return None
 
 
-def clear_layout(layout):
-    while layout.count():
-        item = layout.takeAt(0)
-        widget = item.widget()
-        if widget is not None:
-            widget.deleteLater()
-            widget = None
-        else:
-            clear_layout(item.layout())
-
-
 class MainWindow(QMainWindow):
     # add a signal to update sources
     update_sources = Signal(list)
@@ -257,6 +250,10 @@ class MainWindow(QMainWindow):
 
         self.vmixUiHandler = VMixUIHanlder(self.ui)
         self.unoUiHandler = UNOUIHandler(self.ui)
+        # the start/stop buttons show the same texts from the start as after a
+        # toggle or a language change
+        self.vmixUiHandler.restoreUiState()
+        self.unoUiHandler.restoreUiState()
         self.boxSettingsUiHandler = BoxSettingsUIHandler(self.ui)
 
         self.ui.checkBox_templatefield.toggled.connect(self.makeTemplateField)
@@ -494,10 +491,24 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(title)
 
     def updateBrowserEndpoints(self):
+        """Show the HTTP server's real port in the Browser tab, or that the
+        server isn't running (its port was busy)."""
+        port = get_http_server_port()
+        if port is None:
+            self.ui.label_8.setText(
+                QCoreApplication.translate(
+                    "MainWindow",
+                    "<p>The HTTP server is not running: port {port} is already "
+                    "in use or not available.</p><p>Close the other program, or "
+                    "start ScoreSight with <b>--port</b> to use a different port. "
+                    "The log has the details.</p>",
+                ).format(port=self.http_port)
+            )
+            return
         # the Browser tab's links are written for the default port
         self.ui.label_8.setText(
             self.ui.label_8.text().replace(
-                f"localhost:{DEFAULT_HTTP_PORT}", f"localhost:{self.http_port}"
+                f"localhost:{DEFAULT_HTTP_PORT}", f"localhost:{port}"
             )
         )
 
@@ -618,6 +629,8 @@ class MainWindow(QMainWindow):
         if appInstance:
             logger.info(f"installing translator for {locale}")
             appInstance.installTranslator(self.translator)
+            scene_name = self.ui.lineEdit_sceneName.text()
+            speed = self.ui.toolButton_speed.text()
             try:
                 self.ui.retranslateUi(self)
             except Exception as e:
@@ -626,6 +639,10 @@ class MainWindow(QMainWindow):
             self.updateWindowTitle()
             self.updateBrowserEndpoints()
             self.updateStopUpdatesButtonText()
+            self.ui.lineEdit_sceneName.setText(scene_name)
+            self.ui.toolButton_speed.setText(speed)
+            self.vmixUiHandler.restoreUiState()
+            self.unoUiHandler.restoreUiState()
 
     def addLanguageOption(self, menu: QMenu, language_name: str, locale: str):
         menu.addAction(language_name, lambda: self.changeLanguage(locale))
@@ -667,7 +684,6 @@ class MainWindow(QMainWindow):
     def openOCRTrainingDataDialog(self):
         # open the OCR training data dialog
         dialog = OCRTrainingDataDialog()
-        dialog.setWindowTitle("OCR Training Data Setup")
         dialog.exec()
 
     def openConfigurationFolder(self):
@@ -686,12 +702,8 @@ class MainWindow(QMainWindow):
             self.image_viewer.resetZoom()
 
     def detectionCadenceChanged(self, detections_per_second):
+        # the capture thread follows the detection_cadence setting
         self.globalSettingsChanged("detection_cadence", detections_per_second)
-        if self.image_viewer and self.image_viewer.timerThread:
-            # convert the detections_per_second to milliseconds
-            self.image_viewer.timerThread.update_frame_interval = (
-                1000 / detections_per_second
-            )
 
     def ocrModelChanged(self, index: int | str):
         ocrModel = None
@@ -989,12 +1001,14 @@ class MainWindow(QMainWindow):
 
     @staticmethod
     def closeObsClient(client):
+        """Disconnect an OBS client that is replaced or no longer used, and stop
+        its pending text updates. close_obs_websocket waits for an update in
+        flight (bounded by the OBS timeout), so it runs off the GUI thread."""
         if client is None:
             return
-        try:
-            client.disconnect()
-        except Exception:
-            logger.debug("Error closing the OBS connection", exc_info=True)
+        run_in_background(
+            "OBS disconnect", partial(close_obs_websocket, client), lambda _: None
+        )
 
     @Slot()
     def getSources(self):
@@ -1127,20 +1141,29 @@ class MainWindow(QMainWindow):
             except (RuntimeError, TypeError):
                 pass
 
+    def closeImageViewer(self):
+        """Close and delete the current image viewer.
+
+        Closing stops its capture thread, waiting at most STOP_TIMEOUT_MS; a
+        thread still blocked on its source then finishes in the background.
+        Deleting the viewer is safe even then: the thread isn't a Qt child of
+        the viewer (camera_thread keeps it alive until it finishes), and the
+        viewer has already disconnected from it and from the settings."""
+        viewer = self.image_viewer
+        if viewer is None:
+            return
+        self.image_viewer = None
+        self.disconnectViewer()
+        # remove the image viewer from the layout frame_for_source_view_label
+        self.ui.frame_for_source_view_label.layout().removeWidget(viewer)
+        viewer.close()
+        viewer.deleteLater()
+
     def reset_playing_source(self):
-        if self.image_viewer:
-            self.disconnectViewer()
-            # remove the image viewer from the layout frame_for_source_view_label
-            self.ui.frame_for_source_view_label.layout().removeWidget(self.image_viewer)
-            self.image_viewer.close()
-            self.image_viewer = None
-        # add a label with markdown text
-        label_select_source = QLabel("### Open a Camera or Load a File")
-        label_select_source.setTextFormat(Qt.TextFormat.MarkdownText)
-        label_select_source.setEnabled(False)
-        label_select_source.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        clear_layout(self.ui.frame_for_source_view_label.layout())
-        self.ui.frame_for_source_view_label.layout().addWidget(label_select_source)
+        self.closeImageViewer()
+        # "Open a Camera or Load a File". It is hidden, never deleted: the
+        # .ui's retranslateUi sets its text on a language change.
+        self.ui.label_12.show()
 
     def sourceChanged(self, index):
         # get the source name from the combobox
@@ -1294,15 +1317,8 @@ class MainWindow(QMainWindow):
         # remember the source (with its type) for the next start
         self.globalSettingsChanged("source_selected", self.sourceToStore(camera_info))
 
-        if self.image_viewer:
-            self.disconnectViewer()
-            # remove the image viewer from the layout frame_for_source_view_label
-            self.ui.frame_for_source_view_label.layout().removeWidget(self.image_viewer)
-            self.image_viewer.close()
-            self.image_viewer = None
-
-        # clear self.ui.frame_for_source_view_label
-        clear_layout(self.ui.frame_for_source_view_label.layout())
+        self.closeImageViewer()
+        self.ui.label_12.hide()
 
         # set the pixmap to the image viewer
         self.image_viewer = ImageViewer(
@@ -1320,8 +1336,8 @@ class MainWindow(QMainWindow):
         self.image_viewer.error_signal.connect(self.updateError)
         self.ocrModelChanged(fetch_data("scoresight.json", "ocr_model", 1))
 
-        # set the image viewer to the layout frame_for_source_view_label
-        self.ui.frame_for_source_view_label.layout().addWidget(self.image_viewer)
+        # in the placeholder label's place (frame_for_source_view_label's grid)
+        self.ui.frame_for_source_view_label.layout().addWidget(self.image_viewer, 0, 0)
 
     def cameraConnectedEnableUI(self):
         if self.image_viewer is None:
@@ -1360,19 +1376,9 @@ class MainWindow(QMainWindow):
         self.ui.widget_cropPanel.setEnabled(False)
 
     def ocrResult(self, results: list[TextDetectionTargetWithResult]):
-        # update template fields
-        for targetWithResult in results:
-            if not targetWithResult.settings["templatefield"]:
-                continue
-            template_result = evaluate_template_field(results, targetWithResult)
-            targetWithResult.result = (
-                template_result if template_result is not None else ""
-            )
-            targetWithResult.result_state = (
-                TextDetectionTargetWithResult.ResultState.Success
-                if targetWithResult.result is not None
-                else TextDetectionTargetWithResult.ResultState.Empty
-            )
+        # fill in the template fields from the boxes' last good readings; a
+        # template is Success when its text changed, SameNoChange otherwise
+        apply_template_fields(results)
 
         # update the table widget value items
         for targetWithResult in results:
@@ -1607,10 +1613,7 @@ class MainWindow(QMainWindow):
     def closeEvent(self, event):
         logger.info("Closing")
         self.closing = True
-        if self.image_viewer:
-            self.disconnectViewer()
-            self.image_viewer.close()
-            self.image_viewer = None
+        self.closeImageViewer()
 
         if self.log_dialog:
             self.log_dialog.close()
