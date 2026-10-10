@@ -1,8 +1,8 @@
 """Construct the real MainWindow headless (QT_QPA_PLATFORM=offscreen).
 
 The HTTP server, camera enumeration (DirectShow/AVFoundation/V4L + NDI
-discovery) and the update check are patched out so the test needs no network,
-devices or ports.
+discovery) and the update check are patched out so the tests need no network,
+devices or ports. Sources are opened with a fake viewer (no capture thread).
 """
 
 import threading
@@ -12,29 +12,104 @@ import pytest
 pytestmark = pytest.mark.qt
 pytest.importorskip("tesserocr")  # MainWindow imports the OCR pipeline
 
+from PySide6.QtCore import QTranslator, Signal  # noqa: E402
+from PySide6.QtWidgets import QWidget  # noqa: E402
+
+from camera_info import CameraInfo  # noqa: E402
+from storage import fetch_data, store_data  # noqa: E402
+
+
+class FakeViewer(QWidget):
+    """Stands in for source_view.ImageViewer (which starts a capture thread)."""
+
+    first_frame_received_signal = Signal()
+    error_signal = Signal(str)
+
+    def __init__(self, camera_info, fourCornersApplied, storage, itemSelected):
+        super().__init__()
+        self.camera_info = camera_info
+        self.timerThread = None
+        self.four_corner_calls = []
+
+    def toggleFourCorner(self, state):
+        self.four_corner_calls.append(state)
+
+    def toggleBinary(self):
+        pass
+
+    def selectBox(self, name):
+        pass
+
+    def getCameraInfo(self):
+        return self.camera_info
+
+
+class FakeObsClient:
+    def __init__(self):
+        self.disconnected = False
+
+    def disconnect(self):
+        self.disconnected = True
+
 
 @pytest.fixture
-def main_window(qapp, monkeypatch, memory_storage):
-    from PySide6.QtCore import QTranslator
-
+def patched(monkeypatch):
+    """Patch the main window's external dependencies; returns the call logs."""
     import mainwindow
 
-    monkeypatch.setattr(mainwindow, "start_http_server", lambda *a, **k: None)
-    monkeypatch.setattr(mainwindow, "get_camera_info", lambda *a, **k: [])
-    monkeypatch.setattr(mainwindow, "check_for_updates", lambda *a, **k: False)
+    calls = {"http": [], "camera_threads": [], "obs": []}
+    cameras = []
 
-    window = mainwindow.MainWindow(QTranslator(), qapp)
-    yield window
-    window.close()
-    window.deleteLater()
+    def fake_get_camera_info():
+        calls["camera_threads"].append(threading.current_thread())
+        return list(cameras)
+
+    monkeypatch.setattr(
+        mainwindow, "start_http_server", lambda **k: calls["http"].append(k)
+    )
+    monkeypatch.setattr(mainwindow, "get_camera_info", fake_get_camera_info)
+    monkeypatch.setattr(mainwindow, "check_for_updates", lambda *a, **k: False)
+    monkeypatch.setattr(mainwindow, "ImageViewer", FakeViewer)
+    monkeypatch.setattr(
+        mainwindow,
+        "update_text_source",
+        lambda client, source, text: calls["obs"].append((client, source, text)),
+    )
+    calls["cameras"] = cameras
+    return calls
+
+
+@pytest.fixture
+def make_window(qapp, qtbot, patched, memory_storage):
+    import mainwindow
+
+    windows = []
+
+    def _make(**kwargs):
+        window = mainwindow.MainWindow(QTranslator(), qapp, **kwargs)
+        windows.append(window)
+        # source discovery runs on a worker thread
+        qtbot.waitUntil(lambda: not window.sources_discovery_running)
+        return window
+
+    yield _make
+    for window in windows:
+        window.close()
+        qapp.removeTranslator(window.translator)
+        window.deleteLater()
     qapp.processEvents()
 
 
-def test_main_window_constructs_shows_and_closes(main_window, qapp):
+@pytest.fixture
+def main_window(make_window):
+    return make_window()
+
+
+def test_main_window_constructs_shows_and_closes(make_window, patched, qapp):
     from defaults import default_boxes
-    from storage import fetch_data
 
     threads_before = set(threading.enumerate())
+    main_window = make_window()
 
     assert main_window.windowTitle().startswith("ScoreSight")
     assert main_window.ui.tableWidget_boxes.rowCount() >= len(default_boxes)
@@ -52,3 +127,127 @@ def test_main_window_constructs_shows_and_closes(main_window, qapp):
     # nothing (e.g. a server or capture thread) was left running
     leftover = [t for t in set(threading.enumerate()) - threads_before if not t.daemon]
     assert leftover == []
+
+
+# --- background work (#33) -----------------------------------------------------------
+
+
+def test_sources_are_discovered_off_the_gui_thread(make_window, patched):
+    patched["cameras"].append(
+        CameraInfo("USB Camera", "0", 0, CameraInfo.CameraType.OPENCV)
+    )
+    window = make_window()
+    assert patched["camera_threads"]
+    assert threading.main_thread() not in patched["camera_threads"]
+    combo = window.ui.comboBox_camera_source
+    assert combo.itemText(combo.count() - 1) == "USB Camera"
+    assert window.ui.pushButton_refresh_sources.isEnabled()
+
+
+def test_obs_auto_connect_runs_off_the_gui_thread(make_window, monkeypatch, qtbot):
+    import mainwindow
+
+    client = FakeObsClient()
+    threads = []
+
+    def fake_open(info):
+        threads.append(threading.current_thread())
+        assert info == {"ip": "localhost", "port": "4455", "password": "x"}
+        return client
+
+    monkeypatch.setattr(mainwindow, "open_obs_websocket", fake_open)
+    store_data(
+        "scoresight.json", "obs", {"ip": "localhost", "port": "4455", "password": "x"}
+    )
+    window = make_window()
+    qtbot.waitUntil(lambda: window.obs_websocket_client is client)
+    assert threads and threads[0] is not threading.main_thread()
+    assert window.ui.pushButton_createOBSScene.isEnabled()
+    window.close()
+    assert client.disconnected
+
+
+# --- outputs ---------------------------------------------------------------------------
+
+
+# --- boxes ------------------------------------------------------------------------------
+
+
+# --- sources (#10) -----------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "stored",
+    [
+        {"type": "URL", "value": "rtsp://10.0.1.200:554/11"},
+        "rtsp://10.0.1.200:554/11",  # 0.1.x stored the bare URL
+    ],
+)
+def test_url_source_is_restored(make_window, stored):
+    store_data("scoresight.json", "source_selected", stored)
+    window = make_window()
+    assert window.ui.comboBox_camera_source.currentIndex() == 2
+    camera_info = window.image_viewer.camera_info
+    assert (camera_info.type, camera_info.id) == ("URL", "rtsp://10.0.1.200:554/11")
+    assert fetch_data("scoresight.json", "source_selected") == {
+        "type": "URL",
+        "value": "rtsp://10.0.1.200:554/11",
+    }
+
+
+def test_sources_found_after_closing_do_not_reopen_the_source(make_window):
+    store_data("scoresight.json", "source_selected", "rtsp://10.0.1.200:554/11")
+    window = make_window()
+    assert window.image_viewer is not None
+    window.close()
+    assert window.image_viewer is None
+    window.update_sources.emit([])  # a late source discovery result
+    assert window.image_viewer is None
+
+
+def test_file_source_is_restored(make_window, tmp_path):
+    video = tmp_path / "game.mp4"
+    video.write_bytes(b"")
+    store_data("scoresight.json", "source_selected", str(video))
+    window = make_window()
+    assert window.ui.comboBox_camera_source.currentIndex() == 1
+    assert window.image_viewer.camera_info.type == "File"
+    assert window.image_viewer.camera_info.id == str(video)
+
+
+def test_missing_file_source_is_not_restored(make_window, tmp_path):
+    store_data(
+        "scoresight.json",
+        "source_selected",
+        {"type": "File", "value": str(tmp_path / "gone.mp4")},
+    )
+    window = make_window()
+    assert window.ui.comboBox_camera_source.currentIndex() == 0
+    assert window.image_viewer is None
+
+
+def test_camera_source_is_stored_and_restored(make_window, patched):
+    patched["cameras"].extend(
+        [
+            CameraInfo("Capture Card", "0", 0, CameraInfo.CameraType.OPENCV),
+            CameraInfo(
+                "NDI Scoreboard", "NDI Scoreboard", 0, CameraInfo.CameraType.NDI
+            ),
+        ]
+    )
+    window = make_window()
+    combo = window.ui.comboBox_camera_source
+    combo.setCurrentIndex(combo.count() - 1)  # the user picks the NDI source
+    assert fetch_data("scoresight.json", "source_selected") == {
+        "type": "NDI",
+        "value": "NDI Scoreboard",
+        "description": "NDI Scoreboard",
+    }
+    window.close()
+
+    restored = make_window()
+    assert restored.ui.comboBox_camera_source.currentText() == "NDI Scoreboard"
+    assert restored.image_viewer.camera_info.type == "NDI"
+
+
+# --- menus, appearance (#50), dialogs ---------------------------------------------------------

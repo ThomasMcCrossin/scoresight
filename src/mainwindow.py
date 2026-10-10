@@ -2,6 +2,8 @@ from functools import partial
 import os
 import platform
 import datetime
+import threading
+from typing import Callable
 from PySide6.QtWidgets import (
     QApplication,
     QDialog,
@@ -76,6 +78,53 @@ from ui_url_source import Ui_Dialog as Ui_UrlSource
 from ui_screen_capture import Ui_Dialog as Ui_ScreenCapture
 from vmix_ui_handler import VMixUIHanlder
 
+# comboBox_camera_source items before the discovered cameras
+SOURCE_INDEX_NONE = 0
+SOURCE_INDEX_FILE = 1
+SOURCE_INDEX_URL = 2
+SOURCE_INDEX_SCREEN_CAPTURE = 3
+FIRST_CAMERA_SOURCE_INDEX = 4
+
+
+def run_in_background(name: str, function: Callable, on_done: Callable):
+    """Run function() on a daemon thread, then on_done(result) on that thread.
+
+    on_done should emit a signal of a QObject that lives in the GUI thread: the
+    signal is then delivered there (queued), so the result is handled on the GUI
+    thread. If function raises, on_done gets None.
+    """
+
+    def target():
+        try:
+            result = function()
+        except Exception:
+            logger.exception("%s failed", name)
+            result = None
+        try:
+            on_done(result)
+        except RuntimeError:
+            # the receiving window was destroyed while the call was running
+            logger.debug("%s finished after its window was closed", name)
+
+    thread = threading.Thread(target=target, name=name, daemon=True)
+    thread.start()
+    return thread
+
+
+def stored_source_value(stored) -> dict | None:
+    """Normalize the "source_selected" setting to {"type", "value", ...}.
+
+    0.1.x stored a bare file path or URL (and nothing for cameras)."""
+    if isinstance(stored, dict) and stored.get("type"):
+        return stored
+    if isinstance(stored, str) and stored.strip():
+        stored = stored.strip()
+        if path.exists(stored):
+            return {"type": CameraInfo.CameraType.FILE, "value": stored}
+        if "://" in stored:
+            return {"type": CameraInfo.CameraType.URL, "value": stored}
+    return None
+
 
 def clear_layout(layout):
     while layout.count():
@@ -92,6 +141,8 @@ class MainWindow(QMainWindow):
     # add a signal to update sources
     update_sources = Signal(list)
     get_sources = Signal()
+    # results of the work done on background threads, delivered on the GUI thread
+    obs_connection_result = Signal(object, int, bool, object)
 
     def __init__(self, translator: QTranslator, parent: QObject):
         super(MainWindow, self).__init__()
@@ -243,6 +294,8 @@ class MainWindow(QMainWindow):
         )
 
         self.obs_websocket_client = None
+        self.obs_connect_attempt = 0
+        self.obs_connection_result.connect(self.obsConnectionResult)
 
         ocr_models = [
             "Daktronics",
@@ -309,6 +362,8 @@ class MainWindow(QMainWindow):
         self.image_viewer = None
         self.obs_connect_modal = None
         self.source_name = None
+        self.sources_discovery_running = False
+        self.closing = False
         self.updateOCRResults = True
         self.log_dialog = None
         if fetch_data("scoresight.json", "open_on_startup", False):
@@ -711,7 +766,9 @@ class MainWindow(QMainWindow):
         self.obs_connect_modal.setWindowTitle("Connect to OBS")
 
         # connect the "connect" button to a function
-        self.obs_modal_ui.pushButton_connect.clicked.connect(self.connectObs)
+        self.obs_modal_ui.pushButton_connect.clicked.connect(
+            lambda: self.connectObs(from_dialog=True)
+        )
 
         # load the saved data from scoresight.json
         obs_data = fetch_data("scoresight.json", "obs")
@@ -724,39 +781,57 @@ class MainWindow(QMainWindow):
         # focus the connect button
         self.obs_modal_ui.pushButton_connect.setFocus()
 
-    def connectObs(self):
-        # open a websocket connection to OBS using obs_websocket.py
-        # enable the save button in the modal if the connection is successful
-        if self.obs_connect_modal is not None:
-            self.obs_websocket_client = open_obs_websocket(
-                {
-                    "ip": self.obs_modal_ui.lineEdit_ip.text(),
-                    "port": self.obs_modal_ui.lineEdit_port.text(),
-                    "password": self.obs_modal_ui.lineEdit_password.text(),
-                }
+    def connectObs(self, from_dialog: bool = False):
+        """Open a websocket connection to OBS, with the connect dialog's fields or
+        the saved connection. Connecting can take seconds (or time out), so it runs
+        on a background thread; obsConnectionResult handles the outcome."""
+        if from_dialog:
+            connection_info = {
+                "ip": self.obs_modal_ui.lineEdit_ip.text(),
+                "port": self.obs_modal_ui.lineEdit_port.text(),
+                "password": self.obs_modal_ui.lineEdit_password.text(),
+            }
+            self.obs_modal_ui.pushButton_connect.setEnabled(False)
+            self.obs_modal_ui.label_error.setText(
+                QCoreApplication.translate("MainWindow", "Connecting...")
             )
         else:
-            self.obs_websocket_client = open_obs_websocket(
-                fetch_data("scoresight.json", "obs")
-            )
-        if not self.obs_websocket_client:
+            connection_info = fetch_data("scoresight.json", "obs")
+            if not connection_info:
+                return
+        # a newer attempt supersedes the ones still running
+        self.obs_connect_attempt += 1
+        attempt = self.obs_connect_attempt
+        run_in_background(
+            "OBS connection",
+            partial(open_obs_websocket, connection_info),
+            lambda client: self.obs_connection_result.emit(
+                client, attempt, from_dialog, connection_info
+            ),
+        )
+
+    @Slot(object, int, bool, object)
+    def obsConnectionResult(self, client, attempt, from_dialog, connection_info):
+        if attempt != self.obs_connect_attempt:
+            self.closeObsClient(client)
+            return
+        if from_dialog and self.obs_connect_modal is not None:
+            self.obs_modal_ui.pushButton_connect.setEnabled(True)
+        if not client:
             # show error in label_error
-            if self.obs_connect_modal:
-                self.obs_modal_ui.label_error.setText("Cannot connect to OBS")
+            if from_dialog and self.obs_connect_modal is not None:
+                self.obs_modal_ui.label_error.setText(
+                    QCoreApplication.translate("MainWindow", "Cannot connect to OBS")
+                )
             return
 
         # connection was successful
-        if self.obs_connect_modal:
-            store_data(
-                "scoresight.json",
-                "obs",
-                {
-                    "ip": self.obs_modal_ui.lineEdit_ip.text(),
-                    "port": self.obs_modal_ui.lineEdit_port.text(),
-                    "password": self.obs_modal_ui.lineEdit_password.text(),
-                },
-            )
-            self.obs_connect_modal.close()
+        self.closeObsClient(self.obs_websocket_client)
+        self.obs_websocket_client = client
+        if from_dialog:
+            store_data("scoresight.json", "obs", connection_info)
+            if self.obs_connect_modal is not None:
+                self.obs_connect_modal.close()
 
         self.ui.lineEdit_sceneName.setEnabled(True)
         self.ui.checkBox_recreate.setEnabled(True)
@@ -764,12 +839,37 @@ class MainWindow(QMainWindow):
 
         logger.info("OBS: Connected")
 
+    @staticmethod
+    def closeObsClient(client):
+        if client is None:
+            return
+        try:
+            client.disconnect()
+        except Exception:
+            logger.debug("Error closing the OBS connection", exc_info=True)
+
     @Slot()
     def getSources(self):
-        self.update_sources.emit(get_camera_info())
+        # Device enumeration (DirectShow/AVFoundation/V4L) and NDI discovery
+        # take a while: run them on a background thread (#33).
+        if self.sources_discovery_running:
+            return
+        self.sources_discovery_running = True
+        self.ui.pushButton_refresh_sources.setEnabled(False)
+        run_in_background(
+            "source discovery",
+            lambda: get_camera_info() or [],
+            lambda sources: self.update_sources.emit(sources or []),
+        )
 
     @Slot(list)
     def updateSources(self, camera_sources: list[CameraInfo]):
+        self.sources_discovery_running = False
+        if self.closing:
+            # the discovery finished after the window was closed: don't reopen
+            # the source
+            return
+        self.ui.pushButton_refresh_sources.setEnabled(True)
         self.reset_playing_source()
         # clear all the items after "Screen Capture"
         for i in range(4, self.ui.comboBox_camera_source.count()):
@@ -790,24 +890,79 @@ class MainWindow(QMainWindow):
         # enable the source view frame
         self.ui.frame_source_view.setEnabled(True)
 
-        selected_source_from_storage = fetch_data("scoresight.json", "source_selected")
-        if isinstance(selected_source_from_storage, str):
-            logger.info(
-                "Source selected from storage: %s", selected_source_from_storage
-            )
-            # check if the source is a file path
-            if path.exists(selected_source_from_storage):
-                logger.info("File exists: %s", selected_source_from_storage)
-                self.ui.comboBox_camera_source.blockSignals(True)
-                self.ui.comboBox_camera_source.setCurrentIndex(1)
-                self.ui.comboBox_camera_source.blockSignals(False)
-                self.source_name = selected_source_from_storage
-                self.sourceSelectionSucessful()
-            else:
-                # select the last selected source
-                self.ui.comboBox_camera_source.setCurrentText(
-                    selected_source_from_storage
-                )
+        self.restoreSelectedSource()
+
+    def restoreSelectedSource(self):
+        """Reopen the source stored in "source_selected", if it is available."""
+        source = stored_source_value(fetch_data("scoresight.json", "source_selected"))
+        if source is None:
+            return
+        logger.info("Source selected from storage: %s", source)
+        source_type = source["type"]
+        value = source.get("value")
+        index = None
+        if source_type == CameraInfo.CameraType.FILE:
+            if isinstance(value, str) and path.exists(value):
+                index = SOURCE_INDEX_FILE
+        elif source_type == CameraInfo.CameraType.URL:
+            if isinstance(value, str) and value.strip():
+                index = SOURCE_INDEX_URL
+                value = value.strip()
+        elif source_type == CameraInfo.CameraType.SCREEN_CAPTURE:
+            if value == -1 or value in self.screenCaptureWindowIds():
+                index = SOURCE_INDEX_SCREEN_CAPTURE
+        else:
+            index = self.findCameraSourceIndex(source)
+        if index is None:
+            logger.info("The stored source is not available")
+            return
+
+        self.ui.comboBox_camera_source.blockSignals(True)
+        self.ui.comboBox_camera_source.setCurrentIndex(index)
+        self.ui.comboBox_camera_source.blockSignals(False)
+        self.source_name = value if index < FIRST_CAMERA_SOURCE_INDEX else None
+        self.sourceSelectionSucessful()
+
+    @staticmethod
+    def screenCaptureWindowIds() -> list:
+        try:
+            return [window[1] for window in ScreenCapture.list_windows()]
+        except Exception:
+            logger.exception("Could not list the windows for screen capture")
+            return []
+
+    def findCameraSourceIndex(self, source: dict) -> int | None:
+        """The combo box index of the discovered camera/NDI source matching a
+        stored source: same type and id (uuid) and name, else same type and name."""
+        candidates = []
+        for index in range(
+            FIRST_CAMERA_SOURCE_INDEX, self.ui.comboBox_camera_source.count()
+        ):
+            camera_info = self.ui.comboBox_camera_source.itemData(index)
+            if (
+                isinstance(camera_info, CameraInfo)
+                and camera_info.type == source["type"]
+                and camera_info.description == source.get("description")
+            ):
+                if camera_info.uuid == source.get("value"):
+                    return index
+                candidates.append(index)
+        return candidates[0] if candidates else None
+
+    @staticmethod
+    def sourceToStore(camera_info: CameraInfo) -> dict:
+        """The "source_selected" setting for a source."""
+        if camera_info.type in (
+            CameraInfo.CameraType.FILE,
+            CameraInfo.CameraType.URL,
+            CameraInfo.CameraType.SCREEN_CAPTURE,
+        ):
+            return {"type": camera_info.type, "value": camera_info.id}
+        return {
+            "type": camera_info.type,
+            "value": camera_info.uuid,
+            "description": camera_info.description,
+        }
 
     def reset_playing_source(self):
         if self.image_viewer:
@@ -860,7 +1015,8 @@ class MainWindow(QMainWindow):
             if url_dialog.result() != QDialog.DialogCode.Accepted:
                 self.ui.comboBox_camera_source.setCurrentIndex(0)
                 return
-            self.source_name = ui_urlsource.lineEdit_url.text()
+            # pasted URLs often carry spaces or a newline (#10)
+            self.source_name = ui_urlsource.lineEdit_url.text().strip()
             if self.source_name == "":
                 self.ui.comboBox_camera_source.setCurrentIndex(0)
                 return
@@ -896,8 +1052,6 @@ class MainWindow(QMainWindow):
             window_id = ui_screencapture.comboBox_window.currentData()
             self.source_name = window_id
 
-        # store the source selection in scoresight.json
-        self.globalSettingsChanged("source_selected", self.source_name)
         self.sourceSelectionSucessful()
 
     def itemSelected(self, item_name):
@@ -972,6 +1126,9 @@ class MainWindow(QMainWindow):
                 "Loading camera: %s", self.ui.comboBox_camera_source.currentText()
             )
             camera_info = self.ui.comboBox_camera_source.currentData()
+
+        # remember the source (with its type) for the next start
+        self.globalSettingsChanged("source_selected", self.sourceToStore(camera_info))
 
         if self.image_viewer:
             # remove the image viewer from the layout frame_for_source_view_label
@@ -1290,6 +1447,7 @@ class MainWindow(QMainWindow):
     # on destroy, close the OBS connection
     def closeEvent(self, event):
         logger.info("Closing")
+        self.closing = True
         if self.image_viewer:
             self.image_viewer.close()
             self.image_viewer = None
@@ -1300,8 +1458,10 @@ class MainWindow(QMainWindow):
 
         # store the boxes to scoresight.json
         self.detectionTargetsStorage.saveBoxesToStorage()
+        # ignore OBS connection attempts that are still running
+        self.obs_connect_attempt += 1
         if self.obs_websocket_client:
-            # destroy the client object
+            self.closeObsClient(self.obs_websocket_client)
             self.obs_websocket_client = None
 
         super().closeEvent(event)
