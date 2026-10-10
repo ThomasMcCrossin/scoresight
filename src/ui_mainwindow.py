@@ -315,12 +315,6 @@ class Ui_MainWindow(object):
 
         self.gridLayout_6.addWidget(self.checkBox_skip_similar_image, 4, 3, 1, 1)
 
-        self.checkBox = QCheckBox(self.groupBox_target_settings)
-        self.checkBox.setObjectName(u"checkBox")
-        self.checkBox.setEnabled(False)
-
-        self.gridLayout_6.addWidget(self.checkBox, 2, 3, 1, 1)
-
         self.widget_7 = QWidget(self.groupBox_target_settings)
         self.widget_7.setObjectName(u"widget_7")
         sizePolicy3.setHeightForWidth(self.widget_7.sizePolicy().hasHeightForWidth())
@@ -775,21 +769,6 @@ class Ui_MainWindow(object):
         self.checkBox_uno_essentials.setSizePolicy(sizePolicy2)
 
         self.horizontalLayout_30.addWidget(self.checkBox_uno_essentials)
-
-        self.label_23 = QLabel(self.widget_26)
-        self.label_23.setObjectName(u"label_23")
-        sizePolicy.setHeightForWidth(self.label_23.sizePolicy().hasHeightForWidth())
-        self.label_23.setSizePolicy(sizePolicy)
-
-        self.horizontalLayout_30.addWidget(self.label_23)
-
-        self.spinBox = QSpinBox(self.widget_26)
-        self.spinBox.setObjectName(u"spinBox")
-        sizePolicy2.setHeightForWidth(self.spinBox.sizePolicy().hasHeightForWidth())
-        self.spinBox.setSizePolicy(sizePolicy2)
-        self.spinBox.setMinimum(1)
-
-        self.horizontalLayout_30.addWidget(self.spinBox)
 
 
         self.verticalLayout_8.addWidget(self.widget_26)
@@ -1248,7 +1227,6 @@ class Ui_MainWindow(object):
         self.checkBox_normWHRatio.setText(QCoreApplication.translate("MainWindow", u"Normalize W-H Ratio", None))
         self.checkBox_invertPatch.setText(QCoreApplication.translate("MainWindow", u"Invert Input", None))
         self.checkBox_skip_similar_image.setText(QCoreApplication.translate("MainWindow", u"Skip Similar Image", None))
-        self.checkBox.setText(QCoreApplication.translate("MainWindow", u"Force Format", None))
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"Format", None))
         self.label_9.setText(QCoreApplication.translate("MainWindow", u"Dilate", None))
         self.checkBox_autocrop.setText(QCoreApplication.translate("MainWindow", u"Auto Crop", None))
@@ -1281,7 +1259,7 @@ class Ui_MainWindow(object):
 #endif // QT_CONFIG(tooltip)
         self.label_savePerSec.setText(QCoreApplication.translate("MainWindow", u"Save / s", None))
         self.tabWidget_outputs.setTabText(self.tabWidget_outputs.indexOf(self.tab_textFiles), QCoreApplication.translate("MainWindow", u"Text Files", None))
-        self.label_8.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p>Use these endpoints in external software to get live data updates</p><p>HTML Scoreboard: <a href=\"http://localhost:18099/scoresight\"><span style=\" text-decoration: underline; color:#0000ff;\">http://localhost:18099/scoresight<br/></span></a>JSON: <a href=\"http://localhost:18099/json\"><span style=\" text-decoration: underline; color:#0000ff;\">http://localhost:18099/json</span></a> (optional: ?pivot)<br/>XML: <a href=\"http://localhost:18099/xml\"><span style=\" text-decoration: underline; color:#0000ff;\">http://localhost:18099/xml</span></a> (optional: ?pivot)<br/>CSV: <a href=\"http://localhost:18099/csv\"><span style=\" text-decoration: underline; color:#0000ff;\">http://localhost:18099/csv</span></a></p></body></html>", None))
+        self.label_8.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p>Use these endpoints in external software to get live data updates</p><p>HTML Scoreboard: <a href=\"http://localhost:18099/scoresight\">http://localhost:18099/scoresight</a><br/>JSON: <a href=\"http://localhost:18099/json\">http://localhost:18099/json</a> (optional: ?pivot)<br/>XML: <a href=\"http://localhost:18099/xml\">http://localhost:18099/xml</a> (optional: ?pivot)<br/>CSV: <a href=\"http://localhost:18099/csv\">http://localhost:18099/csv</a></p></body></html>", None))
         self.tabWidget_outputs.setTabText(self.tabWidget_outputs.indexOf(self.tab_browser), QCoreApplication.translate("MainWindow", u"Browser", None))
         self.pushButton_connectObs.setText(QCoreApplication.translate("MainWindow", u"Connect OBS", None))
         self.lineEdit_sceneName.setText(QCoreApplication.translate("MainWindow", u"ScoreSight Scene", None))
@@ -1304,8 +1282,6 @@ class Ui_MainWindow(object):
 #endif // QT_CONFIG(tooltip)
         self.checkBox_uno_send_same.setText(QCoreApplication.translate("MainWindow", u"Send Same?", None))
         self.checkBox_uno_essentials.setText(QCoreApplication.translate("MainWindow", u"Essentials", None))
-        self.label_23.setText(QCoreApplication.translate("MainWindow", u"Rate Limit", None))
-        self.spinBox.setSuffix(QCoreApplication.translate("MainWindow", u"/sec", None))
         self.label_24.setText(QCoreApplication.translate("MainWindow", u"Overlay ID", None))
         self.lineEdit_uno_essentials_id.setPlaceholderText(QCoreApplication.translate("MainWindow", u"aaaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeeee", None))
         self.tabWidget_outputs.setTabText(self.tabWidget_outputs.indexOf(self.tab_uno), QCoreApplication.translate("MainWindow", u"UNO", None))

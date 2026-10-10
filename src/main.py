@@ -212,11 +212,12 @@ def run_app(args: argparse.Namespace, qt_args: list[str]) -> int:
     from PySide6.QtWidgets import QApplication
 
     from http_server import stop_http_server
-    from mainwindow import MainWindow
+    from mainwindow import MainWindow, apply_color_scheme
     from sc_logging import logger
     from storage import fetch_data
 
     app = QApplication([sys.argv[0], *qt_args])
+    apply_color_scheme(fetch_data("scoresight.json", "color_scheme"))
     translator = load_translator(app, fetch_data("scoresight.json", "language"))
 
     main_window = MainWindow(translator, app, http_port=args.port)

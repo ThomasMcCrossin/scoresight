@@ -14,9 +14,8 @@ from PySide6.QtWidgets import (
     QMenu,
     QMessageBox,
     QTableWidgetItem,
-    QStyleFactory,
 )
-from PySide6.QtGui import QIcon, QDesktopServices
+from PySide6.QtGui import QActionGroup, QGuiApplication, QIcon, QDesktopServices
 from PySide6.QtCore import (
     Qt,
     Signal,
@@ -87,6 +86,14 @@ from vmix_ui_handler import VMixUIHanlder
 
 DEFAULT_HTTP_PORT = 18099
 
+# File > Appearance choices, persisted as the "color_scheme" setting
+COLOR_SCHEMES = {
+    "System": Qt.ColorScheme.Unknown,
+    "Light": Qt.ColorScheme.Light,
+    "Dark": Qt.ColorScheme.Dark,
+}
+DEFAULT_COLOR_SCHEME = "System"
+
 # The values api_output understands, in the order of comboBox_api_encode and
 # comboBox_outApiMethod. The settings store these, not the (translated) item text.
 OUT_API_ENCODINGS = ("JSON (Full)", "JSON (Simple key-value)", "XML", "CSV")
@@ -101,6 +108,20 @@ FIRST_CAMERA_SOURCE_INDEX = 4
 
 # Box edits are written to the settings this long after the last change.
 BOXES_SAVE_DELAY_MS = 500
+
+
+def apply_color_scheme(name: str | None) -> str:
+    """Apply a File > Appearance choice ("System", "Light" or "Dark") to the
+    running application and return the choice applied. Unknown values mean
+    "System" (follow the operating system)."""
+    if name not in COLOR_SCHEMES:
+        name = DEFAULT_COLOR_SCHEME
+    style_hints = QGuiApplication.styleHints()
+    if name == DEFAULT_COLOR_SCHEME:
+        style_hints.unsetColorScheme()
+    else:
+        style_hints.setColorScheme(COLOR_SCHEMES[name])
+    return name
 
 
 def run_in_background(name: str, function: Callable, on_done: Callable):
@@ -212,15 +233,24 @@ class MainWindow(QMainWindow):
         self.addLanguageOption(languageMenu, "Russian", "ru_RU")
         self.addLanguageOption(languageMenu, "Chinese (Simplified)", "zh_CN")
 
-        # add a menu item to change the theme
-        theme_menu = file_menu.addMenu("Theme")
-        for theme in QStyleFactory.keys():
-            theme_menu.addAction(theme, lambda theme=theme: self.setStyleTheme(theme))
+        # File > Appearance: System / Light / Dark color scheme (#50)
+        appearance_menu = file_menu.addMenu("Appearance")
+        self.appearance_actions = QActionGroup(self)
+        self.appearance_actions.setExclusive(True)
+        current_scheme = fetch_data("scoresight.json", "color_scheme")
+        if current_scheme not in COLOR_SCHEMES:
+            current_scheme = DEFAULT_COLOR_SCHEME
+        for scheme in COLOR_SCHEMES:
+            action = appearance_menu.addAction(scheme)
+            action.setCheckable(True)
+            action.setChecked(scheme == current_scheme)
+            action.setData(scheme)
+            action.triggered.connect(
+                lambda checked=False, scheme=scheme: self.setColorScheme(scheme)
+            )
+            self.appearance_actions.addAction(action)
 
-        # Hide the menu bar by default
-        self.menubar.setVisible(True)
-
-        # Show the menu bar when the Alt key is pressed
+        # handle the Escape key (deselect the current box)
         self.installEventFilter(self)
 
         self.ui.pushButton_connectObs.clicked.connect(self.openOBSConnectModal)
@@ -494,8 +524,11 @@ class MainWindow(QMainWindow):
 
         combo_box.currentIndexChanged.connect(choiceChanged)
 
-    def setStyleTheme(self, theme):
-        QApplication.instance().setStyle(theme)
+    def setColorScheme(self, scheme: str):
+        scheme = apply_color_scheme(scheme)
+        self.globalSettingsChanged("color_scheme", scheme)
+        for action in self.appearance_actions.actions():
+            action.setChecked(action.data() == scheme)
 
     def toggleSpeed(self):
         # check the current speed and toggle it
@@ -572,11 +605,6 @@ class MainWindow(QMainWindow):
                 if self.image_viewer is not None:
                     self.image_viewer.selectBox(None)
         return super().eventFilter(obj, event)
-
-    def changeEvent(self, event):
-        if event.type() == QEvent.WindowDeactivate and self.menubar.isVisible():
-            self.menubar.setVisible(False)
-        super().changeEvent(event)
 
     def changeLanguage(self, locale):
         locale_file = resource_path("translations", f"scoresight_{locale}.qm")
@@ -734,13 +762,22 @@ class MainWindow(QMainWindow):
                 pass  # already closed (and deleted)
         self.update_dialog = show_update_dialog(result, self)
 
-    def openAboutDialog(self):
-        # open the about dialog
-        about_dialog = QDialog()
-        about_dialog_ui = Ui_About()
-        about_dialog_ui.setupUi(about_dialog)
+    def createAboutDialog(self) -> QDialog:
+        about_dialog = QDialog(self)
+        about_dialog.ui = Ui_About()
+        about_dialog.ui.setupUi(about_dialog)
         about_dialog.setWindowTitle("About ScoreSight")
-        about_dialog.exec()
+        about_dialog.ui.label_version.setText(
+            QCoreApplication.translate("MainWindow", "Version {version}").format(
+                version=__version__
+            )
+        )
+        return about_dialog
+
+    def openAboutDialog(self):
+        about_dialog = self.createAboutDialog()
+        about_dialog.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
+        about_dialog.open()
 
     def toggleStabilize(self):
         if not self.image_viewer:

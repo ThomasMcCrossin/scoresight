@@ -13,8 +13,8 @@ import pytest
 pytestmark = pytest.mark.qt
 pytest.importorskip("tesserocr")  # MainWindow imports the OCR pipeline
 
-from PySide6.QtCore import QObject, QTranslator, Signal  # noqa: E402
-from PySide6.QtWidgets import QWidget  # noqa: E402
+from PySide6.QtCore import QEvent, QObject, QTranslator, Signal  # noqa: E402
+from PySide6.QtWidgets import QApplication, QWidget  # noqa: E402
 
 from camera_info import CameraInfo  # noqa: E402
 from storage import fetch_data, store_data  # noqa: E402
@@ -311,6 +311,7 @@ def test_browser_tab_shows_the_http_port(make_window, patched):
     text = window.ui.label_8.text()
     assert "http://localhost:18100/json" in text
     assert "18099" not in text
+    assert "color:#" not in text
 
 
 # --- boxes ------------------------------------------------------------------------------
@@ -461,6 +462,102 @@ def test_camera_source_is_stored_and_restored(make_window, patched):
 
 
 # --- menus, appearance (#50), dialogs ---------------------------------------------------------
+
+
+def menu_titles(window):
+    [file_menu] = [a.menu() for a in window.menuBar().actions() if a.menu()]
+    return [action.text() for action in file_menu.actions()]
+
+
+def test_menubar_stays_visible_after_the_window_is_deactivated(main_window, qapp):
+    # The docs team reported that the File menu disappears when the window loses
+    # focus. QWidget never forwards WindowDeactivate to changeEvent (only
+    # ActivationChange), so the old hide-on-deactivate branch never ran; it was
+    # removed. This pins the behavior.
+    main_window.show()
+    qapp.processEvents()
+    for event_type in (QEvent.Type.WindowDeactivate, QEvent.Type.ActivationChange):
+        QApplication.sendEvent(main_window, QEvent(event_type))
+    qapp.processEvents()
+    assert main_window.menuBar().isVisible()
+    assert "Appearance" in menu_titles(main_window)
+    assert "Theme" not in menu_titles(main_window)
+
+
+class FakeStyleHints:
+    def __init__(self):
+        self.calls = []
+
+    def setColorScheme(self, scheme):
+        self.calls.append(scheme)
+
+    def unsetColorScheme(self):
+        self.calls.append("unset")
+
+
+@pytest.fixture
+def style_hints(monkeypatch):
+    import mainwindow
+
+    hints = FakeStyleHints()
+
+    class FakeGuiApplication:
+        @staticmethod
+        def styleHints():
+            return hints
+
+    monkeypatch.setattr(mainwindow, "QGuiApplication", FakeGuiApplication)
+    return hints
+
+
+def test_apply_color_scheme(style_hints):
+    from PySide6.QtCore import Qt
+
+    from mainwindow import apply_color_scheme
+
+    assert apply_color_scheme("Dark") == "Dark"
+    assert apply_color_scheme("Light") == "Light"
+    assert apply_color_scheme("System") == "System"
+    assert apply_color_scheme(None) == "System"
+    assert apply_color_scheme("Solarized") == "System"
+    assert style_hints.calls == [
+        Qt.ColorScheme.Dark,
+        Qt.ColorScheme.Light,
+        "unset",
+        "unset",
+        "unset",
+    ]
+
+
+def test_appearance_menu_applies_and_persists(main_window, style_hints):
+    from PySide6.QtCore import Qt
+
+    actions = {a.data(): a for a in main_window.appearance_actions.actions()}
+    assert list(actions) == ["System", "Light", "Dark"]
+    assert actions["System"].isChecked()
+
+    actions["Dark"].trigger()
+    assert fetch_data("scoresight.json", "color_scheme") == "Dark"
+    assert style_hints.calls == [Qt.ColorScheme.Dark]
+    assert actions["Dark"].isChecked() and not actions["System"].isChecked()
+
+
+def test_appearance_menu_shows_the_stored_scheme(make_window):
+    store_data("scoresight.json", "color_scheme", "Light")
+    window = make_window()
+    checked = [a.data() for a in window.appearance_actions.actions() if a.isChecked()]
+    assert checked == ["Light"]
+
+
+def test_about_dialog_shows_the_version_and_no_dead_links(main_window):
+    dialog = main_window.createAboutDialog()
+    assert __version__ in dialog.ui.label_version.text()
+    text = dialog.ui.label.text()
+    assert "scoresight.live" not in text
+    assert "https://github.com/royshil/scoresight/issues" in text
+    assert "https://royshil.github.io/scoresight/" in text
+    assert "color:#" not in text
+    dialog.deleteLater()
 
 
 def test_startup_update_check_shows_an_available_update(
