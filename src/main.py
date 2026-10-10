@@ -342,9 +342,10 @@ def run_app(args: argparse.Namespace, qt_args: list[str]) -> int:
     from http_server import stop_http_server
     from mainwindow import MainWindow, apply_color_scheme
     from output_worker import stop_all_workers
-    from sc_logging import logger
+    from sc_logging import enable_crash_traces, logger
     from storage import fetch_data
 
+    enable_crash_traces()
     startup_timing.mark("modules_imported")
     app = QApplication([sys.argv[0], *qt_args])
     startup_timing.mark("qapplication_created")
@@ -526,6 +527,9 @@ def _self_test_steps():
 
 def run_self_test() -> int:
     _attach_parent_console()
+    from sc_logging import enable_crash_traces
+
+    enable_crash_traces()
     try:
         for line in _self_test_steps():
             print(line, flush=True)

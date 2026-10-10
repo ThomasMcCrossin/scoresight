@@ -1,3 +1,4 @@
+import faulthandler
 import logging
 import os
 import re
@@ -20,6 +21,10 @@ _TIMESTAMP_RE = r"\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}(?:_\d+)?"
 _MAIN_LOG_RE = re.compile(rf"^scoresight_{_TIMESTAMP_RE}\.log$")
 # The root logger's INFO-level log, which also captures third-party libraries.
 _STD_LOG_RE = re.compile(rf"^scoresight_std_{_TIMESTAMP_RE}\.log$")
+
+# The handler of this session's scoresight_std_<ts>.log (None if it couldn't be
+# created), where enable_crash_traces() writes.
+_std_handler = None
 
 
 def get_log_dir() -> str:
@@ -158,7 +163,27 @@ def setup_logging():
     if log_dir is not None:
         rotate_logs(log_dir, MAX_LOG_FILES, (log_file_path, std_log_path))
 
+    global _std_handler
+    _std_handler = std_handler
     return logger, file_handler, log_file_path
+
+
+def enable_crash_traces() -> bool:
+    """If the process crashes in native code (an access violation or a
+    segmentation fault, e.g. in Qt, OpenCV or Tesseract), write the Python stack
+    of every thread to this session's scoresight_std_<ts>.log, or to stderr if
+    there is no log file, so the crash leaves a trace. Called by the app at
+    startup, not on import, so that test runners keep their own handler. Never
+    raises; returns whether it is enabled."""
+    stream = getattr(_std_handler, "stream", None) or sys.stderr
+    if stream is None:  # a windowed build without a log file
+        return False
+    try:
+        faulthandler.enable(file=stream, all_threads=True)
+    except (AttributeError, OSError, ValueError):
+        # e.g. a stream without a file descriptor
+        return False
+    return True
 
 
 # These are always defined, even if the log files couldn't be created:
