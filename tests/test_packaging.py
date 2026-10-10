@@ -629,3 +629,35 @@ def test_build_workflow_uploads_the_packages_the_release_expects():
     for target in ["macos-arm64", "macos-x64"]:
         assert f"target: {target}" in build
         assert f'"scoresight-$VERSION-{target}.dmg"' in release
+
+
+# --- repository configuration ---------------------------------------------------
+
+
+def test_workflow_and_config_files_are_valid_yaml():
+    yaml = pytest.importorskip("yaml")
+    files = [
+        *WORKFLOWS.glob("*.yml"),
+        REPO_ROOT / ".github" / "dependabot.yml",
+        REPO_ROOT / ".pre-commit-config.yaml",
+    ]
+    assert len(files) >= 5
+    for path in files:
+        assert isinstance(yaml.safe_load(path.read_text(encoding="utf-8")), dict), path
+
+
+def test_pre_commit_ruff_matches_requirements_dev():
+    pinned = re.search(
+        r"^ruff==(\S+)",
+        (REPO_ROOT / "requirements-dev.txt").read_text(encoding="utf-8"),
+        re.MULTILINE,
+    )
+    hook = re.search(
+        r"astral-sh/ruff-pre-commit\s+rev:\s*v(\S+)",
+        (REPO_ROOT / ".pre-commit-config.yaml").read_text(encoding="utf-8"),
+    )
+    assert pinned and hook
+    assert hook.group(1) == pinned.group(1), (
+        "update the ruff-pre-commit rev in .pre-commit-config.yaml to match "
+        "ruff in requirements-dev.txt"
+    )
