@@ -40,6 +40,7 @@ SELF_TEST_MODULES = (
     "camera_thread",
     "camera_view",
     "defaults",
+    "destinations_view",
     "file_output",
     "frame_stabilizer",
     "get_camera_info",

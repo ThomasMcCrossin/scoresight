@@ -440,9 +440,13 @@ def test_language_change_keeps_the_runtime_texts(main_window, qapp, qtbot, make_
         qapp.removeTranslator(main_window.translator)
 
 
-def test_language_change_keeps_the_output_controls(main_window, qapp, monkeypatch):
+def test_language_change_keeps_the_output_controls(
+    main_window, qapp, monkeypatch, make_target
+):
     # retranslateUi reset the vMix/UNO start buttons to their .ui texts
     # ("Start"), the OBS scene name and the playback speed.
+    ui = main_window.ui
+    main_window.detectionTargetsStorage.add_item(make_target("Home Score"))
     vmix = main_window.vmixUiHandler
     uno = main_window.unoUiHandler
     monkeypatch.setattr(vmix.vmixUpdater, "start", lambda: None, raising=False)
@@ -451,12 +455,32 @@ def test_language_change_keeps_the_output_controls(main_window, qapp, monkeypatc
     uno_text = main_window.ui.toolButton_toggleUno.text()
     main_window.ui.lineEdit_sceneName.setText("Court 2")
     main_window.ui.toolButton_speed.setText("x4")
+    # the destinations: OBS selected and connected
+    main_window.showDestination("obs")
+    main_window.obs_websocket_client = FakeObsClient()
+    main_window.obsAddress = "obs-pc:4455"
+    main_window.updateObsUi()
+    main_window.refreshLiveStatus()
+    connect_text = ui.pushButton_connectObs.text()
+    assert connect_text == "Change connection..."
     main_window.changeLanguage("de_DE")
     try:
         assert main_window.ui.pushButton_startvmix.text() == vmix_text
         assert main_window.ui.toolButton_toggleUno.text() == uno_text
         assert main_window.ui.lineEdit_sceneName.text() == "Court 2"
         assert main_window.ui.toolButton_speed.text() == "x4"
+        # retranslateUi set "Connect OBS" again; the selected destination and
+        # its page stay
+        assert ui.pushButton_connectObs.text() == connect_text
+        assert ui.pushButton_disconnectObs.isEnabled()
+        assert ui.listView_destinations.currentIndex().row() == 2
+        assert ui.stackedWidget_outputs.currentWidget() is ui.tab_obs
+        model = main_window.destinationsModel
+        assert all(model.item(row).text() for row in range(model.rowCount()))
+        assert model.status("obs").detail == "Connected to obs-pc:4455"
+        buttons = main_window.statusBarWidgets.output_buttons
+        assert all(button.text() for button in buttons.values())
+        assert main_window.statusBarWidgets.label_outputs.text().strip()
     finally:
         qapp.removeTranslator(main_window.translator)
 
@@ -902,6 +926,339 @@ def test_the_status_bar_when_the_http_port_is_busy(make_window, patched):
     bar = window.statusBarWidgets
     assert "not running (port 18100 busy)" in bar.label_http.text()
     assert bar.button_copy.isHidden()
+    status = destination_status(window, "http")
+    assert (status.state, status.detail) == (
+        "error",
+        "Not running: port 18100 is in use",
+    )
+    assert "■" in bar.output_buttons["http"].toolTip()
+
+
+# --- the output destinations -----------------------------------------------------------
+
+
+def destination_index(window, key):
+    model = window.destinationsModel
+    return model.index(model.rowOf(key), 0)
+
+
+def destination_status(window, key):
+    window.refreshLiveStatus()
+    return window.destinationsModel.status(key)
+
+
+def switch_is_on(window, key):
+    model = window.destinationsModel
+    return model.item(model.rowOf(key)).checkState() == QtCore.Qt.CheckState.Checked
+
+
+def free_port():
+    import socket
+
+    with socket.socket() as sock:
+        sock.bind(("127.0.0.1", 0))
+        return sock.getsockname()[1]
+
+
+def test_the_outputs_are_destinations_over_their_pages(main_window):
+    from PySide6.QtTest import QTest
+
+    ui = main_window.ui
+    model = main_window.destinationsModel
+    main_window.show()
+    names = [model.item(row).text() for row in range(model.rowCount())]
+    assert names == ["Text files", "HTTP server", "OBS", "vMix", "UNO", "HTTP API"]
+    stack = ui.stackedWidget_outputs
+    assert [stack.widget(i).objectName() for i in range(stack.count())] == [
+        "tab_textFiles",
+        "tab_browser",
+        "tab_obs",
+        "tab_vmix",
+        "tab_uno",
+        "tab_api",
+    ]
+    assert not hasattr(ui, "tabWidget_outputs")
+    # the first one shows, as the first tab did
+    assert ui.listView_destinations.currentIndex().row() == 0
+    assert stack.currentWidget() is ui.tab_textFiles
+    # a destination shows its page, with the controls it always had
+    ui.listView_destinations.setCurrentIndex(destination_index(main_window, "vmix"))
+    assert stack.currentWidget() is ui.tab_vmix
+    assert ui.tab_vmix.isAncestorOf(ui.pushButton_startvmix)
+    # the keyboard moves between them
+    QTest.keyClick(ui.listView_destinations, QtCore.Qt.Key.Key_Down)
+    assert stack.currentWidget() is ui.tab_uno
+    # every destination shows without scrolling
+    view = ui.listView_destinations
+    assert view.height() >= model.rowCount() * view.sizeHintForRow(0)
+    # the state is told by a glyph and words too (never by colour alone)
+    main_window.refreshLiveStatus()
+    vmix = destination_index(main_window, "vmix")
+    assert vmix.data(QtCore.Qt.ItemDataRole.AccessibleTextRole) == "vMix, off, Off"
+    view.grab()  # paints every row
+
+
+def test_the_switches_mirror_the_output_controls(main_window):
+    ui = main_window.ui
+    model = main_window.destinationsModel
+    vmix = main_window.vmixUiHandler.vmixUpdater
+    uno = main_window.unoUiHandler.unoUpdater
+    main_window.refreshLiveStatus()
+    assert not any(switch_is_on(main_window, key) for key in ("vmix", "uno", "api"))
+
+    # the outputs' own controls move the switches...
+    ui.pushButton_startvmix.setChecked(True)
+    assert vmix.running and switch_is_on(main_window, "vmix")
+    ui.toolButton_toggleUno.setChecked(True)
+    assert uno.running and switch_is_on(main_window, "uno")
+    ui.checkBox_enableOutAPI.setChecked(True)
+    assert switch_is_on(main_window, "api")
+
+    # ...and the switches operate the controls, which stay the source of truth
+    model.setData(
+        destination_index(main_window, "vmix"),
+        QtCore.Qt.CheckState.Unchecked,
+        QtCore.Qt.ItemDataRole.CheckStateRole,
+    )
+    assert not ui.pushButton_startvmix.isChecked() and not vmix.running
+    assert ui.pushButton_startvmix.text() == "Start vMix"
+    assert not switch_is_on(main_window, "vmix")
+    model.requestToggle(destination_index(main_window, "uno"))
+    assert not ui.toolButton_toggleUno.isChecked() and not uno.running
+    model.requestToggle(destination_index(main_window, "api"))
+    assert not ui.checkBox_enableOutAPI.isChecked()
+    assert fetch_data("scoresight.json", "enable_out_api") is False
+    model.requestToggle(destination_index(main_window, "api"))
+    assert ui.checkBox_enableOutAPI.isChecked()
+    assert fetch_data("scoresight.json", "enable_out_api") is True
+
+    # the HTTP server is always on: it has no switch
+    http = destination_index(main_window, "http")
+    assert not model.flags(http) & QtCore.Qt.ItemFlag.ItemIsUserCheckable
+    model.requestToggle(http)
+    assert model.status("http").enabled and not model.status("http").switchable
+
+
+def test_a_switch_is_clicked_or_toggled_with_space(main_window, qtbot):
+    from PySide6.QtTest import QTest
+
+    ui = main_window.ui
+    view = ui.listView_destinations
+    with qtbot.waitExposed(main_window):
+        main_window.show()
+    main_window.showDestination("vmix")
+    main_window.refreshLiveStatus()
+    rect = view.visualRect(destination_index(main_window, "vmix"))
+    switch = main_window.destinationDelegate.switchRect(rect).center().toPoint()
+    QTest.mouseClick(view.viewport(), QtCore.Qt.MouseButton.LeftButton, pos=switch)
+    assert ui.pushButton_startvmix.isChecked()
+    # a click on the row elsewhere selects it, nothing more
+    QTest.mouseClick(
+        view.viewport(), QtCore.Qt.MouseButton.LeftButton, pos=rect.center()
+    )
+    assert ui.pushButton_startvmix.isChecked()
+    QTest.keyClick(view, QtCore.Qt.Key.Key_Space)
+    assert not ui.pushButton_startvmix.isChecked()
+
+
+def test_the_text_files_switch_chooses_or_forgets_the_folder(
+    main_window, monkeypatch, tmp_path, qtbot, make_result
+):
+    import mainwindow
+
+    monkeypatch.setattr(
+        mainwindow.QFileDialog,
+        "getExistingDirectory",
+        lambda *args, **kwargs: str(tmp_path),
+    )
+    model = main_window.destinationsModel
+    assert destination_status(main_window, "files").state == "off"
+    model.requestToggle(destination_index(main_window, "files"))
+    qtbot.waitUntil(lambda: main_window.out_folder == str(tmp_path))
+    assert main_window.ui.lineEdit_folder.text() == str(tmp_path)
+    status = destination_status(main_window, "files")
+    assert (status.state, status.enabled) == ("sending", True)  # nothing read yet
+
+    main_window.ocrResult([make_result("Home Score", "3")])
+    status = destination_status(main_window, "files")
+    assert status.state == "ok" and status.detail.endswith("· 1 file")
+    assert status.last_activity_at is not None
+
+    model.requestToggle(destination_index(main_window, "files"))
+    assert main_window.out_folder is None
+    assert fetch_data("scoresight.json", "output_folder") is None
+    assert destination_status(main_window, "files").state == "off"
+
+
+def test_a_missing_output_folder_is_reported(main_window, tmp_path, make_result):
+    ui = main_window.ui
+    folder = tmp_path / "gone"
+    folder.mkdir()
+    main_window.setOutputFolder(str(folder))
+    folder.rmdir()
+    main_window.ocrResult([make_result("Home Score", "3")])
+    status = destination_status(main_window, "files")
+    assert (status.state, status.enabled) == ("error", False)
+    assert status.detail.startswith("Folder not found")
+    main_window.showDestination("files")
+    assert ui.frame_destinationStatus.isVisibleTo(main_window)
+    assert "Folder not found" in ui.label_destinationStatus.text()
+    main_window.setOutputFolder(str(tmp_path))
+    assert destination_status(main_window, "files").state != "error"
+    assert not ui.frame_destinationStatus.isVisibleTo(main_window)
+
+
+def test_the_status_bar_shows_every_output_and_opens_it(main_window):
+    ui = main_window.ui
+    bar = main_window.statusBarWidgets
+    main_window.refreshLiveStatus()
+    assert not bar.widget_outputs.isHidden()
+    texts = [button.text() for button in bar.output_buttons.values()]
+    assert texts == ["Files", "HTTP", "OBS", "vMix", "UNO", "API"]
+    vmix = bar.output_buttons["vmix"]
+    assert vmix.toolTip().startswith("vMix: ○ off")
+    assert vmix.accessibleName() == "vMix: off"
+    assert not vmix.icon().isNull()
+
+    bar.output_buttons["api"].click()
+    assert ui.listView_destinations.currentIndex().row() == 5
+    assert ui.stackedWidget_outputs.currentWidget() is ui.tab_api
+    bar.output_buttons["obs"].click()
+    assert ui.stackedWidget_outputs.currentWidget() is ui.tab_obs
+
+
+def test_an_unreachable_vmix_shows_everywhere(main_window, make_result, qtbot):
+    ui = main_window.ui
+    port = free_port()  # nothing listens there
+    ui.lineEdit_vmixHost.setText("127.0.0.1")
+    ui.lineEdit_vmixHost.editingFinished.emit()
+    ui.lineEdit_vmixPort.setText(str(port))
+    ui.lineEdit_vmixPort.editingFinished.emit()
+    vmix = main_window.vmixUiHandler.vmixUpdater
+    vmix.set_field_mapping({"Time": "CLOCK.Text"})
+    ui.pushButton_startvmix.setChecked(True)
+    assert destination_status(main_window, "vmix").state == "sending"
+
+    main_window.ocrResult([make_result("Time", "1:00")])
+    qtbot.waitUntil(
+        lambda: destination_status(main_window, "vmix").state == "retrying",
+        timeout=15000,
+    )
+    status = main_window.destinationsModel.status("vmix")
+    assert f"127.0.0.1:{port}" in status.detail and "retrying" in status.detail
+    # the details over the vMix page say what to do
+    main_window.showDestination("vmix")
+    assert ui.frame_destinationStatus.isVisibleTo(main_window)
+    assert f"127.0.0.1:{port}" in ui.label_destinationStatus.text()
+    assert "Web Controller" in ui.label_destinationStatus.text()
+    # and the status bar: a triangle (not only a colour)
+    button = main_window.statusBarWidgets.output_buttons["vmix"]
+    assert button.toolTip().startswith("vMix: ▲ retrying")
+
+    ui.pushButton_startvmix.setChecked(False)  # Stop vMix
+    assert destination_status(main_window, "vmix").state == "off"
+    assert not ui.frame_destinationStatus.isVisibleTo(main_window)
+
+
+def test_obs_connect_and_disconnect(make_window, monkeypatch, qtbot, make_target):
+    import mainwindow
+
+    clients = []
+
+    def fake_open(info):
+        clients.append(FakeObsClient())
+        return clients[-1]
+
+    monkeypatch.setattr(mainwindow, "open_obs_websocket", fake_open)
+    store_data(
+        "scoresight.json", "obs", {"ip": "localhost", "port": "4455", "password": "x"}
+    )
+    window = make_window()
+    ui = window.ui
+    window.detectionTargetsStorage.add_item(make_target("Home Score"))
+    qtbot.waitUntil(lambda: window.obs_websocket_client is not None)
+    status = destination_status(window, "obs")
+    assert (status.state, status.enabled, status.detail) == (
+        "ok",
+        True,
+        "Connected to localhost:4455",
+    )
+    assert switch_is_on(window, "obs")
+    assert ui.pushButton_connectObs.text() == "Change connection..."
+    assert "localhost:4455" in ui.pushButton_connectObs.toolTip()
+    assert ui.pushButton_disconnectObs.isEnabled()
+
+    ui.pushButton_disconnectObs.click()
+    assert window.obs_websocket_client is None
+    qtbot.waitUntil(lambda: clients[0].disconnected)  # closed off the GUI thread
+    status = destination_status(window, "obs")
+    assert (status.state, status.enabled) == ("off", False)
+    assert ui.pushButton_connectObs.text() == "Connect OBS"
+    assert not ui.pushButton_disconnectObs.isEnabled()
+    assert not ui.pushButton_createOBSScene.isEnabled()
+    # the saved connection stays (for the dialog), but isn't opened at startup
+    assert fetch_data("scoresight.json", "obs")["ip"] == "localhost"
+    assert fetch_data("scoresight.json", "obs_auto_connect") is False
+    window.close()
+    again = make_window()
+    assert len(clients) == 1 and again.obs_websocket_client is None
+
+    # the OBS switch opens the connect dialog; connecting turns auto-connect on
+    again.destinationsModel.requestToggle(destination_index(again, "obs"))
+    assert again.obs_connect_modal.isVisible()
+    again.obs_modal_ui.pushButton_connect.click()
+    qtbot.waitUntil(lambda: again.obs_websocket_client is not None)
+    assert fetch_data("scoresight.json", "obs_auto_connect") is True
+    # and the switch disconnects
+    again.destinationsModel.requestToggle(destination_index(again, "obs"))
+    assert again.obs_websocket_client is None
+    qtbot.waitUntil(lambda: clients[-1].disconnected)
+
+
+def test_a_failed_obs_connection_says_why(make_window, monkeypatch, qtbot):
+    import obs_websocket
+
+    def refuse(**kwargs):
+        raise ConnectionRefusedError("[WinError 10061] the target machine refused it")
+
+    monkeypatch.setattr(obs_websocket.obs, "ReqClient", refuse)
+    store_data(
+        "scoresight.json", "obs", {"ip": "127.0.0.1", "port": "4455", "password": "x"}
+    )
+    window = make_window()  # connects at startup, in the background
+    qtbot.waitUntil(lambda: window.obsConnectError is not None)
+    status = destination_status(window, "obs")
+    assert (status.state, status.enabled) == ("error", False)
+    assert status.detail == "Not connected: Can't reach 127.0.0.1:4455"
+    assert "WebSocket server" in status.hint
+
+    window.show()
+    window.openOBSConnectModal()
+    window.obs_modal_ui.pushButton_connect.click()
+    qtbot.waitUntil(lambda: window.obs_modal_ui.pushButton_connect.isEnabled())
+    label = window.obs_modal_ui.label_error
+    assert label.text() == "Cannot connect to OBS\nCan't reach 127.0.0.1:4455"
+    assert "WebSocket server" in label.toolTip()
+
+
+def test_the_http_page_shows_the_address_for_other_computers(
+    make_window, monkeypatch, qapp
+):
+    import mainwindow
+
+    monkeypatch.setattr(mainwindow, "primary_lan_address", lambda: "192.168.1.20")
+    window = make_window(http_port=18100)
+    link = 'href="http://192.168.1.20:18100/scoresight"'
+    assert link in window.ui.label_8.text()
+    status = destination_status(window, "http")
+    assert status.state == "ok"
+    assert status.detail.startswith("http://192.168.1.20:18100 · ")
+    window.changeLanguage("de_DE")
+    try:
+        assert window.ui.label_8.text().count(link) == 1
+        assert "localhost:18100" in window.ui.label_8.text()
+    finally:
+        qapp.removeTranslator(window.translator)
 
 
 @pytest.fixture

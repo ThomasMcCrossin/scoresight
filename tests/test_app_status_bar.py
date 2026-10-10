@@ -139,3 +139,61 @@ def test_the_status_bar_widgets(qapp, monkeypatch):
         assert widgets.button_copy.isHidden()
     finally:
         statusbar.deleteLater()
+
+
+@pytest.mark.qt
+def test_the_outputs_summary(qapp):
+    from PySide6.QtWidgets import QStatusBar
+
+    from output_status import DESTINATIONS, DestinationStatus
+    from status_bar import MainStatusBar
+
+    statusbar = QStatusBar()
+    widgets = MainStatusBar(statusbar)
+    clicked = []
+    widgets.destination_clicked.connect(clicked.append)
+    try:
+        assert widgets.widget_outputs.isHidden()  # nothing to show yet
+        outputs = (
+            DestinationStatus("files", "ok", "Writing to D:\\Scores · 4 files", True),
+            DestinationStatus("http", "ok", "http://x:18099", True, switchable=False),
+            DestinationStatus("obs", "off", "Not connected"),
+            DestinationStatus(
+                "vmix",
+                "retrying",
+                "Can't reach 192.168.1.40:8088 · retrying",
+                True,
+                hint="Check that vMix is running.",
+                last_activity_at=97.0,
+            ),
+            DestinationStatus("uno", "off", "Off"),
+            DestinationStatus("api", "error", "HTTP 401: access denied", True),
+        )
+        widgets.update(StatusSnapshot(outputs=outputs, now=100.0, http_port=18099))
+        assert not widgets.widget_outputs.isHidden()
+        assert widgets.label_outputs.text().strip() == "Outputs:"
+        buttons = widgets.output_buttons
+        assert list(buttons) == list(DESTINATIONS)
+        assert [b.text() for b in buttons.values()] == [
+            "Files",
+            "HTTP",
+            "OBS",
+            "vMix",
+            "UNO",
+            "API",
+        ]
+        tooltip = buttons["vmix"].toolTip().splitlines()
+        assert tooltip[:4] == [
+            "vMix: ▲ retrying",
+            "Can't reach 192.168.1.40:8088 · retrying",
+            "Check that vMix is running.",
+            "Last sent 3 s ago",
+        ]
+        assert buttons["api"].accessibleName() == "API: not working"
+        assert all(not b.icon().isNull() for b in buttons.values())
+
+        buttons["vmix"].click()
+        buttons["files"].click()
+        assert clicked == ["vmix", "files"]
+    finally:
+        statusbar.deleteLater()

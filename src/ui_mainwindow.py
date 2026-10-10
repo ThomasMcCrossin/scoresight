@@ -568,9 +568,54 @@ class Ui_MainWindow(object):
 
         self._2.addWidget(self.line_2)
 
-        self.tabWidget_outputs = QTabWidget(self.frame)
-        self.tabWidget_outputs.setObjectName(u"tabWidget_outputs")
-        self.tabWidget_outputs.setTabShape(QTabWidget.Rounded)
+        self.widget_outputs = QWidget(self.frame)
+        self.widget_outputs.setObjectName(u"widget_outputs")
+        self.verticalLayout_outputs = QVBoxLayout(self.widget_outputs)
+        self.verticalLayout_outputs.setSpacing(3)
+        self.verticalLayout_outputs.setObjectName(u"verticalLayout_outputs")
+        self.verticalLayout_outputs.setContentsMargins(0, 0, 0, 0)
+        self.label_outputs = QLabel(self.widget_outputs)
+        self.label_outputs.setObjectName(u"label_outputs")
+        font1 = QFont()
+        font1.setBold(True)
+        self.label_outputs.setFont(font1)
+
+        self.verticalLayout_outputs.addWidget(self.label_outputs)
+
+        self.listView_destinations = QListView(self.widget_outputs)
+        self.listView_destinations.setObjectName(u"listView_destinations")
+        sizePolicy5 = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        sizePolicy5.setHorizontalStretch(0)
+        sizePolicy5.setVerticalStretch(0)
+        sizePolicy5.setHeightForWidth(self.listView_destinations.sizePolicy().hasHeightForWidth())
+        self.listView_destinations.setSizePolicy(sizePolicy5)
+        self.listView_destinations.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.listView_destinations.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.listView_destinations.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.listView_destinations.setUniformItemSizes(True)
+
+        self.verticalLayout_outputs.addWidget(self.listView_destinations)
+
+        self.frame_destinationStatus = QFrame(self.widget_outputs)
+        self.frame_destinationStatus.setObjectName(u"frame_destinationStatus")
+        self.frame_destinationStatus.setFrameShape(QFrame.NoFrame)
+        self.horizontalLayout_destinationStatus = QHBoxLayout(self.frame_destinationStatus)
+        self.horizontalLayout_destinationStatus.setObjectName(u"horizontalLayout_destinationStatus")
+        self.horizontalLayout_destinationStatus.setContentsMargins(8, 5, 8, 5)
+        self.label_destinationStatus = QLabel(self.frame_destinationStatus)
+        self.label_destinationStatus.setObjectName(u"label_destinationStatus")
+        self.label_destinationStatus.setTextFormat(Qt.RichText)
+        self.label_destinationStatus.setWordWrap(True)
+        self.label_destinationStatus.setTextInteractionFlags(Qt.TextSelectableByMouse)
+
+        self.horizontalLayout_destinationStatus.addWidget(self.label_destinationStatus)
+
+
+        self.verticalLayout_outputs.addWidget(self.frame_destinationStatus)
+
+        self.stackedWidget_outputs = QStackedWidget(self.widget_outputs)
+        self.stackedWidget_outputs.setObjectName(u"stackedWidget_outputs")
+        self.stackedWidget_outputs.setFrameShape(QFrame.StyledPanel)
         self.tab_textFiles = QWidget()
         self.tab_textFiles.setObjectName(u"tab_textFiles")
         sizePolicy.setHeightForWidth(self.tab_textFiles.sizePolicy().hasHeightForWidth())
@@ -587,9 +632,6 @@ class Ui_MainWindow(object):
 
         self.widget_5 = QWidget(self.tab_textFiles)
         self.widget_5.setObjectName(u"widget_5")
-        sizePolicy5 = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
-        sizePolicy5.setHorizontalStretch(0)
-        sizePolicy5.setVerticalStretch(0)
         sizePolicy5.setHeightForWidth(self.widget_5.sizePolicy().hasHeightForWidth())
         self.widget_5.setSizePolicy(sizePolicy5)
         self.horizontalLayout_6 = QHBoxLayout(self.widget_5)
@@ -684,7 +726,7 @@ class Ui_MainWindow(object):
 
         self.formLayout_2.setItem(4, QFormLayout.ItemRole.FieldRole, self.verticalSpacer_2)
 
-        self.tabWidget_outputs.addTab(self.tab_textFiles, "")
+        self.stackedWidget_outputs.addWidget(self.tab_textFiles)
         self.tab_browser = QWidget()
         self.tab_browser.setObjectName(u"tab_browser")
         self.verticalLayout_4 = QVBoxLayout(self.tab_browser)
@@ -698,13 +740,18 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_4.addWidget(self.label_8, 0, Qt.AlignTop)
 
-        self.tabWidget_outputs.addTab(self.tab_browser, "")
+        self.stackedWidget_outputs.addWidget(self.tab_browser)
         self.tab_obs = QWidget()
         self.tab_obs.setObjectName(u"tab_obs")
         self.gridLayout_2 = QGridLayout(self.tab_obs)
         self.gridLayout_2.setObjectName(u"gridLayout_2")
         self.gridLayout_2.setVerticalSpacing(2)
-        self.pushButton_connectObs = QPushButton(self.tab_obs)
+        self.widget_obsConnection = QWidget(self.tab_obs)
+        self.widget_obsConnection.setObjectName(u"widget_obsConnection")
+        self.horizontalLayout_obsConnection = QHBoxLayout(self.widget_obsConnection)
+        self.horizontalLayout_obsConnection.setObjectName(u"horizontalLayout_obsConnection")
+        self.horizontalLayout_obsConnection.setContentsMargins(0, 0, 0, 0)
+        self.pushButton_connectObs = QPushButton(self.widget_obsConnection)
         self.pushButton_connectObs.setObjectName(u"pushButton_connectObs")
         sizePolicy6 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
         sizePolicy6.setHorizontalStretch(0)
@@ -713,7 +760,18 @@ class Ui_MainWindow(object):
         self.pushButton_connectObs.setSizePolicy(sizePolicy6)
         self.pushButton_connectObs.setMinimumSize(QSize(0, 0))
 
-        self.gridLayout_2.addWidget(self.pushButton_connectObs, 0, 0, 1, 1)
+        self.horizontalLayout_obsConnection.addWidget(self.pushButton_connectObs)
+
+        self.pushButton_disconnectObs = QPushButton(self.widget_obsConnection)
+        self.pushButton_disconnectObs.setObjectName(u"pushButton_disconnectObs")
+        self.pushButton_disconnectObs.setEnabled(False)
+        sizePolicy3.setHeightForWidth(self.pushButton_disconnectObs.sizePolicy().hasHeightForWidth())
+        self.pushButton_disconnectObs.setSizePolicy(sizePolicy3)
+
+        self.horizontalLayout_obsConnection.addWidget(self.pushButton_disconnectObs)
+
+
+        self.gridLayout_2.addWidget(self.widget_obsConnection, 0, 0, 1, 1)
 
         self.widget_18 = QWidget(self.tab_obs)
         self.widget_18.setObjectName(u"widget_18")
@@ -741,7 +799,11 @@ class Ui_MainWindow(object):
 
         self.gridLayout_2.addWidget(self.widget_18, 1, 0, 1, 1, Qt.AlignTop)
 
-        self.tabWidget_outputs.addTab(self.tab_obs, "")
+        self.verticalSpacer_obs = QSpacerItem(20, 0, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+
+        self.gridLayout_2.addItem(self.verticalSpacer_obs, 2, 0, 1, 1)
+
+        self.stackedWidget_outputs.addWidget(self.tab_obs)
         self.tab_vmix = QWidget()
         self.tab_vmix.setObjectName(u"tab_vmix")
         self.gridLayout_3 = QGridLayout(self.tab_vmix)
@@ -749,6 +811,7 @@ class Ui_MainWindow(object):
         self.gridLayout_3.setVerticalSpacing(2)
         self.tableView_vmixMapping = QTableView(self.tab_vmix)
         self.tableView_vmixMapping.setObjectName(u"tableView_vmixMapping")
+        self.tableView_vmixMapping.setMinimumSize(QSize(0, 120))
         self.tableView_vmixMapping.horizontalHeader().setVisible(False)
         self.tableView_vmixMapping.horizontalHeader().setStretchLastSection(True)
 
@@ -828,7 +891,7 @@ class Ui_MainWindow(object):
 
         self.gridLayout_3.addLayout(self.verticalLayout_6, 0, 0, 1, 1)
 
-        self.tabWidget_outputs.addTab(self.tab_vmix, "")
+        self.stackedWidget_outputs.addWidget(self.tab_vmix)
         self.tab_uno = QWidget()
         self.tab_uno.setObjectName(u"tab_uno")
         self.gridLayout_5 = QGridLayout(self.tab_uno)
@@ -916,12 +979,13 @@ class Ui_MainWindow(object):
 
         self.tableView_unoMapping = QTableView(self.tab_uno)
         self.tableView_unoMapping.setObjectName(u"tableView_unoMapping")
+        self.tableView_unoMapping.setMinimumSize(QSize(0, 120))
         self.tableView_unoMapping.horizontalHeader().setVisible(False)
         self.tableView_unoMapping.horizontalHeader().setStretchLastSection(True)
 
         self.gridLayout_5.addWidget(self.tableView_unoMapping, 2, 0, 1, 1)
 
-        self.tabWidget_outputs.addTab(self.tab_uno, "")
+        self.stackedWidget_outputs.addWidget(self.tab_uno)
         self.tab_api = QWidget()
         self.tab_api.setObjectName(u"tab_api")
         self.formLayout_3 = QFormLayout(self.tab_api)
@@ -967,7 +1031,6 @@ class Ui_MainWindow(object):
         self.comboBox_outApiMethod.addItem("")
         self.comboBox_outApiMethod.addItem("")
         self.comboBox_outApiMethod.setObjectName(u"comboBox_outApiMethod")
-        self.comboBox_outApiMethod.setMaximumSize(QSize(50, 16777215))
 
         self.horizontalLayout_27.addWidget(self.comboBox_outApiMethod)
 
@@ -979,9 +1042,12 @@ class Ui_MainWindow(object):
 
         self.formLayout_3.setWidget(1, QFormLayout.ItemRole.LabelRole, self.label_20)
 
-        self.tabWidget_outputs.addTab(self.tab_api, "")
+        self.stackedWidget_outputs.addWidget(self.tab_api)
 
-        self._2.addWidget(self.tabWidget_outputs, 0, Qt.AlignTop)
+        self.verticalLayout_outputs.addWidget(self.stackedWidget_outputs)
+
+
+        self._2.addWidget(self.widget_outputs)
 
         self._2.setStretch(0, 1)
         self.scrollArea_left.setWidget(self.frame)
@@ -1179,9 +1245,9 @@ class Ui_MainWindow(object):
         self.widget_cropPanel.setObjectName(u"widget_cropPanel")
         self.widget_cropPanel.setEnabled(False)
         self.widget_cropPanel.setMaximumSize(QSize(16777215, 18))
-        font1 = QFont()
-        font1.setPointSize(8)
-        self.widget_cropPanel.setFont(font1)
+        font2 = QFont()
+        font2.setPointSize(8)
+        self.widget_cropPanel.setFont(font2)
         self.horizontalLayout_26 = QHBoxLayout(self.widget_cropPanel)
         self.horizontalLayout_26.setObjectName(u"horizontalLayout_26")
         self.horizontalLayout_26.setContentsMargins(0, 0, 0, 0)
@@ -1336,7 +1402,7 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
 
         self.comboBox_formatPrefix.setCurrentIndex(0)
-        self.tabWidget_outputs.setCurrentIndex(0)
+        self.stackedWidget_outputs.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -1571,6 +1637,13 @@ class Ui_MainWindow(object):
 #if QT_CONFIG(tooltip)
         self.comboBox_ocrModel.setToolTip(QCoreApplication.translate("MainWindow", u"The OCR model that reads every box, not only the selected one. Load External OCR Model reads a Tesseract .traineddata file.", None))
 #endif // QT_CONFIG(tooltip)
+        self.label_outputs.setText(QCoreApplication.translate("MainWindow", u"Outputs", None))
+#if QT_CONFIG(accessibility)
+        self.listView_destinations.setAccessibleName(QCoreApplication.translate("MainWindow", u"Outputs", None))
+#endif // QT_CONFIG(accessibility)
+#if QT_CONFIG(accessibility)
+        self.listView_destinations.setAccessibleDescription(QCoreApplication.translate("MainWindow", u"Select an output to show its settings below. Space turns it on or off.", None))
+#endif // QT_CONFIG(accessibility)
         self.label_7.setText(QCoreApplication.translate("MainWindow", u"Folder", None))
 #if QT_CONFIG(tooltip)
         self.lineEdit_folder.setToolTip(QCoreApplication.translate("MainWindow", u"The folder the text files are written to", None))
@@ -1613,19 +1686,15 @@ class Ui_MainWindow(object):
 #if QT_CONFIG(tooltip)
         self.horizontalSlider_aggsPerSecond.setToolTip(QCoreApplication.translate("MainWindow", u"How many times per second the files are written (1-10). Affects only the files.", None))
 #endif // QT_CONFIG(tooltip)
-        self.tabWidget_outputs.setTabText(self.tabWidget_outputs.indexOf(self.tab_textFiles), QCoreApplication.translate("MainWindow", u"Text Files", None))
-#if QT_CONFIG(tooltip)
-        self.tabWidget_outputs.setTabToolTip(self.tabWidget_outputs.indexOf(self.tab_textFiles), QCoreApplication.translate("MainWindow", u"Write the readings to .txt, .csv and .xml files", None))
-#endif // QT_CONFIG(tooltip)
         self.label_8.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p>Use these endpoints in external software to get live data updates</p><p>HTML Scoreboard: <a href=\"http://localhost:18099/scoresight\">http://localhost:18099/scoresight</a><br/>JSON: <a href=\"http://localhost:18099/json\">http://localhost:18099/json</a> (optional: ?pivot)<br/>XML: <a href=\"http://localhost:18099/xml\">http://localhost:18099/xml</a> (optional: ?pivot)<br/>CSV: <a href=\"http://localhost:18099/csv\">http://localhost:18099/csv</a> (optional: ?pivot)</p></body></html>", None))
-        self.tabWidget_outputs.setTabText(self.tabWidget_outputs.indexOf(self.tab_browser), QCoreApplication.translate("MainWindow", u"Browser", None))
-#if QT_CONFIG(tooltip)
-        self.tabWidget_outputs.setTabToolTip(self.tabWidget_outputs.indexOf(self.tab_browser), QCoreApplication.translate("MainWindow", u"The built-in HTTP server: a scoreboard page, JSON, XML and CSV", None))
-#endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(tooltip)
         self.pushButton_connectObs.setToolTip(QCoreApplication.translate("MainWindow", u"Connect to the WebSocket server of OBS Studio", None))
 #endif // QT_CONFIG(tooltip)
         self.pushButton_connectObs.setText(QCoreApplication.translate("MainWindow", u"Connect OBS", None))
+#if QT_CONFIG(tooltip)
+        self.pushButton_disconnectObs.setToolTip(QCoreApplication.translate("MainWindow", u"Close the connection to OBS. ScoreSight connects to OBS again at its next start only after you connect again.", None))
+#endif // QT_CONFIG(tooltip)
+        self.pushButton_disconnectObs.setText(QCoreApplication.translate("MainWindow", u"Disconnect", None))
 #if QT_CONFIG(tooltip)
         self.lineEdit_sceneName.setToolTip(QCoreApplication.translate("MainWindow", u"The name of the scene Create OBS Scene makes", None))
 #endif // QT_CONFIG(tooltip)
@@ -1635,10 +1704,6 @@ class Ui_MainWindow(object):
 #endif // QT_CONFIG(tooltip)
         self.pushButton_createOBSScene.setText(QCoreApplication.translate("MainWindow", u"Create OBS Scene", None))
         self.checkBox_recreate.setText(QCoreApplication.translate("MainWindow", u"Recreate", None))
-        self.tabWidget_outputs.setTabText(self.tabWidget_outputs.indexOf(self.tab_obs), QCoreApplication.translate("MainWindow", u"OBS", None))
-#if QT_CONFIG(tooltip)
-        self.tabWidget_outputs.setTabToolTip(self.tabWidget_outputs.indexOf(self.tab_obs), QCoreApplication.translate("MainWindow", u"Update text sources in OBS Studio", None))
-#endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(tooltip)
         self.tableView_vmixMapping.setToolTip(QCoreApplication.translate("MainWindow", u"Each field and the vMix title field it updates. Edit the right column.", None))
 #endif // QT_CONFIG(tooltip)
@@ -1674,10 +1739,6 @@ class Ui_MainWindow(object):
         self.checkBox_vmix_send_same.setToolTip(QCoreApplication.translate("MainWindow", u"Send only new detections or also existing?", None))
 #endif // QT_CONFIG(tooltip)
         self.checkBox_vmix_send_same.setText(QCoreApplication.translate("MainWindow", u"Send Same?", None))
-        self.tabWidget_outputs.setTabText(self.tabWidget_outputs.indexOf(self.tab_vmix), QCoreApplication.translate("MainWindow", u"VMix", None))
-#if QT_CONFIG(tooltip)
-        self.tabWidget_outputs.setTabToolTip(self.tabWidget_outputs.indexOf(self.tab_vmix), QCoreApplication.translate("MainWindow", u"Update a title in vMix", None))
-#endif // QT_CONFIG(tooltip)
         self.connectionLabel_2.setText(QCoreApplication.translate("MainWindow", u"URL", None))
 #if QT_CONFIG(accessibility)
         self.lineEdit_unoUrl.setAccessibleName(QCoreApplication.translate("MainWindow", u"UNO URL", None))
@@ -1708,10 +1769,6 @@ class Ui_MainWindow(object):
 #if QT_CONFIG(tooltip)
         self.tableView_unoMapping.setToolTip(QCoreApplication.translate("MainWindow", u"Each field and the UNO command (or Essentials field ID) it drives. Edit the right column.", None))
 #endif // QT_CONFIG(tooltip)
-        self.tabWidget_outputs.setTabText(self.tabWidget_outputs.indexOf(self.tab_uno), QCoreApplication.translate("MainWindow", u"UNO", None))
-#if QT_CONFIG(tooltip)
-        self.tabWidget_outputs.setTabToolTip(self.tabWidget_outputs.indexOf(self.tab_uno), QCoreApplication.translate("MainWindow", u"Drive an overlays.uno control app", None))
-#endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(tooltip)
         self.checkBox_enableOutAPI.setToolTip(QCoreApplication.translate("MainWindow", u"Send the readings to the URL below on every detection cycle", None))
 #endif // QT_CONFIG(tooltip)
@@ -1740,10 +1797,6 @@ class Ui_MainWindow(object):
         self.comboBox_outApiMethod.setToolTip(QCoreApplication.translate("MainWindow", u"The HTTP method of the requests", None))
 #endif // QT_CONFIG(tooltip)
         self.label_20.setText(QCoreApplication.translate("MainWindow", u"URL", None))
-        self.tabWidget_outputs.setTabText(self.tabWidget_outputs.indexOf(self.tab_api), QCoreApplication.translate("MainWindow", u"API", None))
-#if QT_CONFIG(tooltip)
-        self.tabWidget_outputs.setTabToolTip(self.tabWidget_outputs.indexOf(self.tab_api), QCoreApplication.translate("MainWindow", u"Send the readings to a URL (outbound HTTP API)", None))
-#endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(tooltip)
         self.label_detectionCadence.setToolTip(QCoreApplication.translate("MainWindow", u"How many times per second the boxes are read", None))
 #endif // QT_CONFIG(tooltip)
