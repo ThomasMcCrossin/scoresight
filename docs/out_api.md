@@ -1,130 +1,151 @@
-# ScoreSight Outbound API Integration Tutorial
+---
+title: Outbound HTTP API
+parent: Outputs
+nav_order: 6
+description: "Send every ScoreSight reading to your own HTTP endpoint as JSON, XML, CSV or GET query parameters."
+---
 
-ScoreSight now offers the ability to send OCR-extracted scoreboard data to external APIs. This tutorial will guide you through setting up the feature and provide a simple Python script to receive the data.
+# Outbound HTTP API
+{: .no_toc }
 
-## Enabling API Requests in ScoreSight
+The **API** tab sends the readings to a URL of your choice on every detection cycle. Use it to feed your own server, a cloud function, a database, or automation tools such as Node-RED, n8n or Home Assistant webhooks.
 
-1. Open ScoreSight and navigate to the "API" tab in the bottom left corner.
+<details open markdown="block">
+  <summary>On this page</summary>
+  {: .text-delta }
+1. TOC
+{:toc}
+</details>
 
-![alt text](image-29.png)
+## Setup
 
-2. Check the box labeled "Send out API requests to external services".
-3. Enter the URL where you want to send the data in the provided box.
-4. Select the encoding format for the data: JSON (Full), Json (Simple key-value) XML, or CSV.
+![The API tab](image-29.png)
 
-![alt text](image-30.png)
+1. Open the **API** tab.
+2. Enter the **URL** of your endpoint, including the scheme and host, for example `http://192.168.1.10:8091/scores`.
+3. Choose the **method**: `POST`, `PUT` or `GET`.
+4. Choose the **Encode** format (used for `POST` and `PUT`): *JSON (Full)*, *JSON (Simple key-value)*, *XML* or *CSV*.
+5. Tick **Send out API requests to external services.**
 
-5. Choose the HTTP method for the API request: POST, PUT, or GET.
+## When requests are sent
+
+- One request per **detection cycle** (see **Detections / s**). Each request contains **all** boxes, whatever their state. This differs from the vMix/UNO/OBS outputs, which send only new values.
+- **Stop Updates** pauses the requests.
+- Requests are sent in the background with a timeout. If your endpoint is slower than the detection rate, ScoreSight skips intermediate cycles and sends the most recent readings, so requests never pile up.
+- Respond with HTTP **200**. Other status codes, connection errors and timeouts are written to the ScoreSight log.
+
+Because every cycle is sent, the receiver should filter on the `state` of each reading (formats that include it) and/or ignore values that haven't changed.
+
+## Payload formats
+
+The examples show two boxes. `rect` / `x`, `y`, `width`, `height` give the box position in pixels.
+
+### JSON (Full)
+
+`Content-Type: application/json`
+
+```json
+[
+  {"name": "Home Score", "text": "65", "state": "SameNoChange",
+   "rect": {"x": 525.9, "y": 638.4, "width": 214.6, "height": 175.3}},
+  {"name": "Time", "text": "4:27", "state": "Success",
+   "rect": {"x": 843.6, "y": 663.0, "width": 359.1, "height": 207.2}}
+]
+```
+
+`state` is one of `Success`, `SameNoChange`, `FailedFilter` or `Empty` (see [States](http_server.md#states)).
+
+### JSON (Simple key-value)
+
+`Content-Type: application/json`
+
+```json
+{"Home Score": "65", "Time": "4:27"}
+```
+
+This format carries no state. If you need to tell new, unchanged, rejected and empty readings apart, use *JSON (Full)*, *XML* or *CSV*.
+
+### XML
+
+`Content-Type: application/xml`
+
+```xml
+<root>
+  <result name="Home Score" result="65" result_state="SameNoChange" x="525.9" y="638.4" width="214.6" height="175.3" />
+  <result name="Time" result="4:27" result_state="Success" x="843.6" y="663.0" width="359.1" height="207.2" />
+</root>
+```
+
+### CSV
+
+`Content-Type: text/csv`
+
+```csv
+Name,Text,State,X,Y,Width,Height
+Home Score,65,SameNoChange,525.9,638.4,214.6,175.3
+Time,4:27,Success,843.6,663.0,359.1,207.2
+```
+
+### GET (query parameters)
+
+With the `GET` method, the **Encode** setting is ignored. ScoreSight appends each box as a URL query parameter (`name=value`, URL-encoded) to your URL and sends no body. Existing query parameters in your URL are kept.
+
+```
+GET http://192.168.1.10:8091/scores?Home+Score=65&Time=4%3A27
+```
+
+Like *JSON (Simple key-value)*, this carries no state.
+
+## Authentication
+
+ScoreSight cannot add custom HTTP headers. If your endpoint needs a key, put it in the URL, for example `https://example.com/hook?token=SECRET`, or run a small relay on your network that adds the header. Always use `https://` for endpoints outside your local network. The URL (including any token) is stored in plain text in the ScoreSight settings file.
+
+## Test receiver (Python)
+
+This script prints whatever ScoreSight sends. It needs only the Python standard library:
+
+```python
+from http.server import BaseHTTPRequestHandler, HTTPServer
+
+
+class Handler(BaseHTTPRequestHandler):
+    def _handle(self):
+        length = int(self.headers.get("Content-Length") or 0)
+        body = self.rfile.read(length).decode("utf-8") if length else ""
+        print(f"{self.command} {self.path}  [{self.headers.get('Content-Type')}]")
+        if body:
+            print(body)
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b"OK")
+
+    do_GET = do_POST = do_PUT = _handle
+
+    def log_message(self, *args):
+        pass  # keep the console readable
+
+
+if __name__ == "__main__":
+    port = 8091
+    print(f"Listening on http://localhost:{port}")
+    HTTPServer(("", port), Handler).serve_forever()
+```
+
+1. Save it as `scoresight_receiver.py` and run `python scoresight_receiver.py`.
+2. In ScoreSight, set the URL to `http://localhost:8091`, then choose a method and encoding.
+3. Tick **Send out API requests to external services.** The requests appear in the console.
 
 ## Troubleshooting
 
-If you encounter issues with the API integration, follow these steps to troubleshoot:
+1. **Read the log** (**File > View Current Log**). Errors look like this:
 
-1. Check ScoreSight Logs:
-   - Open ScoreSight and navigate to the "Logs" section.
-   - Look for any error messages related to HTTP requests or API communication.
-   - Common errors might include "Connection refused", "Timeout", or "Invalid URL".
-   - For example if the URL is incorrect you may see the following message:
    ```
-   nnnn-nn-nn 10:59:14,743 - ERROR - api_output - Error sending data to output API: http://localahost:8091, HTTPConnectionPool(host='localahost', port=8091): Max retries exceeded with url: / (Caused by NameResolutionError("<urllib3.connection.HTTPConnection object at 0x0000019089C20DA0>: Failed to resolve 'localahost' ([Errno 11001] getaddrinfo failed)"))
+   ERROR - api_output - Error sending data to output API: http://localahost:8091, HTTPConnectionPool(host='localahost', port=8091): Max retries exceeded ... Failed to resolve 'localahost'
    ```
 
-2. Verify the URL:
-   - Double-check the URL you've entered in the API settings.
-   - Ensure it's correctly formatted (e.g., `http://localhost:8091` for local testing).
-   - If using an external API, verify that the URL is correct and the service is running.
-
-3. Encoding Format:
-   - Verify that the encoding format selected in ScoreSight (JSON, XML, or CSV) matches the format your receiving script or API expects.
-
-4. HTTP Method:
-   - Ensure that the selected HTTP method (POST, PUT, or GET) is supported by your receiving API.
-   - Verify that your API is configured to handle the chosen method correctly.
-
-5. Server Availability and Authentication:
-   - If using the provided Python script, make sure it's running before attempting to send data from ScoreSight.
-   - For external APIs, check if the service is up and accessible.
-   - If your external API requires an API key or authentication, ensure these details are correctly included in the URL or headers.
-   - If testing locally, check that your firewall isn't blocking the connection.
-
-6. Test with a Simple Server:
-   - Use the provided Python script below as a test server to isolate whether the issue is with ScoreSight or the receiving end.
-
-If problems persist after trying these steps, consider reaching out to ScoreSight support for further assistance.
-
-## Receiving Data with a Python Script
-
-Here's a simple Python script that sets up a local server to receive HTTP requests from ScoreSight:
-
-```python
-from http.server import HTTPServer, BaseHTTPRequestHandler
-import json
-
-class RequestHandler(BaseHTTPRequestHandler):
-    def do_POST(self):
-        self.handle_request()
-
-    def do_PUT(self):
-        self.handle_request()
-
-    def do_GET(self):
-        self.handle_request()
-
-    def handle_request(self):
-        if self.command in ['POST', 'PUT']:
-            content_length = int(self.headers['Content-Length'])
-            post_data = self.rfile.read(content_length)
-            
-            print(f"Received {self.command} data:")
-            try:
-                # Assuming JSON format, adjust if using XML or CSV
-                data = json.loads(post_data.decode('utf-8'))
-                print(json.dumps(data, indent=2))
-            except json.JSONDecodeError:
-                print(post_data.decode('utf-8'))
-        elif self.command == 'GET':
-            print("Received GET request")
-            print(f"Path: {self.path}")
-            print(f"Headers: {self.headers}")
-        
-        self.send_response(200)
-        self.end_headers()
-        self.wfile.write(b'OK')
-
-def run_server(port=8091):
-    server_address = ('', port)
-    httpd = HTTPServer(server_address, RequestHandler)
-    print(f"Server running on port {port}")
-    httpd.serve_forever()
-
-if __name__ == '__main__':
-    run_server()
-```
-
-To run the script:
-
-1. Save the script as `scoresight_receiver.py`
-2. Open a terminal or command prompt
-3. Navigate to the directory containing the script
-4. Run the following command:
-
-```
-python scoresight_receiver.py
-```
-
-The server will start and listen for incoming requests on `http://localhost:8091`. Make sure to use this URL in ScoreSight's API settings.
-
-When ScoreSight sends data, the script will print it to the console. You can modify the script to process or store the data as needed.
-
-You may see in the console an output similar to:
-
-```
-127.0.0.1 - - [nn/nn/nnnn 10:57:03] "POST / HTTP/1.1" 200 -
-Received POST data: Name,Text,State,X,Y,Width,Height
-Time,0:52,SameNoChange,843.656319861826,663.0215827338131,359.13669064748206,207.19424460431662
-Home Score,35,SameNoChange,525.969716884406,638.4370727628325,214.62426933453253,175.27648662320166
-```
-
-Remember to adjust the script if you're using XML or CSV encoding instead of JSON.
-
-Check the console where it's running for any error messages or unexpected output.
+   Common causes are a typo in the host name, "Connection refused" (nothing is listening on that port) or a timeout (firewall or wrong IP address).
+2. **"Invalid URL" in the log**: the URL needs a scheme and host, such as `http://host:port/path`.
+3. **Wrong format**: make sure the receiver expects the chosen encoding and method.
+4. **Status code errors**: your endpoint returned something other than 200. Check the endpoint's own logs.
+5. **Firewall**: when testing across computers, allow the receiver's port on the receiving computer.
+6. Test with the receiver script above to find out whether the problem is ScoreSight or your endpoint.
