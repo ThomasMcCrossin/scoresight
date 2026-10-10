@@ -53,6 +53,30 @@ def resolution_text(width, height) -> str:
     return f"{int(width)}x{int(height)}"
 
 
+def platform_backends(system: str) -> list[tuple[str, int]]:
+    """The capture backends offered on a platform (platform.system()), besides
+    Auto, as (name, cv2 backend id)."""
+    if system == "Windows":
+        return [
+            ("DShow", cv2.CAP_DSHOW),
+            ("Microsoft Media Foundation", cv2.CAP_MSMF),
+            ("Microsoft Windows Runtime", cv2.CAP_WINRT),
+        ]
+    if system == "Linux":
+        return [("V4L", cv2.CAP_V4L), ("GStreamer", cv2.CAP_GSTREAMER)]
+    if system == "Darwin":
+        return [("AVFoundation", cv2.CAP_AVFOUNDATION)]
+    return []
+
+
+def has_backend(backend: int) -> bool:
+    """Whether this OpenCV build has the capture backend."""
+    try:
+        return bool(cv2.videoio_registry.hasBackend(backend))
+    except (AttributeError, cv2.error):
+        return False
+
+
 class VideoSettingsDialog(QDialog):
     def __init__(self):
         super().__init__()
@@ -94,21 +118,11 @@ class VideoSettingsDialog(QDialog):
     def populate_backend_combo(self):
         self.ui.comboBox_captureBackend.clear()
         self.ui.comboBox_captureBackend.addItem("Auto", cv2.CAP_ANY)
-        if platform.system() == "Windows":
-            self.ui.comboBox_captureBackend.addItem("DShow", cv2.CAP_DSHOW)
-            self.ui.comboBox_captureBackend.addItem(
-                "Microsoft Media Foundation", cv2.CAP_MSMF
-            )
-            self.ui.comboBox_captureBackend.addItem(
-                "Microsoft Windows Runtime", cv2.CAP_WINRT
-            )
-        elif platform.system() == "Linux":
-            self.ui.comboBox_captureBackend.addItem("V4L", cv2.CAP_V4L)
-            self.ui.comboBox_captureBackend.addItem("GStreamer", cv2.CAP_GSTREAMER)
-        elif platform.system() == "Darwin":
-            self.ui.comboBox_captureBackend.addItem(
-                "AVFoundation", cv2.CAP_AVFOUNDATION
-            )
+        # only the backends this OpenCV build has (the pip wheels have no
+        # Media Foundation/Windows Runtime or GStreamer, for example)
+        for name, backend in platform_backends(platform.system()):
+            if has_backend(backend):
+                self.ui.comboBox_captureBackend.addItem(name, backend)
         self.ui.comboBox_captureBackend.setCurrentIndex(
             self.ui.comboBox_captureBackend.findData(
                 int(self.cap.get(cv2.CAP_PROP_BACKEND))

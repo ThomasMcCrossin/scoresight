@@ -108,3 +108,42 @@ def test_resolution_list_offers_full_hd(qapp):
     assert "1920x1080" in items
     assert "1980x1080" not in items
     dialog.deleteLater()
+
+
+@pytest.mark.parametrize(
+    "system, available, offered",
+    [
+        # the pip wheels on Windows: DirectShow (and FFmpeg) only
+        ("Windows", {cv2.CAP_DSHOW}, ["Auto", "DShow"]),
+        (
+            "Windows",
+            {cv2.CAP_DSHOW, cv2.CAP_MSMF},
+            ["Auto", "DShow", "Microsoft Media Foundation"],
+        ),
+        # the headless pip wheels on Linux have no GStreamer
+        ("Linux", {cv2.CAP_V4L}, ["Auto", "V4L"]),
+        ("Darwin", {cv2.CAP_AVFOUNDATION}, ["Auto", "AVFoundation"]),
+    ],
+)
+def test_only_the_backends_opencv_has_are_offered(
+    dialog, monkeypatch, system, available, offered
+):
+    # choosing a backend the build doesn't have would make the camera fail to open
+    import video_settings
+
+    monkeypatch.setattr(video_settings.platform, "system", lambda: system)
+    monkeypatch.setattr(
+        video_settings.cv2.videoio_registry,
+        "hasBackend",
+        lambda backend: backend in available,
+    )
+    dialog.init_ui(FakeDeviceCapture())
+    combo = dialog.ui.comboBox_captureBackend
+    assert [combo.itemText(i) for i in range(combo.count())] == offered
+
+
+def test_every_offered_backend_is_in_this_opencv_build(dialog):
+    dialog.init_ui(FakeDeviceCapture())
+    combo = dialog.ui.comboBox_captureBackend
+    for i in range(1, combo.count()):
+        assert cv2.videoio_registry.hasBackend(combo.itemData(i))

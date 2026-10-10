@@ -256,6 +256,7 @@ class OpenCVVideoCaptureWithSettings(BaseVideoCapture):
 
     With apply_video_settings (camera devices), the stored Video Settings are
     used when the device opens: its backend, then FOURCC, resolution and fps.
+    A stored backend that can't open the device falls back to the default one.
     When they change later (stored from the dialog, on the GUI thread) they are
     applied by the capture thread right before its next read(), so the GUI
     thread never reopens the device. release() stops following the settings.
@@ -309,11 +310,25 @@ class OpenCVVideoCaptureWithSettings(BaseVideoCapture):
             return self.default_backend
         return backend if backend != cv2.CAP_ANY else self.default_backend
 
-    def _open(self):
+    def _create_capture(self, backend):
         if self.params:
-            capture = cv2.VideoCapture(self.capture_id, self.backend, self.params)
-        else:
-            capture = cv2.VideoCapture(self.capture_id, self.backend)
+            return cv2.VideoCapture(self.capture_id, backend, self.params)
+        return cv2.VideoCapture(self.capture_id, backend)
+
+    def _open(self):
+        capture = self._create_capture(self.backend)
+        if not capture.isOpened() and self.backend != self.default_backend:
+            # e.g. a backend this OpenCV build doesn't have: falling back keeps
+            # the camera (and the Video Settings dialog, to undo the choice)
+            # usable
+            logger.warning(
+                "Unable to open capture %s with backend %s; using the default backend",
+                self.capture_id,
+                self.backend,
+            )
+            capture.release()
+            self.backend = self.default_backend
+            capture = self._create_capture(self.backend)
         if self.apply_video_settings and capture.isOpened():
             self._apply_settings(capture, opening=True)
         return capture

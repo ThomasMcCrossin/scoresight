@@ -447,6 +447,8 @@ class FakeVideoCapture:
     """Records how cv2.VideoCapture is used."""
 
     instances = []
+    # backends this "OpenCV build" doesn't have: opening with them fails
+    missing_backends = set()
 
     def __init__(self, capture_id, backend=cv2.CAP_ANY, params=None):
         self.capture_id = capture_id
@@ -462,7 +464,7 @@ class FakeVideoCapture:
         FakeVideoCapture.instances.append(self)
 
     def isOpened(self):
-        return True
+        return self.backend not in FakeVideoCapture.missing_backends
 
     def read(self):
         self.calls.append("read")
@@ -483,6 +485,7 @@ class FakeVideoCapture:
 @pytest.fixture
 def fake_video_capture(monkeypatch):
     FakeVideoCapture.instances = []
+    FakeVideoCapture.missing_backends = set()
     monkeypatch.setattr(cv2, "VideoCapture", FakeVideoCapture)
     return FakeVideoCapture
 
@@ -570,6 +573,57 @@ def test_a_backend_change_reopens_on_the_reading_thread(fake_video_capture):
     # with the settings re-applied
     assert (cv2.CAP_PROP_FRAME_WIDTH, 1280) in new.calls
     assert (cv2.CAP_PROP_FPS, 25.0) in new.calls
+
+
+def test_a_stored_backend_that_cannot_open_falls_back_to_the_default(
+    fake_video_capture,
+):
+    # e.g. Windows Runtime, which the pip OpenCV wheels don't have: the camera
+    # still opens, so the Video Settings dialog can undo the choice
+    fake_video_capture.missing_backends = {cv2.CAP_WINRT}
+    store_video_settings(width=1280, height=720, backend=cv2.CAP_WINRT)
+    capture = OpenCVVideoCaptureWithSettings(
+        0, cv2.CAP_DSHOW, apply_video_settings=True
+    )
+    failed, device = fake_video_capture.instances
+    assert failed.backend == cv2.CAP_WINRT and failed.released
+    assert device.backend == cv2.CAP_DSHOW
+    assert capture.isOpened()
+    assert (cv2.CAP_PROP_FRAME_WIDTH, 1280) in device.calls
+    # the stored choice is left for the user to change
+    assert storage.fetch_data("scoresight.json", "backend") == cv2.CAP_WINRT
+    capture.release()
+
+
+def test_a_backend_change_that_cannot_open_falls_back_to_the_default(
+    fake_video_capture,
+):
+    fake_video_capture.missing_backends = {cv2.CAP_MSMF}
+    capture = OpenCVVideoCaptureWithSettings(
+        0, cv2.CAP_DSHOW, apply_video_settings=True
+    )
+    store_video_settings(backend=cv2.CAP_MSMF)
+    ok, _ = capture.read()
+    assert ok and capture.isOpened()
+    original, failed, reopened = fake_video_capture.instances
+    assert original.released and failed.released
+    assert failed.backend == cv2.CAP_MSMF
+    assert reopened.backend == cv2.CAP_DSHOW and not reopened.released
+    # going back to Auto (the default) doesn't reopen it again
+    store_video_settings(backend=cv2.CAP_ANY)
+    capture.read()
+    assert len(fake_video_capture.instances) == 3
+    capture.release()
+
+
+def test_a_failed_open_with_the_default_backend_is_not_retried(fake_video_capture):
+    fake_video_capture.missing_backends = {cv2.CAP_DSHOW}
+    capture = OpenCVVideoCaptureWithSettings(
+        0, cv2.CAP_DSHOW, apply_video_settings=True
+    )
+    assert not capture.isOpened()
+    assert len(fake_video_capture.instances) == 1
+    capture.release()
 
 
 def test_release_stops_following_the_settings(fake_video_capture):
