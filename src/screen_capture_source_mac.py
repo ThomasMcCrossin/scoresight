@@ -1,5 +1,4 @@
 import Quartz
-import objc
 from Quartz.CoreGraphics import (
     CGImageGetWidth,
     CGImageGetHeight,

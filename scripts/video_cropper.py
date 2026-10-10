@@ -1,9 +1,6 @@
 import cv2
-import tkinter as tk
-from tkinter import filedialog
 import os
 import sys
-import os
 import uuid
 import numpy as np
 from tqdm import tqdm

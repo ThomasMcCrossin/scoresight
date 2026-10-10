@@ -3,7 +3,6 @@ import platform
 
 from PySide6.QtWidgets import QDialog
 from camera_thread import OpenCVVideoCaptureWithSettings
-from sc_logging import logger
 from ui_video_settings import Ui_Dialog as Ui_VideoSettingsDialog
 from storage import store_data
 
@@ -11,9 +10,9 @@ from storage import store_data
 def fourcc_to_str(fourcc):
     if fourcc == 0:
         return "NULL"
-    if type(fourcc) == str:
+    if isinstance(fourcc, str):
         return fourcc
-    if type(fourcc) != int:
+    if not isinstance(fourcc, int):
         fourcc = int(fourcc)
     return "".join([chr((fourcc >> 8 * i) & 0xFF) for i in range(4)])
 

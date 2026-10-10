@@ -37,7 +37,7 @@ def get_all_sources(obs_client: obs.ReqClient):
                 source["sceneName"] = scene["sceneName"]
                 sources.append(source)
         return sources
-    except Exception as e:
+    except Exception:
         logger.exception("Error: unable to get all sources")
         return None
 
@@ -61,7 +61,7 @@ def get_source_by_name(obs_client: obs.ReqClient, source_name):
             if source["sourceName"] == source_name:
                 return source
         return None
-    except Exception as e:
+    except Exception:
         logger.exception("Error: unable to get source by name")
         return None
 
@@ -73,7 +73,7 @@ def get_source_screenshot(obs_client: obs.ReqClient, source_name, width, height)
             source_name, img_format="png", width=width, height=height, quality=100
         )
         return resp.image_data
-    except Exception as e:
+    except Exception:
         logger.exception("Error: unable to get source screenshot")
         return None
 
@@ -83,7 +83,7 @@ def update_text_source(obs_client: obs.ReqClient, source_name, text) -> None:
     try:
         # get the source
         obs_client.set_input_settings(source_name, {"text": text}, True)
-    except Exception as e:
+    except Exception:
         logger.exception("Error: unable to update text source")
 
 
@@ -92,7 +92,7 @@ def clear_or_create_new_scene(obs_client: obs.ReqClient, scene_name) -> bool:
     try:
         # check if the scene exists
         resp = obs_client.get_scene_list()
-    except Exception as e:
+    except Exception:
         logger.exception("Error: unable to get scene list")
         return False
     scenes = resp.scenes
@@ -120,7 +120,7 @@ def clear_or_create_new_scene(obs_client: obs.ReqClient, scene_name) -> bool:
                 if scene["sceneName"] != scene_name:
                     obs_client.set_current_program_scene(scene["sceneName"])
                     break
-    except Exception as e:
+    except Exception:
         logger.exception("Cannot change OBS program scene")
 
     try:
@@ -131,7 +131,7 @@ def clear_or_create_new_scene(obs_client: obs.ReqClient, scene_name) -> bool:
                 if scene["sceneName"] != scene_name:
                     obs_client.set_current_preview_scene(scene["sceneName"])
                     break
-    except Exception as e:
+    except Exception:
         logger.exception("Cannot change OBS preview scene")
 
     # remove all scene items
@@ -140,7 +140,7 @@ def clear_or_create_new_scene(obs_client: obs.ReqClient, scene_name) -> bool:
         for scene_item in resp.scene_items:
             obs_client.remove_scene_item(scene_name, scene_item["sceneItemId"])
             obs_client.remove_input(scene_item["sourceName"])
-    except Exception as e:
+    except Exception:
         logger.exception("Error: unable to remove scene item")
 
     return True

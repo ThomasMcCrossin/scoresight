@@ -246,7 +246,7 @@ def stop_http_server():
         conn = http.client.HTTPConnection("localhost", PORT)
         conn.request("GET", "/shutdown")
         conn.close()
-    except Exception as e:
+    except Exception:
         pass
 
 

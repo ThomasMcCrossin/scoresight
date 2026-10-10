@@ -2,7 +2,6 @@ import os
 import sys
 import tkinter as tk
 from PIL import Image, ImageTk
-from tesserocr import PyTessBaseAPI
 
 
 class TextExtractor:

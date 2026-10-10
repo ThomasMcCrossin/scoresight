@@ -3,7 +3,6 @@ import tkinter as tk
 from PIL import Image, ImageTk
 import sys
 import uuid
-import sys
 
 
 class ImageCropper:

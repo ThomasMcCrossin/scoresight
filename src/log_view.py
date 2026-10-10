@@ -2,7 +2,6 @@ from os import path
 import platform
 from PySide6.QtWidgets import QDialog
 from PySide6.QtCore import QTimer
-from PySide6.QtUiTools import QUiLoader
 from sc_logging import log_file_path
 from ui_log_view import Ui_Dialog as Ui_LogViewerDialog
 from storage import store_data, fetch_data

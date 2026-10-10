@@ -2,7 +2,6 @@ import requests
 import json
 import csv
 import io
-from functools import partial
 import xml.etree.ElementTree as ET
 from urllib.parse import urlparse, urlencode
 import threading

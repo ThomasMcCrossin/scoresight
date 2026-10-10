@@ -8,7 +8,7 @@ import os
 import uuid
 
 from sc_logging import logger
-from text_detection_target import TextDetectionResult, TextDetectionTargetWithResult
+from text_detection_target import TextDetectionTargetWithResult
 from ui_ocr_training_data_dialog import Ui_OCRTrainingDataDialog
 from storage import fetch_data, store_data, subscribe_to_data
 

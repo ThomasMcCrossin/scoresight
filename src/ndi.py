@@ -5,11 +5,15 @@ from cyndilib.finder import Finder
 from cyndilib.receiver import Receiver, ReceiveFrameType
 from cyndilib.video_frame import VideoRecvFrame
 from cyndilib.metadata_frame import MetadataRecvFrame
-from cyndilib.locks import *
-from cyndilib.buffertypes import *
-from cyndilib.send_frame_status import *
-from cyndilib.callback import *
-from cyndilib.wrapper.ndi_send import *
+
+# None of their names are used here. They were star-imported, probably so that
+# PyInstaller (which can't see imports made from cyndilib's compiled code)
+# bundles these submodules; keep them as plain imports for that.
+import cyndilib.locks  # noqa: F401
+import cyndilib.buffertypes  # noqa: F401
+import cyndilib.send_frame_status  # noqa: F401
+import cyndilib.callback  # noqa: F401
+import cyndilib.wrapper.ndi_send  # noqa: F401
 import numpy as np
 
 from base_video_capture import BaseVideoCapture

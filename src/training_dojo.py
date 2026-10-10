@@ -4,7 +4,6 @@ from PySide6.QtWidgets import (
     QDialog,
     QListWidgetItem,
     QLabel,
-    QVBoxLayout,
     QLineEdit,
     QSizePolicy,
 )
@@ -87,33 +86,6 @@ class TrainingDojo(QDialog):
         tracking_file = os.path.join(self.folder_path, "approved_annotations.json")
         with open(tracking_file, "w") as f:
             json.dump(self.approved_annotations, f)
-
-    def load_files(self):
-        self.ui.listWidget_files.clear()  # Clear existing items
-        approved_items = []
-        unapproved_items = []
-        for file in os.listdir(self.folder_path):
-            if file.endswith(".png"):
-                base_name = os.path.splitext(file)[0]
-                if os.path.exists(os.path.join(self.folder_path, f"{base_name}.txt")):
-                    self.image_files.append(base_name)
-                    item = QListWidgetItem(base_name)
-                    if base_name in self.approved_annotations:
-                        item.setForeground(QBrush(QColor("green")))
-                        item.setText(f"✓ {base_name}")
-                        approved_items.append(item)
-                    else:
-                        unapproved_items.append(item)
-
-        # Add approved items first, then unapproved items
-        for item in approved_items:
-            self.ui.listWidget_files.addItem(item)
-        for item in unapproved_items:
-            self.ui.listWidget_files.addItem(item)
-
-        if self.image_files:
-            self.current_index = 0
-            self.load_current_item()
 
     def setup_connections(self):
         self.ui.listWidget_files.itemClicked.connect(self.load_selected_item)

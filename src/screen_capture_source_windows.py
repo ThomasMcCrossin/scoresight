@@ -1,6 +1,5 @@
 import cv2
 import numpy as np
-import numpy as np
 import win32gui
 import win32ui
 import win32con
@@ -29,7 +28,7 @@ class ScreenCaptureWindows:
         self.capture_whole_screen = (
             window_name is None
             or window_name == ""
-            or (type(window_name) == int and window_name < 0)
+            or (isinstance(window_name, int) and window_name < 0)
         )
 
         self.hwnd = 0
@@ -56,7 +55,7 @@ class ScreenCaptureWindows:
             return
         self.saveDC = self.mfcDC.CreateCompatibleDC()
         if self.saveDC is None:
-            logger.error(f"Error creating compatible memory device context for window")
+            logger.error("Error creating compatible memory device context for window")
             return
 
     def isOpened(self):
@@ -67,7 +66,7 @@ class ScreenCaptureWindows:
             self.saveDC.DeleteDC()
             self.mfcDC.DeleteDC()
             win32gui.ReleaseDC(self.hwnd, self.hwndDC)
-        except:
+        except Exception:
             logger.exception("Error releasing screen capture resources")
 
     def read(self):
@@ -94,7 +93,7 @@ class ScreenCaptureWindows:
         # Create a bitmap object
         saveBitMap = win32ui.CreateBitmap()
         if saveBitMap is None:
-            logger.error(f"Error creating bitmap for window")
+            logger.error("Error creating bitmap for window")
             return False, None
 
         saveBitMap.CreateCompatibleBitmap(self.mfcDC, width, height)

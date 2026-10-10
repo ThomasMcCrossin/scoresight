@@ -4,6 +4,9 @@
 [tool.ruff]
 target-version = "py313"
 line-length = 88
+# Python files only: ruff 0.17 would otherwise also format the Python code
+# blocks embedded in the Markdown docs.
+include = ["*.py", "*.pyi", "**/pyproject.toml"]
 # Generated Qt Designer modules (regenerate with scripts/compile_ui.py) and
 # agent/IDE worktrees nested inside the repo.
 extend-exclude = ["src/ui_*.py", ".claude"]

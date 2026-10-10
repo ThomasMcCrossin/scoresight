@@ -254,7 +254,7 @@ class MainWindow(QMainWindow):
         self.ui.comboBox_ocrModel.addItems(ocr_models)
         # default to General Scoreboard
         ocr_model_from_storage = fetch_data("scoresight.json", "ocr_model", 1)
-        if type(ocr_model_from_storage) == str:
+        if isinstance(ocr_model_from_storage, str):
             ocr_model_from_storage = 4
         self.ui.comboBox_ocrModel.setCurrentIndex(ocr_model_from_storage)
 
@@ -282,7 +282,7 @@ class MainWindow(QMainWindow):
         )
         box_display_style = fetch_data("scoresight.json", "box_display_style", 3)
         self.ui.comboBox_boxDisplayStyle.setCurrentIndex(
-            box_display_style if type(box_display_style) == int else 3
+            box_display_style if isinstance(box_display_style, int) else 3
         )
 
         self.ui.checkBox_updateOnchange.toggled.connect(self.toggleUpdateOnChange)
@@ -552,10 +552,10 @@ class MainWindow(QMainWindow):
             file = path.abspath(file)
             self.globalSettingsChanged("ocr_model", file)
             ocrModel = file
-        elif type(index) == int:
+        elif isinstance(index, int):
             self.globalSettingsChanged("ocr_model", index)
             ocrModel = index
-        elif type(index) == str:
+        elif isinstance(index, str):
             # check if the index is a valid existing file
             if path.exists(index):
                 self.globalSettingsChanged("ocr_model", index)
@@ -791,7 +791,7 @@ class MainWindow(QMainWindow):
         self.ui.frame_source_view.setEnabled(True)
 
         selected_source_from_storage = fetch_data("scoresight.json", "source_selected")
-        if type(selected_source_from_storage) == str:
+        if isinstance(selected_source_from_storage, str):
             logger.info(
                 "Source selected from storage: %s", selected_source_from_storage
             )

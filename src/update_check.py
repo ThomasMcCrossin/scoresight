@@ -6,7 +6,6 @@ from io import StringIO
 from resource_path import resource_path
 from sc_logging import logger
 from storage import fetch_data, store_data
-from os import path
 from PySide6.QtWidgets import QDialog
 from PySide6.QtUiTools import QUiLoader
 
