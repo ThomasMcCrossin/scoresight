@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>963</width>
-    <height>718</height>
+    <width>1180</width>
+    <height>700</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,19 +15,76 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="horizontalLayout_31">
+    <property name="leftMargin">
+     <number>6</number>
+    </property>
     <property name="topMargin">
      <number>0</number>
     </property>
+    <property name="rightMargin">
+     <number>6</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
     <item>
-     <widget class="QFrame" name="frame">
+     <widget class="QSplitter" name="splitter_main">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="childrenCollapsible">
+       <bool>false</bool>
+      </property>
+      <widget class="QWidget" name="widget_leftPane" native="true">
+       <layout class="QVBoxLayout" name="verticalLayout_leftPane">
+        <property name="spacing">
+         <number>4</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QPushButton" name="pushButton_stopUpdates">
+          <property name="toolTip">
+           <string>Freeze every output (text files, HTTP server, OBS, vMix, UNO, API) at its current values, for example during a timeout or a replay. The readings in this window keep updating.</string>
+          </property>
+          <property name="text">
+           <string>Pause outputs</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QScrollArea" name="scrollArea_left">
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
+          <property name="horizontalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOff</enum>
+          </property>
+          <property name="widgetResizable">
+           <bool>true</bool>
+          </property>
+          <widget class="QFrame" name="frame">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
       <property name="frameShape">
-       <enum>QFrame::StyledPanel</enum>
+       <enum>QFrame::NoFrame</enum>
       </property>
       <property name="frameShadow">
        <enum>QFrame::Plain</enum>
@@ -35,16 +92,28 @@
       <property name="lineWidth">
        <number>0</number>
       </property>
-      <layout class="QVBoxLayout" name="_2">
+      <layout class="QVBoxLayout" name="_2" stretch="1,0,0">
        <property name="spacing">
         <number>3</number>
+       </property>
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>4</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
        </property>
        <item>
         <widget class="QWidget" name="groupBox_sb_info" native="true">
          <property name="enabled">
           <bool>false</bool>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_3">
+         <layout class="QVBoxLayout" name="verticalLayout_3" stretch="1,0,0,0,0">
           <property name="spacing">
            <number>4</number>
           </property>
@@ -80,11 +149,23 @@
              </property>
              <item>
               <widget class="QTableWidget" name="tableWidget_boxes">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                 <horstretch>0</horstretch>
+                 <verstretch>1</verstretch>
+                </sizepolicy>
+               </property>
                <property name="minimumSize">
                 <size>
                  <width>0</width>
                  <height>100</height>
                 </size>
+               </property>
+               <property name="toolTip">
+                <string>The fields and their latest values. Click a field to select its box; double-click a custom field to rename it.</string>
+               </property>
+               <property name="accessibleName">
+                <string>Fields and readings</string>
                </property>
                <property name="horizontalScrollBarPolicy">
                 <enum>Qt::ScrollBarAlwaysOff</enum>
@@ -125,7 +206,7 @@
                </column>
               </widget>
              </item>
-             <item alignment="Qt::AlignHCenter">
+             <item alignment="Qt::AlignHCenter|Qt::AlignTop">
               <widget class="QWidget" name="widget_8" native="true">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
@@ -160,6 +241,12 @@
                     <height>0</height>
                    </size>
                   </property>
+                  <property name="toolTip">
+                   <string>Add a custom field</string>
+                  </property>
+                  <property name="accessibleName">
+                   <string>Add a custom field</string>
+                  </property>
                   <property name="font">
                    <font>
                     <pointsize>14</pointsize>
@@ -178,6 +265,12 @@
                     <width>27</width>
                     <height>0</height>
                    </size>
+                  </property>
+                  <property name="toolTip">
+                   <string>Remove the selected custom field (the standard fields can't be removed)</string>
+                  </property>
+                  <property name="accessibleName">
+                   <string>Remove the selected custom field</string>
                   </property>
                   <property name="font">
                    <font>
@@ -219,6 +312,9 @@
                <property name="enabled">
                 <bool>false</bool>
                </property>
+               <property name="toolTip">
+                <string>Put the selected field's box on the picture, then move it over the value</string>
+               </property>
                <property name="text">
                 <string>Add to Scene -&gt;</string>
                </property>
@@ -228,6 +324,9 @@
               <widget class="QPushButton" name="pushButton_removeBox">
                <property name="enabled">
                 <bool>false</bool>
+               </property>
+               <property name="toolTip">
+                <string>Take the selected field's box off the picture. Its settings go back to the defaults the next time it's added.</string>
                </property>
                <property name="text">
                 <string>Remove Selected</string>
@@ -257,6 +356,9 @@
              </property>
              <item row="0" column="3">
               <widget class="QPushButton" name="pushButton_restoreDefaults">
+               <property name="toolTip">
+                <string>Restore all settings of the selected box to the defaults for its field</string>
+               </property>
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -270,6 +372,9 @@
              </item>
              <item row="3" column="2">
               <widget class="QCheckBox" name="checkBox_smoothing">
+               <property name="toolTip">
+                <string>Show the most common of the box's last 5 accepted readings, to steady a value that flickers. Delays changes by a couple of detection cycles.</string>
+               </property>
                <property name="text">
                 <string>Average Output</string>
                </property>
@@ -298,6 +403,9 @@
                 </property>
                 <item>
                  <widget class="QLabel" name="label_binarizationMethod">
+                  <property name="toolTip">
+                   <string>How the box is turned into black and white before OCR</string>
+                  </property>
                   <property name="text">
                    <string>Binarize</string>
                   </property>
@@ -305,6 +413,12 @@
                 </item>
                 <item>
                  <widget class="QComboBox" name="comboBox_binarizationMethod">
+                  <property name="accessibleName">
+                   <string>Binarize</string>
+                  </property>
+                  <property name="toolTip">
+                   <string>How the box is turned into black and white before OCR. Global: one threshold for the whole picture. No Binarization: the grayscale image. Local: a threshold for this box only. Adaptive: a threshold that varies across the box, for uneven lighting.</string>
+                  </property>
                   <item>
                    <property name="text">
                     <string>Global</string>
@@ -332,6 +446,12 @@
              </item>
              <item row="1" column="3">
               <widget class="QComboBox" name="comboBox_formatPrefix">
+               <property name="accessibleName">
+                <string>Format preset</string>
+               </property>
+               <property name="toolTip">
+                <string>Fill in the Format with a preset expression</string>
+               </property>
                <property name="currentIndex">
                 <number>0</number>
                </property>
@@ -435,6 +555,9 @@
                 </property>
                 <item>
                  <widget class="QLabel" name="label_13">
+                  <property name="toolTip">
+                   <string>Which characters the OCR may output</string>
+                  </property>
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
                     <horstretch>0</horstretch>
@@ -448,6 +571,12 @@
                 </item>
                 <item>
                  <widget class="QComboBox" name="comboBox_fieldType">
+                  <property name="accessibleName">
+                   <string>Type</string>
+                  </property>
+                  <property name="toolTip">
+                   <string>Which characters the OCR may output. Choose the narrowest: Number for scores, Time for clocks, Text only for words.</string>
+                  </property>
                   <item>
                    <property name="text">
                     <string>Number 0-9</string>
@@ -485,6 +614,9 @@
                 </property>
                 <item>
                  <widget class="QLabel" name="label_4">
+                  <property name="toolTip">
+                   <string>Remove specks smaller than a share of the box area (0 = off)</string>
+                  </property>
                   <property name="text">
                    <string>Cleanup</string>
                   </property>
@@ -492,8 +624,21 @@
                 </item>
                 <item>
                  <widget class="QSlider" name="horizontalSlider_cleanup">
+                  <property name="accessibleName">
+                   <string>Cleanup</string>
+                  </property>
+                  <property name="toolTip">
+                   <string>Remove specks smaller than a share of the box area (0 = off). Too high a value erases thin digits such as 1.</string>
+                  </property>
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="label_cleanupValue">
+                  <property name="alignment">
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                   </property>
                  </widget>
                 </item>
@@ -502,6 +647,9 @@
              </item>
              <item row="3" column="3">
               <widget class="QCheckBox" name="checkBox_ordinalIndicator">
+               <property name="toolTip">
+                <string>Add an ordinal suffix: 1 becomes 1st, 2 becomes 2nd</string>
+               </property>
                <property name="text">
                 <string>Ordinal (1st, 2nd, ..)</string>
                </property>
@@ -509,6 +657,9 @@
              </item>
              <item row="4" column="2">
               <widget class="QCheckBox" name="checkBox_skip_empty">
+               <property name="toolTip">
+                <string>Never write an empty value to the box's text file or OBS text source</string>
+               </property>
                <property name="text">
                 <string>Skip Empty Values</string>
                </property>
@@ -572,6 +723,9 @@
              </item>
              <item row="9" column="3">
               <widget class="QCheckBox" name="checkBox_compositeBox">
+               <property name="toolTip">
+                <string>Experimental: draw one sub-box per character with the green + in the box. Recognition still reads the whole box.</string>
+               </property>
                <property name="text">
                 <string>Composite (Per-Character)</string>
                </property>
@@ -604,6 +758,9 @@
                 </item>
                 <item>
                  <widget class="QSlider" name="horizontalSlider_conf_thresh">
+                  <property name="accessibleName">
+                   <string>Confidence threshold</string>
+                  </property>
                   <property name="toolTip">
                    <string>Minimum OCR confidence in % (0-99): Tesseract's confidence in the reading. A reading below it is rejected (yellow, FailedFilter). 0 turns the check off.</string>
                   </property>
@@ -615,6 +772,13 @@
                   </property>
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="label_confThreshValue">
+                  <property name="alignment">
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                   </property>
                  </widget>
                 </item>
@@ -633,6 +797,9 @@
              </item>
              <item row="6" column="3">
               <widget class="QCheckBox" name="checkBox_invertPatch">
+               <property name="toolTip">
+                <string>Swap black and white before OCR, for dark digits on a light background</string>
+               </property>
                <property name="text">
                 <string>Invert Input</string>
                </property>
@@ -640,6 +807,9 @@
              </item>
              <item row="4" column="3">
               <widget class="QCheckBox" name="checkBox_skip_similar_image">
+               <property name="toolTip">
+                <string>Skip OCR while the box's image hasn't changed since its last accepted reading, and repeat that value. Saves CPU on values that change rarely.</string>
+               </property>
                <property name="text">
                 <string>Skip Similar Image</string>
                </property>
@@ -668,13 +838,23 @@
                 </property>
                 <item>
                  <widget class="QLabel" name="label_2">
+                  <property name="toolTip">
+                   <string>A regular expression the raw reading must match completely</string>
+                  </property>
                   <property name="text">
                    <string>Format</string>
                   </property>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QLineEdit" name="lineEdit_format"/>
+                 <widget class="QLineEdit" name="lineEdit_format">
+                  <property name="accessibleName">
+                   <string>Format</string>
+                  </property>
+                  <property name="toolTip">
+                   <string>A regular expression the raw reading must match completely, or it's rejected. Pick a preset on the right or type your own.</string>
+                  </property>
+                 </widget>
                 </item>
                </layout>
               </widget>
@@ -696,6 +876,9 @@
                 </property>
                 <item>
                  <widget class="QLabel" name="label_9">
+                  <property name="toolTip">
+                   <string>Thicken the bright strokes (0 = off)</string>
+                  </property>
                   <property name="text">
                    <string>Dilate</string>
                   </property>
@@ -703,6 +886,12 @@
                 </item>
                 <item>
                  <widget class="QSlider" name="horizontalSlider_dilate">
+                  <property name="accessibleName">
+                   <string>Dilate</string>
+                  </property>
+                  <property name="toolTip">
+                   <string>Thicken the bright strokes by this many passes (0 = off). Raise it when the segments of 7-segment digits don't touch; lower it when digits merge.</string>
+                  </property>
                   <property name="maximum">
                    <number>5</number>
                   </property>
@@ -714,11 +903,21 @@
                   </property>
                  </widget>
                 </item>
+                <item>
+                 <widget class="QLabel" name="label_dilateValue">
+                  <property name="alignment">
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
                </layout>
               </widget>
              </item>
              <item row="6" column="2">
               <widget class="QCheckBox" name="checkBox_autocrop">
+               <property name="toolTip">
+                <string>Crop the box to the area with bright pixels, plus a margin, before OCR</string>
+               </property>
                <property name="text">
                 <string>Auto Crop</string>
                </property>
@@ -726,6 +925,9 @@
              </item>
              <item row="7" column="2">
               <widget class="QCheckBox" name="checkBox_removeLeadingZeros">
+               <property name="toolTip">
+                <string>Remove zeros at the start: 07 becomes 7</string>
+               </property>
                <property name="text">
                 <string>Remove leading 0s</string>
                </property>
@@ -758,6 +960,9 @@
                 </property>
                 <item>
                  <widget class="QLabel" name="label_15">
+                  <property name="toolTip">
+                   <string>Squash the box vertically (100 % = unchanged)</string>
+                  </property>
                   <property name="text">
                    <string>V.Scale</string>
                   </property>
@@ -765,6 +970,12 @@
                 </item>
                 <item>
                  <widget class="QSlider" name="horizontalSlider_vscale">
+                  <property name="accessibleName">
+                   <string>Vertical scale</string>
+                  </property>
+                  <property name="toolTip">
+                   <string>Squash the box vertically (100 % = unchanged), for very tall, narrow fonts</string>
+                  </property>
                   <property name="minimum">
                    <number>1</number>
                   </property>
@@ -779,6 +990,13 @@
                   </property>
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="label_vscaleValue">
+                  <property name="alignment">
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                   </property>
                  </widget>
                 </item>
@@ -802,6 +1020,9 @@
                 </property>
                 <item>
                  <widget class="QLabel" name="label_14">
+                  <property name="toolTip">
+                   <string>Shear the image to straighten slanted digits (0 = off)</string>
+                  </property>
                   <property name="text">
                    <string>Skew</string>
                   </property>
@@ -809,6 +1030,12 @@
                 </item>
                 <item>
                  <widget class="QSlider" name="horizontalSlider_skew">
+                  <property name="accessibleName">
+                   <string>Skew</string>
+                  </property>
+                  <property name="toolTip">
+                   <string>Shear the image horizontally to straighten slanted (italic) digits (0 = off)</string>
+                  </property>
                   <property name="minimum">
                    <number>-10</number>
                   </property>
@@ -817,6 +1044,13 @@
                   </property>
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="label_skewValue">
+                  <property name="alignment">
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                   </property>
                  </widget>
                 </item>
@@ -853,6 +1087,12 @@
              </item>
              <item>
               <widget class="QLineEdit" name="lineEdit_templatefield">
+               <property name="accessibleName">
+                <string>Template</string>
+               </property>
+               <property name="toolTip">
+                <string>The template text, with the fields in double braces, for example {{Home Score}} - {{Away Score}}</string>
+               </property>
                <property name="text">
                 <string notr="true"/>
                </property>
@@ -881,6 +1121,9 @@
              </property>
              <item>
               <widget class="QLabel" name="label_10">
+               <property name="toolTip">
+                <string>The OCR model that reads every box</string>
+               </property>
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
                  <horstretch>0</horstretch>
@@ -893,7 +1136,14 @@
               </widget>
              </item>
              <item>
-              <widget class="QComboBox" name="comboBox_ocrModel"/>
+              <widget class="QComboBox" name="comboBox_ocrModel">
+               <property name="accessibleName">
+                <string>OCR model</string>
+               </property>
+               <property name="toolTip">
+                <string>The OCR model that reads every box, not only the selected one. Load External OCR Model reads a Tesseract .traineddata file.</string>
+               </property>
+              </widget>
              </item>
             </layout>
            </widget>
@@ -928,6 +1178,9 @@
           </property>
           <attribute name="title">
            <string>Text Files</string>
+          </attribute>
+          <attribute name="toolTip">
+           <string>Write the readings to .txt, .csv and .xml files</string>
           </attribute>
           <layout class="QFormLayout" name="formLayout_2">
            <property name="fieldGrowthPolicy">
@@ -969,6 +1222,9 @@
               </property>
               <item>
                <widget class="QLineEdit" name="lineEdit_folder">
+                <property name="toolTip">
+                 <string>The folder the text files are written to</string>
+                </property>
                 <property name="readOnly">
                  <bool>true</bool>
                 </property>
@@ -976,6 +1232,9 @@
               </item>
               <item>
                <widget class="QToolButton" name="pushButton_selectFolder">
+                <property name="toolTip">
+                 <string>Choose the output folder</string>
+                </property>
                 <property name="text">
                  <string>Open</string>
                 </property>
@@ -983,6 +1242,9 @@
               </item>
               <item>
                <widget class="QToolButton" name="toolButton_trashFolder">
+                <property name="toolTip">
+                 <string>Stop writing files (forget the folder)</string>
+                </property>
                 <property name="text">
                  <string>Clear</string>
                 </property>
@@ -999,7 +1261,7 @@
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
-             <layout class="QHBoxLayout" name="horizontalLayout_14">
+             <layout class="QVBoxLayout" name="horizontalLayout_14">
               <property name="leftMargin">
                <number>0</number>
               </property>
@@ -1014,6 +1276,9 @@
               </property>
               <item>
                <widget class="QCheckBox" name="checkBox_saveCsv">
+                <property name="toolTip">
+                 <string>Also write results.csv: a timestamp and a column per field</string>
+                </property>
                 <property name="text">
                  <string>Save .csv file</string>
                 </property>
@@ -1021,6 +1286,9 @@
               </item>
               <item>
                <widget class="QCheckBox" name="checkBox_saveXML">
+                <property name="toolTip">
+                 <string>Also write results.xml: every field with its name, text, state and position</string>
+                </property>
                 <property name="text">
                  <string>Save .xml file</string>
                 </property>
@@ -1031,6 +1299,9 @@
            </item>
            <item row="2" column="0">
             <widget class="QLabel" name="label_append">
+             <property name="toolTip">
+              <string>Add each new value to a log, or keep only the latest values</string>
+             </property>
              <property name="text">
               <string>Append</string>
              </property>
@@ -1038,6 +1309,9 @@
            </item>
            <item row="2" column="1">
             <widget class="QComboBox" name="comboBox_appendMethod">
+             <property name="toolTip">
+              <string>Add each new value to a log (results.csv, the .txt files or both), or keep only the latest values</string>
+             </property>
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -1077,25 +1351,56 @@
             </widget>
            </item>
            <item row="3" column="1">
-            <widget class="QSlider" name="horizontalSlider_aggsPerSecond">
-             <property name="minimum">
-              <number>1</number>
-             </property>
-             <property name="maximum">
-              <number>10</number>
-             </property>
-             <property name="pageStep">
-              <number>1</number>
-             </property>
-             <property name="value">
-              <number>5</number>
-             </property>
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="tickPosition">
-              <enum>QSlider::TicksBelow</enum>
-             </property>
+            <widget class="QWidget" name="widget_aggsPerSecond" native="true">
+             <layout class="QHBoxLayout" name="horizontalLayout_aggsPerSecond">
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
+              <item>
+               <widget class="QSlider" name="horizontalSlider_aggsPerSecond">
+                <property name="accessibleName">
+                 <string>File saves per second</string>
+                </property>
+                <property name="toolTip">
+                 <string>How many times per second the files are written (1-10). Affects only the files.</string>
+                </property>
+                <property name="minimum">
+                 <number>1</number>
+                </property>
+                <property name="maximum">
+                 <number>10</number>
+                </property>
+                <property name="pageStep">
+                 <number>1</number>
+                </property>
+                <property name="value">
+                 <number>5</number>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="tickPosition">
+                 <enum>QSlider::TicksBelow</enum>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_aggsPerSecondValue">
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </widget>
            </item>
            <item row="4" column="1">
@@ -1117,6 +1422,9 @@
           <attribute name="title">
            <string>Browser</string>
           </attribute>
+          <attribute name="toolTip">
+           <string>The built-in HTTP server: a scoreboard page, JSON, XML and CSV</string>
+          </attribute>
           <layout class="QVBoxLayout" name="verticalLayout_4">
            <item alignment="Qt::AlignTop">
             <widget class="QLabel" name="label_8">
@@ -1125,6 +1433,9 @@
              </property>
              <property name="textFormat">
               <enum>Qt::RichText</enum>
+             </property>
+             <property name="wordWrap">
+              <bool>true</bool>
              </property>
              <property name="openExternalLinks">
               <bool>true</bool>
@@ -1140,12 +1451,18 @@
           <attribute name="title">
            <string>OBS</string>
           </attribute>
+          <attribute name="toolTip">
+           <string>Update text sources in OBS Studio</string>
+          </attribute>
           <layout class="QGridLayout" name="gridLayout_2">
            <property name="verticalSpacing">
             <number>2</number>
            </property>
            <item row="0" column="0">
             <widget class="QPushButton" name="pushButton_connectObs">
+             <property name="toolTip">
+              <string>Connect to the WebSocket server of OBS Studio</string>
+             </property>
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -1168,6 +1485,9 @@
              <layout class="QHBoxLayout" name="horizontalLayout_22">
               <item>
                <widget class="QLineEdit" name="lineEdit_sceneName">
+                <property name="toolTip">
+                 <string>The name of the scene Create OBS Scene makes</string>
+                </property>
                 <property name="enabled">
                  <bool>false</bool>
                 </property>
@@ -1178,6 +1498,9 @@
               </item>
               <item>
                <widget class="QPushButton" name="pushButton_createOBSScene">
+                <property name="toolTip">
+                 <string>Create a scene in OBS with a text source for each standard field</string>
+                </property>
                 <property name="enabled">
                  <bool>false</bool>
                 </property>
@@ -1208,12 +1531,18 @@
           <attribute name="title">
            <string>VMix</string>
           </attribute>
+          <attribute name="toolTip">
+           <string>Update a title in vMix</string>
+          </attribute>
           <layout class="QGridLayout" name="gridLayout_3">
            <property name="verticalSpacing">
             <number>2</number>
            </property>
            <item row="1" column="0">
             <widget class="QTableView" name="tableView_vmixMapping">
+             <property name="toolTip">
+              <string>Each field and the vMix title field it updates. Edit the right column.</string>
+             </property>
              <attribute name="horizontalHeaderVisible">
               <bool>false</bool>
              </attribute>
@@ -1263,6 +1592,12 @@
                 </item>
                 <item>
                  <widget class="QLineEdit" name="lineEdit_vmixHost">
+                  <property name="accessibleName">
+                   <string>vMix host</string>
+                  </property>
+                  <property name="toolTip">
+                   <string>The address of the vMix computer (localhost if vMix runs on this computer)</string>
+                  </property>
                   <property name="text">
                    <string notr="true">localhost</string>
                   </property>
@@ -1277,6 +1612,12 @@
                 </item>
                 <item>
                  <widget class="QLineEdit" name="lineEdit_vmixPort">
+                  <property name="accessibleName">
+                   <string>vMix port</string>
+                  </property>
+                  <property name="toolTip">
+                   <string>The port of the vMix Web API (8088 by default; not 8099)</string>
+                  </property>
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                     <horstretch>0</horstretch>
@@ -1296,6 +1637,12 @@
                 </item>
                 <item>
                  <widget class="QPushButton" name="pushButton_startvmix">
+                  <property name="accessibleName">
+                   <string>Start or stop vMix</string>
+                  </property>
+                  <property name="toolTip">
+                   <string>Start or stop sending the readings to vMix</string>
+                  </property>
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                     <horstretch>0</horstretch>
@@ -1303,7 +1650,7 @@
                    </sizepolicy>
                   </property>
                   <property name="text">
-                   <string>Start</string>
+                   <string>Start vMix</string>
                   </property>
                   <property name="checkable">
                    <bool>true</bool>
@@ -1346,6 +1693,12 @@
                 </item>
                 <item>
                  <widget class="QLineEdit" name="inputLineEdit_vmix">
+                  <property name="accessibleName">
+                   <string>vMix input</string>
+                  </property>
+                  <property name="toolTip">
+                   <string>The vMix input (number or name) of the title to update</string>
+                  </property>
                   <property name="text">
                    <string notr="true">1</string>
                   </property>
@@ -1371,6 +1724,9 @@
          <widget class="QWidget" name="tab_uno">
           <attribute name="title">
            <string>UNO</string>
+          </attribute>
+          <attribute name="toolTip">
+           <string>Drive an overlays.uno control app</string>
           </attribute>
           <layout class="QGridLayout" name="gridLayout_5">
            <item row="0" column="0">
@@ -1418,6 +1774,12 @@
                  </item>
                  <item>
                   <widget class="QLineEdit" name="lineEdit_unoUrl">
+                   <property name="accessibleName">
+                    <string>UNO URL</string>
+                   </property>
+                   <property name="toolTip">
+                    <string>The API URL of the overlays.uno control app. Treat it like a password.</string>
+                   </property>
                    <property name="text">
                     <string notr="true">https://app.overlays.uno/apiv2/controlapps/.../api</string>
                    </property>
@@ -1425,8 +1787,14 @@
                  </item>
                  <item>
                   <widget class="QToolButton" name="toolButton_toggleUno">
+                   <property name="accessibleName">
+                    <string>Start or stop UNO</string>
+                   </property>
+                   <property name="toolTip">
+                    <string>Start or stop sending the readings to UNO</string>
+                   </property>
                    <property name="text">
-                    <string>▶️</string>
+                    <string>Start sending</string>
                    </property>
                    <property name="checkable">
                     <bool>true</bool>
@@ -1475,6 +1843,9 @@
                  </item>
                  <item>
                   <widget class="QCheckBox" name="checkBox_uno_essentials">
+                   <property name="toolTip">
+                    <string>The overlay uses UNO Essentials content fields</string>
+                   </property>
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                      <horstretch>0</horstretch>
@@ -1519,6 +1890,9 @@
                  </item>
                  <item>
                   <widget class="QLineEdit" name="lineEdit_uno_essentials_id">
+                   <property name="toolTip">
+                    <string>The ID (UUID) of the Essentials overlay</string>
+                   </property>
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                      <horstretch>0</horstretch>
@@ -1541,6 +1915,9 @@
            </item>
            <item row="2" column="0">
             <widget class="QTableView" name="tableView_unoMapping">
+             <property name="toolTip">
+              <string>Each field and the UNO command (or Essentials field ID) it drives. Edit the right column.</string>
+             </property>
              <attribute name="horizontalHeaderVisible">
               <bool>false</bool>
              </attribute>
@@ -1555,6 +1932,9 @@
           <attribute name="title">
            <string>API</string>
           </attribute>
+          <attribute name="toolTip">
+           <string>Send the readings to a URL (outbound HTTP API)</string>
+          </attribute>
           <layout class="QFormLayout" name="formLayout_3">
            <property name="fieldGrowthPolicy">
             <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
@@ -1564,6 +1944,9 @@
            </property>
            <item row="0" column="1">
             <widget class="QCheckBox" name="checkBox_enableOutAPI">
+             <property name="toolTip">
+              <string>Send the readings to the URL below on every detection cycle</string>
+             </property>
              <property name="text">
               <string>Send out API requests to external services.</string>
              </property>
@@ -1578,6 +1961,9 @@
            </item>
            <item row="4" column="1">
             <widget class="QComboBox" name="comboBox_api_encode">
+             <property name="toolTip">
+              <string>The format of the readings in the requests</string>
+             </property>
              <item>
               <property name="text">
                <string>JSON (Full)</string>
@@ -1633,6 +2019,12 @@
               </property>
               <item>
                <widget class="QLineEdit" name="lineEdit_api_url">
+                <property name="accessibleName">
+                 <string>API URL</string>
+                </property>
+                <property name="toolTip">
+                 <string>The URL the readings are sent to</string>
+                </property>
                 <property name="placeholderText">
                  <string>http://</string>
                 </property>
@@ -1640,6 +2032,9 @@
               </item>
               <item>
                <widget class="QComboBox" name="comboBox_outApiMethod">
+                <property name="toolTip">
+                 <string>The HTTP method of the requests</string>
+                </property>
                 <property name="maximumSize">
                  <size>
                   <width>50</width>
@@ -1677,22 +2072,10 @@
          </widget>
         </widget>
        </item>
-       <item>
-        <widget class="QPushButton" name="pushButton_stopUpdates">
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Stop Updates</string>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
+      </layout>
+     </widget>
+         </widget>
+        </item>
        <item>
         <widget class="QWidget" name="widget_detectionCadence" native="true">
          <layout class="QHBoxLayout" name="horizontalLayout_9">
@@ -1710,6 +2093,9 @@
           </property>
           <item>
            <widget class="QLabel" name="label_detectionCadence">
+            <property name="toolTip">
+             <string>How many times per second the boxes are read</string>
+            </property>
             <property name="text">
              <string>Detections / s</string>
             </property>
@@ -1717,6 +2103,12 @@
           </item>
           <item>
            <widget class="QSlider" name="horizontalSlider_detectionCadence">
+            <property name="accessibleName">
+             <string>Detections per second</string>
+            </property>
+            <property name="toolTip">
+             <string>How many times per second the boxes are read (1-15). Higher values use more CPU; 5 suits most clocks.</string>
+            </property>
             <property name="minimum">
              <number>1</number>
             </property>
@@ -1747,6 +2139,13 @@
            </widget>
           </item>
           <item>
+           <widget class="QLabel" name="label_detectionCadenceValue">
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QCheckBox" name="checkBox_updateOnchange">
             <property name="toolTip">
              <string>Only send an update if the field value has changed</string>
@@ -1764,15 +2163,13 @@
        </item>
       </layout>
      </widget>
-    </item>
-    <item>
      <widget class="QFrame" name="frame_source_view">
       <property name="enabled">
        <bool>true</bool>
       </property>
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-        <horstretch>0</horstretch>
+        <horstretch>1</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
@@ -1785,6 +2182,18 @@
       <layout class="QVBoxLayout" name="_3">
        <property name="spacing">
         <number>0</number>
+       </property>
+       <property name="leftMargin">
+        <number>4</number>
+       </property>
+       <property name="topMargin">
+        <number>4</number>
+       </property>
+       <property name="rightMargin">
+        <number>4</number>
+       </property>
+       <property name="bottomMargin">
+        <number>4</number>
        </property>
        <item>
         <widget class="QWidget" name="widget_4" native="true">
@@ -1837,11 +2246,23 @@
              </item>
              <item>
               <widget class="QComboBox" name="comboBox_camera_source">
+               <property name="accessibleName">
+                <string>Source</string>
+               </property>
+               <property name="toolTip">
+                <string>The video source: a camera, capture card or NDI source, a video file, a stream URL or a screen capture</string>
+               </property>
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>1</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
+               </property>
+               <property name="sizeAdjustPolicy">
+                <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
+               </property>
+               <property name="minimumContentsLength">
+                <number>16</number>
                </property>
                <item>
                 <property name="text">
@@ -1867,6 +2288,9 @@
              </item>
              <item>
               <widget class="QToolButton" name="toolButton_videoSettings">
+               <property name="toolTip">
+                <string>The resolution, frame rate and format of a camera or capture card. Only for cameras and capture cards.</string>
+               </property>
                <property name="enabled">
                 <bool>false</bool>
                </property>
@@ -1903,6 +2327,9 @@
           </item>
           <item>
            <widget class="QPushButton" name="pushButton_saveOCRTrainingData">
+            <property name="toolTip">
+             <string>Save the box images and readings for training an OCR model (see File &gt; OCR Training Data Setup)</string>
+            </property>
             <property name="text">
              <string>Save OCR Training Data</string>
             </property>
@@ -1937,6 +2364,9 @@
           </property>
           <item>
            <widget class="QToolButton" name="pushButton_binary">
+            <property name="toolTip">
+             <string>Show what the OCR reads: the black-and-white image of every box</string>
+            </property>
             <property name="text">
              <string>Binary View</string>
             </property>
@@ -1947,6 +2377,9 @@
           </item>
           <item>
            <widget class="QToolButton" name="pushButton_fourCorner">
+            <property name="toolTip">
+             <string>Correct the perspective: click the 4 corners of the scoreboard. Clicking it again removes the correction.</string>
+            </property>
             <property name="text">
              <string>4-corner Correction</string>
             </property>
@@ -1970,6 +2403,9 @@
           </item>
           <item>
            <widget class="QToolButton" name="toolButton_rotate">
+            <property name="toolTip">
+             <string>Rotate the picture by 90 degrees</string>
+            </property>
             <property name="text">
              <string>Rotate</string>
             </property>
@@ -1977,6 +2413,9 @@
           </item>
           <item>
            <widget class="QToolButton" name="pushButton_stabilize">
+            <property name="toolTip">
+             <string>Compensate for a shaking camera</string>
+            </property>
             <property name="text">
              <string>Stabilize</string>
             </property>
@@ -2000,6 +2439,12 @@
           </item>
           <item>
            <widget class="QComboBox" name="comboBox_boxDisplayStyle">
+            <property name="accessibleName">
+             <string>Box display style</string>
+            </property>
+            <property name="toolTip">
+             <string>What the viewer draws for each box: nothing, the outline, the outline and the name, or everything</string>
+            </property>
             <item>
              <property name="text">
               <string>No Box</string>
@@ -2053,6 +2498,12 @@
             <property name="enabled">
              <bool>false</bool>
             </property>
+            <property name="minimumSize">
+             <size>
+              <width>1</width>
+              <height>0</height>
+             </size>
+            </property>
             <property name="text">
              <string>Ctrl-scroll to zoom</string>
             </property>
@@ -2099,6 +2550,9 @@
           </item>
           <item>
            <widget class="QSpinBox" name="spinBox_leftCrop">
+            <property name="toolTip">
+             <string>Pixels to cut off the left edge</string>
+            </property>
             <property name="minimumSize">
              <size>
               <width>70</width>
@@ -2125,6 +2579,9 @@
           </item>
           <item>
            <widget class="QSpinBox" name="spinBox_topCrop">
+            <property name="toolTip">
+             <string>Pixels to cut off the top edge</string>
+            </property>
             <property name="minimumSize">
              <size>
               <width>70</width>
@@ -2151,6 +2608,9 @@
           </item>
           <item>
            <widget class="QSpinBox" name="spinBox_rightCrop">
+            <property name="toolTip">
+             <string>Pixels to cut off the right edge</string>
+            </property>
             <property name="minimumSize">
              <size>
               <width>70</width>
@@ -2177,6 +2637,9 @@
           </item>
           <item>
            <widget class="QSpinBox" name="spinBox_bottomCrop">
+            <property name="toolTip">
+             <string>Pixels to cut off the bottom edge</string>
+            </property>
             <property name="minimumSize">
              <size>
               <width>70</width>
@@ -2203,6 +2666,9 @@
           </item>
           <item>
            <widget class="QToolButton" name="toolButton_speed">
+            <property name="toolTip">
+             <string>The playback speed of a video file (skips frames). Doesn't change how often the boxes are read.</string>
+            </property>
             <property name="text">
              <string>x1</string>
             </property>
@@ -2220,6 +2686,56 @@
              </size>
             </property>
            </spacer>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QFrame" name="frame_pausedBanner">
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_pausedBanner">
+          <property name="spacing">
+           <number>8</number>
+          </property>
+          <property name="leftMargin">
+           <number>8</number>
+          </property>
+          <property name="topMargin">
+           <number>4</number>
+          </property>
+          <property name="rightMargin">
+           <number>4</number>
+          </property>
+          <property name="bottomMargin">
+           <number>4</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="label_pausedBanner">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="textFormat">
+             <enum>Qt::RichText</enum>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_resumeOutputs">
+            <property name="toolTip">
+             <string>Send the current values to every output again</string>
+            </property>
+            <property name="text">
+             <string>Resume outputs</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>
@@ -2272,10 +2788,126 @@
        </item>
       </layout>
      </widget>
+     </widget>
     </item>
    </layout>
   </widget>
-  <widget class="QMenuBar" name="menubar"/>
+  <widget class="QMenuBar" name="menubar">
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <widget class="QMenu" name="menuLanguage">
+     <property name="title">
+      <string>Language</string>
+     </property>
+    </widget>
+    <widget class="QMenu" name="menuAppearance">
+     <property name="title">
+      <string>Appearance</string>
+     </property>
+    </widget>
+    <addaction name="actionCheckForUpdates"/>
+    <addaction name="actionAbout"/>
+    <addaction name="actionViewLog"/>
+    <addaction name="actionImportConfiguration"/>
+    <addaction name="actionExportConfiguration"/>
+    <addaction name="actionOpenConfigurationFolder"/>
+    <addaction name="actionOCRTrainingDataSetup"/>
+    <addaction name="menuLanguage"/>
+    <addaction name="menuAppearance"/>
+   </widget>
+   <addaction name="menuFile"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionCheckForUpdates">
+   <property name="text">
+    <string>Check for Updates</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::AboutRole</enum>
+   </property>
+  </action>
+  <action name="actionViewLog">
+   <property name="text">
+    <string>View Current Log</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionImportConfiguration">
+   <property name="text">
+    <string>Import Configuration</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionExportConfiguration">
+   <property name="text">
+    <string>Export Configuration</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionOpenConfigurationFolder">
+   <property name="text">
+    <string>Open Configuration Folder</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionOCRTrainingDataSetup">
+   <property name="text">
+    <string>OCR Training Data Setup</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionPauseOutputs">
+   <property name="text">
+    <string>Pause outputs</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Shift+P</string>
+   </property>
+  </action>
+  <action name="actionBinaryView">
+   <property name="text">
+    <string>Binary View</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+B</string>
+   </property>
+  </action>
+  <action name="actionFitPicture">
+   <property name="text">
+    <string>Fit picture to window</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+0</string>
+   </property>
+  </action>
+  <action name="actionReloadSources">
+   <property name="text">
+    <string>Reload sources</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">F5</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>
