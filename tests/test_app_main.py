@@ -1,0 +1,181 @@
+"""main.py: command-line options, translation lookup and --self-test."""
+
+import os
+import subprocess
+import sys
+from pathlib import Path
+
+import pytest
+
+import main
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
+SRC_DIR = REPO_ROOT / "src"
+
+
+# --- command line ----------------------------------------------------------------
+
+
+def test_defaults():
+    args, qt_args = main.parse_args([])
+    assert args.profile is None
+    assert args.port == 18099
+    assert not args.self_test
+    assert qt_args == []
+
+
+def test_options():
+    args, qt_args = main.parse_args(
+        ["--profile", "court2", "--port", "18100", "--self-test"]
+    )
+    assert (args.profile, args.port, args.self_test) == ("court2", 18100, True)
+    assert qt_args == []
+
+
+def test_qt_options_are_passed_through():
+    args, qt_args = main.parse_args(
+        ["-platform", "offscreen", "--port=18101", "-psn_0_12345"]
+    )
+    assert args.port == 18101
+    assert qt_args == ["-platform", "offscreen", "-psn_0_12345"]
+
+
+@pytest.mark.parametrize("port", ["0", "65536", "-1", "http", ""])
+def test_invalid_port_is_rejected(port):
+    with pytest.raises(SystemExit) as error:
+        main.parse_args(["--port", port])
+    assert error.value.code == 2
+
+
+def test_empty_profile_is_rejected():
+    with pytest.raises(SystemExit):
+        main.parse_args(["--profile", "  "])
+
+
+def test_main_applies_the_profile_before_starting_the_app(monkeypatch):
+    monkeypatch.delenv("SCORESIGHT_PROFILE", raising=False)
+    calls = []
+
+    def fake_run_app(args, qt_args):
+        calls.append((os.environ.get("SCORESIGHT_PROFILE"), args.port, qt_args))
+        return 7
+
+    monkeypatch.setattr(main, "run_app", fake_run_app)
+    assert main.main(["--profile", "court2", "--port", "18100", "-reverse"]) == 7
+    assert calls == [("court2", 18100, ["-reverse"])]
+
+
+def test_main_without_profile_keeps_the_environment(monkeypatch):
+    monkeypatch.setenv("SCORESIGHT_PROFILE", "from-env")
+    monkeypatch.setattr(main, "run_app", lambda args, qt_args: 0)
+    main.main([])
+    assert os.environ["SCORESIGHT_PROFILE"] == "from-env"
+
+
+def test_main_runs_the_self_test(monkeypatch):
+    monkeypatch.setattr(main, "run_self_test", lambda: 3)
+    monkeypatch.setattr(main, "run_app", lambda *a: pytest.fail("app started"))
+    assert main.main(["--self-test"]) == 3
+
+
+# --- translations ------------------------------------------------------------------
+
+
+@pytest.fixture
+def translations(tmp_path):
+    for code in ["de_DE", "en_US", "fr_FR", "pt_BR", "pt_PT", "zh_CN", "ko_KR"]:
+        (tmp_path / f"scoresight_{code}.qm").write_bytes(b"")
+    (tmp_path / "scoresight_fr_FR.ts").write_text("not a .qm")
+    return tmp_path
+
+
+@pytest.mark.parametrize(
+    ("locales", "expected"),
+    [
+        (["fr_FR"], "fr_FR"),
+        (["de_AT"], "de_DE"),  # regional locale -> same language
+        (["de-CH"], "de_DE"),  # QLocale.uiLanguages() uses dashes
+        (["fr_CA"], "fr_FR"),
+        (["pt_BR"], "pt_BR"),
+        (["pt_AO"], "pt_PT"),  # prefer the language's home region
+        (["ko"], "ko_KR"),
+        (["en_GB"], "en_US"),
+        (["xx_YY", "de_AT"], "de_DE"),  # first locale with a translation wins
+        ([None, "", "fr_BE"], "fr_FR"),
+        (["xx_YY"], None),
+        (["C"], None),
+    ],
+)
+def test_find_translation_file(translations, locales, expected):
+    found = main.find_translation_file(locales, str(translations))
+    if expected is None:
+        assert found is None
+    else:
+        assert found == str(translations / f"scoresight_{expected}.qm")
+
+
+def test_find_translation_file_without_folder(tmp_path):
+    assert main.find_translation_file(["de_DE"], str(tmp_path / "missing")) is None
+
+
+def test_bundled_translations_cover_regional_locales():
+    folder = str(REPO_ROOT / "translations")
+    for locale, expected in [
+        ("de_AT", "de_DE"),
+        ("es_MX", "es_ES"),
+        ("fr_CA", "fr_FR"),
+    ]:
+        found = main.find_translation_file([locale], folder)
+        assert found is not None and found.endswith(f"scoresight_{expected}.qm")
+
+
+# --- self-test ------------------------------------------------------------------------
+
+
+def test_self_test_imports_every_app_module():
+    platform_specific = {"screen_capture_source_mac", "screen_capture_source_windows"}
+    modules = {p.stem for p in SRC_DIR.glob("*.py")} - platform_specific - {"main"}
+    assert set(main.SELF_TEST_MODULES) == modules
+
+
+def test_self_test_reports_failure(monkeypatch, capsys):
+    monkeypatch.setattr(main, "SELF_TEST_MODULES", ("no_such_scoresight_module",))
+    assert main.run_self_test() == 1
+    out = capsys.readouterr().out
+    assert "SELF-TEST FAILED" in out
+    assert "SELF-TEST OK" not in out
+
+
+def _run_self_test(tmp_path, *args):
+    env = dict(os.environ)
+    env.update(
+        QT_QPA_PLATFORM="offscreen",
+        SCORESIGHT_DATA_DIR=str(tmp_path / "data"),
+        SCORESIGHT_LOG_DIR=str(tmp_path / "logs"),
+    )
+    env.pop("SCORESIGHT_PROFILE", None)
+    return subprocess.run(
+        [sys.executable, str(SRC_DIR / "main.py"), "--self-test", *args],
+        cwd=tmp_path,  # works from any working directory
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=300,
+    )
+
+
+@pytest.mark.qt
+@pytest.mark.ocr
+def test_self_test_passes(tmp_path):
+    process = _run_self_test(tmp_path, "--profile", "selftest")
+    assert process.returncode == 0, process.stdout + process.stderr
+    lines = process.stdout.splitlines()
+    assert lines[-1] == "SELF-TEST OK"
+    assert "eng='45'" in process.stdout
+    # --profile is applied before the settings are touched
+    settings = [line for line in lines if line.startswith("settings file: ")]
+    assert settings == [
+        f"settings file: {tmp_path / 'data' / 'scoresight-selftest.json'}"
+    ]
+    # the self-test only reads settings
+    assert not (tmp_path / "data").exists() or not any((tmp_path / "data").iterdir())

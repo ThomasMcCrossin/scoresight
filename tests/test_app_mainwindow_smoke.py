@@ -19,6 +19,7 @@ from PySide6.QtWidgets import QWidget  # noqa: E402
 from camera_info import CameraInfo  # noqa: E402
 from storage import fetch_data, store_data  # noqa: E402
 from update_check import UpdateCheckResult  # noqa: E402
+from version import __version__  # noqa: E402
 
 
 class FakeViewer(QWidget):
@@ -118,9 +119,10 @@ def test_main_window_constructs_shows_and_closes(make_window, patched, qapp):
     threads_before = set(threading.enumerate())
     main_window = make_window()
 
-    assert main_window.windowTitle().startswith("ScoreSight")
+    assert main_window.windowTitle() == f"ScoreSight - v{__version__}"
     assert main_window.ui.tableWidget_boxes.rowCount() >= len(default_boxes)
     assert main_window.ui.comboBox_camera_source.count() > 0
+    assert patched["http"] == [{"port": 18099}]
 
     main_window.show()
     qapp.processEvents()
@@ -134,6 +136,12 @@ def test_main_window_constructs_shows_and_closes(make_window, patched, qapp):
     # nothing (e.g. a server or capture thread) was left running
     leftover = [t for t in set(threading.enumerate()) - threads_before if not t.daemon]
     assert leftover == []
+
+
+def test_title_shows_the_profile(make_window, monkeypatch):
+    monkeypatch.setenv("SCORESIGHT_PROFILE", "court2")
+    window = make_window()
+    assert window.windowTitle() == f"ScoreSight - v{__version__} [court2]"
 
 
 # --- background work (#33) -----------------------------------------------------------
@@ -245,6 +253,14 @@ def test_box_changes_do_not_truncate_the_csv_log(
         rows = list(csv.reader(f))
     assert rows[0] == ["Timestamp", "Home Score"]
     assert [row[1] for row in rows[1:]] == ["1", "2"]
+
+
+def test_browser_tab_shows_the_http_port(make_window, patched):
+    window = make_window(http_port=18100)
+    assert patched["http"] == [{"port": 18100}]
+    text = window.ui.label_8.text()
+    assert "http://localhost:18100/json" in text
+    assert "18099" not in text
 
 
 # --- boxes ------------------------------------------------------------------------------

@@ -29,9 +29,7 @@ from PySide6.QtCore import (
     QMetaMethod,
     QUrl,
 )
-from dotenv import load_dotenv
 from os import path
-from platformdirs import user_data_dir
 
 from api_output import update_out_api
 from box_settings_ui_handler import BoxSettingsUIHandler
@@ -51,6 +49,8 @@ from defaults import (
 from storage import (
     TextDetectionTargetMemoryStorage,
     fetch_data,
+    get_data_dir,
+    get_profile,
     remove_data,
     store_data,
     store_custom_box_name,
@@ -84,6 +84,8 @@ from ui_connect_obs import Ui_Dialog as Ui_ConnectObs
 from ui_url_source import Ui_Dialog as Ui_UrlSource
 from ui_screen_capture import Ui_Dialog as Ui_ScreenCapture
 from vmix_ui_handler import VMixUIHanlder
+
+DEFAULT_HTTP_PORT = 18099
 
 # comboBox_camera_source items before the discovered cameras
 SOURCE_INDEX_NONE = 0
@@ -155,16 +157,20 @@ class MainWindow(QMainWindow):
     obs_connection_result = Signal(object, int, bool, object)
     update_check_finished = Signal(object, bool)
 
-    def __init__(self, translator: QTranslator, parent: QObject):
+    def __init__(
+        self,
+        translator: QTranslator,
+        parent: QObject,
+        http_port: int = DEFAULT_HTTP_PORT,
+    ):
         super(MainWindow, self).__init__()
         self.parent_object = parent
+        self.http_port = http_port
         self.ui = Ui_MainWindow()
-        logger.info("Starting ScoreSight")
+        logger.info("Starting ScoreSight %s", __version__)
         self.ui.setupUi(self)
         self.translator = translator
-        # load env variables
-        load_dotenv()
-        self.setWindowTitle(f"ScoreSight - v{os.getenv('LOCAL_RELEASE_TAG')}")
+        self.updateWindowTitle()
         if platform.system() == "Windows":
             # set the icon
             self.setWindowIcon(QIcon(resource_path("icons", "Windows-icon-open.ico")))
@@ -220,7 +226,8 @@ class MainWindow(QMainWindow):
 
         self.ui.checkBox_templatefield.toggled.connect(self.makeTemplateField)
 
-        start_http_server()
+        start_http_server(port=self.http_port)
+        self.updateBrowserEndpoints()
 
         self.ui.pushButton_stabilize.setEnabled(True)
         self.ui.pushButton_stabilize.clicked.connect(self.toggleStabilize)
@@ -460,6 +467,21 @@ class MainWindow(QMainWindow):
 
         self.checkForUpdates(False)
 
+    def updateWindowTitle(self):
+        title = f"ScoreSight - v{__version__}"
+        profile = get_profile()
+        if profile:
+            title += f" [{profile}]"
+        self.setWindowTitle(title)
+
+    def updateBrowserEndpoints(self):
+        # the Browser tab's links are written for the default port
+        self.ui.label_8.setText(
+            self.ui.label_8.text().replace(
+                f"localhost:{DEFAULT_HTTP_PORT}", f"localhost:{self.http_port}"
+            )
+        )
+
     def setStyleTheme(self, theme):
         QApplication.instance().setStyle(theme)
 
@@ -603,12 +625,11 @@ class MainWindow(QMainWindow):
         dialog.exec()
 
     def openConfigurationFolder(self):
-        # open the configuration folder in the file explorer
-        QDesktopServices.openUrl(
-            QUrl(
-                "file:///" + user_data_dir("scoresight"), QUrl.ParsingMode.TolerantMode
-            )
-        )
+        # open the configuration folder (SCORESIGHT_DATA_DIR aware) in the file
+        # explorer
+        data_dir = get_data_dir()
+        os.makedirs(data_dir, exist_ok=True)
+        QDesktopServices.openUrl(QUrl.fromLocalFile(data_dir))
 
     def toggleOSD(self, value):
         if self.image_viewer:
