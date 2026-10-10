@@ -699,3 +699,19 @@ def test_manual_update_check_always_shows_the_result(make_window, monkeypatch, q
     qtbot.waitUntil(lambda: window.update_dialog is not None)
     assert not window.update_dialog.ui.label_noNewVersion.isHidden()
     window.update_dialog.close()
+
+
+def test_confidence_threshold_slider(main_window, make_target):
+    ui = main_window.ui
+    assert "Tesseract" in ui.horizontalSlider_conf_thresh.toolTip()
+    assert "%" in ui.label_3.toolTip()
+    handler = main_window.boxSettingsUiHandler
+    handler.populateSettings("")  # no box selected: the default, off
+    assert ui.horizontalSlider_conf_thresh.value() == 0
+
+    storage = main_window.detectionTargetsStorage
+    storage.add_item(make_target("Home Score", conf_thresh=0.29))
+    main_window.itemSelected("Home Score")
+    assert ui.horizontalSlider_conf_thresh.value() == 29
+    ui.horizontalSlider_conf_thresh.setValue(45)
+    assert storage.find_item_by_name("Home Score").settings["conf_thresh"] == 0.45

@@ -558,3 +558,99 @@ def test_invalid_boxes_keep_previous_boxes(memory_storage):
 def test_load_from_empty_storage(memory_storage):
     assert memory_storage.loadBoxesFromStorage() is False
     assert memory_storage.is_empty()
+
+
+# --- box schema migration -----------------------------------------------------
+
+
+def old_box(name, conf_thresh, **settings):
+    """A box as ScoreSight 0.1.x saved it."""
+    return {
+        "name": name,
+        "rect": {"x": 1, "y": 2, "width": 30, "height": 40},
+        "settings": {"conf_thresh": conf_thresh, **settings},
+    }
+
+
+def conf_thresholds(memory_storage):
+    return {box.name: box.settings["conf_thresh"] for box in memory_storage.get_data()}
+
+
+def test_new_boxes_have_the_confidence_threshold_off():
+    assert normalize_settings_dict({}, None)["conf_thresh"] == 0.0
+
+
+def test_boxes_from_0_1_x_get_the_confidence_threshold_off_once(
+    data_dir, memory_storage, caplog
+):
+    # 0.1.x compared the 0-1 threshold with Tesseract's 0-100 confidence, so
+    # it never rejected anything; applied now, the stored 0.5 default would
+    # reject many good readings.
+    store_data(
+        SETTINGS, "boxes", [old_box("Home Score", 0.5), old_box("Time", 0.8, dilate=2)]
+    )
+    assert memory_storage.loadBoxesFromStorage() is True
+    assert conf_thresholds(memory_storage) == {"Home Score": 0.0, "Time": 0.0}
+    assert memory_storage.find_item_by_name("Time").settings["dilate"] == 2
+    assert "Migrated 2 box(es)" in caplog.text
+    # saved back once, with the schema version
+    assert fetch_data(SETTINGS, storage.BOXES_SCHEMA_KEY) == 2
+    saved = fetch_data(SETTINGS, "boxes")
+    assert [box["settings"]["conf_thresh"] for box in saved] == [0.0, 0.0]
+
+    # a threshold set from now on is kept
+    box = memory_storage.find_item_by_name("Home Score")
+    box.settings["conf_thresh"] = 0.6
+    memory_storage.saveBoxesToStorage()
+    memory_storage.clear()
+    caplog.clear()
+    assert memory_storage.loadBoxesFromStorage() is True
+    assert conf_thresholds(memory_storage) == {"Home Score": 0.6, "Time": 0.0}
+    assert "Migrated" not in caplog.text
+
+
+@pytest.mark.parametrize("schema_version", [2, 3])
+def test_boxes_with_the_schema_version_are_not_migrated(memory_storage, schema_version):
+    store_data(SETTINGS, "boxes", [old_box("Home Score", 0.5)])
+    store_data(SETTINGS, storage.BOXES_SCHEMA_KEY, schema_version)
+    assert memory_storage.loadBoxesFromStorage() is True
+    assert conf_thresholds(memory_storage) == {"Home Score": 0.5}
+
+
+def test_saving_boxes_marks_the_schema_version(data_dir, memory_storage):
+    memory_storage.add_item(make_box("Home Score", (1, 2, 3, 4), conf_thresh=0.4))
+    memory_storage.saveBoxesToStorage()
+    settings = read_settings_file(data_dir)
+    assert settings[storage.BOXES_SCHEMA_KEY] == 2
+    assert settings["boxes"][0]["settings"]["conf_thresh"] == 0.4
+
+
+def test_exported_file_has_the_schema_version(tmp_path, memory_storage):
+    memory_storage.add_item(make_box("Home Score", (1, 2, 3, 4), conf_thresh=0.7))
+    export = tmp_path / "config.json"
+    memory_storage.saveBoxesToFile(str(export))
+    data = json.loads(export.read_text(encoding="utf-8"))
+    assert data[storage.BOXES_SCHEMA_KEY] == 2
+    assert [box["name"] for box in data["boxes"]] == ["Home Score"]
+
+    memory_storage.clear()
+    assert memory_storage.loadBoxesFromFile(str(export)) is True
+    assert conf_thresholds(memory_storage) == {"Home Score": 0.7}
+
+
+def test_configuration_exported_by_0_1_x_is_migrated(tmp_path, memory_storage):
+    # 0.1.x exported a plain list of boxes
+    export = tmp_path / "old config.json"
+    export.write_text(json.dumps([old_box("Away Score", 0.5)]), encoding="utf-8")
+    assert memory_storage.loadBoxesFromFile(str(export)) is True
+    assert conf_thresholds(memory_storage) == {"Away Score": 0.0}
+
+
+@pytest.mark.parametrize("content", ["{not json", '{"no": "boxes"}', '"text"'])
+def test_invalid_configuration_file_keeps_the_boxes(tmp_path, memory_storage, content):
+    memory_storage.add_item(make_box("Home Score", (1, 2, 3, 4)))
+    bad = tmp_path / "bad.json"
+    bad.write_text(content, encoding="utf-8")
+    assert memory_storage.loadBoxesFromFile(str(bad)) is False
+    assert memory_storage.loadBoxesFromFile(str(tmp_path / "missing.json")) is False
+    assert [box.name for box in memory_storage.get_data()] == ["Home Score"]

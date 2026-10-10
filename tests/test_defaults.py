@@ -18,7 +18,7 @@ CANONICAL_SETTINGS = {
     "type": FieldType.NUMBER,
     "smoothing": False,
     "skip_empty": True,
-    "conf_thresh": 0.5,
+    "conf_thresh": 0.0,
     "cleanup_thresh": 0,
     "dilate": 1,
     "skew": 0,

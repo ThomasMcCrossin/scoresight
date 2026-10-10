@@ -35,6 +35,12 @@ _reported_corrupt_files: dict[tuple[str, int, int], bool] = {}
 
 _PROFILE_UNSAFE_CHARS = re.compile(r"[^A-Za-z0-9._-]")
 
+# Version of the stored box format, kept next to "boxes" in the settings file
+# and in exported configuration files. Boxes without it were saved by
+# ScoreSight 0.1.x and are migrated once (see migrate_boxes).
+BOXES_SCHEMA_KEY = "boxes_schema_version"
+BOXES_SCHEMA_VERSION = 2
+
 
 def get_data_dir() -> str:
     """The user data directory. SCORESIGHT_DATA_DIR overrides the platform default."""
@@ -317,6 +323,36 @@ def fetch_custom_box_names():
     return fetch_data(SETTINGS_FILE, "custom_boxes_names", [])
 
 
+def boxes_need_migration(schema_version) -> bool:
+    """Whether boxes stored with schema_version (None: no marker, ScoreSight
+    0.1.x) must go through migrate_boxes."""
+    return not isinstance(schema_version, int) or schema_version < BOXES_SCHEMA_VERSION
+
+
+def migrate_boxes(boxes: list, origin: str) -> list:
+    """Bring boxes saved by ScoreSight 0.1.x up to BOXES_SCHEMA_VERSION.
+
+    Schema 2: the confidence threshold (conf_thresh) was never applied before
+    0.2.0 (it was compared on the wrong scale), so every box carries the old
+    0.5 default that did nothing. Applying it now would reject many correct
+    readings, so it is reset to 0 (off), which keeps the old behavior.
+    Returns migrated copies; origin names where the boxes came from, for the log.
+    """
+    migrated = []
+    for box in boxes:
+        box = dict(box)
+        box["settings"] = {**(box.get("settings") or {}), "conf_thresh": 0.0}
+        migrated.append(box)
+    logger.info(
+        "Migrated %d box(es) from %s, saved by an older ScoreSight: their "
+        "confidence threshold had no effect before 0.2.0 and is now off (0); "
+        "set Conf. Th per box to use it",
+        len(migrated),
+        origin,
+    )
+    return migrated
+
+
 class TextDetectionTargetMemoryStorage(QObject):
     # This class is used to store the text detection targets in memory
 
@@ -384,16 +420,41 @@ class TextDetectionTargetMemoryStorage(QObject):
         return None
 
     def loadBoxesFromStorage(self) -> bool:
-        # load the boxes from scoresight.json
+        """Load the boxes from the settings file. Boxes saved by an older
+        version are migrated, and saved back once with the schema version."""
         boxes = fetch_data(SETTINGS_FILE, "boxes")
         if not boxes:
             return False
-        return self.loadBoxesFromDict(boxes)
+        migrate = boxes_need_migration(fetch_data(SETTINGS_FILE, BOXES_SCHEMA_KEY))
+        if migrate:
+            boxes = migrate_boxes(
+                boxes, f"the settings file {resolve_file_name(SETTINGS_FILE)}"
+            )
+        if not self.loadBoxesFromDict(boxes):
+            return False
+        if migrate:
+            self.saveBoxesToStorage()
+        return True
 
     def loadBoxesFromFile(self, file_path) -> bool:
-        # load the boxes from a file
-        with open(file_path, "r", encoding="utf-8") as f:
-            boxes = json.load(f)
+        """Load the boxes from an exported configuration file: a
+        {"boxes_schema_version": N, "boxes": [...]} object, or a plain list of
+        boxes (exported by ScoreSight 0.1.x, migrated)."""
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+        except (OSError, ValueError) as e:
+            logger.error("Cannot read the configuration file %s: %s", file_path, e)
+            return False
+        if isinstance(data, list):
+            boxes, schema_version = data, None
+        elif isinstance(data, dict) and isinstance(data.get("boxes"), list):
+            boxes, schema_version = data["boxes"], data.get(BOXES_SCHEMA_KEY)
+        else:
+            logger.error("%s is not a ScoreSight configuration file", file_path)
+            return False
+        if boxes_need_migration(schema_version):
+            boxes = migrate_boxes(boxes, f"the configuration file {file_path}")
         return self.loadBoxesFromDict(boxes)
 
     def loadBoxesFromDict(self, boxes) -> bool:
@@ -476,8 +537,16 @@ class TextDetectionTargetMemoryStorage(QObject):
 
     def saveBoxesToFile(self, file_path):
         boxes = self.getBoxesForStorage()
-        write_json_atomic(file_path, boxes)
+        write_json_atomic(
+            file_path, {BOXES_SCHEMA_KEY: BOXES_SCHEMA_VERSION, "boxes": boxes}
+        )
 
     def saveBoxesToStorage(self):
         boxes = self.getBoxesForStorage()
-        store_data(SETTINGS_FILE, "boxes", boxes)
+        with _storage_lock:
+            store_data(SETTINGS_FILE, "boxes", boxes)
+            # The marker is written after the boxes: an interrupted save can
+            # leave migrated boxes unmarked (migrated again, harmlessly), but
+            # never marks boxes that weren't migrated.
+            if fetch_data(SETTINGS_FILE, BOXES_SCHEMA_KEY) != BOXES_SCHEMA_VERSION:
+                store_data(SETTINGS_FILE, BOXES_SCHEMA_KEY, BOXES_SCHEMA_VERSION)

@@ -292,7 +292,8 @@ class Ui_MainWindow(object):
 
         self.horizontalSlider_conf_thresh = QSlider(self.widget_21)
         self.horizontalSlider_conf_thresh.setObjectName(u"horizontalSlider_conf_thresh")
-        self.horizontalSlider_conf_thresh.setValue(50)
+        self.horizontalSlider_conf_thresh.setMaximum(99)
+        self.horizontalSlider_conf_thresh.setValue(0)
         self.horizontalSlider_conf_thresh.setOrientation(Qt.Horizontal)
 
         self.horizontalLayout_20.addWidget(self.horizontalSlider_conf_thresh)
@@ -1220,7 +1221,13 @@ class Ui_MainWindow(object):
         self.label_6.setText(QCoreApplication.translate("MainWindow", u"Target:", None))
         self.label_selectedInfo.setText(QCoreApplication.translate("MainWindow", u"Select an item above", None))
         self.checkBox_compositeBox.setText(QCoreApplication.translate("MainWindow", u"Composite (Per-Character)", None))
+#if QT_CONFIG(tooltip)
+        self.label_3.setToolTip(QCoreApplication.translate("MainWindow", u"Minimum OCR confidence in % (0-99): Tesseract's confidence in the reading. A reading below it is rejected (yellow, FailedFilter). 0 turns the check off.", None))
+#endif // QT_CONFIG(tooltip)
         self.label_3.setText(QCoreApplication.translate("MainWindow", u"Conf. Th", None))
+#if QT_CONFIG(tooltip)
+        self.horizontalSlider_conf_thresh.setToolTip(QCoreApplication.translate("MainWindow", u"Minimum OCR confidence in % (0-99): Tesseract's confidence in the reading. A reading below it is rejected (yellow, FailedFilter). 0 turns the check off.", None))
+#endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(tooltip)
         self.checkBox_normWHRatio.setToolTip(QCoreApplication.translate("MainWindow", u"Scale to a favorable 1:2 width-to-height ratio", None))
 #endif // QT_CONFIG(tooltip)
