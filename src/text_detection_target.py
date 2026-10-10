@@ -131,8 +131,14 @@ class TextDetectionResult:
         state: TextDetectionTargetWithResult.ResultState,
         rect: QRectF | None = None,
         extra=None,
+        *,
+        unchanged_image: bool = False,
     ):
         self.text = text
         self.state = state
         self.rect = rect
         self.extra = extra
+        # The OCR was skipped because the box's image hasn't changed since its
+        # last OCR (skip_similar_image). There is no text; the capture thread
+        # reports the box's last good reading as SameNoChange instead.
+        self.unchanged_image = unchanged_image

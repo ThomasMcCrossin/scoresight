@@ -405,8 +405,20 @@ def test_skip_similar_image_detects_a_one_digit_change(detector, make_target):
         gray, rect = digits_frame(value)
         box.setRect(*rect)
         [result] = detector.detect_multi_text(binarize(gray), gray, [box])
-        reads.append(result.text)
-    assert reads == ["12", "SIM", "12", "SIM", "12"]  # FakeApi always reads "12"
+        reads.append(
+            (result.text, result.state.name)
+            if not result.unchanged_image
+            else "unchanged"
+        )
+    # FakeApi always reads "12"; an unchanged image isn't read again (the
+    # capture thread reports the box's last good reading as SameNoChange)
+    assert reads == [
+        ("12", "Success"),
+        "unchanged",
+        ("12", "Success"),
+        "unchanged",
+        ("12", "Success"),
+    ]
 
 
 def test_patches_similar_ignores_a_few_noisy_pixels():

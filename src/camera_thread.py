@@ -25,7 +25,9 @@ from tesseract import TextDetector, global_binarization, render_binary_view
 from text_detection_target import TextDetectionTargetWithResult
 from sc_logging import logger
 from frame_stabilizer import FrameStabilizer
-from ocr_training_data import ocr_training_data_options
+from ocr_training_data import ocr_training_data_options, snapshot_training_samples
+
+ResultState = TextDetectionTargetWithResult.ResultState
 
 # "Detections / s" (detection_cadence): the default, and the lowest rate the
 # capture thread accepts (one detection every 10 s); 0 or less is clamped to it.
@@ -770,35 +772,53 @@ class TimerThread(QThread):
             return []
         return list(self.detectionTargetsStorage.get_data())
 
+    def _published_reading(self, target, result) -> tuple[str, ResultState]:
+        """The (text, state) to publish for a box's OCR result.
+
+        SameNoChange always means "the same as the box's last good reading"
+        (target.last_text, which only a Success reading sets):
+        - with "update on change", a Success reading equal to the last good one;
+        - a box whose OCR was skipped because its image hasn't changed (skip
+          similar image). Without a good reading yet, that box is Empty.
+        So a rejected reading (FailedFilter, e.g. text that fails the box's
+        format) is never repeated as SameNoChange, which the outputs treat as
+        a good reading.
+        """
+        if result.unchanged_image:
+            if target.last_text is None:
+                return "", ResultState.Empty
+            return target.last_text, ResultState.SameNoChange
+        if result.state != ResultState.Success:
+            return result.text, result.state
+        if self.updateOnChange and result.text == target.last_text:
+            return result.text, ResultState.SameNoChange
+        target.last_text = result.text
+        return result.text, ResultState.Success
+
     def _publish_results(self, targets, texts, display, gray):
         if len(texts) == 0 or len(targets) != len(texts):
             return
         # augment the text detection targets with the results
         results = []
         for target, result in zip(targets, texts):
-            if self.updateOnChange:
-                if target.last_text is not None and target.last_text == result.text:
-                    result.state = (
-                        TextDetectionTargetWithResult.ResultState.SameNoChange
-                    )
-
+            text, state = self._published_reading(target, result)
             results.append(
                 TextDetectionTargetWithResult(
-                    target,
-                    result.text,
-                    result.state,
-                    result.rect,
-                    result.extra,
+                    target, text, state, result.rect, result.extra
                 )
             )
-            target.last_text = result.text
 
-        # emit the results
+        # The GUI thread edits the results (template fields) once they are
+        # emitted, so the training data is snapshotted first.
+        samples = None
+        if ocr_training_data_options.save_ocr_training_data and display is not None:
+            samples = snapshot_training_samples(results)
+
         self.ocr_result_signal.emit(results)
 
-        if ocr_training_data_options.save_ocr_training_data and display is not None:
-            # save the image and the text
-            ocr_training_data_options.save_ocr_results_to_folder(display, gray, results)
+        if samples:
+            # save the image patches and the texts
+            ocr_training_data_options.save_ocr_results_to_folder(display, gray, samples)
 
     def transform_frame(self, frame_rgb):
         """Apply the rotation, crop, stabilization and four-corner homography."""

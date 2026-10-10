@@ -218,8 +218,7 @@ def test_only_readings_are_saved(options, frame, make_result):
         make_result("Home Score", "12", state="Success", rect=(0, 0, 20, 20)),
         # rejected by the regex / confidence filter: worth correcting
         make_result("Away Score", "1B", state="FailedFilter", rect=(20, 0, 20, 20)),
-        # skip-similar placeholder, not a reading
-        make_result("Time", "SIM", state="FailedFilter", rect=(40, 0, 20, 20)),
+        # unchanged, e.g. not read again by "skip similar image"
         make_result("Period", "3", state="SameNoChange", rect=(60, 0, 20, 20)),
         make_result("Name 1", "", state="Empty", rect=(80, 0, 20, 20)),
         make_result("Name 2", "  ", state="Success", rect=(100, 0, 20, 20)),

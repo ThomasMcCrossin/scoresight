@@ -472,7 +472,9 @@ class TextDetector:
             # compare with the image of the last OCR that ran (not refreshed on
             # skips, so slow changes add up until they are read)
             if patches_similar(rect.last_image, patch):
-                return TextDetectionResult("SIM", ResultState.FailedFilter, None)
+                return TextDetectionResult(
+                    "", ResultState.SameNoChange, None, unchanged_image=True
+                )
             rect.last_image = patch.copy()
 
         if settings.get("autocrop"):

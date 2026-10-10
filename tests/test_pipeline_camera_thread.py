@@ -247,6 +247,115 @@ def test_update_on_change_marks_repeated_reads(make_thread, make_target):
     assert set(states[1:]) == {TextDetectionTargetWithResult.ResultState.SameNoChange}
 
 
+class ScriptedDetector:
+    """Stands in for TextDetector: returns the next scripted result for the one
+    box, a (text, state name) pair or "unchanged" (skip similar image)."""
+
+    def __init__(self, script):
+        self.script = list(script)
+
+    def detect_multi_text(self, binary, gray, rects, display=None):
+        step = self.script.pop(0)
+        if step == "unchanged":
+            return [
+                TextDetectionResult(
+                    "",
+                    TextDetectionTargetWithResult.ResultState.SameNoChange,
+                    unchanged_image=True,
+                )
+            ]
+        text, state = step
+        return [
+            TextDetectionResult(text, TextDetectionTargetWithResult.ResultState[state])
+        ]
+
+
+def published(thread, make_target, script, update_on_change=True):
+    thread.textDetector = ScriptedDetector(script)
+    thread.updateOnChange = update_on_change
+    thread.detectionTargetsStorage.clear()
+    thread.detectionTargetsStorage.add_item(make_target("Home Score"))
+    for _ in script:
+        thread._clock.now += 1.0
+        thread.process_frame(color_frame())
+    return [(r[0].result, r[0].result_state.name) for r in thread.results]
+
+
+def test_a_rejected_reading_is_never_repeated_as_unchanged(make_thread, make_target):
+    # template-uses-failed-results / api-simple-kv-sends-failed-values: the
+    # last text of every reading was remembered, so a repeated rejected
+    # reading came back as SameNoChange, which the outputs treat as good.
+    script = [
+        ("12", "Success"),
+        ("8B", "FailedFilter"),
+        ("8B", "FailedFilter"),
+        ("", "Empty"),
+        ("12", "Success"),
+        ("13", "Success"),
+    ]
+    assert published(make_thread(), make_target, script) == [
+        ("12", "Success"),
+        ("8B", "FailedFilter"),
+        ("8B", "FailedFilter"),
+        ("", "Empty"),
+        ("12", "SameNoChange"),  # same as the last good reading
+        ("13", "Success"),
+    ]
+
+
+def test_an_unchanged_image_repeats_the_last_good_reading(make_thread, make_target):
+    # skip similar image used to publish "SIM" as a FailedFilter reading, and
+    # then as SameNoChange on the next skip
+    script = [
+        "unchanged",
+        ("8B", "FailedFilter"),
+        "unchanged",
+        ("12", "Success"),
+        "unchanged",
+        ("9", "FailedFilter"),
+        "unchanged",
+    ]
+    expected = [
+        ("", "Empty"),  # no good reading yet
+        ("8B", "FailedFilter"),
+        ("", "Empty"),
+        ("12", "Success"),
+        ("12", "SameNoChange"),
+        ("9", "FailedFilter"),
+        ("12", "SameNoChange"),
+    ]
+    assert published(make_thread(), make_target, script) == expected
+    # the same without "update on change"
+    assert published(make_thread(), make_target, script, False) == expected
+
+
+def test_training_data_is_snapshotted_before_the_results_are_emitted(
+    make_thread, make_target, monkeypatch
+):
+    from ocr_training_data import OCRTrainingSample, ocr_training_data_options
+
+    saved = []
+    monkeypatch.setattr(ocr_training_data_options, "save_ocr_training_data", True)
+    monkeypatch.setattr(
+        ocr_training_data_options,
+        "save_ocr_results_to_folder",
+        lambda binary, gray, samples: saved.append(samples),
+    )
+    thread = make_thread()
+    thread.detectionTargetsStorage.add_item(make_target("Home Score"))
+
+    def edit_in_gui_thread(results):
+        # MainWindow.ocrResult rewrites results (template fields) in place
+        for result in results:
+            result.result = "edited"
+
+    thread.ocr_result_signal.connect(edit_in_gui_thread)
+    thread.process_frame(color_frame())
+    [[sample]] = saved
+    assert isinstance(sample, OCRTrainingSample)
+    assert (sample.name, sample.text) == ("Home Score", "Home Score")
+
+
 # --- the capture loop -----------------------------------------------------------------------
 
 

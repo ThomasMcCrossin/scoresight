@@ -31,10 +31,6 @@ DEFAULT_MAX_SIZE_MB = 10
 # samples are moved out of the folder, without walking it on every OCR cycle.
 RETRY_INTERVAL_SECONDS = 30.0
 
-# tesseract.py reports a box skipped by "skip similar image" with this text and
-# the FailedFilter state. It is not a reading, so it is never saved as a label.
-SKIP_SIMILAR_TEXT = "SIM"
-
 _ResultState = TextDetectionTargetWithResult.ResultState
 
 
@@ -77,9 +73,10 @@ def snapshot_training_samples(results) -> list[OCRTrainingSample]:
 
     Kept: Success readings, and FailedFilter readings (text rejected by the
     format regex or the confidence threshold, which is worth correcting in the
-    Training Dojo). Skipped: the skip-similar placeholder, empty and unchanged
-    results, template fields (their text doesn't come from the image) and boxes
-    without an area. Items that already are OCRTrainingSample are kept as is.
+    Training Dojo). Skipped: empty and unchanged (SameNoChange) results, which
+    include boxes that "skip similar image" didn't read again, template fields
+    (their text doesn't come from the image) and boxes without an area. Items
+    that already are OCRTrainingSample are kept as is.
     """
     samples = []
     for result in results:
@@ -93,10 +90,7 @@ def snapshot_training_samples(results) -> list[OCRTrainingSample]:
         state = result.result_state
         if not isinstance(text, str) or not text.strip():
             continue
-        if state == _ResultState.FailedFilter:
-            if text == SKIP_SIMILAR_TEXT:
-                continue
-        elif state != _ResultState.Success:
+        if state not in (_ResultState.Success, _ResultState.FailedFilter):
             continue
         sample = OCRTrainingSample(
             result.name,
