@@ -85,6 +85,26 @@ your outputs and sources do, and adds profiles for running several instances.
   tooltips show them.
 - Every slider shows its value next to it (*Off* when the setting is off), and
   every control has a tooltip.
+- The outputs show whether they work. The **Outputs** list has a row for each
+  output with an on/off switch, a symbol for its state (● working, ◐ waiting,
+  ▲ retrying or needs attention, ■ not working, ○ off) and a line about what
+  is happening, for example *Connected to localhost:4455*, *Can't reach
+  192.168.1.40:8088 · retrying* or *HTTP 401: vMix asks for a login*, with
+  the time it last sent something. When the selected output has a problem, a
+  box over its settings says what to do. The status bar shows the state of
+  every output, and a click on one shows its settings. The documented problems
+  are explained in plain words: vMix on its TCP API port 8099, a vMix login,
+  an overlays.uno URL that is refused or rate-limited (HTTP 429), a wrong OBS
+  password, a missing OBS text source, an unreachable target, a busy HTTP port
+  and a missing output folder. The UNO URL's token and keys in an API URL are
+  never shown.
+- **Disconnect** for OBS. After it, ScoreSight keeps the connection settings
+  but doesn't connect to OBS at its next start until you connect again. The
+  connect button shows **Change connection...** while connected, and a failed
+  connection says why (in the dialog and in the Outputs list).
+- The HTTP server's page shows its address for other computers on your
+  network, and its row in the Outputs list shows how many computers or
+  programs read it.
 
 ### Changed
 
@@ -203,6 +223,10 @@ your outputs and sources do, and adds profiles for running several instances.
   **Start vMix** / **Stop vMix** and **Start sending** / **Stop sending**.
 - Long camera names no longer make the window wider: the source list is kept
   narrow, and its drop-down shows the whole names.
+- The output tabs (**Text Files**, **Browser**, **OBS**, **VMix**, **UNO**,
+  **API**) are replaced by the **Outputs** list: select an output to show its
+  settings under the list. The settings are the same as on the tabs, and the
+  vMix and UNO mapping tables are taller.
 
 ### Fixed
 
@@ -224,6 +248,7 @@ your outputs and sources do, and adds profiles for running several instances.
   resuming, they now get each box's next good value even if it is unchanged.
 - Closing the **Connect to OBS** dialog without connecting left **Create OBS
   Scene** disabled, even with OBS connected.
+- The outbound API's method list was too narrow to show `POST`.
 - Saved **Video Settings** (capture backend, video format, resolution, frame
   rate) were not applied when a camera opened, and pressing **OK** in Video
   Settings reopened the camera and threw them away
