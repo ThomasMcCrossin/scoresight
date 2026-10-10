@@ -147,6 +147,28 @@ def test_close_stops_a_running_capture(qtbot, memory_storage, capture_factory):
     assert storage.data_subscribers == {}
 
 
+def test_capture_starts_on_start_capture(qtbot, memory_storage, capture_factory):
+    # so that a caller can connect to the thread's signals before it emits
+    capture_factory(FrameCapture())
+    view = CameraView(file_source(), memory_storage, start=False)
+    try:
+        assert not view.timerThread.isRunning()
+        with qtbot.waitSignal(view.first_frame_received_signal, timeout=5000):
+            view.startCapture()
+        view.startCapture()  # starts it once
+    finally:
+        view.close()
+
+
+def test_a_viewer_that_never_started_closes(memory_storage, capture_factory):
+    capture = capture_factory(FrameCapture())
+    view = make_viewer(memory_storage, start=False)
+    view.close()
+    assert view.timerThread is None
+    assert not capture.released  # never opened
+    assert storage.data_subscribers == {}
+
+
 def test_first_frame_uses_the_threads_frame_size(
     qtbot, memory_storage, capture_factory
 ):
@@ -163,7 +185,7 @@ def test_first_frame_uses_the_threads_frame_size(
 # --- ImageViewer -----------------------------------------------------------------------------
 
 
-def make_viewer(memory_storage, applied=None):
+def make_viewer(memory_storage, applied=None, start=True):
     from source_view import ImageViewer
 
     return ImageViewer(
@@ -171,6 +193,7 @@ def make_viewer(memory_storage, applied=None):
         applied.append if applied is not None else (lambda corners: None),
         memory_storage,
         lambda name: None,
+        start=start,
     )
 
 

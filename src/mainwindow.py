@@ -1351,6 +1351,7 @@ class MainWindow(QMainWindow):
             self.fourCornersApplied,
             self.detectionTargetsStorage,
             self.itemSelected,
+            start=False,
         )
         self.ui.toolButton_videoSettings.setEnabled(
             camera_info.type == CameraInfo.CameraType.OPENCV
@@ -1359,27 +1360,38 @@ class MainWindow(QMainWindow):
             self.cameraConnectedEnableUI
         )
         self.image_viewer.error_signal.connect(self.updateError)
+        # connected before the capture starts: the first readings are often the
+        # only Success of a box whose value doesn't change (later ones are
+        # SameNoChange), and vMix and UNO only send Success unless "Send Same?"
+        self.connectViewer()
         self.ocrModelChanged(fetch_data("scoresight.json", "ocr_model", 1))
 
         # in the placeholder label's place (frame_for_source_view_label's grid)
         self.ui.frame_for_source_view_label.layout().addWidget(self.image_viewer, 0, 0)
+        self.image_viewer.startCapture()
+
+    def connectViewer(self):
+        """Connect the main window to the current image viewer and its capture
+        thread. Each viewer is connected only once (the first frame is signalled
+        again after e.g. a video settings change), or every result would be
+        handled twice."""
+        if self.image_viewer is None or self.connected_viewer is self.image_viewer:
+            return
+        self.disconnectViewer()
+        self.connected_viewer = self.image_viewer
+        self.ui.pushButton_fourCorner.toggled.connect(
+            self.image_viewer.toggleFourCorner
+        )
+        self.ui.pushButton_binary.clicked.connect(self.image_viewer.toggleBinary)
+        if self.image_viewer.timerThread:
+            self.image_viewer.timerThread.ocr_result_signal.connect(self.ocrResult)
+            self.image_viewer.timerThread.update_error.connect(self.updateError)
 
     def cameraConnectedEnableUI(self):
         if self.image_viewer is None:
             self.updateError("Image viewer is None")
             return
-        # The first frame is signalled again after e.g. a video settings change:
-        # connect each viewer only once, or every result would be handled twice.
-        if self.connected_viewer is not self.image_viewer:
-            self.disconnectViewer()
-            self.connected_viewer = self.image_viewer
-            self.ui.pushButton_fourCorner.toggled.connect(
-                self.image_viewer.toggleFourCorner
-            )
-            self.ui.pushButton_binary.clicked.connect(self.image_viewer.toggleBinary)
-            if self.image_viewer.timerThread:
-                self.image_viewer.timerThread.ocr_result_signal.connect(self.ocrResult)
-                self.image_viewer.timerThread.update_error.connect(self.updateError)
+        self.connectViewer()
 
         # enable groupBox_sb_info
         self.ui.groupBox_sb_info.setEnabled(True)
@@ -1405,11 +1417,11 @@ class MainWindow(QMainWindow):
         # template is Success when its text changed, SameNoChange otherwise
         apply_template_fields(results)
 
-        # update the table widget value items
+        # show each box's good reading (a SameNoChange is its last good reading)
         for targetWithResult in results:
-            if (
-                targetWithResult.result_state
-                == TextDetectionTargetWithResult.ResultState.Success
+            if targetWithResult.result_state in (
+                TextDetectionTargetWithResult.ResultState.Success,
+                TextDetectionTargetWithResult.ResultState.SameNoChange,
             ):
                 items = self.ui.tableWidget_boxes.findItems(
                     targetWithResult.name, Qt.MatchFlag.MatchExactly

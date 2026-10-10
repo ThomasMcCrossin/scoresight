@@ -35,11 +35,16 @@ class FakeViewer(QWidget):
     first_frame_received_signal = Signal()
     error_signal = Signal(str)
 
-    def __init__(self, camera_info, fourCornersApplied, storage, itemSelected):
+    def __init__(
+        self, camera_info, fourCornersApplied, storage, itemSelected, start=True
+    ):
         super().__init__()
         self.camera_info = camera_info
         self.timerThread = None
         self.four_corner_calls = []
+
+    def startCapture(self):
+        pass
 
     def toggleFourCorner(self, state):
         self.four_corner_calls.append(state)
@@ -460,6 +465,13 @@ def box_rows(window):
     return [table.item(row, 0).text() for row in range(table.rowCount())]
 
 
+def box_value(window, name):
+    """The text in the boxes list's Value column for a box."""
+    table = window.ui.tableWidget_boxes
+    [item] = table.findItems(name, QtCore.Qt.MatchFlag.MatchExactly)
+    return table.item(item.row(), 1).text()
+
+
 def select_box_row(window, name):
     table = window.ui.tableWidget_boxes
     [item] = table.findItems(name, QtCore.Qt.MatchFlag.MatchExactly)
@@ -580,6 +592,43 @@ def test_viewer_is_connected_once(main_window, monkeypatch):
     main_window.ui.pushButton_fourCorner.setChecked(False)
     assert viewer.four_corner_calls == [True]
     assert new_viewer.four_corner_calls == [False]
+
+
+def test_readings_from_the_start_of_the_capture_reach_the_window(
+    make_window, monkeypatch, make_result
+):
+    # The window connected to the capture thread only when the first preview
+    # frame arrived, so the readings made before it were lost. For a box whose
+    # value doesn't change those were its only Success (the later ones are
+    # SameNoChange): its value never showed in the boxes list, and vMix and UNO
+    # (which send only Success unless "Send Same?" is on) never got it.
+    import mainwindow
+
+    http_updates = []
+    monkeypatch.setattr(mainwindow, "update_http_server", http_updates.append)
+
+    class StartingViewer(FakeViewer):
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.timerThread = FakeTimerThread()
+            self.timerThread.textDetector = None
+
+        def startCapture(self):
+            self.timerThread.ocr_result_signal.emit([make_result("Home Score", "21")])
+
+    monkeypatch.setattr(mainwindow, "ImageViewer", StartingViewer)
+    store_data("scoresight.json", "source_selected", "rtsp://10.0.1.200:554/11")
+    window = make_window()
+    assert [[result.result for result in update] for update in http_updates] == [["21"]]
+    assert box_value(window, "Home Score") == "21"
+
+
+def test_the_boxes_list_shows_the_last_good_reading(main_window, make_result):
+    main_window.ocrResult([make_result("Home Score", "21", state="SameNoChange")])
+    assert box_value(main_window, "Home Score") == "21"
+    main_window.ocrResult([make_result("Home Score", "2l", state="FailedFilter")])
+    main_window.ocrResult([make_result("Home Score", "", state="Empty")])
+    assert box_value(main_window, "Home Score") == "21"
 
 
 def test_replaced_viewers_are_deleted(make_window, qapp):
