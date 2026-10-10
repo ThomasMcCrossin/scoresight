@@ -17,7 +17,7 @@ description: "How ScoreSight is structured: the frame-to-OCR-to-outputs pipeline
 
 ## Overview
 
-All application code is a flat set of modules in `src/` that import each other by bare module name (`from storage import fetch_data`), not as a package. Running `python src/main.py` puts `src/` on `sys.path`. The test configuration (`pythonpath = ["src"]` in `pyproject.toml`) does the same for pytest.
+All application code is a flat set of modules in `src/` that import each other by bare module name (`from storage import fetch_data`), not as a package. Running `python src/main.py` puts `src/` on `sys.path`. The test configuration (`pythonpath = ["src", "."]` in `pyproject.toml`) does the same for pytest, and also puts the repository root on the path for the OCR evaluation harness, the `ocr_eval` package (see [OCR Evaluation](ocr-eval.md)).
 
 ```mermaid
 flowchart LR
