@@ -118,6 +118,15 @@ def _process_age_now() -> float | None:
         import struct
 
         libc = ctypes.CDLL(ctypes.util.find_library("c"))
+        libc.sysctl.argtypes = [
+            ctypes.POINTER(ctypes.c_int),
+            ctypes.c_uint,
+            ctypes.c_void_p,
+            ctypes.POINTER(ctypes.c_size_t),
+            ctypes.c_void_p,
+            ctypes.c_size_t,
+        ]
+        libc.sysctl.restype = ctypes.c_int
         # sysctl {CTL_KERN, KERN_PROC, KERN_PROC_PID, pid} -> struct kinfo_proc
         mib = (ctypes.c_int * 4)(1, 14, 1, os.getpid())
         buffer = ctypes.create_string_buffer(1024)
