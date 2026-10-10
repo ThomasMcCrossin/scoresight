@@ -18,6 +18,7 @@ from PySide6.QtWidgets import QWidget  # noqa: E402
 
 from camera_info import CameraInfo  # noqa: E402
 from storage import fetch_data, store_data  # noqa: E402
+from update_check import UpdateCheckResult  # noqa: E402
 
 
 class FakeViewer(QWidget):
@@ -394,3 +395,48 @@ def test_camera_source_is_stored_and_restored(make_window, patched):
 
 
 # --- menus, appearance (#50), dialogs ---------------------------------------------------------
+
+
+def test_startup_update_check_shows_an_available_update(
+    make_window, monkeypatch, qtbot
+):
+    import mainwindow
+
+    threads = []
+
+    def fake_check():
+        threads.append(threading.current_thread())
+        return UpdateCheckResult("0.2.0", "0.3.0", update_available=True)
+
+    monkeypatch.setattr(mainwindow, "check_for_updates", fake_check)
+    window = make_window()
+    qtbot.waitUntil(lambda: window.update_dialog is not None)
+    assert threads[0] is not threading.main_thread()
+    assert not window.update_dialog.ui.label_newVersion.isHidden()
+    window.update_dialog.close()
+
+
+def test_startup_update_check_respects_the_setting(make_window, monkeypatch, qapp):
+    import mainwindow
+
+    monkeypatch.setattr(
+        mainwindow, "check_for_updates", lambda: pytest.fail("update check ran")
+    )
+    store_data("scoresight.json", "disable_update_checks", True)
+    window = make_window()
+    qapp.processEvents()
+    assert window.update_dialog is None
+
+
+def test_manual_update_check_always_shows_the_result(make_window, monkeypatch, qtbot):
+    import mainwindow
+
+    monkeypatch.setattr(
+        mainwindow, "check_for_updates", lambda: UpdateCheckResult("0.2.0", "0.2.0")
+    )
+    store_data("scoresight.json", "disable_update_checks", True)
+    window = make_window()
+    window.checkForUpdates(True)
+    qtbot.waitUntil(lambda: window.update_dialog is not None)
+    assert not window.update_dialog.ui.label_noNewVersion.isHidden()
+    window.update_dialog.close()

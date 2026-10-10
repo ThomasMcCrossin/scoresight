@@ -68,9 +68,15 @@ from template_fields import evaluate_template_field
 from text_detection_target import TextDetectionTarget, TextDetectionTargetWithResult
 from sc_logging import logger
 from uno_ui_handler import UNOUIHandler
-from update_check import check_for_updates
+from update_check import (
+    UpdateCheckResult,
+    check_for_updates,
+    show_update_dialog,
+    update_checks_enabled,
+)
 from log_view import LogViewerDialog
 import file_output
+from version import __version__
 from video_settings import VideoSettingsDialog
 from ui_mainwindow import Ui_MainWindow
 from ui_about import Ui_Dialog as Ui_About
@@ -147,6 +153,7 @@ class MainWindow(QMainWindow):
     get_sources = Signal()
     # results of the work done on background threads, delivered on the GUI thread
     obs_connection_result = Signal(object, int, bool, object)
+    update_check_finished = Signal(object, bool)
 
     def __init__(self, translator: QTranslator, parent: QObject):
         super(MainWindow, self).__init__()
@@ -165,9 +172,10 @@ class MainWindow(QMainWindow):
         self.menubar = self.menuBar()
         file_menu = self.menubar.addMenu("File")
 
-        # check for updates
-        check_for_updates(False)
-        file_menu.addAction("Check for Updates", lambda: check_for_updates(True))
+        self.update_check_running = False
+        self.update_dialog = None
+        self.update_check_finished.connect(self.updateCheckFinished)
+        file_menu.addAction("Check for Updates", lambda: self.checkForUpdates(True))
         file_menu.addAction("About", self.openAboutDialog)
         file_menu.addAction("View Current Log", self.openLogsDialog)
         file_menu.addAction("Import Configuration", self.importConfiguration)
@@ -450,6 +458,8 @@ class MainWindow(QMainWindow):
         self.get_sources.connect(self.getSources)
         self.get_sources.emit()
 
+        self.checkForUpdates(False)
+
     def setStyleTheme(self, theme):
         QApplication.instance().setStyle(theme)
 
@@ -654,6 +664,36 @@ class MainWindow(QMainWindow):
 
         # show the dialog, non modal
         self.log_dialog.show()
+
+    def checkForUpdates(self, manual: bool):
+        """Check GitHub for a newer release on a background thread. The automatic
+        check at startup honors "Don't check for updates at startup"; a manual
+        check (File > Check for Updates) always runs and always shows a result."""
+        if self.update_check_running:
+            return
+        if not manual and not update_checks_enabled():
+            logger.info("Update checks at startup are disabled")
+            return
+        self.update_check_running = True
+        run_in_background(
+            "update check",
+            lambda: check_for_updates(),
+            lambda result: self.update_check_finished.emit(result, manual),
+        )
+
+    @Slot(object, bool)
+    def updateCheckFinished(self, result, manual: bool):
+        self.update_check_running = False
+        if not isinstance(result, UpdateCheckResult):
+            result = UpdateCheckResult(__version__, error="the update check failed")
+        if not (manual or result.update_available):
+            return
+        if self.update_dialog is not None:
+            try:
+                self.update_dialog.close()
+            except RuntimeError:
+                pass  # already closed (and deleted)
+        self.update_dialog = show_update_dialog(result, self)
 
     def openAboutDialog(self):
         # open the about dialog
