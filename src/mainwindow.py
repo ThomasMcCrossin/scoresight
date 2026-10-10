@@ -1,7 +1,7 @@
 from functools import partial
+import math
 import os
 import platform
-import datetime
 import threading
 from typing import Callable
 from PySide6.QtWidgets import (
@@ -21,6 +21,7 @@ from PySide6.QtCore import (
     Qt,
     Signal,
     Slot,
+    QTimer,
     QTranslator,
     QObject,
     QCoreApplication,
@@ -294,6 +295,8 @@ class MainWindow(QMainWindow):
         )
 
         self.obs_websocket_client = None
+        # the text last sent to each OBS text source
+        self.obs_last_sent: dict[str, str] = {}
         self.obs_connect_attempt = 0
         self.obs_connection_result.connect(self.obsConnectionResult)
 
@@ -381,8 +384,11 @@ class MainWindow(QMainWindow):
             else:
                 self.ui.lineEdit_folder.setText(self.out_folder)
 
-        self.first_csv_append = True
-        self.last_aggregate_save = datetime.datetime.now()
+        # .txt/.csv/.xml outputs; flushed at most "Save / s" times per second
+        self.fileOutput = file_output.FileOutput()
+        self.fileOutputTimer = QTimer(self)
+        self.fileOutputTimer.setSingleShot(True)
+        self.fileOutputTimer.timeout.connect(self.flushFileOutputs)
         self.ui.checkBox_saveCsv.toggled.connect(
             partial(self.globalSettingsChanged, "save_csv")
         )
@@ -665,9 +671,14 @@ class MainWindow(QMainWindow):
             options=QFileDialog.Option.ShowDirsOnly,
         )
         if folder and len(folder) > 0:
-            self.ui.lineEdit_folder.setText(folder)
-            self.out_folder = folder
-            self.globalSettingsChanged("output_folder", folder)
+            self.setOutputFolder(folder)
+
+    def setOutputFolder(self, folder: str):
+        self.ui.lineEdit_folder.setText(folder)
+        self.out_folder = folder
+        self.globalSettingsChanged("output_folder", folder)
+        # write the current values to the new folder right away
+        self.scheduleFileOutputFlush()
 
     def clearOutputFolder(self):
         # clear the output folder
@@ -711,19 +722,9 @@ class MainWindow(QMainWindow):
 
         self.vmixUiHandler.updatevMixTable(detectionTargets)
         self.unoUiHandler.updateUNOTable(detectionTargets)
-
-        # if save_csv is enabled, truncate the aggregate file
-        if self.ui.checkBox_saveCsv.isChecked() and self.out_folder:
-            csv_output_file_path = path.abspath(
-                path.join(self.out_folder, "results.csv")
-            )
-            try:
-                with open(csv_output_file_path, "w") as f:
-                    f.write("")
-                self.first_csv_append = True
-                self.last_aggregate_save = datetime.datetime.now()
-            except Exception as e:
-                logger.error(f"Error truncating aggregate file: {e}")
+        # Note: results.csv is not touched here. data_changed fires on every box
+        # click and settings tweak; file_output starts a new CSV file by itself
+        # when the set of boxes changes.
 
     def listItemClicked(self, item):
         user_role = item.data(Qt.ItemDataRole.UserRole)
@@ -828,6 +829,8 @@ class MainWindow(QMainWindow):
         # connection was successful
         self.closeObsClient(self.obs_websocket_client)
         self.obs_websocket_client = client
+        # send every current value to the (new) connection
+        self.obs_last_sent.clear()
         if from_dialog:
             store_data("scoresight.json", "obs", connection_info)
             if self.obs_connect_modal is not None:
@@ -1235,71 +1238,60 @@ class MainWindow(QMainWindow):
         if self.unoUiHandler.unoUpdater is not None:
             self.unoUiHandler.unoUpdater.update_uno(results)
 
+        # OBS text sources don't depend on the output folder (#30)
+        self.updateObsTextSources(results)
+
+        # files: remember the readings, write them at the "Save / s" rate
+        self.fileOutput.record(results)
+        self.scheduleFileOutputFlush()
+
+    def updateObsTextSources(self, results: list[TextDetectionTargetWithResult]):
+        """Send each box's good reading to its OBS text source when it differs
+        from what was last sent there."""
+        if self.obs_websocket_client is None:
+            return
+        for targetWithResult in results:
+            if not file_output.is_good_reading(targetWithResult):
+                continue
+            source_name = (targetWithResult.settings or {}).get("obs_source_name")
+            if not source_name:
+                # custom boxes have no OBS source unless one is set
+                continue
+            if self.obs_last_sent.get(source_name) == targetWithResult.result:
+                continue
+            update_text_source(
+                self.obs_websocket_client, source_name, targetWithResult.result
+            )
+            self.obs_last_sent[source_name] = targetWithResult.result
+
+    def scheduleFileOutputFlush(self):
+        """Flush the file outputs now, or when the "Save / s" throttle opens, so
+        the latest values always reach the files (#6)."""
         if self.out_folder is None:
             return
+        interval = 1.0 / max(1, self.ui.horizontalSlider_aggsPerSecond.value())
+        delay = self.fileOutput.seconds_until_flush(interval)
+        if delay <= 0:
+            self.flushFileOutputs()
+        elif not self.fileOutputTimer.isActive():
+            self.fileOutputTimer.start(math.ceil(delay * 1000))
 
-        if not path.exists(path.abspath(self.out_folder)):
+    def flushFileOutputs(self):
+        self.fileOutputTimer.stop()
+        if self.out_folder is None:
+            return
+        if not path.isdir(path.abspath(self.out_folder)):
+            logger.warning("Output folder does not exist: %s", self.out_folder)
             self.out_folder = None
+            self.ui.lineEdit_folder.setText("")
             remove_data("scoresight.json", "output_folder")
-            logger.warning("Output folder does not exist")
             return
-
-        # check if enough time has passed since last file save according to aggs per second
-        if (
-            datetime.datetime.now() - self.last_aggregate_save
-        ).total_seconds() < 1.0 / self.ui.horizontalSlider_aggsPerSecond.value():
-            return
-
-        self.last_aggregate_save = datetime.datetime.now()
-
-        # update the obs scene sources with the results, use update_text_source
-        for targetWithResult in results:
-            if targetWithResult.result is None:
-                continue
-            if (
-                targetWithResult.settings is not None
-                and "skip_empty" in targetWithResult.settings
-                and targetWithResult.settings["skip_empty"]
-                and len(targetWithResult.result) == 0
-            ):
-                continue
-            if (
-                targetWithResult.result_state
-                != TextDetectionTargetWithResult.ResultState.Success
-            ):
-                continue
-
-            if (
-                self.obs_websocket_client is not None
-                and targetWithResult.settings is not None
-            ):
-                # find the source name for the target from the default boxes
-                update_text_source(
-                    self.obs_websocket_client,
-                    targetWithResult.settings["obs_source_name"],
-                    targetWithResult.result,
-                )
-
-        # save the results to text files
-        file_output.save_text_files(
-            results, self.out_folder, self.ui.comboBox_appendMethod.currentIndex()
+        self.fileOutput.flush(
+            self.out_folder,
+            self.ui.comboBox_appendMethod.currentIndex(),
+            self.ui.checkBox_saveCsv.isChecked(),
+            self.ui.checkBox_saveXML.isChecked(),
         )
-
-        # save the results to a csv file
-        if self.ui.checkBox_saveCsv.isChecked():
-            file_output.save_csv(
-                results,
-                self.out_folder,
-                self.ui.comboBox_appendMethod.currentIndex(),
-                self.first_csv_append,
-            )
-
-        # save the results to an xml file
-        if self.ui.checkBox_saveXML.isChecked():
-            file_output.save_xml(
-                results,
-                self.out_folder,
-            )
 
     def addBox(self):
         # add a new box to the tableWidget_boxes
@@ -1456,7 +1448,8 @@ class MainWindow(QMainWindow):
             self.log_dialog.close()
             self.log_dialog = None
 
-        # store the boxes to scoresight.json
+        # write pending file outputs and store the boxes to scoresight.json
+        self.flushFileOutputs()
         self.detectionTargetsStorage.saveBoxesToStorage()
         # ignore OBS connection attempts that are still running
         self.obs_connect_attempt += 1

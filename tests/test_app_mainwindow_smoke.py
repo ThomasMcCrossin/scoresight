@@ -5,6 +5,7 @@ discovery) and the update check are patched out so the tests need no network,
 devices or ports. Sources are opened with a fake viewer (no capture thread).
 """
 
+import csv
 import threading
 
 import pytest
@@ -168,6 +169,76 @@ def test_obs_auto_connect_runs_off_the_gui_thread(make_window, monkeypatch, qtbo
 
 
 # --- outputs ---------------------------------------------------------------------------
+
+
+def test_obs_updates_without_an_output_folder(main_window, patched, make_result):
+    # obs-updates-gated-by-output-folder: OBS was only updated after the
+    # output-folder check and at the file-save rate.
+    client = FakeObsClient()
+    main_window.obs_websocket_client = client
+    assert main_window.out_folder is None
+
+    main_window.ocrResult([make_result("Home Score", "12")])
+    main_window.ocrResult([make_result("Home Score", "12", "SameNoChange")])
+    main_window.ocrResult([make_result("Home Score", "8B", "FailedFilter")])
+    main_window.ocrResult([make_result("Home Score", "13")])
+    # a custom box has no OBS source
+    main_window.ocrResult([make_result("Custom 1", "99")])
+    assert patched["obs"] == [
+        (client, "Home score", "12"),
+        (client, "Home score", "13"),
+    ]
+
+
+def test_stop_updates_pauses_outputs(main_window, patched, make_result):
+    main_window.obs_websocket_client = FakeObsClient()
+    main_window.ui.pushButton_stopUpdates.setChecked(True)
+    main_window.ocrResult([make_result("Home Score", "12")])
+    assert patched["obs"] == []
+
+
+def test_file_outputs_flush_the_last_change_when_the_throttle_opens(
+    main_window, make_result, tmp_path, qtbot
+):
+    # #6: a change that arrives inside the "Save / s" window is written as
+    # soon as the window opens, even if no other result arrives.
+    main_window.ui.horizontalSlider_aggsPerSecond.setValue(2)
+    main_window.setOutputFolder(str(tmp_path))
+    home = tmp_path / "Home Score.txt"
+
+    main_window.ocrResult([make_result("Home Score", "1")])
+    assert home.read_text(encoding="utf-8") == "1"
+    main_window.ocrResult([make_result("Home Score", "2")])
+    main_window.ocrResult([make_result("Home Score", "2", "SameNoChange")])
+    assert home.read_text(encoding="utf-8") == "1"  # throttled
+    qtbot.waitUntil(lambda: home.read_text(encoding="utf-8") == "2", timeout=3000)
+
+
+def test_box_changes_do_not_truncate_the_csv_log(
+    main_window, make_result, make_target, tmp_path
+):
+    # csv-truncated-on-any-box-change: any data_changed (a click on a box, a
+    # settings tweak) emptied results.csv.
+    main_window.ui.comboBox_appendMethod.setCurrentIndex(0)  # append to .csv
+    main_window.ui.checkBox_saveCsv.setChecked(True)
+    main_window.ui.horizontalSlider_aggsPerSecond.setValue(10)
+    main_window.setOutputFolder(str(tmp_path))
+    storage = main_window.detectionTargetsStorage
+    storage.add_item(make_target("Home Score"))
+
+    main_window.ocrResult([make_result("Home Score", "1")])
+    main_window.flushFileOutputs()
+    main_window.ocrResult([make_result("Home Score", "2")])
+    main_window.flushFileOutputs()
+
+    box = storage.find_item_by_name("Home Score")
+    box.settings["smoothing"] = True
+    storage.edit_item("Home Score", box)
+
+    with open(tmp_path / "results.csv", encoding="utf-8", newline="") as f:
+        rows = list(csv.reader(f))
+    assert rows[0] == ["Timestamp", "Home Score"]
+    assert [row[1] for row in rows[1:]] == ["1", "2"]
 
 
 # --- boxes ------------------------------------------------------------------------------
