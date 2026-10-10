@@ -12,7 +12,6 @@ import threading
 
 from base_video_capture import BaseVideoCapture
 from camera_info import CameraInfo
-from ndi import NDICapture
 from storage import (
     SETTINGS_FILE,
     TextDetectionTargetMemoryStorage,
@@ -549,6 +548,10 @@ class TimerThread(QThread):
     def _create_video_capture(self) -> BaseVideoCapture:
         camera_type = self.camera_info.type
         if camera_type == CameraInfo.CameraType.NDI:
+            # imported when first used (or by the source discovery): cyndilib
+            # and the NDI library take a while to load
+            from ndi import NDICapture
+
             return NDICapture(self.camera_info.uuid)
         if camera_type == CameraInfo.CameraType.SCREEN_CAPTURE:
             # imported when first used: it loads pywin32 / pyobjc's Quartz,

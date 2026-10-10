@@ -41,8 +41,9 @@ def ReceiveFrameTypeToString(frame_type: ReceiveFrameType) -> str:
 
 
 class NDICapture(BaseVideoCapture):
-    # Created at import so that NDI discovery (which runs in the NDI library's
-    # own threads) has a head start before the sources are first listed.
+    # Created at import (get_camera_info imports this module before it lists
+    # the cameras) so that NDI discovery, which runs in the NDI library's own
+    # threads, has a head start before the sources are first listed.
     finder: Finder | None = Finder()
     _finder_created = time.monotonic()
     # how long after the finder is created discovery may still be finding the
