@@ -2,6 +2,7 @@
 
 import importlib.util
 import itertools
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -39,11 +40,14 @@ def load_tool(name):
 @pytest.mark.parametrize("name", sorted(TOOLS))
 def test_help(name):
     require_modules(TOOLS[name])
+    # Python 3.14's argparse colours the help when FORCE_COLOR is set (as in CI)
+    env = {**os.environ, "PYTHON_COLORS": "0"}
     completed = subprocess.run(
         [sys.executable, str(SCRIPTS_DIR / f"{name}.py"), "--help"],
         capture_output=True,
         text=True,
         timeout=60,
+        env=env,
     )
     assert completed.returncode == 0, completed.stderr
     assert completed.stdout.startswith("usage:")
