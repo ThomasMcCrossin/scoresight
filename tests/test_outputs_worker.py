@@ -113,6 +113,48 @@ def test_unreachable_endpoint_is_retried_with_the_latest_value(make_worker, capl
     assert any("connection restored" in m for m in messages)
 
 
+def test_a_long_outage_does_not_end_the_worker(make_worker):
+    # Every "unreachable" failure doubles the backoff up to max_backoff, for as
+    # long as the endpoint is down: after ~1025 of them (a few hours) computing
+    # the backoff overflowed a float and the thread died, so nothing was ever
+    # sent again, even after the endpoint came back.
+    down = threading.Event()
+    down.set()
+    calls = []
+
+    def send(key, item):
+        calls.append(item)
+        if down.is_set():
+            raise ConnectionError("refused")
+
+    worker = make_worker(
+        send, retry_on=(ConnectionError,), initial_backoff=0.001, max_backoff=0.001
+    )
+    worker._retry_failures = 1020
+    worker.submit("a", 1)
+    deadline = time.monotonic() + 5
+    while worker._retry_failures < 1030 and time.monotonic() < deadline:
+        time.sleep(0.01)
+    assert worker._retry_failures >= 1030
+    assert worker.is_running
+    assert worker._backoff_delay() == 0.001
+
+    down.clear()  # the endpoint is back
+    worker.submit("a", 2)
+    assert worker.wait_idle(5)
+    assert calls[-1] == 2
+    assert worker._retry_failures == 0
+
+
+def test_backoff_doubles_up_to_the_maximum(make_worker):
+    worker = make_worker(lambda key, item: None, initial_backoff=0.5, max_backoff=5.0)
+    delays = []
+    for failures in (1, 2, 3, 4, 5, 6, 1025, 10**6):
+        worker._retry_failures = failures
+        delays.append(worker._backoff_delay())
+    assert delays == [0.5, 1.0, 2.0, 4.0, 5.0, 5.0, 5.0, 5.0]
+
+
 def test_newer_value_replaces_a_failed_one(make_worker):
     gate = threading.Event()
     send = Recorder(gate, errors={0: ConnectionError("down")})

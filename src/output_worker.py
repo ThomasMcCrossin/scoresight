@@ -208,12 +208,17 @@ class OutputWorker:
                     self._busy = False
                     self._cond.notify_all()
             if unreachable:
-                delay = min(
-                    self._initial_backoff * 2 ** (self._retry_failures - 1),
-                    self._max_backoff,
-                )
                 with self._cond:
-                    self._cond.wait_for(lambda: self._stopped, delay)
+                    self._cond.wait_for(lambda: self._stopped, self._backoff_delay())
+
+    def _backoff_delay(self) -> float:
+        """The wait before retrying after self._retry_failures consecutive
+        "unreachable" failures."""
+        # cap the exponent: the failures go on for as long as the endpoint is
+        # down, and 2 ** 1024 doesn't fit in a float (OverflowError would end
+        # the thread, and with it the output, for the rest of the session)
+        exponent = min(self._retry_failures - 1, 32)
+        return min(self._initial_backoff * 2**exponent, self._max_backoff)
 
     def _send_batch(
         self, items: list[tuple[Hashable, object]], generation: int
