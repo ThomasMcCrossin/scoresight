@@ -60,6 +60,16 @@ your outputs and sources do, and adds profiles for running several instances.
   `scripts/compile_ui.py` to compile the Qt Designer files on every platform,
   `scripts/update_translations.py` to refresh the translation sources from
   `src/` only, and `scripts/bump_version.py` to prepare a release.
+- A status bar: the source with its resolution and frame rate, how many times
+  per second the boxes are read against the **Detections / s** setting (orange
+  when the computer can't keep up), **PAUSED** while the outputs are paused,
+  and the HTTP server's address on your network with a **Copy** button.
+- Keyboard shortcuts: **Ctrl+Shift+P** pauses and resumes the outputs,
+  **Ctrl+B** toggles **Binary View**, **Ctrl+0** fits the picture to the
+  window and **F5** reloads the sources (**⌘** on macOS). The buttons'
+  tooltips show them.
+- Every slider shows its value next to it (*Off* when the setting is off), and
+  every control has a tooltip.
 
 ### Changed
 
@@ -149,6 +159,32 @@ your outputs and sources do, and adds profiles for running several instances.
   Windows camera enumerator builds with pybind11 from `requirements-build.txt`
   from any directory, and the PyInstaller spec builds every platform with the
   same command.
+- The window fits small screens and long languages. The left column scrolls
+  (with **Pause outputs** at its top and **Detections / s** at its bottom
+  always in view), a divider between it and the picture can be dragged (its
+  position is remembered), and the window opens at a size that fits the
+  screen. Its minimum size is about 870×200 pixels in English and 960×200 in
+  German (it was 1016×750 and 1158×750), so it fits a 1366×768 laptop.
+- The boxes list shows the readings: each box's last good value in large type,
+  a symbol and a word for the state of its latest reading (✓ new, = same,
+  ! rejected, with the rejected text, ∅ no reading) and how long ago the last
+  good reading was made, highlighted when it's old. A rejected or empty
+  reading no longer greys out or hides the value, the list is tall enough for
+  every standard box, and a click on a value selects its box.
+- **Stop Updates** is now **Pause outputs** / **Resume outputs**, at the top
+  of the left column. While the outputs are paused, the button is orange, a
+  banner over the picture shows since when (with a **Resume outputs**
+  button), the values in the boxes list are marked *not sent*, the window
+  title starts with ⏸ and the status bar shows how long they have been paused.
+- The **File** menu is translated, and **File > Language** lists each language
+  in its own language (Deutsch, Français, 日本語, ...) with the current one
+  ticked.
+- **Connect to OBS** hides the password (with **Show password**), has a
+  **Cancel** button and stays in front of the main window.
+- The vMix and UNO start buttons show a text and an icon instead of emoji:
+  **Start vMix** / **Stop vMix** and **Start sending** / **Stop sending**.
+- Long camera names no longer make the window wider: the source list is kept
+  narrow, and its drop-down shows the whole names.
 
 ### Fixed
 
@@ -161,6 +197,11 @@ your outputs and sources do, and adds profiles for running several instances.
   changed (for example a score after a restart) then didn't show in the boxes
   list, and vMix and UNO didn't receive it until it changed (unless **Send
   Same?** was on).
+- A value that changed while the outputs were paused didn't reach vMix and UNO
+  after resuming until it changed again (unless **Send Same?** was on). They
+  now get every current value once when the outputs resume.
+- Closing the **Connect to OBS** dialog without connecting left **Create OBS
+  Scene** disabled, even with OBS connected.
 - Saved **Video Settings** (capture backend, video format, resolution, frame
   rate) were not applied when a camera opened, and pressing **OK** in Video
   Settings reopened the camera and threw them away
