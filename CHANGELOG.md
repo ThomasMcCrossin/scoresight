@@ -157,6 +157,10 @@ your outputs and sources do, and adds profiles for running several instances.
   and the preview refreshes about once a second at any detection rate
   ([#53](https://github.com/royshil/scoresight/issues/53),
   [#20](https://github.com/royshil/scoresight/issues/20)).
+- The first readings after a source opened were lost. A value that never
+  changed (for example a score after a restart) then didn't show in the boxes
+  list, and vMix and UNO didn't receive it until it changed (unless **Send
+  Same?** was on).
 - Saved **Video Settings** (capture backend, video format, resolution, frame
   rate) were not applied when a camera opened, and pressing **OK** in Video
   Settings reopened the camera and threw them away
