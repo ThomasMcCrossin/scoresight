@@ -14,6 +14,7 @@ from storage import (
     remove_data,
     store_data,
     subscribe_to_data,
+    unsubscribe_from_data,
 )
 from text_detection_target import TextDetectionTarget, TextDetectionTargetWithResult
 from sc_logging import logger
@@ -60,9 +61,13 @@ class ImageViewer(CameraView):
         self.detectionTargetsStorage.data_changed.connect(self.detectionTargetsChanged)
         self.timerThread.ocr_result_signal.connect(self.ocrResult)
         self.viewport().setAttribute(Qt.WidgetAttribute.WA_AcceptTouchEvents, False)
-        if fetch_data("scoresight.json", "four_corners"):
-            self.setFourCorners(fetch_data("scoresight.json", "four_corners"))
-            self.fourCornersAppliedCallback(self.fourCorners)
+        stored_corners = fetch_data("scoresight.json", "four_corners")
+        if stored_corners:
+            if self.setFourCorners(stored_corners):
+                self.fourCornersAppliedCallback(self.fourCorners)
+            else:
+                # e.g. saved by an older version that didn't validate them
+                remove_data("scoresight.json", "four_corners")
         self._isScaling = False
         self._isPanning = False
         self._lastMousePosition = QPointF()
@@ -100,10 +105,17 @@ class ImageViewer(CameraView):
             # new four corner selection
             self.fourCornerSelectionMode = True
 
-    def setFourCorners(self, corners):
+    def setFourCorners(self, corners) -> bool:
+        self.clearFourCornerItems()
+        return self.setFourCornersForHomography(corners)
+
+    def clearFourCornerItems(self):
+        for corner in self.fourCorners:
+            self.scene.removeItem(corner)
+        if self.fourCornerPolygon is not None:
+            self.scene.removeItem(self.fourCornerPolygon)
         self.fourCorners = []
         self.fourCornerPolygon = None
-        self.setFourCornersForHomography(corners)
 
     def detectionTargetsChanged(self):
         if not self.firstFrameReceived:
@@ -215,16 +227,19 @@ class ImageViewer(CameraView):
                     QPolygonF([corner.pos() for corner in self.fourCorners])
                 )
             if len(self.fourCorners) == 4:
+                corners = [(corner.x(), corner.y()) for corner in self.fourCorners]
                 # calculate the homography from the corners to the rect
-                self.setFourCornersForHomography(
-                    [(corner.x(), corner.y()) for corner in self.fourCorners]
-                )
+                if not self.setFourCornersForHomography(corners):
+                    # e.g. the same point clicked twice: start the selection over
+                    self.clearFourCornerItems()
+                    self.error_event(
+                        "Invalid four-corner selection: click the four corners "
+                        "of the scoreboard"
+                    )
+                    return
+                self.error_event(None)
                 self.fourCornerSelectionMode = False
-                store_data(
-                    "scoresight.json",
-                    "four_corners",
-                    [(corner.x(), corner.y()) for corner in self.fourCorners],
-                )
+                store_data("scoresight.json", "four_corners", corners)
                 # hide polygon and points
                 self.fourCornerPolygon.hide()
                 for corner in self.fourCorners:
@@ -298,4 +313,16 @@ class ImageViewer(CameraView):
 
     def closeEvent(self, event):
         logger.debug("Close")
+        # stop following the boxes and settings, so a closed viewer is neither
+        # kept alive nor updated by them
+        unsubscribe_from_data(
+            "scoresight.json", "box_display_style", self.boxDisplayStyle
+        )
+        if self.detectionTargetsStorage is not None:
+            try:
+                self.detectionTargetsStorage.data_changed.disconnect(
+                    self.detectionTargetsChanged
+                )
+            except (RuntimeError, TypeError):
+                pass
         super().closeEvent(event)
