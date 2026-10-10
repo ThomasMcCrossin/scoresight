@@ -210,7 +210,7 @@ class ImageViewer(CameraView):
             # convert the position to the scene position
             # create a new point
             point = QGraphicsRectItem(-10, -10, 20, 20)
-            point.setPos(self.mapToScene(event.pos()))
+            point.setPos(self.mapToScene(event.position().toPoint()))
             point.setBrush(QBrush(QColor("red")))
             point.setPen(QPen(Qt.GlobalColor.transparent))
             self.scene.addItem(point)
