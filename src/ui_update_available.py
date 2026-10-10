@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'update_available.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.7.2
+## Created by: Qt User Interface Compiler version 6.12.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -23,7 +23,7 @@ class Ui_Dialog(object):
         sizePolicy.setHeightForWidth(Dialog.sizePolicy().hasHeightForWidth())
         Dialog.setSizePolicy(sizePolicy)
         self.gridLayout = QGridLayout(Dialog)
-#ifndef Q_OS_MAC
+#ifndef Q_OS_MACOS
         self.gridLayout.setSpacing(-1)
 #endif
         self.gridLayout.setObjectName(u"gridLayout")

@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'screen_capture.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.7.2
+## Created by: Qt User Interface Compiler version 6.12.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -31,12 +31,12 @@ class Ui_Dialog(object):
         self.comboBox_window = QComboBox(Dialog)
         self.comboBox_window.setObjectName(u"comboBox_window")
 
-        self.formLayout.setWidget(0, QFormLayout.FieldRole, self.comboBox_window)
+        self.formLayout.setWidget(0, QFormLayout.ItemRole.FieldRole, self.comboBox_window)
 
         self.label = QLabel(Dialog)
         self.label.setObjectName(u"label")
 
-        self.formLayout.setWidget(0, QFormLayout.LabelRole, self.label)
+        self.formLayout.setWidget(0, QFormLayout.ItemRole.LabelRole, self.label)
 
 
         self.gridLayout.addLayout(self.formLayout, 1, 0, 1, 1)

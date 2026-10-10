@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'video_settings.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.7.2
+## Created by: Qt User Interface Compiler version 6.12.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -26,18 +26,18 @@ class Ui_Dialog(object):
         self.label = QLabel(self.widget)
         self.label.setObjectName(u"label")
 
-        self.formLayout.setWidget(2, QFormLayout.LabelRole, self.label)
+        self.formLayout.setWidget(2, QFormLayout.ItemRole.LabelRole, self.label)
 
         self.comboBox_fourcc = QComboBox(self.widget)
         self.comboBox_fourcc.addItem("")
         self.comboBox_fourcc.setObjectName(u"comboBox_fourcc")
 
-        self.formLayout.setWidget(2, QFormLayout.FieldRole, self.comboBox_fourcc)
+        self.formLayout.setWidget(2, QFormLayout.ItemRole.FieldRole, self.comboBox_fourcc)
 
         self.label_2 = QLabel(self.widget)
         self.label_2.setObjectName(u"label_2")
 
-        self.formLayout.setWidget(3, QFormLayout.LabelRole, self.label_2)
+        self.formLayout.setWidget(3, QFormLayout.ItemRole.LabelRole, self.label_2)
 
         self.spinBox_fps = QSpinBox(self.widget)
         self.spinBox_fps.setObjectName(u"spinBox_fps")
@@ -45,12 +45,12 @@ class Ui_Dialog(object):
         self.spinBox_fps.setMaximum(60)
         self.spinBox_fps.setValue(30)
 
-        self.formLayout.setWidget(3, QFormLayout.FieldRole, self.spinBox_fps)
+        self.formLayout.setWidget(3, QFormLayout.ItemRole.FieldRole, self.spinBox_fps)
 
         self.label_3 = QLabel(self.widget)
         self.label_3.setObjectName(u"label_3")
 
-        self.formLayout.setWidget(4, QFormLayout.LabelRole, self.label_3)
+        self.formLayout.setWidget(4, QFormLayout.ItemRole.LabelRole, self.label_3)
 
         self.comboBox_resolution = QComboBox(self.widget)
         self.comboBox_resolution.addItem("")
@@ -67,23 +67,23 @@ class Ui_Dialog(object):
         self.comboBox_resolution.addItem("")
         self.comboBox_resolution.setObjectName(u"comboBox_resolution")
 
-        self.formLayout.setWidget(4, QFormLayout.FieldRole, self.comboBox_resolution)
+        self.formLayout.setWidget(4, QFormLayout.ItemRole.FieldRole, self.comboBox_resolution)
 
         self.plainTextEdit_videoProps = QPlainTextEdit(self.widget)
         self.plainTextEdit_videoProps.setObjectName(u"plainTextEdit_videoProps")
 
-        self.formLayout.setWidget(5, QFormLayout.FieldRole, self.plainTextEdit_videoProps)
+        self.formLayout.setWidget(5, QFormLayout.ItemRole.FieldRole, self.plainTextEdit_videoProps)
 
         self.label_4 = QLabel(self.widget)
         self.label_4.setObjectName(u"label_4")
 
-        self.formLayout.setWidget(1, QFormLayout.LabelRole, self.label_4)
+        self.formLayout.setWidget(1, QFormLayout.ItemRole.LabelRole, self.label_4)
 
         self.comboBox_captureBackend = QComboBox(self.widget)
         self.comboBox_captureBackend.addItem("")
         self.comboBox_captureBackend.setObjectName(u"comboBox_captureBackend")
 
-        self.formLayout.setWidget(1, QFormLayout.FieldRole, self.comboBox_captureBackend)
+        self.formLayout.setWidget(1, QFormLayout.ItemRole.FieldRole, self.comboBox_captureBackend)
 
 
         self.gridLayout.addWidget(self.widget, 1, 0, 1, 1)

@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'mainwindow.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.7.2
+## Created by: Qt User Interface Compiler version 6.12.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -488,7 +488,7 @@ class Ui_MainWindow(object):
         self.label_7 = QLabel(self.tab_textFiles)
         self.label_7.setObjectName(u"label_7")
 
-        self.formLayout_2.setWidget(0, QFormLayout.LabelRole, self.label_7)
+        self.formLayout_2.setWidget(0, QFormLayout.ItemRole.LabelRole, self.label_7)
 
         self.widget_5 = QWidget(self.tab_textFiles)
         self.widget_5.setObjectName(u"widget_5")
@@ -517,7 +517,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_6.addWidget(self.toolButton_trashFolder)
 
 
-        self.formLayout_2.setWidget(0, QFormLayout.FieldRole, self.widget_5)
+        self.formLayout_2.setWidget(0, QFormLayout.ItemRole.FieldRole, self.widget_5)
 
         self.widget_12 = QWidget(self.tab_textFiles)
         self.widget_12.setObjectName(u"widget_12")
@@ -537,12 +537,12 @@ class Ui_MainWindow(object):
         self.horizontalLayout_14.addWidget(self.checkBox_saveXML)
 
 
-        self.formLayout_2.setWidget(1, QFormLayout.FieldRole, self.widget_12)
+        self.formLayout_2.setWidget(1, QFormLayout.ItemRole.FieldRole, self.widget_12)
 
         self.label_append = QLabel(self.tab_textFiles)
         self.label_append.setObjectName(u"label_append")
 
-        self.formLayout_2.setWidget(2, QFormLayout.LabelRole, self.label_append)
+        self.formLayout_2.setWidget(2, QFormLayout.ItemRole.LabelRole, self.label_append)
 
         self.comboBox_appendMethod = QComboBox(self.tab_textFiles)
         self.comboBox_appendMethod.addItem("")
@@ -553,12 +553,12 @@ class Ui_MainWindow(object):
         sizePolicy4.setHeightForWidth(self.comboBox_appendMethod.sizePolicy().hasHeightForWidth())
         self.comboBox_appendMethod.setSizePolicy(sizePolicy4)
 
-        self.formLayout_2.setWidget(2, QFormLayout.FieldRole, self.comboBox_appendMethod)
+        self.formLayout_2.setWidget(2, QFormLayout.ItemRole.FieldRole, self.comboBox_appendMethod)
 
         self.label_savePerSec = QLabel(self.tab_textFiles)
         self.label_savePerSec.setObjectName(u"label_savePerSec")
 
-        self.formLayout_2.setWidget(3, QFormLayout.LabelRole, self.label_savePerSec)
+        self.formLayout_2.setWidget(3, QFormLayout.ItemRole.LabelRole, self.label_savePerSec)
 
         self.horizontalSlider_aggsPerSecond = QSlider(self.tab_textFiles)
         self.horizontalSlider_aggsPerSecond.setObjectName(u"horizontalSlider_aggsPerSecond")
@@ -569,11 +569,11 @@ class Ui_MainWindow(object):
         self.horizontalSlider_aggsPerSecond.setOrientation(Qt.Horizontal)
         self.horizontalSlider_aggsPerSecond.setTickPosition(QSlider.TicksBelow)
 
-        self.formLayout_2.setWidget(3, QFormLayout.FieldRole, self.horizontalSlider_aggsPerSecond)
+        self.formLayout_2.setWidget(3, QFormLayout.ItemRole.FieldRole, self.horizontalSlider_aggsPerSecond)
 
         self.verticalSpacer_2 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
-        self.formLayout_2.setItem(4, QFormLayout.FieldRole, self.verticalSpacer_2)
+        self.formLayout_2.setItem(4, QFormLayout.ItemRole.FieldRole, self.verticalSpacer_2)
 
         self.tabWidget_outputs.addTab(self.tab_textFiles, "")
         self.tab_browser = QWidget()
@@ -831,12 +831,12 @@ class Ui_MainWindow(object):
         self.checkBox_enableOutAPI = QCheckBox(self.tab_api)
         self.checkBox_enableOutAPI.setObjectName(u"checkBox_enableOutAPI")
 
-        self.formLayout_3.setWidget(0, QFormLayout.FieldRole, self.checkBox_enableOutAPI)
+        self.formLayout_3.setWidget(0, QFormLayout.ItemRole.FieldRole, self.checkBox_enableOutAPI)
 
         self.label_21 = QLabel(self.tab_api)
         self.label_21.setObjectName(u"label_21")
 
-        self.formLayout_3.setWidget(4, QFormLayout.LabelRole, self.label_21)
+        self.formLayout_3.setWidget(4, QFormLayout.ItemRole.LabelRole, self.label_21)
 
         self.comboBox_api_encode = QComboBox(self.tab_api)
         self.comboBox_api_encode.addItem("")
@@ -845,11 +845,11 @@ class Ui_MainWindow(object):
         self.comboBox_api_encode.addItem("")
         self.comboBox_api_encode.setObjectName(u"comboBox_api_encode")
 
-        self.formLayout_3.setWidget(4, QFormLayout.FieldRole, self.comboBox_api_encode)
+        self.formLayout_3.setWidget(4, QFormLayout.ItemRole.FieldRole, self.comboBox_api_encode)
 
         self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
-        self.formLayout_3.setItem(5, QFormLayout.FieldRole, self.verticalSpacer)
+        self.formLayout_3.setItem(5, QFormLayout.ItemRole.FieldRole, self.verticalSpacer)
 
         self.widget_24 = QWidget(self.tab_api)
         self.widget_24.setObjectName(u"widget_24")
@@ -872,12 +872,12 @@ class Ui_MainWindow(object):
         self.horizontalLayout_27.addWidget(self.comboBox_outApiMethod)
 
 
-        self.formLayout_3.setWidget(1, QFormLayout.FieldRole, self.widget_24)
+        self.formLayout_3.setWidget(1, QFormLayout.ItemRole.FieldRole, self.widget_24)
 
         self.label_20 = QLabel(self.tab_api)
         self.label_20.setObjectName(u"label_20")
 
-        self.formLayout_3.setWidget(1, QFormLayout.LabelRole, self.label_20)
+        self.formLayout_3.setWidget(1, QFormLayout.ItemRole.LabelRole, self.label_20)
 
         self.tabWidget_outputs.addTab(self.tab_api, "")
 
@@ -1191,9 +1191,9 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"ScoreSight", None))
         ___qtablewidgetitem = self.tableWidget_boxes.horizontalHeaderItem(0)
-        ___qtablewidgetitem.setText(QCoreApplication.translate("MainWindow", u"Field", None));
+        ___qtablewidgetitem.setText(QCoreApplication.translate("MainWindow", u"Field", None))
         ___qtablewidgetitem1 = self.tableWidget_boxes.horizontalHeaderItem(1)
-        ___qtablewidgetitem1.setText(QCoreApplication.translate("MainWindow", u"Value", None));
+        ___qtablewidgetitem1.setText(QCoreApplication.translate("MainWindow", u"Value", None))
         self.toolButton_addBox.setText(QCoreApplication.translate("MainWindow", u"+", None))
         self.toolButton_removeBox.setText(QCoreApplication.translate("MainWindow", u"-", None))
         self.pushButton_makeBox.setText(QCoreApplication.translate("MainWindow", u"Add to Scene ->", None))
