@@ -27,7 +27,7 @@ ScoreSight can update [overlays.uno](https://overlays.uno/) graphics directly th
 
    Treat this URL like a password: anyone who has it can control your overlay.
 
-2. In ScoreSight, open the **UNO** tab and paste the URL into **URL**.
+2. In ScoreSight, open the **UNO** tab and paste the URL into **URL**. The URL takes effect when you press **Enter** or leave the field (spaces around it are ignored). Changing it while sending keeps the mapping and the running state.
 3. Check the **mapping table**: for each ScoreSight field, the right column holds the UNO command (or, in Essentials mode, the field ID) it should drive.
 4. Click **▶️** to start sending. The button turns into **🛑**; click it again to stop.
 
@@ -64,10 +64,14 @@ Essentials mode:
 ```
 
 - Only **new** values are sent. Tick **Send Same?** to also resend unchanged values on every cycle.
-- Requests are sent in the background with a timeout. If UNO is slow or unreachable, ScoreSight keeps only the latest values.
-- overlays.uno limits how many API calls an account can make. Keep **Send Same?** off and **Update on change** on to stay well within the limits. The **Rate Limit** field in the tab is informational in this version and doesn't throttle requests.
+- Fields whose mapping cell is empty are not sent.
+- Requests are sent in the background with a 2-second timeout. If UNO is slow or unreachable, ScoreSight keeps only the latest value of each command, retries with an increasing delay, and sends the latest values when UNO responds again. Any 2xx response counts as success.
+- overlays.uno limits how many API calls an account can make. Keep **Send Same?** off and **Update on change** on to stay well within the limits. ScoreSight doesn't throttle UNO requests itself.
+
+{: .new }
+ScoreSight 0.2.0 removed the **Rate Limit** field of 0.1.x, which had no effect.
 
 ## Troubleshooting
 
-- Open the log (**File > View Current Log**) and look for "Failed to send data to UNO API". The status code is a clue: `401` or `403` usually means a wrong or expired URL, and `429` means too many requests.
+- Open the log (**File > View Current Log**) and look for lines that start with `UNO:`, for example `UNO: OutputError: UNO SetGoalsHome returned HTTP 401: ...`. The status code is a clue: `401` or `403` usually means a wrong or expired URL, and `429` means too many requests (the request is dropped; lower the number of updates). Errors are logged at most once every 30 seconds.
 - Make sure the overlay supports the command you mapped, and that the values have the format the overlay expects (for example `mm:ss` for match time). Use the box's [Format](box-settings.md#format) setting to enforce it.

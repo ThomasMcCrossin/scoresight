@@ -26,26 +26,38 @@ Every detection cycle produces one reading per box, in one of four **states**:
 | State | Meaning | Colour in the viewer |
 |---|---|---|
 | `Success` | A new value was read | Green |
-| `SameNoChange` | Same value as the previous reading (only when **Update on change** is on) | Light green |
-| `FailedFilter` | Something was read but it failed the box's Format or confidence check, or was skipped as `SIM` | Yellow |
+| `SameNoChange` | The same value as the box's last good reading (only when **Update on change** is on) | Light green |
+| `FailedFilter` | Something was read but it failed the box's Format or confidence threshold | Yellow |
 | `Empty` | Nothing was read | Red `EMP` |
+
+`Success` and `SameNoChange` are the **good** readings. [Template fields](boxes.md#template-fields) follow the same rules: `Success` when their text changes, `SameNoChange` when it doesn't, and `Empty` until every box they use has had a good reading.
 
 Each output treats states differently:
 
 | Output | What is sent |
 |---|---|
-| Text files | The latest good value of each box. A file is rewritten when the value changes (or the file is missing) |
-| HTTP server | Always the latest reading of every box, including its state. `?pivot` endpoints include only good values |
-| OBS | New values (`Success`) |
-| vMix, UNO | New values. With **Send Same?**, unchanged values are resent too |
-| Outbound HTTP API | Every reading of every box on every cycle, so the receiver should check the state |
+| Text files | The latest good value of each box. A file is rewritten when its content changes (or the file is missing), at most **Save / s** times per second |
+| HTTP server | Always the latest reading of every box, including its state. The `?pivot` endpoints include only good values |
+| OBS | A box's good value whenever it differs from the text last sent to its OBS text source. Sent right away, not limited by **Save / s**, and no output folder needed |
+| vMix, UNO | New values (`Success`). With **Send Same?**, unchanged values (`SameNoChange`) are resent too. Fields with an empty mapping are skipped |
+| Outbound HTTP API | *JSON (Full)*, *XML* and *CSV*: every reading of every box on every cycle, so the receiver should check the state. *JSON (Simple key-value)* and `GET`: only the good readings |
 
 ## Global controls that affect outputs
 
 - **Stop Updates** freezes all outputs at their current values until you click **Resume Updates**. The field list in ScoreSight keeps updating, so you can watch the readings without sending them.
 - **Update on change** (on by default) marks unchanged values as `SameNoChange` so that most outputs don't resend them.
 - **Detections / s** sets how often new readings are produced (see [Performance Tuning](performance.md)).
-- **Skip Empty Values** (a per-box setting, on by default) prevents empty readings from overwriting text files and OBS text sources.
+- **Save / s** (in the **Text Files** tab) limits only how often the files are written. It doesn't slow down the other outputs.
+
+## Network outputs run in the background
+
+OBS, vMix, UNO and the outbound API send from background workers, never from the ScoreSight window itself:
+
+- Every HTTP request has a timeout (2 seconds to connect, 2 seconds to answer). OBS has a 3-second timeout.
+- If a target falls behind, only the most recent value of each field is kept, so old values never pile up.
+- If a target can't be reached, ScoreSight retries with an increasing delay and sends the latest values when it is back. The OBS connection is re-established automatically.
+- Any 2xx HTTP status counts as success.
+- Errors are logged at most once every 30 seconds per output, with the number of errors that were not logged, and recovery is logged once, for example `vMix: connection restored`.
 
 {: .new }
-In ScoreSight 0.2.0, OBS, vMix, UNO and the outbound API send from background workers with network timeouts. A slow or unreachable target no longer freezes the ScoreSight window, and if a target falls behind, only the most recent values are sent. OBS updates also no longer require an output folder to be set.
+In ScoreSight 0.1.x, a slow or unreachable target could freeze the ScoreSight window, and OBS updates only ran when an output folder was set. Both are fixed in 0.2.0.
