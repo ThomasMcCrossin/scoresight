@@ -1,0 +1,2740 @@
+{
+  "about": "Labels of ocr_eval/datasets/commons_scoreboards (see the builder's docstring). Photos were picked on contact sheets of the thumbnails of the candidates (--discover) of the sport categories: physical scoreboards and video boards whose fields looked legible. Each was then looked at in full; 'rejected' lists those that turned out unusable ('category: detail'). Boxes are [x, y, w, h] in the pixels of the photo's rendition of the given size (1280 px wide, or the original if narrower), drawn like a ScoreSight box around one field. Texts are exactly what the display shows; fields that weren't clearly legible were left out. 'group' marks photos of the same board and game, which share a split.",
+  "photos": {
+    "File:004 FC Bayern Basketball im Audidoom Anzeigetafel Aufstellung geg Braunschweig.JPG": {
+      "pageid": 30595363,
+      "sport": "basketball",
+      "display_tech": "dotmatrix",
+      "size": [1280, 853],
+      "fields": [
+        {"role": "home_score", "box": [333, 388, 32, 41], "text": "0", "field_type": "score"},
+        {"role": "clock", "box": [451, 365, 166, 65], "text": "3:25", "field_type": "clock"},
+        {"role": "away_score", "box": [665, 390, 32, 41], "text": "0", "field_type": "score"},
+        {"role": "period", "box": [450, 320, 25, 40], "text": "1", "field_type": "period"},
+        {"role": "home_name", "box": [141, 258, 137, 32], "text": "FC Bayern", "field_type": "text"},
+        {"role": "away_name", "box": [729, 261, 188, 34], "text": "Braunschweig", "field_type": "text"}
+      ]
+    },
+    "File:200001-228-XL (6168576646).jpg": {
+      "pageid": 79245517,
+      "sport": "american football",
+      "display_tech": "dotmatrix",
+      "notes": "Rentschler Field, UConn at home",
+      "size": [1024, 680],
+      "fields": [
+        {"role": "away_name", "box": [132, 312, 122, 68], "text": "ISU", "field_type": "text"},
+        {"role": "home_name", "box": [127, 387, 199, 70], "text": "UCONN", "field_type": "text"},
+        {"role": "away_score", "box": [431, 303, 60, 79], "text": "0", "field_type": "score"},
+        {"role": "home_score", "box": [398, 378, 94, 83], "text": "10", "field_type": "score"},
+        {"role": "away_timeouts", "box": [607, 303, 51, 65], "text": "3", "field_type": "number"},
+        {"role": "home_timeouts", "box": [606, 384, 53, 68], "text": "3", "field_type": "number"},
+        {"role": "down", "box": [705, 371, 47, 82], "text": "1", "field_type": "number"},
+        {"role": "to_go", "box": [844, 369, 95, 82], "text": "10", "field_type": "number"}
+      ]
+    },
+    "File:20031207 RaptorsVSonics 4059 (5798880420).jpg": {
+      "pageid": 79558420,
+      "sport": "basketball",
+      "display_tech": "dotmatrix",
+      "size": [1280, 960],
+      "fields": [
+        {"role": "clock", "box": [537, 248, 150, 67], "text": "2:15", "field_type": "clock"},
+        {"role": "home_name", "box": [505, 310, 106, 40], "text": "RAPTORS", "field_type": "text"},
+        {"role": "away_name", "box": [613, 313, 100, 37], "text": "SONICS", "field_type": "text"},
+        {"role": "home_score", "box": [506, 352, 100, 52], "text": "0", "field_type": "score"},
+        {"role": "away_score", "box": [611, 352, 101, 52], "text": "0", "field_type": "score"},
+        {"role": "period", "box": [608, 419, 26, 50], "text": "1", "field_type": "period"}
+      ]
+    },
+    "File:20060724-assyriska-södertälje-brommapojkarna-anzeigetafel.jpg": {
+      "pageid": 140144439,
+      "sport": "association football",
+      "display_tech": "led7",
+      "size": [1280, 977],
+      "fields": [
+        {"role": "home_score", "box": [212, 82, 92, 134], "text": "0", "field_type": "score"},
+        {"role": "away_score", "box": [351, 94, 49, 110], "text": "1", "field_type": "score"},
+        {"role": "clock", "box": [152, 232, 310, 140], "text": "93:03", "field_type": "clock"}
+      ]
+    },
+    "File:2010-07-04 vik-adl final score.jpg": {
+      "pageid": 10810202,
+      "sport": "american football",
+      "display_tech": "led7",
+      "size": [1086, 1386],
+      "fields": [
+        {"role": "home_score", "box": [99, 164, 174, 140], "text": "31", "field_type": "score"},
+        {"role": "away_score", "box": [819, 163, 187, 156], "text": "34", "field_type": "score"},
+        {"role": "period", "box": [398, 226, 66, 96], "text": "4", "field_type": "period"},
+        {"role": "ball_on", "box": [84, 450, 156, 155], "text": "35", "field_type": "number"},
+        {"role": "down", "box": [627, 468, 98, 136], "text": "4", "field_type": "number"},
+        {"role": "to_go", "box": [898, 474, 88, 116], "text": "2", "field_type": "number"}
+      ]
+    },
+    "File:2010-7-1-football-scoreboard.jpg": {
+      "pageid": 10782695,
+      "sport": "american football",
+      "display_tech": "broadcast",
+      "notes": "video board, Tokyo Dome",
+      "size": [1280, 720],
+      "fields": [
+        {"role": "clock", "box": [826, 160, 86, 89], "text": "3:45", "field_type": "clock"},
+        {"role": "home_score", "box": [327, 539, 46, 69], "text": "9", "field_type": "score", "notes": "total"},
+        {"role": "away_score", "box": [508, 523, 44, 69], "text": "6", "field_type": "score", "notes": "total"},
+        {"role": "home_timeouts", "box": [163, 555, 32, 50], "text": "2", "field_type": "number"},
+        {"role": "away_timeouts", "box": [629, 513, 31, 54], "text": "3", "field_type": "number"},
+        {"role": "other", "box": [350, 235, 41, 65], "text": "0", "field_type": "number", "notes": "points in a quarter"},
+        {"role": "other_2", "box": [344, 292, 46, 68], "text": "6", "field_type": "number", "notes": "points in a quarter"},
+        {"role": "other_3", "box": [341, 352, 43, 65], "text": "3", "field_type": "number", "notes": "points in a quarter"},
+        {"role": "other_4", "box": [524, 267, 42, 69], "text": "0", "field_type": "number", "notes": "points in a quarter"},
+        {"role": "other_5", "box": [521, 328, 42, 68], "text": "0", "field_type": "number", "notes": "points in a quarter"}
+      ]
+    },
+    "File:2012 Labor Day Classic in Regina.JPG": {
+      "pageid": 21091978,
+      "sport": "canadian football",
+      "display_tech": "dotmatrix",
+      "size": [1280, 960],
+      "fields": [
+        {"role": "home_score", "box": [88, 794, 94, 92], "text": "52", "field_type": "score"},
+        {"role": "home_name", "box": [232, 768, 136, 46], "text": "RIDERS", "field_type": "text"},
+        {"role": "clock", "box": [506, 764, 178, 88], "text": "0:01", "field_type": "clock"},
+        {"role": "home_timeouts", "box": [214, 852, 32, 46], "text": "0", "field_type": "number"},
+        {"role": "down", "box": [284, 848, 36, 50], "text": "2", "field_type": "number"},
+        {"role": "to_go", "box": [366, 842, 44, 48], "text": "10", "field_type": "number"},
+        {"role": "ball_on", "box": [734, 814, 52, 46], "text": "34", "field_type": "number"},
+        {"role": "period", "box": [804, 814, 60, 44], "text": "4TH", "field_type": "text"},
+        {"role": "away_timeouts", "box": [878, 810, 26, 42], "text": "1", "field_type": "number"}
+      ]
+    },
+    "File:20130103 Caris LeVert three (2).jpg": {
+      "pageid": 23602863,
+      "sport": "basketball",
+      "display_tech": "led7",
+      "group": "northwestern_shot_clock_2013",
+      "size": [1280, 1707],
+      "fields": [
+        {"role": "clock", "box": [103, 44, 83, 79], "text": "12:03", "field_type": "clock"},
+        {"role": "shot_clock", "box": [102, 115, 80, 107], "text": "20", "field_type": "number"},
+        {"role": "clock_2", "box": [229, 40, 102, 80], "text": "12:03", "field_type": "clock"},
+        {"role": "shot_clock_2", "box": [228, 114, 97, 113], "text": "20", "field_type": "number"}
+      ]
+    },
+    "File:20130103 Mitch McGary dunk.jpg": {
+      "pageid": 23602893,
+      "sport": "basketball",
+      "display_tech": "led7",
+      "group": "northwestern_shot_clock_2013",
+      "size": [1280, 1707],
+      "fields": [
+        {"role": "shot_clock", "box": [1067, 47, 165, 168], "text": "33", "field_type": "number"}
+      ]
+    },
+    "File:20130103 Mitch McGary shot clock-game clock (1).JPG": {
+      "pageid": 23684164,
+      "sport": "basketball",
+      "display_tech": "led7",
+      "group": "northwestern_shot_clock_2013",
+      "size": [1280, 1920],
+      "fields": [
+        {"role": "clock", "box": [1002, 77, 135, 100], "text": "11.8", "field_type": "clock"},
+        {"role": "shot_clock", "box": [1005, 164, 153, 147], "text": "08", "field_type": "number"}
+      ]
+    },
+    "File:20130103 Mitch McGary shot clock-game clock (2).JPG": {
+      "pageid": 23684162,
+      "sport": "basketball",
+      "display_tech": "led7",
+      "group": "northwestern_shot_clock_2013",
+      "size": [1280, 1920],
+      "fields": [
+        {"role": "clock", "box": [935, 104, 138, 101], "text": "11.2", "field_type": "clock"},
+        {"role": "shot_clock", "box": [937, 195, 157, 147], "text": "07", "field_type": "number"}
+      ]
+    },
+    "File:20130103 Mitch McGary shot clock-game clock (3).JPG": {
+      "pageid": 23684163,
+      "sport": "basketball",
+      "display_tech": "led7",
+      "group": "northwestern_shot_clock_2013",
+      "size": [1280, 1920],
+      "fields": [
+        {"role": "clock", "box": [1029, 103, 139, 104], "text": "10.6", "field_type": "clock"}
+      ]
+    },
+    "File:20130103 Trey Burke Layup (1).JPG": {
+      "pageid": 23657483,
+      "sport": "basketball",
+      "display_tech": "led7",
+      "group": "northwestern_shot_clock_2013",
+      "size": [1280, 1920],
+      "fields": [
+        {"role": "shot_clock", "box": [968, 67, 138, 120], "text": "29", "field_type": "number"}
+      ]
+    },
+    "File:20130103 Trey Burke Layup (5).JPG": {
+      "pageid": 23657489,
+      "sport": "basketball",
+      "display_tech": "led7",
+      "group": "northwestern_shot_clock_2013",
+      "size": [1280, 1920],
+      "fields": [
+        {"role": "clock", "box": [995, 57, 153, 96], "text": "18:10", "field_type": "clock"},
+        {"role": "shot_clock", "box": [1001, 149, 136, 122], "text": "28", "field_type": "number"}
+      ]
+    },
+    "File:20130103 Trey Burke Layup (6).JPG": {
+      "pageid": 23657487,
+      "sport": "basketball",
+      "display_tech": "led7",
+      "group": "northwestern_shot_clock_2013",
+      "size": [1280, 1920],
+      "fields": [
+        {"role": "clock", "box": [1032, 48, 154, 95], "text": "18:10", "field_type": "clock"},
+        {"role": "shot_clock", "box": [1039, 140, 136, 121], "text": "28", "field_type": "number"}
+      ]
+    },
+    "File:20130103 Trey Burke in the lane.jpg": {
+      "pageid": 23602939,
+      "sport": "basketball",
+      "display_tech": "led7",
+      "group": "northwestern_shot_clock_2013",
+      "size": [1280, 1920],
+      "fields": [
+        {"role": "shot_clock", "box": [1155, 428, 125, 124], "text": "31", "field_type": "number"}
+      ]
+    },
+    "File:20130103 UofM fast break (5).jpg": {
+      "pageid": 23602879,
+      "sport": "basketball",
+      "display_tech": "led7",
+      "group": "northwestern_shot_clock_2013",
+      "size": [1280, 1707],
+      "fields": [
+        {"role": "shot_clock", "box": [0, 0, 102, 143], "text": "32", "field_type": "number"}
+      ]
+    },
+    "File:2014 Aegon International 012 (14250058307).jpg": {
+      "pageid": 33900520,
+      "sport": "tennis",
+      "display_tech": "flip",
+      "notes": "hand-hung cards",
+      "group": "aegon_eastbourne_board",
+      "size": [1280, 853],
+      "fields": [
+        {"role": "home_name", "box": [307, 225, 203, 96], "text": "D. COX", "field_type": "text"},
+        {"role": "other", "box": [565, 208, 104, 126], "text": "2", "field_type": "number", "notes": "games"},
+        {"role": "home_score", "box": [675, 225, 105, 89], "text": "15", "field_type": "number", "notes": "points"},
+        {"role": "away_name", "box": [258, 330, 306, 111], "text": "R. PURCELL", "field_type": "text"},
+        {"role": "other_2", "box": [564, 325, 107, 127], "text": "1", "field_type": "number", "notes": "games"},
+        {"role": "away_score", "box": [674, 340, 105, 90], "text": "15", "field_type": "number", "notes": "points"}
+      ]
+    },
+    "File:2016IIHFWCIII HKGvsTUR (33).JPG": {
+      "pageid": 47991499,
+      "sport": "ice hockey",
+      "display_tech": "led7",
+      "size": [1280, 840],
+      "fields": [
+        {"role": "clock", "box": [551, 298, 153, 75], "text": "20:00", "field_type": "clock"},
+        {"role": "period", "box": [611, 402, 43, 65], "text": "3", "field_type": "period"},
+        {"role": "home_score", "box": [490, 431, 20, 48], "text": "1", "field_type": "score"},
+        {"role": "away_score", "box": [847, 431, 39, 57], "text": "5", "field_type": "score"},
+        {"role": "penalty_player", "box": [377, 311, 46, 48], "text": "17", "field_type": "number"},
+        {"role": "penalty_time", "box": [436, 308, 82, 61], "text": "1:22", "field_type": "clock"},
+        {"role": "penalty_player_2", "box": [362, 365, 62, 54], "text": "00", "field_type": "number"},
+        {"role": "penalty_time_2", "box": [421, 363, 98, 61], "text": "0:00", "field_type": "clock"},
+        {"role": "penalty_player_3", "box": [742, 319, 57, 50], "text": "00", "field_type": "number"},
+        {"role": "penalty_time_3", "box": [799, 317, 79, 57], "text": "0:00", "field_type": "clock"},
+        {"role": "penalty_player_4", "box": [742, 373, 58, 51], "text": "00", "field_type": "number"},
+        {"role": "penalty_time_4", "box": [799, 371, 90, 57], "text": "0:00", "field_type": "clock"}
+      ]
+    },
+    "File:2017EAFCfinalTURvsENG (54).jpg": {
+      "pageid": 63325531,
+      "sport": "association football",
+      "display_tech": "broadcast",
+      "notes": "video board, angled",
+      "group": "eafc_final_2017",
+      "size": [1280, 847],
+      "fields": [
+        {"role": "clock", "box": [376, 262, 180, 68], "text": "25:00", "field_type": "clock"},
+        {"role": "home_score", "box": [351, 331, 63, 103], "text": "1", "field_type": "score"},
+        {"role": "away_score", "box": [495, 320, 83, 98], "text": "0", "field_type": "score"}
+      ]
+    },
+    "File:2017EAFCfinalTURvsENG (68).jpg": {
+      "pageid": 63325668,
+      "sport": "association football",
+      "display_tech": "broadcast",
+      "notes": "video board, angled",
+      "group": "eafc_final_2017",
+      "size": [1280, 814],
+      "fields": [
+        {"role": "clock", "box": [498, 142, 305, 149], "text": "49:47", "field_type": "clock"},
+        {"role": "home_score", "box": [476, 245, 101, 167], "text": "1", "field_type": "score"},
+        {"role": "away_score", "box": [718, 275, 100, 167], "text": "1", "field_type": "score"}
+      ]
+    },
+    "File:2017EAFCfinalTURvsENG (70).jpg": {
+      "pageid": 63325670,
+      "sport": "association football",
+      "display_tech": "broadcast",
+      "notes": "video board, angled",
+      "group": "eafc_final_2017",
+      "size": [1280, 848],
+      "fields": [
+        {"role": "clock", "box": [596, 187, 204, 117], "text": "50:00", "field_type": "clock"},
+        {"role": "home_score", "box": [556, 269, 85, 111], "text": "2", "field_type": "score"},
+        {"role": "away_score", "box": [705, 295, 72, 113], "text": "1", "field_type": "score"}
+      ]
+    },
+    "File:2019-07-17 SG Dynamo Dresden vs. Paris Saint-Germain by Sandro Halank–728.jpg": {
+      "pageid": 81364754,
+      "sport": "association football",
+      "display_tech": "broadcast",
+      "notes": "video board",
+      "size": [1280, 838],
+      "fields": [
+        {"role": "home_score", "box": [551, 315, 64, 90], "text": "1", "field_type": "score"},
+        {"role": "away_score", "box": [642, 294, 90, 120], "text": "6", "field_type": "score"},
+        {"role": "clock", "box": [517, 453, 209, 104], "text": "85:43", "field_type": "clock"}
+      ]
+    },
+    "File:2026 Ball Hockey World Championship Slovakia vs. Canada 20.jpg": {
+      "pageid": 194983486,
+      "sport": "ball hockey",
+      "display_tech": "dotmatrix",
+      "size": [1280, 853],
+      "fields": [
+        {"role": "clock", "box": [521, 573, 81, 53], "text": "04:36", "field_type": "clock"},
+        {"role": "home_score", "box": [381, 615, 36, 51], "text": "0", "field_type": "score"},
+        {"role": "away_score", "box": [720, 554, 42, 56], "text": "0", "field_type": "score"}
+      ]
+    },
+    "File:2026 Ball Hockey World Championship Slovakia vs. Canada 36.jpg": {
+      "pageid": 194983571,
+      "sport": "ball hockey",
+      "display_tech": "broadcast",
+      "notes": "video board",
+      "group": "ostrava_ball_hockey_2026",
+      "size": [1280, 853],
+      "fields": [
+        {"role": "clock", "box": [1071, 259, 77, 42], "text": "02:06", "field_type": "clock"},
+        {"role": "score", "box": [990, 264, 27, 40], "text": "0", "field_type": "score"},
+        {"role": "score_2", "box": [1200, 282, 21, 35], "text": "1", "field_type": "score"},
+        {"role": "clock_2", "box": [805, 269, 59, 54], "text": "02:06", "field_type": "clock"},
+        {"role": "score_3", "box": [758, 302, 20, 34], "text": "0", "field_type": "score"},
+        {"role": "score_4", "box": [898, 269, 18, 37], "text": "1", "field_type": "score"}
+      ]
+    },
+    "File:2026 Ball Hockey World Championship Slovakia vs. Canada 37.jpg": {
+      "pageid": 194983573,
+      "sport": "ball hockey",
+      "display_tech": "broadcast",
+      "notes": "video board",
+      "group": "ostrava_ball_hockey_2026",
+      "size": [1280, 877],
+      "fields": [
+        {"role": "clock", "box": [1082, 337, 79, 44], "text": "02:04", "field_type": "clock"},
+        {"role": "score", "box": [998, 342, 28, 41], "text": "0", "field_type": "score"},
+        {"role": "score_2", "box": [1213, 359, 27, 42], "text": "1", "field_type": "score"},
+        {"role": "clock_2", "box": [808, 347, 58, 45], "text": "02:04", "field_type": "clock"},
+        {"role": "score_3", "box": [754, 374, 30, 40], "text": "0", "field_type": "score"},
+        {"role": "score_4", "box": [900, 344, 25, 43], "text": "1", "field_type": "score"}
+      ]
+    },
+    "File:2026 Ball Hockey World Championship Slovakia vs. Canada 39.jpg": {
+      "pageid": 194983582,
+      "sport": "ball hockey",
+      "display_tech": "broadcast",
+      "notes": "video board",
+      "group": "ostrava_ball_hockey_2026",
+      "size": [1280, 853],
+      "fields": [
+        {"role": "clock", "box": [1024, 361, 47, 33], "text": "01:45", "field_type": "clock"},
+        {"role": "score", "box": [943, 358, 21, 34], "text": "0", "field_type": "score"},
+        {"role": "score_2", "box": [1129, 377, 23, 37], "text": "1", "field_type": "score"},
+        {"role": "clock_2", "box": [778, 364, 35, 33], "text": "01:45", "field_type": "clock"},
+        {"role": "score_4", "box": [854, 357, 21, 37], "text": "1", "field_type": "score"}
+      ]
+    },
+    "File:2026-01-23 Schwarz-Weiß Erfurt gegen 1. VC Wiesbaden (Volleyball-Bundesliga Frauen 2025-26) by Sandro Halank–024.jpg": {
+      "pageid": 183411299,
+      "sport": "volleyball",
+      "display_tech": "flip",
+      "notes": "table flip scorer",
+      "size": [1280, 825],
+      "fields": [
+        {"role": "other", "box": [181, 116, 165, 254], "text": "3", "field_type": "number", "notes": "sets won"},
+        {"role": "home_score", "box": [311, 186, 332, 335], "text": "25", "field_type": "score"},
+        {"role": "away_score", "box": [628, 207, 299, 315], "text": "16", "field_type": "score"},
+        {"role": "other_2", "box": [910, 138, 177, 259], "text": "0", "field_type": "number", "notes": "sets won"}
+      ]
+    },
+    "File:24 seconds.jpg": {
+      "pageid": 22538954,
+      "sport": "basketball",
+      "display_tech": "led7",
+      "size": [734, 817],
+      "fields": [
+        {"role": "shot_clock", "box": [330, 347, 181, 126], "text": "24", "field_type": "number"}
+      ]
+    },
+    "File:261st Consecutive Game Over 100,000, Michigan Stadium, University of Michigan, Ann Arbor, Michigan (21559655959).jpg": {
+      "pageid": 73625150,
+      "sport": "american football",
+      "display_tech": "dotmatrix",
+      "notes": "Michigan Stadium",
+      "size": [1280, 960],
+      "fields": [
+        {"role": "clock", "box": [70, 774, 156, 61], "text": "15:00", "field_type": "clock"},
+        {"role": "down", "box": [358, 780, 117, 62], "text": "2nd", "field_type": "text"},
+        {"role": "to_go", "box": [521, 783, 47, 58], "text": "7", "field_type": "number"},
+        {"role": "ball_on", "box": [674, 782, 88, 61], "text": "35", "field_type": "number"}
+      ]
+    },
+    "File:500px photo (18635731).jpeg": {
+      "pageid": 71288994,
+      "sport": "american football",
+      "display_tech": "led7",
+      "size": [1280, 847],
+      "fields": [
+        {"role": "home_score", "box": [144, 453, 130, 105], "text": "42", "field_type": "score"},
+        {"role": "away_score", "box": [898, 451, 89, 86], "text": "14", "field_type": "score"},
+        {"role": "home_timeouts", "box": [155, 564, 56, 82], "text": "2", "field_type": "number"},
+        {"role": "away_timeouts", "box": [938, 550, 50, 77], "text": "3", "field_type": "number"},
+        {"role": "down", "box": [325, 599, 37, 90], "text": "1", "field_type": "number"},
+        {"role": "to_go", "box": [454, 587, 97, 104], "text": "10", "field_type": "number"},
+        {"role": "ball_on", "box": [638, 583, 96, 104], "text": "15", "field_type": "number"},
+        {"role": "period", "box": [793, 588, 67, 89], "text": "4", "field_type": "period"}
+      ]
+    },
+    "File:A Draw! (36207953933).jpg": {
+      "pageid": 64892154,
+      "sport": "australian rules football",
+      "display_tech": "broadcast",
+      "notes": "ribbon under the video board",
+      "size": [1280, 796],
+      "fields": [
+        {"role": "clock", "box": [87, 602, 97, 68], "text": "5:58", "field_type": "clock"},
+        {"role": "home_name", "box": [200, 601, 115, 68], "text": "COLL", "field_type": "text"},
+        {"role": "other", "box": [326, 600, 62, 68], "text": "15", "field_type": "number", "notes": "goals"},
+        {"role": "other_2", "box": [412, 598, 63, 69], "text": "13", "field_type": "number", "notes": "behinds"},
+        {"role": "home_score", "box": [495, 597, 86, 70], "text": "103", "field_type": "score"},
+        {"role": "away_name", "box": [575, 600, 119, 65], "text": "ADEL", "field_type": "text"},
+        {"role": "other_3", "box": [710, 600, 62, 64], "text": "16", "field_type": "number", "notes": "goals"},
+        {"role": "other_4", "box": [820, 594, 41, 69], "text": "7", "field_type": "number", "notes": "behinds"},
+        {"role": "away_score", "box": [883, 597, 88, 66], "text": "103", "field_type": "score"}
+      ]
+    },
+    "File:AFC Fylde 0-2 York City (53326267286).jpg": {
+      "pageid": 143693096,
+      "sport": "association football",
+      "display_tech": "broadcast",
+      "notes": "video board",
+      "size": [1280, 853],
+      "fields": [
+        {"role": "home_score", "box": [414, 402, 82, 104], "text": "0", "field_type": "score"},
+        {"role": "clock", "box": [524, 416, 202, 74], "text": "21:13", "field_type": "clock"},
+        {"role": "away_score", "box": [768, 402, 84, 104], "text": "1", "field_type": "score"}
+      ]
+    },
+    "File:AKSE-Jerudong 25 August 2023 45.jpg": {
+      "pageid": 136446233,
+      "sport": "association football",
+      "display_tech": "flip",
+      "notes": "hand-hung number cards",
+      "size": [1280, 853],
+      "fields": [
+        {"role": "home_score", "box": [417, 415, 84, 149], "text": "8", "field_type": "score"},
+        {"role": "away_score", "box": [734, 383, 78, 147], "text": "0", "field_type": "score"},
+        {"role": "home_name", "box": [338, 594, 243, 112], "text": "AKSE BERSATU", "field_type": "text"},
+        {"role": "away_name", "box": [653, 559, 225, 114], "text": "JERUDONG FC", "field_type": "text"}
+      ]
+    },
+    "File:Ajax tegen Feyenoord 1-0. Scorebord 1-0 voor Ajax, Bestanddeelnr 921-1541.jpg": {
+      "pageid": 66515454,
+      "sport": "association football",
+      "display_tech": "flip",
+      "notes": "hand-hung cards, 1950s photo",
+      "group": "ajax_stadium_board",
+      "size": [1280, 849],
+      "fields": [
+        {"role": "away_score", "box": [1019, 302, 107, 101], "text": "0", "field_type": "score"},
+        {"role": "home_name", "box": [76, 414, 440, 129], "text": "AJAX", "field_type": "text"},
+        {"role": "home_score", "box": [1041, 411, 53, 103], "text": "1", "field_type": "score"}
+      ]
+    },
+    "File:Ajax tegen GVAV 0-1, het scorebord bij Ajax 0-1, Bestanddeelnr 920-2563.jpg": {
+      "pageid": 66351018,
+      "sport": "association football",
+      "display_tech": "flip",
+      "notes": "hand-hung cards, 1950s photo, angled",
+      "group": "ajax_stadium_board",
+      "size": [1280, 844],
+      "fields": [
+        {"role": "away_name", "box": [180, 269, 424, 166], "text": "GVAV", "field_type": "text"},
+        {"role": "away_score", "box": [971, 311, 61, 142], "text": "1", "field_type": "score"},
+        {"role": "home_name", "box": [248, 525, 381, 163], "text": "AJAX", "field_type": "text"},
+        {"role": "home_score", "box": [978, 562, 108, 136], "text": "0", "field_type": "score"}
+      ]
+    },
+    "File:Ajax tegen NEC 9-1. Het scorebord 9-1, Bestanddeelnr 920-8353.jpg": {
+      "pageid": 66447334,
+      "sport": "association football",
+      "display_tech": "flip",
+      "notes": "hand-hung cards, 1950s photo",
+      "group": "ajax_stadium_board",
+      "size": [1280, 844],
+      "fields": [
+        {"role": "away_name", "box": [513, 353, 220, 109], "text": "NEC", "field_type": "text"},
+        {"role": "away_score", "box": [970, 340, 44, 88], "text": "1", "field_type": "score"},
+        {"role": "home_name", "box": [520, 514, 246, 111], "text": "AJAX", "field_type": "text"},
+        {"role": "home_score", "box": [992, 496, 92, 94], "text": "9", "field_type": "score"}
+      ]
+    },
+    "File:Ajax tegen Volendam 7-1. Scorebord 6-1 en 7-1 voor Ajax, Bestanddeelnr 920-6887.jpg": {
+      "pageid": 66417936,
+      "sport": "association football",
+      "display_tech": "flip",
+      "notes": "hand-hung cards, 1950s photo",
+      "group": "ajax_stadium_board",
+      "size": [1280, 844],
+      "fields": [
+        {"role": "away_name", "box": [204, 387, 548, 101], "text": "VOLENDAM", "field_type": "text"},
+        {"role": "away_score", "box": [1018, 384, 36, 97], "text": "1", "field_type": "score"},
+        {"role": "home_name", "box": [471, 555, 257, 100], "text": "AJAX", "field_type": "text"},
+        {"role": "home_score", "box": [990, 555, 73, 100], "text": "6", "field_type": "score"}
+      ]
+    },
+    "File:Anaheim Ducks vs. Detroit Red Wings Oct 8, 2010 52 (1).JPG": {
+      "pageid": 66835032,
+      "sport": "ice hockey",
+      "display_tech": "dotmatrix",
+      "size": [1280, 479],
+      "fields": [
+        {"role": "clock", "box": [433, 112, 181, 143], "text": "4:49", "field_type": "clock"},
+        {"role": "period", "box": [552, 209, 72, 96], "text": "3", "field_type": "period"}
+      ]
+    },
+    "File:Anzeigentafel.jpg": {
+      "pageid": 15541118,
+      "sport": "association football",
+      "display_tech": "flip",
+      "notes": "number cards",
+      "size": [790, 600],
+      "fields": [
+        {"role": "home_score", "box": [211, 299, 86, 146], "text": "9", "field_type": "score"},
+        {"role": "away_score", "box": [406, 297, 90, 146], "text": "0", "field_type": "score"},
+        {"role": "away_name", "box": [360, 188, 170, 48], "text": "GÄSTE", "field_type": "text"}
+      ]
+    },
+    "File:Anzeigetafel Millerntorstadion 001.jpg": {
+      "pageid": 177793186,
+      "sport": "association football",
+      "display_tech": "broadcast",
+      "notes": "video board",
+      "size": [1280, 853],
+      "fields": [
+        {"role": "home_name", "box": [473, 267, 135, 54], "text": "FC ST. PAULI", "field_type": "text"},
+        {"role": "away_name", "box": [654, 263, 73, 49], "text": "GÄSTE", "field_type": "text"},
+        {"role": "clock", "box": [566, 331, 101, 86], "text": "22:25", "field_type": "clock"},
+        {"role": "home_score", "box": [514, 434, 55, 106], "text": "2", "field_type": "score"},
+        {"role": "away_score", "box": [669, 424, 47, 104], "text": "1", "field_type": "score"}
+      ]
+    },
+    "File:At the Cricket 5 (geograph 4111292).jpg": {
+      "pageid": 48040697,
+      "sport": "cricket",
+      "display_tech": "dotmatrix",
+      "notes": "Old Trafford, England v India",
+      "size": [1280, 856],
+      "fields": [
+        {"role": "other", "box": [296, 244, 76, 42], "text": "12:04", "field_type": "other", "notes": "time of day"},
+        {"role": "runs", "box": [395, 236, 84, 50], "text": "149", "field_type": "number"},
+        {"role": "wickets", "box": [568, 236, 28, 50], "text": "5", "field_type": "number"},
+        {"role": "overs", "box": [684, 236, 120, 50], "text": "47.2", "field_type": "other"},
+        {"role": "batter_runs", "box": [581, 325, 34, 47], "text": "2", "field_type": "number"},
+        {"role": "other_2", "box": [636, 326, 50, 44], "text": "11", "field_type": "number", "notes": "balls faced"},
+        {"role": "other_3", "box": [725, 324, 34, 47], "text": "0", "field_type": "number", "notes": "fours"},
+        {"role": "other_4", "box": [784, 325, 32, 44], "text": "0", "field_type": "number", "notes": "sixes"},
+        {"role": "batter_runs_2", "box": [582, 375, 32, 44], "text": "6", "field_type": "number"},
+        {"role": "other_5", "box": [635, 373, 54, 47], "text": "18", "field_type": "number", "notes": "balls faced"},
+        {"role": "other_6", "box": [729, 374, 27, 44], "text": "1", "field_type": "number", "notes": "fours"},
+        {"role": "other_7", "box": [783, 372, 34, 47], "text": "0", "field_type": "number", "notes": "sixes"},
+        {"role": "other_8", "box": [514, 443, 101, 47], "text": "15.2", "field_type": "other", "notes": "bowler overs"},
+        {"role": "other_9", "box": [647, 444, 31, 44], "text": "6", "field_type": "number", "notes": "maidens"},
+        {"role": "other_10", "box": [706, 442, 57, 47], "text": "29", "field_type": "number", "notes": "bowler runs"},
+        {"role": "other_11", "box": [783, 442, 34, 47], "text": "3", "field_type": "number", "notes": "bowler wickets"},
+        {"role": "other_12", "box": [562, 493, 50, 44], "text": "11", "field_type": "number", "notes": "bowler overs"},
+        {"role": "other_13", "box": [646, 491, 33, 47], "text": "2", "field_type": "number", "notes": "maidens"},
+        {"role": "other_14", "box": [706, 491, 57, 47], "text": "35", "field_type": "number", "notes": "bowler runs"},
+        {"role": "other_15", "box": [783, 491, 34, 47], "text": "2", "field_type": "number", "notes": "bowler wickets"},
+        {"role": "other_16", "box": [473, 542, 33, 28], "text": "78", "field_type": "number", "notes": "overs left"},
+        {"role": "other_17", "box": [647, 542, 46, 28], "text": "140", "field_type": "number", "notes": "last wicket"},
+        {"role": "other_18", "box": [776, 541, 32, 29], "text": "10", "field_type": "number", "notes": "extras"}
+      ]
+    },
+    "File:Austrian Bowl 2013-048.JPG": {
+      "pageid": 27540735,
+      "sport": "american football",
+      "display_tech": "led7",
+      "size": [1280, 850],
+      "fields": [
+        {"role": "clock", "box": [501, 200, 264, 147], "text": "12:00", "field_type": "clock"},
+        {"role": "home_name", "box": [254, 327, 125, 58], "text": "Vikings", "field_type": "text", "display_tech": "printed"},
+        {"role": "away_name", "box": [842, 330, 136, 52], "text": "Raiders", "field_type": "text", "display_tech": "printed"},
+        {"role": "home_score", "box": [312, 377, 118, 173], "text": "0", "field_type": "score"},
+        {"role": "away_score", "box": [905, 374, 120, 180], "text": "0", "field_type": "score"},
+        {"role": "home_timeouts", "box": [191, 585, 79, 128], "text": "3", "field_type": "number"},
+        {"role": "down", "box": [297, 586, 86, 128], "text": "0", "field_type": "number"},
+        {"role": "to_go", "box": [412, 587, 140, 128], "text": "00", "field_type": "number"},
+        {"role": "ball_on", "box": [688, 596, 104, 106], "text": "35", "field_type": "number"},
+        {"role": "period", "box": [871, 598, 43, 107], "text": "1", "field_type": "period"},
+        {"role": "away_timeouts", "box": [965, 589, 78, 129], "text": "3", "field_type": "number"}
+      ]
+    },
+    "File:BJKFulyaStadium (9).jpg": {
+      "pageid": 58257721,
+      "sport": "association football",
+      "display_tech": "dotmatrix",
+      "size": [1280, 889],
+      "fields": [
+        {"role": "clock", "box": [223, 261, 157, 78], "text": "41:21", "field_type": "clock"},
+        {"role": "home_name", "box": [110, 341, 278, 55], "text": "BESIKTAS AS", "field_type": "text"},
+        {"role": "away_name", "box": [108, 400, 293, 56], "text": "1207 ANTALYA", "field_type": "text"},
+        {"role": "home_score", "box": [453, 333, 53, 73], "text": "3", "field_type": "score"},
+        {"role": "away_score", "box": [453, 399, 51, 68], "text": "0", "field_type": "score"}
+      ]
+    },
+    "File:Baldwin Wallace Yellow Jackets vs. Wilmington Quakers (36936053083).jpg": {
+      "pageid": 63323115,
+      "sport": "american football",
+      "display_tech": "led7",
+      "size": [1280, 853],
+      "fields": [
+        {"role": "home_score", "box": [210, 563, 70, 107], "text": "0", "field_type": "score"},
+        {"role": "down", "box": [337, 648, 58, 84], "text": "2", "field_type": "number"},
+        {"role": "to_go", "box": [416, 648, 75, 84], "text": "10", "field_type": "number"},
+        {"role": "clock", "box": [549, 531, 207, 106], "text": "13:50", "field_type": "clock"},
+        {"role": "home_timeouts", "box": [556, 639, 47, 70], "text": "3", "field_type": "number"},
+        {"role": "away_timeouts", "box": [687, 642, 37, 68], "text": "2", "field_type": "number"},
+        {"role": "ball_on", "box": [797, 652, 101, 83], "text": "35", "field_type": "number"},
+        {"role": "period", "box": [935, 650, 57, 85], "text": "2", "field_type": "period"},
+        {"role": "away_score", "box": [1064, 576, 71, 100], "text": "3", "field_type": "score"},
+        {"role": "away_name", "box": [1028, 541, 82, 40], "text": "BWU", "field_type": "text", "display_tech": "dotmatrix"},
+        {"role": "other", "box": [187, 726, 124, 103], "text": "25", "field_type": "number", "display_tech": "dotmatrix", "notes": "play clock"}
+      ]
+    },
+    "File:Belgie tegen Holland 2-0, scorebord opdracht Telegraaf, Bestanddeelnr 914-4019.jpg": {
+      "pageid": 67290222,
+      "sport": "association football",
+      "display_tech": "flip",
+      "notes": "hand-hung cards, 1950s photo",
+      "size": [1280, 841],
+      "fields": [
+        {"role": "home_name", "box": [122, 481, 387, 97], "text": "BELGIE", "field_type": "text"},
+        {"role": "home_score", "box": [545, 497, 72, 91], "text": "2", "field_type": "score"},
+        {"role": "away_score", "box": [628, 501, 72, 91], "text": "0", "field_type": "score"},
+        {"role": "away_name", "box": [726, 513, 393, 88], "text": "NEDERLAND", "field_type": "text"}
+      ]
+    },
+    "File:Bellcenterscreen.jpg": {
+      "pageid": 2569694,
+      "sport": "ice hockey",
+      "display_tech": "led7",
+      "size": [1280, 960],
+      "fields": [
+        {"role": "clock", "box": [716, 137, 121, 70], "text": "4:29", "field_type": "clock"},
+        {"role": "home_name", "box": [577, 217, 156, 40], "text": "PITTSBURGH", "field_type": "text", "display_tech": "dotmatrix"},
+        {"role": "away_name", "box": [786, 228, 135, 36], "text": "CANADIENS", "field_type": "text", "display_tech": "dotmatrix"},
+        {"role": "home_score", "box": [661, 265, 36, 57], "text": "3", "field_type": "score"},
+        {"role": "period", "box": [742, 285, 37, 48], "text": "4", "field_type": "period"},
+        {"role": "away_score", "box": [865, 274, 36, 56], "text": "3", "field_type": "score"}
+      ]
+    },
+    "File:BigChillRecord.JPG": {
+      "pageid": 12354372,
+      "sport": "ice hockey",
+      "display_tech": "dotmatrix",
+      "notes": "Michigan Stadium, Big Chill at the Big House",
+      "group": "michigan_big_chill_2010",
+      "size": [1280, 960],
+      "fields": [
+        {"role": "home_name", "box": [175, 303, 133, 43], "text": "MICHIGAN", "field_type": "text"},
+        {"role": "away_name", "box": [476, 315, 61, 40], "text": "MSU", "field_type": "text"},
+        {"role": "home_score", "box": [224, 352, 48, 63], "text": "3", "field_type": "score"},
+        {"role": "away_score", "box": [524, 364, 50, 62], "text": "0", "field_type": "score"},
+        {"role": "clock", "box": [295, 418, 181, 68], "text": "13:20", "field_type": "clock"},
+        {"role": "home_timeouts", "box": [174, 422, 19, 40], "text": "1", "field_type": "number"},
+        {"role": "away_timeouts", "box": [566, 437, 16, 36], "text": "1", "field_type": "number"},
+        {"role": "other", "box": [220, 473, 59, 48], "text": "20", "field_type": "number", "notes": "shots on goal"},
+        {"role": "other_2", "box": [467, 481, 57, 47], "text": "23", "field_type": "number", "notes": "shots on goal"},
+        {"role": "period", "box": [585, 486, 29, 44], "text": "3", "field_type": "period"}
+      ]
+    },
+    "File:Bojangles' Coliseum Daktronics (cropped).jpg": {
+      "pageid": 77198772,
+      "sport": "ice hockey",
+      "display_tech": "broadcast",
+      "notes": "LED ring",
+      "size": [1107, 970],
+      "fields": [
+        {"role": "score", "box": [464, 762, 50, 60], "text": "0", "field_type": "score"},
+        {"role": "clock", "box": [526, 754, 112, 50], "text": "8:39", "field_type": "clock"},
+        {"role": "score_2", "box": [662, 762, 56, 60], "text": "0", "field_type": "score"}
+      ]
+    },
+    "File:Boston College Eagles vs. University of the Pacific Tigers, First Round, NCAA Men's Basketball Tournament, Huntsman Center, University of Utah, Salt Lake City, Utah (114271672).jpg": {
+      "pageid": 55059180,
+      "sport": "basketball",
+      "display_tech": "led7",
+      "group": "huntsman_center_2009",
+      "size": [1280, 960],
+      "fields": [
+        {"role": "clock", "box": [604, 519, 68, 40], "text": "12.2", "field_type": "clock"},
+        {"role": "home_name", "box": [491, 521, 58, 30], "text": "BC", "field_type": "text", "display_tech": "dotmatrix"},
+        {"role": "away_name", "box": [730, 523, 70, 20], "text": "PACIFIC", "field_type": "text", "display_tech": "dotmatrix"},
+        {"role": "home_score", "box": [498, 543, 51, 44], "text": "72", "field_type": "score"},
+        {"role": "away_score", "box": [746, 543, 51, 42], "text": "74", "field_type": "score"},
+        {"role": "period", "box": [654, 557, 29, 34], "text": "2", "field_type": "period"},
+        {"role": "home_timeouts", "box": [585, 585, 13, 21], "text": "1", "field_type": "number"},
+        {"role": "away_timeouts", "box": [692, 585, 14, 21], "text": "1", "field_type": "number"},
+        {"role": "home_fouls", "box": [495, 616, 22, 26], "text": "8", "field_type": "number"},
+        {"role": "away_fouls", "box": [772, 616, 29, 26], "text": "10", "field_type": "number"}
+      ]
+    },
+    "File:Boston College Eagles vs. University of the Pacific Tigers, First Round, NCAA Men's Basketball Tournament, Huntsman Center, University of Utah, Salt Lake City, Utah (114271783).jpg": {
+      "pageid": 55059189,
+      "sport": "basketball",
+      "display_tech": "led7",
+      "group": "huntsman_center_2009",
+      "size": [1280, 960],
+      "fields": [
+        {"role": "clock", "box": [586, 465, 61, 35], "text": "12.2", "field_type": "clock"},
+        {"role": "home_score", "box": [495, 485, 47, 41], "text": "72", "field_type": "score"},
+        {"role": "away_score", "box": [708, 485, 47, 40], "text": "74", "field_type": "score"},
+        {"role": "period", "box": [629, 501, 28, 29], "text": "2", "field_type": "period"},
+        {"role": "home_timeouts", "box": [570, 523, 14, 19], "text": "1", "field_type": "number"},
+        {"role": "away_timeouts", "box": [662, 523, 14, 20], "text": "1", "field_type": "number"}
+      ]
+    },
+    "File:Botany Bay Cricket Club ground scoreboard in Botany Bay, Enfield, London.jpg": {
+      "pageid": 72661721,
+      "sport": "cricket",
+      "display_tech": "led7",
+      "size": [1280, 960],
+      "fields": [
+        {"role": "other", "box": [348, 389, 30, 51], "text": "6", "field_type": "number", "notes": "batter number"},
+        {"role": "batter_runs", "box": [344, 446, 72, 65], "text": "38", "field_type": "number"},
+        {"role": "runs", "box": [522, 435, 87, 65], "text": "120", "field_type": "number"},
+        {"role": "other_2", "box": [758, 380, 49, 68], "text": "8", "field_type": "number", "notes": "batter number"},
+        {"role": "batter_runs_2", "box": [765, 445, 42, 62], "text": "7", "field_type": "number"},
+        {"role": "wickets", "box": [540, 505, 31, 52], "text": "6", "field_type": "number"},
+        {"role": "other_3", "box": [359, 566, 57, 65], "text": "18", "field_type": "number", "notes": "last man"},
+        {"role": "other_4", "box": [718, 566, 90, 68], "text": "102", "field_type": "number", "notes": "last wicket"},
+        {"role": "overs", "box": [522, 686, 74, 68], "text": "33", "field_type": "number"}
+      ]
+    },
+    "File:Bowling Green Flacons at Michigan Wolverines (5024749010).jpg": {
+      "pageid": 64145925,
+      "sport": "american football",
+      "display_tech": "led7",
+      "notes": "Michigan Stadium",
+      "size": [1024, 685],
+      "fields": [
+        {"role": "home_score", "box": [268, 205, 112, 68], "text": "65", "field_type": "score"},
+        {"role": "away_score", "box": [620, 224, 104, 90], "text": "21", "field_type": "score"},
+        {"role": "clock", "box": [392, 288, 220, 96], "text": "3:11", "field_type": "clock"},
+        {"role": "home_timeouts", "box": [258, 292, 30, 44], "text": "2", "field_type": "number"},
+        {"role": "away_timeouts", "box": [704, 336, 28, 46], "text": "3", "field_type": "number"},
+        {"role": "period", "box": [740, 404, 30, 46], "text": "4", "field_type": "period"},
+        {"role": "other", "box": [808, 498, 124, 84], "text": "25", "field_type": "number", "notes": "play clock"},
+        {"role": "other_2", "box": [306, 421, 92, 38], "text": "466", "field_type": "number", "notes": "rushing yards"},
+        {"role": "other_3", "box": [306, 462, 92, 38], "text": "255", "field_type": "number", "notes": "passing yards"},
+        {"role": "other_4", "box": [306, 503, 92, 38], "text": "721", "field_type": "number", "notes": "total yards"},
+        {"role": "other_5", "box": [596, 458, 86, 38], "text": "19", "field_type": "number", "notes": "rushing yards"},
+        {"role": "other_6", "box": [596, 499, 86, 38], "text": "231", "field_type": "number", "notes": "passing yards"},
+        {"role": "other_7", "box": [596, 540, 86, 38], "text": "250", "field_type": "number", "notes": "total yards"}
+      ]
+    },
+    "File:Brno, Královo Pole, hala Vodova, MS v basketbalu žen (35).jpg": {
+      "pageid": 11907497,
+      "sport": "basketball",
+      "display_tech": "led7",
+      "size": [1280, 960],
+      "fields": [
+        {"role": "home_name", "box": [541, 386, 71, 29], "text": "JAPAN", "field_type": "text", "display_tech": "dotmatrix"},
+        {"role": "away_name", "box": [647, 386, 119, 28], "text": "CZECH REP", "field_type": "text", "display_tech": "dotmatrix"},
+        {"role": "home_score", "box": [548, 417, 64, 55], "text": "60", "field_type": "score"},
+        {"role": "away_score", "box": [690, 418, 63, 55], "text": "66", "field_type": "score"},
+        {"role": "period", "box": [632, 463, 28, 37], "text": "4", "field_type": "period"},
+        {"role": "clock", "box": [582, 517, 130, 54], "text": "00:00", "field_type": "clock"},
+        {"role": "home_fouls", "box": [546, 592, 41, 54], "text": "5", "field_type": "number"},
+        {"role": "away_fouls", "box": [712, 592, 39, 55], "text": "3", "field_type": "number"}
+      ]
+    },
+    "File:Brooklyn Nets vs NY Knicks 2018-10-03 td 082 - Pregame.jpg": {
+      "pageid": 73432885,
+      "sport": "basketball",
+      "display_tech": "led7",
+      "size": [1280, 853],
+      "fields": [
+        {"role": "shot_clock", "box": [618, 192, 62, 64], "text": "0.0", "field_type": "clock"}
+      ]
+    },
+    "File:Brooklyn Nets vs NY Knicks 2018-10-03 td 11 - Pregame.jpg": {
+      "pageid": 73410987,
+      "sport": "basketball",
+      "display_tech": "led7",
+      "size": [1280, 853],
+      "fields": [
+        {"role": "clock", "box": [364, 313, 66, 36], "text": "35:13", "field_type": "clock", "notes": "pregame countdown"}
+      ]
+    },
+    "File:Brooklyn Nets vs NY Knicks 2018-10-03 td 142 - 1st Quarter.jpg": {
+      "pageid": 73593889,
+      "sport": "basketball",
+      "display_tech": "led7",
+      "size": [1280, 853],
+      "fields": [
+        {"role": "clock", "box": [640, 163, 108, 66], "text": "5:59", "field_type": "clock"},
+        {"role": "shot_clock", "box": [626, 228, 112, 92], "text": "24", "field_type": "number"},
+        {"role": "clock_2", "box": [238, 259, 98, 71], "text": "5:59", "field_type": "clock"}
+      ]
+    },
+    "File:Brown Bears vs. Rhode Island Rams final score.jpg": {
+      "pageid": 110212961,
+      "sport": "american football",
+      "display_tech": "led7",
+      "group": "brown_stadium_board",
+      "size": [1280, 853],
+      "fields": [
+        {"role": "home_score", "box": [314, 582, 88, 76], "text": "24", "field_type": "score"},
+        {"role": "clock", "box": [541, 574, 146, 49], "text": "0:00", "field_type": "clock"},
+        {"role": "away_score", "box": [869, 553, 99, 89], "text": "45", "field_type": "score"},
+        {"role": "home_timeouts", "box": [302, 675, 29, 48], "text": "3", "field_type": "number"},
+        {"role": "down", "box": [420, 675, 15, 37], "text": "1", "field_type": "number"},
+        {"role": "to_go", "box": [529, 664, 42, 47], "text": "10", "field_type": "number"},
+        {"role": "ball_on", "box": [741, 653, 51, 48], "text": "35", "field_type": "number"},
+        {"role": "period", "box": [848, 653, 26, 37], "text": "4", "field_type": "period"},
+        {"role": "away_timeouts", "box": [946, 645, 27, 43], "text": "2", "field_type": "number"}
+      ]
+    },
+    "File:Buckhurst Hill CC v Chingford CC at Buckhurst Hill, Essex, England 14.jpg": {
+      "pageid": 87285000,
+      "sport": "cricket",
+      "display_tech": "led7",
+      "notes": "sunlit; unlit segments visible",
+      "group": "buckhurst_hill_board",
+      "size": [1280, 960],
+      "fields": [
+        {"role": "batter_runs", "box": [264, 112, 224, 110], "text": "9", "field_type": "number"},
+        {"role": "runs", "box": [516, 93, 266, 126], "text": "76", "field_type": "number"},
+        {"role": "batter_runs_2", "box": [809, 111, 232, 112], "text": "13", "field_type": "number"},
+        {"role": "overs", "box": [264, 293, 182, 130], "text": "23", "field_type": "number"},
+        {"role": "wickets", "box": [938, 293, 96, 128], "text": "7", "field_type": "number"}
+      ]
+    },
+    "File:Buckhurst Hill CC v Upminster CC at Buckhurst Hill, Essex 011.jpg": {
+      "pageid": 121544991,
+      "sport": "cricket",
+      "display_tech": "led7",
+      "group": "buckhurst_hill_board",
+      "size": [1280, 960],
+      "fields": [
+        {"role": "batter_runs", "box": [610, 220, 81, 90], "text": "22", "field_type": "number"},
+        {"role": "runs", "box": [733, 207, 95, 98], "text": "41", "field_type": "number"},
+        {"role": "batter_runs_2", "box": [883, 213, 65, 93], "text": "15", "field_type": "number"},
+        {"role": "overs", "box": [598, 362, 72, 94], "text": "10", "field_type": "number"},
+        {"role": "wickets", "box": [914, 357, 34, 97], "text": "1", "field_type": "number"}
+      ]
+    },
+    "File:Buckhurst Hill CC v Upminster CC at Buckhurst Hill, Essex 115.jpg": {
+      "pageid": 121611070,
+      "sport": "cricket",
+      "display_tech": "led7",
+      "group": "buckhurst_hill_board",
+      "size": [1280, 1280],
+      "fields": [
+        {"role": "batter_runs", "box": [360, 230, 156, 148], "text": "80", "field_type": "number"},
+        {"role": "runs", "box": [537, 199, 203, 191], "text": "136", "field_type": "number"},
+        {"role": "batter_runs_2", "box": [852, 234, 100, 140], "text": "6", "field_type": "number"},
+        {"role": "overs", "box": [271, 436, 191, 195], "text": "28", "field_type": "number"},
+        {"role": "wickets", "box": [848, 461, 96, 152], "text": "4", "field_type": "number"}
+      ]
+    },
+    "File:Buckhurst Hill CC v Upminster CC at Buckhurst Hill, Essex 217.jpg": {
+      "pageid": 121646772,
+      "sport": "cricket",
+      "display_tech": "led7",
+      "group": "buckhurst_hill_board",
+      "size": [1280, 1024],
+      "fields": [
+        {"role": "runs", "box": [425, 190, 322, 142], "text": "251", "field_type": "number"},
+        {"role": "batter_runs_2", "box": [790, 195, 248, 132], "text": "0", "field_type": "number"},
+        {"role": "overs", "box": [108, 425, 228, 168], "text": "50", "field_type": "number"}
+      ]
+    },
+    "File:Buckhurst Hill Cricket Club scoreboard box, Essex, England.jpg": {
+      "pageid": 72631324,
+      "sport": "cricket",
+      "display_tech": "led7",
+      "group": "buckhurst_hill_board",
+      "size": [1280, 1024],
+      "fields": [
+        {"role": "batter_runs", "box": [292, 202, 160, 128], "text": "38", "field_type": "number"},
+        {"role": "runs", "box": [584, 184, 190, 157], "text": "98", "field_type": "number"},
+        {"role": "batter_runs_2", "box": [1005, 217, 51, 120], "text": "1", "field_type": "number"},
+        {"role": "overs", "box": [257, 403, 145, 158], "text": "19", "field_type": "number"},
+        {"role": "wickets", "box": [995, 419, 62, 147], "text": "1", "field_type": "number"}
+      ]
+    },
+    "File:Bukovyna Stadium 14.jpg": {
+      "pageid": 59524304,
+      "sport": "association football",
+      "display_tech": "broadcast",
+      "notes": "video board",
+      "size": [799, 554],
+      "fields": [
+        {"role": "home_score", "box": [340, 150, 70, 140], "text": "1", "field_type": "score"},
+        {"role": "away_score", "box": [439, 148, 70, 140], "text": "1", "field_type": "score"},
+        {"role": "clock", "box": [355, 336, 143, 63], "text": "90:00", "field_type": "clock"}
+      ]
+    },
+    "File:Butler Bowl 23.JPG": {
+      "pageid": 21188439,
+      "sport": "american football",
+      "display_tech": "led7",
+      "notes": "at night, the labels are unlit",
+      "size": [1280, 960],
+      "fields": [
+        {"role": "home_score", "box": [338, 440, 76, 56], "text": "42", "field_type": "score"},
+        {"role": "home_timeouts", "box": [406, 447, 38, 50], "text": "2", "field_type": "number"},
+        {"role": "clock", "box": [508, 420, 101, 76], "text": "0.0", "field_type": "clock"},
+        {"role": "away_timeouts", "box": [673, 440, 36, 50], "text": "3", "field_type": "number"},
+        {"role": "away_score", "box": [718, 428, 64, 58], "text": "13", "field_type": "score"},
+        {"role": "other", "box": [315, 518, 52, 63], "text": "4", "field_type": "number"},
+        {"role": "other_2", "box": [444, 507, 86, 77], "text": "42", "field_type": "number"},
+        {"role": "other_3", "box": [612, 514, 36, 60], "text": "2", "field_type": "number"},
+        {"role": "other_4", "box": [763, 500, 55, 75], "text": "8", "field_type": "number"}
+      ]
+    },
+    "File:Cambridge University CC v MCC at Cambridge, England 055.jpg": {
+      "pageid": 80545244,
+      "sport": "cricket",
+      "display_tech": "led7",
+      "group": "cambridge_fenners_board",
+      "size": [1280, 1707],
+      "fields": [
+        {"role": "runs", "box": [508, 212, 232, 140], "text": "210", "field_type": "number"},
+        {"role": "other", "box": [294, 279, 58, 104], "text": "1", "field_type": "number", "notes": "batter number"},
+        {"role": "batter_runs", "box": [241, 387, 150, 126], "text": "136", "field_type": "number"},
+        {"role": "other_2", "box": [965, 297, 55, 95], "text": "2", "field_type": "number", "notes": "batter number"},
+        {"role": "batter_runs_2", "box": [905, 399, 130, 124], "text": "57", "field_type": "number"},
+        {"role": "overs", "box": [548, 743, 151, 140], "text": "45", "field_type": "number"},
+        {"role": "other_3", "box": [616, 900, 184, 125], "text": "243", "field_type": "number", "notes": "home first innings"},
+        {"role": "other_4", "box": [857, 900, 178, 126], "text": "328", "field_type": "number"}
+      ]
+    },
+    "File:Cambridge University CC v MCC at Cambridge, England 082.jpg": {
+      "pageid": 86882101,
+      "sport": "cricket",
+      "display_tech": "led7",
+      "group": "cambridge_fenners_board",
+      "size": [1280, 1707],
+      "fields": [
+        {"role": "runs", "box": [480, 200, 310, 155], "text": "240", "field_type": "number"},
+        {"role": "other", "box": [116, 272, 184, 125], "text": "1", "field_type": "number", "notes": "batter number"},
+        {"role": "batter_runs", "box": [134, 399, 209, 109], "text": "154", "field_type": "number"},
+        {"role": "other_2", "box": [968, 258, 186, 146], "text": "2", "field_type": "number", "notes": "batter number"},
+        {"role": "batter_runs_2", "box": [927, 400, 208, 110], "text": "64", "field_type": "number"},
+        {"role": "overs", "box": [523, 739, 223, 156], "text": "52", "field_type": "number"},
+        {"role": "other_3", "box": [644, 924, 188, 105], "text": "243", "field_type": "number", "notes": "home first innings"},
+        {"role": "other_4", "box": [942, 924, 182, 105], "text": "328", "field_type": "number"}
+      ]
+    },
+    "File:Cartersville HS vs Calhoun HS football 2017 scoreboard.jpg": {
+      "pageid": 62120296,
+      "sport": "american football",
+      "display_tech": "led7",
+      "size": [1280, 945],
+      "fields": [
+        {"role": "home_name", "box": [413, 520, 72, 30], "text": "CANES", "field_type": "text", "display_tech": "dotmatrix"},
+        {"role": "away_name", "box": [844, 518, 97, 30], "text": "JACKETS", "field_type": "text", "display_tech": "dotmatrix"},
+        {"role": "clock", "box": [617, 508, 160, 82], "text": "9:20", "field_type": "clock"},
+        {"role": "home_score", "box": [390, 547, 86, 69], "text": "51", "field_type": "score"},
+        {"role": "away_score", "box": [904, 545, 48, 67], "text": "0", "field_type": "score"},
+        {"role": "home_timeouts", "box": [404, 616, 37, 55], "text": "3", "field_type": "number"},
+        {"role": "down", "box": [525, 644, 23, 58], "text": "1", "field_type": "number"},
+        {"role": "to_go", "box": [586, 642, 64, 64], "text": "10", "field_type": "number"},
+        {"role": "ball_on", "box": [699, 642, 83, 64], "text": "20", "field_type": "number"},
+        {"role": "period", "box": [798, 640, 46, 64], "text": "2", "field_type": "period"},
+        {"role": "away_timeouts", "box": [904, 612, 38, 55], "text": "2", "field_type": "number"}
+      ]
+    },
+    "File:Church Times Cricket Cup final 2019, Diocese of London v Dioceses of Carlisle, Blackburn and Durham 1.jpg": {
+      "pageid": 81970372,
+      "sport": "cricket",
+      "display_tech": "led7",
+      "notes": "in dappled shade",
+      "size": [1280, 960],
+      "fields": [
+        {"role": "other", "box": [412, 193, 44, 66], "text": "4", "field_type": "number", "notes": "batter number"},
+        {"role": "batter_runs", "box": [407, 271, 95, 86], "text": "22", "field_type": "number"},
+        {"role": "runs", "box": [632, 235, 112, 82], "text": "174", "field_type": "number"},
+        {"role": "other_2", "box": [934, 195, 46, 78], "text": "5", "field_type": "number", "notes": "batter number"},
+        {"role": "batter_runs_2", "box": [931, 280, 51, 86], "text": "6", "field_type": "number"},
+        {"role": "overs", "box": [386, 549, 95, 87], "text": "29", "field_type": "number"},
+        {"role": "wickets", "box": [653, 552, 47, 87], "text": "3", "field_type": "number"}
+      ]
+    },
+    "File:Coba-arena-ffm055.jpg": {
+      "pageid": 4129985,
+      "sport": "association football",
+      "display_tech": "broadcast",
+      "notes": "video cube",
+      "size": [1280, 960],
+      "fields": [
+        {"role": "home_score", "box": [303, 386, 116, 184], "text": "3", "field_type": "score"},
+        {"role": "away_score", "box": [458, 405, 131, 155], "text": "2", "field_type": "score"},
+        {"role": "clock", "box": [596, 593, 205, 69], "text": "90:00", "field_type": "clock"}
+      ]
+    },
+    "File:Coin Toss (6954759639).jpg": {
+      "pageid": 63324528,
+      "sport": "american football",
+      "display_tech": "bulb",
+      "notes": "in bright sunlight",
+      "group": "tressel_field_board",
+      "size": [1280, 960],
+      "fields": [
+        {"role": "clock", "box": [664, 226, 152, 74], "text": "2:05", "field_type": "clock"},
+        {"role": "other", "box": [414, 424, 78, 66], "text": "25", "field_type": "number", "notes": "play clock"}
+      ]
+    },
+    "File:Computronics Basketball 8008DX Scoreboard @ Ray Owen Sports Centre,Lesmurdie.jpg": {
+      "pageid": 71335588,
+      "sport": "basketball",
+      "display_tech": "led7",
+      "size": [1280, 720],
+      "fields": [
+        {"role": "clock", "box": [567, 239, 118, 72], "text": "10:00", "field_type": "clock"},
+        {"role": "home_score", "box": [518, 321, 46, 70], "text": "0", "field_type": "score"},
+        {"role": "away_score", "box": [718, 323, 37, 50], "text": "4", "field_type": "score"},
+        {"role": "home_timeouts", "box": [571, 324, 30, 59], "text": "0", "field_type": "number"},
+        {"role": "away_timeouts", "box": [635, 324, 31, 59], "text": "0", "field_type": "number"},
+        {"role": "home_fouls", "box": [509, 398, 44, 54], "text": "0", "field_type": "number"},
+        {"role": "away_fouls", "box": [691, 389, 47, 56], "text": "0", "field_type": "number"},
+        {"role": "period", "box": [594, 396, 45, 68], "text": "0", "field_type": "period"}
+      ]
+    },
+    "File:DKR Old North Scoreboard KSU vs Texas 2003.jpg": {
+      "pageid": 1885036,
+      "sport": "american football",
+      "display_tech": "bulb",
+      "notes": "angled",
+      "size": [800, 600],
+      "fields": [
+        {"role": "home_name", "box": [182, 140, 72, 42], "text": "TEXAS", "field_type": "text"},
+        {"role": "home_score", "box": [222, 182, 54, 46], "text": "17", "field_type": "score"},
+        {"role": "clock", "box": [282, 164, 70, 48], "text": "14:02", "field_type": "clock"},
+        {"role": "away_name", "box": [375, 188, 44, 30], "text": "KSU", "field_type": "text"},
+        {"role": "away_score", "box": [380, 220, 58, 50], "text": "18", "field_type": "score"}
+      ]
+    },
+    "File:Daktronics Scoreboard Blue and Yellow.png": {
+      "pageid": 78753678,
+      "sport": "basketball",
+      "display_tech": "led7",
+      "size": [1280, 714],
+      "fields": [
+        {"role": "clock", "box": [505, 9, 359, 181], "text": "5:00", "field_type": "clock"},
+        {"role": "home_name", "box": [119, 186, 263, 83], "text": "LAKERS", "field_type": "text", "display_tech": "printed"},
+        {"role": "away_name", "box": [907, 187, 229, 84], "text": "GUEST", "field_type": "text", "display_tech": "printed"},
+        {"role": "home_score", "box": [258, 257, 128, 178], "text": "0", "field_type": "score"},
+        {"role": "away_score", "box": [1025, 259, 136, 177], "text": "0", "field_type": "score"},
+        {"role": "period", "box": [631, 290, 52, 118], "text": "1", "field_type": "period"},
+        {"role": "home_fouls", "box": [149, 478, 108, 138], "text": "0", "field_type": "number"},
+        {"role": "home_timeouts", "box": [319, 476, 107, 139], "text": "5", "field_type": "number"},
+        {"role": "away_timeouts", "box": [843, 478, 110, 139], "text": "5", "field_type": "number"},
+        {"role": "away_fouls", "box": [1048, 479, 108, 138], "text": "0", "field_type": "number"}
+      ]
+    },
+    "File:Double T Scoreboard.jpg": {
+      "pageid": 2897069,
+      "sport": "american football",
+      "display_tech": "bulb",
+      "size": [608, 654],
+      "fields": [
+        {"role": "home_name", "box": [133, 196, 65, 27], "text": "TECH", "field_type": "text"},
+        {"role": "home_score", "box": [118, 228, 64, 50], "text": "42", "field_type": "score"},
+        {"role": "clock", "box": [279, 205, 107, 57], "text": "0:00", "field_type": "clock"},
+        {"role": "away_name", "box": [442, 218, 46, 26], "text": "ISU", "field_type": "text"},
+        {"role": "away_score", "box": [463, 250, 49, 48], "text": "17", "field_type": "score"},
+        {"role": "down", "box": [196, 350, 29, 43], "text": "2", "field_type": "number"},
+        {"role": "to_go", "box": [266, 356, 41, 40], "text": "11", "field_type": "number"},
+        {"role": "ball_on", "box": [338, 359, 52, 42], "text": "49", "field_type": "number"},
+        {"role": "period", "box": [419, 366, 27, 37], "text": "4", "field_type": "period"}
+      ]
+    },
+    "File:ERI 5236 (5497603541).jpg": {
+      "pageid": 30296476,
+      "sport": "ice hockey",
+      "display_tech": "broadcast",
+      "notes": "video board, angled",
+      "group": "verizon_center_2011",
+      "size": [1280, 857],
+      "fields": [
+        {"role": "score", "box": [562, 60, 46, 48], "text": "0", "field_type": "score"},
+        {"role": "clock", "box": [630, 68, 86, 50], "text": "1:15", "field_type": "clock"}
+      ]
+    },
+    "File:ERI 5238 (5498196566).jpg": {
+      "pageid": 30296477,
+      "sport": "ice hockey",
+      "display_tech": "broadcast",
+      "notes": "video board, angled",
+      "group": "verizon_center_2011",
+      "size": [1280, 857],
+      "fields": [
+        {"role": "score", "box": [532, 76, 44, 44], "text": "0", "field_type": "score"},
+        {"role": "clock", "box": [602, 88, 70, 44], "text": "1:15", "field_type": "clock"}
+      ]
+    },
+    "File:Ergebnis des XVIII. Ladiesbowl 2009 in Lübeck.jpg": {
+      "pageid": 7858911,
+      "sport": "american football",
+      "display_tech": "flip",
+      "notes": "hand-hung number cards",
+      "size": [1280, 960],
+      "fields": [
+        {"role": "home_name", "box": [236, 182, 222, 76], "text": "BERLIN", "field_type": "text"},
+        {"role": "away_name", "box": [700, 170, 346, 74], "text": "NÜRNBERG", "field_type": "text"},
+        {"role": "home_score", "box": [176, 362, 386, 210], "text": "41", "field_type": "score"},
+        {"role": "away_score", "box": [706, 344, 374, 200], "text": "26", "field_type": "score"}
+      ]
+    },
+    "File:Ergebnistafel BL FCB gg. 1. FC Koeln Muenchen-1.jpg": {
+      "pageid": 63014099,
+      "sport": "association football",
+      "display_tech": "flip",
+      "notes": "number cards",
+      "group": "fcb_campus_board",
+      "size": [1280, 950],
+      "fields": [
+        {"role": "home_name", "box": [130, 187, 316, 83], "text": "FC Bayern", "field_type": "text"},
+        {"role": "away_name", "box": [855, 167, 253, 93], "text": "GAST", "field_type": "text"},
+        {"role": "home_score", "box": [278, 323, 66, 97], "text": "2", "field_type": "score"},
+        {"role": "away_score", "box": [923, 326, 67, 98], "text": "0", "field_type": "score"}
+      ]
+    },
+    "File:Ergebnistafel BL FCB gg. SGS Essen Muenchen-1.jpg": {
+      "pageid": 60223629,
+      "sport": "association football",
+      "display_tech": "flip",
+      "notes": "number cards",
+      "group": "fcb_campus_board",
+      "size": [1280, 890],
+      "fields": [
+        {"role": "home_name", "box": [346, 195, 161, 65], "text": "HEIM", "field_type": "text"},
+        {"role": "away_name", "box": [797, 209, 156, 62], "text": "GAST", "field_type": "text"},
+        {"role": "home_score", "box": [424, 301, 43, 63], "text": "2", "field_type": "score"},
+        {"role": "away_score", "box": [845, 316, 41, 63], "text": "0", "field_type": "score"}
+      ]
+    },
+    "File:Euroleague - LE Roma vs Toulouse IC (10).JPG": {
+      "pageid": 18645317,
+      "sport": "wheelchair basketball",
+      "display_tech": "led7",
+      "group": "bodet_wheelchair_euroleague",
+      "size": [1280, 853],
+      "fields": [
+        {"role": "clock", "box": [583, 249, 150, 62], "text": "2:25", "field_type": "clock"},
+        {"role": "home_score", "box": [503, 367, 94, 64], "text": "48", "field_type": "score"},
+        {"role": "away_score", "box": [701, 366, 72, 63], "text": "18", "field_type": "score"},
+        {"role": "period", "box": [642, 440, 51, 63], "text": "2", "field_type": "period", "notes": "probably the period"},
+        {"role": "other", "box": [522, 509, 51, 63], "text": "0", "field_type": "number", "notes": "team fouls or timeouts"},
+        {"role": "other_2", "box": [749, 506, 48, 64], "text": "5", "field_type": "number", "notes": "team fouls or timeouts"}
+      ]
+    },
+    "File:Euroleague - LE Roma vs Toulouse IC (2).JPG": {
+      "pageid": 18645011,
+      "sport": "wheelchair basketball",
+      "display_tech": "led7",
+      "group": "bodet_wheelchair_euroleague",
+      "size": [1280, 853],
+      "fields": [
+        {"role": "home_score", "box": [455, 297, 90, 62], "text": "82", "field_type": "score"},
+        {"role": "away_score", "box": [620, 291, 87, 63], "text": "33", "field_type": "score"},
+        {"role": "period", "box": [587, 369, 43, 49], "text": "4", "field_type": "period", "notes": "probably the period"},
+        {"role": "other", "box": [473, 431, 49, 62], "text": "2", "field_type": "number", "notes": "team fouls or timeouts"},
+        {"role": "other_2", "box": [683, 431, 44, 49], "text": "4", "field_type": "number", "notes": "team fouls or timeouts"}
+      ]
+    },
+    "File:Euroleague - USC Munich vs GSD Anmic Sassari (10).JPG": {
+      "pageid": 18656835,
+      "sport": "wheelchair basketball",
+      "display_tech": "led7",
+      "group": "bodet_wheelchair_euroleague",
+      "size": [1280, 853],
+      "fields": [
+        {"role": "home_score", "box": [550, 380, 93, 63], "text": "22", "field_type": "score"},
+        {"role": "away_score", "box": [728, 375, 91, 64], "text": "33", "field_type": "score"},
+        {"role": "period", "box": [689, 451, 50, 63], "text": "2", "field_type": "period", "notes": "probably the period"}
+      ]
+    },
+    "File:FC Barcelona - Bayer 04 Leverkusen, 7 mar 2012 (22).jpg": {
+      "pageid": 18805744,
+      "sport": "association football",
+      "display_tech": "broadcast",
+      "notes": "video board",
+      "size": [1280, 851],
+      "fields": [
+        {"role": "clock", "box": [569, 221, 149, 81], "text": "87:17", "field_type": "clock"},
+        {"role": "home_score", "box": [578, 316, 78, 120], "text": "7", "field_type": "score"},
+        {"role": "away_score", "box": [678, 332, 80, 120], "text": "0", "field_type": "score"}
+      ]
+    },
+    "File:FatihVatanSporvsFatihKaragümrük2021-22Play-offs (37).jpg": {
+      "pageid": 118158456,
+      "sport": "association football",
+      "display_tech": "dotmatrix",
+      "size": [1280, 1933],
+      "fields": [
+        {"role": "home_name", "box": [388, 398, 216, 37], "text": "FATIHVATAN", "field_type": "text"},
+        {"role": "away_name", "box": [794, 389, 222, 42], "text": "KARAGÜMRÜK", "field_type": "text"},
+        {"role": "clock", "box": [621, 397, 155, 71], "text": "90:00", "field_type": "clock"},
+        {"role": "home_score", "box": [440, 438, 111, 159], "text": "0", "field_type": "score"},
+        {"role": "away_score", "box": [847, 432, 114, 161], "text": "0", "field_type": "score"},
+        {"role": "period", "box": [634, 509, 30, 40], "text": "2", "field_type": "period"}
+      ]
+    },
+    "File:Final Score - Boca won (451750564).jpg": {
+      "pageid": 141410584,
+      "sport": "association football",
+      "display_tech": "broadcast",
+      "notes": "video board",
+      "size": [1280, 960],
+      "fields": [
+        {"role": "home_score", "box": [562, 236, 27, 48], "text": "1", "field_type": "score"},
+        {"role": "away_score", "box": [729, 225, 30, 48], "text": "3", "field_type": "score"},
+        {"role": "clock", "box": [614, 212, 104, 47], "text": "45:00", "field_type": "clock"}
+      ]
+    },
+    "File:Final score of Arizona at Cal 2009-11-14.JPG": {
+      "pageid": 9050654,
+      "sport": "american football",
+      "display_tech": "dotmatrix",
+      "notes": "angled about 15 degrees",
+      "group": "memorial_stadium_berkeley",
+      "size": [1280, 960],
+      "fields": [
+        {"role": "home_name", "box": [210, 482, 99, 75], "text": "CAL", "field_type": "text"},
+        {"role": "away_name", "box": [412, 383, 199, 116], "text": "ARIZONA", "field_type": "text"},
+        {"role": "home_score", "box": [209, 540, 116, 109], "text": "24", "field_type": "score"},
+        {"role": "away_score", "box": [439, 479, 96, 107], "text": "16", "field_type": "score"},
+        {"role": "period", "box": [308, 673, 66, 89], "text": "4", "field_type": "period"}
+      ]
+    },
+    "File:Final score of Club América & Real Madrid friendly match 2010-08-04.JPG": {
+      "pageid": 11219820,
+      "sport": "association football",
+      "display_tech": "dotmatrix",
+      "notes": "angled about 10 degrees",
+      "size": [1280, 958],
+      "fields": [
+        {"role": "home_score", "box": [445, 349, 117, 252], "text": "2", "field_type": "score"},
+        {"role": "away_score", "box": [931, 182, 111, 238], "text": "3", "field_type": "score"},
+        {"role": "clock", "box": [594, 312, 256, 250], "text": "90:00", "field_type": "clock"}
+      ]
+    },
+    "File:Final score- Clarkson Golden Knights at Brown Bears mens ice hockey.jpg": {
+      "pageid": 128439238,
+      "sport": "ice hockey",
+      "display_tech": "dotmatrix",
+      "size": [1280, 823],
+      "fields": [
+        {"role": "clock", "box": [599, 173, 108, 67], "text": "00.0", "field_type": "clock"},
+        {"role": "home_score", "box": [560, 273, 40, 77], "text": "2", "field_type": "score", "display_tech": "led7"},
+        {"role": "period", "box": [655, 289, 32, 54], "text": "3", "field_type": "period", "display_tech": "led7"},
+        {"role": "away_score", "box": [761, 281, 46, 75], "text": "6", "field_type": "score", "display_tech": "led7"}
+      ]
+    },
+    "File:First Niagara Center jumbotron.jpg": {
+      "pageid": 17320235,
+      "sport": "ice hockey",
+      "display_tech": "broadcast",
+      "notes": "video board, angled",
+      "size": [1280, 722],
+      "fields": [
+        {"role": "home_name", "box": [598, 42, 56, 28], "text": "BUF", "field_type": "text"},
+        {"role": "home_score", "box": [652, 34, 46, 44], "text": "0", "field_type": "score"},
+        {"role": "clock", "box": [722, 28, 102, 46], "text": "22:21", "field_type": "clock"},
+        {"role": "period", "box": [786, 72, 18, 26], "text": "1", "field_type": "period"}
+      ]
+    },
+    "File:Flickr - Ronnie Macdonald - The starting line up - and the final score.jpg": {
+      "pageid": 20852880,
+      "sport": "association football",
+      "display_tech": "broadcast",
+      "notes": "video board, Emirates Stadium",
+      "size": [1280, 853],
+      "fields": [
+        {"role": "home_score", "box": [322, 574, 63, 91], "text": "0", "field_type": "score"},
+        {"role": "clock", "box": [527, 575, 170, 79], "text": "39:05", "field_type": "clock"},
+        {"role": "away_score", "box": [837, 559, 62, 92], "text": "0", "field_type": "score"}
+      ]
+    },
+    "File:Foursquare and the NBA (5571993103).jpg": {
+      "pageid": 79555017,
+      "sport": "basketball",
+      "display_tech": "dotmatrix",
+      "size": [1280, 853],
+      "fields": [
+        {"role": "clock", "box": [692, 230, 68, 42], "text": "5:42", "field_type": "clock"},
+        {"role": "home_score", "box": [676, 281, 37, 34], "text": "10", "field_type": "score"},
+        {"role": "away_score", "box": [734, 294, 34, 34], "text": "11", "field_type": "score"}
+      ]
+    },
+    "File:GS-TS Skor tabelası.JPG": {
+      "pageid": 20125234,
+      "sport": "association football",
+      "display_tech": "broadcast",
+      "notes": "video board",
+      "group": "ali_sami_yen_video",
+      "size": [1280, 960],
+      "fields": [
+        {"role": "home_score", "box": [330, 646, 111, 142], "text": "1", "field_type": "score"},
+        {"role": "clock", "box": [542, 644, 268, 103], "text": "82:30", "field_type": "clock"},
+        {"role": "away_score", "box": [921, 668, 107, 138], "text": "1", "field_type": "score"}
+      ]
+    },
+    "File:GSFiorentinaTABELA.JPG": {
+      "pageid": 20583511,
+      "sport": "association football",
+      "display_tech": "broadcast",
+      "notes": "video board",
+      "group": "ali_sami_yen_video",
+      "size": [1280, 960],
+      "fields": [
+        {"role": "home_score", "box": [387, 581, 122, 147], "text": "0", "field_type": "score"},
+        {"role": "clock", "box": [636, 586, 214, 99], "text": "0:00", "field_type": "clock"},
+        {"role": "away_score", "box": [981, 608, 113, 141], "text": "0", "field_type": "score"}
+      ]
+    },
+    "File:GSFİO5.JPG": {
+      "pageid": 20583651,
+      "sport": "association football",
+      "display_tech": "broadcast",
+      "notes": "video board",
+      "group": "ali_sami_yen_video",
+      "size": [1280, 892],
+      "fields": [
+        {"role": "home_score", "box": [255, 599, 134, 168], "text": "1", "field_type": "score"},
+        {"role": "clock", "box": [506, 598, 310, 113], "text": "51:21", "field_type": "clock"},
+        {"role": "away_score", "box": [938, 616, 138, 168], "text": "0", "field_type": "score"}
+      ]
+    },
+    "File:Game Over (3349116458).jpg": {
+      "pageid": 133799977,
+      "sport": "ice hockey",
+      "display_tech": "broadcast",
+      "notes": "video board",
+      "size": [1200, 900],
+      "fields": [
+        {"role": "home_score", "box": [359, 732, 52, 58], "text": "3", "field_type": "score"},
+        {"role": "clock", "box": [411, 735, 40, 36], "text": "4:10", "field_type": "clock"},
+        {"role": "away_score", "box": [451, 722, 47, 64], "text": "2", "field_type": "score"},
+        {"role": "home_score_2", "box": [590, 720, 67, 63], "text": "3", "field_type": "score"},
+        {"role": "clock_2", "box": [657, 731, 50, 36], "text": "4:10", "field_type": "clock"},
+        {"role": "away_score_2", "box": [705, 724, 50, 62], "text": "2", "field_type": "score"}
+      ]
+    },
+    "File:Gatorade Center 10.jpg": {
+      "pageid": 110947456,
+      "sport": "ice hockey",
+      "display_tech": "broadcast",
+      "notes": "LED ribbon under the video cube",
+      "size": [1280, 929],
+      "fields": [
+        {"role": "home_score", "box": [393, 765, 22, 40], "text": "2", "field_type": "score"},
+        {"role": "clock", "box": [424, 759, 52, 39], "text": "4:13", "field_type": "clock"},
+        {"role": "away_score", "box": [479, 750, 22, 41], "text": "2", "field_type": "score"},
+        {"role": "home_score_2", "box": [764, 745, 23, 41], "text": "2", "field_type": "score"},
+        {"role": "clock_2", "box": [792, 754, 64, 35], "text": "4:13", "field_type": "clock"},
+        {"role": "away_score_2", "box": [860, 757, 23, 41], "text": "2", "field_type": "score"}
+      ]
+    },
+    "File:Goal, Tyler Bertuzzi, Detroit Red Wings vs. Pittsburgh Penguins, Joe Louis Arena, Detroit, Michigan (21081012794).jpg": {
+      "pageid": 59688457,
+      "sport": "ice hockey",
+      "display_tech": "dotmatrix",
+      "size": [1280, 960],
+      "fields": [
+        {"role": "home_name", "box": [251, 97, 170, 48], "text": "PITTSBURGH", "field_type": "text"},
+        {"role": "away_name", "box": [873, 73, 175, 51], "text": "RED WINGS", "field_type": "text"},
+        {"role": "clock", "box": [591, 73, 119, 76], "text": "18:22", "field_type": "clock"},
+        {"role": "home_score", "box": [326, 148, 47, 70], "text": "0", "field_type": "score"},
+        {"role": "period", "box": [665, 153, 35, 54], "text": "3", "field_type": "period"},
+        {"role": "away_score", "box": [962, 127, 49, 75], "text": "5", "field_type": "score"}
+      ]
+    },
+    "File:HC Kometa Brno v PSG Zlín 2011-11-29 (18).jpg": {
+      "pageid": 18346109,
+      "sport": "ice hockey",
+      "display_tech": "dotmatrix",
+      "size": [1280, 1772],
+      "fields": [
+        {"role": "home_name", "box": [578, 668, 122, 66], "text": "KOM", "field_type": "text"},
+        {"role": "away_name", "box": [747, 648, 119, 98], "text": "ZLN", "field_type": "text"},
+        {"role": "home_score", "box": [636, 772, 77, 152], "text": "0", "field_type": "score"},
+        {"role": "away_score", "box": [733, 782, 64, 146], "text": "1", "field_type": "score"},
+        {"role": "penalty_time", "box": [560, 1009, 150, 121], "text": "1:11", "field_type": "clock"},
+        {"role": "penalty_time_2", "box": [735, 1043, 148, 74], "text": "2:00", "field_type": "clock"},
+        {"role": "penalty_time_3", "box": [566, 1192, 144, 95], "text": "5:00", "field_type": "clock"},
+        {"role": "clock", "box": [570, 1414, 304, 173], "text": "0:12.4", "field_type": "clock"}
+      ]
+    },
+    "File:Harvard Scoreboard - 2006 (1).jpg": {
+      "pageid": 17263998,
+      "sport": "american football",
+      "display_tech": "bulb",
+      "group": "harvard_stadium_board",
+      "size": [1280, 786],
+      "fields": [
+        {"role": "home_name", "box": [142, 520, 169, 44], "text": "HARVARD", "field_type": "text"},
+        {"role": "away_name", "box": [981, 523, 89, 44], "text": "YALE", "field_type": "text"},
+        {"role": "home_score", "box": [210, 574, 150, 86], "text": "13", "field_type": "score"},
+        {"role": "clock", "box": [540, 520, 240, 106], "text": "0:00", "field_type": "clock"},
+        {"role": "away_score", "box": [898, 574, 142, 90], "text": "34", "field_type": "score"},
+        {"role": "away_timeouts", "box": [779, 606, 53, 76], "text": "0", "field_type": "number"}
+      ]
+    },
+    "File:Harvard Scoreboard - 2008.jpg": {
+      "pageid": 17264001,
+      "sport": "american football",
+      "display_tech": "led7",
+      "size": [855, 643],
+      "fields": [
+        {"role": "home_name", "box": [351, 250, 93, 37], "text": "HARVARD", "field_type": "text", "display_tech": "dotmatrix"},
+        {"role": "away_name", "box": [536, 237, 95, 37], "text": "CORNELL", "field_type": "text", "display_tech": "dotmatrix"},
+        {"role": "home_score", "box": [361, 283, 75, 65], "text": "31", "field_type": "score"},
+        {"role": "away_score", "box": [562, 272, 60, 59], "text": "17", "field_type": "score"},
+        {"role": "clock", "box": [433, 342, 150, 86], "text": "0:04", "field_type": "clock"},
+        {"role": "period", "box": [588, 467, 42, 58], "text": "4", "field_type": "period"}
+      ]
+    },
+    "File:Harvard Stadium scoreboard.jpg": {
+      "pageid": 83346939,
+      "sport": "american football",
+      "display_tech": "led7",
+      "notes": "Harvard Stadium, angled",
+      "size": [1280, 853],
+      "fields": [
+        {"role": "home_score", "box": [196, 200, 60, 58], "text": "35", "field_type": "score"},
+        {"role": "away_score", "box": [341, 216, 59, 56], "text": "22", "field_type": "score"},
+        {"role": "clock", "box": [258, 263, 115, 68], "text": "0:14", "field_type": "clock"},
+        {"role": "down", "box": [203, 356, 18, 44], "text": "1", "field_type": "number"},
+        {"role": "to_go", "box": [248, 356, 48, 55], "text": "10", "field_type": "number"},
+        {"role": "ball_on", "box": [313, 360, 58, 56], "text": "32", "field_type": "number"},
+        {"role": "period", "box": [383, 371, 31, 44], "text": "4", "field_type": "period"}
+      ]
+    },
+    "File:High school football game in Oregon (TK15).JPG": {
+      "pageid": 54167037,
+      "sport": "american football",
+      "display_tech": "led7",
+      "size": [1280, 769],
+      "fields": [
+        {"role": "home_score", "box": [303, 262, 121, 133], "text": "12", "field_type": "score"},
+        {"role": "away_score", "box": [869, 276, 147, 112], "text": "41", "field_type": "score"},
+        {"role": "down", "box": [354, 452, 82, 113], "text": "4", "field_type": "number"},
+        {"role": "to_go", "box": [537, 453, 87, 114], "text": "9", "field_type": "number"},
+        {"role": "period", "box": [853, 454, 82, 112], "text": "4", "field_type": "period"}
+      ]
+    },
+    "File:Hobey Baker Rink scoreboard.jpg": {
+      "pageid": 155701956,
+      "sport": "ice hockey",
+      "display_tech": "led7",
+      "size": [1280, 853],
+      "fields": [
+        {"role": "home_name", "box": [228, 345, 137, 59], "text": "TIGERS", "field_type": "text", "display_tech": "dotmatrix"},
+        {"role": "away_name", "box": [502, 318, 196, 77], "text": "BIG GREEN", "field_type": "text", "display_tech": "dotmatrix"},
+        {"role": "home_score", "box": [300, 402, 60, 80], "text": "0", "field_type": "score"},
+        {"role": "away_score", "box": [603, 369, 62, 96], "text": "2", "field_type": "score"},
+        {"role": "period", "box": [429, 378, 43, 59], "text": "2", "field_type": "period"},
+        {"role": "clock", "box": [376, 483, 182, 85], "text": "18:15", "field_type": "clock"},
+        {"role": "other", "box": [405, 595, 34, 50], "text": "6", "field_type": "number", "notes": "shots on goal"},
+        {"role": "other_2", "box": [487, 591, 44, 51], "text": "10", "field_type": "number", "notes": "shots on goal"}
+      ]
+    },
+    "File:Husky Stadium-Scoreboard.jpg": {
+      "pageid": 1368756,
+      "sport": "american football",
+      "display_tech": "dotmatrix",
+      "notes": "Husky Stadium",
+      "size": [1280, 960],
+      "fields": [
+        {"role": "home_name", "box": [468, 328, 147, 68], "text": "HUSKIES", "field_type": "text"},
+        {"role": "away_name", "box": [866, 360, 109, 57], "text": "BRUINS", "field_type": "text"},
+        {"role": "clock", "box": [668, 336, 105, 79], "text": "0:08", "field_type": "clock"},
+        {"role": "home_score", "box": [537, 392, 73, 78], "text": "29", "field_type": "score"},
+        {"role": "away_score", "box": [876, 413, 51, 70], "text": "18", "field_type": "score"},
+        {"role": "period", "box": [767, 424, 30, 50], "text": "4", "field_type": "period"},
+        {"role": "down", "box": [469, 539, 33, 56], "text": "2", "field_type": "number"},
+        {"role": "to_go", "box": [473, 676, 43, 56], "text": "11", "field_type": "number"},
+        {"role": "ball_on", "box": [464, 827, 57, 61], "text": "39", "field_type": "number"},
+        {"role": "home_timeouts", "box": [962, 632, 28, 50], "text": "2", "field_type": "number"},
+        {"role": "away_timeouts", "box": [967, 806, 28, 51], "text": "0", "field_type": "number"}
+      ]
+    },
+    "File:Iran v Lebanon, 29 March 2022 (Fars) 17.jpg": {
+      "pageid": 116522946,
+      "sport": "association football",
+      "display_tech": "broadcast",
+      "notes": "video board",
+      "size": [1050, 700],
+      "fields": [
+        {"role": "home_name", "box": [281, 72, 191, 47], "text": "I.R.IRAN", "field_type": "text"},
+        {"role": "away_name", "box": [600, 70, 233, 48], "text": "LEBANON", "field_type": "text"},
+        {"role": "home_score", "box": [365, 135, 91, 120], "text": "2", "field_type": "score"},
+        {"role": "away_score", "box": [635, 133, 93, 124], "text": "0", "field_type": "score"},
+        {"role": "clock", "box": [483, 235, 127, 48], "text": "89:38", "field_type": "clock"}
+      ]
+    },
+    "File:Its Good! (10018989305).jpg": {
+      "pageid": 28857409,
+      "sport": "american football",
+      "display_tech": "bulb",
+      "size": [1280, 960],
+      "fields": [
+        {"role": "home_name", "box": [100, 394, 276, 80], "text": "SOUTH", "field_type": "text", "display_tech": "printed"},
+        {"role": "away_name", "box": [762, 395, 253, 77], "text": "VISITOR", "field_type": "text", "display_tech": "printed"},
+        {"role": "home_score", "box": [148, 472, 152, 120], "text": "35", "field_type": "score"},
+        {"role": "home_timeouts", "box": [300, 479, 70, 118], "text": "3", "field_type": "number"},
+        {"role": "away_score", "box": [860, 470, 115, 124], "text": "0", "field_type": "score"},
+        {"role": "clock", "box": [482, 404, 250, 112], "text": "9:15", "field_type": "clock"},
+        {"role": "period", "box": [970, 598, 48, 92], "text": "1", "field_type": "period"}
+      ]
+    },
+    "File:JSF Nanterre - CSKA Moscou, Euroligue, 17 October 2013 - 03.JPG": {
+      "pageid": 29089699,
+      "sport": "basketball",
+      "display_tech": "dotmatrix",
+      "size": [1280, 960],
+      "fields": [
+        {"role": "clock", "box": [656, 302, 117, 82], "text": "19:07", "field_type": "clock"},
+        {"role": "home_score", "box": [562, 399, 39, 64], "text": "0", "field_type": "score"},
+        {"role": "away_score", "box": [829, 368, 44, 66], "text": "0", "field_type": "score"},
+        {"role": "home_name", "box": [521, 372, 89, 32], "text": "NANTERRE", "field_type": "text"},
+        {"role": "away_name", "box": [780, 327, 136, 47], "text": "CSKA MOSCOU", "field_type": "text"},
+        {"role": "other", "box": [517, 340, 22, 32], "text": "0", "field_type": "number"},
+        {"role": "other_2", "box": [892, 287, 27, 40], "text": "0", "field_type": "number"}
+      ]
+    },
+    "File:Joe Zimmerman Stadium scoreboard.jpg": {
+      "pageid": 152604656,
+      "sport": "american football",
+      "display_tech": "led7",
+      "size": [1280, 1057],
+      "fields": [
+        {"role": "home_score", "box": [325, 391, 53, 84], "text": "0", "field_type": "score"},
+        {"role": "clock", "box": [452, 377, 196, 127], "text": "18:51", "field_type": "clock"},
+        {"role": "away_score", "box": [710, 457, 42, 68], "text": "0", "field_type": "score"},
+        {"role": "home_timeouts", "box": [307, 494, 45, 69], "text": "3", "field_type": "number"},
+        {"role": "period", "box": [565, 515, 26, 71], "text": "1", "field_type": "period"},
+        {"role": "away_timeouts", "box": [708, 543, 31, 57], "text": "3", "field_type": "number"},
+        {"role": "down", "box": [273, 613, 26, 69], "text": "1", "field_type": "number"},
+        {"role": "to_go", "box": [457, 626, 51, 65], "text": "10", "field_type": "number"}
+      ]
+    },
+    "File:KireçburnuSvsKdzEreğliS2018-19 (138).jpg": {
+      "pageid": 74281246,
+      "sport": "association football",
+      "display_tech": "dotmatrix",
+      "group": "kirecburnu_board",
+      "size": [1280, 848],
+      "fields": [
+        {"role": "clock", "box": [255, 78, 145, 65], "text": "69:20", "field_type": "clock"},
+        {"role": "home_score", "box": [454, 126, 48, 69], "text": "0", "field_type": "score"},
+        {"role": "away_name", "box": [141, 219, 215, 47], "text": "KDZ.EREGLI", "field_type": "text"},
+        {"role": "away_score", "box": [454, 192, 48, 69], "text": "3", "field_type": "score"}
+      ]
+    },
+    "File:KireçburnuSvsKonakBS201516 (51).jpg": {
+      "pageid": 48131521,
+      "sport": "association football",
+      "display_tech": "dotmatrix",
+      "group": "kirecburnu_board",
+      "size": [1280, 830],
+      "fields": [
+        {"role": "clock", "box": [526, 252, 276, 124], "text": "90:00", "field_type": "clock"},
+        {"role": "home_name", "box": [306, 399, 435, 86], "text": "KIRECBURNU", "field_type": "text"},
+        {"role": "away_name", "box": [309, 531, 229, 76], "text": "KONAK", "field_type": "text"},
+        {"role": "home_score", "box": [903, 347, 75, 126], "text": "1", "field_type": "score"},
+        {"role": "away_score", "box": [903, 473, 89, 126], "text": "2", "field_type": "score"}
+      ]
+    },
+    "File:Kitchener at Waterloo, 2008-01-27 DSC03024 (2255603056).jpg": {
+      "pageid": 79794466,
+      "sport": "ice hockey",
+      "display_tech": "bulb",
+      "size": [1280, 960],
+      "fields": [
+        {"role": "home_score", "box": [537, 552, 84, 118], "text": "6", "field_type": "score"},
+        {"role": "away_score", "box": [922, 567, 81, 112], "text": "3", "field_type": "score"}
+      ]
+    },
+    "File:LSU 9, Butler 0 ... what a start! (3369502412).jpg": {
+      "pageid": 55058854,
+      "sport": "basketball",
+      "display_tech": "led7",
+      "size": [1280, 834],
+      "fields": [
+        {"role": "clock", "box": [559, 172, 124, 63], "text": "18:18", "field_type": "clock"},
+        {"role": "period", "box": [706, 181, 17, 36], "text": "1", "field_type": "period"},
+        {"role": "home_score", "box": [353, 213, 39, 51], "text": "9", "field_type": "score"},
+        {"role": "away_score", "box": [922, 215, 41, 56], "text": "0", "field_type": "score"},
+        {"role": "home_timeouts", "box": [449, 228, 32, 44], "text": "5", "field_type": "number"},
+        {"role": "away_timeouts", "box": [793, 235, 29, 36], "text": "4", "field_type": "number"},
+        {"role": "home_name", "box": [311, 178, 78, 36], "text": "LSU", "field_type": "text", "display_tech": "dotmatrix"},
+        {"role": "away_name", "box": [853, 181, 133, 35], "text": "BUTLER", "field_type": "text", "display_tech": "dotmatrix"},
+        {"role": "home_fouls", "box": [384, 499, 33, 42], "text": "0", "field_type": "number"},
+        {"role": "away_fouls", "box": [941, 502, 32, 42], "text": "0", "field_type": "number"}
+      ]
+    },
+    "File:Liqui-Moly-Stadion - Anzeigetafel 2.jpg": {
+      "pageid": 81003681,
+      "sport": "association football",
+      "display_tech": "led7",
+      "notes": "washed out by the sun",
+      "group": "liqui_moly_stadion_board",
+      "size": [1231, 1820],
+      "fields": [
+        {"role": "home_score", "box": [497, 521, 78, 125], "text": "7", "field_type": "score"},
+        {"role": "other", "box": [562, 627, 181, 138], "text": "90", "field_type": "number", "notes": "match minute"}
+      ]
+    },
+    "File:Liqui-Moly-Stadion - Anzeigetafel.jpg": {
+      "pageid": 81003822,
+      "sport": "association football",
+      "display_tech": "led7",
+      "group": "liqui_moly_stadion_board",
+      "size": [1280, 1392],
+      "fields": [
+        {"role": "home_score", "box": [509, 449, 49, 97], "text": "1", "field_type": "score"},
+        {"role": "away_score", "box": [728, 429, 92, 120], "text": "0", "field_type": "score"},
+        {"role": "other", "box": [562, 549, 164, 121], "text": "94", "field_type": "number", "notes": "match minute"}
+      ]
+    },
+    "File:Lokomotiv Chita Tablo.jpg": {
+      "pageid": 19509079,
+      "sport": "association football",
+      "display_tech": "led7",
+      "size": [1280, 960],
+      "fields": [
+        {"role": "home_score", "box": [566, 403, 56, 77], "text": "0", "field_type": "score"},
+        {"role": "clock", "box": [663, 405, 72, 42], "text": "19:00", "field_type": "clock"},
+        {"role": "away_score", "box": [780, 401, 58, 78], "text": "0", "field_type": "score"}
+      ]
+    },
+    "File:Lopsided Heat-Wizards scoreboard.jpg": {
+      "pageid": 30753526,
+      "sport": "basketball",
+      "display_tech": "dotmatrix",
+      "size": [1280, 646],
+      "fields": [
+        {"role": "clock", "box": [502, 245, 229, 121], "text": "12:00", "field_type": "clock"},
+        {"role": "away_score", "box": [791, 335, 124, 111], "text": "18", "field_type": "score"},
+        {"role": "home_score", "box": [331, 393, 118, 104], "text": "43", "field_type": "score"},
+        {"role": "period", "box": [594, 527, 44, 53], "text": "2", "field_type": "period"},
+        {"role": "away_fouls", "box": [789, 497, 28, 44], "text": "0", "field_type": "number"},
+        {"role": "away_name", "box": [775, 257, 136, 84], "text": "HEAT", "field_type": "text"}
+      ]
+    },
+    "File:Manchester Monarchs Game 11 (2506345858).jpg": {
+      "pageid": 58690386,
+      "sport": "ice hockey",
+      "display_tech": "led7",
+      "notes": "seen through the netting",
+      "size": [1280, 960],
+      "fields": [
+        {"role": "clock", "box": [698, 494, 110, 56], "text": "5:00", "field_type": "clock"},
+        {"role": "period", "box": [802, 527, 26, 26], "text": "4", "field_type": "period"},
+        {"role": "away_name", "box": [880, 466, 116, 44], "text": "SENATORS", "field_type": "text", "display_tech": "dotmatrix"},
+        {"role": "away_score", "box": [930, 508, 54, 70], "text": "4", "field_type": "score"},
+        {"role": "other", "box": [912, 414, 52, 46], "text": "33", "field_type": "number", "notes": "shots on goal"}
+      ]
+    },
+    "File:Maryland Terrapins at Michigan Wolverines 20181006 162953.jpg": {
+      "pageid": 149913643,
+      "sport": "american football",
+      "display_tech": "broadcast",
+      "notes": "Michigan Stadium video board",
+      "size": [1280, 1707],
+      "fields": [
+        {"role": "home_score", "box": [357, 532, 95, 90], "text": "42", "field_type": "score"},
+        {"role": "away_score", "box": [695, 544, 88, 96], "text": "21", "field_type": "score"},
+        {"role": "clock", "box": [162, 707, 93, 65], "text": "0:00", "field_type": "clock"},
+        {"role": "other", "box": [960, 747, 96, 92], "text": "40", "field_type": "number", "notes": "play clock"}
+      ]
+    },
+    "File:McDonough Gymnasium scoreboard.jpg": {
+      "pageid": 23796541,
+      "sport": "basketball",
+      "display_tech": "led7",
+      "size": [1280, 937],
+      "fields": [
+        {"role": "home_name", "box": [219, 703, 226, 58], "text": "HOYAS", "field_type": "text", "display_tech": "dotmatrix"},
+        {"role": "away_name", "box": [863, 702, 227, 58], "text": "UCONN", "field_type": "text", "display_tech": "dotmatrix"},
+        {"role": "clock", "box": [505, 696, 306, 118], "text": "37:40", "field_type": "clock"},
+        {"role": "home_score", "box": [285, 780, 92, 128], "text": "0", "field_type": "score"},
+        {"role": "away_score", "box": [1027, 779, 95, 131], "text": "0", "field_type": "score"},
+        {"role": "period", "box": [709, 832, 34, 71], "text": "1", "field_type": "period"}
+      ]
+    },
+    "File:Mondial Ping - Men's Singles - Round 4 - Kenta Matsudaira-Vladimir Samsonov - 01.jpg": {
+      "pageid": 26509714,
+      "sport": "table tennis",
+      "display_tech": "broadcast",
+      "notes": "TV-style scoreboard",
+      "size": [1280, 853],
+      "fields": [
+        {"role": "other", "box": [550, 284, 46, 62], "text": "0", "field_type": "number", "notes": "games won"},
+        {"role": "other_2", "box": [692, 288, 48, 62], "text": "0", "field_type": "number", "notes": "games won"},
+        {"role": "home_score", "box": [535, 365, 81, 110], "text": "3", "field_type": "score"},
+        {"role": "away_score", "box": [678, 371, 78, 107], "text": "7", "field_type": "score"}
+      ]
+    },
+    "File:Mondial Ping - Mixed Doubles - Semifinals - 00.jpg": {
+      "pageid": 26278906,
+      "sport": "table tennis",
+      "display_tech": "broadcast",
+      "notes": "TV-style scoreboard",
+      "size": [1280, 853],
+      "fields": [
+        {"role": "other", "box": [479, 193, 79, 93], "text": "0", "field_type": "number", "notes": "games won"},
+        {"role": "other_2", "box": [735, 191, 79, 93], "text": "0", "field_type": "number", "notes": "games won"},
+        {"role": "home_score", "box": [449, 315, 141, 167], "text": "8", "field_type": "score"},
+        {"role": "away_score", "box": [705, 313, 139, 166], "text": "9", "field_type": "score"}
+      ]
+    },
+    "File:Mondial Ping - Mixed Doubles - Semifinals - 21.jpg": {
+      "pageid": 26283358,
+      "sport": "table tennis",
+      "display_tech": "broadcast",
+      "notes": "TV-style scoreboard, small",
+      "size": [1280, 853],
+      "fields": [
+        {"role": "other", "box": [604, 485, 49, 57], "text": "0", "field_type": "number", "notes": "games won"},
+        {"role": "other_2", "box": [764, 483, 45, 56], "text": "2", "field_type": "number", "notes": "games won"},
+        {"role": "home_score", "box": [585, 561, 89, 103], "text": "0", "field_type": "score"},
+        {"role": "away_score", "box": [746, 558, 85, 104], "text": "3", "field_type": "score"}
+      ]
+    },
+    "File:Mondial Ping - Women's Doubles - Final - 11.jpg": {
+      "pageid": 30860419,
+      "sport": "table tennis",
+      "display_tech": "broadcast",
+      "notes": "TV-style scoreboard",
+      "size": [1280, 853],
+      "fields": [
+        {"role": "other", "box": [428, 233, 88, 105], "text": "0", "field_type": "number", "notes": "games won"},
+        {"role": "other_2", "box": [715, 233, 88, 106], "text": "0", "field_type": "number", "notes": "games won"},
+        {"role": "home_score", "box": [393, 373, 160, 189], "text": "0", "field_type": "score"},
+        {"role": "away_score", "box": [680, 373, 160, 189], "text": "0", "field_type": "score"}
+      ]
+    },
+    "File:Mondial Ping -Women's Singles - Quarterfinal - Wu Yang-Li Xiaoxia - 04.jpg": {
+      "pageid": 26352622,
+      "sport": "table tennis",
+      "display_tech": "broadcast",
+      "notes": "TV-style scoreboard",
+      "size": [1280, 853],
+      "fields": [
+        {"role": "other", "box": [395, 185, 83, 99], "text": "0", "field_type": "number", "notes": "games won"},
+        {"role": "other_2", "box": [672, 187, 72, 98], "text": "1", "field_type": "number", "notes": "games won"},
+        {"role": "home_score", "box": [362, 315, 150, 175], "text": "0", "field_type": "score"},
+        {"role": "away_score", "box": [635, 317, 140, 174], "text": "2", "field_type": "score"}
+      ]
+    },
+    "File:Move it up the ice (4305086747).jpg": {
+      "pageid": 32662878,
+      "sport": "ice hockey",
+      "display_tech": "led7",
+      "size": [1280, 857],
+      "fields": [
+        {"role": "home_score", "box": [519, 21, 35, 51], "text": "2", "field_type": "score"},
+        {"role": "away_score", "box": [727, 21, 37, 54], "text": "2", "field_type": "score"}
+      ]
+    },
+    "File:NBA shot clock.jpg": {
+      "pageid": 19148160,
+      "sport": "basketball",
+      "display_tech": "led7",
+      "size": [1280, 1084],
+      "fields": [
+        {"role": "clock", "box": [877, 141, 108, 50], "text": "7:09", "field_type": "clock"},
+        {"role": "shot_clock", "box": [884, 188, 78, 76], "text": "10", "field_type": "number"}
+      ]
+    },
+    "File:Nevada Wolf Pack vs. Montana Grizzlies, First Round, NCAA Men's Basketball Tournament, Huntsman Center, University of Utah, Salt Lake City, Utah (114272189).jpg": {
+      "pageid": 55059006,
+      "sport": "basketball",
+      "display_tech": "led7",
+      "size": [1280, 960],
+      "fields": [
+        {"role": "clock", "box": [306, 106, 112, 36], "text": "17:54", "field_type": "clock"},
+        {"role": "home_score", "box": [230, 143, 48, 31], "text": "37", "field_type": "score"},
+        {"role": "period", "box": [348, 146, 29, 28], "text": "2", "field_type": "period"},
+        {"role": "away_score", "box": [420, 131, 53, 40], "text": "42", "field_type": "score"},
+        {"role": "shot_clock", "box": [356, 479, 77, 96], "text": "30", "field_type": "number"}
+      ]
+    },
+    "File:Nevada Wolf Pack vs. Montana Grizzlies, First Round, NCAA Men's Basketball Tournament, Huntsman Center, University of Utah, Salt Lake City, Utah (114272240).jpg": {
+      "pageid": 55059689,
+      "sport": "basketball",
+      "display_tech": "led7",
+      "group": "huntsman_center_2009",
+      "size": [1280, 960],
+      "fields": [
+        {"role": "home_score", "box": [513, 602, 58, 44], "text": "57", "field_type": "score"},
+        {"role": "away_score", "box": [762, 599, 55, 44], "text": "63", "field_type": "score"},
+        {"role": "period", "box": [673, 614, 31, 34], "text": "2", "field_type": "period"}
+      ]
+    },
+    "File:New scoreboard.jpg": {
+      "pageid": 2569798,
+      "sport": "ice hockey",
+      "display_tech": "dotmatrix",
+      "size": [1280, 1023],
+      "fields": [
+        {"role": "clock", "box": [452, 418, 100, 36], "text": "1:54", "field_type": "clock"},
+        {"role": "home_name", "box": [637, 421, 105, 27], "text": "RED WINGS", "field_type": "text"},
+        {"role": "away_score", "box": [334, 456, 26, 41], "text": "2", "field_type": "score", "notes": "the scores of this board are labelled by the team names above them"},
+        {"role": "home_score", "box": [700, 451, 18, 42], "text": "1", "field_type": "score"},
+        {"role": "period", "box": [522, 456, 28, 42], "text": "2", "field_type": "period"},
+        {"role": "away_score_2", "box": [798, 455, 26, 42], "text": "2", "field_type": "score"},
+        {"role": "home_score_2", "box": [1006, 476, 16, 36], "text": "1", "field_type": "score"}
+      ]
+    },
+    "File:Notre Dame Stadium scoreboard (297420).jpg": {
+      "pageid": 75673188,
+      "sport": "american football",
+      "display_tech": "dotmatrix",
+      "notes": "Notre Dame Stadium, blurred",
+      "size": [1086, 764],
+      "fields": [
+        {"role": "home_score", "box": [196, 134, 53, 76], "text": "0", "field_type": "score"},
+        {"role": "clock", "box": [463, 99, 173, 77], "text": "14:00", "field_type": "clock"},
+        {"role": "away_name", "box": [798, 119, 115, 51], "text": "DUKE", "field_type": "text"},
+        {"role": "away_score", "box": [866, 166, 52, 75], "text": "0", "field_type": "score"},
+        {"role": "home_timeouts", "box": [156, 211, 30, 47], "text": "3", "field_type": "number"},
+        {"role": "period", "box": [714, 222, 21, 48], "text": "1", "field_type": "period"},
+        {"role": "away_timeouts", "box": [889, 243, 29, 48], "text": "3", "field_type": "number"}
+      ]
+    },
+    "File:Novo placar eletrônico do Ginásio ASCEB.jpg": {
+      "pageid": 28836101,
+      "sport": "basketball",
+      "display_tech": "led7",
+      "size": [960, 720],
+      "fields": [
+        {"role": "clock", "box": [380, 219, 204, 119], "text": "30:10.6", "field_type": "other", "notes": "as displayed"},
+        {"role": "home_score", "box": [348, 337, 64, 83], "text": "0", "field_type": "score"},
+        {"role": "away_score", "box": [617, 276, 68, 89], "text": "0", "field_type": "score"},
+        {"role": "other", "box": [330, 279, 52, 63], "text": "0", "field_type": "number"},
+        {"role": "other_2", "box": [592, 215, 52, 65], "text": "0", "field_type": "number"}
+      ]
+    },
+    "File:ODB CC v Nomads CC at Crouch End, London 177.jpg": {
+      "pageid": 193077078,
+      "sport": "cricket",
+      "display_tech": "led7",
+      "notes": "electromechanical 7-segment boards",
+      "size": [1280, 960],
+      "fields": [
+        {"role": "overs", "box": [272, 254, 155, 107], "text": "27", "field_type": "number"},
+        {"role": "runs", "box": [550, 254, 154, 111], "text": "92", "field_type": "number"},
+        {"role": "wickets", "box": [749, 253, 90, 113], "text": "9", "field_type": "number"},
+        {"role": "batter_runs", "box": [1048, 259, 79, 105], "text": "4", "field_type": "number"},
+        {"role": "batter_runs_2", "box": [1006, 381, 120, 110], "text": "19", "field_type": "number"},
+        {"role": "target", "box": [311, 605, 154, 126], "text": "93", "field_type": "number"}
+      ]
+    },
+    "File:ODB CC v Nomads CC at Crouch End, London 190.jpg": {
+      "pageid": 193078853,
+      "sport": "cricket",
+      "display_tech": "led7",
+      "notes": "electromechanical 7-segment boards",
+      "size": [1280, 960],
+      "fields": [
+        {"role": "overs", "box": [244, 198, 135, 119], "text": "11", "field_type": "number"},
+        {"role": "runs", "box": [486, 207, 157, 117], "text": "94", "field_type": "number"},
+        {"role": "wickets", "box": [687, 205, 91, 117], "text": "3", "field_type": "number"},
+        {"role": "batter_runs", "box": [984, 220, 66, 88], "text": "6", "field_type": "number"},
+        {"role": "batter_runs_2", "box": [941, 335, 116, 104], "text": "17", "field_type": "number"},
+        {"role": "target", "box": [249, 563, 156, 127], "text": "93", "field_type": "number"}
+      ]
+    },
+    "File:Old Markonians CC v Bucks Cricket select XI at Bayford, Herts, England 121.jpg": {
+      "pageid": 191896837,
+      "sport": "cricket",
+      "display_tech": "flip",
+      "notes": "flip-card numbers",
+      "size": [1280, 960],
+      "fields": [
+        {"role": "runs", "box": [605, 204, 224, 120], "text": "121", "field_type": "number"},
+        {"role": "overs", "box": [357, 436, 172, 127], "text": "27", "field_type": "number"},
+        {"role": "wickets", "box": [952, 446, 70, 106], "text": "2", "field_type": "number"}
+      ]
+    },
+    "File:Ontario Hockey League IMG 1410 (4471340145).jpg": {
+      "pageid": 31412250,
+      "sport": "ice hockey",
+      "display_tech": "led7",
+      "size": [1280, 960],
+      "fields": [
+        {"role": "home_score", "box": [352, 419, 37, 62], "text": "2", "field_type": "score"},
+        {"role": "away_score", "box": [593, 400, 43, 64], "text": "8", "field_type": "score"},
+        {"role": "other", "box": [349, 489, 47, 50], "text": "24", "field_type": "number", "notes": "shots on goal"},
+        {"role": "other_2", "box": [571, 474, 49, 51], "text": "37", "field_type": "number", "notes": "shots on goal"},
+        {"role": "home_score_2", "box": [768, 405, 39, 63], "text": "2", "field_type": "score"},
+        {"role": "away_score_2", "box": [939, 428, 37, 62], "text": "8", "field_type": "score"},
+        {"role": "other_3", "box": [754, 475, 43, 51], "text": "24", "field_type": "number", "notes": "shots on goal"},
+        {"role": "other_4", "box": [914, 493, 39, 50], "text": "37", "field_type": "number", "notes": "shots on goal"}
+      ]
+    },
+    "File:P1050367 (6661841777).jpg": {
+      "pageid": 54685953,
+      "sport": "ice hockey",
+      "display_tech": "broadcast",
+      "notes": "score bar on a video board",
+      "group": "hershey_score_bar",
+      "size": [1280, 303],
+      "fields": [
+        {"role": "home_score", "box": [267, 135, 46, 61], "text": "1", "field_type": "score"},
+        {"role": "home_name", "box": [344, 136, 95, 30], "text": "BEARS", "field_type": "text"},
+        {"role": "other", "box": [417, 173, 23, 30], "text": "3", "field_type": "number", "notes": "shots on goal"},
+        {"role": "clock", "box": [474, 136, 174, 62], "text": "13:39", "field_type": "clock"},
+        {"role": "period", "box": [681, 167, 22, 29], "text": "1", "field_type": "period"},
+        {"role": "away_name", "box": [739, 134, 160, 30], "text": "PHANTOMS", "field_type": "text"},
+        {"role": "other_2", "box": [853, 174, 22, 29], "text": "1", "field_type": "number", "notes": "shots on goal"},
+        {"role": "away_score", "box": [897, 133, 52, 63], "text": "0", "field_type": "score"}
+      ]
+    },
+    "File:P1050629 (6662220631).jpg": {
+      "pageid": 54686117,
+      "sport": "ice hockey",
+      "display_tech": "broadcast",
+      "notes": "score bar on a video board",
+      "group": "hershey_score_bar",
+      "size": [1280, 188],
+      "fields": [
+        {"role": "home_score", "box": [122, 25, 72, 92], "text": "3", "field_type": "score"},
+        {"role": "home_name", "box": [238, 27, 143, 47], "text": "BEARS", "field_type": "text"},
+        {"role": "other", "box": [324, 84, 58, 43], "text": "27", "field_type": "number", "notes": "shots on goal"},
+        {"role": "clock", "box": [455, 30, 214, 92], "text": "4:02", "field_type": "clock"},
+        {"role": "period", "box": [740, 76, 37, 43], "text": "4", "field_type": "period"},
+        {"role": "away_name", "box": [830, 28, 242, 47], "text": "PHANTOMS", "field_type": "text"},
+        {"role": "other_2", "box": [973, 90, 62, 43], "text": "44", "field_type": "number", "notes": "shots on goal"},
+        {"role": "away_score", "box": [1069, 30, 78, 90], "text": "4", "field_type": "score"}
+      ]
+    },
+    "File:PSG Zlín v HC Eaton Pardubice 2011-02-18 (04).jpg": {
+      "pageid": 13726005,
+      "sport": "ice hockey",
+      "display_tech": "dotmatrix",
+      "group": "zlin_scoreboard",
+      "size": [1280, 720],
+      "fields": [
+        {"role": "home_score", "box": [530, 219, 116, 91], "text": "0", "field_type": "score"},
+        {"role": "away_score", "box": [700, 240, 111, 93], "text": "0", "field_type": "score"},
+        {"role": "period", "box": [672, 269, 21, 41], "text": "1", "field_type": "period"},
+        {"role": "clock", "box": [583, 305, 166, 94], "text": "1:42", "field_type": "clock"},
+        {"role": "penalty_time", "box": [707, 396, 76, 55], "text": "1:46", "field_type": "clock"},
+        {"role": "penalty_player", "box": [667, 429, 90, 45], "text": "Špirko", "field_type": "text"}
+      ]
+    },
+    "File:PSG Zlín v HC Eaton Pardubice 2011-02-18 (08).jpg": {
+      "pageid": 13726446,
+      "sport": "ice hockey",
+      "display_tech": "dotmatrix",
+      "group": "zlin_scoreboard",
+      "size": [1280, 720],
+      "fields": [
+        {"role": "home_score", "box": [831, 135, 93, 79], "text": "1", "field_type": "score"},
+        {"role": "away_score", "box": [1030, 154, 54, 75], "text": "1", "field_type": "score"},
+        {"role": "period", "box": [942, 174, 33, 40], "text": "2", "field_type": "period"},
+        {"role": "clock", "box": [887, 213, 124, 67], "text": "7:41", "field_type": "clock"},
+        {"role": "penalty_time", "box": [836, 279, 82, 38], "text": "0:39", "field_type": "clock"},
+        {"role": "penalty_time_2", "box": [976, 290, 76, 40], "text": "0:39", "field_type": "clock"},
+        {"role": "penalty_time_3", "box": [963, 369, 85, 46], "text": "2:00", "field_type": "clock"}
+      ]
+    },
+    "File:PSG Zlín v HC Eaton Pardubice 2011-02-18 (15).jpg": {
+      "pageid": 13727092,
+      "sport": "ice hockey",
+      "display_tech": "dotmatrix",
+      "group": "zlin_scoreboard",
+      "size": [1280, 720],
+      "fields": [
+        {"role": "home_score", "box": [519, 132, 157, 130], "text": "2", "field_type": "score"},
+        {"role": "away_score", "box": [820, 159, 152, 125], "text": "2", "field_type": "score"},
+        {"role": "period", "box": [728, 191, 55, 80], "text": "3", "field_type": "period"},
+        {"role": "clock", "box": [616, 270, 244, 131], "text": "11:24", "field_type": "clock"},
+        {"role": "penalty_time", "box": [797, 425, 143, 81], "text": "2:00", "field_type": "clock"}
+      ]
+    },
+    "File:PSG Zlín v HC Eaton Pardubice 2011-03-03 (09).jpg": {
+      "pageid": 14522096,
+      "sport": "ice hockey",
+      "display_tech": "dotmatrix",
+      "group": "zlin_scoreboard",
+      "size": [1280, 1015],
+      "fields": [
+        {"role": "home_score", "box": [532, 336, 88, 58], "text": "0", "field_type": "score"},
+        {"role": "away_score", "box": [721, 338, 97, 64], "text": "0", "field_type": "score"},
+        {"role": "period", "box": [668, 354, 34, 50], "text": "1", "field_type": "period"}
+      ]
+    },
+    "File:PSG Zlín v HC Eaton Pardubice 2011-03-03 (23).jpg": {
+      "pageid": 14522151,
+      "sport": "ice hockey",
+      "display_tech": "dotmatrix",
+      "group": "zlin_scoreboard",
+      "size": [1280, 963],
+      "fields": [
+        {"role": "home_score", "box": [464, 304, 106, 68], "text": "0", "field_type": "score"},
+        {"role": "away_score", "box": [675, 308, 106, 68], "text": "1", "field_type": "score"},
+        {"role": "period", "box": [619, 329, 28, 46], "text": "1", "field_type": "period"},
+        {"role": "clock", "box": [533, 374, 171, 70], "text": "18:47", "field_type": "clock"},
+        {"role": "penalty_time", "box": [470, 451, 100, 42], "text": "0:36", "field_type": "clock"}
+      ]
+    },
+    "File:PSG Zlín v HC Eaton Pardubice 2011-03-03 (39).jpg": {
+      "pageid": 14522202,
+      "sport": "ice hockey",
+      "display_tech": "dotmatrix",
+      "group": "zlin_scoreboard",
+      "size": [1280, 720],
+      "fields": [
+        {"role": "home_score", "box": [493, 230, 92, 58], "text": "3", "field_type": "score"},
+        {"role": "away_score", "box": [670, 234, 91, 58], "text": "3", "field_type": "score"},
+        {"role": "clock", "box": [552, 292, 141, 52], "text": "16:29", "field_type": "clock"},
+        {"role": "period", "box": [612, 254, 30, 36], "text": "2", "field_type": "period"},
+        {"role": "penalty_time", "box": [655, 356, 90, 40], "text": "2:00", "field_type": "clock"}
+      ]
+    },
+    "File:PSG Zlín v HC Eaton Pardubice 2011-03-03 (43).jpg": {
+      "pageid": 14522216,
+      "sport": "ice hockey",
+      "display_tech": "dotmatrix",
+      "group": "zlin_scoreboard",
+      "size": [1280, 720],
+      "fields": [
+        {"role": "home_score", "box": [488, 118, 94, 59], "text": "3", "field_type": "score"},
+        {"role": "away_score", "box": [672, 121, 91, 57], "text": "3", "field_type": "score"},
+        {"role": "clock", "box": [550, 179, 148, 60], "text": "6:15", "field_type": "clock"},
+        {"role": "penalty_time", "box": [498, 244, 90, 40], "text": "2:00", "field_type": "clock"}
+      ]
+    },
+    "File:PSG Zlín v HC Oceláři Třinec 2010-10-01 (23).jpg": {
+      "pageid": 13742585,
+      "sport": "ice hockey",
+      "display_tech": "dotmatrix",
+      "group": "zlin_scoreboard",
+      "size": [1280, 720],
+      "fields": [
+        {"role": "home_score", "box": [480, 138, 109, 70], "text": "2", "field_type": "score"},
+        {"role": "away_score", "box": [693, 145, 109, 66], "text": "2", "field_type": "score"},
+        {"role": "period", "box": [623, 161, 43, 50], "text": "3", "field_type": "period"},
+        {"role": "clock", "box": [550, 212, 174, 69], "text": "12:31", "field_type": "clock"},
+        {"role": "penalty_time", "box": [486, 286, 100, 44], "text": "0:35", "field_type": "clock"},
+        {"role": "penalty_time_2", "box": [678, 286, 100, 44], "text": "0:35", "field_type": "clock"}
+      ]
+    },
+    "File:Peoples Bank Field Scoreboard.JPG": {
+      "pageid": 20854256,
+      "sport": "american football",
+      "display_tech": "led7",
+      "size": [1280, 960],
+      "fields": [
+        {"role": "home_score", "box": [351, 271, 47, 69], "text": "7", "field_type": "score"},
+        {"role": "clock", "box": [567, 248, 165, 92], "text": "3:27", "field_type": "clock"},
+        {"role": "away_score", "box": [980, 296, 48, 63], "text": "6", "field_type": "score"},
+        {"role": "home_timeouts", "box": [370, 362, 25, 50], "text": "1", "field_type": "number"},
+        {"role": "down", "box": [460, 372, 28, 62], "text": "1", "field_type": "number"},
+        {"role": "to_go", "box": [586, 376, 48, 66], "text": "8", "field_type": "number"},
+        {"role": "ball_on", "box": [750, 379, 49, 66], "text": "8", "field_type": "number"},
+        {"role": "period", "box": [855, 383, 46, 63], "text": "2", "field_type": "period"},
+        {"role": "away_timeouts", "box": [957, 376, 25, 47], "text": "1", "field_type": "number"}
+      ]
+    },
+    "File:Pictures from the GT-UGA Women's Volleyball Game 2009 (3878471195).jpg": {
+      "pageid": 39399479,
+      "sport": "volleyball",
+      "display_tech": "dotmatrix",
+      "size": [1280, 853],
+      "fields": [
+        {"role": "clock", "box": [660, 214, 169, 93], "text": "1:00", "field_type": "clock"},
+        {"role": "home_name", "box": [453, 308, 134, 37], "text": "GA TECH", "field_type": "text"},
+        {"role": "away_name", "box": [818, 302, 142, 40], "text": "GEORGIA", "field_type": "text"},
+        {"role": "home_score", "box": [439, 343, 120, 96], "text": "24", "field_type": "score"},
+        {"role": "period", "box": [669, 340, 71, 97], "text": "2", "field_type": "period", "notes": "game"},
+        {"role": "away_score", "box": [902, 338, 90, 91], "text": "19", "field_type": "score"}
+      ]
+    },
+    "File:Pizzitola Scoreboard after Stony Brook game in 2024.jpg": {
+      "pageid": 156438890,
+      "sport": "basketball",
+      "display_tech": "led7",
+      "size": [1280, 853],
+      "fields": [
+        {"role": "home_score", "box": [407, 454, 106, 89], "text": "77", "field_type": "score"},
+        {"role": "away_score", "box": [799, 451, 116, 98], "text": "54", "field_type": "score"},
+        {"role": "period", "box": [618, 462, 53, 76], "text": "2", "field_type": "period"},
+        {"role": "home_fouls", "box": [397, 570, 49, 72], "text": "6", "field_type": "number"},
+        {"role": "home_timeouts", "box": [481, 568, 52, 75], "text": "2", "field_type": "number"},
+        {"role": "away_timeouts", "box": [776, 574, 25, 61], "text": "1", "field_type": "number"},
+        {"role": "away_fouls", "box": [856, 568, 51, 75], "text": "6", "field_type": "number"},
+        {"role": "home_name", "box": [396, 414, 105, 42], "text": "BROWN", "field_type": "text", "display_tech": "dotmatrix"},
+        {"role": "away_name", "box": [810, 411, 65, 43], "text": "SBU", "field_type": "text", "display_tech": "dotmatrix"}
+      ]
+    },
+    "File:Plug For Goog's.png": {
+      "pageid": 45373188,
+      "sport": "basketball",
+      "display_tech": "led7",
+      "size": [640, 1136],
+      "fields": [
+        {"role": "clock", "box": [262, 743, 113, 73], "text": "13:37", "field_type": "clock"},
+        {"role": "home_score", "box": [108, 706, 48, 59], "text": "0", "field_type": "score"},
+        {"role": "away_score", "box": [488, 805, 39, 61], "text": "0", "field_type": "score"},
+        {"role": "home_timeouts", "box": [201, 744, 24, 34], "text": "6", "field_type": "number"},
+        {"role": "away_timeouts", "box": [392, 796, 23, 34], "text": "6", "field_type": "number"},
+        {"role": "home_fouls", "box": [132, 606, 21, 30], "text": "0", "field_type": "number"},
+        {"role": "away_fouls", "box": [478, 712, 19, 28], "text": "0", "field_type": "number"},
+        {"role": "home_name", "box": [82, 661, 67, 45], "text": "HOPE", "field_type": "text", "display_tech": "dotmatrix"},
+        {"role": "away_name", "box": [455, 770, 76, 48], "text": "BETHEL", "field_type": "text", "display_tech": "dotmatrix"}
+      ]
+    },
+    "File:Powers Field scoreboard.jpg": {
+      "pageid": 155107557,
+      "sport": "american football",
+      "display_tech": "broadcast",
+      "notes": "Powers Field video board, angled",
+      "size": [1280, 853],
+      "fields": [
+        {"role": "home_score", "box": [916, 263, 79, 86], "text": "17", "field_type": "score"},
+        {"role": "away_score", "box": [910, 393, 83, 85], "text": "26", "field_type": "score"},
+        {"role": "clock", "box": [864, 486, 127, 82], "text": "0:00", "field_type": "clock"},
+        {"role": "to_go", "box": [857, 662, 37, 36], "text": "12", "field_type": "number"},
+        {"role": "ball_on", "box": [964, 692, 39, 37], "text": "17", "field_type": "number"},
+        {"role": "other", "box": [150, 463, 53, 44], "text": "180", "field_type": "number", "notes": "total yards"},
+        {"role": "other_2", "box": [206, 457, 55, 44], "text": "303", "field_type": "number", "notes": "total yards"},
+        {"role": "other_3", "box": [147, 531, 53, 43], "text": "137", "field_type": "number", "notes": "pass yards"},
+        {"role": "other_4", "box": [204, 525, 54, 44], "text": "185", "field_type": "number", "notes": "pass yards"},
+        {"role": "other_5", "box": [149, 601, 40, 42], "text": "43", "field_type": "number", "notes": "rush yards"},
+        {"role": "other_6", "box": [201, 595, 54, 44], "text": "118", "field_type": "number", "notes": "rush yards"},
+        {"role": "other_7", "box": [148, 670, 38, 42], "text": "13", "field_type": "number", "notes": "first downs"},
+        {"role": "other_8", "box": [206, 666, 39, 42], "text": "16", "field_type": "number", "notes": "first downs"}
+      ]
+    },
+    "File:Providence Friars at Brown Bears men's ice hockey final score.jpg": {
+      "pageid": 143254826,
+      "sport": "ice hockey",
+      "display_tech": "led7",
+      "notes": "seen through the netting",
+      "size": [1280, 750],
+      "fields": [
+        {"role": "clock", "box": [589, 298, 146, 141], "text": "00.0", "field_type": "clock"},
+        {"role": "home_score", "box": [560, 478, 65, 128], "text": "0", "field_type": "score"},
+        {"role": "period", "box": [666, 510, 38, 84], "text": "3", "field_type": "period"},
+        {"role": "away_score", "box": [776, 512, 46, 104], "text": "3", "field_type": "score"}
+      ]
+    },
+    "File:Reed arena scoreboard.jpg": {
+      "pageid": 2328228,
+      "sport": "basketball",
+      "display_tech": "led7",
+      "size": [1280, 960],
+      "fields": [
+        {"role": "clock", "box": [571, 298, 107, 49], "text": "13:16", "field_type": "clock"},
+        {"role": "home_score", "box": [434, 313, 61, 48], "text": "45", "field_type": "score"},
+        {"role": "away_score", "box": [751, 318, 62, 49], "text": "40", "field_type": "score"},
+        {"role": "home_fouls", "box": [379, 369, 51, 50], "text": "10", "field_type": "number"},
+        {"role": "home_timeouts", "box": [502, 369, 42, 54], "text": "5", "field_type": "number"},
+        {"role": "period", "box": [614, 376, 22, 44], "text": "1", "field_type": "period"},
+        {"role": "away_timeouts", "box": [717, 376, 39, 48], "text": "4", "field_type": "number"},
+        {"role": "away_fouls", "box": [820, 376, 53, 50], "text": "10", "field_type": "number"},
+        {"role": "home_name", "box": [391, 270, 135, 28], "text": "TEXAS A&M", "field_type": "text", "display_tech": "dotmatrix"},
+        {"role": "away_name", "box": [738, 275, 80, 27], "text": "TEXAS", "field_type": "text", "display_tech": "dotmatrix"}
+      ]
+    },
+    "File:Retired U.S. Marine Corps Sgt. Anthony McDaniel shoots over a U.K. defender in the championship wheelchair basketball game at Invictus Games 2016 (27035187142).jpg": {
+      "pageid": 48935431,
+      "sport": "wheelchair basketball",
+      "display_tech": "led7",
+      "size": [1280, 852],
+      "fields": [
+        {"role": "shot_clock", "box": [783, 112, 84, 58], "text": "20", "field_type": "number"}
+      ]
+    },
+    "File:Rozloučení s Kometou 2011 (080).jpg": {
+      "pageid": 18861934,
+      "sport": "ice hockey",
+      "display_tech": "broadcast",
+      "notes": "video board",
+      "size": [1280, 720],
+      "fields": [
+        {"role": "home_score", "box": [515, 272, 56, 99], "text": "8", "field_type": "score"},
+        {"role": "away_score", "box": [611, 290, 59, 85], "text": "8", "field_type": "score"}
+      ]
+    },
+    "File:Rupp-Arena-scoreboard.jpg": {
+      "pageid": 53742468,
+      "sport": "basketball",
+      "display_tech": "dotmatrix",
+      "size": [800, 609],
+      "fields": [
+        {"role": "clock", "box": [189, 107, 77, 49], "text": "17:39", "field_type": "clock"},
+        {"role": "home_score", "box": [126, 137, 24, 35], "text": "0", "field_type": "score"},
+        {"role": "away_score", "box": [304, 89, 27, 37], "text": "0", "field_type": "score"},
+        {"role": "home_score_2", "box": [528, 106, 25, 38], "text": "0", "field_type": "score"},
+        {"role": "clock_2", "box": [597, 132, 69, 61], "text": "17:39", "field_type": "clock"},
+        {"role": "away_score_2", "box": [702, 181, 23, 35], "text": "0", "field_type": "score"}
+      ]
+    },
+    "File:Saskatoon IMG 1269 (5747772162).jpg": {
+      "pageid": 80009234,
+      "sport": "ice hockey",
+      "display_tech": "led7",
+      "size": [1280, 960],
+      "fields": [
+        {"role": "home_name", "box": [356, 81, 88, 36], "text": "BLADES", "field_type": "text", "display_tech": "dotmatrix"},
+        {"role": "home_score", "box": [421, 124, 54, 79], "text": "5", "field_type": "score"},
+        {"role": "clock", "box": [587, 85, 156, 84], "text": "15:16", "field_type": "clock"},
+        {"role": "period", "box": [639, 215, 39, 58], "text": "3", "field_type": "period"},
+        {"role": "away_name", "box": [805, 101, 95, 37], "text": "RAIDERS", "field_type": "text", "display_tech": "dotmatrix"},
+        {"role": "away_score", "box": [894, 147, 26, 70], "text": "1", "field_type": "score"}
+      ]
+    },
+    "File:Score (4021605582).jpg": {
+      "pageid": 92482046,
+      "sport": "american football",
+      "display_tech": "bulb",
+      "size": [1280, 853],
+      "fields": [
+        {"role": "home_name", "box": [328, 220, 149, 49], "text": "UCLA", "field_type": "text"},
+        {"role": "away_name", "box": [717, 223, 107, 49], "text": "CAL", "field_type": "text"},
+        {"role": "home_score", "box": [340, 286, 115, 83], "text": "26", "field_type": "score"},
+        {"role": "away_score", "box": [723, 289, 109, 83], "text": "45", "field_type": "score"},
+        {"role": "home_timeouts", "box": [473, 349, 26, 35], "text": "2", "field_type": "number"},
+        {"role": "away_timeouts", "box": [675, 350, 27, 35], "text": "3", "field_type": "number"},
+        {"role": "period", "box": [385, 412, 50, 61], "text": "4", "field_type": "period"},
+        {"role": "ball_on", "box": [675, 505, 64, 51], "text": "45", "field_type": "number"},
+        {"role": "down", "box": [540, 572, 38, 51], "text": "4", "field_type": "number"},
+        {"role": "to_go", "box": [764, 573, 35, 51], "text": "8", "field_type": "number"}
+      ]
+    },
+    "File:Scoreboard at Brown Stadium, Providence RI.jpg": {
+      "pageid": 73782393,
+      "sport": "american football",
+      "display_tech": "led7",
+      "group": "brown_stadium_board",
+      "size": [1280, 853],
+      "fields": [
+        {"role": "home_score", "box": [345, 459, 56, 62], "text": "16", "field_type": "score"},
+        {"role": "clock", "box": [493, 438, 110, 64], "text": "0:00", "field_type": "clock"},
+        {"role": "away_score", "box": [727, 463, 65, 61], "text": "34", "field_type": "score"},
+        {"role": "home_timeouts", "box": [325, 525, 21, 34], "text": "2", "field_type": "number"},
+        {"role": "down", "box": [401, 526, 20, 33], "text": "2", "field_type": "number"},
+        {"role": "to_go", "box": [488, 526, 28, 33], "text": "10", "field_type": "number"},
+        {"role": "ball_on", "box": [643, 528, 26, 30], "text": "16", "field_type": "number"},
+        {"role": "period", "box": [709, 530, 19, 26], "text": "4", "field_type": "period"},
+        {"role": "away_timeouts", "box": [778, 528, 16, 30], "text": "3", "field_type": "number"}
+      ]
+    },
+    "File:Scoreboard at Mann+Hummel Arena Třebíč, Třebíč District.jpg": {
+      "pageid": 5962450,
+      "sport": "ice hockey",
+      "display_tech": "dotmatrix",
+      "size": [1280, 853],
+      "fields": [
+        {"role": "other", "box": [367, 415, 148, 48], "text": "16:26:46", "field_type": "other", "notes": "time of day"},
+        {"role": "other_2", "box": [601, 415, 114, 47], "text": "16:26:46", "field_type": "other", "notes": "time of day"},
+        {"role": "clock", "box": [433, 510, 62, 36], "text": "0:00", "field_type": "clock"},
+        {"role": "clock_2", "box": [625, 510, 48, 35], "text": "0:00", "field_type": "clock"}
+      ]
+    },
+    "File:Shot clock (red) and game clock (white) in a basketball game.JPG": {
+      "pageid": 58302471,
+      "sport": "basketball",
+      "display_tech": "led7",
+      "group": "northwestern_shot_clock_2013",
+      "size": [1280, 1596],
+      "fields": [
+        {"role": "clock", "box": [878, 101, 210, 155], "text": "11.8", "field_type": "clock"},
+        {"role": "shot_clock", "box": [882, 238, 237, 225], "text": "08", "field_type": "number"}
+      ]
+    },
+    "File:Slippery Rock Football Score--A Tradition Since 1959, (21735028072).jpg": {
+      "pageid": 73625281,
+      "sport": "american football",
+      "display_tech": "broadcast",
+      "notes": "Michigan Stadium ribbon and video board",
+      "size": [1280, 960],
+      "fields": [
+        {"role": "home_name", "box": [517, 384, 394, 76], "text": "SLIPPERY ROCK", "field_type": "text"},
+        {"role": "home_score", "box": [935, 407, 77, 55], "text": "75", "field_type": "score"},
+        {"role": "away_name", "box": [520, 465, 371, 72], "text": "MILLERSVILLE", "field_type": "text"},
+        {"role": "away_score", "box": [951, 486, 45, 54], "text": "0", "field_type": "score"},
+        {"role": "clock", "box": [294, 670, 107, 54], "text": "9:50", "field_type": "clock"},
+        {"role": "to_go", "box": [651, 686, 70, 51], "text": "10", "field_type": "number"},
+        {"role": "ball_on", "box": [780, 690, 71, 51], "text": "29", "field_type": "number"}
+      ]
+    },
+    "File:South Park High School Eagle Stadium Scoreboard.jpg": {
+      "pageid": 85359285,
+      "sport": "american football",
+      "display_tech": "bulb",
+      "size": [900, 600],
+      "fields": [
+        {"role": "clock", "box": [365, 131, 218, 100], "text": "20:16", "field_type": "clock"},
+        {"role": "home_score", "box": [222, 184, 112, 96], "text": "41", "field_type": "score"},
+        {"role": "away_score", "box": [690, 201, 79, 92], "text": "14", "field_type": "score"},
+        {"role": "period", "box": [513, 240, 44, 58], "text": "4", "field_type": "period"},
+        {"role": "down", "box": [418, 286, 63, 92], "text": "0", "field_type": "number"},
+        {"role": "ball_on", "box": [734, 295, 62, 91], "text": "0", "field_type": "number"}
+      ]
+    },
+    "File:St. Lawrence Saints shutout Brown Bears 6-0.jpg": {
+      "pageid": 128568013,
+      "sport": "ice hockey",
+      "display_tech": "led7",
+      "size": [1280, 1763],
+      "fields": [
+        {"role": "clock", "box": [553, 204, 163, 85], "text": "2:54", "field_type": "clock"},
+        {"role": "home_score", "box": [476, 324, 48, 72], "text": "0", "field_type": "score"},
+        {"role": "period", "box": [593, 327, 47, 68], "text": "3", "field_type": "period"},
+        {"role": "away_score", "box": [743, 321, 60, 82], "text": "6", "field_type": "score"},
+        {"role": "away_name", "box": [701, 285, 60, 41], "text": "SLU", "field_type": "text", "display_tech": "dotmatrix"}
+      ]
+    },
+    "File:Syracuse Crunch vs. Utica Comets - November 22, 2014 (15242528344).jpg": {
+      "pageid": 54685379,
+      "sport": "ice hockey",
+      "display_tech": "broadcast",
+      "notes": "video board",
+      "group": "syracuse_crunch_2014",
+      "size": [1280, 960],
+      "fields": [
+        {"role": "home_name", "box": [270, 190, 307, 139], "text": "CRUNCH", "field_type": "text"},
+        {"role": "clock", "box": [604, 205, 141, 126], "text": "8:52", "field_type": "clock"},
+        {"role": "away_name", "box": [794, 235, 254, 124], "text": "COMETS", "field_type": "text"},
+        {"role": "home_score", "box": [378, 315, 66, 128], "text": "2", "field_type": "score"},
+        {"role": "away_score", "box": [907, 353, 51, 117], "text": "1", "field_type": "score"},
+        {"role": "period", "box": [727, 379, 39, 78], "text": "2", "field_type": "period"}
+      ]
+    },
+    "File:Syracuse Crunch vs. Utica Comets - November 22, 2014 (15677169108).jpg": {
+      "pageid": 54685272,
+      "sport": "ice hockey",
+      "display_tech": "broadcast",
+      "notes": "video board, angled",
+      "group": "syracuse_crunch_2014",
+      "size": [1280, 960],
+      "fields": [
+        {"role": "clock", "box": [607, 155, 168, 107], "text": "3:59", "field_type": "clock"},
+        {"role": "home_score", "box": [403, 312, 60, 104], "text": "1", "field_type": "score"},
+        {"role": "away_score", "box": [888, 225, 65, 110], "text": "1", "field_type": "score"},
+        {"role": "period", "box": [642, 368, 48, 84], "text": "1", "field_type": "period"},
+        {"role": "other", "box": [382, 546, 59, 83], "text": "4", "field_type": "number", "notes": "shots"},
+        {"role": "other_2", "box": [852, 477, 62, 86], "text": "6", "field_type": "number", "notes": "shots"}
+      ]
+    },
+    "File:Syracuse Crunch vs. Utica Comets - November 22, 2014 (15679930470).jpg": {
+      "pageid": 54685522,
+      "sport": "ice hockey",
+      "display_tech": "broadcast",
+      "notes": "video board, angled",
+      "group": "syracuse_crunch_2014",
+      "size": [1280, 960],
+      "fields": [
+        {"role": "clock", "box": [634, 445, 104, 58], "text": "0:00.0", "field_type": "clock"},
+        {"role": "home_score", "box": [563, 530, 22, 29], "text": "2", "field_type": "score"},
+        {"role": "away_score", "box": [778, 478, 26, 48], "text": "1", "field_type": "score"},
+        {"role": "period", "box": [670, 550, 19, 27], "text": "3", "field_type": "period"}
+      ]
+    },
+    "File:Syracuse Crunch vs. Utica Comets - November 22, 2014 (15838851916).jpg": {
+      "pageid": 54685246,
+      "sport": "ice hockey",
+      "display_tech": "broadcast",
+      "notes": "video board",
+      "group": "syracuse_crunch_2014",
+      "size": [1280, 960],
+      "fields": [
+        {"role": "home_name", "box": [310, 141, 245, 105], "text": "CRUNCH", "field_type": "text"},
+        {"role": "clock", "box": [578, 148, 111, 99], "text": "9:18", "field_type": "clock"},
+        {"role": "away_name", "box": [732, 171, 200, 93], "text": "COMETS", "field_type": "text"},
+        {"role": "home_score", "box": [397, 238, 54, 103], "text": "0", "field_type": "score"},
+        {"role": "away_score", "box": [823, 263, 40, 91], "text": "1", "field_type": "score"},
+        {"role": "period", "box": [679, 286, 27, 61], "text": "1", "field_type": "period"},
+        {"role": "other", "box": [457, 361, 27, 58], "text": "2", "field_type": "number", "notes": "shots"},
+        {"role": "other_2", "box": [865, 371, 23, 51], "text": "5", "field_type": "number", "notes": "shots"}
+      ]
+    },
+    "File:The Big Chill 16.jpg": {
+      "pageid": 12276495,
+      "sport": "ice hockey",
+      "display_tech": "dotmatrix",
+      "notes": "Michigan Stadium, Big Chill at the Big House, angled",
+      "group": "michigan_big_chill_2010",
+      "size": [1280, 960],
+      "fields": [
+        {"role": "home_name", "box": [228, 251, 107, 84], "text": "MICHIGAN", "field_type": "text"},
+        {"role": "home_score", "box": [247, 348, 54, 98], "text": "3", "field_type": "score"},
+        {"role": "away_score", "box": [455, 290, 61, 104], "text": "0", "field_type": "score"},
+        {"role": "clock", "box": [288, 422, 132, 113], "text": "13:20", "field_type": "clock"},
+        {"role": "home_timeouts", "box": [210, 484, 25, 55], "text": "1", "field_type": "number"},
+        {"role": "away_timeouts", "box": [478, 421, 26, 58], "text": "1", "field_type": "number"},
+        {"role": "other", "box": [228, 558, 53, 70], "text": "20", "field_type": "number", "notes": "shots on goal"},
+        {"role": "other_2", "box": [393, 522, 58, 76], "text": "23", "field_type": "number", "notes": "shots on goal"},
+        {"role": "period", "box": [479, 509, 38, 70], "text": "3", "field_type": "period"}
+      ]
+    },
+    "File:The Good Old Hockey Game (videoboard).jpg": {
+      "pageid": 53761583,
+      "sport": "ice hockey",
+      "display_tech": "dotmatrix",
+      "notes": "Michigan Stadium, Big Chill at the Big House",
+      "group": "michigan_big_chill_2010",
+      "size": [1280, 991],
+      "fields": [
+        {"role": "away_name", "box": [562, 277, 57, 47], "text": "MSU", "field_type": "text"},
+        {"role": "home_score", "box": [355, 288, 51, 69], "text": "2", "field_type": "score"},
+        {"role": "away_score", "box": [613, 342, 49, 65], "text": "0", "field_type": "score"},
+        {"role": "clock", "box": [433, 375, 166, 91], "text": "17:36", "field_type": "clock"},
+        {"role": "home_timeouts", "box": [329, 365, 18, 40], "text": "1", "field_type": "number"},
+        {"role": "away_timeouts", "box": [660, 428, 19, 36], "text": "1", "field_type": "number"},
+        {"role": "other", "box": [612, 471, 28, 47], "text": "8", "field_type": "number", "notes": "shots on goal"},
+        {"role": "period", "box": [688, 486, 18, 44], "text": "2", "field_type": "period"}
+      ]
+    },
+    "File:Tie Game (75814884).jpg": {
+      "pageid": 79554424,
+      "sport": "basketball",
+      "display_tech": "led7",
+      "size": [1280, 960],
+      "fields": [
+        {"role": "home_score", "box": [151, 347, 151, 105], "text": "107", "field_type": "score"},
+        {"role": "away_score", "box": [1008, 214, 166, 113], "text": "107", "field_type": "score"},
+        {"role": "period", "box": [611, 341, 48, 62], "text": "5", "field_type": "period", "notes": "overtime"},
+        {"role": "home_timeouts", "box": [407, 372, 51, 62], "text": "0", "field_type": "number"},
+        {"role": "home_timeouts_2", "box": [480, 361, 51, 63], "text": "0", "field_type": "number", "notes": "20-second timeouts"},
+        {"role": "away_timeouts", "box": [743, 322, 52, 63], "text": "0", "field_type": "number"},
+        {"role": "away_timeouts_2", "box": [822, 310, 51, 63], "text": "0", "field_type": "number", "notes": "20-second timeouts"},
+        {"role": "home_name", "box": [176, 279, 127, 63], "text": "BUCKS", "field_type": "text", "display_tech": "dotmatrix"},
+        {"role": "away_name", "box": [1017, 140, 146, 70], "text": "SPURS", "field_type": "text", "display_tech": "dotmatrix"},
+        {"role": "home_fouls", "box": [67, 859, 35, 50], "text": "5", "field_type": "number"},
+        {"role": "away_fouls", "box": [1139, 746, 44, 55], "text": "5", "field_type": "number"}
+      ]
+    },
+    "File:Time for One Last Play (6954782223).jpg": {
+      "pageid": 63324545,
+      "sport": "american football",
+      "display_tech": "bulb",
+      "group": "tressel_field_board",
+      "size": [1280, 960],
+      "fields": [
+        {"role": "away_name", "box": [441, 483, 149, 35], "text": "VISITOR", "field_type": "text", "display_tech": "printed"},
+        {"role": "home_name", "box": [790, 486, 151, 35], "text": "HOME", "field_type": "text", "display_tech": "printed"},
+        {"role": "away_score", "box": [481, 513, 67, 56], "text": "37", "field_type": "score"},
+        {"role": "away_timeouts", "box": [566, 530, 27, 40], "text": "0", "field_type": "number"},
+        {"role": "clock", "box": [650, 482, 109, 57], "text": "0:06", "field_type": "clock"},
+        {"role": "home_timeouts", "box": [796, 532, 16, 40], "text": "1", "field_type": "number"},
+        {"role": "home_score", "box": [831, 516, 68, 57], "text": "45", "field_type": "score"},
+        {"role": "down", "box": [449, 570, 17, 49], "text": "1", "field_type": "number"},
+        {"role": "to_go", "box": [551, 571, 42, 49], "text": "10", "field_type": "number"},
+        {"role": "ball_on", "box": [803, 573, 43, 50], "text": "12", "field_type": "number"},
+        {"role": "period", "box": [911, 575, 33, 49], "text": "4", "field_type": "period"}
+      ]
+    },
+    "File:Timo Ball 2008 Summer Olympics.jpg": {
+      "pageid": 17582630,
+      "sport": "table tennis",
+      "display_tech": "dotmatrix",
+      "notes": "Beijing 2008 venue board",
+      "size": [1280, 1321],
+      "fields": [
+        {"role": "home_name", "box": [308, 16, 110, 70], "text": "KOR", "field_type": "text"},
+        {"role": "away_name", "box": [900, 10, 106, 70], "text": "GER", "field_type": "text"},
+        {"role": "clock", "box": [561, 19, 193, 63], "text": "00:35", "field_type": "clock"},
+        {"role": "other", "box": [545, 273, 77, 100], "text": "2", "field_type": "number", "notes": "games won"},
+        {"role": "other_2", "box": [690, 271, 81, 101], "text": "0", "field_type": "number", "notes": "games won"},
+        {"role": "other_3", "box": [339, 226, 113, 72], "text": "11-9", "field_type": "other", "notes": "last game"}
+      ]
+    },
+    "File:Union Dutchmen ice hockey home game against St. Lawrence Saints on Feb. 19, 2010 (9124933684).jpg": {
+      "pageid": 156169392,
+      "sport": "ice hockey",
+      "display_tech": "led7",
+      "size": [1280, 960],
+      "fields": [
+        {"role": "clock", "box": [423, 290, 108, 92], "text": "6:57", "field_type": "clock"},
+        {"role": "home_score", "box": [355, 378, 39, 69], "text": "3", "field_type": "score"},
+        {"role": "away_score", "box": [576, 312, 45, 72], "text": "0", "field_type": "score"},
+        {"role": "period", "box": [479, 375, 35, 54], "text": "3", "field_type": "period"},
+        {"role": "other", "box": [439, 496, 49, 57], "text": "26", "field_type": "number", "notes": "shots on goal"},
+        {"role": "other_2", "box": [496, 482, 49, 57], "text": "30", "field_type": "number", "notes": "shots on goal"},
+        {"role": "clock_2", "box": [909, 289, 117, 81], "text": "6:57", "field_type": "clock"},
+        {"role": "home_score_2", "box": [806, 309, 46, 75], "text": "3", "field_type": "score"},
+        {"role": "away_score_2", "box": [1071, 362, 45, 70], "text": "0", "field_type": "score"},
+        {"role": "period_2", "box": [955, 370, 36, 56], "text": "3", "field_type": "period"},
+        {"role": "other_3", "box": [873, 469, 59, 61], "text": "26", "field_type": "number", "notes": "shots on goal"},
+        {"role": "other_4", "box": [945, 480, 56, 61], "text": "30", "field_type": "number", "notes": "shots on goal"}
+      ]
+    },
+    "File:UnitasStadiumScoreboard.JPG": {
+      "pageid": 31088115,
+      "sport": "american football",
+      "display_tech": "broadcast",
+      "notes": "Johnny Unitas Stadium video board",
+      "size": [1280, 1094],
+      "fields": [
+        {"role": "clock", "box": [910, 285, 107, 56], "text": "0:13", "field_type": "clock"},
+        {"role": "home_score", "box": [854, 387, 81, 56], "text": "44", "field_type": "score"},
+        {"role": "away_score", "box": [1016, 385, 80, 57], "text": "28", "field_type": "score"},
+        {"role": "period", "box": [958, 423, 37, 42], "text": "4", "field_type": "period"},
+        {"role": "home_timeouts", "box": [880, 514, 27, 36], "text": "2", "field_type": "number"},
+        {"role": "away_timeouts", "box": [1052, 512, 29, 36], "text": "0", "field_type": "number"},
+        {"role": "down", "box": [848, 568, 33, 42], "text": "3", "field_type": "number"},
+        {"role": "to_go", "box": [957, 566, 34, 43], "text": "5", "field_type": "number"},
+        {"role": "ball_on", "box": [1065, 564, 34, 43], "text": "5", "field_type": "number"}
+      ]
+    },
+    "File:Vytautas Zalgiris-2 score.jpg": {
+      "pageid": 67851250,
+      "sport": "basketball",
+      "display_tech": "led7",
+      "size": [1280, 720],
+      "fields": [
+        {"role": "home_score", "box": [410, 241, 70, 50], "text": "90", "field_type": "score"},
+        {"role": "clock", "box": [434, 292, 112, 63], "text": "00:0", "field_type": "clock", "notes": "seconds:tenths in the last minute"},
+        {"role": "period", "box": [487, 247, 47, 48], "text": "4", "field_type": "period"},
+        {"role": "away_score", "box": [548, 226, 73, 49], "text": "80", "field_type": "score"},
+        {"role": "other", "box": [385, 362, 49, 56], "text": "4", "field_type": "number"},
+        {"role": "other_2", "box": [568, 349, 51, 55], "text": "4", "field_type": "number"},
+        {"role": "home_name", "box": [344, 193, 148, 55], "text": "VYTAUTAS", "field_type": "text", "display_tech": "dotmatrix"}
+      ]
+    },
+    "File:When Harvard Wins, You Win.jpg": {
+      "pageid": 177358461,
+      "sport": "american football",
+      "display_tech": "broadcast",
+      "notes": "video board",
+      "size": [1280, 853],
+      "fields": [
+        {"role": "home_name", "box": [96, 126, 100, 44], "text": "HARVARD", "field_type": "text"},
+        {"role": "home_score", "box": [204, 122, 52, 56], "text": "31", "field_type": "score"},
+        {"role": "away_name", "box": [96, 214, 44, 36], "text": "MC", "field_type": "text"},
+        {"role": "away_score", "box": [215, 199, 34, 57], "text": "7", "field_type": "score"},
+        {"role": "period", "box": [111, 274, 77, 54], "text": "4TH", "field_type": "text"},
+        {"role": "clock", "box": [106, 356, 170, 72], "text": "30:00", "field_type": "clock"}
+      ]
+    },
+    "File:With 2-26 remaining, things would still get much, much worse (4171547138).jpg": {
+      "pageid": 52861520,
+      "sport": "basketball",
+      "display_tech": "dotmatrix",
+      "size": [1280, 850],
+      "fields": [
+        {"role": "home_name", "box": [724, 492, 152, 34], "text": "WARRIORS", "field_type": "text"},
+        {"role": "away_name", "box": [948, 488, 122, 32], "text": "LAKERS", "field_type": "text"},
+        {"role": "home_score", "box": [750, 524, 92, 50], "text": "89", "field_type": "score"},
+        {"role": "away_score", "box": [950, 514, 109, 52], "text": "121", "field_type": "score"},
+        {"role": "period", "box": [886, 521, 38, 48], "text": "4", "field_type": "period"},
+        {"role": "home_fouls", "box": [760, 591, 32, 42], "text": "3", "field_type": "number"},
+        {"role": "away_fouls", "box": [1008, 584, 34, 42], "text": "2", "field_type": "number"},
+        {"role": "home_timeouts", "box": [761, 634, 32, 42], "text": "2", "field_type": "number"},
+        {"role": "away_timeouts", "box": [1009, 628, 34, 43], "text": "2", "field_type": "number"},
+        {"role": "clock", "box": [851, 695, 110, 50], "text": "2:26", "field_type": "clock"}
+      ]
+    },
+    "File:Wounded Warrior Games - Day Two DVIDS278579.jpg": {
+      "pageid": 39344893,
+      "sport": "wheelchair basketball",
+      "display_tech": "led7",
+      "size": [1280, 853],
+      "fields": [
+        {"role": "clock", "box": [1074, 6, 55, 35], "text": "1:29", "field_type": "clock"},
+        {"role": "shot_clock", "box": [1047, 39, 71, 58], "text": "20", "field_type": "number"}
+      ]
+    },
+    "File:YOG 2018 Basketball - Quarterfinals ARG-CHN 64.jpg": {
+      "pageid": 75994691,
+      "sport": "3x3 basketball",
+      "display_tech": "dotmatrix",
+      "size": [1280, 853],
+      "fields": [
+        {"role": "other", "box": [483, 72, 180, 27], "text": "QUARTERFINAL", "field_type": "text", "notes": "round"},
+        {"role": "home_name", "box": [347, 104, 90, 49], "text": "ARG", "field_type": "text"},
+        {"role": "away_name", "box": [708, 104, 89, 49], "text": "CHN", "field_type": "text"},
+        {"role": "home_score", "box": [344, 150, 165, 121], "text": "10", "field_type": "score"},
+        {"role": "away_score", "box": [669, 151, 100, 121], "text": "9", "field_type": "score"},
+        {"role": "clock", "box": [524, 187, 95, 48], "text": "3:15", "field_type": "clock"},
+        {"role": "home_fouls", "box": [360, 289, 40, 57], "text": "2", "field_type": "number"},
+        {"role": "away_fouls", "box": [742, 292, 42, 58], "text": "6", "field_type": "number"},
+        {"role": "shot_clock", "box": [232, 613, 50, 71], "text": "0", "field_type": "number", "display_tech": "led7"}
+      ]
+    },
+    "File:Yale Bowl scoreboard.jpg": {
+      "pageid": 82663911,
+      "sport": "american football",
+      "display_tech": "dotmatrix",
+      "notes": "Yale Bowl, 2010s board",
+      "size": [1280, 853],
+      "fields": [
+        {"role": "home_name", "box": [270, 268, 80, 48], "text": "YALE", "field_type": "text"},
+        {"role": "home_score", "box": [272, 314, 84, 64], "text": "27", "field_type": "score"},
+        {"role": "home_timeouts", "box": [450, 326, 26, 40], "text": "1", "field_type": "number"},
+        {"role": "clock", "box": [568, 292, 112, 62], "text": "1:48", "field_type": "clock"},
+        {"role": "away_timeouts", "box": [708, 346, 34, 46], "text": "0", "field_type": "number"},
+        {"role": "away_name", "box": [796, 308, 128, 50], "text": "CORNELL", "field_type": "text"},
+        {"role": "away_score", "box": [848, 354, 46, 58], "text": "16", "field_type": "score"},
+        {"role": "down", "box": [316, 414, 20, 48], "text": "1", "field_type": "number"},
+        {"role": "to_go", "box": [494, 424, 44, 52], "text": "10", "field_type": "number"},
+        {"role": "ball_on", "box": [655, 432, 58, 56], "text": "25", "field_type": "number"},
+        {"role": "period", "box": [850, 448, 30, 46], "text": "4", "field_type": "period"}
+      ]
+    },
+    "File:Yost Ice Arena scoreboard.JPG": {
+      "pageid": 9056921,
+      "sport": "ice hockey",
+      "display_tech": "led7",
+      "notes": "seen through the netting",
+      "size": [1280, 1322],
+      "fields": [
+        {"role": "home_name", "box": [306, 660, 184, 52], "text": "MICHIGAN", "field_type": "text", "display_tech": "dotmatrix"},
+        {"role": "away_name", "box": [830, 660, 78, 52], "text": "FSU", "field_type": "text", "display_tech": "dotmatrix"},
+        {"role": "home_score", "box": [398, 720, 54, 82], "text": "0", "field_type": "score"},
+        {"role": "away_score", "box": [874, 720, 52, 80], "text": "0", "field_type": "score"},
+        {"role": "period", "box": [688, 770, 26, 56], "text": "1", "field_type": "period"},
+        {"role": "other", "box": [564, 902, 40, 60], "text": "0", "field_type": "number", "notes": "shots on goal"},
+        {"role": "other_2", "box": [708, 902, 44, 60], "text": "0", "field_type": "number", "notes": "shots on goal"}
+      ]
+    },
+    "File:Yulman Stadium (scoreboard).jpg": {
+      "pageid": 35212325,
+      "sport": "american football",
+      "display_tech": "broadcast",
+      "notes": "ribbon board",
+      "size": [1280, 682],
+      "fields": [
+        {"role": "home_score", "box": [198, 410, 66, 50], "text": "21", "field_type": "score"},
+        {"role": "clock", "box": [420, 410, 142, 50], "text": "0:05", "field_type": "clock"},
+        {"role": "away_score", "box": [762, 410, 72, 50], "text": "21", "field_type": "score"},
+        {"role": "period", "box": [856, 418, 42, 42], "text": "2", "field_type": "period"},
+        {"role": "down", "box": [900, 418, 38, 42], "text": "1", "field_type": "number"},
+        {"role": "to_go", "box": [966, 418, 68, 42], "text": "10", "field_type": "number"},
+        {"role": "ball_on", "box": [1038, 418, 72, 42], "text": "28", "field_type": "number"}
+      ]
+    },
+    "File:Мікрорайон Центральний, Хмельницький, Хмельницька область, Ukraine - panoramio (29).jpg": {
+      "pageid": 56757430,
+      "sport": "association football",
+      "display_tech": "dotmatrix",
+      "notes": "unlit digit positions included in the score boxes",
+      "size": [1280, 853],
+      "fields": [
+        {"role": "home_score", "box": [340, 428, 108, 114], "text": "4", "field_type": "score"},
+        {"role": "clock", "box": [547, 440, 245, 110], "text": "18:57", "field_type": "clock"},
+        {"role": "away_score", "box": [880, 428, 120, 112], "text": "1", "field_type": "score"}
+      ]
+    },
+    "File:スコアボード (4373224484).jpg": {
+      "pageid": 39399668,
+      "sport": "volleyball",
+      "display_tech": "dotmatrix",
+      "size": [1280, 960],
+      "fields": [
+        {"role": "home_score", "box": [567, 459, 109, 105], "text": "15", "field_type": "score"},
+        {"role": "away_score", "box": [825, 453, 116, 105], "text": "13", "field_type": "score"},
+        {"role": "other", "box": [240, 560, 164, 49], "text": "17:24:52", "field_type": "other", "notes": "time of day"}
+      ]
+    },
+    "File:スコアボード.JPG": {
+      "pageid": 19485280,
+      "sport": "basketball",
+      "display_tech": "led7",
+      "size": [1280, 960],
+      "fields": [
+        {"role": "home_score", "box": [338, 242, 102, 90], "text": "95", "field_type": "score"},
+        {"role": "home_fouls", "box": [507, 253, 32, 42], "text": "5", "field_type": "number"},
+        {"role": "home_timeouts", "box": [520, 317, 23, 40], "text": "1", "field_type": "number"},
+        {"role": "period", "box": [600, 332, 30, 37], "text": "4", "field_type": "period"},
+        {"role": "clock", "box": [678, 305, 142, 96], "text": "00.0", "field_type": "clock"},
+        {"role": "away_fouls", "box": [897, 315, 31, 41], "text": "5", "field_type": "number"},
+        {"role": "away_timeouts", "box": [883, 373, 34, 41], "text": "0", "field_type": "number"},
+        {"role": "away_score", "box": [982, 343, 87, 83], "text": "90", "field_type": "score"},
+        {"role": "away_name", "box": [975, 311, 95, 33], "text": "BULLS", "field_type": "text", "display_tech": "dotmatrix"}
+      ]
+    }
+  },
+  "rejected": {
+    "File:10002-1-XL (6167996027).jpg": "fields too small or far away: fields too small",
+    "File:200001-0-XL (6168543490).jpg": "fields too small or far away: fields too small",
+    "File:2010-7-1-football-scoreboard-2.jpg": "fields too small or far away: fields too small",
+    "File:20130103 UofM fast break (4).jpg": "fields cut off or covered: the shot clock is cut by the frame",
+    "File:2014 Aegon International 086 (14436868605).jpg": "fields too small or far away: fields too small",
+    "File:2017-08-10 Keith Levit-Tennis Female060 (35664131884).jpg": "digits ambiguous: dim; digits ambiguous",
+    "File:2018 Roland Garros Qualifying Tournament - 79.jpg": "fields too small or far away: fields too small",
+    "File:2026 Ball Hockey World Championship Slovakia vs. Canada 38.jpg": "near-duplicate of another photo: near-duplicate of the other photos of this board",
+    "File:Admirals win 2-1.jpg": "blurred: angled and blurred",
+    "File:Anaheim Ducks vs. Detroit Red Wings Oct 8, 2010 03.JPG": "fields too small or far away: angled; fields too small",
+    "File:Anaheim Ducks vs. Detroit Red Wings Oct 8, 2010 47.JPG": "fields too small or far away: angled; fields too small",
+    "File:Anaheim Ducks vs. Detroit Red Wings Oct 8, 2010 57.JPG": "strongly angled: strongly angled; fields cut",
+    "File:Banga Plaza td (2020-01-20) 020 - Basketball Court, Community Stage.jpg": "display off: the display is off (unlit segments only)",
+    "File:Bishop's Stortford Cicket Club scoreboard detail, Hertfordshire 1.jpg": "digits ambiguous: ambiguous: a lit segment in the unused digit",
+    "File:Bloomington Ice Garden (5607583010).jpg": "fields cut off or covered: obstructed (net in front of the board)",
+    "File:Boston Bruins Stanley Cup Champions Banner.jpg": "fields too small or far away: fields too small",
+    "File:Bruins Pirates IMG 4988 (5469725147).jpg": "no scoreboard field: no legible scoreboard field",
+    "File:Cavs Opener6683.jpg": "fields too small or far away: too small and angled",
+    "File:Church Times Cricket Cup final 2019, scorebox scores.jpg": "digits ambiguous: display dim; lit and unlit segments ambiguous",
+    "File:Civic Arena scoreboard.jpg": "fields too small or far away: too small or ambiguous (clock 34.4 or 3:44)",
+    "File:Daktronics scoreboard at Tainan Municipal Baseball Stadium 20150725.jpg": "digits ambiguous: display dim; digits ambiguous",
+    "File:EverBankFIeld2014.jpg": "fields too small or far away: fields too small",
+    "File:GM Place Canucks 4 Overtimes.jpg": "fields too small or far away: broadcast graphics; fields too small",
+    "File:Harvard at Yale 2003.JPG (178442784).jpg": "blurred: blurred; digits too soft to box reliably",
+    "File:Harvard at Yale 2003.JPG (178444808).jpg": "blurred: blurred; digits too soft to box reliably",
+    "File:Harvard at Yale 2003.JPG (178445882).jpg": "blurred: blurred; digits too soft to box reliably",
+    "File:ITTF World Tour 2017 German Open GETEC Arena 02.jpg": "fields cut off or covered: flip scorer partly hidden; ambiguous",
+    "File:Konstrukcje do koszykówki.png": "image unusable: the image renders black (transparent PNG)",
+    "File:Little Caesars Arena 20180125 213138.jpg": "display off: the display is off (museum exhibit)",
+    "File:Little Caesars Arena 20180125 213144.jpg": "display off: the display is off (museum exhibit)",
+    "File:Madison Square Garden Daktronics (cropped).JPG": "fields too small or far away: fields too small",
+    "File:Nordis Valotaulu HIFK-HPK.jpg": "fields too small or far away: fields too small and blurred",
+    "File:Ohio State vs. Michigan volleyball 2011 16.jpg": "fields too small or far away: too small",
+    "File:Oriel Park Scoreboard.jpg": "digits ambiguous: ambiguous: stacked digits",
+    "File:ReedArena-WBB-A&MvsUNM-Dec-30-08.jpg": "fields too small or far away: too small and angled",
+    "File:Rozloučení s Kometou 2011 (026).jpg": "fields too small or far away: too small",
+    "File:Rozloučení s Kometou 2011 (032).jpg": "fields too small or far away: too small",
+    "File:Rozloučení s Kometou 2011 (046).jpg": "fields too small or far away: too small",
+    "File:Samuel Bennerson Playground td (2019-06-18) 025 - Basketball Courts.jpg": "display off: the display is off",
+    "File:Samuel Bennerson Playground td (2019-06-18) 037 - Basketball Courts.jpg": "display off: the display is off",
+    "File:Scoreboard2 (3158054228).jpg": "strongly angled: strongly angled, behind a fence",
+    "File:South West Slammers championship banners.jpg": "display off: the display is off",
+    "File:Table tennis umpire.jpg": "fields cut off or covered: flip scorer partly hidden; order of games and points ambiguous",
+    "File:Toronto Raptors vs Houston Rockets tg200812 210 (3174991188).jpg": "fields cut off or covered: video board graphics; scores partly covered",
+    "File:US Navy 111110-N-RG587-034 Workers attach a scoreboard to the basket during final preparations of the basketball court on the flight deck of the Ni.jpg": "display off: the display is off",
+    "File:WellsFargoCenterPhila 01.JPG": "fields too small or far away: fields too small",
+    "File:Yost Ice Arena scoreboard March 2010.JPG": "fields too small or far away: angled; fields too small",
+    "File:Табло після серії пенальті, МД-КЛ.jpg": "strongly angled: rotated about 30 degrees",
+    "File:最終第5セット接戦 (7747775796).jpg": "fields too small or far away: angled and small"
+  }
+}
