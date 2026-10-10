@@ -232,12 +232,14 @@ class ImageViewer(CameraView):
                 if not self.setFourCornersForHomography(corners):
                     # e.g. the same point clicked twice: start the selection over
                     self.clearFourCornerItems()
-                    self.error_event(
+                    # a message only: the source is fine, so the view tools
+                    # stay enabled (error_event would disable them)
+                    self.show_error_text(
                         "Invalid four-corner selection: click the four corners "
                         "of the scoreboard"
                     )
                     return
-                self.error_event(None)
+                self.show_error_text(None)
                 self.fourCornerSelectionMode = False
                 store_data("scoresight.json", "four_corners", corners)
                 # hide polygon and points

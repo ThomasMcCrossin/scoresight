@@ -215,3 +215,70 @@ def test_valid_stored_four_corners_are_applied(qtbot, memory_storage, capture_fa
         assert len(applied) == 1
     finally:
         viewer.close()
+
+
+def click(viewer, x, y):
+    from PySide6.QtCore import QEvent, QPointF, Qt
+    from PySide6.QtGui import QMouseEvent
+
+    position = QPointF(x, y)
+    viewer.mousePressEvent(
+        QMouseEvent(
+            QEvent.Type.MouseButtonPress,
+            position,
+            position,
+            Qt.MouseButton.LeftButton,
+            Qt.MouseButton.LeftButton,
+            Qt.KeyboardModifier.NoModifier,
+        )
+    )
+
+
+def test_an_invalid_four_corner_selection_is_not_a_source_error(
+    qtbot, memory_storage, capture_factory
+):
+    # error_signal makes the main window disable the view tools (with the
+    # four-corner button) until the source is reopened
+    capture_factory(FrameCapture())
+    viewer = make_viewer(memory_storage)
+    errors = []
+    viewer.error_signal.connect(errors.append)
+    try:
+        with qtbot.waitSignal(viewer.first_frame_received_signal, timeout=5000):
+            pass
+        viewer.toggleFourCorner(True)
+        # the same corner clicked twice
+        for x, y in [(50, 50), (50, 50), (400, 300), (40, 290)]:
+            click(viewer, x, y)
+        assert "Invalid four-corner selection" in viewer.error_text.toPlainText()
+        assert errors == []
+        # the selection starts over
+        assert viewer.fourCornerSelectionMode
+        assert viewer.fourCorners == []
+        assert viewer.timerThread.homography is None
+
+        for x, y in [(50, 50), (400, 60), (390, 300), (40, 290)]:
+            click(viewer, x, y)
+        assert viewer.timerThread.homography is not None
+        assert viewer.error_text is None
+        assert errors == []
+    finally:
+        viewer.close()
+
+
+def test_a_frame_processing_error_is_shown_but_not_a_source_error(
+    qtbot, memory_storage, capture_factory
+):
+    capture_factory(FrameCapture())
+    view = CameraView(file_source(), memory_storage)
+    errors = []
+    view.error_signal.connect(errors.append)
+    try:
+        view.timerThread.processing_error.emit("Error: unable to process the frame")
+        assert "unable to process" in view.error_text.toPlainText()
+        assert errors == []
+        # a source error is still reported
+        view.timerThread.update_error.emit("Error: Unable to play video stream")
+        assert errors == ["Error: Unable to play video stream"]
+    finally:
+        view.close()

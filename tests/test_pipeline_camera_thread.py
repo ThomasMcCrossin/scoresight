@@ -66,9 +66,11 @@ def make_thread(memory_storage):
         thread._clock = FakeClock()
         thread.textDetector = FakeDetector()
         thread.previews, thread.results, thread.errors = [], [], []
+        thread.processing_errors = []
         thread.update_signal.connect(thread.previews.append)
         thread.ocr_result_signal.connect(thread.results.append)
         thread.update_error.connect(thread.errors.append)
+        thread.processing_error.connect(thread.processing_errors.append)
         threads.append(thread)
         return thread
 
@@ -403,8 +405,10 @@ def test_processing_errors_do_not_stop_the_loop(make_thread, make_target):
     assert thread.video_capture.reads == 20
     assert thread.retry_count == 0
     # reported, but not on every frame
-    assert 1 <= len(thread.errors) <= 2
-    assert "No image set" in thread.errors[0]
+    assert 1 <= len(thread.processing_errors) <= 2
+    assert "No image set" in thread.processing_errors[0]
+    # not as a source error, which would disable the view tools
+    assert thread.errors == []
     assert len(thread.previews) >= 2
 
 

@@ -439,7 +439,10 @@ atexit.register(_stop_active_threads_at_exit)
 
 class TimerThread(QThread):
     update_signal = Signal(object)
+    # the source failed (can't be opened or read): it is stopping
     update_error = Signal(object)
+    # a frame couldn't be processed; the capture keeps running
+    processing_error = Signal(object)
     ocr_result_signal = Signal(list)
 
     def __init__(
@@ -690,7 +693,7 @@ class TimerThread(QThread):
             return
         self._last_error_report = now
         logger.exception("Error: unable to process the video frame")
-        self.update_error.emit(f"Error: unable to process the video frame: {error}")
+        self.processing_error.emit(f"Error: unable to process the video frame: {error}")
 
     def process_frame(self, frame_rgb):
         """Process a frame read from the source: on the detection cadence run

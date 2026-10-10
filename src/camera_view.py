@@ -77,6 +77,7 @@ class CameraView(QGraphicsView):
         self.timerThread = TimerThread(camera_index, detectionTargetsStorage)
         self.timerThread.update_signal.connect(self.update_pixmap)
         self.timerThread.update_error.connect(self.error_event)
+        self.timerThread.processing_error.connect(self.show_error_text)
         self.timerThread.start()
         self.scenePixmapItem = None
         self.detectionTargetsStorage = detectionTargetsStorage
@@ -176,12 +177,15 @@ class CameraView(QGraphicsView):
         # scale the text according to the view size so its always the same size
         self.fps_text.setScale(0.0015 * self.scenePixmapItem.boundingRect().width())
 
-    def error_event(self, error):
+    def show_error_text(self, error):
+        """Show an error message at the bottom of the view (None clears it),
+        without reporting it through error_signal: for messages that don't mean
+        the source failed, e.g. an invalid four-corner selection or an error
+        processing a frame."""
         if self.error_text is not None:
             self.scene.removeItem(self.error_text)
             self.error_text = None
         if error is not None:
-            logger.error("Error: %s", error)
             # add the error to the scene
             self.error_text = self.scene.addText(f"⚠️ {error}")
             self.error_text.setDefaultTextColor(Qt.GlobalColor.red)
@@ -190,6 +194,14 @@ class CameraView(QGraphicsView):
             self.error_text.setPos(
                 0, self.height() - self.error_text.boundingRect().height() - 10
             )
+
+    def error_event(self, error):
+        """A source error (e.g. it can't be played): shown in the view and
+        reported through error_signal, which disables the main window's view
+        tools."""
+        self.show_error_text(error)
+        if error is not None:
+            logger.error("Error: %s", error)
             self.error_signal.emit(error)
 
     def setFourCornersForHomography(self, corners: list[tuple[int]]) -> bool:
@@ -220,6 +232,7 @@ class CameraView(QGraphicsView):
             for signal in (
                 thread.update_signal,
                 thread.update_error,
+                thread.processing_error,
                 thread.ocr_result_signal,
             ):
                 try:
