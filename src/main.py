@@ -42,6 +42,7 @@ SELF_TEST_MODULES = (
     "ndi",
     "obs_websocket",
     "ocr_training_data",
+    "output_worker",
     "resizable_rect",
     "resource_path",
     "sc_logging",

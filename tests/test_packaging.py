@@ -393,14 +393,21 @@ def test_spec_files_exist():
 # Resources the code loads that the app doesn't need bundled.
 NOT_BUNDLED = {".env": "optional developer file with SCORESIGHT_DEBUG; never shipped"}
 
-# Known broken resource references, owned by other modules' maintainers. When
-# the reference is fixed it disappears from the list (or starts to pass).
-KNOWN_BROKEN = {
-    "update_available.ui": "update_check.py loads a .ui file that is not shipped "
-    "(the compiled ui_update_available.py should be used instead)",
-    "obs_data/Scoreboard parts/{base_name}": "obs_websocket.py is missing the "
-    "f-string prefix, so the literal text '{base_name}' is used as the file name",
+# Folders the code references as a whole, with the files it loads from them
+# (glob patterns relative to the folder). Every matching file must be bundled.
+# A folder reference that isn't listed here means "everything in the folder".
+FOLDER_CONTENTS = {
+    # main.find_translation_file: scoresight_<locale>.qm (the .ts sources are
+    # only for translators)
+    "translations": ["scoresight_*.qm"],
+    # tesseract.TextDetector: the models, loaded by name from the folder
+    "tesseract/tessdata": ["*.traineddata"],
 }
+
+# Known broken resource references (pattern: reason), marked as strict expected
+# failures. When the reference is fixed it disappears or starts to pass, and its
+# entry must be removed.
+KNOWN_BROKEN = {}
 
 
 def _resource_references():
@@ -455,6 +462,9 @@ def test_resource_references_were_found():
     assert "tesseract/tessdata" in patterns
     assert "translations/scoresight_*.qm" in patterns
     assert "icons/circle-x.svg" in patterns
+    # the folder and known-broken lists describe current references only
+    assert set(FOLDER_CONTENTS) <= patterns
+    assert set(KNOWN_BROKEN) <= patterns
 
 
 @pytest.mark.parametrize("pattern", _reference_params())
@@ -468,8 +478,13 @@ def test_resources_loaded_by_the_code_are_bundled(pattern):
         return
     in_repo = REPO_ROOT / pattern
     if "*" not in pattern and in_repo.is_dir():
-        # a folder: everything in it must be bundled
-        expected = {f"{pattern}/{p.name}" for p in in_repo.iterdir() if p.is_file()}
+        # a folder: the files the code loads from it (by default all of them)
+        contents = FOLDER_CONTENTS.get(pattern, ["*"])
+        expected = {
+            f"{pattern}/{p.name}"
+            for p in in_repo.iterdir()
+            if p.is_file() and any(fnmatch.fnmatch(p.name, c) for c in contents)
+        }
     else:
         expected = {
             p.relative_to(REPO_ROOT).as_posix()
@@ -480,21 +495,50 @@ def test_resources_loaded_by_the_code_are_bundled(pattern):
     assert expected <= bundled, sorted(expected - bundled)
 
 
+def _tesseract_class(tree, name):
+    return next(
+        node
+        for node in ast.walk(tree)
+        if isinstance(node, ast.ClassDef) and node.name == name
+    )
+
+
 def _ocr_model_names():
+    """The built-in model names TextDetector._resolve_model maps the model
+    indexes to: its `return <folder>, "<name>"` statements."""
+    tree = ast.parse((SRC_DIR / "tesseract.py").read_text(encoding="utf-8"))
+    resolve = next(
+        node
+        for node in ast.walk(_tesseract_class(tree, "TextDetector"))
+        if isinstance(node, ast.FunctionDef) and node.name == "_resolve_model"
+    )
+    return {
+        node.value.elts[1].value
+        for node in ast.walk(resolve)
+        if isinstance(node, ast.Return)
+        and isinstance(node.value, ast.Tuple)
+        and len(node.value.elts) == 2
+        and isinstance(node.value.elts[1], ast.Constant)
+        and isinstance(node.value.elts[1].value, str)
+    }
+
+
+def _ocr_model_indexes():
+    """The constants of TextDetector.OcrModelIndex (one per built-in model)."""
     tree = ast.parse((SRC_DIR / "tesseract.py").read_text(encoding="utf-8"))
     return {
-        node.value.value
-        for node in ast.walk(tree)
+        target.id
+        for node in _tesseract_class(tree, "OcrModelIndex").body
         if isinstance(node, ast.Assign)
-        and any(getattr(t, "id", None) == "ocr_model" for t in node.targets)
-        and isinstance(node.value, ast.Constant)
-        and isinstance(node.value.value, str)
+        for target in node.targets
     }
 
 
 def test_builtin_ocr_models_exist_and_are_bundled():
     models = _ocr_model_names()
     assert {"daktronics", "scoreboard_general", "eng"} <= models
+    # every model index maps to its own model
+    assert len(models) == len(_ocr_model_indexes())
     bundled = _bundled_files()
     for model in models:
         path = f"tesseract/tessdata/{model}.traineddata"

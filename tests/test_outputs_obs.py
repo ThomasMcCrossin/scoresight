@@ -1,4 +1,5 @@
 import logging
+import os
 import threading
 import time
 from types import SimpleNamespace
@@ -227,3 +228,39 @@ def test_open_obs_websocket(monkeypatch):
         obs_websocket.open_obs_websocket({"ip": "x", "port": "1", "password": ""})
         is None
     )
+
+
+def test_create_obs_scene_points_image_sources_at_the_bundled_images(caplog):
+    class SceneClient:
+        def __init__(self):
+            self.inputs = []
+            self.filters = []
+
+        def get_scene_list(self):
+            return SimpleNamespace(scenes=[])
+
+        def create_scene(self, name):
+            pass
+
+        def create_input(self, sceneName, inputName, inputKind, inputSettings, **kw):
+            self.inputs.append(inputSettings)
+
+        def get_scene_item_id(self, scene, name):
+            return SimpleNamespace(scene_item_id=1)
+
+        def set_scene_item_transform(self, scene, item_id, transform):
+            pass
+
+        def create_source_filter(self, source, name, kind, settings):
+            self.filters.append(settings)
+
+    client = SceneClient()
+    with caplog.at_level(logging.ERROR, logger=obs_websocket.logger.name):
+        obs_websocket.create_obs_scene_from_export(client, "ScoreSight")
+    assert not caplog.records
+
+    images = [s["file"] for s in client.inputs if "file" in s]
+    images += [s["image_path"] for s in client.filters if "image_path" in s]
+    assert images
+    for image in images:
+        assert os.path.isfile(image), image

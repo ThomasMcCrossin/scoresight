@@ -309,7 +309,7 @@ def create_obs_scene_from_export(obs_client, scene_name):
             # get the base name of the image path
             base_name = path.basename(source_settings_to_set["file"])
             # get the absolute path to the image
-            abs_path = resource_path("obs_data", "Scoreboard parts", "{base_name}")
+            abs_path = resource_path("obs_data", "Scoreboard parts", base_name)
             source_settings_to_set["file"] = abs_path
 
         try:
