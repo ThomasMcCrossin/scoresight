@@ -636,16 +636,6 @@
                </property>
               </widget>
              </item>
-             <item row="2" column="3">
-              <widget class="QCheckBox" name="checkBox">
-               <property name="enabled">
-                <bool>false</bool>
-               </property>
-               <property name="text">
-                <string>Force Format</string>
-               </property>
-              </widget>
-             </item>
              <item row="1" column="2">
               <widget class="QWidget" name="widget_7" native="true">
                <property name="sizePolicy">
@@ -855,7 +845,7 @@
              <item>
               <widget class="QLineEdit" name="lineEdit_templatefield">
                <property name="text">
-                <string/>
+                <string notr="true"/>
                </property>
                <property name="placeholderText">
                 <string>{{template}}</string>
@@ -1122,7 +1112,7 @@
            <item alignment="Qt::AlignTop">
             <widget class="QLabel" name="label_8">
              <property name="text">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Use these endpoints in external software to get live data updates&lt;/p&gt;&lt;p&gt;HTML Scoreboard: &lt;a href=&quot;http://localhost:18099/scoresight&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;http://localhost:18099/scoresight&lt;br/&gt;&lt;/span&gt;&lt;/a&gt;JSON: &lt;a href=&quot;http://localhost:18099/json&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;http://localhost:18099/json&lt;/span&gt;&lt;/a&gt; (optional: ?pivot)&lt;br/&gt;XML: &lt;a href=&quot;http://localhost:18099/xml&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;http://localhost:18099/xml&lt;/span&gt;&lt;/a&gt; (optional: ?pivot)&lt;br/&gt;CSV: &lt;a href=&quot;http://localhost:18099/csv&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;http://localhost:18099/csv&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Use these endpoints in external software to get live data updates&lt;/p&gt;&lt;p&gt;HTML Scoreboard: &lt;a href=&quot;http://localhost:18099/scoresight&quot;&gt;http://localhost:18099/scoresight&lt;/a&gt;&lt;br/&gt;JSON: &lt;a href=&quot;http://localhost:18099/json&quot;&gt;http://localhost:18099/json&lt;/a&gt; (optional: ?pivot)&lt;br/&gt;XML: &lt;a href=&quot;http://localhost:18099/xml&quot;&gt;http://localhost:18099/xml&lt;/a&gt; (optional: ?pivot)&lt;br/&gt;CSV: &lt;a href=&quot;http://localhost:18099/csv&quot;&gt;http://localhost:18099/csv&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
              <property name="textFormat">
               <enum>Qt::RichText</enum>
@@ -1265,7 +1255,7 @@
                 <item>
                  <widget class="QLineEdit" name="lineEdit_vmixHost">
                   <property name="text">
-                   <string>localhost</string>
+                   <string notr="true">localhost</string>
                   </property>
                  </widget>
                 </item>
@@ -1291,7 +1281,7 @@
                    </size>
                   </property>
                   <property name="text">
-                   <string>8099</string>
+                   <string notr="true">8088</string>
                   </property>
                  </widget>
                 </item>
@@ -1348,7 +1338,7 @@
                 <item>
                  <widget class="QLineEdit" name="inputLineEdit_vmix">
                   <property name="text">
-                   <string>1</string>
+                   <string notr="true">1</string>
                   </property>
                  </widget>
                 </item>
@@ -1420,7 +1410,7 @@
                  <item>
                   <widget class="QLineEdit" name="lineEdit_unoUrl">
                    <property name="text">
-                    <string>https://app.overlays.uno/apiv2/controlapps/.../api</string>
+                    <string notr="true">https://app.overlays.uno/apiv2/controlapps/.../api</string>
                    </property>
                   </widget>
                  </item>
@@ -1487,35 +1477,6 @@
                    </property>
                   </widget>
                  </item>
-                 <item>
-                  <widget class="QLabel" name="label_23">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="text">
-                    <string>Rate Limit</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QSpinBox" name="spinBox">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="suffix">
-                    <string>/sec</string>
-                   </property>
-                   <property name="minimum">
-                    <number>1</number>
-                   </property>
-                  </widget>
-                 </item>
                 </layout>
                </widget>
               </item>
@@ -1556,7 +1517,7 @@
                     </sizepolicy>
                    </property>
                    <property name="text">
-                    <string/>
+                    <string notr="true"/>
                    </property>
                    <property name="placeholderText">
                     <string>aaaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeeee</string>

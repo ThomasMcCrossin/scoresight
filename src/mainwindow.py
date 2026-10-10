@@ -1,7 +1,9 @@
 from functools import partial
+import math
 import os
 import platform
-import datetime
+import threading
+from typing import Callable
 from PySide6.QtWidgets import (
     QApplication,
     QDialog,
@@ -12,13 +14,13 @@ from PySide6.QtWidgets import (
     QMenu,
     QMessageBox,
     QTableWidgetItem,
-    QStyleFactory,
 )
-from PySide6.QtGui import QIcon, QDesktopServices
+from PySide6.QtGui import QActionGroup, QGuiApplication, QIcon, QDesktopServices
 from PySide6.QtCore import (
     Qt,
     Signal,
     Slot,
+    QTimer,
     QTranslator,
     QObject,
     QCoreApplication,
@@ -26,9 +28,7 @@ from PySide6.QtCore import (
     QMetaMethod,
     QUrl,
 )
-from dotenv import load_dotenv
 from os import path
-from platformdirs import user_data_dir
 
 from api_output import update_out_api
 from box_settings_ui_handler import BoxSettingsUIHandler
@@ -48,6 +48,8 @@ from defaults import (
 from storage import (
     TextDetectionTargetMemoryStorage,
     fetch_data,
+    get_data_dir,
+    get_profile,
     remove_data,
     store_data,
     store_custom_box_name,
@@ -65,9 +67,15 @@ from template_fields import evaluate_template_field
 from text_detection_target import TextDetectionTarget, TextDetectionTargetWithResult
 from sc_logging import logger
 from uno_ui_handler import UNOUIHandler
-from update_check import check_for_updates
+from update_check import (
+    UpdateCheckResult,
+    check_for_updates,
+    show_update_dialog,
+    update_checks_enabled,
+)
 from log_view import LogViewerDialog
 import file_output
+from version import __version__
 from video_settings import VideoSettingsDialog
 from ui_mainwindow import Ui_MainWindow
 from ui_about import Ui_Dialog as Ui_About
@@ -75,6 +83,85 @@ from ui_connect_obs import Ui_Dialog as Ui_ConnectObs
 from ui_url_source import Ui_Dialog as Ui_UrlSource
 from ui_screen_capture import Ui_Dialog as Ui_ScreenCapture
 from vmix_ui_handler import VMixUIHanlder
+
+DEFAULT_HTTP_PORT = 18099
+
+# File > Appearance choices, persisted as the "color_scheme" setting
+COLOR_SCHEMES = {
+    "System": Qt.ColorScheme.Unknown,
+    "Light": Qt.ColorScheme.Light,
+    "Dark": Qt.ColorScheme.Dark,
+}
+DEFAULT_COLOR_SCHEME = "System"
+
+# The values api_output understands, in the order of comboBox_api_encode and
+# comboBox_outApiMethod. The settings store these, not the (translated) item text.
+OUT_API_ENCODINGS = ("JSON (Full)", "JSON (Simple key-value)", "XML", "CSV")
+OUT_API_METHODS = ("POST", "PUT", "GET")
+
+# comboBox_camera_source items before the discovered cameras
+SOURCE_INDEX_NONE = 0
+SOURCE_INDEX_FILE = 1
+SOURCE_INDEX_URL = 2
+SOURCE_INDEX_SCREEN_CAPTURE = 3
+FIRST_CAMERA_SOURCE_INDEX = 4
+
+# Box edits are written to the settings this long after the last change.
+BOXES_SAVE_DELAY_MS = 500
+
+
+def apply_color_scheme(name: str | None) -> str:
+    """Apply a File > Appearance choice ("System", "Light" or "Dark") to the
+    running application and return the choice applied. Unknown values mean
+    "System" (follow the operating system)."""
+    if name not in COLOR_SCHEMES:
+        name = DEFAULT_COLOR_SCHEME
+    style_hints = QGuiApplication.styleHints()
+    if name == DEFAULT_COLOR_SCHEME:
+        style_hints.unsetColorScheme()
+    else:
+        style_hints.setColorScheme(COLOR_SCHEMES[name])
+    return name
+
+
+def run_in_background(name: str, function: Callable, on_done: Callable):
+    """Run function() on a daemon thread, then on_done(result) on that thread.
+
+    on_done should emit a signal of a QObject that lives in the GUI thread: the
+    signal is then delivered there (queued), so the result is handled on the GUI
+    thread. If function raises, on_done gets None.
+    """
+
+    def target():
+        try:
+            result = function()
+        except Exception:
+            logger.exception("%s failed", name)
+            result = None
+        try:
+            on_done(result)
+        except RuntimeError:
+            # the receiving window was destroyed while the call was running
+            logger.debug("%s finished after its window was closed", name)
+
+    thread = threading.Thread(target=target, name=name, daemon=True)
+    thread.start()
+    return thread
+
+
+def stored_source_value(stored) -> dict | None:
+    """Normalize the "source_selected" setting to {"type", "value", ...}.
+
+    0.1.x stored a bare file path or URL (and nothing for cameras)."""
+    if isinstance(stored, dict) and stored.get("type"):
+        return stored
+    if isinstance(stored, str) and stored.strip():
+        stored = stored.strip()
+        if path.exists(stored):
+            return {"type": CameraInfo.CameraType.FILE, "value": stored}
+        if "://" in stored:
+            return {"type": CameraInfo.CameraType.URL, "value": stored}
+    return None
 
 
 def clear_layout(layout):
@@ -92,17 +179,24 @@ class MainWindow(QMainWindow):
     # add a signal to update sources
     update_sources = Signal(list)
     get_sources = Signal()
+    # results of the work done on background threads, delivered on the GUI thread
+    obs_connection_result = Signal(object, int, bool, object)
+    update_check_finished = Signal(object, bool)
 
-    def __init__(self, translator: QTranslator, parent: QObject):
+    def __init__(
+        self,
+        translator: QTranslator,
+        parent: QObject,
+        http_port: int = DEFAULT_HTTP_PORT,
+    ):
         super(MainWindow, self).__init__()
         self.parent_object = parent
+        self.http_port = http_port
         self.ui = Ui_MainWindow()
-        logger.info("Starting ScoreSight")
+        logger.info("Starting ScoreSight %s", __version__)
         self.ui.setupUi(self)
         self.translator = translator
-        # load env variables
-        load_dotenv()
-        self.setWindowTitle(f"ScoreSight - v{os.getenv('LOCAL_RELEASE_TAG')}")
+        self.updateWindowTitle()
         if platform.system() == "Windows":
             # set the icon
             self.setWindowIcon(QIcon(resource_path("icons", "Windows-icon-open.ico")))
@@ -110,9 +204,10 @@ class MainWindow(QMainWindow):
         self.menubar = self.menuBar()
         file_menu = self.menubar.addMenu("File")
 
-        # check for updates
-        check_for_updates(False)
-        file_menu.addAction("Check for Updates", lambda: check_for_updates(True))
+        self.update_check_running = False
+        self.update_dialog = None
+        self.update_check_finished.connect(self.updateCheckFinished)
+        file_menu.addAction("Check for Updates", lambda: self.checkForUpdates(True))
         file_menu.addAction("About", self.openAboutDialog)
         file_menu.addAction("View Current Log", self.openLogsDialog)
         file_menu.addAction("Import Configuration", self.importConfiguration)
@@ -138,15 +233,24 @@ class MainWindow(QMainWindow):
         self.addLanguageOption(languageMenu, "Russian", "ru_RU")
         self.addLanguageOption(languageMenu, "Chinese (Simplified)", "zh_CN")
 
-        # add a menu item to change the theme
-        theme_menu = file_menu.addMenu("Theme")
-        for theme in QStyleFactory.keys():
-            theme_menu.addAction(theme, lambda theme=theme: self.setStyleTheme(theme))
+        # File > Appearance: System / Light / Dark color scheme (#50)
+        appearance_menu = file_menu.addMenu("Appearance")
+        self.appearance_actions = QActionGroup(self)
+        self.appearance_actions.setExclusive(True)
+        current_scheme = fetch_data("scoresight.json", "color_scheme")
+        if current_scheme not in COLOR_SCHEMES:
+            current_scheme = DEFAULT_COLOR_SCHEME
+        for scheme in COLOR_SCHEMES:
+            action = appearance_menu.addAction(scheme)
+            action.setCheckable(True)
+            action.setChecked(scheme == current_scheme)
+            action.setData(scheme)
+            action.triggered.connect(
+                lambda checked=False, scheme=scheme: self.setColorScheme(scheme)
+            )
+            self.appearance_actions.addAction(action)
 
-        # Hide the menu bar by default
-        self.menubar.setVisible(True)
-
-        # Show the menu bar when the Alt key is pressed
+        # handle the Escape key (deselect the current box)
         self.installEventFilter(self)
 
         self.ui.pushButton_connectObs.clicked.connect(self.openOBSConnectModal)
@@ -157,7 +261,8 @@ class MainWindow(QMainWindow):
 
         self.ui.checkBox_templatefield.toggled.connect(self.makeTemplateField)
 
-        start_http_server()
+        start_http_server(port=self.http_port)
+        self.updateBrowserEndpoints()
 
         self.ui.pushButton_stabilize.setEnabled(True)
         self.ui.pushButton_stabilize.clicked.connect(self.toggleStabilize)
@@ -219,30 +324,18 @@ class MainWindow(QMainWindow):
             fetch_data("scoresight.json", "out_api_url", "")
         )
 
-        self.ui.checkBox_enableOutAPI.toggled.connect(
-            partial(self.globalSettingsChanged, "enable_out_api")
+        self.setupChoiceSetting(
+            self.ui.comboBox_api_encode, "out_api_encoding", OUT_API_ENCODINGS
         )
-        self.ui.checkBox_enableOutAPI.setChecked(
-            fetch_data("scoresight.json", "enable_out_api", False)
-        )
-        self.ui.comboBox_api_encode.currentTextChanged.connect(
-            partial(self.globalSettingsChanged, "out_api_encoding")
-        )
-        self.ui.comboBox_api_encode.setCurrentIndex(
-            self.ui.comboBox_api_encode.findText(
-                fetch_data("scoresight.json", "out_api_encoding", "JSON")
-            )
-        )
-        self.ui.comboBox_outApiMethod.currentTextChanged.connect(
-            partial(self.globalSettingsChanged, "out_api_method")
-        )
-        self.ui.comboBox_outApiMethod.setCurrentIndex(
-            self.ui.comboBox_outApiMethod.findText(
-                fetch_data("scoresight.json", "out_api_method", "POST")
-            )
+        self.setupChoiceSetting(
+            self.ui.comboBox_outApiMethod, "out_api_method", OUT_API_METHODS
         )
 
         self.obs_websocket_client = None
+        # the text last sent to each OBS text source
+        self.obs_last_sent: dict[str, str] = {}
+        self.obs_connect_attempt = 0
+        self.obs_connection_result.connect(self.obsConnectionResult)
 
         ocr_models = [
             "Daktronics",
@@ -270,6 +363,12 @@ class MainWindow(QMainWindow):
         )
         self.detectionTargetsStorage = TextDetectionTargetMemoryStorage()
         self.detectionTargetsStorage.data_changed.connect(self.detectionTargetsChanged)
+        # Box edits (settings panel, add/remove, rename, template fields) are
+        # persisted shortly after they happen, not only on a click in the viewer.
+        self.boxesSaveTimer = QTimer(self)
+        self.boxesSaveTimer.setSingleShot(True)
+        self.boxesSaveTimer.setInterval(BOXES_SAVE_DELAY_MS)
+        self.boxesSaveTimer.timeout.connect(self.saveBoxes)
         self.ui.pushButton_createOBSScene.clicked.connect(self.createOBSScene)
         self.ui.pushButton_selectFolder.clicked.connect(self.selectOutputFolder)
         self.ui.toolButton_trashFolder.clicked.connect(self.clearOutputFolder)
@@ -306,9 +405,18 @@ class MainWindow(QMainWindow):
                 self.ui.tableWidget_boxes.rowCount() - 1, 1, disabledItem
             )
 
+        # The boxes are app state (not per source): load them once at startup.
+        # From now on the in-memory storage is the source of truth, and changes
+        # are written back by saveBoxes.
+        self.detectionTargetsStorage.loadBoxesFromStorage()
+        self.detectionTargetsStorage.data_changed.connect(self.scheduleBoxesSave)
+
         self.image_viewer = None
+        self.connected_viewer = None
         self.obs_connect_modal = None
         self.source_name = None
+        self.sources_discovery_running = False
+        self.closing = False
         self.updateOCRResults = True
         self.log_dialog = None
         if fetch_data("scoresight.json", "open_on_startup", False):
@@ -326,8 +434,11 @@ class MainWindow(QMainWindow):
             else:
                 self.ui.lineEdit_folder.setText(self.out_folder)
 
-        self.first_csv_append = True
-        self.last_aggregate_save = datetime.datetime.now()
+        # .txt/.csv/.xml outputs; flushed at most "Save / s" times per second
+        self.fileOutput = file_output.FileOutput()
+        self.fileOutputTimer = QTimer(self)
+        self.fileOutputTimer.setSingleShot(True)
+        self.fileOutputTimer.timeout.connect(self.flushFileOutputs)
         self.ui.checkBox_saveCsv.toggled.connect(
             partial(self.globalSettingsChanged, "save_csv")
         )
@@ -373,8 +484,51 @@ class MainWindow(QMainWindow):
         self.get_sources.connect(self.getSources)
         self.get_sources.emit()
 
-    def setStyleTheme(self, theme):
-        QApplication.instance().setStyle(theme)
+        self.checkForUpdates(False)
+
+    def updateWindowTitle(self):
+        title = f"ScoreSight - v{__version__}"
+        profile = get_profile()
+        if profile:
+            title += f" [{profile}]"
+        self.setWindowTitle(title)
+
+    def updateBrowserEndpoints(self):
+        # the Browser tab's links are written for the default port
+        self.ui.label_8.setText(
+            self.ui.label_8.text().replace(
+                f"localhost:{DEFAULT_HTTP_PORT}", f"localhost:{self.http_port}"
+            )
+        )
+
+    def setupChoiceSetting(self, combo_box, setting_name: str, values: tuple):
+        """Bind a combo box whose items are values (their text may be translated)
+        to a setting that stores the value itself."""
+        stored = fetch_data("scoresight.json", setting_name)
+        if stored in values:
+            index = values.index(stored)
+        else:
+            # 0.1.x stored the item text, which could be blank or translated
+            index = max(
+                combo_box.findText(stored if isinstance(stored, str) else ""), 0
+            )
+        combo_box.blockSignals(True)
+        combo_box.setCurrentIndex(index)
+        combo_box.blockSignals(False)
+        if stored != values[index]:
+            self.globalSettingsChanged(setting_name, values[index])
+
+        def choiceChanged(index: int):
+            if 0 <= index < len(values):
+                self.globalSettingsChanged(setting_name, values[index])
+
+        combo_box.currentIndexChanged.connect(choiceChanged)
+
+    def setColorScheme(self, scheme: str):
+        scheme = apply_color_scheme(scheme)
+        self.globalSettingsChanged("color_scheme", scheme)
+        for action in self.appearance_actions.actions():
+            action.setChecked(action.data() == scheme)
 
     def toggleSpeed(self):
         # check the current speed and toggle it
@@ -452,17 +606,14 @@ class MainWindow(QMainWindow):
                     self.image_viewer.selectBox(None)
         return super().eventFilter(obj, event)
 
-    def changeEvent(self, event):
-        if event.type() == QEvent.WindowDeactivate and self.menubar.isVisible():
-            self.menubar.setVisible(False)
-        super().changeEvent(event)
-
     def changeLanguage(self, locale):
         locale_file = resource_path("translations", f"scoresight_{locale}.qm")
         logger.info(f"Changing language to {locale_file}")
         if not self.translator.load(locale_file):
             logger.error(f"Could not load translation for {locale_file}")
             return
+        # used at the next start instead of the system language
+        self.globalSettingsChanged("language", locale)
         appInstance = QApplication.instance()
         if appInstance:
             logger.info(f"installing translator for {locale}")
@@ -471,6 +622,10 @@ class MainWindow(QMainWindow):
                 self.ui.retranslateUi(self)
             except Exception as e:
                 logger.error(f"Error retranslating UI: {e}")
+            # retranslateUi resets these texts to their .ui defaults
+            self.updateWindowTitle()
+            self.updateBrowserEndpoints()
+            self.updateStopUpdatesButtonText()
 
     def addLanguageOption(self, menu: QMenu, language_name: str, locale: str):
         menu.addAction(language_name, lambda: self.changeLanguage(locale))
@@ -516,12 +671,11 @@ class MainWindow(QMainWindow):
         dialog.exec()
 
     def openConfigurationFolder(self):
-        # open the configuration folder in the file explorer
-        QDesktopServices.openUrl(
-            QUrl(
-                "file:///" + user_data_dir("scoresight"), QUrl.ParsingMode.TolerantMode
-            )
-        )
+        # open the configuration folder (SCORESIGHT_DATA_DIR aware) in the file
+        # explorer
+        data_dir = get_data_dir()
+        os.makedirs(data_dir, exist_ok=True)
+        QDesktopServices.openUrl(QUrl.fromLocalFile(data_dir))
 
     def toggleOSD(self, value):
         if self.image_viewer:
@@ -578,13 +732,52 @@ class MainWindow(QMainWindow):
         # show the dialog, non modal
         self.log_dialog.show()
 
-    def openAboutDialog(self):
-        # open the about dialog
-        about_dialog = QDialog()
-        about_dialog_ui = Ui_About()
-        about_dialog_ui.setupUi(about_dialog)
+    def checkForUpdates(self, manual: bool):
+        """Check GitHub for a newer release on a background thread. The automatic
+        check at startup honors "Don't check for updates at startup"; a manual
+        check (File > Check for Updates) always runs and always shows a result."""
+        if self.update_check_running:
+            return
+        if not manual and not update_checks_enabled():
+            logger.info("Update checks at startup are disabled")
+            return
+        self.update_check_running = True
+        run_in_background(
+            "update check",
+            lambda: check_for_updates(),
+            lambda result: self.update_check_finished.emit(result, manual),
+        )
+
+    @Slot(object, bool)
+    def updateCheckFinished(self, result, manual: bool):
+        self.update_check_running = False
+        if not isinstance(result, UpdateCheckResult):
+            result = UpdateCheckResult(__version__, error="the update check failed")
+        if not (manual or result.update_available):
+            return
+        if self.update_dialog is not None:
+            try:
+                self.update_dialog.close()
+            except RuntimeError:
+                pass  # already closed (and deleted)
+        self.update_dialog = show_update_dialog(result, self)
+
+    def createAboutDialog(self) -> QDialog:
+        about_dialog = QDialog(self)
+        about_dialog.ui = Ui_About()
+        about_dialog.ui.setupUi(about_dialog)
         about_dialog.setWindowTitle("About ScoreSight")
-        about_dialog.exec()
+        about_dialog.ui.label_version.setText(
+            QCoreApplication.translate("MainWindow", "Version {version}").format(
+                version=__version__
+            )
+        )
+        return about_dialog
+
+    def openAboutDialog(self):
+        about_dialog = self.createAboutDialog()
+        about_dialog.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
+        about_dialog.open()
 
     def toggleStabilize(self):
         if not self.image_viewer:
@@ -594,11 +787,15 @@ class MainWindow(QMainWindow):
 
     def toggleStopUpdates(self, value):
         self.updateOCRResults = not value
-        # change the text on the button
+        self.updateStopUpdatesButtonText()
+
+    def updateStopUpdatesButtonText(self):
+        # QCoreApplication.translate falls back to the source text when a
+        # translation is missing (QTranslator.translate returns "")
         self.ui.pushButton_stopUpdates.setText(
-            self.translator.translate("MainWindow", "Resume Updates")
-            if value
-            else self.translator.translate("MainWindow", "Stop Updates")
+            QCoreApplication.translate("MainWindow", "Resume Updates")
+            if self.ui.pushButton_stopUpdates.isChecked()
+            else QCoreApplication.translate("MainWindow", "Stop Updates")
         )
 
     def selectOutputFolder(self):
@@ -610,9 +807,14 @@ class MainWindow(QMainWindow):
             options=QFileDialog.Option.ShowDirsOnly,
         )
         if folder and len(folder) > 0:
-            self.ui.lineEdit_folder.setText(folder)
-            self.out_folder = folder
-            self.globalSettingsChanged("output_folder", folder)
+            self.setOutputFolder(folder)
+
+    def setOutputFolder(self, folder: str):
+        self.ui.lineEdit_folder.setText(folder)
+        self.out_folder = folder
+        self.globalSettingsChanged("output_folder", folder)
+        # write the current values to the new folder right away
+        self.scheduleFileOutputFlush()
 
     def clearOutputFolder(self):
         # clear the output folder
@@ -656,19 +858,18 @@ class MainWindow(QMainWindow):
 
         self.vmixUiHandler.updatevMixTable(detectionTargets)
         self.unoUiHandler.updateUNOTable(detectionTargets)
+        # Note: results.csv is not touched here. data_changed fires on every box
+        # click and settings tweak; file_output starts a new CSV file by itself
+        # when the set of boxes changes.
 
-        # if save_csv is enabled, truncate the aggregate file
-        if self.ui.checkBox_saveCsv.isChecked() and self.out_folder:
-            csv_output_file_path = path.abspath(
-                path.join(self.out_folder, "results.csv")
-            )
-            try:
-                with open(csv_output_file_path, "w") as f:
-                    f.write("")
-                self.first_csv_append = True
-                self.last_aggregate_save = datetime.datetime.now()
-            except Exception as e:
-                logger.error(f"Error truncating aggregate file: {e}")
+    def scheduleBoxesSave(self, *_):
+        # (re)start the timer: a burst of edits (e.g. dragging a slider) is
+        # written once
+        self.boxesSaveTimer.start()
+
+    def saveBoxes(self):
+        self.boxesSaveTimer.stop()
+        self.detectionTargetsStorage.saveBoxesToStorage()
 
     def listItemClicked(self, item):
         user_role = item.data(Qt.ItemDataRole.UserRole)
@@ -711,7 +912,9 @@ class MainWindow(QMainWindow):
         self.obs_connect_modal.setWindowTitle("Connect to OBS")
 
         # connect the "connect" button to a function
-        self.obs_modal_ui.pushButton_connect.clicked.connect(self.connectObs)
+        self.obs_modal_ui.pushButton_connect.clicked.connect(
+            lambda: self.connectObs(from_dialog=True)
+        )
 
         # load the saved data from scoresight.json
         obs_data = fetch_data("scoresight.json", "obs")
@@ -724,39 +927,59 @@ class MainWindow(QMainWindow):
         # focus the connect button
         self.obs_modal_ui.pushButton_connect.setFocus()
 
-    def connectObs(self):
-        # open a websocket connection to OBS using obs_websocket.py
-        # enable the save button in the modal if the connection is successful
-        if self.obs_connect_modal is not None:
-            self.obs_websocket_client = open_obs_websocket(
-                {
-                    "ip": self.obs_modal_ui.lineEdit_ip.text(),
-                    "port": self.obs_modal_ui.lineEdit_port.text(),
-                    "password": self.obs_modal_ui.lineEdit_password.text(),
-                }
+    def connectObs(self, from_dialog: bool = False):
+        """Open a websocket connection to OBS, with the connect dialog's fields or
+        the saved connection. Connecting can take seconds (or time out), so it runs
+        on a background thread; obsConnectionResult handles the outcome."""
+        if from_dialog:
+            connection_info = {
+                "ip": self.obs_modal_ui.lineEdit_ip.text(),
+                "port": self.obs_modal_ui.lineEdit_port.text(),
+                "password": self.obs_modal_ui.lineEdit_password.text(),
+            }
+            self.obs_modal_ui.pushButton_connect.setEnabled(False)
+            self.obs_modal_ui.label_error.setText(
+                QCoreApplication.translate("MainWindow", "Connecting...")
             )
         else:
-            self.obs_websocket_client = open_obs_websocket(
-                fetch_data("scoresight.json", "obs")
-            )
-        if not self.obs_websocket_client:
+            connection_info = fetch_data("scoresight.json", "obs")
+            if not connection_info:
+                return
+        # a newer attempt supersedes the ones still running
+        self.obs_connect_attempt += 1
+        attempt = self.obs_connect_attempt
+        run_in_background(
+            "OBS connection",
+            partial(open_obs_websocket, connection_info),
+            lambda client: self.obs_connection_result.emit(
+                client, attempt, from_dialog, connection_info
+            ),
+        )
+
+    @Slot(object, int, bool, object)
+    def obsConnectionResult(self, client, attempt, from_dialog, connection_info):
+        if attempt != self.obs_connect_attempt:
+            self.closeObsClient(client)
+            return
+        if from_dialog and self.obs_connect_modal is not None:
+            self.obs_modal_ui.pushButton_connect.setEnabled(True)
+        if not client:
             # show error in label_error
-            if self.obs_connect_modal:
-                self.obs_modal_ui.label_error.setText("Cannot connect to OBS")
+            if from_dialog and self.obs_connect_modal is not None:
+                self.obs_modal_ui.label_error.setText(
+                    QCoreApplication.translate("MainWindow", "Cannot connect to OBS")
+                )
             return
 
         # connection was successful
-        if self.obs_connect_modal:
-            store_data(
-                "scoresight.json",
-                "obs",
-                {
-                    "ip": self.obs_modal_ui.lineEdit_ip.text(),
-                    "port": self.obs_modal_ui.lineEdit_port.text(),
-                    "password": self.obs_modal_ui.lineEdit_password.text(),
-                },
-            )
-            self.obs_connect_modal.close()
+        self.closeObsClient(self.obs_websocket_client)
+        self.obs_websocket_client = client
+        # send every current value to the (new) connection
+        self.obs_last_sent.clear()
+        if from_dialog:
+            store_data("scoresight.json", "obs", connection_info)
+            if self.obs_connect_modal is not None:
+                self.obs_connect_modal.close()
 
         self.ui.lineEdit_sceneName.setEnabled(True)
         self.ui.checkBox_recreate.setEnabled(True)
@@ -764,12 +987,37 @@ class MainWindow(QMainWindow):
 
         logger.info("OBS: Connected")
 
+    @staticmethod
+    def closeObsClient(client):
+        if client is None:
+            return
+        try:
+            client.disconnect()
+        except Exception:
+            logger.debug("Error closing the OBS connection", exc_info=True)
+
     @Slot()
     def getSources(self):
-        self.update_sources.emit(get_camera_info())
+        # Device enumeration (DirectShow/AVFoundation/V4L) and NDI discovery
+        # take a while: run them on a background thread (#33).
+        if self.sources_discovery_running:
+            return
+        self.sources_discovery_running = True
+        self.ui.pushButton_refresh_sources.setEnabled(False)
+        run_in_background(
+            "source discovery",
+            lambda: get_camera_info() or [],
+            lambda sources: self.update_sources.emit(sources or []),
+        )
 
     @Slot(list)
     def updateSources(self, camera_sources: list[CameraInfo]):
+        self.sources_discovery_running = False
+        if self.closing:
+            # the discovery finished after the window was closed: don't reopen
+            # the source
+            return
+        self.ui.pushButton_refresh_sources.setEnabled(True)
         self.reset_playing_source()
         # clear all the items after "Screen Capture"
         for i in range(4, self.ui.comboBox_camera_source.count()):
@@ -790,27 +1038,98 @@ class MainWindow(QMainWindow):
         # enable the source view frame
         self.ui.frame_source_view.setEnabled(True)
 
-        selected_source_from_storage = fetch_data("scoresight.json", "source_selected")
-        if isinstance(selected_source_from_storage, str):
-            logger.info(
-                "Source selected from storage: %s", selected_source_from_storage
-            )
-            # check if the source is a file path
-            if path.exists(selected_source_from_storage):
-                logger.info("File exists: %s", selected_source_from_storage)
-                self.ui.comboBox_camera_source.blockSignals(True)
-                self.ui.comboBox_camera_source.setCurrentIndex(1)
-                self.ui.comboBox_camera_source.blockSignals(False)
-                self.source_name = selected_source_from_storage
-                self.sourceSelectionSucessful()
-            else:
-                # select the last selected source
-                self.ui.comboBox_camera_source.setCurrentText(
-                    selected_source_from_storage
-                )
+        self.restoreSelectedSource()
+
+    def restoreSelectedSource(self):
+        """Reopen the source stored in "source_selected", if it is available."""
+        source = stored_source_value(fetch_data("scoresight.json", "source_selected"))
+        if source is None:
+            return
+        logger.info("Source selected from storage: %s", source)
+        source_type = source["type"]
+        value = source.get("value")
+        index = None
+        if source_type == CameraInfo.CameraType.FILE:
+            if isinstance(value, str) and path.exists(value):
+                index = SOURCE_INDEX_FILE
+        elif source_type == CameraInfo.CameraType.URL:
+            if isinstance(value, str) and value.strip():
+                index = SOURCE_INDEX_URL
+                value = value.strip()
+        elif source_type == CameraInfo.CameraType.SCREEN_CAPTURE:
+            if value == -1 or value in self.screenCaptureWindowIds():
+                index = SOURCE_INDEX_SCREEN_CAPTURE
+        else:
+            index = self.findCameraSourceIndex(source)
+        if index is None:
+            logger.info("The stored source is not available")
+            return
+
+        self.ui.comboBox_camera_source.blockSignals(True)
+        self.ui.comboBox_camera_source.setCurrentIndex(index)
+        self.ui.comboBox_camera_source.blockSignals(False)
+        self.source_name = value if index < FIRST_CAMERA_SOURCE_INDEX else None
+        self.sourceSelectionSucessful()
+
+    @staticmethod
+    def screenCaptureWindowIds() -> list:
+        try:
+            return [window[1] for window in ScreenCapture.list_windows()]
+        except Exception:
+            logger.exception("Could not list the windows for screen capture")
+            return []
+
+    def findCameraSourceIndex(self, source: dict) -> int | None:
+        """The combo box index of the discovered camera/NDI source matching a
+        stored source: same type and id (uuid) and name, else same type and name."""
+        candidates = []
+        for index in range(
+            FIRST_CAMERA_SOURCE_INDEX, self.ui.comboBox_camera_source.count()
+        ):
+            camera_info = self.ui.comboBox_camera_source.itemData(index)
+            if (
+                isinstance(camera_info, CameraInfo)
+                and camera_info.type == source["type"]
+                and camera_info.description == source.get("description")
+            ):
+                if camera_info.uuid == source.get("value"):
+                    return index
+                candidates.append(index)
+        return candidates[0] if candidates else None
+
+    @staticmethod
+    def sourceToStore(camera_info: CameraInfo) -> dict:
+        """The "source_selected" setting for a source."""
+        if camera_info.type in (
+            CameraInfo.CameraType.FILE,
+            CameraInfo.CameraType.URL,
+            CameraInfo.CameraType.SCREEN_CAPTURE,
+        ):
+            return {"type": camera_info.type, "value": camera_info.id}
+        return {
+            "type": camera_info.type,
+            "value": camera_info.uuid,
+            "description": camera_info.description,
+        }
+
+    def disconnectViewer(self):
+        """Disconnect the main window's controls from the current image viewer."""
+        viewer = self.connected_viewer
+        self.connected_viewer = None
+        if viewer is None:
+            return
+        for signal, slot in (
+            (self.ui.pushButton_fourCorner.toggled, viewer.toggleFourCorner),
+            (self.ui.pushButton_binary.clicked, viewer.toggleBinary),
+        ):
+            try:
+                signal.disconnect(slot)
+            except (RuntimeError, TypeError):
+                pass
 
     def reset_playing_source(self):
         if self.image_viewer:
+            self.disconnectViewer()
             # remove the image viewer from the layout frame_for_source_view_label
             self.ui.frame_for_source_view_label.layout().removeWidget(self.image_viewer)
             self.image_viewer.close()
@@ -860,7 +1179,8 @@ class MainWindow(QMainWindow):
             if url_dialog.result() != QDialog.DialogCode.Accepted:
                 self.ui.comboBox_camera_source.setCurrentIndex(0)
                 return
-            self.source_name = ui_urlsource.lineEdit_url.text()
+            # pasted URLs often carry spaces or a newline (#10)
+            self.source_name = ui_urlsource.lineEdit_url.text().strip()
             if self.source_name == "":
                 self.ui.comboBox_camera_source.setCurrentIndex(0)
                 return
@@ -896,8 +1216,6 @@ class MainWindow(QMainWindow):
             window_id = ui_screencapture.comboBox_window.currentData()
             self.source_name = window_id
 
-        # store the source selection in scoresight.json
-        self.globalSettingsChanged("source_selected", self.source_name)
         self.sourceSelectionSucessful()
 
     def itemSelected(self, item_name):
@@ -973,7 +1291,11 @@ class MainWindow(QMainWindow):
             )
             camera_info = self.ui.comboBox_camera_source.currentData()
 
+        # remember the source (with its type) for the next start
+        self.globalSettingsChanged("source_selected", self.sourceToStore(camera_info))
+
         if self.image_viewer:
+            self.disconnectViewer()
             # remove the image viewer from the layout frame_for_source_view_label
             self.ui.frame_for_source_view_label.layout().removeWidget(self.image_viewer)
             self.image_viewer.close()
@@ -1005,13 +1327,18 @@ class MainWindow(QMainWindow):
         if self.image_viewer is None:
             self.updateError("Image viewer is None")
             return
-        self.ui.pushButton_fourCorner.toggled.connect(
-            self.image_viewer.toggleFourCorner
-        )
-        self.ui.pushButton_binary.clicked.connect(self.image_viewer.toggleBinary)
-        if self.image_viewer.timerThread:
-            self.image_viewer.timerThread.ocr_result_signal.connect(self.ocrResult)
-            self.image_viewer.timerThread.update_error.connect(self.updateError)
+        # The first frame is signalled again after e.g. a video settings change:
+        # connect each viewer only once, or every result would be handled twice.
+        if self.connected_viewer is not self.image_viewer:
+            self.disconnectViewer()
+            self.connected_viewer = self.image_viewer
+            self.ui.pushButton_fourCorner.toggled.connect(
+                self.image_viewer.toggleFourCorner
+            )
+            self.ui.pushButton_binary.clicked.connect(self.image_viewer.toggleBinary)
+            if self.image_viewer.timerThread:
+                self.image_viewer.timerThread.ocr_result_signal.connect(self.ocrResult)
+                self.image_viewer.timerThread.update_error.connect(self.updateError)
 
         # enable groupBox_sb_info
         self.ui.groupBox_sb_info.setEnabled(True)
@@ -1020,8 +1347,8 @@ class MainWindow(QMainWindow):
         self.ui.widget_viewTools.setEnabled(True)
         self.ui.widget_cropPanel.setEnabled(True)
 
-        # load the boxes from scoresight.json
-        self.detectionTargetsStorage.loadBoxesFromStorage()
+        # The boxes are not reloaded from scoresight.json here: they were loaded
+        # at startup and the in-memory boxes may have newer, unsaved edits.
         self.updateError(None)
 
     def updateError(self, error):
@@ -1078,71 +1405,60 @@ class MainWindow(QMainWindow):
         if self.unoUiHandler.unoUpdater is not None:
             self.unoUiHandler.unoUpdater.update_uno(results)
 
+        # OBS text sources don't depend on the output folder (#30)
+        self.updateObsTextSources(results)
+
+        # files: remember the readings, write them at the "Save / s" rate
+        self.fileOutput.record(results)
+        self.scheduleFileOutputFlush()
+
+    def updateObsTextSources(self, results: list[TextDetectionTargetWithResult]):
+        """Send each box's good reading to its OBS text source when it differs
+        from what was last sent there."""
+        if self.obs_websocket_client is None:
+            return
+        for targetWithResult in results:
+            if not file_output.is_good_reading(targetWithResult):
+                continue
+            source_name = (targetWithResult.settings or {}).get("obs_source_name")
+            if not source_name:
+                # custom boxes have no OBS source unless one is set
+                continue
+            if self.obs_last_sent.get(source_name) == targetWithResult.result:
+                continue
+            update_text_source(
+                self.obs_websocket_client, source_name, targetWithResult.result
+            )
+            self.obs_last_sent[source_name] = targetWithResult.result
+
+    def scheduleFileOutputFlush(self):
+        """Flush the file outputs now, or when the "Save / s" throttle opens, so
+        the latest values always reach the files (#6)."""
         if self.out_folder is None:
             return
+        interval = 1.0 / max(1, self.ui.horizontalSlider_aggsPerSecond.value())
+        delay = self.fileOutput.seconds_until_flush(interval)
+        if delay <= 0:
+            self.flushFileOutputs()
+        elif not self.fileOutputTimer.isActive():
+            self.fileOutputTimer.start(math.ceil(delay * 1000))
 
-        if not path.exists(path.abspath(self.out_folder)):
+    def flushFileOutputs(self):
+        self.fileOutputTimer.stop()
+        if self.out_folder is None:
+            return
+        if not path.isdir(path.abspath(self.out_folder)):
+            logger.warning("Output folder does not exist: %s", self.out_folder)
             self.out_folder = None
+            self.ui.lineEdit_folder.setText("")
             remove_data("scoresight.json", "output_folder")
-            logger.warning("Output folder does not exist")
             return
-
-        # check if enough time has passed since last file save according to aggs per second
-        if (
-            datetime.datetime.now() - self.last_aggregate_save
-        ).total_seconds() < 1.0 / self.ui.horizontalSlider_aggsPerSecond.value():
-            return
-
-        self.last_aggregate_save = datetime.datetime.now()
-
-        # update the obs scene sources with the results, use update_text_source
-        for targetWithResult in results:
-            if targetWithResult.result is None:
-                continue
-            if (
-                targetWithResult.settings is not None
-                and "skip_empty" in targetWithResult.settings
-                and targetWithResult.settings["skip_empty"]
-                and len(targetWithResult.result) == 0
-            ):
-                continue
-            if (
-                targetWithResult.result_state
-                != TextDetectionTargetWithResult.ResultState.Success
-            ):
-                continue
-
-            if (
-                self.obs_websocket_client is not None
-                and targetWithResult.settings is not None
-            ):
-                # find the source name for the target from the default boxes
-                update_text_source(
-                    self.obs_websocket_client,
-                    targetWithResult.settings["obs_source_name"],
-                    targetWithResult.result,
-                )
-
-        # save the results to text files
-        file_output.save_text_files(
-            results, self.out_folder, self.ui.comboBox_appendMethod.currentIndex()
+        self.fileOutput.flush(
+            self.out_folder,
+            self.ui.comboBox_appendMethod.currentIndex(),
+            self.ui.checkBox_saveCsv.isChecked(),
+            self.ui.checkBox_saveXML.isChecked(),
         )
-
-        # save the results to a csv file
-        if self.ui.checkBox_saveCsv.isChecked():
-            file_output.save_csv(
-                results,
-                self.out_folder,
-                self.ui.comboBox_appendMethod.currentIndex(),
-                self.first_csv_append,
-            )
-
-        # save the results to an xml file
-        if self.ui.checkBox_saveXML.isChecked():
-            file_output.save_xml(
-                results,
-                self.out_folder,
-            )
 
     def addBox(self):
         # add a new box to the tableWidget_boxes
@@ -1290,7 +1606,9 @@ class MainWindow(QMainWindow):
     # on destroy, close the OBS connection
     def closeEvent(self, event):
         logger.info("Closing")
+        self.closing = True
         if self.image_viewer:
+            self.disconnectViewer()
             self.image_viewer.close()
             self.image_viewer = None
 
@@ -1298,10 +1616,13 @@ class MainWindow(QMainWindow):
             self.log_dialog.close()
             self.log_dialog = None
 
-        # store the boxes to scoresight.json
-        self.detectionTargetsStorage.saveBoxesToStorage()
+        # write pending file outputs and store the boxes to scoresight.json
+        self.flushFileOutputs()
+        self.saveBoxes()
+        # ignore OBS connection attempts that are still running
+        self.obs_connect_attempt += 1
         if self.obs_websocket_client:
-            # destroy the client object
+            self.closeObsClient(self.obs_websocket_client)
             self.obs_websocket_client = None
 
         super().closeEvent(event)
