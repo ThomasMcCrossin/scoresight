@@ -15,7 +15,7 @@ body:
     id: version
     attributes:
       label: ScoreSight version
-      description: Shown in the window title and in File > About (for example `0.2.0`). If you run from source, give the commit SHA (`git rev-parse --short HEAD`).
+      description: Shown in the window title and in File > About (ScoreSight > About on macOS), for example `0.2.0`. If you run from source, give the commit SHA (`git rev-parse --short HEAD`).
       placeholder: "0.2.0"
     validations:
       required: true

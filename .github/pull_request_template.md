@@ -29,7 +29,7 @@ Platforms tested:
 - [ ] `ruff check .` and `ruff format --check .` pass
 - [ ] `python -m pytest` passes, and new or changed behaviour has tests
 - [ ] UI changes were made in `src/*.ui` and `src/ui_*.py` was regenerated with `python scripts/compile_ui.py` (no hand edits)
-- [ ] User-visible text changes: translations updated (`.ts`) and compiled (`.qm`), or noted as follow-up
+- [ ] User-visible text changes: `python scripts/update_translations.py` was run and the updated `.ts` and `.qm` files are committed (CI checks this)
 - [ ] New modules or data files are included in `scoresight.spec`, and the packaged app's `--self-test` passes
 - [ ] Documentation in `docs/` updated if behaviour changed
 - [ ] `CHANGELOG.md` has an entry under `## [Unreleased]` (for user-visible changes)
