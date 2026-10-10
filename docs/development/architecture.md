@@ -77,11 +77,12 @@ flowchart LR
 
 **Adding a new per-box setting** requires changes in several places:
 
-1. `defaults.normalize_settings_dict`: the canonical key and its default.
-2. `storage.TextDetectionTargetMemoryStorage.getBoxesForStorage`: the serialized key list.
-3. `box_settings_ui_handler.py`, plus the widget in `src/mainwindow.ui` (then regenerate the UI, see [Building from Source](building.md#compile-the-ui-files)).
-4. `tesseract.py`, if the setting affects processing.
-5. `docs/box-settings.md`, so users know what it does.
+1. `defaults.normalize_settings_dict`: the canonical key and its default. Nothing needs to change in `storage.py`: `TextDetectionTargetMemoryStorage.getBoxesForStorage` saves exactly what `normalize_settings_dict` returns (`tests/test_storage.py` checks this).
+2. `box_settings_ui_handler.py`, plus the widget in `src/mainwindow.ui` (then regenerate the UI, see [Building from Source](building.md#compile-the-ui-files)).
+3. `tesseract.py`, if the setting affects processing.
+4. `docs/box-settings.md`, so users know what it does.
+
+If the meaning of a stored value changes, bump `storage.BOXES_SCHEMA_VERSION` and extend `storage.migrate_boxes`, which migrates boxes saved by older versions once when they are loaded.
 
 ## Persistence and settings pub/sub
 

@@ -59,7 +59,7 @@ Within a second, each box shows what ScoreSight reads, and the **Value** column 
 | Colour | State | Meaning |
 |---|---|---|
 | Green | `Success` | A new value was read and sent to the outputs. |
-| Light green | `SameNoChange` | The same value as the last good reading (with **Update on change** on). |
+| Light green | `SameNoChange` | The same value as the last good reading, for example with **Update on change** on (see [Outputs](outputs.md#which-readings-are-sent)). |
 | Yellow | `FailedFilter` | Something was read but rejected by the box's **Format**, or by its confidence threshold. |
 | Red `EMP` | `Empty` | Nothing was read, or the box is over a blank area. |
 

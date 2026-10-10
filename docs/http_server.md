@@ -63,7 +63,7 @@ Each reading has a `state` (in XML, `result_state`):
 | State | Meaning |
 |---|---|
 | `Success` | A new value was read |
-| `SameNoChange` | The same value as the box's last good reading (with **Update on change** on) |
+| `SameNoChange` | The same value as the box's last good reading: with **Update on change** on, for a box whose OCR was skipped by **Skip Similar Image**, and for a template field whose text didn't change (see [Outputs](outputs.md#which-readings-are-sent)) |
 | `FailedFilter` | Something was read but rejected by the box's Format or confidence threshold. The text may be garbage |
 | `Empty` | Nothing was read |
 

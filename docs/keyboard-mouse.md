@@ -11,7 +11,7 @@ description: "All mouse and keyboard controls in ScoreSight's viewer, field list
 
 | Action | Control |
 |---|---|
-| Zoom in / out | **Ctrl + mouse wheel** (0.33x to 3x) |
+| Zoom in / out | **Ctrl + mouse wheel** (**⌘ Cmd + mouse wheel** on macOS), 0.33x to 3x |
 | Fit picture to window | **1:1** button |
 | Scroll | Mouse wheel; scroll bars when zoomed in |
 | Pan | Hold the **middle mouse button** and drag |
@@ -61,3 +61,5 @@ On Windows and Linux, the **File** menu is at the top of the main window. On mac
 - **OCR Training Data Setup**
 - **Language**: English (US), French, Spanish, German, Italian, Japanese, Korean, Dutch, Polish, Portuguese (Brazil), Portuguese (Portugal), Russian and Chinese (Simplified). The choice is remembered
 - **Appearance**: System, Light or Dark colour scheme. The choice is remembered
+
+On macOS, **About** is in the **ScoreSight** application menu (next to the Apple menu) instead of the **File** menu.

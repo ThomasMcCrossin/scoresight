@@ -26,7 +26,7 @@ Every detection cycle produces one reading per box, in one of four **states**:
 | State | Meaning | Colour in the viewer |
 |---|---|---|
 | `Success` | A new value was read | Green |
-| `SameNoChange` | The same value as the box's last good reading (only when **Update on change** is on) | Light green |
+| `SameNoChange` | The same value as the box's last good reading: with **Update on change** on, for a box whose OCR was skipped by [Skip Similar Image](box-settings.md#skip-similar-image), and for a [template field](boxes.md#template-fields) whose text didn't change | Light green |
 | `FailedFilter` | Something was read but it failed the box's Format or confidence threshold | Yellow |
 | `Empty` | Nothing was read | Red `EMP` |
 

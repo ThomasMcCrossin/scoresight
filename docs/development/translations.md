@@ -35,10 +35,13 @@ After you add or change user-visible text in `src/*.ui` or in Python code (wrapp
 python scripts/update_translations.py
 ```
 
-It updates every `translations/*.ts` file from the sources in `src/` only, so your virtual environment and build folders aren't scanned. Without the script, the equivalent is:
+It updates every `translations/*.ts` file from `src/*.ui` and the non-generated `src/*.py` files, so your virtual environment, build folders and the generated `src/ui_*.py` aren't scanned. Then it compiles every `.qm` file (step 3). Existing translations are kept, new strings are added as unfinished, and strings that are gone are kept as obsolete.
+
+{: .warning }
+Don't pass the `src` directory to lupdate (`pyside6-lupdate src -ts ...`). It then scans only the `.ui` files and drops every string from the Python code, and CI's translations check fails. If you run lupdate yourself, list the files the way the script does (in bash):
 
 ```bash
-for ts in translations/*.ts; do pyside6-lupdate src -ts "$ts"; done
+pyside6-lupdate src/*.ui $(ls src/*.py | grep -v '/ui_') -ts translations/*.ts
 ```
 
 ### 2. Translate
@@ -49,11 +52,13 @@ Translators who prefer PO-file tools (Poedit, Weblate and similar) can convert w
 
 ### 3. Compile
 
+After translating, compile the `.ts` files to `.qm` without rescanning the sources:
+
 ```bash
-for ts in translations/*.ts; do pyside6-lrelease "$ts" -qm "${ts%.ts}.qm"; done
+python scripts/update_translations.py --qm-only
 ```
 
-On Windows: `scripts/compile_translations.ps1`.
+On Windows, `scripts/compile_translations.ps1` does the same. By hand: `for ts in translations/*.ts; do pyside6-lrelease "$ts" -qm "${ts%.ts}.qm"; done`.
 
 ### 4. Test and commit
 
@@ -64,7 +69,13 @@ Connection values in the `.ui` files (the vMix host, port and input, the UNO URL
 
 ## Adding a language
 
-1. Create the new `.ts` file with lupdate, for example `pyside6-lupdate src -ts translations/scoresight_sv_SE.ts`.
+1. Create the new `.ts` file with lupdate, from the repository root in bash:
+
+   ```bash
+   pyside6-lupdate src/*.ui $(ls src/*.py | grep -v '/ui_') -ts translations/scoresight_sv_SE.ts
+   ```
+
+   lupdate sets `<TS language="sv_SE">` from the file name. From then on, `python scripts/update_translations.py` keeps the file up to date with the others, because it picks up every `translations/*.ts`.
 2. Translate it and compile the `.qm` file (steps 2–3 above).
 3. Add a menu entry in `MainWindow.__init__` in `src/mainwindow.py`, next to the other `addLanguageOption(...)` lines:
 

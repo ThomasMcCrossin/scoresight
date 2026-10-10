@@ -208,9 +208,9 @@ Install the X11/xcb runtime libraries, for example on Debian/Ubuntu `sudo apt in
 
 ### Start over with clean settings
 
-1. Quit ScoreSight.
-2. Optionally use **File > Export Configuration** first to keep your boxes.
-3. Rename or delete the [settings folder](configuration.md#where-scoresight-keeps-its-files) (or only `scoresight.json`).
+1. Optionally use **File > Export Configuration** to keep your boxes.
+2. Quit ScoreSight.
+3. In the [settings folder](configuration.md#where-scoresight-keeps-its-files), rename `scoresight.json` (or `scoresight-<profile>.json` for a [profile](profiles.md)), for example to `scoresight.json.old`. Don't delete the folder: it also holds your other profiles and, in its default location `ocr_training_data/`, your OCR training data.
 4. Start ScoreSight. It starts with defaults.
 
 ### Still stuck?
