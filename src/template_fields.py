@@ -42,6 +42,13 @@ class TemplateFieldEvaluator:
 
     def observe(self, results: list[TextDetectionTargetWithResult]) -> None:
         """Remember the good readings of this cycle's (non-template) boxes."""
+        # forget the boxes (and templates) that were removed or renamed, so a
+        # box later given one of their names starts fresh instead of showing
+        # the old box's value
+        present = {result.name for result in results}
+        for known in (self.last_good, self.last_rendered):
+            for name in [name for name in known if name not in present]:
+                del known[name]
         for result in results:
             if is_template_field(result):
                 continue

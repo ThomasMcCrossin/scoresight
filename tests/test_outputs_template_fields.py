@@ -95,6 +95,25 @@ def test_same_no_change_counts_when_nothing_better_is_known(make_result, make_te
     assert (period.result, period.result_state.name) == ("Q2", "Success")
 
 
+def test_a_box_given_a_removed_boxs_name_starts_fresh(make_result, make_template):
+    # A box keeps its last good reading when it's renamed, and repeats it as
+    # SameNoChange while its value doesn't change. The old box's value under
+    # that name was kept forever, so the template showed it instead.
+    evaluator = TemplateFieldEvaluator()
+
+    def cycle(*boxes):
+        template = make_template("Clock", "{{Shot Clock}}")
+        evaluator.apply([*(make_result(*box) for box in boxes), template])
+        return template.result, template.result_state.name
+
+    assert cycle(("Shot Clock", "14", "Success")) == ("14", "Success")
+    # "Shot Clock" is deleted (or renamed away): the placeholder names no box
+    assert cycle(("Custom 2", "24", "Success")) == ("{{Shot Clock}}", "Success")
+    # and another box that steadily reads 24 is renamed to "Shot Clock"
+    assert cycle(("Shot Clock", "24", "SameNoChange")) == ("24", "Success")
+    assert cycle(("Shot Clock", "24", "SameNoChange")) == ("24", "SameNoChange")
+
+
 def test_unknown_placeholders_are_left_as_they_are(make_result, make_template):
     evaluator = TemplateFieldEvaluator()
     template = make_template("T", "{{Time}} left {{No Such Box}}")
