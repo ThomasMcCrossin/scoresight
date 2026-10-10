@@ -16,11 +16,11 @@ New to ScoreSight? Follow these two pages in order:
 
 | | Requirement |
 |---|---|
-| Windows | Windows 10 (version 1809 or newer) or Windows 11, 64-bit (x64) |
+| Windows | Windows 10 (version 1809 or newer) or Windows 11, 64-bit (x64). The installer checks this |
 | macOS | macOS 15 (Sequoia) or newer. Separate downloads for Apple Silicon (M1 and later) and Intel Macs |
-| Linux | 64-bit x86_64 distribution with glibc 2.34 or newer (for example Ubuntu 22.04 or newer) and an X11 or Wayland desktop |
+| Linux | 64-bit x86_64 distribution with glibc 2.35 or newer (for example Ubuntu 22.04 or newer, Debian 12 or newer) and an X11 or Wayland desktop |
 | CPU / RAM | Any recent dual-core CPU and 4 GB RAM. CPU use grows with the number of boxes and the Detections / s setting (see [Performance Tuning](performance.md)) |
-| Network | Optional. Needed only for NDI, URL/RTSP sources and network outputs |
+| Network | Optional. Needed only for NDI, URL/RTSP sources, network outputs and the update check |
 
 {: .note }
 ScoreSight 0.1.x and older ran on older macOS versions. Starting with 0.2.0, the bundled OCR engine and Qt framework require macOS 15 or newer.
@@ -34,7 +34,7 @@ Box (field)
 : A rectangle you draw over one value on the scoreboard, such as "Home Score" or "Time". Every box has a name and its own recognition settings. See [Detection Boxes & Templates](boxes.md).
 
 Reading (result)
-: The text ScoreSight recognized in a box during one detection cycle, together with its state: **new**, **unchanged**, **failed filter** or **empty**.
+: The text ScoreSight recognized in a box during one detection cycle, together with its state: **new**, **unchanged**, **failed filter** or **empty**. New and unchanged readings are the **good** readings that outputs use.
 
 Output
 : A destination for the readings: text files, the built-in HTTP server, OBS, vMix, overlays.uno or your own HTTP endpoint. See [Outputs](outputs.md).

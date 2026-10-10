@@ -70,16 +70,16 @@ Our goal is simple: to be the best scoreboard-reading software on the planet, an
 
 ## Install
 
-Download the latest version for your system from the **[Releases page](https://github.com/royshil/scoresight/releases/latest)**:
+Download the latest version for your system from the **[Releases page](https://github.com/royshil/scoresight/releases/latest)** (`<version>` is the release number, for example `0.2.0`):
 
 | System | File |
 |---|---|
-| Windows 10/11 (64-bit) | `windows` installer |
-| macOS on Apple Silicon (M1 and later) | `macos-arm64` `.dmg` |
-| macOS on Intel | `macos-x64` / `macos-x86` `.dmg` |
-| Linux x86_64 | `linux` archive |
+| Windows 10 (1809 or newer) / 11, 64-bit | `scoresight-<version>-windows-x64-setup.exe` (installer) or `scoresight-<version>-windows-x64-portable.zip` |
+| macOS 15 or newer, Apple Silicon (M1 and later) | `scoresight-<version>-macos-arm64.dmg` |
+| macOS 15 or newer, Intel | `scoresight-<version>-macos-x64.dmg` |
+| Linux x86_64 with glibc 2.35 or newer (Ubuntu 22.04+, Debian 12+) | `scoresight-<version>-linux-x64.tar.gz` (extract and run `scoresight/scoresight`) |
 
-Every release includes SHA-256 checksums so you can verify your download. Download ScoreSight only from GitHub: the project's former website domain (`scoresight[.]live`) is no longer controlled by the project. The [installation guide](https://royshil.github.io/scoresight/INSTALL.html) covers SmartScreen, macOS permissions and Linux details.
+Every release includes `SHA256SUMS.txt` so you can verify your download. Download ScoreSight only from GitHub: the project's former website domain (`scoresight[.]live`) is no longer controlled by the project. The [installation guide](https://royshil.github.io/scoresight/INSTALL.html) covers SmartScreen, the portable version, macOS permissions and Linux details.
 
 ## Quickstart
 
@@ -129,7 +129,7 @@ python scripts/compile_ui.py
 python src/main.py
 ```
 
-Windows needs one extra step (building the camera enumerator). The [Developer Guide](https://royshil.github.io/scoresight/development/building.html) covers platform details, tests, packaging with PyInstaller and the release process.
+Windows needs one extra step, building the camera enumerator: `uv pip install -r requirements-build.txt` and then `python src/win32DeviceEnum/setup.py build_ext --inplace`. The [Developer Guide](https://royshil.github.io/scoresight/development/building.html) covers platform details, tests, packaging with PyInstaller and the release process.
 
 ## Contributing
 

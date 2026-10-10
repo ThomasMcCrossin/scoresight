@@ -21,50 +21,59 @@ Official builds are published **only** on the GitHub Releases page:
 
 **[github.com/royshil/scoresight/releases/latest](https://github.com/royshil/scoresight/releases/latest)**
 
-Under **Assets**, pick the file for your computer:
+Under **Assets**, pick the file for your computer (`<version>` is the release number, for example `0.2.0`):
 
-| Your computer | Download the file whose name contains |
+| Your computer | File |
 |---|---|
-| Windows 10/11, 64-bit | `windows` (installer `.exe`, or a `.zip` that contains the installer) |
-| Mac with Apple Silicon (M1, M2, M3, M4...) | `macos-arm64` (`.dmg`) |
-| Mac with an Intel processor | `macos-x64` or `macos-x86` (`.dmg`) |
-| Linux, 64-bit x86_64 | `linux` (`.tar.gz` or `.tar`) |
+| Windows 10 (version 1809 or newer) or 11, 64-bit | `scoresight-<version>-windows-x64-setup.exe` (installer, recommended) or `scoresight-<version>-windows-x64-portable.zip` (no installation) |
+| Mac with Apple Silicon (M1, M2, M3, M4...), macOS 15 or newer | `scoresight-<version>-macos-arm64.dmg` |
+| Mac with an Intel processor, macOS 15 or newer | `scoresight-<version>-macos-x64.dmg` |
+| Linux, 64-bit x86_64, glibc 2.35 or newer (Ubuntu 22.04+, Debian 12+) | `scoresight-<version>-linux-x64.tar.gz` |
+| All | `SHA256SUMS.txt`: checksums for verifying the downloads |
+
+Releases before 0.2.0 used other file names, for example a `windows` `.zip` that contained the installer, or `macos-x86` for Intel Macs.
 
 {: .warning }
 Do not download ScoreSight from any other website. The project's former website domain (`scoresight[.]live`) is **no longer controlled by the project**. ScoreSight 0.1.x and older still show links to it in the About and Update dialogs. Ignore those links.
 
-Not sure which Mac you have? Open the Apple menu > **About This Mac**. If you see **Chip: Apple M...**, download `macos-arm64`. If you see **Processor: ... Intel**, download the Intel build.
+Not sure which Mac you have? Open the Apple menu > **About This Mac**. If you see **Chip: Apple M...**, download `macos-arm64`. If you see **Processor: ... Intel**, download `macos-x64`.
 
 ## Verify your download (recommended)
 
-Every release lists a SHA-256 checksum for each file (in `SHA256SUMS.txt` among the assets, or in the release notes of older releases). Compare it with the checksum of the file you downloaded:
+Every release includes `SHA256SUMS.txt` with the SHA-256 checksum of each file (older releases list them in the release notes). Download it to the same folder as your file and compare:
 
-Windows (PowerShell):
+Windows (PowerShell): compare the output with the file's line in `SHA256SUMS.txt`.
 ```powershell
-Get-FileHash .\scoresight-*-windows*.exe -Algorithm SHA256
+Get-FileHash .\scoresight-*-windows-x64-setup.exe -Algorithm SHA256
 ```
 
 macOS:
 ```bash
-shasum -a 256 ~/Downloads/scoresight-*.dmg
+cd ~/Downloads
+shasum -a 256 --check --ignore-missing SHA256SUMS.txt
 ```
 
-Linux (from the folder where you saved both the archive and `SHA256SUMS.txt`):
+Linux:
 ```bash
-sha256sum --ignore-missing -c SHA256SUMS.txt
+sha256sum --check --ignore-missing SHA256SUMS.txt
 ```
 
-If the checksum does not match, delete the file and download it again from the Releases page.
+On macOS and Linux, a good download shows `OK` next to its name. If the checksum does not match, delete the file and download it again from the Releases page.
 
 ## Windows
 
-1. Download the Windows installer from the [latest release](https://github.com/royshil/scoresight/releases/latest). If you downloaded a `.zip`, open it and extract `scoresight-setup.exe` first.
-
-   ![The Windows .zip contains the installer, scoresight-setup.exe](image-5.png)
-
-2. Run the installer. ScoreSight installs to `C:\Program Files\ScoreSight` by default and adds a Start menu shortcut.
+1. Download `scoresight-<version>-windows-x64-setup.exe` from the [latest release](https://github.com/royshil/scoresight/releases/latest).
+2. Run the installer. It asks whether to install ScoreSight **for all users** (the default, in `C:\Program Files\ScoreSight`, needs administrator rights) or **only for you** (no administrator rights needed). It adds a Start menu shortcut, and a desktop shortcut if you tick that option.
 3. **SmartScreen**: the installer is not code-signed yet, so Windows may show "Windows protected your PC". Click **More info** > **Run anyway**. Do this only for a file you downloaded from the GitHub Releases page and verified.
 4. **Windows Firewall**: the first time ScoreSight starts, Windows may ask whether to allow it on the network. ScoreSight runs a small [HTTP server](http_server.md) on port 18099 that browsers and other software can read. Allow it on **Private networks** only, unless you need access from a public network. See [SECURITY.md](https://github.com/royshil/scoresight/blob/main/SECURITY.md).
+
+The installer refuses to run on Windows versions older than Windows 10 version 1809, which the Qt 6 framework doesn't support. If ScoreSight is running, the installer closes it first. Installing a new version over an existing ScoreSight, including 0.1.x, upgrades it in place.
+
+Administrators can install silently with `scoresight-<version>-windows-x64-setup.exe /VERYSILENT` plus `/ALLUSERS` or `/CURRENTUSER`.
+
+### Portable version (no installation)
+
+Extract `scoresight-<version>-windows-x64-portable.zip` anywhere, for example to a USB stick, and run `scoresight\scoresight.exe`. Settings are still stored in your user profile, unless you set [`SCORESIGHT_DATA_DIR`](configuration.md#environment-variables).
 
 ### If your browser or antivirus blocks the download
 
@@ -84,12 +93,16 @@ Use **Settings** > **Apps** > **Installed apps** > **ScoreSight** > **Uninstall*
 
 ## macOS
 
+ScoreSight 0.2.0 and newer require **macOS 15 (Sequoia) or newer**.
+
 1. Download the `.dmg` for your Mac (Apple Silicon or Intel, see [Download](#download)).
-2. Double-click the `.dmg` and drag the ScoreSight app into **Applications**:
+2. Double-click the `.dmg`. It contains the ScoreSight app and a shortcut to your **Applications** folder. Drag ScoreSight onto **Applications**:
 
    ![Drag the ScoreSight app to the Applications folder](image-7.png)
 
 3. Eject the disk image and start ScoreSight from **Applications** or Launchpad.
+
+ScoreSight is a regular app bundle, so it starts in a few seconds. macOS App Nap is turned off for it, so it keeps reading at full speed while its window is in the background.
 
 ### Gatekeeper
 
@@ -123,18 +136,22 @@ Drag ScoreSight from **Applications** to the Trash. To also remove settings and 
 
 ## Linux
 
-1. Download the `linux` archive from the [latest release](https://github.com/royshil/scoresight/releases/latest) and extract it:
+The Linux build runs on 64-bit x86_64 distributions with **glibc 2.35 or newer**, for example Ubuntu 22.04 or newer and Debian 12 or newer. Check your version with `ldd --version`.
+
+1. Download `scoresight-<version>-linux-x64.tar.gz` from the [latest release](https://github.com/royshil/scoresight/releases/latest) and extract it. It contains a single `scoresight` folder:
 
    ```bash
    mkdir -p ~/Applications && cd ~/Applications
-   tar -xf ~/Downloads/scoresight-*linux*.tar*
+   tar -xzf ~/Downloads/scoresight-*-linux-x64.tar.gz
    ```
 
-2. Run the `scoresight` executable from the extracted files. Depending on the release, it is either `./scoresight/scoresight` (a folder) or `./scoresight` (a single file):
+2. Run the `scoresight` executable inside that folder:
 
    ```bash
-   ./scoresight/scoresight   # or: ./scoresight
+   ./scoresight/scoresight
    ```
+
+   Keep the folder together: the executable needs the `_internal` folder next to it.
 
 3. **Cameras**: your user must be allowed to open `/dev/video*` devices. On most distributions that means being in the `video` group:
 
@@ -156,7 +173,7 @@ Screen capture is not available on Linux. Use a capture card, NDI, or OBS's virt
 Install the new version over the old one (Windows), replace the app in Applications (macOS), or extract the new archive (Linux). Your boxes and settings live in a separate settings folder, so they carry over. See [Settings, Files & Command Line](configuration.md#where-scoresight-keeps-its-files).
 
 {: .new }
-ScoreSight 0.2.0 automatically moves a saved vMix port of `8099` to `8088`, the port of vMix's Web API. If you deliberately use a different port, check it in the **VMix** tab after upgrading.
+When ScoreSight 0.2.0 first opens the settings of an older version, it changes a saved vMix port of `8099` to `8088` (the port of vMix's Web API), and it sets the **Conf. Th** confidence threshold of every box to 0 (off), because that setting had no effect before. Both changes happen once and are written to the log. See [One-time upgrades](configuration.md#one-time-upgrades-of-older-settings).
 
 ## Next step
 
