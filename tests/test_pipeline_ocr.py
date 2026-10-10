@@ -421,6 +421,40 @@ def test_skip_similar_image_detects_a_one_digit_change(detector, make_target):
     ]
 
 
+def test_skip_similar_image_reads_a_rejected_or_empty_image_again(
+    detector, make_target
+):
+    # The comparison image is the last accepted read's. Remembering a rejected
+    # read's image made every later frame "unchanged", which the capture thread
+    # publishes as the box's previous value (SameNoChange), so the box kept
+    # showing the old score until the board changed again.
+    box = make_target(
+        "Home Score", rect=(0, 0, 1, 1), skip_similar_image=True, conf_thresh=0.5
+    )
+    api = detector.api
+
+    def read(value, text="12", confidence=90):
+        api.text = text
+        api.mean_conf = confidence
+        api.symbol_conf = float(confidence)
+        gray, rect = digits_frame(value)
+        box.setRect(*rect)
+        [result] = detector.detect_multi_text(binarize(gray), gray, [box])
+        return "unchanged" if result.unchanged_image else result.state.name
+
+    assert read("12") == "Success"
+    assert read("12") == "unchanged"
+    # the board changes to 13, and its first reads fall under the threshold
+    assert read("13", "13", confidence=20) == "FailedFilter"
+    assert read("13", "13", confidence=20) == "FailedFilter"
+    # or are empty
+    assert read("13", "") == "Empty"
+    assert read("13", "13") == "Success"
+    assert read("13", "13") == "unchanged"
+    # the board goes back to 12: not like the last accepted image (13)
+    assert read("12") == "Success"
+
+
 def test_patches_similar_ignores_a_few_noisy_pixels():
     patch = binarize(seven_segment("188"))
     noisy = patch.copy()

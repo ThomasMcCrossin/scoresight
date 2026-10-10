@@ -26,8 +26,8 @@ CHAR_WHITELISTS = {
 }
 GENERAL_CHAR_WHITELIST = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ .,;:!?-_()[]{}<>@#$%^&*+=|\\~`\"'"
 
-# skip_similar_image: a patch is "similar" to the last one that was OCR'd when
-# fewer than this fraction of its foreground (text) pixels changed.
+# skip_similar_image: a patch is "similar" to the last one that was read (and
+# accepted) when fewer than this fraction of its foreground (text) pixels changed.
 SIMILAR_PATCH_MAX_CHANGE = 0.02
 
 # The same box failing on every frame is logged at most this often.
@@ -468,14 +468,18 @@ class TextDetector:
         if not dot_detector and not has_foreground(patch):
             return _empty_result()
 
+        # skip_similar_image: the patch to remember if this read is accepted
+        skip_patch = None
         if settings.get("skip_similar_image"):
-            # compare with the image of the last OCR that ran (not refreshed on
-            # skips, so slow changes add up until they are read)
+            # Compare with the image of the last accepted (Success) read. It isn't
+            # refreshed on skips, so slow changes add up until they are read, nor
+            # on rejected or empty reads, so that a new value whose first read
+            # failed is read again instead of the box keeping its last value.
             if patches_similar(rect.last_image, patch):
                 return TextDetectionResult(
                     "", ResultState.SameNoChange, None, unchanged_image=True
                 )
-            rect.last_image = patch.copy()
+            skip_patch = patch
 
         if settings.get("autocrop"):
             # auto crop the binary image around the text
@@ -519,6 +523,8 @@ class TextDetector:
                 patch, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
             )
             count = sum(1 for contour in contours if cv2.contourArea(contour) > 5)
+            if skip_patch is not None:
+                rect.last_image = skip_patch.copy()
             return TextDetectionResult(str(count), ResultState.Success, effectiveRect)
 
         if patch.shape[0] == 0 or patch.shape[1] == 0:
@@ -610,5 +616,8 @@ class TextDetector:
 
         if text == "":
             textstate = ResultState.Empty
+
+        if skip_patch is not None and textstate == ResultState.Success:
+            rect.last_image = skip_patch.copy()
 
         return TextDetectionResult(text, textstate, effectiveRect, extras)
