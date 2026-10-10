@@ -56,7 +56,7 @@ Settings you change afterwards are kept as you set them.
 
 ### Logs
 
-Each run creates two log files: `scoresight_<date>_<time>.log` (ScoreSight's own log) and `scoresight_std_<date>_<time>.log` (messages from libraries). ScoreSight keeps the 10 most recent logs of each kind and deletes older ones automatically, but never those of the current session. Attach both files from the session that had the problem when you [report a bug](troubleshooting.md#collect-logs-first).
+Each run creates two log files: `scoresight_<date>_<time>.log` (ScoreSight's own log) and `scoresight_std_<date>_<time>.log` (messages from libraries, and the details of a crash if ScoreSight closes unexpectedly). ScoreSight keeps the 10 most recent logs of each kind and deletes older ones automatically, but never those of the current session. Attach both files from the session that had the problem when you [report a bug](troubleshooting.md#collect-logs-first).
 
 ## Command-line options
 

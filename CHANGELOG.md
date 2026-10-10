@@ -35,6 +35,9 @@ your outputs and sources do, and adds profiles for running several instances.
   diagnose a slow start ([#33](https://github.com/royshil/scoresight/issues/33)).
   The `SCORESIGHT_STARTUP_REPORT` environment variable also writes these times
   to a JSON file.
+- If ScoreSight crashes in a library (Qt, OpenCV, Tesseract...), the
+  `scoresight_std_` log shows where: what every part of the program was doing
+  at that moment. Before, such a crash left no trace.
 - **File > Appearance** with System, Light and Dark colour schemes,
   remembered between runs ([#50](https://github.com/royshil/scoresight/issues/50)).
 - **File > Check for Updates** checks GitHub Releases and always shows the
