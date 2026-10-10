@@ -3,7 +3,6 @@ import platform
 
 from PySide6.QtWidgets import QDialog
 from camera_thread import OpenCVVideoCaptureWithSettings
-from sc_logging import logger
 from ui_video_settings import Ui_Dialog as Ui_VideoSettingsDialog
 from storage import store_data
 
@@ -11,9 +10,9 @@ from storage import store_data
 def fourcc_to_str(fourcc):
     if fourcc == 0:
         return "NULL"
-    if type(fourcc) == str:
+    if isinstance(fourcc, str):
         return fourcc
-    if type(fourcc) != int:
+    if not isinstance(fourcc, int):
         fourcc = int(fourcc)
     return "".join([chr((fourcc >> 8 * i) & 0xFF) for i in range(4)])
 
@@ -50,6 +49,34 @@ def get_supported_fourcc(cap):
     return supported_fourccs
 
 
+def resolution_text(width, height) -> str:
+    return f"{int(width)}x{int(height)}"
+
+
+def platform_backends(system: str) -> list[tuple[str, int]]:
+    """The capture backends offered on a platform (platform.system()), besides
+    Auto, as (name, cv2 backend id)."""
+    if system == "Windows":
+        return [
+            ("DShow", cv2.CAP_DSHOW),
+            ("Microsoft Media Foundation", cv2.CAP_MSMF),
+            ("Microsoft Windows Runtime", cv2.CAP_WINRT),
+        ]
+    if system == "Linux":
+        return [("V4L", cv2.CAP_V4L), ("GStreamer", cv2.CAP_GSTREAMER)]
+    if system == "Darwin":
+        return [("AVFoundation", cv2.CAP_AVFOUNDATION)]
+    return []
+
+
+def has_backend(backend: int) -> bool:
+    """Whether this OpenCV build has the capture backend."""
+    try:
+        return bool(cv2.videoio_registry.hasBackend(backend))
+    except (AttributeError, cv2.error):
+        return False
+
+
 class VideoSettingsDialog(QDialog):
     def __init__(self):
         super().__init__()
@@ -57,37 +84,49 @@ class VideoSettingsDialog(QDialog):
         self.ui.setupUi(self)
         self.ui.buttonBox.accepted.connect(self.save_settings)
         self.ui.buttonBox.rejected.connect(self.close)
+        self.cap = None
+        self.initial_values = {}
 
-    def init_ui(self, cap: OpenCVVideoCaptureWithSettings):
+    def init_ui(self, cap: OpenCVVideoCaptureWithSettings | None):
         self.cap = cap
-        self.ui.spinBox_fps.setValue(int(self.cap.get(cv2.CAP_PROP_FPS)))
-        self.ui.comboBox_resolution.setCurrentText(
-            f"{self.cap.get(cv2.CAP_PROP_FRAME_WIDTH)}x{self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT)}"
+        self.initial_values = {}
+        if cap is None:
+            # the source is (re)connecting
+            self.ui.plainTextEdit_videoProps.setPlainText(
+                self.tr("The video source is not open.")
+            )
+            return
+        # read the current values in one go: each access waits for the capture
+        # thread's current read
+        fps, width, height = cap.run_locked(
+            lambda capture: (
+                capture.get(cv2.CAP_PROP_FPS),
+                capture.get(cv2.CAP_PROP_FRAME_WIDTH),
+                capture.get(cv2.CAP_PROP_FRAME_HEIGHT),
+            )
         )
+        self.ui.spinBox_fps.setValue(int(fps))
+        current_resolution = resolution_text(width, height)
+        if self.ui.comboBox_resolution.findText(current_resolution) < 0:
+            self.ui.comboBox_resolution.addItem(current_resolution)
+        self.ui.comboBox_resolution.setCurrentText(current_resolution)
         self.populate_supported_fourcc()
         self.populate_video_props()
         self.populate_backend_combo()
+        self.initial_values = self.current_values()
 
     def populate_backend_combo(self):
         self.ui.comboBox_captureBackend.clear()
         self.ui.comboBox_captureBackend.addItem("Auto", cv2.CAP_ANY)
-        if platform.system() == "Windows":
-            self.ui.comboBox_captureBackend.addItem("DShow", cv2.CAP_DSHOW)
-            self.ui.comboBox_captureBackend.addItem(
-                "Microsoft Media Foundation", cv2.CAP_MSMF
-            )
-            self.ui.comboBox_captureBackend.addItem(
-                "Microsoft Windows Runtime", cv2.CAP_WINRT
-            )
-        elif platform.system() == "Linux":
-            self.ui.comboBox_captureBackend.addItem("V4L", cv2.CAP_V4L)
-            self.ui.comboBox_captureBackend.addItem("GStreamer", cv2.CAP_GSTREAMER)
-        elif platform.system() == "Darwin":
-            self.ui.comboBox_captureBackend.addItem(
-                "AVFoundation", cv2.CAP_AVFOUNDATION
-            )
+        # only the backends this OpenCV build has (the pip wheels have no
+        # Media Foundation/Windows Runtime or GStreamer, for example)
+        for name, backend in platform_backends(platform.system()):
+            if has_backend(backend):
+                self.ui.comboBox_captureBackend.addItem(name, backend)
         self.ui.comboBox_captureBackend.setCurrentIndex(
-            self.ui.comboBox_captureBackend.findData(self.cap.get(cv2.CAP_PROP_BACKEND))
+            self.ui.comboBox_captureBackend.findData(
+                int(self.cap.get(cv2.CAP_PROP_BACKEND))
+            )
         )
 
     def populate_video_props(self):
@@ -170,18 +209,20 @@ class VideoSettingsDialog(QDialog):
             (cv2.CAP_PROP_FRAME_TYPE, "CAP_PROP_FRAME_TYPE"),
             (cv2.CAP_PROP_N_THREADS, "CAP_PROP_N_THREADS"),
         ]
+        values = self.cap.run_locked(
+            lambda capture: [capture.get(prop[0]) for prop in video_props]
+        )
         video_props_str = [
-            f"{prop[1]}: {self.cap.get(prop[0])}" for prop in video_props
+            f"{prop[1]}: {value}" for prop, value in zip(video_props, values)
         ]
         self.ui.plainTextEdit_videoProps.setPlainText("\n".join(video_props_str))
 
     def populate_supported_fourcc(self):
-        supported_fourccs = get_supported_fourcc(self.cap)
+        supported_fourccs = self.cap.run_locked(get_supported_fourcc)
         self.ui.comboBox_fourcc.clear()
         self.ui.comboBox_fourcc.addItems(supported_fourccs)
 
-    def save_settings(self):
-        fps = self.ui.spinBox_fps.value()
+    def current_values(self) -> dict:
         resolution = self.ui.comboBox_resolution.currentText()
         if "x" in resolution:
             resolution = resolution.split("x")
@@ -190,13 +231,20 @@ class VideoSettingsDialog(QDialog):
         else:
             width = -1
             height = -1
-        fourcc = self.ui.comboBox_fourcc.currentText()
-        store_data("scoresight.json", "fps", fps)
-        store_data("scoresight.json", "width", width)
-        store_data("scoresight.json", "height", height)
-        store_data("scoresight.json", "fourcc", fourcc)
-        store_data(
-            "scoresight.json", "backend", self.ui.comboBox_captureBackend.currentData()
-        )
+        return {
+            "fps": self.ui.spinBox_fps.value(),
+            "width": width,
+            "height": height,
+            "fourcc": self.ui.comboBox_fourcc.currentText(),
+            "backend": self.ui.comboBox_captureBackend.currentData(),
+        }
+
+    def save_settings(self):
+        # Store only what the user changed: each stored setting is applied to
+        # the running capture, and a backend change reopens the device.
+        if self.cap is not None:
+            for name, value in self.current_values().items():
+                if value != self.initial_values.get(name):
+                    store_data("scoresight.json", name, value)
 
         self.close()

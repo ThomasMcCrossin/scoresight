@@ -144,6 +144,7 @@ class BoxSettingsUIHandler:
         self.ui.checkBox_rescalePatch.blockSignals(True)
         self.ui.checkBox_normWHRatio.blockSignals(True)
         self.ui.checkBox_invertPatch.blockSignals(True)
+        self.ui.checkBox_dotDetector.blockSignals(True)
         self.ui.checkBox_ordinalIndicator.blockSignals(True)
         self.ui.comboBox_binarizationMethod.blockSignals(True)
         self.ui.comboBox_formatPrefix.blockSignals(True)
@@ -158,7 +159,7 @@ class BoxSettingsUIHandler:
             self.ui.comboBox_fieldType.setCurrentIndex(0)
             self.ui.checkBox_smoothing.setChecked(True)
             self.ui.checkBox_skip_empty.setChecked(True)
-            self.ui.horizontalSlider_conf_thresh.setValue(50)
+            self.ui.horizontalSlider_conf_thresh.setValue(0)
             self.ui.checkBox_autocrop.setChecked(False)
             self.ui.checkBox_skip_similar_image.setChecked(False)
             self.ui.horizontalSlider_cleanup.setValue(0)
@@ -170,6 +171,7 @@ class BoxSettingsUIHandler:
             self.ui.checkBox_rescalePatch.setChecked(False)
             self.ui.checkBox_normWHRatio.setChecked(False)
             self.ui.checkBox_invertPatch.setChecked(False)
+            self.ui.checkBox_dotDetector.setChecked(False)
             self.ui.checkBox_ordinalIndicator.setChecked(False)
             self.ui.comboBox_binarizationMethod.setCurrentIndex(0)
             self.ui.checkBox_templatefield.setChecked(False)
@@ -184,8 +186,11 @@ class BoxSettingsUIHandler:
             self.ui.comboBox_fieldType.setCurrentIndex(item_obj.settings["type"])
             self.ui.checkBox_smoothing.setChecked(item_obj.settings["smoothing"])
             self.ui.checkBox_skip_empty.setChecked(item_obj.settings["skip_empty"])
+            # stored as a fraction of Tesseract's confidence %; a value above 1
+            # (hand-edited) is already a percentage, as in tesseract.py
+            conf_thresh = float(item_obj.settings["conf_thresh"])
             self.ui.horizontalSlider_conf_thresh.setValue(
-                int(item_obj.settings["conf_thresh"] * 100)
+                round(conf_thresh if conf_thresh > 1 else conf_thresh * 100)
             )
             self.ui.checkBox_autocrop.setChecked(item_obj.settings["autocrop"])
             self.ui.checkBox_skip_similar_image.setChecked(
@@ -237,6 +242,7 @@ class BoxSettingsUIHandler:
         self.ui.checkBox_rescalePatch.blockSignals(False)
         self.ui.checkBox_normWHRatio.blockSignals(False)
         self.ui.checkBox_invertPatch.blockSignals(False)
+        self.ui.checkBox_dotDetector.blockSignals(False)
         self.ui.checkBox_ordinalIndicator.blockSignals(False)
         self.ui.comboBox_binarizationMethod.blockSignals(False)
         self.ui.comboBox_formatPrefix.blockSignals(False)

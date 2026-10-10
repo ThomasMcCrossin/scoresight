@@ -1,0 +1,155 @@
+---
+title: Settings, Files & Command Line
+parent: Reference
+nav_order: 2
+description: "Where ScoreSight stores settings and logs, command-line options, environment variables and the keys in scoresight.json."
+---
+
+# Settings, Files & Command Line
+{: .no_toc }
+
+<details open markdown="block">
+  <summary>On this page</summary>
+  {: .text-delta }
+1. TOC
+{:toc}
+</details>
+
+## Where ScoreSight keeps its files
+
+| | Windows | macOS | Linux |
+|---|---|---|---|
+| Settings folder | `%LOCALAPPDATA%\scoresight\scoresight` | `~/Library/Application Support/scoresight` | `~/.local/share/scoresight` |
+| Log folder | `%LOCALAPPDATA%\scoresight\scoresight\Logs` | `~/Library/Logs/scoresight` | `~/.local/state/scoresight/log` |
+
+On Windows, `%LOCALAPPDATA%` is usually `C:\Users\<you>\AppData\Local`. Paste the path into the File Explorer address bar to open it.
+
+The settings folder contains:
+
+| File / folder | Content |
+|---|---|
+| `scoresight.json` | All settings of the default profile: source, boxes, view tools and outputs |
+| `scoresight-<profile>.json` | The settings of a named [profile](profiles.md) |
+| `scoresight.json.corrupt-<timestamp>` | A backup ScoreSight made of a settings file it could not read (see below) |
+| `ocr_training_data/` | The default folder for [OCR training data](data_annotation.md) |
+
+**File > Open Configuration Folder** opens the settings folder (the one from `SCORESIGHT_DATA_DIR`, if set). **File > View Current Log** shows the live log. Its **Open Log Folder** button opens the log folder, and **Open on startup** shows the log window every time ScoreSight starts. If ScoreSight couldn't create a log file, the log window says that the log goes to the console instead.
+
+Both folders can be moved with [environment variables](#environment-variables).
+
+The window title shows the version, plus the profile name when one is active, for example `ScoreSight - v0.2.0 [court2]`.
+
+### Settings are saved automatically
+
+ScoreSight saves changes as you make them. Box changes are saved about half a second after the last edit. Settings files are written atomically (to a temporary file that then replaces the old one), so a crash or power loss can't leave a half-written file.
+
+If a settings file is damaged anyway, for example by a full disk or manual editing, ScoreSight doesn't wipe your settings silently. It renames the damaged file to `<name>.corrupt-<timestamp>`, logs an error and starts with defaults. You can open the backup in a text editor to recover your boxes, for example by copying the `boxes` list into an exported configuration file and importing it.
+
+### One-time upgrades of older settings
+
+When ScoreSight 0.2.0 first opens a settings file from an older version, it adjusts two settings once and writes a line about each to the log:
+
+- A vMix port of `8099` becomes `8088` (see [vMix](vmix.md)). The key `vmix_port_migrated` records that this was done.
+- The **Conf. Th** confidence threshold of every box becomes 0 (off). It had no effect in older versions, so the boxes read exactly as before (see [Conf. Th](box-settings.md#conf-th-confidence-threshold)). The key `boxes_schema_version` (set to `2`) records that this was done.
+
+Settings you change afterwards are kept as you set them.
+
+### Logs
+
+Each run creates two log files: `scoresight_<date>_<time>.log` (ScoreSight's own log) and `scoresight_std_<date>_<time>.log` (messages from libraries). ScoreSight keeps the 10 most recent logs of each kind and deletes older ones automatically, but never those of the current session. Attach both files from the session that had the problem when you [report a bug](troubleshooting.md#collect-logs-first).
+
+## Command-line options
+
+| Option | Description |
+|---|---|
+| `--profile NAME` | Use the settings file `scoresight-NAME.json` instead of `scoresight.json`. See [Multiple Instances & Profiles](profiles.md). |
+| `--port N` | Run the [HTTP server](http_server.md) on port `N` (1–65535, default `18099`). |
+| `--self-test` | Check the installation without showing a window, then exit. It prints the settings file and log file paths, loads all modules, checks the bundled files, builds the main window off-screen, loads every bundled OCR model and reads a test image. It prints `SELF-TEST OK` and exits with code 0 on success, or prints the error and exits with code 1. Useful to check an installation or a build. |
+
+Qt's own options, such as `-style fusion`, are passed on to Qt.
+
+Examples:
+
+```powershell
+# Windows
+& "C:\Program Files\ScoreSight\scoresight.exe" --profile court2 --port 18100
+```
+
+```bash
+# macOS (start an additional instance with options)
+open -n -a ScoreSight --args --profile court2 --port 18100
+
+# Linux, or running from source
+./scoresight/scoresight --profile court2 --port 18100
+python src/main.py --self-test
+```
+
+## Environment variables
+
+| Variable | Effect |
+|---|---|
+| `SCORESIGHT_PROFILE` | Same as `--profile`: use `scoresight-<value>.json`. |
+| `SCORESIGHT_DATA_DIR` | Use this folder instead of the default settings folder. |
+| `SCORESIGHT_LOG_DIR` | Write logs to this folder instead of the default log folder. |
+| `SCORESIGHT_DEBUG` | If set (to any value), also print the log to the console, log more detail, and log every request to the HTTP server. |
+| `OPENCV_FFMPEG_CAPTURE_OPTIONS` | Options for OpenCV's FFmpeg backend, used by URL sources. If it isn't set, ScoreSight sets it to `rtsp_flags;prefer_tcp`: RTSP over TCP first, falling back to UDP ([RTSP over TCP](sources.md#rtsp-over-tcp)). Set it to `rtsp_transport;udp` to force UDP for cameras that only support RTSP over UDP. |
+| `QT_QPA_PLATFORM` | Qt platform plugin. `offscreen` runs without a display. `--self-test` sets it to `offscreen` if it isn't set. |
+
+When running from source, ScoreSight also reads a `.env` file in the repository root, which is handy for `SCORESIGHT_DEBUG=1`.
+
+{: .tip }
+`SCORESIGHT_DATA_DIR` makes a portable setup possible: keep ScoreSight's settings on a USB stick or a shared drive that you take from venue to venue.
+
+## Import and export
+
+**File > Export Configuration** writes the current boxes (names, positions, settings) to a `.json` file, and **File > Import Configuration** loads them. Other settings (source, crop, 4-corner correction, outputs) are not included. To keep complete, separate setups, use [profiles](profiles.md) or copy the profile's settings file.
+
+## Settings keys in `scoresight.json`
+
+You normally never edit this file: everything is set through the UI. This list helps when reading a file someone sent you, or when troubleshooting. Close ScoreSight before editing the file by hand.
+
+### Source and view
+
+| Key | Meaning |
+|---|---|
+| `source_selected` | The last source and its type, reopened at startup: `{"type": "URL", "value": "rtsp://..."}`, `{"type": "File", "value": "<path>"}` or `{"type": "Screen Capture", "value": <window id, -1 for the entire screen>}`, or for cameras and NDI `{"type": "OPENCV" or "NDI", "value": "<device id>", "description": "<name>"}`. A plain path or URL saved by 0.1.x is still understood |
+| `four_corners` | The four corner points of the perspective correction |
+| `crop_mode`, `left_crop`, `top_crop`, `right_crop`, `bottom_crop` | Crop on/off and crop amounts in pixels |
+| `rotation` | `0`, `90`, `180` or `270` |
+| `box_display_style` | `0` No Box, `1` Outline, `2` Names, `3` All |
+| `fps`, `width`, `height`, `fourcc`, `backend` | Camera [Video Settings](sources.md#cameras-and-capture-cards), applied whenever a camera opens. Only the settings you changed in the dialog are stored |
+
+### Recognition
+
+| Key | Meaning |
+|---|---|
+| `boxes` | The list of boxes: `name`, `rect` (`x`, `y`, `width`, `height`), `settings` (see [Per-Box Settings](box-settings.md)) and `mini_rects` |
+| `boxes_schema_version` | `2`: the box settings have been upgraded for 0.2.0 (see [One-time upgrades](#one-time-upgrades-of-older-settings)). Don't change it |
+| `custom_boxes_names` | Names of your custom fields |
+| `ocr_model` | `0` Daktronics, `1` General Scoreboard, `2` General Fonts (English), `3` General Scoreboard Large, or the path of an external `.traineddata` file |
+| `detection_cadence` | Detections / s: 1–15 from the slider. Values down to `0.1` are accepted when set in the file (see [Performance Tuning](performance.md#how-fast-do-you-need-to-be)) |
+| `update_on_change` | Update on change on/off |
+
+### Outputs
+
+| Key | Meaning |
+|---|---|
+| `output_folder`, `save_csv`, `save_xml`, `append_method`, `aggs_per_second` | [Text Files](text-files.md) tab (`append_method`: `0` CSV, `1` TXT, `2` both, `3` don't append; `aggs_per_second`: Save / s) |
+| `obs` | OBS connection: `ip`, `port`, `password` |
+| `vmix_host`, `vmix_port`, `vmix_input`, `vmix_mapping`, `vmix_send_same` | [vMix](vmix.md) tab |
+| `vmix_port_migrated` | `true` once the one-time change of a saved port 8099 to 8088 has run |
+| `uno_url`, `uno_mapping`, `uno_send_same`, `uno_essentials`, `uno_essentials_id` | [UNO](uno.md) tab |
+| `enable_out_api`, `out_api_url`, `out_api_method`, `out_api_encoding` | [API](out_api.md) tab. `out_api_method` is `POST`, `PUT` or `GET`; `out_api_encoding` is `JSON (Full)`, `JSON (Simple key-value)`, `XML` or `CSV`, in English whatever the interface language |
+
+### Application
+
+| Key | Meaning |
+|---|---|
+| `language` | The language chosen in **File > Language**, for example `de_DE`. Without it, ScoreSight follows the system language |
+| `color_scheme` | **File > Appearance**: `System`, `Light` or `Dark` |
+| `open_on_startup` | Show the log window at startup |
+| `disable_update_checks` | `true` turns off the update check at startup (the **Don't check for updates at startup** checkbox in the update dialog). **File > Check for Updates** always works |
+| `save_ocr_training_data`, `ocr_training_data_folder`, `ocr_training_data_max_size` | [OCR training data](data_annotation.md) collection. An empty `ocr_training_data_folder` means the default folder. The 0.1.x key `ocr_training_data_save_folder` is still read if the new key was never set |
+
+{: .warning }
+`scoresight.json` stores the OBS WebSocket password and the UNO and API URLs (which may contain access tokens) in plain text. Don't share the file publicly. Exported configurations contain only boxes, but check them before sharing anyway.

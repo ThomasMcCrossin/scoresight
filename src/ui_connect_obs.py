@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'connect_obs.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.7.2
+## Created by: Qt User Interface Compiler version 6.12.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -28,32 +28,32 @@ class Ui_Dialog(object):
         self.lineEdit_ip = QLineEdit(self.groupBox)
         self.lineEdit_ip.setObjectName(u"lineEdit_ip")
 
-        self.formLayout.setWidget(0, QFormLayout.FieldRole, self.lineEdit_ip)
+        self.formLayout.setWidget(0, QFormLayout.ItemRole.FieldRole, self.lineEdit_ip)
 
         self.label = QLabel(self.groupBox)
         self.label.setObjectName(u"label")
 
-        self.formLayout.setWidget(0, QFormLayout.LabelRole, self.label)
+        self.formLayout.setWidget(0, QFormLayout.ItemRole.LabelRole, self.label)
 
         self.label_2 = QLabel(self.groupBox)
         self.label_2.setObjectName(u"label_2")
 
-        self.formLayout.setWidget(1, QFormLayout.LabelRole, self.label_2)
+        self.formLayout.setWidget(1, QFormLayout.ItemRole.LabelRole, self.label_2)
 
         self.lineEdit_port = QLineEdit(self.groupBox)
         self.lineEdit_port.setObjectName(u"lineEdit_port")
 
-        self.formLayout.setWidget(1, QFormLayout.FieldRole, self.lineEdit_port)
+        self.formLayout.setWidget(1, QFormLayout.ItemRole.FieldRole, self.lineEdit_port)
 
         self.label_3 = QLabel(self.groupBox)
         self.label_3.setObjectName(u"label_3")
 
-        self.formLayout.setWidget(2, QFormLayout.LabelRole, self.label_3)
+        self.formLayout.setWidget(2, QFormLayout.ItemRole.LabelRole, self.label_3)
 
         self.lineEdit_password = QLineEdit(self.groupBox)
         self.lineEdit_password.setObjectName(u"lineEdit_password")
 
-        self.formLayout.setWidget(2, QFormLayout.FieldRole, self.lineEdit_password)
+        self.formLayout.setWidget(2, QFormLayout.ItemRole.FieldRole, self.lineEdit_password)
 
 
         self.gridLayout.addLayout(self.formLayout, 0, 0, 1, 1)

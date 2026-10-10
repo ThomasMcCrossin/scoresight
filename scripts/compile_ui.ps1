@@ -1,8 +1,11 @@
-Get-ChildItem -Filter src/*.ui | ForEach-Object {
-    $uiFile = $_.FullName
-    $pyFile = [System.IO.Path]::ChangeExtension($uiFile, ".py")
-    # add "ui_" prefix to the file name
-    $pyFile = [System.IO.Path]::Combine($([System.IO.Path]::GetDirectoryName($pyFile)), "ui_$([System.IO.Path]::GetFileName($pyFile))")
-    pyside6-uic $uiFile -o $pyFile -p -n --no-qt-namespace --star-imports
-    Write-Host "Processed $UiFile -> $pyFile"
+# Compile src/*.ui into src/ui_*.py. Thin wrapper around scripts/compile_ui.py;
+# all arguments are passed through (e.g. -- --check, or specific .ui files).
+# Uses $env:PYTHON if set, else the repo's .venv, else `python` on PATH.
+$repoRoot = Split-Path -Parent $PSScriptRoot
+$python = $env:PYTHON
+if (-not $python) {
+    $venvPython = Join-Path $repoRoot ".venv\Scripts\python.exe"
+    $python = if (Test-Path $venvPython) { $venvPython } else { "python" }
 }
+& $python (Join-Path $PSScriptRoot "compile_ui.py") @args
+exit $LASTEXITCODE

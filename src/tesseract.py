@@ -7,6 +7,7 @@ from threading import Lock
 import cv2
 import numpy as np
 import re
+import time
 
 from resource_path import resource_path
 from storage import fetch_data
@@ -16,6 +17,21 @@ from text_detection_target import (
     TextDetectionTargetWithResult,
 )
 from sc_logging import logger
+
+ResultState = TextDetectionTargetWithResult.ResultState
+
+CHAR_WHITELISTS = {
+    FieldType.NUMBER: "0123456789",
+    FieldType.TIME: "0123456789:.",
+}
+GENERAL_CHAR_WHITELIST = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ .,;:!?-_()[]{}<>@#$%^&*+=|\\~`\"'"
+
+# skip_similar_image: a patch is "similar" to the last one that was read (and
+# accepted) when fewer than this fraction of its foreground (text) pixels changed.
+SIMILAR_PATCH_MAX_CHANGE = 0.02
+
+# The same box failing on every frame is logged at most this often.
+_BOX_ERROR_LOG_INTERVAL_S = 10.0
 
 
 def autocrop(image_in):
@@ -84,6 +100,189 @@ def is_valid_regex(pattern):
         return False
 
 
+def _is_image(image) -> bool:
+    return (
+        isinstance(image, np.ndarray)
+        and image.ndim >= 2
+        and image.shape[0] >= 1
+        and image.shape[1] >= 1
+    )
+
+
+def global_binarization(gray):
+    """The whole-frame Otsu binarization used by boxes with GLOBAL binarization."""
+    _, binary = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+    return binary
+
+
+def clamp_rect_to_image(rect: QRectF, width: int, height: int):
+    """The pixel bounds (x0, y0, x1, y1) of the part of rect inside a width x
+    height image, or None if less than a pixel of it is inside. rect itself is
+    not changed: boxes are the user's settings, shared with the UI."""
+    x0 = max(0, int(rect.x()))
+    y0 = max(0, int(rect.y()))
+    x1 = min(width, int(rect.x() + rect.width()))
+    y1 = min(height, int(rect.y() + rect.height()))
+    if x1 - x0 < 1 or y1 - y0 < 1:
+        return None
+    return x0, y0, x1, y1
+
+
+def has_foreground(patch) -> bool:
+    """False if every pixel of the patch has the same value, e.g. a binarized
+    box over plain background: there is nothing to read, and the scoreboard
+    models tend to hallucinate digits on such patches."""
+    return patch.size > 0 and int(patch.min()) != int(patch.max())
+
+
+def _foreground_pixels(patch) -> int:
+    # The text is the minority class, whether it is white-on-black or black-on-white.
+    bright = int(np.count_nonzero(patch > 127))
+    return min(bright, patch.size - bright)
+
+
+def patches_similar(previous, current, max_change=SIMILAR_PATCH_MAX_CHANGE) -> bool:
+    """True if current differs from previous on fewer than max_change of the
+    foreground pixels. Measuring against the foreground (not the whole patch
+    area) keeps a one-digit change from being dismissed as noise."""
+    if previous is None or previous.shape != current.shape:
+        return False
+    changed = int(np.count_nonzero(cv2.absdiff(previous, current) > 64))
+    if changed == 0:
+        return True
+    foreground = max(1, _foreground_pixels(previous), _foreground_pixels(current))
+    return changed / foreground < max_change
+
+
+def _vertical_scale(patch, vscale):
+    # Scale the patch vertically about its center, keeping its size. vscale is
+    # in [1, 10], where 10 is 1:1.
+    rows, cols = patch.shape[:2]
+    target_height = max(1, min(rows, int(rows * (vscale / 10.0))))
+    if rows < 2 or target_height == rows:
+        return patch
+    scaled = cv2.resize(patch, (cols, target_height), interpolation=cv2.INTER_LINEAR)
+    pad_top = (rows - target_height) // 2
+    pad_bottom = rows - target_height - pad_top
+    return cv2.copyMakeBorder(scaled, pad_top, pad_bottom, 0, 0, cv2.BORDER_REPLICATE)
+
+
+def preprocess_patch(settings: dict, roi, gray, get_binary):
+    """Cut the box's ROI out of the frame and apply its binarization, cleanup,
+    vertical scale, skew and dilation. Returns a new array the size of the ROI;
+    the frame images are never modified, so overlapping boxes don't affect each
+    other. get_binary() returns the frame's global binarization."""
+    x0, y0, x1, y1 = roi
+    method = settings.get("binarization_method", TextDetector.BinarizationMethod.GLOBAL)
+    if method == TextDetector.BinarizationMethod.NO_BINARIZATION:
+        patch = gray[y0:y1, x0:x1].copy()
+    elif method == TextDetector.BinarizationMethod.LOCAL:
+        # local binarization using Otsu's method
+        _, patch = cv2.threshold(
+            gray[y0:y1, x0:x1], 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU
+        )
+    elif method == TextDetector.BinarizationMethod.ADAPTIVE:
+        patch = cv2.adaptiveThreshold(
+            gray[y0:y1, x0:x1],
+            255,
+            cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+            cv2.THRESH_BINARY,
+            # use a fraction of the patch area
+            max(int((x1 - x0) * (y1 - y0) * 0.01), 3) | 1,
+            2,
+        )
+    else:
+        patch = get_binary()[y0:y1, x0:x1].copy()
+
+    cleanup_thresh = settings.get("cleanup_thresh", 0) or 0
+    if cleanup_thresh > 0:
+        # cleanup image from small components: find contours and remove small ones
+        contours, _ = cv2.findContours(
+            patch, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+        )
+        # cleanup_thresh is [0, 1.0], convert to [0, 0.05]
+        img_area_thresh = patch.shape[0] * patch.shape[1] * cleanup_thresh * 0.05
+        for contour in contours:
+            if cv2.contourArea(contour) < img_area_thresh:
+                cv2.drawContours(patch, [contour], 0, 0, -1)
+
+    vscale = settings.get("vscale", 10)
+    if vscale is not None and vscale != 10:
+        patch = _vertical_scale(patch, vscale)
+
+    skew = settings.get("skew", 0)
+    if skew:
+        # skew the image in the x direction about the center
+        rows, cols = patch.shape[:2]
+        M = np.float32([[1, skew / 40.0, 0], [0, 1, 0]])
+        try:
+            patch = cv2.warpAffine(patch, M, (cols, rows))
+        except cv2.error:
+            pass
+
+    dilate = int(settings.get("dilate", 0) or 0)
+    if dilate > 0:
+        patch = cv2.dilate(patch, np.ones((3, 3), np.uint8), iterations=dilate)
+
+    return patch
+
+
+def _draw_patch(display, roi, patch):
+    x0, y0, x1, y1 = roi
+    if display is not None and patch.shape[:2] == (y1 - y0, x1 - x0):
+        display[y0:y1, x0:x1] = patch
+
+
+def render_binary_view(binary, gray, rects: list[TextDetectionTarget]):
+    """A copy of the frame's global binarization with each box's preprocessed
+    patch drawn in, i.e. what the OCR sees (the "binary" preview)."""
+    display = binary.copy()
+    height, width = display.shape[:2]
+    for rect in rects:
+        if rect is None:
+            continue
+        roi = clamp_rect_to_image(rect, width, height)
+        if roi is None:
+            continue
+        try:
+            patch = preprocess_patch(rect.settings or {}, roi, gray, lambda: binary)
+        except cv2.error:
+            continue
+        _draw_patch(display, roi, patch)
+    return display
+
+
+def _empty_result(rect=None):
+    return TextDetectionResult("", ResultState.Empty, rect)
+
+
+def _wh_ratio_key(settings: dict):
+    # character width/height ratios depend on these settings; when one of them
+    # changes the measured ratios are discarded
+    return tuple(
+        settings.get(key)
+        for key in ("binarization_method", "vscale", "skew", "dilate", "autocrop")
+    )
+
+
+def _conf_threshold_percent(conf_thresh) -> float:
+    # conf_thresh is stored as a fraction (the box settings slider / 100);
+    # Tesseract's confidences are percentages. A value above 1 can only be a
+    # percentage already (e.g. a hand-edited settings file).
+    value = float(conf_thresh)
+    return value if value > 1.0 else value * 100.0
+
+
+def text_confidence(mean_text_conf: int, symbol_confidences: list[float]) -> float:
+    """The read's confidence in percent: Tesseract's MeanTextConf(). That word
+    level confidence bottoms out at 0 on some reads whose characters were all
+    recognized with high confidence (seen with the bundled scoreboard models and
+    eng), so a 0 falls back to the mean per-character confidence."""
+    if mean_text_conf > 0 or not symbol_confidences:
+        return float(mean_text_conf)
+    return float(sum(symbol_confidences) / len(symbol_confidences))
+
+
 class TextDetector:
     # model name enum: daktronics=0, scoreboard_general=1
     class OcrModelIndex:
@@ -99,57 +298,81 @@ class TextDetector:
         ADAPTIVE = 3
 
     def __init__(self):
+        # Guards self.api. The whole Tesseract sequence for a box (SetImage,
+        # whitelist, GetUTF8Text, iterator, MeanTextConf) runs under it, and
+        # setOcrModel swaps the API under it, so a model change from the GUI
+        # thread can't land in the middle of a recognition on the OCR thread.
         self.api_lock = Lock()
         self.api = None
+        self._box_error_log_times: dict[str, float] = {}
+        self._warned_no_api = False
+        stored_model = fetch_data(
+            "scoresight.json",
+            "ocr_model",
+            TextDetector.OcrModelIndex.SCOREBOARD_GENERAL,
+        )
         if (
-            fetch_data(
-                "scoresight.json",
-                "ocr_model",
-                TextDetector.OcrModelIndex.SCOREBOARD_GENERAL,
-            )
-            == TextDetector.OcrModelIndex.SCOREBOARD_GENERAL
+            not self.setOcrModel(stored_model)
+            and stored_model != TextDetector.OcrModelIndex.SCOREBOARD_GENERAL
         ):
             self.setOcrModel(TextDetector.OcrModelIndex.SCOREBOARD_GENERAL)
-        else:
-            self.setOcrModel(TextDetector.OcrModelIndex.DAKTRONICS)
 
-    def setOcrModel(self, ocrModelIndex: OcrModelIndex | int | str | None = None):
-        ocr_model = None
+    @staticmethod
+    def _resolve_model(ocrModelIndex):
+        # (tessdata folder, model name) for a model index or a .traineddata path
         model_folder = resource_path("tesseract", "tessdata")
         if ocrModelIndex == TextDetector.OcrModelIndex.DAKTRONICS:
-            ocr_model = "daktronics"
-        elif ocrModelIndex == TextDetector.OcrModelIndex.SCOREBOARD_GENERAL:
-            ocr_model = "scoreboard_general"
-        elif ocrModelIndex == TextDetector.OcrModelIndex.GENERAL_ENGLISH:
-            ocr_model = "eng"
-        elif ocrModelIndex == TextDetector.OcrModelIndex.SCOREBOARD_GENERAL_LARGE:
-            ocr_model = "scoreboard_general_large"
-        elif isinstance(ocrModelIndex, str):
-            # check the model file exists at the path
-            if path.exists(ocrModelIndex):
-                # Take the folder as the tessdata folder
-                model_folder = path.dirname(ocrModelIndex)
-                # Take the model name without extension as the "language"
-                ocr_model = path.basename(ocrModelIndex)
-                ocr_model = path.splitext(ocr_model)[0]
+            return model_folder, "daktronics"
+        if ocrModelIndex == TextDetector.OcrModelIndex.SCOREBOARD_GENERAL:
+            return model_folder, "scoreboard_general"
+        if ocrModelIndex == TextDetector.OcrModelIndex.GENERAL_ENGLISH:
+            return model_folder, "eng"
+        if ocrModelIndex == TextDetector.OcrModelIndex.SCOREBOARD_GENERAL_LARGE:
+            return model_folder, "scoreboard_general_large"
+        if isinstance(ocrModelIndex, str) and path.exists(ocrModelIndex):
+            # Take the folder as the tessdata folder and the model name without
+            # extension as the "language"
+            return (
+                path.dirname(ocrModelIndex),
+                path.splitext(path.basename(ocrModelIndex))[0],
+            )
+        return None
 
-        if ocr_model is None:
-            return
+    def setOcrModel(self, ocrModelIndex: OcrModelIndex | int | str | None = None):
+        """Load an OCR model (a model index or a .traineddata path). Returns True
+        on success; on failure the current model stays in use."""
+        resolved = self._resolve_model(ocrModelIndex)
+        if resolved is None:
+            if ocrModelIndex is not None:
+                logger.warning("Unknown OCR model: %r", ocrModelIndex)
+            return False
+        model_folder, ocr_model = resolved
 
         logger.info(f"Setting OCR model to {ocr_model} from {model_folder}")
 
-        with self.api_lock:
-            if self.api is not None:
-                self.api.End()
-                self.api = None
-            self.api = PyTessBaseAPI(
-                path=model_folder,
-                lang=ocr_model,
-            )
+        # Build the new API before taking the lock, so OCR isn't held up while
+        # the model loads, and so a model that fails to load (e.g. an invalid
+        # custom .traineddata) leaves the current one in place.
+        try:
+            api = PyTessBaseAPI(path=model_folder, lang=ocr_model)
             # single word PSM
-            self.api.SetPageSegMode(8)
-            self.api.SetVariable("load_system_dawg", "F")
-            self.api.SetVariable("load_freq_dawg", "F")
+            api.SetPageSegMode(8)
+            api.SetVariable("load_system_dawg", "F")
+            api.SetVariable("load_freq_dawg", "F")
+        except Exception:
+            logger.exception(
+                "Unable to load OCR model %s from %s; keeping the current model",
+                ocr_model,
+                model_folder,
+            )
+            return False
+
+        with self.api_lock:
+            old_api, self.api = self.api, api
+            if old_api is not None:
+                old_api.End()
+        self._warned_no_api = False
+        return True
 
     def detect_text(self, image):
         if image is None:
@@ -162,423 +385,248 @@ class TextDetector:
         pilimage = Image.fromarray(image)
         text = ""
         with self.api_lock:
+            if self.api is None:
+                return ""
             self.api.SetImage(pilimage)
             text = self.api.GetUTF8Text()
         return text.strip()
 
     def detect_multi_text(
-        self, binary, gray, rects: list[TextDetectionTarget]
+        self, binary, gray, rects: list[TextDetectionTarget], display=None
     ) -> list[TextDetectionResult]:
-        if binary is None:
+        """OCR each box in rects and return one result per box, in order.
+
+        binary is the frame's global (Otsu) binarization, or None to compute it
+        only if a box uses GLOBAL binarization; gray is the grayscale frame.
+        Neither image nor the boxes' geometry is modified; a box partly outside
+        the frame is read from the part inside it. If display is given (e.g. a
+        copy of binary), each box's preprocessed patch is drawn into it.
+        """
+        frame = gray if _is_image(gray) else binary
+        if not _is_image(frame):
             return []
-        if not isinstance(binary, np.ndarray):
-            return []
-        # check the image has rows and columns
-        if len(binary.shape) < 2 or binary.shape[0] < 1 or binary.shape[1] < 1:
-            return []
+        if not _is_image(gray):
+            gray = frame
+        height, width = frame.shape[:2]
+
+        global_binary = binary if _is_image(binary) else None
+
+        def get_binary():
+            nonlocal global_binary
+            if global_binary is None:
+                global_binary = global_binarization(gray)
+            return global_binary
 
         texts = []
         for rect in rects:
-            effectiveRect = None
-            scale_x = 1.0
-            scale_y = 1.0
-
-            if (
-                rect is None
-                or rect.x() < 0
-                or rect.y() < 0
-                or rect.width() < 1
-                or rect.height() < 1
-            ):
-                texts.append(
-                    TextDetectionResult(
-                        "", TextDetectionTargetWithResult.ResultState.Empty, None
-                    )
-                )
-                continue
-
-            if rect.x() >= binary.shape[1]:
-                # move the rect inside the image
-                rect.setX(binary.shape[1] - rect.width())
-            if rect.y() >= binary.shape[0]:
-                # move the rect inside the image
-                rect.setY(binary.shape[0] - rect.height())
-            if rect.x() + rect.width() > binary.shape[1]:
-                rect.setWidth(binary.shape[1] - rect.x())
-            if rect.y() + rect.height() > binary.shape[0]:
-                rect.setHeight(binary.shape[0] - rect.y())
-
-            if (
-                rect.settings is not None
-                and "binarization_method" in rect.settings
-                and rect.settings["binarization_method"]
-                != TextDetector.BinarizationMethod.GLOBAL
-            ):
-                if (
-                    rect.settings["binarization_method"]
-                    == TextDetector.BinarizationMethod.NO_BINARIZATION
-                ):
-                    # no binarization
-                    imagecrop = gray[
-                        int(rect.y()) : int(rect.y() + rect.height()),
-                        int(rect.x()) : int(rect.x() + rect.width()),
-                    ]
-                elif (
-                    rect.settings["binarization_method"]
-                    == TextDetector.BinarizationMethod.LOCAL
-                ):
-                    # local binarization using Otsu's method
-                    _, imagecrop = cv2.threshold(
-                        gray[
-                            int(rect.y()) : int(rect.y() + rect.height()),
-                            int(rect.x()) : int(rect.x() + rect.width()),
-                        ],
-                        0,
-                        255,
-                        cv2.THRESH_BINARY + cv2.THRESH_OTSU,
-                    )
-                elif (
-                    rect.settings["binarization_method"]
-                    == TextDetector.BinarizationMethod.ADAPTIVE
-                ):
-                    # apply adaptive binarization
-                    imagecrop = cv2.adaptiveThreshold(
-                        gray[
-                            int(rect.y()) : int(rect.y() + rect.height()),
-                            int(rect.x()) : int(rect.x() + rect.width()),
-                        ],
-                        255,
-                        cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-                        cv2.THRESH_BINARY,
-                        # use a fraction of the patch area
-                        max(int(rect.width() * rect.height() * 0.01), 3) | 1,
-                        2,
-                    )
-                # update the binary image for visualisation in the binary mode
-                binary[
-                    int(rect.y()) : int(rect.y() + rect.height()),
-                    int(rect.x()) : int(rect.x() + rect.width()),
-                ] = imagecrop
-            else:
-                imagecrop = binary[
-                    int(rect.y()) : int(rect.y() + rect.height()),
-                    int(rect.x()) : int(rect.x() + rect.width()),
-                ]
-
-            if (
-                rect.settings is not None
-                and "cleanup_thresh" in rect.settings
-                and rect.settings["cleanup_thresh"] > 0
-            ):
-                # cleanup image from small components: find contours and remove small ones
-                contours, _ = cv2.findContours(
-                    imagecrop, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
-                )
-                # cleanup_thresh is [0, 1.0], convert to [0, 0.05]
-                cleanup_thresh = rect.settings["cleanup_thresh"] * 0.05
-                img_area_thresh = (
-                    imagecrop.shape[0] * imagecrop.shape[1] * cleanup_thresh
-                )
-                for contour in contours:
-                    if cv2.contourArea(contour) < img_area_thresh:
-                        cv2.drawContours(imagecrop, [contour], 0, 0, -1)
-
-            if (
-                rect.settings is not None
-                and "vscale" in rect.settings
-                and rect.settings["vscale"] != 10
-            ):
-                # vertical scale the image
-                # the vscale input is in the range [1, 10] where 10 is the default (1:1)
-                # scale the image in the y direction about the center
-                rows, cols = imagecrop.shape
-                # calculate the target height
-                target_height = int(rows * (rect.settings["vscale"] / 10.0))
-                scaled = cv2.resize(
-                    imagecrop, (cols, target_height), 0, 0, cv2.INTER_AREA
-                )
-                # add padding to the top and bottom
-                pad_top = (rows - target_height) // 2
-                pad_bottom = rows - target_height - pad_top
-                scaled = cv2.copyMakeBorder(
-                    scaled, pad_top, pad_bottom, 0, 0, cv2.BORDER_REPLICATE
-                )
-                # make sure the image is the same size as the original
-                scaled = scaled[:rows, :]
-                # copy back into imagecrop and binary display
-                binary[
-                    int(rect.y()) : int(rect.y() + rect.height()),
-                    int(rect.x()) : int(rect.x() + rect.width()),
-                ] = scaled
-                imagecrop = scaled
-
-            if (
-                rect.settings is not None
-                and "skew" in rect.settings
-                and rect.settings["skew"] != 0
-            ):
-                # skew the image in the x direction about the center
-                rows, cols = imagecrop.shape
-                # identity 2x2 matrix
-                M = np.float32([[1, 0, 0], [0, 1, 0]])
-                # add skew factor to matrix
-                M[0, 1] = rect.settings["skew"] / 40.0
-                try:
-                    skewed = cv2.warpAffine(imagecrop, M, (cols, rows))
-                    binary[
-                        int(rect.y()) : int(rect.y() + rect.height()),
-                        int(rect.x()) : int(rect.x() + rect.width()),
-                    ] = skewed
-                    imagecrop = skewed
-                except:
-                    pass
-
-            if (
-                rect.settings is not None
-                and "dilate" in rect.settings
-                and rect.settings["dilate"] > 0
-                and imagecrop.shape[0] > 0
-                and imagecrop.shape[1] > 0
-            ):
-                # dilate the image
-                kernel = np.ones((3, 3), np.uint8)
-                dilated = cv2.dilate(
-                    imagecrop.copy(),
-                    kernel,
-                    iterations=int(rect.settings["dilate"]),
-                )
-                # copy back into image crop
-                binary[
-                    int(rect.y()) : int(rect.y() + rect.height()),
-                    int(rect.x()) : int(rect.x() + rect.width()),
-                ] = dilated
-
-            if (
-                rect.settings is not None
-                and "invert_patch" in rect.settings
-                and rect.settings["invert_patch"]
-            ):
-                # invert the image
-                imagecrop = 255 - imagecrop
-
-            if (
-                rect.settings is not None
-                and "skip_similar_image" in rect.settings
-                and rect.settings["skip_similar_image"]
-            ):
-                # compare the image with the last image
-                if (
-                    rect.last_image is not None
-                    and rect.last_image.shape == imagecrop.shape
-                ):
-                    # check if the difference is less than 5%
-                    diff = cv2.absdiff(rect.last_image, imagecrop)
-                    diff = diff.astype(np.float32)
-                    diff = diff / 255.0
-                    diff = diff.sum() / (imagecrop.shape[0] * imagecrop.shape[1])
-                    if diff < 0.05:
-                        # skip this image
-                        texts.append(
-                            TextDetectionResult(
-                                "SIM",
-                                TextDetectionTargetWithResult.ResultState.FailedFilter,
-                                effectiveRect,
-                            )
-                        )
-                        continue
-                rect.last_image = imagecrop.copy()
-
-            if (
-                rect.settings is not None
-                and "autocrop" in rect.settings
-                and rect.settings["autocrop"]
-            ):
-                # auto crop the binary image around the text
-                imagecrop, (first_row, last_row, first_col, last_col) = autocrop(
-                    imagecrop
-                )
-                effectiveRect = QRectF(
-                    first_col,
-                    first_row,
-                    last_col - first_col,
-                    last_row - first_row,
-                )
-
-            # check if image is size 0
-            if imagecrop.shape[0] == 0 or imagecrop.shape[1] == 0:
-                texts.append(
-                    TextDetectionResult(
-                        "",
-                        TextDetectionTargetWithResult.ResultState.Empty,
-                        effectiveRect,
-                    )
-                )
-                continue
-
-            if (
-                rect.settings is not None
-                and "rescale_patch" in rect.settings
-                and rect.settings["rescale_patch"]
-            ):
-                # rescale the image to 35 pixels height
-                scale_x = 35 / imagecrop.shape[0]
-                scale_y = scale_x
-
-            if (
-                rect.settings is not None
-                and "normalize_wh_ratio" in rect.settings
-                and rect.settings["normalize_wh_ratio"]
-                and "median_wh_ratio" in rect.settings
-                and rect.settings["median_wh_ratio"] > 0
-            ):
-                # rescale the image in x or in y such that the width-to-height ratio is 0.5
-                scale_x *= 0.5 / rect.settings["median_wh_ratio"]
-
-            if scale_x != 1.0 or scale_y != 1.0:
-                imagecrop = cv2.resize(
-                    imagecrop,
-                    None,
-                    fx=scale_x,
-                    fy=scale_y,
-                    interpolation=cv2.INTER_AREA,
-                )
-
-            # if dot detector count the blobs in the patch
-            if (
-                rect.settings is not None
-                and "dot_detector" in rect.settings
-                and rect.settings["dot_detector"]
-            ):
-                # find the contours
-                contours, _ = cv2.findContours(
-                    imagecrop, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
-                )
-                # count the number of contours
-                count = 0
-                for contour in contours:
-                    if cv2.contourArea(contour) > 5:
-                        count += 1
-
-                texts.append(
-                    TextDetectionResult(
-                        str(count),
-                        TextDetectionTargetWithResult.ResultState.Success,
-                        effectiveRect,
-                    )
-                )
-                continue
-
             try:
-                pilimage = Image.fromarray(imagecrop)
-                with self.api_lock:
-                    self.api.SetImage(pilimage)
-            except:
                 texts.append(
-                    TextDetectionResult(
-                        "", TextDetectionTargetWithResult.ResultState.Empty, None
-                    )
+                    self._detect_box(rect, gray, get_binary, width, height, display)
                 )
-                continue
-
-            if rect.settings["type"] == FieldType.NUMBER:
-                with self.api_lock:
-                    self.api.SetVariable("tessedit_char_whitelist", "0123456789")
-            elif rect.settings["type"] == FieldType.TIME:
-                with self.api_lock:
-                    self.api.SetVariable("tessedit_char_whitelist", "0123456789:.")
-            else:  # general
-                with self.api_lock:
-                    self.api.SetVariable(
-                        "tessedit_char_whitelist",
-                        "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ .,;:!?-_()[]{}<>@#$%^&*+=|\\~`\"'",
-                    )
-
-            text = ""
-            extras = {}
-            with self.api_lock:
-                text = self.api.GetUTF8Text().strip()
-                if text != "":
-                    # get the per-character boxes using an iterator with RIL_SYMBOL level
-                    it = self.api.GetIterator()
-                    extras["boxes"] = []
-                    wh_ratios = []
-                    for w in iterate_level(it, RIL.SYMBOL):
-                        char = w.GetUTF8Text(RIL.SYMBOL)
-                        box_tuple = w.BoundingBox(RIL.SYMBOL)
-                        if (
-                            box_tuple is None
-                            or char is None
-                            or char == ""
-                            or len(box_tuple) != 4
-                        ):
-                            continue
-                        box = {
-                            "x": box_tuple[0],
-                            "y": box_tuple[1],
-                            "w": box_tuple[2] - box_tuple[0],
-                            "h": box_tuple[3] - box_tuple[1],
-                        }
-                        # box is a dict with x, y, w and h
-                        if scale_x != 1.0 or scale_y != 1.0:
-                            box["x"] = int(box["x"] / scale_x)
-                            box["y"] = int(box["y"] / scale_y)
-                            box["w"] = int(box["w"] / scale_x)
-                            box["h"] = int(box["h"] / scale_y)
-                        if effectiveRect is not None:
-                            box["x"] = int(box["x"] + effectiveRect.x())
-                            box["y"] = int(box["y"] + effectiveRect.y())
-                        extras["boxes"].append(box)
-                        # if char is a "wide character" (like 0,2,3,4,5,6,7,8,9), add the width-to-height ratio
-                        if char in "023456789" and box["h"] > 0:
-                            wh_ratios.append(box["w"] / box["h"])
-                    if (
-                        "normalize_wh_ratio" in rect.settings
-                        and rect.settings["normalize_wh_ratio"]
-                        and "median_wh_ratio" not in rect.settings
-                        and len(wh_ratios) > 0
-                    ):
-                        rect.settings["median_wh_ratio"] = np.median(wh_ratios)
-
-            textstate = TextDetectionTargetWithResult.ResultState.Success
-            if rect.settings is not None:
-                if "format_regex" in rect.settings:
-                    # validate the regex format is valid
-                    if is_valid_regex(rect.settings["format_regex"]):
-                        # check the text matches the regex fully
-                        if not re.fullmatch(rect.settings["format_regex"], text):
-                            textstate = (
-                                TextDetectionTargetWithResult.ResultState.FailedFilter
-                            )
-                if "conf_thresh" in rect.settings:
-                    with self.api_lock:
-                        meanConf = self.api.MeanTextConf()
-                    if meanConf < rect.settings["conf_thresh"]:
-                        textstate = (
-                            TextDetectionTargetWithResult.ResultState.FailedFilter
-                        )
-                if "smoothing" in rect.settings:
-                    if rect.settings["smoothing"]:
-                        # apply smoother
-                        text = rect.ocrResultPerCharacterSmoother.get_smoothed_result(
-                            text
-                        )
-                        if text is None:
-                            text = ""
-                if "remove_leading_zeros" in rect.settings:
-                    if rect.settings["remove_leading_zeros"]:
-                        # remove leading zeros
-                        text = text.lstrip("0")
-                        if text == "":
-                            text = "0"
-                if "ordinal_indicator" in rect.settings:
-                    if rect.settings["ordinal_indicator"]:
-                        # add ordinal indicator
-                        text = add_ordinal_indicator(text)
-
-            if text == "":
-                textstate = TextDetectionTargetWithResult.ResultState.Empty
-
-            result = TextDetectionResult(text, textstate, effectiveRect, extras)
-
-            texts.append(result)
+            except Exception:
+                self._log_box_error(rect)
+                texts.append(_empty_result())
         return texts
+
+    def _log_box_error(self, rect):
+        # called from an except block
+        name = getattr(rect, "name", None)
+        now = time.monotonic()
+        last = self._box_error_log_times.get(name)
+        if last is None or now - last >= _BOX_ERROR_LOG_INTERVAL_S:
+            self._box_error_log_times[name] = now
+            logger.exception("OCR failed for box %r", name)
+
+    def _detect_box(self, rect, gray, get_binary, width, height, display):
+        if rect is None:
+            return _empty_result()
+        # read the settings and geometry once: the GUI thread may replace them
+        settings = rect.settings or {}
+        roi = clamp_rect_to_image(rect, width, height)
+        if roi is None:
+            return _empty_result()
+
+        patch = preprocess_patch(settings, roi, gray, get_binary)
+        _draw_patch(display, roi, patch)
+
+        # where the patch starts relative to the box (non-zero if the box sticks
+        # out of the frame at the top or left); results are box-relative
+        origin_x = roi[0] - int(rect.x())
+        origin_y = roi[1] - int(rect.y())
+        return self._recognize(rect, settings, patch, origin_x, origin_y)
+
+    def _recognize(self, rect, settings, patch, origin_x, origin_y):
+        effectiveRect = None
+        scale_x = 1.0
+        scale_y = 1.0
+
+        if settings.get("invert_patch"):
+            # invert the image
+            patch = 255 - patch
+
+        dot_detector = bool(settings.get("dot_detector"))
+        if not has_foreground(patch):
+            # a blank box (every pixel the same): nothing to read and no lit dot
+            # to count. Counting contours would find one (the whole patch) when
+            # it is all white, which uniform areas become with Local or Adaptive
+            # binarization.
+            if not dot_detector:
+                return _empty_result()
+            if settings.get("skip_similar_image"):
+                # "0" is the box's new accepted read: compare with its image
+                rect.last_image = patch.copy()
+            return TextDetectionResult("0", ResultState.Success, None)
+
+        # skip_similar_image: the patch to remember if this read is accepted
+        skip_patch = None
+        if settings.get("skip_similar_image"):
+            # Compare with the image of the last accepted (Success) read. It isn't
+            # refreshed on skips, so slow changes add up until they are read, nor
+            # on rejected or empty reads, so that a new value whose first read
+            # failed is read again instead of the box keeping its last value.
+            if patches_similar(rect.last_image, patch):
+                return TextDetectionResult(
+                    "", ResultState.SameNoChange, None, unchanged_image=True
+                )
+            skip_patch = patch
+
+        if settings.get("autocrop"):
+            # auto crop the binary image around the text
+            patch, (first_row, last_row, first_col, last_col) = autocrop(patch)
+            effectiveRect = QRectF(
+                first_col + origin_x,
+                first_row + origin_y,
+                last_col - first_col,
+                last_row - first_row,
+            )
+
+        # check if image is size 0
+        if patch.shape[0] == 0 or patch.shape[1] == 0:
+            return _empty_result(effectiveRect)
+
+        if settings.get("rescale_patch"):
+            # rescale the image to 35 pixels height
+            scale_x = 35 / patch.shape[0]
+            scale_y = scale_x
+
+        normalize_wh_ratio = bool(settings.get("normalize_wh_ratio"))
+        wh_key = _wh_ratio_key(settings)
+        if normalize_wh_ratio:
+            median_wh_ratio = rect.median_wh_ratio(wh_key)
+            if median_wh_ratio is not None and median_wh_ratio > 0:
+                # rescale the image in x such that the width-to-height ratio is 0.5
+                scale_x *= 0.5 / median_wh_ratio
+
+        if scale_x != 1.0 or scale_y != 1.0:
+            patch = cv2.resize(
+                patch,
+                None,
+                fx=scale_x,
+                fy=scale_y,
+                interpolation=cv2.INTER_AREA,
+            )
+
+        # if dot detector count the blobs in the patch
+        if dot_detector:
+            contours, _ = cv2.findContours(
+                patch, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+            )
+            count = sum(1 for contour in contours if cv2.contourArea(contour) > 5)
+            if skip_patch is not None:
+                rect.last_image = skip_patch.copy()
+            return TextDetectionResult(str(count), ResultState.Success, effectiveRect)
+
+        if patch.shape[0] == 0 or patch.shape[1] == 0:
+            return _empty_result(effectiveRect)
+
+        whitelist = CHAR_WHITELISTS.get(settings.get("type"), GENERAL_CHAR_WHITELIST)
+        want_confidence = settings.get("conf_thresh") is not None
+        pilimage = Image.fromarray(patch)
+
+        text = ""
+        extras = {}
+        wh_ratios = []
+        symbol_confidences = []
+        mean_conf = 0
+        with self.api_lock:
+            api = self.api
+            if api is None:
+                if not self._warned_no_api:
+                    self._warned_no_api = True
+                    logger.error("No OCR model is loaded; boxes can't be read")
+                return _empty_result(effectiveRect)
+            api.SetImage(pilimage)
+            api.SetVariable("tessedit_char_whitelist", whitelist)
+            text = api.GetUTF8Text().strip()
+            if text != "":
+                # get the per-character boxes using an iterator with RIL_SYMBOL level
+                extras["boxes"] = []
+                it = api.GetIterator()
+                symbols = iterate_level(it, RIL.SYMBOL) if it is not None else []
+                for w in symbols:
+                    char = w.GetUTF8Text(RIL.SYMBOL)
+                    box_tuple = w.BoundingBox(RIL.SYMBOL)
+                    if (
+                        box_tuple is None
+                        or char is None
+                        or char == ""
+                        or len(box_tuple) != 4
+                    ):
+                        continue
+                    symbol_confidences.append(w.Confidence(RIL.SYMBOL))
+                    box = {
+                        "x": box_tuple[0],
+                        "y": box_tuple[1],
+                        "w": box_tuple[2] - box_tuple[0],
+                        "h": box_tuple[3] - box_tuple[1],
+                    }
+                    # box is a dict with x, y, w and h
+                    if scale_x != 1.0 or scale_y != 1.0:
+                        box["x"] = int(box["x"] / scale_x)
+                        box["y"] = int(box["y"] / scale_y)
+                        box["w"] = int(box["w"] / scale_x)
+                        box["h"] = int(box["h"] / scale_y)
+                    if effectiveRect is not None:
+                        box["x"] = int(box["x"] + effectiveRect.x())
+                        box["y"] = int(box["y"] + effectiveRect.y())
+                    else:
+                        box["x"] = int(box["x"] + origin_x)
+                        box["y"] = int(box["y"] + origin_y)
+                    extras["boxes"].append(box)
+                    # if char is a "wide character" (like 0,2,3,4,5,6,7,8,9), add the width-to-height ratio
+                    if char in "023456789" and box["h"] > 0:
+                        wh_ratios.append(box["w"] / box["h"])
+                if want_confidence:
+                    mean_conf = api.MeanTextConf()
+
+        textstate = ResultState.Success
+        format_regex = settings.get("format_regex")
+        if format_regex is not None and is_valid_regex(format_regex):
+            # check the text matches the regex fully
+            if not re.fullmatch(format_regex, text):
+                textstate = ResultState.FailedFilter
+        if want_confidence and text != "":
+            confidence = text_confidence(mean_conf, symbol_confidences)
+            if confidence < _conf_threshold_percent(settings["conf_thresh"]):
+                textstate = ResultState.FailedFilter
+
+        if normalize_wh_ratio and textstate == ResultState.Success and wh_ratios:
+            rect.add_wh_ratios(wh_key, wh_ratios)
+
+        if settings.get("smoothing") and textstate == ResultState.Success:
+            # only accepted reads go into the smoothing history
+            text = rect.ocrResultPerCharacterSmoother.get_smoothed_result(text) or ""
+        if settings.get("remove_leading_zeros") and text != "":
+            # remove leading zeros ("00" -> "0"); a failed read stays empty
+            text = text.lstrip("0") or "0"
+        if settings.get("ordinal_indicator"):
+            # add ordinal indicator
+            text = add_ordinal_indicator(text)
+
+        if text == "":
+            textstate = ResultState.Empty
+
+        if skip_patch is not None and textstate == ResultState.Success:
+            rect.last_image = skip_patch.copy()
+
+        return TextDetectionResult(text, textstate, effectiveRect, extras)

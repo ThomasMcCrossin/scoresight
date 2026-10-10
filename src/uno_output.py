@@ -1,7 +1,17 @@
+"""overlays.uno output: sends the new values of mapped fields to a UNO control
+app's API.
+
+update_uno() is called on the GUI thread. It only queues the commands; a
+background OutputWorker sends them (latest value per command wins) through one
+HTTPS session with timeouts, so a slow or unreachable UNO never blocks the UI.
+"""
+
 import requests
+
+from output_worker import HTTP_TIMEOUT, OutputWorker, check_http_response
 from text_detection_target import TextDetectionTargetWithResult
 from sc_logging import logger
-from storage import subscribe_to_data, fetch_data
+from storage import subscribe_to_data, fetch_data, unsubscribe_from_data
 
 
 class UNOAPI:
@@ -17,6 +27,12 @@ class UNOAPI:
         subscribe_to_data(
             "scoresight.json", "uno_essentials_id", self.set_uno_essentials_id
         )
+        self._session = requests.Session()  # used only by the worker thread
+        self._worker = OutputWorker(
+            "UNO",
+            self._send_payload,
+            retry_on=(requests.ConnectionError, requests.Timeout),
+        )
 
     def set_update_same(self, update_same):
         self.update_same = update_same
@@ -31,7 +47,17 @@ class UNOAPI:
         logger.debug(f"Setting UNO field mapping: {field_mapping}")
         self.field_mapping = field_mapping
 
+    def set_endpoint(self, endpoint):
+        """Send to another API URL from now on. The field mapping and the running
+        state are kept; commands not sent yet go to the new URL."""
+        if endpoint == self.endpoint:
+            return
+        self.endpoint = endpoint
+        # report problems with the new URL right away
+        self._worker.error_log.reset()
+
     def update_uno(self, detection: list[TextDetectionTargetWithResult]):
+        """Queue the new values of the mapped fields. Never blocks."""
         if not self.running:
             return
 
@@ -46,33 +72,30 @@ class UNOAPI:
         for target in detection:
             if target.result_state in look_in and target.name in self.field_mapping:
                 uno_command = self.field_mapping[target.name]
-                self.send_uno_command(uno_command, target.result)
+                if uno_command:
+                    self.send_uno_command(uno_command, target.result)
+
+    def payload_for(self, command, value) -> dict:
+        if not self.essentials:
+            return {"command": command, "value": value}
+        return {
+            "command": "SetOverlayContentField",
+            "value": value,
+            "fieldId": command,
+            "id": self.uno_essentials_id,
+        }
 
     def send_uno_command(self, command, value):
-        if not self.essentials:
-            payload = {"command": command, "value": value}
-        else:
-            payload = {
-                "command": "SetOverlayContentField",
-                "value": value,
-                "fieldId": command,
-                "id": self.uno_essentials_id,
-            }
+        """Queue command with value for sending in the background."""
+        self._worker.submit(command, self.payload_for(command, value))
 
-        try:
-            response = requests.put(self.endpoint, json=payload)
-            if response.status_code != 200:
-                logger.error(
-                    f"Failed to send data to UNO API, status code: {response.status_code}"
-                )
-            else:
-                logger.debug(f"Successfully sent {command}: {value} to UNO API")
-
-            # Check rate limit headers
-            self.check_rate_limits(response.headers)
-
-        except requests.exceptions.RequestException as e:
-            logger.error(f"Failed to send data to UNO API: {e}")
+    def _send_payload(self, command, payload) -> None:
+        # runs on the worker thread
+        response = self._session.put(self.endpoint, json=payload, timeout=HTTP_TIMEOUT)
+        # Check rate limit headers
+        self.check_rate_limits(response.headers)
+        check_http_response(response, f"UNO {command}")
+        logger.debug(f"Successfully sent {command}: {payload['value']} to UNO API")
 
     def check_rate_limits(self, headers):
         rate_limit_headers = [
@@ -95,3 +118,14 @@ class UNOAPI:
 
     def stop(self):
         self.running = False
+        self._worker.clear()
+
+    def close(self):
+        """Stop sending and unsubscribe from settings changes."""
+        self.stop()
+        unsubscribe_from_data("scoresight.json", "uno_send_same", self.set_update_same)
+        unsubscribe_from_data("scoresight.json", "uno_essentials", self.set_essentials)
+        unsubscribe_from_data(
+            "scoresight.json", "uno_essentials_id", self.set_uno_essentials_id
+        )
+        self._worker.stop()

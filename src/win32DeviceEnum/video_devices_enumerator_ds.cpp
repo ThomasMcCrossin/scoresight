@@ -27,8 +27,10 @@ int EnumerateVideoDevicesDShow(std::vector<std::wstring>& deviceNames) {
     }
 
     hr = pDevEnum->CreateClassEnumerator(CLSID_VideoInputDeviceCategory, &pEnum, 0);
-    if (!pEnum) {
-        return -1;
+    if (hr != S_OK || !pEnum) {
+        // S_FALSE: there are no video input devices
+        pDevEnum->Release();
+        return hr == S_FALSE ? 0 : -1;
     }
 
     IMoniker *pMoniker = nullptr;
@@ -45,9 +47,10 @@ int EnumerateVideoDevicesDShow(std::vector<std::wstring>& deviceNames) {
 
         // Get the friendly name of the device
         if (SUCCEEDED(pPropBag->Read(L"FriendlyName", &var, 0))) {
-            std::wstring deviceName = var.bstrVal;
+            if (var.vt == VT_BSTR && var.bstrVal != nullptr) {
+                deviceNames.push_back(std::wstring(var.bstrVal));
+            }
             VariantClear(&var);
-            deviceNames.push_back(deviceName);
         }
 
         pPropBag->Release();

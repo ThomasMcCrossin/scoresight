@@ -1,5 +1,4 @@
 import Quartz
-import objc
 from Quartz.CoreGraphics import (
     CGImageGetWidth,
     CGImageGetHeight,
@@ -56,6 +55,10 @@ class ScreenCaptureMacOS:
             self.window = capture_window[0]
 
     def isOpened(self):
+        # The whole screen (windowId None or negative, e.g. -1 from "Capture the
+        # entire screen") is captured without a window; read() handles it.
+        if self.windowId is None or self.windowId < 0:
+            return True
         return self.window is not None
 
     def read(self):
@@ -76,13 +79,13 @@ class ScreenCaptureMacOS:
             )
 
         if cgimage is None:
-            logger.warn(f"Failed to create image from window {self.windowId}")
+            logger.warning(f"Failed to create image from window {self.windowId}")
             return False, None
 
         self.width = CGImageGetWidth(cgimage)
         self.height = CGImageGetHeight(cgimage)
         if self.width == 0 or self.height == 0:
-            logger.warn(f"Invalid image size: {self.width}x{self.height}")
+            logger.warning(f"Invalid image size: {self.width}x{self.height}")
             return False, None
 
         data_provider = CGImageGetDataProvider(cgimage)

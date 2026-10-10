@@ -26,11 +26,15 @@ class UNOUIHandler:
         store_data("scoresight.json", settingName, value)
 
     def unoConnectionChanged(self):
-        self.unoUpdater = UNOAPI(
-            self.ui.lineEdit_unoUrl.text(),
-            {},
-        )
-        self.globalSettingsChanged("uno_url", self.ui.lineEdit_unoUrl.text())
+        # Update the existing updater: recreating it stopped the output while the
+        # button still showed it as running.
+        url = self.ui.lineEdit_unoUrl.text().strip()
+        self.unoUpdater.set_endpoint(url)
+        if fetch_data("scoresight.json", "uno_url") != url:
+            self.globalSettingsChanged("uno_url", url)
+
+    def unoMappingEdited(self, *_):
+        # dataChanged passes (topLeft, bottomRight, roles): a user edit is stored
         self.unoMappingChanged(True)
 
     def unoMappingChanged(self, shouldUpdateStorage: bool):
@@ -57,12 +61,13 @@ class UNOUIHandler:
                 "https://app.overlays.uno/apiv2/controlapps/.../api",
             )
         )
-        # connect the lineEdit to unoConnectionChanged
-        self.ui.lineEdit_unoUrl.textChanged.connect(self.unoConnectionChanged)
+        # apply a URL change once it's typed (Enter or leaving the field), not on
+        # every keystroke
+        self.ui.lineEdit_unoUrl.editingFinished.connect(self.unoConnectionChanged)
 
         # create the unoUpdater
         self.unoUpdater = UNOAPI(
-            self.ui.lineEdit_unoUrl.text(),
+            self.ui.lineEdit_unoUrl.text().strip(),
             {},
         )
         # add standard item model to the tableView_unoMapping
@@ -71,7 +76,7 @@ class UNOUIHandler:
         if mapping:
             self.unoUpdater.set_field_mapping(mapping)
 
-        self.ui.tableView_unoMapping.model().dataChanged.connect(self.unoMappingChanged)
+        self.ui.tableView_unoMapping.model().dataChanged.connect(self.unoMappingEdited)
 
         self.ui.toolButton_toggleUno.toggled.connect(self.toggleUNO)
 
@@ -105,14 +110,23 @@ class UNOUIHandler:
         self.globalSettingsChanged("uno_essentials", value)
         self.ui.widget_uno_essentials_details.setVisible(value)
 
+    def restoreUiState(self):
+        """Show the current URL and running state again, e.g. after
+        retranslateUi() reset the field and the button to the .ui defaults."""
+        self.ui.lineEdit_unoUrl.setText(self.unoUpdater.endpoint)
+        self.ui.toolButton_toggleUno.setChecked(self.unoUpdater.running)
+        self._updateToggleText(self.unoUpdater.running)
+
+    def _updateToggleText(self, running):
+        self.ui.toolButton_toggleUno.setText("🛑" if running else "▶️")
+
     def toggleUNO(self, value):
         if not self.unoUpdater:
             return
+        self._updateToggleText(value)
         if value:
-            self.ui.toolButton_toggleUno.setText("🛑")
             self.unoUpdater.start()
         else:
-            self.ui.toolButton_toggleUno.setText("▶️")
             self.unoUpdater.stop()
 
     def updateUNOTable(self, detectionTargets: list[TextDetectionTarget]):
@@ -148,5 +162,5 @@ class UNOUIHandler:
 
         model.blockSignals(False)
         self.ui.tableView_unoMapping.setModel(model)
-        self.ui.tableView_unoMapping.model().dataChanged.connect(self.unoMappingChanged)
+        self.ui.tableView_unoMapping.model().dataChanged.connect(self.unoMappingEdited)
         self.unoMappingChanged(False)

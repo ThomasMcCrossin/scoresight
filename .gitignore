@@ -25,3 +25,14 @@ __MACOSX/
 output/
 .vscode
 .aider*
+
+# Development environment and tool caches
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Claude Code agent worktrees
+.claude/worktrees/

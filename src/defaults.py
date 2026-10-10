@@ -172,7 +172,8 @@ def normalize_settings_dict(settings, box_info):
         "type": (settings["type"] if "type" in settings else box_info["type"]),
         "smoothing": (settings["smoothing"] if "smoothing" in settings else False),
         "skip_empty": (settings["skip_empty"] if "skip_empty" in settings else True),
-        "conf_thresh": (settings["conf_thresh"] if "conf_thresh" in settings else 0.5),
+        # minimum Tesseract confidence, as a fraction (slider % / 100); 0 = off
+        "conf_thresh": (settings["conf_thresh"] if "conf_thresh" in settings else 0.0),
         "cleanup_thresh": (
             settings["cleanup_thresh"] if "cleanup_thresh" in settings else 0
         ),

@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'ocr_training_data_dialog.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.7.2
+## Created by: Qt User Interface Compiler version 6.12.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -33,7 +33,7 @@ class Ui_OCRTrainingDataDialog(object):
         self.label = QLabel(self.widget)
         self.label.setObjectName(u"label")
 
-        self.formLayout.setWidget(0, QFormLayout.LabelRole, self.label)
+        self.formLayout.setWidget(0, QFormLayout.ItemRole.LabelRole, self.label)
 
         self.widget_2 = QWidget(self.widget)
         self.widget_2.setObjectName(u"widget_2")
@@ -53,7 +53,7 @@ class Ui_OCRTrainingDataDialog(object):
         self.horizontalLayout.addWidget(self.toolButton_chooseSaveFolder)
 
 
-        self.formLayout.setWidget(0, QFormLayout.FieldRole, self.widget_2)
+        self.formLayout.setWidget(0, QFormLayout.ItemRole.FieldRole, self.widget_2)
 
         self.widget_3 = QWidget(self.widget)
         self.widget_3.setObjectName(u"widget_3")
@@ -71,24 +71,24 @@ class Ui_OCRTrainingDataDialog(object):
         self.horizontalLayout_2.addWidget(self.pushButton_saveZipFile)
 
 
-        self.formLayout.setWidget(1, QFormLayout.FieldRole, self.widget_3)
+        self.formLayout.setWidget(1, QFormLayout.ItemRole.FieldRole, self.widget_3)
 
         self.label_2 = QLabel(self.widget)
         self.label_2.setObjectName(u"label_2")
 
-        self.formLayout.setWidget(2, QFormLayout.LabelRole, self.label_2)
+        self.formLayout.setWidget(2, QFormLayout.ItemRole.LabelRole, self.label_2)
 
         self.spinBox_maxSize = QSpinBox(self.widget)
         self.spinBox_maxSize.setObjectName(u"spinBox_maxSize")
         self.spinBox_maxSize.setMinimum(1)
         self.spinBox_maxSize.setValue(10)
 
-        self.formLayout.setWidget(2, QFormLayout.FieldRole, self.spinBox_maxSize)
+        self.formLayout.setWidget(2, QFormLayout.ItemRole.FieldRole, self.spinBox_maxSize)
 
         self.pushButton_openTrainingDojo = QPushButton(self.widget)
         self.pushButton_openTrainingDojo.setObjectName(u"pushButton_openTrainingDojo")
 
-        self.formLayout.setWidget(3, QFormLayout.FieldRole, self.pushButton_openTrainingDojo)
+        self.formLayout.setWidget(3, QFormLayout.ItemRole.FieldRole, self.pushButton_openTrainingDojo)
 
 
         self.gridLayout.addWidget(self.widget, 1, 0, 1, 1)
@@ -113,7 +113,7 @@ class Ui_OCRTrainingDataDialog(object):
     # setupUi
 
     def retranslateUi(self, OCRTrainingDataDialog):
-        OCRTrainingDataDialog.setWindowTitle(QCoreApplication.translate("OCRTrainingDataDialog", u"Dialog", None))
+        OCRTrainingDataDialog.setWindowTitle(QCoreApplication.translate("OCRTrainingDataDialog", u"OCR Training Data Setup", None))
         self.label.setText(QCoreApplication.translate("OCRTrainingDataDialog", u"Save Folder", None))
         self.toolButton_chooseSaveFolder.setText(QCoreApplication.translate("OCRTrainingDataDialog", u"...", None))
         self.pushButton_openFolder.setText(QCoreApplication.translate("OCRTrainingDataDialog", u"Open Folder", None))

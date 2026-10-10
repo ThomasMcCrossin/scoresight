@@ -69,57 +69,57 @@
         </item>
         <item>
          <property name="text">
-          <string>320x240</string>
+          <string notr="true">320x240</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>640x480</string>
+          <string notr="true">640x480</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>800x600</string>
+          <string notr="true">800x600</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>1280x720</string>
+          <string notr="true">1280x720</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>1280x960</string>
+          <string notr="true">1280x960</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>1600x900</string>
+          <string notr="true">1600x900</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>1980x1080</string>
+          <string notr="true">1920x1080</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>3840x2160</string>
+          <string notr="true">3840x2160</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>2560x1440</string>
+          <string notr="true">2560x1440</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>2048x1080</string>
+          <string notr="true">2048x1080</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>4096x2160</string>
+          <string notr="true">4096x2160</string>
          </property>
         </item>
        </widget>

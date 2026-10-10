@@ -1,7 +1,5 @@
 import cv2
 import numpy as np
-import pygetwindow as gw
-import numpy as np
 import win32gui
 import win32ui
 import win32con
@@ -13,15 +11,24 @@ from ctypes import windll
 class ScreenCaptureWindows:
     @staticmethod
     def list_windows():
-        # list the windows on the screen
-        windows = gw.getAllTitles()
-        return [(w, w) for w in windows if w != ""]
+        # list the titles of the visible top-level windows on the screen
+        titles = []
+
+        def collect_title(hwnd, _):
+            if win32gui.IsWindowVisible(hwnd):
+                title = win32gui.GetWindowText(hwnd)
+                if title != "":
+                    titles.append(title)
+            return True
+
+        win32gui.EnumWindows(collect_title, None)
+        return [(w, w) for w in titles]
 
     def __init__(self, window_name):
         self.capture_whole_screen = (
             window_name is None
             or window_name == ""
-            or (type(window_name) == int and window_name < 0)
+            or (isinstance(window_name, int) and window_name < 0)
         )
 
         self.hwnd = 0
@@ -48,7 +55,7 @@ class ScreenCaptureWindows:
             return
         self.saveDC = self.mfcDC.CreateCompatibleDC()
         if self.saveDC is None:
-            logger.error(f"Error creating compatible memory device context for window")
+            logger.error("Error creating compatible memory device context for window")
             return
 
     def isOpened(self):
@@ -59,7 +66,7 @@ class ScreenCaptureWindows:
             self.saveDC.DeleteDC()
             self.mfcDC.DeleteDC()
             win32gui.ReleaseDC(self.hwnd, self.hwndDC)
-        except:
+        except Exception:
             logger.exception("Error releasing screen capture resources")
 
     def read(self):
@@ -86,7 +93,7 @@ class ScreenCaptureWindows:
         # Create a bitmap object
         saveBitMap = win32ui.CreateBitmap()
         if saveBitMap is None:
-            logger.error(f"Error creating bitmap for window")
+            logger.error("Error creating bitmap for window")
             return False, None
 
         saveBitMap.CreateCompatibleBitmap(self.mfcDC, width, height)

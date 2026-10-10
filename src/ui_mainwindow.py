@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'mainwindow.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.7.2
+## Created by: Qt User Interface Compiler version 6.12.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -292,7 +292,8 @@ class Ui_MainWindow(object):
 
         self.horizontalSlider_conf_thresh = QSlider(self.widget_21)
         self.horizontalSlider_conf_thresh.setObjectName(u"horizontalSlider_conf_thresh")
-        self.horizontalSlider_conf_thresh.setValue(50)
+        self.horizontalSlider_conf_thresh.setMaximum(99)
+        self.horizontalSlider_conf_thresh.setValue(0)
         self.horizontalSlider_conf_thresh.setOrientation(Qt.Horizontal)
 
         self.horizontalLayout_20.addWidget(self.horizontalSlider_conf_thresh)
@@ -314,12 +315,6 @@ class Ui_MainWindow(object):
         self.checkBox_skip_similar_image.setObjectName(u"checkBox_skip_similar_image")
 
         self.gridLayout_6.addWidget(self.checkBox_skip_similar_image, 4, 3, 1, 1)
-
-        self.checkBox = QCheckBox(self.groupBox_target_settings)
-        self.checkBox.setObjectName(u"checkBox")
-        self.checkBox.setEnabled(False)
-
-        self.gridLayout_6.addWidget(self.checkBox, 2, 3, 1, 1)
 
         self.widget_7 = QWidget(self.groupBox_target_settings)
         self.widget_7.setObjectName(u"widget_7")
@@ -436,6 +431,7 @@ class Ui_MainWindow(object):
 
         self.lineEdit_templatefield = QLineEdit(self.widget_23)
         self.lineEdit_templatefield.setObjectName(u"lineEdit_templatefield")
+        self.lineEdit_templatefield.setText(u"")
 
         self.horizontalLayout.addWidget(self.lineEdit_templatefield)
 
@@ -488,7 +484,7 @@ class Ui_MainWindow(object):
         self.label_7 = QLabel(self.tab_textFiles)
         self.label_7.setObjectName(u"label_7")
 
-        self.formLayout_2.setWidget(0, QFormLayout.LabelRole, self.label_7)
+        self.formLayout_2.setWidget(0, QFormLayout.ItemRole.LabelRole, self.label_7)
 
         self.widget_5 = QWidget(self.tab_textFiles)
         self.widget_5.setObjectName(u"widget_5")
@@ -517,7 +513,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_6.addWidget(self.toolButton_trashFolder)
 
 
-        self.formLayout_2.setWidget(0, QFormLayout.FieldRole, self.widget_5)
+        self.formLayout_2.setWidget(0, QFormLayout.ItemRole.FieldRole, self.widget_5)
 
         self.widget_12 = QWidget(self.tab_textFiles)
         self.widget_12.setObjectName(u"widget_12")
@@ -537,12 +533,12 @@ class Ui_MainWindow(object):
         self.horizontalLayout_14.addWidget(self.checkBox_saveXML)
 
 
-        self.formLayout_2.setWidget(1, QFormLayout.FieldRole, self.widget_12)
+        self.formLayout_2.setWidget(1, QFormLayout.ItemRole.FieldRole, self.widget_12)
 
         self.label_append = QLabel(self.tab_textFiles)
         self.label_append.setObjectName(u"label_append")
 
-        self.formLayout_2.setWidget(2, QFormLayout.LabelRole, self.label_append)
+        self.formLayout_2.setWidget(2, QFormLayout.ItemRole.LabelRole, self.label_append)
 
         self.comboBox_appendMethod = QComboBox(self.tab_textFiles)
         self.comboBox_appendMethod.addItem("")
@@ -553,12 +549,12 @@ class Ui_MainWindow(object):
         sizePolicy4.setHeightForWidth(self.comboBox_appendMethod.sizePolicy().hasHeightForWidth())
         self.comboBox_appendMethod.setSizePolicy(sizePolicy4)
 
-        self.formLayout_2.setWidget(2, QFormLayout.FieldRole, self.comboBox_appendMethod)
+        self.formLayout_2.setWidget(2, QFormLayout.ItemRole.FieldRole, self.comboBox_appendMethod)
 
         self.label_savePerSec = QLabel(self.tab_textFiles)
         self.label_savePerSec.setObjectName(u"label_savePerSec")
 
-        self.formLayout_2.setWidget(3, QFormLayout.LabelRole, self.label_savePerSec)
+        self.formLayout_2.setWidget(3, QFormLayout.ItemRole.LabelRole, self.label_savePerSec)
 
         self.horizontalSlider_aggsPerSecond = QSlider(self.tab_textFiles)
         self.horizontalSlider_aggsPerSecond.setObjectName(u"horizontalSlider_aggsPerSecond")
@@ -569,11 +565,11 @@ class Ui_MainWindow(object):
         self.horizontalSlider_aggsPerSecond.setOrientation(Qt.Horizontal)
         self.horizontalSlider_aggsPerSecond.setTickPosition(QSlider.TicksBelow)
 
-        self.formLayout_2.setWidget(3, QFormLayout.FieldRole, self.horizontalSlider_aggsPerSecond)
+        self.formLayout_2.setWidget(3, QFormLayout.ItemRole.FieldRole, self.horizontalSlider_aggsPerSecond)
 
         self.verticalSpacer_2 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
-        self.formLayout_2.setItem(4, QFormLayout.FieldRole, self.verticalSpacer_2)
+        self.formLayout_2.setItem(4, QFormLayout.ItemRole.FieldRole, self.verticalSpacer_2)
 
         self.tabWidget_outputs.addTab(self.tab_textFiles, "")
         self.tab_browser = QWidget()
@@ -660,6 +656,7 @@ class Ui_MainWindow(object):
 
         self.lineEdit_vmixHost = QLineEdit(self.connectionWidget)
         self.lineEdit_vmixHost.setObjectName(u"lineEdit_vmixHost")
+        self.lineEdit_vmixHost.setText(u"localhost")
 
         self.horizontalLayout_18.addWidget(self.lineEdit_vmixHost)
 
@@ -673,6 +670,7 @@ class Ui_MainWindow(object):
         sizePolicy2.setHeightForWidth(self.lineEdit_vmixPort.sizePolicy().hasHeightForWidth())
         self.lineEdit_vmixPort.setSizePolicy(sizePolicy2)
         self.lineEdit_vmixPort.setMaximumSize(QSize(50, 16777215))
+        self.lineEdit_vmixPort.setText(u"8088")
 
         self.horizontalLayout_18.addWidget(self.lineEdit_vmixPort)
 
@@ -701,6 +699,7 @@ class Ui_MainWindow(object):
 
         self.inputLineEdit_vmix = QLineEdit(self.widget_16)
         self.inputLineEdit_vmix.setObjectName(u"inputLineEdit_vmix")
+        self.inputLineEdit_vmix.setText(u"1")
 
         self.horizontalLayout_19.addWidget(self.inputLineEdit_vmix)
 
@@ -739,6 +738,7 @@ class Ui_MainWindow(object):
 
         self.lineEdit_unoUrl = QLineEdit(self.connectionWidget_2)
         self.lineEdit_unoUrl.setObjectName(u"lineEdit_unoUrl")
+        self.lineEdit_unoUrl.setText(u"https://app.overlays.uno/apiv2/controlapps/.../api")
 
         self.horizontalLayout_29.addWidget(self.lineEdit_unoUrl)
 
@@ -771,21 +771,6 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_30.addWidget(self.checkBox_uno_essentials)
 
-        self.label_23 = QLabel(self.widget_26)
-        self.label_23.setObjectName(u"label_23")
-        sizePolicy.setHeightForWidth(self.label_23.sizePolicy().hasHeightForWidth())
-        self.label_23.setSizePolicy(sizePolicy)
-
-        self.horizontalLayout_30.addWidget(self.label_23)
-
-        self.spinBox = QSpinBox(self.widget_26)
-        self.spinBox.setObjectName(u"spinBox")
-        sizePolicy2.setHeightForWidth(self.spinBox.sizePolicy().hasHeightForWidth())
-        self.spinBox.setSizePolicy(sizePolicy2)
-        self.spinBox.setMinimum(1)
-
-        self.horizontalLayout_30.addWidget(self.spinBox)
-
 
         self.verticalLayout_8.addWidget(self.widget_26)
 
@@ -805,6 +790,7 @@ class Ui_MainWindow(object):
         self.lineEdit_uno_essentials_id.setObjectName(u"lineEdit_uno_essentials_id")
         sizePolicy5.setHeightForWidth(self.lineEdit_uno_essentials_id.sizePolicy().hasHeightForWidth())
         self.lineEdit_uno_essentials_id.setSizePolicy(sizePolicy5)
+        self.lineEdit_uno_essentials_id.setText(u"")
 
         self.horizontalLayout_21.addWidget(self.lineEdit_uno_essentials_id)
 
@@ -831,12 +817,12 @@ class Ui_MainWindow(object):
         self.checkBox_enableOutAPI = QCheckBox(self.tab_api)
         self.checkBox_enableOutAPI.setObjectName(u"checkBox_enableOutAPI")
 
-        self.formLayout_3.setWidget(0, QFormLayout.FieldRole, self.checkBox_enableOutAPI)
+        self.formLayout_3.setWidget(0, QFormLayout.ItemRole.FieldRole, self.checkBox_enableOutAPI)
 
         self.label_21 = QLabel(self.tab_api)
         self.label_21.setObjectName(u"label_21")
 
-        self.formLayout_3.setWidget(4, QFormLayout.LabelRole, self.label_21)
+        self.formLayout_3.setWidget(4, QFormLayout.ItemRole.LabelRole, self.label_21)
 
         self.comboBox_api_encode = QComboBox(self.tab_api)
         self.comboBox_api_encode.addItem("")
@@ -845,11 +831,11 @@ class Ui_MainWindow(object):
         self.comboBox_api_encode.addItem("")
         self.comboBox_api_encode.setObjectName(u"comboBox_api_encode")
 
-        self.formLayout_3.setWidget(4, QFormLayout.FieldRole, self.comboBox_api_encode)
+        self.formLayout_3.setWidget(4, QFormLayout.ItemRole.FieldRole, self.comboBox_api_encode)
 
         self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
-        self.formLayout_3.setItem(5, QFormLayout.FieldRole, self.verticalSpacer)
+        self.formLayout_3.setItem(5, QFormLayout.ItemRole.FieldRole, self.verticalSpacer)
 
         self.widget_24 = QWidget(self.tab_api)
         self.widget_24.setObjectName(u"widget_24")
@@ -872,12 +858,12 @@ class Ui_MainWindow(object):
         self.horizontalLayout_27.addWidget(self.comboBox_outApiMethod)
 
 
-        self.formLayout_3.setWidget(1, QFormLayout.FieldRole, self.widget_24)
+        self.formLayout_3.setWidget(1, QFormLayout.ItemRole.FieldRole, self.widget_24)
 
         self.label_20 = QLabel(self.tab_api)
         self.label_20.setObjectName(u"label_20")
 
-        self.formLayout_3.setWidget(1, QFormLayout.LabelRole, self.label_20)
+        self.formLayout_3.setWidget(1, QFormLayout.ItemRole.LabelRole, self.label_20)
 
         self.tabWidget_outputs.addTab(self.tab_api, "")
 
@@ -1191,9 +1177,9 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"ScoreSight", None))
         ___qtablewidgetitem = self.tableWidget_boxes.horizontalHeaderItem(0)
-        ___qtablewidgetitem.setText(QCoreApplication.translate("MainWindow", u"Field", None));
+        ___qtablewidgetitem.setText(QCoreApplication.translate("MainWindow", u"Field", None))
         ___qtablewidgetitem1 = self.tableWidget_boxes.horizontalHeaderItem(1)
-        ___qtablewidgetitem1.setText(QCoreApplication.translate("MainWindow", u"Value", None));
+        ___qtablewidgetitem1.setText(QCoreApplication.translate("MainWindow", u"Value", None))
         self.toolButton_addBox.setText(QCoreApplication.translate("MainWindow", u"+", None))
         self.toolButton_removeBox.setText(QCoreApplication.translate("MainWindow", u"-", None))
         self.pushButton_makeBox.setText(QCoreApplication.translate("MainWindow", u"Add to Scene ->", None))
@@ -1235,14 +1221,19 @@ class Ui_MainWindow(object):
         self.label_6.setText(QCoreApplication.translate("MainWindow", u"Target:", None))
         self.label_selectedInfo.setText(QCoreApplication.translate("MainWindow", u"Select an item above", None))
         self.checkBox_compositeBox.setText(QCoreApplication.translate("MainWindow", u"Composite (Per-Character)", None))
+#if QT_CONFIG(tooltip)
+        self.label_3.setToolTip(QCoreApplication.translate("MainWindow", u"Minimum OCR confidence in % (0-99): Tesseract's confidence in the reading. A reading below it is rejected (yellow, FailedFilter). 0 turns the check off.", None))
+#endif // QT_CONFIG(tooltip)
         self.label_3.setText(QCoreApplication.translate("MainWindow", u"Conf. Th", None))
+#if QT_CONFIG(tooltip)
+        self.horizontalSlider_conf_thresh.setToolTip(QCoreApplication.translate("MainWindow", u"Minimum OCR confidence in % (0-99): Tesseract's confidence in the reading. A reading below it is rejected (yellow, FailedFilter). 0 turns the check off.", None))
+#endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(tooltip)
         self.checkBox_normWHRatio.setToolTip(QCoreApplication.translate("MainWindow", u"Scale to a favorable 1:2 width-to-height ratio", None))
 #endif // QT_CONFIG(tooltip)
         self.checkBox_normWHRatio.setText(QCoreApplication.translate("MainWindow", u"Normalize W-H Ratio", None))
         self.checkBox_invertPatch.setText(QCoreApplication.translate("MainWindow", u"Invert Input", None))
         self.checkBox_skip_similar_image.setText(QCoreApplication.translate("MainWindow", u"Skip Similar Image", None))
-        self.checkBox.setText(QCoreApplication.translate("MainWindow", u"Force Format", None))
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"Format", None))
         self.label_9.setText(QCoreApplication.translate("MainWindow", u"Dilate", None))
         self.checkBox_autocrop.setText(QCoreApplication.translate("MainWindow", u"Auto Crop", None))
@@ -1257,7 +1248,6 @@ class Ui_MainWindow(object):
         self.checkBox_templatefield.setToolTip(QCoreApplication.translate("MainWindow", u"This field is a combination of exising fields in a template", None))
 #endif // QT_CONFIG(tooltip)
         self.checkBox_templatefield.setText(QCoreApplication.translate("MainWindow", u"Template Field", None))
-        self.lineEdit_templatefield.setText("")
         self.lineEdit_templatefield.setPlaceholderText(QCoreApplication.translate("MainWindow", u"{{template}}", None))
         self.label_10.setText(QCoreApplication.translate("MainWindow", u"OCR Model", None))
         self.label_7.setText(QCoreApplication.translate("MainWindow", u"Folder", None))
@@ -1276,7 +1266,7 @@ class Ui_MainWindow(object):
 #endif // QT_CONFIG(tooltip)
         self.label_savePerSec.setText(QCoreApplication.translate("MainWindow", u"Save / s", None))
         self.tabWidget_outputs.setTabText(self.tabWidget_outputs.indexOf(self.tab_textFiles), QCoreApplication.translate("MainWindow", u"Text Files", None))
-        self.label_8.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p>Use these endpoints in external software to get live data updates</p><p>HTML Scoreboard: <a href=\"http://localhost:18099/scoresight\"><span style=\" text-decoration: underline; color:#0000ff;\">http://localhost:18099/scoresight<br/></span></a>JSON: <a href=\"http://localhost:18099/json\"><span style=\" text-decoration: underline; color:#0000ff;\">http://localhost:18099/json</span></a> (optional: ?pivot)<br/>XML: <a href=\"http://localhost:18099/xml\"><span style=\" text-decoration: underline; color:#0000ff;\">http://localhost:18099/xml</span></a> (optional: ?pivot)<br/>CSV: <a href=\"http://localhost:18099/csv\"><span style=\" text-decoration: underline; color:#0000ff;\">http://localhost:18099/csv</span></a></p></body></html>", None))
+        self.label_8.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p>Use these endpoints in external software to get live data updates</p><p>HTML Scoreboard: <a href=\"http://localhost:18099/scoresight\">http://localhost:18099/scoresight</a><br/>JSON: <a href=\"http://localhost:18099/json\">http://localhost:18099/json</a> (optional: ?pivot)<br/>XML: <a href=\"http://localhost:18099/xml\">http://localhost:18099/xml</a> (optional: ?pivot)<br/>CSV: <a href=\"http://localhost:18099/csv\">http://localhost:18099/csv</a> (optional: ?pivot)</p></body></html>", None))
         self.tabWidget_outputs.setTabText(self.tabWidget_outputs.indexOf(self.tab_browser), QCoreApplication.translate("MainWindow", u"Browser", None))
         self.pushButton_connectObs.setText(QCoreApplication.translate("MainWindow", u"Connect OBS", None))
         self.lineEdit_sceneName.setText(QCoreApplication.translate("MainWindow", u"ScoreSight Scene", None))
@@ -1284,29 +1274,22 @@ class Ui_MainWindow(object):
         self.checkBox_recreate.setText(QCoreApplication.translate("MainWindow", u"Recreate", None))
         self.tabWidget_outputs.setTabText(self.tabWidget_outputs.indexOf(self.tab_obs), QCoreApplication.translate("MainWindow", u"OBS", None))
         self.connectionLabel.setText(QCoreApplication.translate("MainWindow", u"Connection", None))
-        self.lineEdit_vmixHost.setText(QCoreApplication.translate("MainWindow", u"localhost", None))
         self.label_5.setText(QCoreApplication.translate("MainWindow", u":", None))
-        self.lineEdit_vmixPort.setText(QCoreApplication.translate("MainWindow", u"8099", None))
         self.pushButton_startvmix.setText(QCoreApplication.translate("MainWindow", u"Start", None))
         self.vmixinputLabel.setText(QCoreApplication.translate("MainWindow", u"Input", None))
-        self.inputLineEdit_vmix.setText(QCoreApplication.translate("MainWindow", u"1", None))
 #if QT_CONFIG(tooltip)
         self.checkBox_vmix_send_same.setToolTip(QCoreApplication.translate("MainWindow", u"Send only new detections or also existing?", None))
 #endif // QT_CONFIG(tooltip)
         self.checkBox_vmix_send_same.setText(QCoreApplication.translate("MainWindow", u"Send Same?", None))
         self.tabWidget_outputs.setTabText(self.tabWidget_outputs.indexOf(self.tab_vmix), QCoreApplication.translate("MainWindow", u"VMix", None))
         self.connectionLabel_2.setText(QCoreApplication.translate("MainWindow", u"URL", None))
-        self.lineEdit_unoUrl.setText(QCoreApplication.translate("MainWindow", u"https://app.overlays.uno/apiv2/controlapps/.../api", None))
         self.toolButton_toggleUno.setText(QCoreApplication.translate("MainWindow", u"\u25b6\ufe0f", None))
 #if QT_CONFIG(tooltip)
         self.checkBox_uno_send_same.setToolTip(QCoreApplication.translate("MainWindow", u"Send only new detections or also existing?", None))
 #endif // QT_CONFIG(tooltip)
         self.checkBox_uno_send_same.setText(QCoreApplication.translate("MainWindow", u"Send Same?", None))
         self.checkBox_uno_essentials.setText(QCoreApplication.translate("MainWindow", u"Essentials", None))
-        self.label_23.setText(QCoreApplication.translate("MainWindow", u"Rate Limit", None))
-        self.spinBox.setSuffix(QCoreApplication.translate("MainWindow", u"/sec", None))
         self.label_24.setText(QCoreApplication.translate("MainWindow", u"Overlay ID", None))
-        self.lineEdit_uno_essentials_id.setText("")
         self.lineEdit_uno_essentials_id.setPlaceholderText(QCoreApplication.translate("MainWindow", u"aaaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeeee", None))
         self.tabWidget_outputs.setTabText(self.tabWidget_outputs.indexOf(self.tab_uno), QCoreApplication.translate("MainWindow", u"UNO", None))
         self.checkBox_enableOutAPI.setText(QCoreApplication.translate("MainWindow", u"Send out API requests to external services.", None))

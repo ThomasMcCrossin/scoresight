@@ -1,46 +1,79 @@
-import asyncio
-import http.server
-import http.client
+"""The built-in HTTP server: serves the latest OCR results as JSON, XML, CSV and a
+demo HTML scoreboard.
+
+It runs uvicorn in a daemon thread, bound to 0.0.0.0 (LAN access is a feature)
+on the port given to start_http_server(). It is stopped in-process by
+stop_http_server(); there is no HTTP endpoint that stops or kills the app.
+"""
+
+import csv
 import logging
 import os
-import signal
+import re
 import socket
+import sys
 import threading
-from fastapi import FastAPI, Query
-from fastapi.responses import HTMLResponse, JSONResponse, Response
-from fastapi.middleware.cors import CORSMiddleware
-import csv
 import xml.etree.ElementTree as ET
 from io import StringIO
-from dotenv import load_dotenv
+from typing import NamedTuple
 
 import uvicorn
+from fastapi import FastAPI, Query
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse, JSONResponse, Response
 
+from sc_logging import file_handler, logger
 from text_detection_target import TextDetectionTargetWithResult
-from sc_logging import logger, file_handler
-from resource_path import resource_path
 
-load_dotenv(resource_path(".env"))
+DEFAULT_PORT = 18099
+HOST = "0.0.0.0"
 
-PORT = 18099
-http_results = []
-loop: asyncio.AbstractEventLoop | None = None
-
-
-def lifespan(app: FastAPI):
-    logger = logging.getLogger("uvicorn.access")
-    logger.addHandler(file_handler)
-    yield
+ResultState = TextDetectionTargetWithResult.ResultState
+# readings that are worth showing; the ?pivot variants include only these
+_GOOD_STATES = frozenset({ResultState.Success.name, ResultState.SameNoChange.name})
 
 
-app = FastAPI(lifespan=lifespan)
+class Reading(NamedTuple):
+    """An immutable copy of one OCR result, safe to read from the server thread."""
+
+    name: str
+    text: str
+    state: str  # a ResultState name
+    x: float
+    y: float
+    width: float
+    height: float
+
+    @property
+    def is_good(self) -> bool:
+        return self.state in _GOOD_STATES
+
+    def to_dict(self) -> dict:
+        # same shape as TextDetectionTargetWithResult.to_dict()
+        return {
+            "name": self.name,
+            "text": self.text,
+            "state": self.state,
+            "rect": {
+                "x": self.x,
+                "y": self.y,
+                "width": self.width,
+                "height": self.height,
+            },
+        }
+
+
+# The latest results. update_http_server() (GUI thread) replaces the whole tuple,
+# the request handlers (server thread) only read it.
+_readings: tuple[Reading, ...] = ()
+
+app = FastAPI(title="ScoreSight")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows all origins
-    allow_credentials=True,
-    allow_methods=["*"],  # Allows all methods
-    allow_headers=["*"],  # Allows all headers
+    allow_origins=["*"],  # browser sources and pages from anywhere may read
+    allow_methods=["GET"],
+    allow_headers=["*"],
 )
 
 HTML_PAGE = """
@@ -64,7 +97,8 @@ HTML_PAGE = """
 <body>
 <script>
   function updateScoreboard() {
-    fetch('http://localhost:18099/json')
+    // relative URL: works from any computer and on any --port
+    fetch('/json')
       .then(response => response.json())
       .then(data => {
         if (data.find(item => item.name === 'Home Score') !== undefined) {
@@ -76,12 +110,12 @@ HTML_PAGE = """
           const awayScore = data.find(item => item.name === 'Away Score').text;
           document.querySelector('.team.away .score').textContent = awayScore;
         }
-        
+
         if (data.find(item => item.name === 'Home Fouls') !== undefined) {
           const homeFouls = data.find(item => item.name === 'Home Fouls').text;
           document.querySelector('.team.home .fouls').textContent = `Fouls: ${homeFouls}`;
         }
-        
+
         if (data.find(item => item.name === 'Away Fouls') !== undefined) {
           const awayFouls = data.find(item => item.name === 'Away Fouls').text;
           document.querySelector('.team.away .fouls').textContent = `Fouls: ${awayFouls}`;
@@ -123,133 +157,236 @@ HTML_PAGE = """
 </html>
 """
 
+# XML 1.0 (5th edition) name characters, without ":" (reserved for namespaces)
+_XML_NAME_START_CHARS = (
+    "A-Z_a-z\u00c0-\u00d6\u00d8-\u00f6\u00f8-\u02ff\u0370-\u037d\u037f-\u1fff"
+    "\u200c-\u200d\u2070-\u218f\u2c00-\u2fef\u3001-\ud7ff\uf900-\ufdcf"
+    "\ufdf0-\ufffd\U00010000-\U000effff"
+)
+_XML_NAME_CHARS = _XML_NAME_START_CHARS + "\\-.0-9\u00b7\u0300-\u036f\u203f-\u2040"
+_NOT_XML_NAME_CHAR = re.compile(f"[^{_XML_NAME_CHARS}]")
+_XML_NAME_START = re.compile(f"[{_XML_NAME_START_CHARS}]")
+# characters that XML 1.0 doesn't allow anywhere in a document
+_NOT_XML_CHAR = re.compile("[^\t\n\r\u0020-\ud7ff\ue000-\ufffd\U00010000-\U0010ffff]")
+
+
+def xml_element_name(name: str) -> str:
+    """The element name used for a box in /xml?pivot.
+
+    Each word is capitalized and the spaces are removed ("Home Score" becomes
+    "HomeScore"). Characters that aren't allowed in XML names are dropped, and
+    "_" is prepended when the result doesn't start with a letter or "_"
+    ("1st Half" becomes "_1StHalf", "Score (H)" becomes "ScoreH").
+    """
+    tag = _NOT_XML_NAME_CHAR.sub("", "".join(word.title() for word in name.split()))
+    if not tag or not _XML_NAME_START.match(tag):
+        tag = "_" + tag
+    return tag
+
+
+def xml_text(text: str) -> str:
+    """text without the control characters XML can't represent."""
+    return _NOT_XML_CHAR.sub("", text)
+
+
+def _good_values() -> dict[str, str]:
+    return {r.name: r.text for r in _readings if r.is_good}
+
 
 @app.get("/scoresight", response_class=HTMLResponse)
 async def get_html():
     return HTMLResponse(content=HTML_PAGE)
 
 
-# Example JSON response
 @app.get("/json")
-async def get_json(pivot=Query(None)):
-    # check querystring for "?pivot" to pivot the data
-    data = {}
+async def get_json(pivot: str | None = Query(None)):
+    # "?pivot": {name: text} of the good readings only
     if pivot is not None:
-        for result in http_results:
-            if (
-                result.result_state == TextDetectionTargetWithResult.ResultState.Success
-                or result.result_state
-                == TextDetectionTargetWithResult.ResultState.SameNoChange
-            ):
-                data[result.name] = result.result
-    else:
-        data = [result.to_dict() for result in http_results]
-
-    return JSONResponse(content=data)
+        return JSONResponse(content=_good_values())
+    return JSONResponse(content=[r.to_dict() for r in _readings])
 
 
 @app.get("/xml")
-async def get_xml(pivot=Query(None)):
+async def get_xml(pivot: str | None = Query(None)):
     root = ET.Element("data")
     if pivot is not None:
-        data = {}
-        for result in http_results:
-            if (
-                result.result_state == TextDetectionTargetWithResult.ResultState.Success
-                or result.result_state
-                == TextDetectionTargetWithResult.ResultState.SameNoChange
-            ):
-                data[result.name] = result.result
-        for key in data:
-            # transform key to camelCase
-            key_xml = "".join([word.title() for word in key.split(" ")])
-            ET.SubElement(root, key_xml).text = data[key]
+        for name, text in _good_values().items():
+            ET.SubElement(root, xml_element_name(name)).text = xml_text(text)
     else:
-        for targetWithResult in http_results:
-            resultEl = ET.SubElement(root, "result")
-            resultEl.set("name", targetWithResult.name)
-            resultEl.set("result", targetWithResult.result)
-            resultEl.set("result_state", targetWithResult.result_state.name)
-            resultEl.set("x", str(targetWithResult.x()))
-            resultEl.set("y", str(targetWithResult.y()))
-            resultEl.set("width", str(targetWithResult.width()))
-            resultEl.set("height", str(targetWithResult.height()))
+        for r in _readings:
+            result_el = ET.SubElement(root, "result")
+            result_el.set("name", xml_text(r.name))
+            result_el.set("result", xml_text(r.text))
+            result_el.set("result_state", r.state)
+            result_el.set("x", str(r.x))
+            result_el.set("y", str(r.y))
+            result_el.set("width", str(r.width))
+            result_el.set("height", str(r.height))
 
-    return Response(content=ET.tostring(root), media_type="text/xml")
+    # sent as UTF-8 ("text/xml; charset=utf-8"): character references can't
+    # represent non-ASCII letters in element names
+    return Response(
+        content=ET.tostring(root, encoding="unicode"), media_type="text/xml"
+    )
 
 
 @app.get("/csv")
-async def get_csv():
+async def get_csv(pivot: str | None = Query(None)):
     output = StringIO()
     csv_writer = csv.writer(output)
-    csv_writer.writerow(["Name", "Text", "X", "Y", "Width", "Height"])
-    for result in http_results:
-        csv_writer.writerow(
-            [
-                result.name,
-                result.result,
-                result.x,
-                result.y,
-                result.width,
-                result.height,
-            ]
-        )
+    if pivot is not None:
+        # one header row with the box names, one row with their good values
+        values = _good_values()
+        csv_writer.writerow(values.keys())
+        csv_writer.writerow(values.values())
+    else:
+        csv_writer.writerow(["Name", "Text", "X", "Y", "Width", "Height"])
+        for r in _readings:
+            csv_writer.writerow([r.name, r.text, r.x, r.y, r.width, r.height])
     return Response(content=output.getvalue(), media_type="text/csv")
 
 
-def is_port_in_use(port: int) -> bool:
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        return s.connect_ex(("localhost", port)) == 0
+def update_http_server(results: list[TextDetectionTargetWithResult]):
+    """Publish the latest OCR results. Takes a snapshot, so the caller may keep
+    modifying the result objects afterwards."""
+    global _readings
+    _readings = tuple(
+        Reading(
+            name=str(r.name),
+            text="" if r.result is None else str(r.result),
+            state=r.result_state.name,
+            x=r.x(),
+            y=r.y(),
+            width=r.width(),
+            height=r.height(),
+        )
+        for r in results
+    )
 
 
-def start_http_server():
-    def run_uvicorn():
-        if is_port_in_use(PORT):
-            logger.error(f"Port {PORT} is already in use")
+# --- server lifecycle -----------------------------------------------------
+
+_server_lock = threading.Lock()
+_server: uvicorn.Server | None = None
+_server_thread: threading.Thread | None = None
+_server_port: int | None = None
+
+
+def _bind_socket(host: str, port: int) -> socket.socket:
+    """Bind and listen on (host, port). Raises OSError if the port is taken."""
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        if sys.platform == "win32":
+            # never share the port: a second ScoreSight must fail here instead
+            # of silently splitting the requests with the first one
+            sock.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)
+        else:
+            # allow a quick restart while old connections are in TIME_WAIT (on
+            # POSIX this never allows binding a port another socket listens on)
+            sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        sock.bind((host, port))
+        # listen right away: requests that arrive before uvicorn's loop runs
+        # wait in the backlog instead of being refused
+        sock.listen(128)
+    except OSError:
+        sock.close()
+        raise
+    return sock
+
+
+def _serve(server: uvicorn.Server, sock: socket.socket, port: int) -> None:
+    try:
+        server.run(sockets=[sock])
+    except (Exception, SystemExit):  # uvicorn calls sys.exit() on startup errors
+        logger.exception("HTTP server on port %s failed", port)
+    finally:
+        sock.close()
+        logger.info("HTTP server on port %s stopped", port)
+
+
+def start_http_server(port: int = DEFAULT_PORT) -> None:
+    """Start serving on port (0 picks a free port, see get_http_server_port()).
+
+    Never raises: if the port is already in use (for example by another
+    ScoreSight), the error is logged and the app continues without the server.
+    """
+    global _server, _server_thread, _server_port
+    with _server_lock:
+        if _server_thread is not None and _server_thread.is_alive():
+            logger.warning("HTTP server is already running on port %s", _server_port)
+            return
+        try:
+            sock = _bind_socket(HOST, port)
+        except OSError as e:
+            logger.error(
+                "HTTP server: port %s is already in use or not available (%s). "
+                "Another ScoreSight or another program may be using it; start "
+                "ScoreSight with --port to use a different port. Continuing "
+                "without the HTTP server.",
+                port,
+                e,
+            )
             return
 
+        actual_port = sock.getsockname()[1]
+        debug = bool(os.getenv("SCORESIGHT_DEBUG"))
+        for name in ("uvicorn.error", "uvicorn.access"):
+            logging.getLogger(name).addHandler(file_handler)
         config = uvicorn.Config(
             app=app,
-            host="0.0.0.0",
-            port=PORT,
+            host=HOST,
+            port=actual_port,
             loop="asyncio",
-            log_level="debug" if os.getenv("SCORESIGHT_DEBUG") else "info",
+            log_level="debug" if debug else "info",
             log_config=None,
-            lifespan="on",
+            # one line per request (pages poll several times a second) only
+            # when debugging
+            access_log=debug,
+            lifespan="off",
+            ws="none",
+            # don't wait long for polling clients' keep-alive connections
+            timeout_graceful_shutdown=1,
         )
         server = uvicorn.Server(config)
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-
-        logger.info(f"Server starting at port {PORT}")
-        try:
-            loop.run_until_complete(server.serve())
-        except Exception as e:
-            logger.error(f"Error running server: {e}")
-        loop.close()
-        logger.info("Server thread stopped")
-
-    # Start Uvicorn server in a separate thread
-    server_thread = threading.Thread(target=run_uvicorn)
-    server_thread.start()
+        thread = threading.Thread(
+            target=_serve,
+            args=(server, sock, actual_port),
+            name="http-server",
+            daemon=True,
+        )
+        _server, _server_thread, _server_port = server, thread, actual_port
+        thread.start()
+    logger.info("HTTP server listening on http://%s:%s", HOST, actual_port)
 
 
-@app.get("/shutdown")
-async def shutdown():
-    os.kill(os.getpid(), signal.SIGINT)
-    return {"message": "Initiating shutdown..."}
+def get_http_server_port() -> int | None:
+    """The port the server listens on, or None if it isn't running."""
+    with _server_lock:
+        if _server_thread is not None and _server_thread.is_alive():
+            return _server_port
+        return None
 
 
-def stop_http_server():
-    logger.info("Stopping server...")
-    try:
-        conn = http.client.HTTPConnection("localhost", PORT)
-        conn.request("GET", "/shutdown")
-        conn.close()
-    except Exception as e:
-        pass
+def stop_http_server(timeout: float = 3.0) -> None:
+    """Stop the server this process started, waiting at most timeout seconds.
 
+    A no-op if it isn't running (e.g. the port was busy at startup): it never
+    touches a server that belongs to another process. The thread is a daemon,
+    so even a server that doesn't stop in time can't keep the app from exiting.
+    """
+    global _server, _server_thread, _server_port
+    with _server_lock:
+        server, thread = _server, _server_thread
+        _server = _server_thread = _server_port = None
+    if server is None or thread is None:
+        return
 
-def update_http_server(results: list[TextDetectionTargetWithResult]):
-    global http_results
-    http_results = results
+    logger.info("Stopping HTTP server...")
+    server.should_exit = True
+    thread.join(timeout / 2)
+    if thread.is_alive():
+        # stop waiting for open connections and background tasks
+        server.force_exit = True
+        thread.join(timeout / 2)
+    if thread.is_alive():
+        logger.warning("HTTP server did not stop within %.1fs", timeout)

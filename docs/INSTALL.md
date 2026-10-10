@@ -1,59 +1,180 @@
-# How to Download and Install ScoreSight
+---
+title: Installation
+parent: Getting Started
+nav_order: 1
+description: "Download and install ScoreSight on Windows, macOS and Linux, verify the download, and grant permissions."
+---
 
-Downloading ScoreSight for your operating system is a simple process. Visit the [releases](https://github.com/occ-ai/scoresight/releases) to find the download links.
+# Installation
+{: .no_toc }
+
+<details open markdown="block">
+  <summary>On this page</summary>
+  {: .text-delta }
+1. TOC
+{:toc}
+</details>
+
+## Download
+
+Official builds are published **only** on the GitHub Releases page:
+
+**[github.com/royshil/scoresight/releases/latest](https://github.com/royshil/scoresight/releases/latest)**
+
+Under **Assets**, pick the file for your computer (`<version>` is the release number, for example `0.2.0`):
+
+| Your computer | File |
+|---|---|
+| Windows 10 (version 1809 or newer) or 11, 64-bit | `scoresight-<version>-windows-x64-setup.exe` (installer, recommended) or `scoresight-<version>-windows-x64-portable.zip` (no installation) |
+| Mac with Apple Silicon (M1, M2, M3, M4...), macOS 15 or newer | `scoresight-<version>-macos-arm64.dmg` |
+| Mac with an Intel processor, macOS 15 or newer | `scoresight-<version>-macos-x64.dmg` |
+| Linux, 64-bit x86_64, glibc 2.35 or newer (Ubuntu 22.04+, Debian 12+) | `scoresight-<version>-linux-x64.tar.gz` |
+| All | `SHA256SUMS.txt`: checksums for verifying the downloads |
+
+Releases before 0.2.0 used other file names, for example a `windows` `.zip` that contained the installer, or `macos-x86` for Intel Macs.
+
+{: .warning }
+Do not download ScoreSight from any other website. The project's former website domain (`scoresight[.]live`) is **no longer controlled by the project**. ScoreSight 0.1.x and older still show links to it in the About and Update dialogs. Ignore those links.
+
+Not sure which Mac you have? Open the Apple menu > **About This Mac**. If you see **Chip: Apple M...**, download `macos-arm64`. If you see **Processor: ... Intel**, download `macos-x64`.
+
+## Verify your download (recommended)
+
+Every release includes `SHA256SUMS.txt` with the SHA-256 checksum of each file (older releases list them in the release notes). Download it to the same folder as your file and compare:
+
+Windows (PowerShell): compare the output with the file's line in `SHA256SUMS.txt`.
+```powershell
+Get-FileHash .\scoresight-*-windows-x64-setup.exe -Algorithm SHA256
+```
+
+macOS:
+```bash
+cd ~/Downloads
+shasum -a 256 --check --ignore-missing SHA256SUMS.txt
+```
+
+Linux:
+```bash
+sha256sum --check --ignore-missing SHA256SUMS.txt
+```
+
+On macOS and Linux, a good download shows `OK` next to its name. If the checksum does not match, delete the file and download it again from the Releases page.
 
 ## Windows
 
-If your browser alerts you for a virus warning when downloading ScoreSight like so:
+1. Download `scoresight-<version>-windows-x64-setup.exe` from the [latest release](https://github.com/royshil/scoresight/releases/latest).
+2. Run the installer. It asks whether to install ScoreSight **for all users** (the default, in `C:\Program Files\ScoreSight`, needs administrator rights) or **only for you** (no administrator rights needed). It adds a Start menu shortcut, and a desktop shortcut if you tick that option.
+3. **SmartScreen**: the installer is not code-signed yet, so Windows may show "Windows protected your PC". Click **More info** > **Run anyway**. Do this only for a file you downloaded from the GitHub Releases page and verified.
+4. **Windows Firewall**: the first time ScoreSight starts, Windows may ask whether to allow it on the network. ScoreSight runs a small [HTTP server](http_server.md) on port 18099 that browsers and other software can read. Allow it on **Private networks** only, unless you need access from a public network. See [SECURITY.md](https://github.com/royshil/scoresight/blob/main/SECURITY.md).
 
-![alt text](image.png)
+The installer refuses to run on Windows versions older than Windows 10 version 1809, which the Qt 6 framework doesn't support. If ScoreSight is running, the installer closes it first. Installing a new version over an existing ScoreSight, including 0.1.x, upgrades it in place.
 
-This is a false alarm issue by Microsoft and Google. To bypass this alarm and download the file you may need to temporarily disable the Windows Defender that issues the alarm and prevents the file download. This is simple to do, and you can undo it right after downloading ScoreSight to resume protection of your PC.
+Administrators can install silently with `scoresight-<version>-windows-x64-setup.exe /VERYSILENT` plus `/ALLUSERS` or `/CURRENTUSER`.
 
-Open Windows Security by pressing the Windows Key and enter "Windows Security"
+### Portable version (no installation)
 
-![alt text](image-1.png)
+Extract `scoresight-<version>-windows-x64-portable.zip` anywhere, for example to a USB stick, and run `scoresight\scoresight.exe`. Settings are still stored in your user profile, unless you set [`SCORESIGHT_DATA_DIR`](configuration.md#environment-variables).
 
-Click "App and Browser Control"
+### If your browser or antivirus blocks the download
 
-![alt text](image-2.png)
+ScoreSight is packaged with PyInstaller, and unsigned PyInstaller apps are sometimes flagged by antivirus heuristics as false positives:
 
-Click "Reputation Based protection"
+![A browser reporting "Couldn't download - Virus detected"](image.png)
 
-![alt text](image-3.png)
+Do **not** turn off your antivirus or SmartScreen globally. Instead:
 
-And disable the "Check Apps and Files" and "SmartScreen for Microsoft Edge" options.
+1. Make sure you downloaded the file from the [GitHub Releases page](https://github.com/royshil/scoresight/releases/latest) and that its [checksum matches](#verify-your-download-recommended).
+2. In **Windows Security** > **Virus & threat protection** > **Protection history**, find the blocked item and choose **Restore** (or **Allow on device**) for that specific file only.
+3. Report the false positive to Microsoft at [microsoft.com/wdsi/filesubmission](https://www.microsoft.com/wdsi/filesubmission) so future releases are not flagged.
 
-![alt text](image-4.png)
+### Uninstall (Windows)
 
-Then download ScoreSight again. This time the download should go through and the file will be available on your PC. Re-enable the two options above to resume protecting your computer from malicious software.
+Use **Settings** > **Apps** > **Installed apps** > **ScoreSight** > **Uninstall**. Your settings are kept. Delete the [settings folder](configuration.md#where-scoresight-keeps-its-files) too for a completely clean removal.
 
-If you are having problems with the download still please reach out on support@scoresight.live
+## macOS
 
-To install on Windows, simply click the .zip file and then the .exe setup installer inside.
+ScoreSight 0.2.0 and newer require **macOS 15 (Sequoia) or newer**.
 
-![alt text](image-5.png)
+1. Download the `.dmg` for your Mac (Apple Silicon or Intel, see [Download](#download)).
+2. Double-click the `.dmg`. It contains the ScoreSight app and a shortcut to your **Applications** folder. Drag ScoreSight onto **Applications**:
 
-Once the setup is complete, ScoreSight will be available as an application.
+   ![Drag the ScoreSight app to the Applications folder](image-7.png)
 
-If you get an error of a virus (which is a false alarm) like so
+3. Eject the disk image and start ScoreSight from **Applications** or Launchpad.
 
-![alt text](image-14.png)
+ScoreSight is a regular app bundle, so it starts in a few seconds. macOS App Nap is turned off for it, so it keeps reading at full speed while its window is in the background.
 
-Make sure to disable real-time protection
+### Gatekeeper
 
-![alt text](image-15.png)
+Official releases are signed and notarized by Apple, so macOS opens them normally. If you run a build that is not notarized (for example a test build from a pull request) and macOS says it "cannot be opened because Apple cannot check it for malicious software":
 
-## Mac OS
+1. Open **System Settings** > **Privacy & Security**.
+2. Scroll down to the message about ScoreSight and click **Open Anyway**, then confirm.
 
-On Mac OS ScoreSight comes as packaged .app application which doesn't need installation.
+Only do this for builds you trust.
 
-Download the .dmg archive:
+### Permissions
 
-![alt text](image-6.png)
+macOS asks for permission the first time ScoreSight uses a protected feature. If you clicked **Don't Allow** by mistake, you can change it later in **System Settings** > **Privacy & Security**:
 
-Double click and optionally drag the scoresight.app file to your Applications folder:
+| Feature | Permission | Where to change it |
+|---|---|---|
+| USB cameras and capture cards | **Camera** | Privacy & Security > **Camera** > enable ScoreSight |
+| Screen / window capture | **Screen Recording** | Privacy & Security > **Screen & System Audio Recording** (named **Screen Recording** on older macOS) > enable ScoreSight, then **quit and restart** ScoreSight |
+| NDI sources, OBS/vMix on other computers | **Local Network** | Privacy & Security > **Local Network** > enable ScoreSight |
 
-![alt text](image-7.png)
+{: .tip }
+If a camera shows a black picture or screen capture shows only the desktop wallpaper, a missing permission is almost always the cause.
 
-ScoreSight should now be available as an application.
+### Apple Silicon vs Intel
+
+The Apple Silicon (`arm64`) build runs natively on M-series Macs and is much faster there. The Intel build also runs on Apple Silicon through Rosetta 2, but more slowly. Install the one that matches your Mac.
+
+### Uninstall (macOS)
+
+Drag ScoreSight from **Applications** to the Trash. To also remove settings and logs, delete `~/Library/Application Support/scoresight` and `~/Library/Logs/scoresight`.
+
+## Linux
+
+The Linux build runs on 64-bit x86_64 distributions with **glibc 2.35 or newer**, for example Ubuntu 22.04 or newer and Debian 12 or newer. Check your version with `ldd --version`.
+
+1. Download `scoresight-<version>-linux-x64.tar.gz` from the [latest release](https://github.com/royshil/scoresight/releases/latest) and extract it. It contains a single `scoresight` folder:
+
+   ```bash
+   mkdir -p ~/Applications && cd ~/Applications
+   tar -xzf ~/Downloads/scoresight-*-linux-x64.tar.gz
+   ```
+
+2. Run the `scoresight` executable inside that folder:
+
+   ```bash
+   ./scoresight/scoresight
+   ```
+
+   Keep the folder together: the executable needs the `_internal` folder next to it.
+
+3. **Cameras**: your user must be allowed to open `/dev/video*` devices. On most distributions that means being in the `video` group:
+
+   ```bash
+   sudo usermod -aG video "$USER"   # then log out and back in
+   ```
+
+4. **Qt platform plugin errors**: packages older than 0.2.0 may not include `libxcb-cursor0` and the other xcb libraries that Qt needs (0.2.0 includes them). If ScoreSight exits with "Could not load the Qt platform plugin xcb", install the X11/xcb runtime libraries. On Debian/Ubuntu:
+
+   ```bash
+   sudo apt install libxcb-cursor0 libxkbcommon-x11-0 libegl1
+   ```
+
+{: .note }
+Screen capture is not available on Linux. Use a capture card, NDI, or OBS's virtual camera to bring a screen into ScoreSight. See [Video Sources](sources.md).
+
+## Upgrading
+
+Install the new version over the old one (Windows), replace the app in Applications (macOS), or extract the new archive (Linux). Your boxes and settings live in a separate settings folder, so they carry over. See [Settings, Files & Command Line](configuration.md#where-scoresight-keeps-its-files).
+
+{: .new }
+When ScoreSight 0.2.0 first opens the settings of an older version, it changes a saved vMix port of `8099` to `8088` (the port of vMix's Web API), and it sets the **Conf. Th** confidence threshold of every box to 0 (off), because that setting had no effect before. Both changes happen once and are written to the log. See [One-time upgrades](configuration.md#one-time-upgrades-of-older-settings).
+
+## Next step
+
+Continue with the [Quickstart](quickstart.md).

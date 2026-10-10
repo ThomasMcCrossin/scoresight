@@ -1,8 +1,72 @@
+import functools
 import json
+import logging
+import threading
+import weakref
 from os import path
+
 import obsws_python as obs
+import websocket
+from obsws_python.error import OBSSDKTimeoutError
+
+from output_worker import OutputWorker
 from resource_path import resource_path
 from sc_logging import logger
+
+# obsws-python logs the connection parameters, including the OBS password, at
+# INFO, and every failed request with a traceback at ERROR (so once per cycle
+# for a missing text source). ScoreSight logs OBS problems itself (throttled).
+logging.getLogger("obsws_python").setLevel(logging.CRITICAL)
+
+# seconds to wait for OBS to connect or to answer a request
+OBS_TIMEOUT = 3
+
+# errors that mean the websocket connection is broken (or out of sync after a
+# timeout) and has to be re-established. The close frame of an OBS that is
+# shutting down (or restarting its websocket server) reads as an empty
+# response, which fails to parse as JSON.
+_CONNECTION_ERRORS = (
+    OSError,
+    websocket.WebSocketException,
+    OBSSDKTimeoutError,
+    json.JSONDecodeError,
+)
+
+
+class OBSConnectionLost(Exception):
+    """The connection to OBS broke and could not be re-established (yet)."""
+
+
+# A ReqClient is a single websocket with no locking: each request is a send()
+# followed by a recv(). The background text updates and the scene functions
+# called from the GUI thread take the client's lock so they never interleave.
+_client_locks: "weakref.WeakKeyDictionary[object, threading.RLock]" = (
+    weakref.WeakKeyDictionary()
+)
+_client_locks_guard = threading.Lock()
+_closed_clients: "weakref.WeakSet[object]" = weakref.WeakSet()
+
+
+def client_lock(obs_client) -> threading.RLock:
+    """The lock that serializes all requests on obs_client."""
+    with _client_locks_guard:
+        lock = _client_locks.get(obs_client)
+        if lock is None:
+            lock = _client_locks[obs_client] = threading.RLock()
+        return lock
+
+
+def _locked(func):
+    """Run func(obs_client, ...) holding obs_client's lock."""
+
+    @functools.wraps(func)
+    def wrapper(obs_client, *args, **kwargs):
+        if obs_client is None:
+            return func(obs_client, *args, **kwargs)
+        with client_lock(obs_client):
+            return func(obs_client, *args, **kwargs)
+
+    return wrapper
 
 
 def open_obs_websocket(server_info):
@@ -12,16 +76,81 @@ def open_obs_websocket(server_info):
             host=server_info["ip"],
             port=server_info["port"],
             password=server_info["password"],
-            timeout=10,
+            timeout=OBS_TIMEOUT,
         )
         resp = cl.get_version()
         logger.info(f"OBS Version: {resp.obs_version}")
         return cl
     except Exception as e:
-        logger.warn(f"Error: {e}")
+        logger.warning(f"Cannot connect to OBS: {type(e).__name__}: {e}")
         return None
 
 
+def close_obs_websocket(obs_client) -> None:
+    """Disconnect obs_client and drop its pending text updates (call it when the
+    client is replaced or the app closes)."""
+    if obs_client is None:
+        return
+    _closed_clients.add(obs_client)
+    with client_lock(obs_client):
+        try:
+            obs_client.disconnect()
+        except Exception as e:
+            logger.debug(f"OBS: error while disconnecting: {e}")
+
+
+def _reconnect(obs_client) -> None:
+    """Replace obs_client's broken websocket with a new, authenticated one.
+    Raises OBSConnectionLost if OBS can't be reached. Call with the lock held."""
+    base = getattr(obs_client, "base_client", None)
+    if base is None:
+        raise OBSConnectionLost("connection to OBS lost")
+    try:
+        base.ws.shutdown()  # close the socket without a close handshake
+    except Exception:
+        pass
+    try:
+        fresh = obs.ReqClient(
+            host=base.host,
+            port=base.port,
+            password=base.password,
+            timeout=base.timeout,
+        )
+    except Exception as e:
+        raise OBSConnectionLost(
+            f"connection to OBS at {base.host}:{base.port} lost, reconnecting "
+            f"failed: {type(e).__name__}: {e}"
+        ) from e
+    obs_client.base_client = fresh.base_client
+    logger.info(f"OBS: reconnected to {base.host}:{base.port}")
+
+
+def _set_text(_key, item) -> None:
+    # runs on the OBS output worker thread
+    obs_client, source_name, text = item
+    if obs_client in _closed_clients:
+        return
+    with client_lock(obs_client):
+        # close_obs_websocket marks the client closed before it takes the lock:
+        # if that happened while this waited for the lock, don't reconnect it
+        if obs_client in _closed_clients:
+            return
+        try:
+            obs_client.set_input_settings(source_name, {"text": text}, True)
+        except _CONNECTION_ERRORS:
+            _reconnect(obs_client)
+            obs_client.set_input_settings(source_name, {"text": text}, True)
+
+
+_text_worker = OutputWorker(
+    "OBS",
+    _set_text,
+    retry_on=(OBSConnectionLost,) + _CONNECTION_ERRORS,
+    max_backoff=10.0,
+)
+
+
+@_locked
 def get_all_sources(obs_client: obs.ReqClient):
     # Get all the sources from OBS
     try:
@@ -37,11 +166,12 @@ def get_all_sources(obs_client: obs.ReqClient):
                 source["sceneName"] = scene["sceneName"]
                 sources.append(source)
         return sources
-    except Exception as e:
+    except Exception:
         logger.exception("Error: unable to get all sources")
         return None
 
 
+@_locked
 def get_source_by_name(obs_client: obs.ReqClient, source_name):
     # Get a source from OBS by name
     try:
@@ -61,11 +191,12 @@ def get_source_by_name(obs_client: obs.ReqClient, source_name):
             if source["sourceName"] == source_name:
                 return source
         return None
-    except Exception as e:
+    except Exception:
         logger.exception("Error: unable to get source by name")
         return None
 
 
+@_locked
 def get_source_screenshot(obs_client: obs.ReqClient, source_name, width, height):
     # Get a screenshot of a source from OBS
     try:
@@ -73,26 +204,30 @@ def get_source_screenshot(obs_client: obs.ReqClient, source_name, width, height)
             source_name, img_format="png", width=width, height=height, quality=100
         )
         return resp.image_data
-    except Exception as e:
+    except Exception:
         logger.exception("Error: unable to get source screenshot")
         return None
 
 
 def update_text_source(obs_client: obs.ReqClient, source_name, text) -> None:
-    # Update a text source in OBS using SetInputSettings
-    try:
-        # get the source
-        obs_client.set_input_settings(source_name, {"text": text}, True)
-    except Exception as e:
-        logger.exception("Error: unable to update text source")
+    """Set the text of the OBS text source source_name, in the background.
+
+    Never blocks: the update is queued for the OBS output thread, which keeps
+    only the latest text per source and reconnects if the connection broke.
+    Boxes without an OBS source name are skipped."""
+    if obs_client is None or not source_name:
+        return
+    text = "" if text is None else str(text)
+    _text_worker.submit((id(obs_client), source_name), (obs_client, source_name, text))
 
 
+@_locked
 def clear_or_create_new_scene(obs_client: obs.ReqClient, scene_name) -> bool:
     # Create a new scene in OBS or clear an existing one
     try:
         # check if the scene exists
         resp = obs_client.get_scene_list()
-    except Exception as e:
+    except Exception:
         logger.exception("Error: unable to get scene list")
         return False
     scenes = resp.scenes
@@ -120,7 +255,7 @@ def clear_or_create_new_scene(obs_client: obs.ReqClient, scene_name) -> bool:
                 if scene["sceneName"] != scene_name:
                     obs_client.set_current_program_scene(scene["sceneName"])
                     break
-    except Exception as e:
+    except Exception:
         logger.exception("Cannot change OBS program scene")
 
     try:
@@ -131,7 +266,7 @@ def clear_or_create_new_scene(obs_client: obs.ReqClient, scene_name) -> bool:
                 if scene["sceneName"] != scene_name:
                     obs_client.set_current_preview_scene(scene["sceneName"])
                     break
-    except Exception as e:
+    except Exception:
         logger.exception("Cannot change OBS preview scene")
 
     # remove all scene items
@@ -140,12 +275,13 @@ def clear_or_create_new_scene(obs_client: obs.ReqClient, scene_name) -> bool:
         for scene_item in resp.scene_items:
             obs_client.remove_scene_item(scene_name, scene_item["sceneItemId"])
             obs_client.remove_input(scene_item["sourceName"])
-    except Exception as e:
+    except Exception:
         logger.exception("Error: unable to remove scene item")
 
     return True
 
 
+@_locked
 def create_obs_scene_from_export(obs_client, scene_name):
     logger.info("creating OBS scene")
     # create a new scene in OBS
@@ -184,7 +320,7 @@ def create_obs_scene_from_export(obs_client, scene_name):
             # get the base name of the image path
             base_name = path.basename(source_settings_to_set["file"])
             # get the absolute path to the image
-            abs_path = resource_path("obs_data", "Scoreboard parts", "{base_name}")
+            abs_path = resource_path("obs_data", "Scoreboard parts", base_name)
             source_settings_to_set["file"] = abs_path
 
         try:

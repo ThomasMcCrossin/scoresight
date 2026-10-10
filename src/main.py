@@ -1,47 +1,450 @@
-from os import path
+"""ScoreSight entry point.
+
+Command-line options:
+  --profile NAME  use the settings file scoresight-NAME.json (SCORESIGHT_PROFILE)
+  --port N        serve the HTTP API on port N (default 18099)
+  --self-test     check the installation headlessly, print SELF-TEST OK, exit 0
+
+Qt's own options (for example -platform offscreen or -style fusion) are passed
+through to QApplication.
+
+The app modules are imported only after --profile has been applied: some of them
+read (and subscribe to) settings when they are imported.
+"""
+
+import argparse
+import importlib
+import os
 import platform
+import signal
 import sys
-from PySide6.QtWidgets import QApplication
-from PySide6.QtCore import (
-    QTranslator,
-    QLocale,
+import traceback
+
+DEFAULT_HTTP_PORT = 18099
+DEFAULT_LOCALE = "en_US"
+
+# Every app module, imported by --self-test. The frozen app has no src/ folder
+# to list, so this is explicit (tests/test_app_main.py keeps it complete). The
+# platform-specific modules are imported through screen_capture_source.
+SELF_TEST_MODULES = (
+    "api_output",
+    "base_video_capture",
+    "box_settings_ui_handler",
+    "camera_info",
+    "camera_thread",
+    "camera_view",
+    "defaults",
+    "file_output",
+    "frame_stabilizer",
+    "get_camera_info",
+    "http_server",
+    "log_view",
+    "mainwindow",
+    "ndi",
+    "obs_websocket",
+    "ocr_training_data",
+    "output_worker",
+    "resizable_rect",
+    "resource_path",
+    "sc_logging",
+    "screen_capture_source",
+    "source_view",
+    "storage",
+    "template_fields",
+    "tesseract",
+    "text_detection_target",
+    "training_dojo",
+    "ui_about",
+    "ui_connect_obs",
+    "ui_log_view",
+    "ui_mainwindow",
+    "ui_ocr_training_data_dialog",
+    "ui_screen_capture",
+    "ui_training_dojo",
+    "ui_update_available",
+    "ui_url_source",
+    "ui_video_settings",
+    "uno_output",
+    "uno_ui_handler",
+    "update_check",
+    "version",
+    "video_settings",
+    "vmix_output",
+    "vmix_ui_handler",
 )
 
-from mainwindow import MainWindow
-from resource_path import resource_path
-from sc_logging import logger
-from http_server import stop_http_server
+# Bundled files the app can't work without (relative to resource_path()).
+SELF_TEST_RESOURCES = (
+    ("tesseract", "tessdata", "daktronics.traineddata"),
+    ("tesseract", "tessdata", "scoreboard_general.traineddata"),
+    ("tesseract", "tessdata", "eng.traineddata"),
+    ("tesseract", "tessdata", "scoreboard_general_large.traineddata"),
+    ("translations", f"scoresight_{DEFAULT_LOCALE}.qm"),
+    ("icons", "circle-check.svg"),
+    ("icons", "circle-x.svg"),
+    ("icons", "template-field.svg"),
+    ("obs_data", "Scoresight_OBS_scene_collection.json"),
+)
 
-if __name__ == "__main__":
-    # only attempt splash when not on Mac OSX
-    os_name = platform.system()
-    if os_name != "Darwin":
-        try:
-            import pyi_splash  # type: ignore
+SELF_TEST_TEXT = "45"
 
-            pyi_splash.close()
-        except ImportError:
-            pass
-    app = QApplication(sys.argv)
 
-    # Get system locale
-    locale = QLocale.system().name()
+def _port(value: str) -> int:
+    try:
+        port = int(value)
+    except ValueError:
+        port = 0
+    if not 1 <= port <= 65535:
+        raise argparse.ArgumentTypeError(f"invalid port: {value!r} (use 1-65535)")
+    return port
 
-    # Load the translation file based on the locale
-    translator = QTranslator()
-    locale_file = resource_path("translations", f"scoresight_{locale}.qm")
-    # check if the file exists
-    if not path.exists(locale_file):
-        # load the default translation file
-        locale_file = resource_path("translations", "scoresight_en_US.qm")
+
+def _profile(value: str) -> str:
+    value = value.strip()
+    if not value:
+        raise argparse.ArgumentTypeError("the profile name can't be empty")
+    return value
+
+
+def build_arg_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        prog="scoresight",
+        description="ScoreSight: real-time scoreboard OCR.",
+        epilog="Qt options such as -platform offscreen are passed on to Qt.",
+    )
+    parser.add_argument(
+        "--profile",
+        metavar="NAME",
+        type=_profile,
+        help="use the settings file scoresight-NAME.json instead of scoresight.json",
+    )
+    parser.add_argument(
+        "--port",
+        metavar="N",
+        type=_port,
+        default=DEFAULT_HTTP_PORT,
+        help=f"HTTP server port (default {DEFAULT_HTTP_PORT})",
+    )
+    parser.add_argument(
+        "--self-test",
+        action="store_true",
+        help="check the installation without opening a window, then exit",
+    )
+    return parser
+
+
+def parse_args(argv: list[str]) -> tuple[argparse.Namespace, list[str]]:
+    """Parse ScoreSight's options from argv (without the program name). Returns
+    the options and the remaining arguments, which are meant for Qt."""
+    return build_arg_parser().parse_known_args(argv)
+
+
+def apply_profile(profile: str | None):
+    """Select the settings profile. Must run before storage-dependent modules
+    are imported."""
+    if profile:
+        os.environ["SCORESIGHT_PROFILE"] = profile
+
+
+def find_translation_file(locale_names, translations_dir: str) -> str | None:
+    """The best scoresight_<locale>.qm in translations_dir for the first locale
+    name that has one, e.g. "de_AT" or "de-AT" -> scoresight_de_DE.qm.
+
+    An exact match wins; otherwise a translation for the same language is used
+    (preferring the language's "home" region, so pt_AO -> pt_PT).
+    """
+    try:
+        file_names = os.listdir(translations_dir)
+    except OSError:
+        return None
+    available = {
+        name[len("scoresight_") : -len(".qm")]: name
+        for name in file_names
+        if name.startswith("scoresight_") and name.endswith(".qm")
+    }
+    for locale_name in locale_names:
+        if not locale_name:
+            continue
+        locale_name = locale_name.replace("-", "_")
+        if locale_name in available:
+            return os.path.join(translations_dir, available[locale_name])
+        language = locale_name.split("_")[0].lower()
+        same_language = sorted(
+            code for code in available if code.split("_")[0].lower() == language
+        )
+        if same_language:
+            home = f"{language}_{language.upper()}"
+            best = home if home in same_language else same_language[0]
+            return os.path.join(translations_dir, available[best])
+    return None
+
+
+def load_translator(app, stored_language: str | None):
+    """Install the translation for the Language menu choice, or else the system
+    locale, falling back to English."""
+    from PySide6.QtCore import QLocale, QTranslator
+
+    from resource_path import resource_path
+
+    system_locale = QLocale.system()
+    candidates = [stored_language, *system_locale.uiLanguages(), system_locale.name()]
+    translations_dir = resource_path("translations")
+    locale_file = find_translation_file(candidates, translations_dir)
+    if locale_file is None:
+        locale_file = os.path.join(translations_dir, f"scoresight_{DEFAULT_LOCALE}.qm")
+    translator = QTranslator(app)
     if translator.load(locale_file):
         app.installTranslator(translator)
+    return translator
 
-    # show the main window
-    mainWindow = MainWindow(translator, app)
-    mainWindow.show()
 
-    app.exec()
+def close_splash_screen():
+    # The PyInstaller splash screen (only the Windows build has one) stays up
+    # until closed. Its bootloader passes the connection in _PYI_SPLASH_IPC;
+    # importing pyi_splash without it (it is bundled in the other builds too)
+    # logs a warning with a traceback.
+    if "_PYI_SPLASH_IPC" not in os.environ:
+        return
+    try:
+        import pyi_splash  # type: ignore
+
+        pyi_splash.close()
+    except ImportError:
+        pass
+
+
+# Signals that close the app like closing its window: Ctrl+C in a terminal,
+# `kill`/service stop on macOS and Linux, Ctrl+Break on Windows.
+QUIT_SIGNALS = ("SIGINT", "SIGTERM", "SIGBREAK")
+# How often Qt's event loop lets the interpreter run pending signal handlers.
+SIGNAL_POLL_MS = 250
+
+
+def install_quit_signal_handlers(app, window):
+    """Make QUIT_SIGNALS close window, so the usual shutdown runs (boxes saved,
+    capture thread, HTTP server and outputs stopped). Python runs signal
+    handlers only when it gets control, which Qt's event loop doesn't give it
+    by itself, so a timer wakes it up. Returns the timer."""
+    from PySide6.QtCore import QTimer
+
+    def close_window(signum, frame):
+        # queued: the handler may run in the middle of another Python slot
+        QTimer.singleShot(0, window.close)
+        # a dialog without a parent (Video Settings, Connect to OBS, a modal
+        # source dialog) is a window of its own and would otherwise keep the
+        # event loop running after the main window closed
+        QTimer.singleShot(0, app.quit)
+
+    for name in QUIT_SIGNALS:
+        signum = getattr(signal, name, None)
+        if signum is not None:
+            signal.signal(signum, close_window)
+    timer = QTimer(app)
+    timer.timeout.connect(lambda: None)
+    timer.start(SIGNAL_POLL_MS)
+    return timer
+
+
+def run_app(args: argparse.Namespace, qt_args: list[str]) -> int:
+    from PySide6.QtWidgets import QApplication
+
+    from http_server import stop_http_server
+    from mainwindow import MainWindow, apply_color_scheme
+    from output_worker import stop_all_workers
+    from sc_logging import logger
+    from storage import fetch_data
+
+    app = QApplication([sys.argv[0], *qt_args])
+    apply_color_scheme(fetch_data("scoresight.json", "color_scheme"))
+    translator = load_translator(app, fetch_data("scoresight.json", "language"))
+
+    main_window = MainWindow(translator, app, http_port=args.port)
+    main_window.show()
+    install_quit_signal_handlers(app, main_window)
+
+    exit_code = app.exec()
     logger.info("Exiting...")
-
     stop_http_server()
+    # The output threads are daemons and never block the exit; give a send in
+    # flight (vMix, UNO, OBS, outbound API) a moment to finish.
+    stop_all_workers(timeout=2)
+    return exit_code
+
+
+# --- self-test --------------------------------------------------------------------
+
+
+def _attach_parent_console():
+    # A windowed (no console) Windows build has no stdout. Attach to the console
+    # of the shell that started it, so that the self-test result is visible.
+    if sys.platform != "win32" or sys.stdout is not None:
+        return
+    import ctypes
+
+    if ctypes.windll.kernel32.AttachConsole(-1):  # ATTACH_PARENT_PROCESS
+        sys.stdout = open("CONOUT$", "w", encoding="utf-8", errors="replace")
+        sys.stderr = sys.stdout
+
+
+def _render_text_image(text: str):
+    """A white-on-black grayscale image of text in OpenCV's Hershey font."""
+    import cv2
+    import numpy as np
+
+    font, scale, thickness, pad = cv2.FONT_HERSHEY_SIMPLEX, 3, 6, 20
+    (width, height), baseline = cv2.getTextSize(text, font, scale, thickness)
+    image = np.zeros((height + baseline + 2 * pad, width + 2 * pad), np.uint8)
+    cv2.putText(
+        image, text, (pad, pad + height), font, scale, 255, thickness, cv2.LINE_AA
+    )
+    return image
+
+
+def _self_test_ocr() -> str:
+    import cv2
+
+    from defaults import default_info_for_box_name, normalize_settings_dict
+    from tesseract import TextDetector
+    from text_detection_target import TextDetectionTarget
+
+    gray = _render_text_image(SELF_TEST_TEXT)
+    _, binary = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    box_name = "Home Score"
+    target = TextDetectionTarget(
+        0,
+        0,
+        gray.shape[1],
+        gray.shape[0],
+        box_name,
+        normalize_settings_dict({}, default_info_for_box_name(box_name)),
+        [],
+    )
+    models = {
+        "daktronics": TextDetector.OcrModelIndex.DAKTRONICS,
+        "scoreboard_general": TextDetector.OcrModelIndex.SCOREBOARD_GENERAL,
+        "scoreboard_general_large": TextDetector.OcrModelIndex.SCOREBOARD_GENERAL_LARGE,
+        "eng": TextDetector.OcrModelIndex.GENERAL_ENGLISH,
+    }
+    detector = TextDetector()
+    reads = {}
+    try:
+        for name, index in models.items():
+            # setOcrModel keeps the previous model when one fails to load
+            if not detector.setOcrModel(index):
+                raise RuntimeError(f"the OCR model {name!r} did not load")
+            results = detector.detect_multi_text(binary, gray, [target])
+            if len(results) != 1:
+                raise RuntimeError(f"OCR with {name!r} returned {len(results)} results")
+            reads[name] = results[0].text
+    finally:
+        if detector.api is not None:
+            detector.api.End()
+            detector.api = None
+    # The scoreboard models are trained on LED/LCD digits; the general English
+    # model must read the rendered font exactly.
+    if reads["eng"] != SELF_TEST_TEXT:
+        raise RuntimeError(f"OCR read {reads['eng']!r} instead of {SELF_TEST_TEXT!r}")
+    return ", ".join(f"{name}={text!r}" for name, text in reads.items())
+
+
+def _self_test_steps():
+    """Yield a line per completed check; raise on the first failure."""
+    # The self-test never shows a window, so it doesn't need a display.
+    os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+    frozen = bool(getattr(sys, "frozen", False))
+
+    from version import __version__
+
+    yield (
+        f"ScoreSight {__version__} self-test: Python {platform.python_version()}, "
+        f"{platform.platform()}{' (frozen)' if frozen else ''}"
+    )
+
+    for module_name in SELF_TEST_MODULES:
+        importlib.import_module(module_name)
+    yield f"imported {len(SELF_TEST_MODULES)} modules"
+
+    from sc_logging import log_file_path
+    from storage import get_storage_path
+
+    yield f"settings file: {get_storage_path('scoresight.json')}"
+    yield f"log file: {log_file_path}"
+
+    from resource_path import resource_path
+
+    missing = [
+        os.path.join(*parts)
+        for parts in SELF_TEST_RESOURCES
+        if not os.path.isfile(resource_path(*parts))
+    ]
+    if missing:
+        raise RuntimeError(f"missing bundled files: {', '.join(missing)}")
+    yield f"bundled files present in {resource_path()}"
+
+    from PySide6 import __version__ as pyside_version
+    from PySide6.QtCore import QTranslator, qVersion
+    from PySide6.QtWidgets import QApplication, QMainWindow
+
+    from ui_mainwindow import Ui_MainWindow
+
+    app = QApplication.instance() or QApplication([sys.argv[0]])
+    window = QMainWindow()
+    Ui_MainWindow().setupUi(window)
+    window.deleteLater()
+    translator = QTranslator()
+    if not translator.load(resource_path("translations", "scoresight_de_DE.qm")):
+        raise RuntimeError("the translations don't load")
+    yield (
+        f"Qt {qVersion()} (PySide6 {pyside_version}, platform "
+        f"{app.platformName()}): main window UI and translations load"
+    )
+
+    yield f"OCR with every bundled model: {_self_test_ocr()}"
+
+    import uvicorn
+
+    async def asgi_app(scope, receive, send):
+        pass
+
+    # resolves uvicorn's dynamically imported protocol/loop modules
+    uvicorn.Config(asgi_app, loop="asyncio", ws="none", log_config=None).load()
+    yield f"HTTP server (uvicorn {uvicorn.__version__}) loads"
+
+    from get_camera_info import get_camera_info
+
+    try:
+        sources = get_camera_info()
+    except Exception as e:
+        # From source the native camera enumerator is optional (it has to be
+        # built); a frozen build must include it.
+        if frozen:
+            raise
+        yield f"WARNING: video source discovery failed: {e!r}"
+    else:
+        yield f"video source discovery found {len(sources)} source(s)"
+
+
+def run_self_test() -> int:
+    _attach_parent_console()
+    try:
+        for line in _self_test_steps():
+            print(line, flush=True)
+    except Exception as e:
+        traceback.print_exc()
+        print(f"SELF-TEST FAILED: {e}", flush=True)
+        return 1
+    print("SELF-TEST OK", flush=True)
+    return 0
+
+
+def main(argv: list[str] | None = None) -> int:
+    args, qt_args = parse_args(sys.argv[1:] if argv is None else argv)
+    apply_profile(args.profile)
+    close_splash_screen()
+    if args.self_test:
+        return run_self_test()
+    return run_app(args, qt_args)
+
+
+if __name__ == "__main__":
+    sys.exit(main())

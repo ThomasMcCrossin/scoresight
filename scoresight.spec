@@ -1,210 +1,266 @@
 # -*- mode: python ; coding: utf-8 -*-
-import os
-from PyInstaller.utils.hooks import collect_all
+"""PyInstaller spec for ScoreSight.
 
-# parse command line arguments
+    pyinstaller --clean --noconfirm scoresight.spec              # release build
+    pyinstaller --clean --noconfirm scoresight.spec -- --debug   # console build
+
+Builds a onedir app for the platform it runs on (PyInstaller can't
+cross-compile):
+  Windows  dist/scoresight/scoresight.exe, with a splash screen. Build the
+           camera enumerator first: cd src/win32DeviceEnum &&
+           python setup.py build_ext --inplace
+  macOS    dist/ScoreSight.app, signed with the identity in the
+           APPLE_APP_DEVELOPER_ID environment variable if it is set, otherwise
+           ad-hoc signed
+  Linux    dist/scoresight/scoresight
+
+src/main.py is the only entry script and PyInstaller follows its imports, so new
+modules in src/ are bundled automatically. Data files come from DATA_GLOBS
+(tests/test_packaging.py checks them against the resources the code loads). The
+version comes from src/version.py. The old --win and --mac_osx flags are still
+accepted, but the platform is detected.
+"""
+
 import argparse
+import glob
+import importlib.machinery
+import os
+import runpy
+import sys
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--mac_osx', action='store_true')
-parser.add_argument('--win', action='store_true')
-parser.add_argument('--debug', action='store_true')
+from PyInstaller.utils.hooks import (
+    collect_data_files,
+    collect_dynamic_libs,
+    collect_submodules,
+)
 
+IS_WINDOWS = sys.platform == "win32"
+IS_MACOS = sys.platform == "darwin"
+
+parser = argparse.ArgumentParser(prog="pyinstaller scoresight.spec --")
+parser.add_argument(
+    "--debug",
+    action="store_true",
+    help="console build (Windows), so the log output and tracebacks are visible",
+)
+parser.add_argument("--win", action="store_true", help=argparse.SUPPRESS)
+parser.add_argument("--mac_osx", action="store_true", help=argparse.SUPPRESS)
 args = parser.parse_args()
+if (args.win and not IS_WINDOWS) or (args.mac_osx and not IS_MACOS):
+    parser.error(
+        f"--win/--mac_osx don't match this platform ({sys.platform}); "
+        "PyInstaller can't cross-compile"
+    )
 
-datas = [
-    ('.env', '.'),
-    ('icons/circle-check.svg', './icons'),
-    ('icons/circle-x.svg', './icons'),
-    ('icons/template-field.svg', './icons'),
-    ('icons/MacOS_icon.png', './icons'),
-    ('icons/plus.svg', './icons'),
-    ('icons/splash.png', './icons'),
-    ('icons/trash.svg', './icons'),
-    ('icons/Windows-icon-open.ico', './icons'),
-    ('tesseract/tessdata/daktronics.traineddata', './tesseract/tessdata'),
-    ('tesseract/tessdata/scoreboard_general.traineddata', './tesseract/tessdata'),
-    ('tesseract/tessdata/scoreboard_general_large.traineddata', './tesseract/tessdata'),
-    ('tesseract/tessdata/eng.traineddata', './tesseract/tessdata'),
-    ('obs_data/Scoresight_OBS_scene_collection.json', './obs_data'),
-    ('obs_data/Scoreboard parts/Left Scoreboard.png', './obs_data/Scoreboard parts'),
-    ('obs_data/Scoreboard parts/Left base Scoreboard.png', './obs_data/Scoreboard parts'),
-    ('obs_data/Scoreboard parts/Middle Scoreboard.png', './obs_data/Scoreboard parts'),
-    ('obs_data/Scoreboard parts/Right Scoreboard.png', './obs_data/Scoreboard parts'),
-    ('obs_data/Scoreboard parts/Right base Scoreboard.png', './obs_data/Scoreboard parts'),
-    ('obs_data/Scoreboard parts/logo-placeholder-image.png', './obs_data/Scoreboard parts'),
-    ('translations/scoresight_de_DE.qm', './translations'),
-    ('translations/scoresight_en_US.qm', './translations'),
-    ('translations/scoresight_es_ES.qm', './translations'),
-    ('translations/scoresight_fr_FR.qm', './translations'),
-    ('translations/scoresight_it_IT.qm', './translations'),
-    ('translations/scoresight_ja_JP.qm', './translations'),
-    ('translations/scoresight_ko_KR.qm', './translations'),
-    ('translations/scoresight_nl_NL.qm', './translations'),
-    ('translations/scoresight_pl_PL.qm', './translations'),
-    ('translations/scoresight_pt_BR.qm', './translations'),
-    ('translations/scoresight_pt_PT.qm', './translations'),
-    ('translations/scoresight_ru_RU.qm', './translations'),
-    ('translations/scoresight_zh_CN.qm', './translations'),
+ROOT = SPECPATH  # SPECPATH is defined by PyInstaller: the folder of this file
+SRC = os.path.join(ROOT, "src")
+
+_versioning = runpy.run_path(os.path.join(ROOT, "scripts", "ci", "versioning.py"))
+VERSION = _versioning["read_version"](os.path.join(SRC, "version.py"))
+NUMERIC_VERSION = _versioning["numeric_version"](VERSION)  # X.Y.Z.0
+SHORT_VERSION = NUMERIC_VERSION.rsplit(".", 1)[0]  # X.Y.Z
+
+# Data files loaded through resource_path(): (glob relative to the repository
+# root, folder inside the bundle). The build fails if a glob matches nothing.
+DATA_GLOBS = [
+    ("icons/*.svg", "icons"),
+    ("icons/*.ico", "icons"),
+    ("tesseract/tessdata/*.traineddata", "tesseract/tessdata"),
+    ("translations/*.qm", "translations"),
+    ("obs_data/Scoresight_OBS_scene_collection.json", "obs_data"),
+    ("obs_data/Scoreboard parts/*.png", "obs_data/Scoreboard parts"),
 ]
 
-sources = [
-    'src/api_output.py',
-    'src/base_video_capture.py',
-    'src/box_settings_ui_handler.py',
-    'src/camera_info.py',
-    'src/camera_thread.py',
-    'src/camera_view.py',
-    'src/defaults.py',
-    'src/file_output.py',
-    'src/frame_stabilizer.py',
-    'src/get_camera_info.py',
-    'src/http_server.py',
-    'src/log_view.py',
-    'src/main.py',
-    'src/mainwindow.py',
-    'src/ndi.py',
-    'src/obs_websocket.py',
-    'src/ocr_training_data.py',
-    'src/resizable_rect.py',
-    'src/resource_path.py',
-    'src/sc_logging.py',
-    'src/screen_capture_source.py',
-    'src/source_view.py',
-    'src/storage.py',
-    'src/template_fields.py',
-    'src/tesseract.py',
-    'src/text_detection_target.py',
-    'src/training_dojo.py',
-    'src/video_settings.py',
-    'src/ui_about.py',
-    'src/ui_connect_obs.py',
-    'src/ui_log_view.py',
-    'src/ui_mainwindow.py',
-    'src/ui_ocr_training_data_dialog.py',
-    'src/ui_screen_capture.py',
-    'src/ui_training_dojo.py',
-    'src/ui_update_available.py',
-    'src/ui_url_source.py',
-    'src/ui_video_settings.py',
-    'src/uno_output.py',
-    'src/uno_ui_handler.py',
-    'src/update_check.py',
-    'src/video_settings.py',
-    'src/vmix_output.py',
-    'src/vmix_ui_handler.py',
-]
+datas = []
+for pattern, destination in DATA_GLOBS:
+    matches = sorted(glob.glob(os.path.join(ROOT, pattern)))
+    if not matches:
+        raise SystemExit(f"scoresight.spec: no files match {pattern!r}")
+    datas += [(match, destination) for match in matches]
 
-if args.win:
-    datas += [('src/win32DeviceEnum/win32DeviceEnumBind.cp311-win_amd64.pyd', './src/win32DeviceEnum')]
-    sources += ['src/win32DeviceEnum/enum_devices_dshow.py', 'src/screen_capture_source_windows.py']
-if args.mac_osx:
-    sources += ['src/screen_capture_source_mac.py']
 
-numpy_datas, numpy_binaries, numpy_hiddenimports = collect_all('numpy')
-ws_hiddenimports=['websockets', 'websockets.legacy']
+def _is_module_name(name):
+    # cyndilib ships per-platform library folders such as
+    # wrapper/bin/x86_64-linux-gnu, which aren't importable modules
+    return all(part.isidentifier() for part in name.split("."))
+
+
+# Imports made from compiled code are invisible to PyInstaller: tesserocr's
+# extension imports cysignals (the PyPI package on macOS and Linux, a private
+# tesserocr.cysignals copy in the Windows wheel), and cyndilib's extensions import
+# each other and pugixml_cython.
+hiddenimports = []
+for package in ("tesserocr", "cyndilib", "pugixml_cython"):
+    hiddenimports += collect_submodules(package, filter=_is_module_name)
+if not IS_WINDOWS:
+    hiddenimports += ["cysignals", "cysignals.signals"]
+
+pathex = [SRC]
+binaries = []
+excludes = ["PyQt5", "PyQt6", "tkinter", "_tkinter"]
+
+if IS_WINDOWS:
+    # The DirectShow camera enumerator (a pybind11 extension built in place).
+    device_enum_dir = os.path.join(SRC, "win32DeviceEnum")
+    if not any(
+        os.path.isfile(os.path.join(device_enum_dir, "win32DeviceEnumBind" + suffix))
+        for suffix in importlib.machinery.EXTENSION_SUFFIXES
+    ):
+        raise SystemExit(
+            "scoresight.spec: build the camera enumerator for this Python first: "
+            "cd src/win32DeviceEnum && python setup.py build_ext --inplace"
+        )
+    pathex.append(device_enum_dir)
+    hiddenimports += [
+        "screen_capture_source_windows",
+        "win32DeviceEnum.enum_devices_dshow",
+        "win32DeviceEnumBind",
+    ]
+    # cyndilib/__init__.py calls os.add_dll_directory(cyndilib/wrapper/bin), so
+    # that folder, with the NDI runtime DLL, must exist in the frozen app. The
+    # UWP and DirectShow-filter variants of the runtime (66 MB) aren't used.
+    binaries += [
+        (source, destination)
+        for source, destination in collect_dynamic_libs("cyndilib")
+        if ".UWP." not in source and ".DirectShow." not in source
+    ]
+    datas += collect_data_files("cyndilib", includes=["wrapper/bin/*.txt"])
+    # The Windows tesserocr wheel keeps the Tesseract and Leptonica DLLs next to
+    # its extension module.
+    binaries += collect_dynamic_libs("tesserocr")
+    excludes += ["screen_capture_source_mac"]
+elif IS_MACOS:
+    hiddenimports += ["screen_capture_source_mac"]
+    excludes += ["screen_capture_source_windows", "win32DeviceEnum"]
+else:
+    excludes += [
+        "screen_capture_source_mac",
+        "screen_capture_source_windows",
+        "win32DeviceEnum",
+    ]
 
 a = Analysis(
-    sources,
-    pathex=[],
-    binaries=numpy_binaries,
-    datas=datas + numpy_datas,
-    hiddenimports=numpy_hiddenimports + ws_hiddenimports,
-    hookspath=[],
-    hooksconfig={},
-    runtime_hooks=[],
-    excludes=['PyQt6'],
+    [os.path.join(SRC, "main.py")],
+    pathex=pathex,
+    binaries=binaries,
+    datas=datas,
+    hiddenimports=hiddenimports,
+    excludes=excludes,
     noarchive=False,
 )
 pyz = PYZ(a.pure)
 
-if args.win:
-    splash = Splash('icons/splash.png',
-                    binaries=a.binaries,
-                    datas=a.datas,
-                    text_pos=(10, 20),
-                    text_size=10,
-                    text_color='black')
+if IS_WINDOWS:
+    from PyInstaller.utils.win32.versioninfo import (
+        FixedFileInfo,
+        StringFileInfo,
+        StringStruct,
+        StringTable,
+        VarFileInfo,
+        VarStruct,
+        VSVersionInfo,
+    )
+
+    version_numbers = tuple(int(part) for part in NUMERIC_VERSION.split("."))
+    version_info = VSVersionInfo(
+        ffi=FixedFileInfo(filevers=version_numbers, prodvers=version_numbers),
+        kids=[
+            StringFileInfo(
+                [
+                    StringTable(
+                        "040904B0",
+                        [
+                            StringStruct("CompanyName", "Roy Shilkrot"),
+                            StringStruct("FileDescription", "ScoreSight"),
+                            StringStruct("FileVersion", VERSION),
+                            StringStruct("InternalName", "scoresight"),
+                            StringStruct("LegalCopyright", "MIT License"),
+                            StringStruct("OriginalFilename", "scoresight.exe"),
+                            StringStruct("ProductName", "ScoreSight"),
+                            StringStruct("ProductVersion", VERSION),
+                        ],
+                    )
+                ]
+            ),
+            VarFileInfo([VarStruct("Translation", [0x0409, 1200])]),
+        ],
+    )
+    splash = Splash(
+        os.path.join(ROOT, "icons", "splash.png"),
+        binaries=a.binaries,
+        datas=a.datas,
+        text_pos=(10, 20),
+        text_size=10,
+        text_color="black",
+    )
     exe = EXE(
         pyz,
         a.scripts,
         splash,
-        name='scoresight',
-        icon='icons/Windows-icon-open.ico',
-        debug=args.debug is not None and args.debug,
+        [],
         exclude_binaries=True,
-        bootloader_ignore_signals=False,
-        strip=False,
-        upx=True,
-        upx_exclude=[],
-        console=args.debug is not None and args.debug,
-        disable_windowed_traceback=False,
-        argv_emulation=False,
-        target_arch=None,
+        name="scoresight",
+        icon=os.path.join(ROOT, "icons", "Windows-icon-open.ico"),
+        version=version_info,
+        console=args.debug,
+        upx=False,
     )
     coll = COLLECT(
-        exe,
-        a.binaries,
-        a.zipfiles,
-        a.datas,
-        splash.binaries,
-        strip=False,
-        upx=True,
-        upx_exclude=[],
-        name='scoresight'
+        exe, a.binaries, a.datas, splash.binaries, upx=False, name="scoresight"
     )
-elif args.mac_osx:
+elif IS_MACOS:
+    codesign_identity = os.environ.get("APPLE_APP_DEVELOPER_ID") or None
+    entitlements_file = os.path.join(ROOT, "entitlements.plist")
     exe = EXE(
         pyz,
-        a.binaries,
-        a.datas,
         a.scripts,
-        name='scoresight',
-        debug=args.debug is not None and args.debug,
-        bootloader_ignore_signals=False,
-        strip=False,
-        upx=True,
+        [],
+        exclude_binaries=True,
+        name="scoresight",
         console=False,
-        disable_windowed_traceback=False,
+        upx=False,
         argv_emulation=False,
-        target_arch=None,
-        codesign_identity=os.environ.get('APPLE_APP_DEVELOPER_ID', ''),
-        entitlements_file='./entitlements.plist',
+        codesign_identity=codesign_identity,
+        entitlements_file=entitlements_file,
     )
+    coll = COLLECT(exe, a.binaries, a.datas, upx=False, name="scoresight")
     app = BUNDLE(
-        exe,
-        name='scoresight.app',
-        icon='icons/MacOS_icon.png',
-        bundle_identifier='com.royshilkrot.scoresight',
-        version='0.1.0',
+        coll,
+        name="ScoreSight.app",
+        icon=os.path.join(ROOT, "icons", "MacOS_icon.png"),
+        # Keep the identifier: macOS ties the camera permission to it.
+        bundle_identifier="com.royshilkrot.scoresight",
+        version=SHORT_VERSION,
         info_plist={
-            'NSPrincipalClass': 'NSApplication',
-            'NSAppleScriptEnabled': False,
-            'NSCameraUsageDescription': 'Getting images from the camera to perform OCR'
-        }
+            "CFBundleName": "ScoreSight",
+            "CFBundleDisplayName": "ScoreSight",
+            "CFBundleShortVersionString": SHORT_VERSION,
+            "CFBundleVersion": SHORT_VERSION,
+            # The tesserocr wheels (bundled Tesseract) target macOS 15.
+            "LSMinimumSystemVersion": "15.0",
+            "LSApplicationCategoryType": "public.app-category.video",
+            "NSPrincipalClass": "NSApplication",
+            "NSHighResolutionCapable": True,
+            "NSAppleScriptEnabled": False,
+            # OCR keeps running while the window is in the background: no App Nap.
+            "NSAppSleepDisabled": True,
+            "NSCameraUsageDescription": (
+                "ScoreSight reads the scoreboard in the camera image."
+            ),
+            "NSScreenCaptureUsageDescription": (
+                "ScoreSight reads the scoreboard in the window or screen you "
+                "choose to capture."
+            ),
+        },
     )
 else:
-    splash = Splash('icons/splash.png',
-                    binaries=a.binaries,
-                    datas=a.datas,
-                    text_pos=(10, 20),
-                    text_size=10,
-                    text_color='black')
     exe = EXE(
         pyz,
-        a.binaries,
-        a.datas,
         a.scripts,
-        splash,
-        splash.binaries,
-        name='scoresight',
-        icon='icons/Windows-icon-open.ico',
-        debug=args.debug is not None and args.debug,
-        bootloader_ignore_signals=False,
-        strip=False,
-        upx=True,
-        console=False,
-        disable_windowed_traceback=False,
-        argv_emulation=False,
-        target_arch=None,
+        [],
+        exclude_binaries=True,
+        name="scoresight",
+        console=True,
+        upx=False,
     )
+    coll = COLLECT(exe, a.binaries, a.datas, upx=False, name="scoresight")
