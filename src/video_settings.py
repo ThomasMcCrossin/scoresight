@@ -49,6 +49,10 @@ def get_supported_fourcc(cap):
     return supported_fourccs
 
 
+def resolution_text(width, height) -> str:
+    return f"{int(width)}x{int(height)}"
+
+
 class VideoSettingsDialog(QDialog):
     def __init__(self):
         super().__init__()
@@ -56,16 +60,36 @@ class VideoSettingsDialog(QDialog):
         self.ui.setupUi(self)
         self.ui.buttonBox.accepted.connect(self.save_settings)
         self.ui.buttonBox.rejected.connect(self.close)
+        self.cap = None
+        self.initial_values = {}
 
-    def init_ui(self, cap: OpenCVVideoCaptureWithSettings):
+    def init_ui(self, cap: OpenCVVideoCaptureWithSettings | None):
         self.cap = cap
-        self.ui.spinBox_fps.setValue(int(self.cap.get(cv2.CAP_PROP_FPS)))
-        self.ui.comboBox_resolution.setCurrentText(
-            f"{self.cap.get(cv2.CAP_PROP_FRAME_WIDTH)}x{self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT)}"
+        self.initial_values = {}
+        if cap is None:
+            # the source is (re)connecting
+            self.ui.plainTextEdit_videoProps.setPlainText(
+                self.tr("The video source is not open.")
+            )
+            return
+        # read the current values in one go: each access waits for the capture
+        # thread's current read
+        fps, width, height = cap.run_locked(
+            lambda capture: (
+                capture.get(cv2.CAP_PROP_FPS),
+                capture.get(cv2.CAP_PROP_FRAME_WIDTH),
+                capture.get(cv2.CAP_PROP_FRAME_HEIGHT),
+            )
         )
+        self.ui.spinBox_fps.setValue(int(fps))
+        current_resolution = resolution_text(width, height)
+        if self.ui.comboBox_resolution.findText(current_resolution) < 0:
+            self.ui.comboBox_resolution.addItem(current_resolution)
+        self.ui.comboBox_resolution.setCurrentText(current_resolution)
         self.populate_supported_fourcc()
         self.populate_video_props()
         self.populate_backend_combo()
+        self.initial_values = self.current_values()
 
     def populate_backend_combo(self):
         self.ui.comboBox_captureBackend.clear()
@@ -86,7 +110,9 @@ class VideoSettingsDialog(QDialog):
                 "AVFoundation", cv2.CAP_AVFOUNDATION
             )
         self.ui.comboBox_captureBackend.setCurrentIndex(
-            self.ui.comboBox_captureBackend.findData(self.cap.get(cv2.CAP_PROP_BACKEND))
+            self.ui.comboBox_captureBackend.findData(
+                int(self.cap.get(cv2.CAP_PROP_BACKEND))
+            )
         )
 
     def populate_video_props(self):
@@ -169,18 +195,20 @@ class VideoSettingsDialog(QDialog):
             (cv2.CAP_PROP_FRAME_TYPE, "CAP_PROP_FRAME_TYPE"),
             (cv2.CAP_PROP_N_THREADS, "CAP_PROP_N_THREADS"),
         ]
+        values = self.cap.run_locked(
+            lambda capture: [capture.get(prop[0]) for prop in video_props]
+        )
         video_props_str = [
-            f"{prop[1]}: {self.cap.get(prop[0])}" for prop in video_props
+            f"{prop[1]}: {value}" for prop, value in zip(video_props, values)
         ]
         self.ui.plainTextEdit_videoProps.setPlainText("\n".join(video_props_str))
 
     def populate_supported_fourcc(self):
-        supported_fourccs = get_supported_fourcc(self.cap)
+        supported_fourccs = self.cap.run_locked(get_supported_fourcc)
         self.ui.comboBox_fourcc.clear()
         self.ui.comboBox_fourcc.addItems(supported_fourccs)
 
-    def save_settings(self):
-        fps = self.ui.spinBox_fps.value()
+    def current_values(self) -> dict:
         resolution = self.ui.comboBox_resolution.currentText()
         if "x" in resolution:
             resolution = resolution.split("x")
@@ -189,13 +217,20 @@ class VideoSettingsDialog(QDialog):
         else:
             width = -1
             height = -1
-        fourcc = self.ui.comboBox_fourcc.currentText()
-        store_data("scoresight.json", "fps", fps)
-        store_data("scoresight.json", "width", width)
-        store_data("scoresight.json", "height", height)
-        store_data("scoresight.json", "fourcc", fourcc)
-        store_data(
-            "scoresight.json", "backend", self.ui.comboBox_captureBackend.currentData()
-        )
+        return {
+            "fps": self.ui.spinBox_fps.value(),
+            "width": width,
+            "height": height,
+            "fourcc": self.ui.comboBox_fourcc.currentText(),
+            "backend": self.ui.comboBox_captureBackend.currentData(),
+        }
+
+    def save_settings(self):
+        # Store only what the user changed: each stored setting is applied to
+        # the running capture, and a backend change reopens the device.
+        if self.cap is not None:
+            for name, value in self.current_values().items():
+                if value != self.initial_values.get(name):
+                    store_data("scoresight.json", name, value)
 
         self.close()
