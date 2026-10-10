@@ -166,15 +166,15 @@ def clean_answer(text: str | None) -> str:
 
 def allowed_token_ids(token_texts: list[str], chars: str) -> list[int]:
     """The ids of the tokens whose text (decoded on its own) is made only of
-    the given characters and spaces, with at least one of the characters."""
-    allowed = set(chars)
-    ids = []
-    for token_id, text in enumerate(token_texts):
-        if not text or not text.strip(" "):
-            continue
-        if all(char in allowed or char == " " for char in text):
-            ids.append(token_id)
-    return ids
+    the given characters and spaces. Space-only tokens are allowed: tokenizers
+    that split digits off (SmolLM2's) start an answer with a " " token, and
+    masking it derails the answer; spaces are ignored by the scoring."""
+    allowed = set(chars) | {" "}
+    return [
+        token_id
+        for token_id, text in enumerate(token_texts)
+        if text and all(char in allowed for char in text)
+    ]
 
 
 def letterbox(crop: np.ndarray) -> np.ndarray:

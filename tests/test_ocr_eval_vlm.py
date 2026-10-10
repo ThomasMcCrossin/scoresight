@@ -107,9 +107,9 @@ def test_clean_answer(answer, text):
 
 
 def test_allowed_token_ids():
-    tokens = ["1", " 12", "O", "", " ", "1:2", "<|end|>", "12a", "  3"]
-    assert allowed_token_ids(tokens, "0123456789") == [0, 1, 8]
-    assert allowed_token_ids(tokens, "0123456789:") == [0, 1, 5, 8]
+    tokens = ["1", " 12", "O", "", " ", "1:2", "<|end|>", "12a", "  3", "\n"]
+    assert allowed_token_ids(tokens, "0123456789") == [0, 1, 4, 8]
+    assert allowed_token_ids(tokens, "0123456789:") == [0, 1, 4, 5, 8]
 
 
 def test_letterbox_keeps_the_crop_centred_on_a_square():
