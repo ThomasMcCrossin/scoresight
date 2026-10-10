@@ -3,6 +3,7 @@ the frozen-app smoke test runner, and the consistency of scoresight.spec,
 scoresight.iss and the workflows with the code and with each other."""
 
 import ast
+import fnmatch
 import importlib.util
 import sys
 from pathlib import Path
@@ -12,6 +13,8 @@ import pytest
 import version
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
+SRC_DIR = REPO_ROOT / "src"
+SPEC_FILE = REPO_ROOT / "scoresight.spec"
 
 
 def _load_script(name, path):
@@ -307,3 +310,184 @@ def test_bumped_version_file_stays_trivially_parseable(tmp_path):
     assert versioning.read_version(path) == "9.8.7"
     tree = ast.parse(path.read_text(encoding="utf-8"))
     assert not any(isinstance(n, (ast.Import, ast.ImportFrom)) for n in tree.body)
+
+
+# --- scoresight.spec vs the code ----------------------------------------------
+
+
+def _spec_tree():
+    return ast.parse(SPEC_FILE.read_text(encoding="utf-8"), filename=str(SPEC_FILE))
+
+
+def _spec_data_globs():
+    for node in _spec_tree().body:
+        if isinstance(node, ast.Assign) and any(
+            getattr(t, "id", None) == "DATA_GLOBS" for t in node.targets
+        ):
+            return ast.literal_eval(node.value)
+    raise AssertionError("scoresight.spec has no DATA_GLOBS list")
+
+
+def _bundled_files():
+    """Bundle-relative paths of the data files the spec collects."""
+    bundled = set()
+    for pattern, destination in _spec_data_globs():
+        for path in REPO_ROOT.glob(pattern):
+            if path.is_file():
+                bundled.add(f"{destination}/{path.name}")
+    return bundled
+
+
+def test_every_spec_data_glob_matches_files():
+    for pattern, _ in _spec_data_globs():
+        assert [p for p in REPO_ROOT.glob(pattern) if p.is_file()], pattern
+
+
+def test_spec_has_a_single_entry_script():
+    # Every script passed to Analysis runs as __main__ in the frozen app, so
+    # listing modules there re-ran them at startup and after the window closed.
+    calls = [
+        node
+        for node in ast.walk(_spec_tree())
+        if isinstance(node, ast.Call) and getattr(node.func, "id", None) == "Analysis"
+    ]
+    assert len(calls) == 1
+    scripts = calls[0].args[0]
+    assert isinstance(scripts, ast.List) and len(scripts.elts) == 1
+    assert "main.py" in ast.unparse(scripts.elts[0])
+
+
+def test_spec_files_exist():
+    # every os.path.join(ROOT, "literal", ...) path in the spec
+    for node in ast.walk(_spec_tree()):
+        if (
+            isinstance(node, ast.Call)
+            and ast.unparse(node.func) == "os.path.join"
+            and node.args
+            and getattr(node.args[0], "id", None) == "ROOT"
+            and all(isinstance(a, ast.Constant) for a in node.args[1:])
+        ):
+            path = REPO_ROOT.joinpath(*(a.value for a in node.args[1:]))
+            assert path.exists(), path
+
+
+# Resources the code loads that the app doesn't need bundled.
+NOT_BUNDLED = {".env": "optional developer file with SCORESIGHT_DEBUG; never shipped"}
+
+# Known broken resource references, owned by other modules' maintainers. When
+# the reference is fixed it disappears from the list (or starts to pass).
+KNOWN_BROKEN = {
+    "update_available.ui": "update_check.py loads a .ui file that is not shipped "
+    "(the compiled ui_update_available.py should be used instead)",
+    "obs_data/Scoreboard parts/{base_name}": "obs_websocket.py is missing the "
+    "f-string prefix, so the literal text '{base_name}' is used as the file name",
+}
+
+
+def _resource_references():
+    """(location, pattern) for every resource_path(...) call in src/.
+
+    String arguments are joined with "/"; f-strings and variables become "*".
+    Calls whose first argument isn't a literal are skipped.
+    """
+    references = []
+    for module in sorted(SRC_DIR.glob("*.py")):
+        if module.name.startswith("ui_") or module.name == "resource_path.py":
+            continue
+        tree = ast.parse(module.read_text(encoding="utf-8"), filename=str(module))
+        for node in ast.walk(tree):
+            if not (
+                isinstance(node, ast.Call)
+                and isinstance(node.func, ast.Name)
+                and node.func.id == "resource_path"
+                and node.args
+                and isinstance(node.args[0], ast.Constant)
+            ):
+                continue
+            parts = []
+            for arg in node.args:
+                if isinstance(arg, ast.Constant) and isinstance(arg.value, str):
+                    parts.append(arg.value)
+                elif isinstance(arg, ast.JoinedStr):
+                    parts.append(
+                        "".join(
+                            v.value if isinstance(v, ast.Constant) else "*"
+                            for v in arg.values
+                        )
+                    )
+                else:
+                    parts.append("*")
+            references.append((f"{module.name}:{node.lineno}", "/".join(parts)))
+    return references
+
+
+def _reference_params():
+    params = []
+    for location, pattern in _resource_references():
+        marks = []
+        if pattern in KNOWN_BROKEN:
+            marks.append(pytest.mark.xfail(reason=KNOWN_BROKEN[pattern], strict=True))
+        params.append(pytest.param(pattern, id=f"{location} {pattern}", marks=marks))
+    return params
+
+
+def test_resource_references_were_found():
+    patterns = {pattern for _, pattern in _resource_references()}
+    assert "tesseract/tessdata" in patterns
+    assert "translations/scoresight_*.qm" in patterns
+    assert "icons/circle-x.svg" in patterns
+
+
+@pytest.mark.parametrize("pattern", _reference_params())
+def test_resources_loaded_by_the_code_are_bundled(pattern):
+    """What works from source must also work in the frozen app."""
+    bundled = _bundled_files()
+    if pattern in NOT_BUNDLED:
+        assert not any(fnmatch.fnmatch(f, pattern) for f in bundled), (
+            f"{pattern} must not be bundled: {NOT_BUNDLED[pattern]}"
+        )
+        return
+    in_repo = REPO_ROOT / pattern
+    if "*" not in pattern and in_repo.is_dir():
+        # a folder: everything in it must be bundled
+        expected = {f"{pattern}/{p.name}" for p in in_repo.iterdir() if p.is_file()}
+    else:
+        expected = {
+            p.relative_to(REPO_ROOT).as_posix()
+            for p in REPO_ROOT.glob(pattern)
+            if p.is_file()
+        }
+    assert expected, f"{pattern} doesn't exist in the repository"
+    assert expected <= bundled, sorted(expected - bundled)
+
+
+def _ocr_model_names():
+    tree = ast.parse((SRC_DIR / "tesseract.py").read_text(encoding="utf-8"))
+    return {
+        node.value.value
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Assign)
+        and any(getattr(t, "id", None) == "ocr_model" for t in node.targets)
+        and isinstance(node.value, ast.Constant)
+        and isinstance(node.value.value, str)
+    }
+
+
+def test_builtin_ocr_models_exist_and_are_bundled():
+    models = _ocr_model_names()
+    assert {"daktronics", "scoreboard_general", "eng"} <= models
+    bundled = _bundled_files()
+    for model in models:
+        path = f"tesseract/tessdata/{model}.traineddata"
+        assert (REPO_ROOT / path).is_file(), path
+        assert path in bundled, path
+
+
+def test_every_translation_is_compiled_and_bundled():
+    bundled = _bundled_files()
+    sources = sorted((REPO_ROOT / "translations").glob("*.ts"))
+    assert sources
+    for ts in sources:
+        qm = ts.with_suffix(".qm")
+        assert qm.is_file(), f"{ts.name} has no compiled {qm.name}"
+        assert f"translations/{qm.name}" in bundled
