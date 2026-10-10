@@ -23,15 +23,17 @@ ScoreSight reads one video source per window. Choose it from the **Source** drop
 |---|:---:|:---:|:---:|---|
 | USB camera / capture card (UVC, HDMI/SDI capture) | ✔ | ✔ | ✔ | DirectShow on Windows, AVFoundation on macOS, `/dev/video*` on Linux |
 | NDI® | ✔ | ✔ | ✔ | Sources on your network are discovered automatically |
-| URL: RTSP / HTTP stream | ✔ | ✔ | ✔ | IP cameras, MediaMTX, encoders, HLS/HTTP streams that FFmpeg can open |
+| URL: RTSP / HTTP stream | ✔ | ✔ | ✔ | IP cameras, MediaMTX, encoders, HLS/HTTP streams that FFmpeg can open. RTSP uses TCP by default |
 | Screen Capture (window or whole screen) | ✔ | ✔ | ✘ | macOS needs the Screen Recording permission |
 | Video file (`.mp4`, `.avi`, `.mov`) | ✔ | ✔ | ✔ | Loops automatically; playback speed x1 to x32 |
 
-ScoreSight remembers the last source and reopens it at the next start.
+ScoreSight remembers the last source and its type, and reopens it at the next start: a URL stream, a video file, a camera or NDI source (found again by its name), or screen capture. If the source isn't available (for example a camera that is unplugged), ScoreSight starts without a source.
+
+Cameras and NDI sources are discovered in the background, so the window appears right away and the **Source** list fills in a moment later.
 
 ## Cameras and capture cards
 
-Cameras and capture cards appear in the **Source** list by name (on Linux as *Camera 0*, *Camera 1*, ...). If you plugged one in after starting ScoreSight, click **Reload**.
+Cameras and capture cards appear in the **Source** list by name. On Linux, each capture device is listed with its name and device node, for example *HD Webcam (/dev/video0)*; device nodes that can't capture video (such as metadata nodes) are not listed. If you plugged a camera in after starting ScoreSight, click **Reload**.
 
 **Video Settings** (enabled only for camera sources) lets you request a specific format from the device:
 
@@ -40,9 +42,12 @@ Cameras and capture cards appear in the **Source** list by name (on Linux as *Ca
 | **FPS** | Request a frame rate. |
 | **Resolution** | Request a resolution. 1280x720 or 1920x1080 is plenty for most scoreboards. |
 | **Video Format** (FOURCC) | Choose the pixel format, for example `MJPG` (compressed, allows higher frame rates over USB) or `YUY2`/`YUYV` (uncompressed). Only formats the device accepts are listed. |
-| **Capture Backend** | Choose the capture API: *Auto*, plus *DShow*, *Microsoft Media Foundation* or *Microsoft Windows Runtime* on Windows, *V4L* or *GStreamer* on Linux, and *AVFoundation* on macOS. |
+| **Capture Backend** | Choose the capture API: *Auto* (the platform default: DirectShow on Windows), plus *DShow*, *Microsoft Media Foundation* or *Microsoft Windows Runtime* on Windows, *V4L* or *GStreamer* on Linux, and *AVFoundation* on macOS. |
 
-These settings apply to camera sources and are remembered for the next start. The dialog also lists all the properties the device reports, which is handy for troubleshooting.
+Click **OK** to apply the settings you changed to the running camera. They are saved and applied again every time a camera source opens, in this order: capture backend, video format, resolution, frame rate. If you never chose a resolution, ScoreSight opens cameras at their highest supported resolution. The settings are shared by all cameras (they aren't saved per device), and they don't apply to NDI, URL, screen capture or file sources. The dialog also lists all the properties the device reports, which is handy for troubleshooting.
+
+{: .new }
+In ScoreSight 0.1.x, saved Video Settings were not applied when a camera opened, and pressing **OK** could reopen the camera and lose them ([#20](https://github.com/royshil/scoresight/issues/20)). This is fixed in 0.2.0.
 
 {: .tip }
 Most USB cameras can be used by only one application at a time. Close OBS, Zoom, Teams or any other app that is using the camera, or share the feed through NDI or OBS's Virtual Camera instead.
@@ -51,7 +56,7 @@ On macOS, ScoreSight needs the **Camera** permission. On Linux, your user needs 
 
 ## NDI
 
-NDI sources on your local network are listed automatically. Discovery takes about a second when the source list is built, so click **Reload** if a source started after ScoreSight. ScoreSight receives the highest-bandwidth stream and signals a *program* (on-air) tally to the sender.
+NDI sources on your local network are listed automatically. The first discovery after ScoreSight starts waits up to about 2 seconds for sources to answer, in the background. Click **Reload** if a source started after ScoreSight: later reloads are instant and list every source found so far. ScoreSight receives the highest-bandwidth stream and signals a *program* (on-air) tally to the sender.
 
 If NDI sources don't appear:
 
@@ -69,30 +74,41 @@ rtsp://10.0.1.200:554/11
 http://192.168.1.60:8080/video
 ```
 
-URL sources are opened with OpenCV's FFmpeg backend on every platform, so anything FFmpeg can play (RTSP, RTMP pulled over HTTP, HLS, MJPEG over HTTP) usually works.
+URL sources are opened with OpenCV's FFmpeg backend on every platform, so anything FFmpeg can play (RTSP, RTMP pulled over HTTP, HLS, MJPEG over HTTP) usually works. Spaces around the URL are ignored.
+
+Opening a stream and reading each frame give up after **5 seconds** (FFmpeg's own default is about 30 seconds), so an unreachable or stalled stream can't block ScoreSight for long, and closing or switching away from it doesn't hang.
 
 ### RTSP over TCP
 
-By default FFmpeg tries RTSP over UDP. UDP is often blocked by firewalls, NAT, VPNs and Wi-Fi, which shows up as "Unable to play video stream", a grey or frozen picture, or heavy corruption. To force RTSP over **TCP**, set this environment variable before you start ScoreSight:
+ScoreSight 0.2.0 receives RTSP streams over **TCP** by default. TCP gets through firewalls, NAT, VPNs and Wi-Fi, where UDP often fails with "Unable to play video stream", a grey or frozen picture, or heavy corruption.
+
+ScoreSight does this by setting the environment variable `OPENCV_FFMPEG_CAPTURE_OPTIONS` to `rtsp_transport;tcp` for itself, unless the variable is already set. If you set it yourself, your value is used as is.
+
+Some cameras only support RTSP over **UDP**. For those, set the variable to `rtsp_transport;udp` before you start ScoreSight:
 
 Windows (PowerShell, for this session):
 ```powershell
-$env:OPENCV_FFMPEG_CAPTURE_OPTIONS = "rtsp_transport;tcp"
+$env:OPENCV_FFMPEG_CAPTURE_OPTIONS = "rtsp_transport;udp"
 & "C:\Program Files\ScoreSight\scoresight.exe"
 ```
 
-Windows (permanently, for your user): run `setx OPENCV_FFMPEG_CAPTURE_OPTIONS "rtsp_transport;tcp"` once, then start ScoreSight from the Start menu as usual.
+Windows (permanently, for your user): run `setx OPENCV_FFMPEG_CAPTURE_OPTIONS "rtsp_transport;udp"` once, then start ScoreSight from the Start menu as usual.
 
 macOS / Linux:
 ```bash
-OPENCV_FFMPEG_CAPTURE_OPTIONS="rtsp_transport;tcp" /path/to/scoresight
+OPENCV_FFMPEG_CAPTURE_OPTIONS="rtsp_transport;udp" /path/to/scoresight
 ```
+
+The variable takes any FFmpeg options, as `key;value` pairs separated by `|`.
+
+{: .new }
+In ScoreSight 0.1.x, RTSP used FFmpeg's default transport and you had to set `rtsp_transport;tcp` yourself ([#10](https://github.com/royshil/scoresight/issues/10)).
 
 ### Checklist for streams that won't open
 
 1. Test the exact URL in VLC (**Media** > **Open Network Stream**) or with `ffprobe -rtsp_transport tcp "rtsp://..."`. If it doesn't play there, the URL, credentials or network are the problem.
 2. Include the port and path, and URL-encode special characters in the password (for example `@` becomes `%40`).
-3. Try RTSP over TCP (above).
+3. If the camera plays in VLC only over UDP, try RTSP over UDP (above).
 4. Many cameras offer a lower-resolution "sub stream" (often `/stream2` or `/102`). A 720p sub stream is enough for most scoreboards and is easier on the network and CPU.
 5. As a fallback, open the stream in OBS and send it to ScoreSight with NDI or OBS's Virtual Camera.
 
@@ -117,6 +133,6 @@ The **Speed** button (x1, x2, x4, x8, x16, x32) skips frames to fast-forward thr
 
 ## Switching and reloading sources
 
-- Selecting a different source closes the current one and opens the new one. Your boxes stay in place.
+- Selecting a different source closes the current one and opens the new one. Your boxes and their settings stay as they are. If the old source is stalled, ScoreSight waits at most 3 seconds for it and lets it finish in the background.
 - **Reload** re-scans cameras and NDI sources.
 - Rotation, crop and 4-corner correction are global settings, not per-source settings. If you switch to a source with a different framing, adjust them again.

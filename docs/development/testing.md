@@ -27,9 +27,11 @@ Tests are grouped with markers:
 
 | Marker | Needs | Example |
 |---|---|---|
-| (none) | Only the Python dependencies | storage, defaults, file and HTTP output formats |
+| (none) | Only the Python dependencies | storage, defaults, file and HTTP output formats, packaging (`tests/test_packaging.py`) |
 | `ocr` | `tesserocr` and the bundled models in `tesseract/tessdata` | recognition of synthetic digit images |
 | `qt` | Qt, running offscreen | widgets and dialogs |
+
+`tests/test_packaging.py` checks the release machinery without building: version parsing and the tag check, CHANGELOG section extraction and `scripts/bump_version.py`, the smoke-test runner, that `DATA_GLOBS` in `scoresight.spec` covers every resource the code loads, the installer's invariants, and that the workflows agree on the package names.
 
 Select or skip groups with `-m`:
 
@@ -45,13 +47,23 @@ The tests use temporary folders for settings and logs (see `tests/conftest.py`),
 
 ## The self-test
 
-`--self-test` checks a complete installation without opening a window: it imports every module, initializes the OCR engine with each bundled model, reads a synthetic digit image, prints `SELF-TEST OK` and exits with code 0. Otherwise it exits with a non-zero code.
+`--self-test` checks a complete installation without showing a window. It:
+
+1. prints the settings file and log file paths,
+2. imports every app module (the list in `SELF_TEST_MODULES` in `src/main.py`; a test checks that it covers every module in `src/`),
+3. checks that the bundled files exist,
+4. builds the main window UI off-screen and loads a translation,
+5. loads all four bundled OCR models and requires the English model to read a rendered "45",
+6. resolves uvicorn's dynamic imports,
+7. enumerates the video sources. A failure here (for example the Windows camera enumerator wasn't built) is only a warning when running from source, but fails a packaged build.
+
+It prints `SELF-TEST OK` and exits with code 0, or prints the failure and exits with code 1. It sets `QT_QPA_PLATFORM=offscreen` if that isn't set, so it works on machines without a display:
 
 ```bash
-QT_QPA_PLATFORM=offscreen python src/main.py --self-test
+python src/main.py --self-test
 ```
 
-CI runs the same check against the frozen (PyInstaller) app on every platform, to catch missing modules or data files in the package.
+CI runs the same check against the frozen (PyInstaller) app on every platform with `scripts/ci/smoke_test.py`, to catch missing modules or data files in the package (see [Building from Source](building.md#package-with-pyinstaller)).
 
 ## Code style: ruff
 
@@ -62,13 +74,14 @@ ruff check .            # lint
 ruff check --fix .      # lint and apply safe fixes
 ruff format .           # format
 ruff format --check .   # what CI runs
+python scripts/compile_ui.py --check   # are the generated src/ui_*.py up to date?
 ```
 
-CI fails if `ruff check .` or `ruff format --check .` reports anything, so run them before you push.
+CI fails if `ruff check .`, `ruff format --check .` or `scripts/compile_ui.py --check` reports anything, so run them before you push.
 
 ## pre-commit (recommended)
 
-[pre-commit](https://pre-commit.com/) runs ruff and other checks automatically on every commit:
+[pre-commit](https://pre-commit.com/) runs the checks automatically on every commit: ruff (lint with `--fix`, and format, on Python files only), YAML and TOML syntax, merge-conflict markers, trailing whitespace and end-of-file fixes, and a check for large files. The ruff version in `.pre-commit-config.yaml` must match `requirements-dev.txt` (a test checks this).
 
 ```bash
 pre-commit install          # once per clone
@@ -77,7 +90,15 @@ pre-commit run --all-files  # check everything now
 
 ## Continuous integration
 
-Every pull request and push to `main` runs the CI workflow (`.github/workflows/ci.yml`): ruff, the test suite and test builds of the app. Pull requests from forks build without signing secrets. A pull request should be green before review.
+Three workflows in `.github/workflows/` run on GitHub Actions:
+
+| Workflow | Runs on | What it does |
+|---|---|---|
+| `ci.yml` | Every pull request, every push to `main`, manual runs | **Lint**: `ruff check`, `ruff format --check`, `scripts/compile_ui.py --check`, and a check that no file links to the lapsed `scoresight[.]live` domain. **Test**: `pytest` with Python 3.13 on Ubuntu 24.04 and Windows. macOS runs the tests only on pushes to `main`, to save scarce macOS runners. An extra Python 3.14 leg on Ubuntu is allowed to fail |
+| `build.yml` | Pull requests that change packaging files (`scoresight.spec`, `scoresight.iss`, `entitlements.plist`, the `requirements*.txt` files except dev/tools, `scripts/ci/`, `src/main.py`, `src/resource_path.py`, `src/version.py`, `src/win32DeviceEnum/`, the workflow itself), manual runs (**Actions > Build > Run workflow**), and release tags through `release.yml` | Builds Windows x64, macOS arm64, macOS x86_64 and Linux x86_64 with PyInstaller, runs the frozen app's `--self-test`, and packages the installer, portable zip, disk images and archive. On Windows it also installs the installer silently, self-tests the installed app and uninstalls it. The packages are uploaded as workflow artifacts |
+| `release.yml` | Version tags only | See [Releasing](releasing.md) |
+
+Pull request builds, including those from forks, are unsigned. A pull request should be green before review. Test packages from a pull request or a manual run are named `scoresight-<version>-<short commit>-<platform>...`.
 
 ## Writing tests
 

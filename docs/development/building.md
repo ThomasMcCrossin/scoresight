@@ -69,16 +69,14 @@ Without uv, use `python -m venv .venv` and `pip install -r ...` with the same fi
 
 ### Windows: build the camera enumerator
 
-On Windows, ScoreSight lists cameras through a small C++ extension (`src/win32DeviceEnum`). Build it once per Python version:
+On Windows, ScoreSight lists cameras through a small C++ extension (`src/win32DeviceEnum`, built with pybind11). Build it once per Python version, from the repository root:
 
 ```powershell
-uv pip install -r requirements-build.txt
-cd src\win32DeviceEnum
-python setup.py build_ext --inplace
-cd ..\..
+uv pip install -r requirements-build.txt   # pybind11 and setuptools; not installed automatically
+python src\win32DeviceEnum\setup.py build_ext --inplace
 ```
 
-This produces `win32DeviceEnumBind.cp313-win_amd64.pyd` (the name depends on your Python version) next to `setup.py`.
+This produces `win32DeviceEnumBind.cp313-win_amd64.pyd` (the name depends on your Python version) next to `setup.py`. The script works from any directory (`cd src\win32DeviceEnum` + `python setup.py build_ext --inplace` works too), and it stops with a clear message when it isn't run on Windows or pybind11 is missing. Without the extension, ScoreSight from source still runs but can't list cameras on Windows (`--self-test` only warns about it from source, and fails in a packaged build).
 
 ### Compile the UI files
 
@@ -120,43 +118,74 @@ The app is packaged with PyInstaller using `scoresight.spec`. Install the build 
 uv pip install -r requirements-build.txt
 ```
 
-Then build on the target platform (PyInstaller can't cross-compile):
+Then build on the target platform (PyInstaller can't cross-compile). The command is the same on every OS; the spec detects the platform:
 
 ```bash
-# Windows (build the camera enumerator first, see above)
-pyinstaller --clean --noconfirm scoresight.spec -- --win
-
-# macOS
-pyinstaller --clean --noconfirm scoresight.spec -- --mac_osx
-
-# Linux
-pyinstaller --clean --noconfirm scoresight.spec
+pyinstaller --clean --noconfirm scoresight.spec              # release build
+pyinstaller --clean --noconfirm scoresight.spec -- --debug   # Windows console build that shows the log
 ```
 
-Options after `--` are passed to the spec file. On Windows, add `--debug` to build a console version that shows the log output. The build workflows in `.github/workflows/` are the reference for the exact commands and flags CI uses. If they differ from this page, the workflow wins.
+On Windows, build the camera enumerator first (see above). Options after `--` are passed to the spec file. The old `-- --win` and `-- --mac_osx` flags are still accepted, but no longer needed.
 
-The output goes to `dist/`. Smoke-test the frozen app with its self-test:
+The spec builds a folder ("onedir") app on every OS:
+
+| Platform | Output | Executable |
+|---|---|---|
+| Windows | `dist/scoresight/` | `dist/scoresight/scoresight.exe` (with a splash screen and version information) |
+| macOS | `dist/ScoreSight.app` | `dist/ScoreSight.app/Contents/MacOS/scoresight` |
+| Linux | `dist/scoresight/` | `dist/scoresight/scoresight` |
+
+How the spec works:
+
+- `src/main.py` is the only entry script. PyInstaller follows its imports, so new modules in `src/` are bundled automatically.
+- Data files come from the `DATA_GLOBS` list in the spec: icons, the `.traineddata` models, the translations (`.qm`) and the OBS scene assets. The build fails if a pattern matches nothing. `tests/test_packaging.py` checks that every resource the code loads through `resource_path()` is covered, so **a new data file needs a matching glob** in `DATA_GLOBS`.
+- The version is read from `src/version.py`.
+- The macOS app requires macOS 15 (`LSMinimumSystemVersion`), turns off App Nap, and carries the camera and screen-recording usage texts. It is signed with the identity in the `APPLE_APP_DEVELOPER_ID` environment variable if set, and ad-hoc signed otherwise.
+
+Smoke-test the frozen app the way CI does:
 
 ```bash
-QT_QPA_PLATFORM=offscreen dist/scoresight/scoresight --self-test
+python scripts/ci/smoke_test.py dist/scoresight/scoresight                       # Linux
+python scripts/ci/smoke_test.py dist/scoresight/scoresight.exe                   # Windows
+python scripts/ci/smoke_test.py dist/ScoreSight.app/Contents/MacOS/scoresight    # macOS
 ```
 
-Adjust the path to your platform's output, for example `dist\scoresight\scoresight.exe` on Windows, or the executable in the app bundle's `Contents/MacOS/` folder on macOS.
+It runs the app's `--self-test` headless, with throw-away settings and log folders, and passes only if the app exits with code 0 and prints `SELF-TEST OK`. On failure it prints the app's output and log files. You can also run `<executable> --self-test` yourself.
 
-### Windows installer
+### Windows installer and portable zip
 
-The Windows installer is built from `scoresight.iss` with [Inno Setup](https://jrsoftware.org/isinfo.php) after the PyInstaller build:
+The Windows installer is built from `scoresight.iss` with [Inno Setup](https://jrsoftware.org/isinfo.php) 6.3 or newer, after the PyInstaller build:
 
 ```powershell
 iscc scoresight.iss
 ```
 
-See the Windows job in `.github/workflows/` for how CI passes the version number to the installer.
+It reads the version from `src/version.py` and writes `dist\scoresight-<version>-windows-x64-setup.exe`. CI passes the version explicitly instead: `iscc /DAppVersion=<version> /DAppVersionNumeric=<X.Y.Z.0> scoresight.iss`. The installer:
 
-### macOS signing and notarization
+- installs for all users by default and offers a per-user install in a dialog (or with `/CURRENTUSER` on the command line; `/ALLUSERS` forces the default),
+- requires Windows 10 version 1809 or newer and an x64-compatible system,
+- closes a running ScoreSight and removes the previous version's `_internal` folder before installing,
+- keeps `AppId=ScoreSight`, the ID that 0.1.x installers used implicitly, so it upgrades existing installations in place. Never change it.
 
-Release builds of the macOS app are signed with a Developer ID certificate and notarized by Apple in CI, when the signing secrets are configured in the repository. Local and pull-request builds are unsigned. Run them via **System Settings** > **Privacy & Security** > **Open Anyway**, or remove the quarantine attribute with `xattr -dr com.apple.quarantine ScoreSight.app`. Camera and other permissions are declared in `entitlements.plist`.
+CI also zips `dist\scoresight` as `scoresight-<version>-windows-x64-portable.zip`.
+
+### macOS disk image, signing and notarization
+
+CI copies `ScoreSight.app` and a link to `/Applications` into a compressed disk image, `scoresight-<version>-macos-arm64.dmg` or `-macos-x64.dmg`. For **release builds**, and only when the Apple secrets are configured in the repository, CI signs the app with a Developer ID certificate, notarizes and staples both the app and the disk image (`scripts/ci/notarize_macos.sh`). All other builds, including pull requests from forks, are unsigned. Run them via **System Settings** > **Privacy & Security** > **Open Anyway**, or remove the quarantine attribute with `xattr -dr com.apple.quarantine ScoreSight.app`. Entitlements are declared in `entitlements.plist`.
+
+### Linux archive
+
+CI packs the folder as `scoresight-<version>-linux-x64.tar.gz` (`tar -czf ... -C dist scoresight`), so it extracts to `scoresight/scoresight`. The build runs on Ubuntu 22.04, so the app needs glibc 2.35 or newer.
 
 ## Standalone scripts
 
-`scripts/` also contains standalone Tk/OpenCV utilities for preparing OCR training data (`imagecropper.py`, `images_pespective_cropper.py`, `imageannotator.py`, `video_cropper.py`). They are not part of the app. Install their dependencies with `uv pip install -r requirements-tools.txt`.
+`scripts/` also contains standalone Tk/OpenCV utilities for preparing OCR training data. They are not part of the app. Install their dependencies in a separate environment with `uv pip install -r requirements-tools.txt` (it uses the GUI build of OpenCV), and run any of them with `--help` for its options:
+
+| Script | What it does |
+|---|---|
+| `imagecropper.py` | Crop regions out of a folder of images (`--output` sets the output folder) |
+| `images_pespective_cropper.py` | Perspective-correct a folder of images from four clicked corners (any click order) and save binarized PNG crops |
+| `video_cropper.py` | Extract perspective-corrected crops from a video every N frames (`--every`, default 75) when enough pixels changed (`--min-changed-pixels`, default 400) |
+| `imageannotator.py` | Type the text for each image and save it as a `.gt.txt` file (UTF-8), for tesstrain |
+
+They handle missing or empty folders and non-ASCII paths, and close cleanly when you close their window.

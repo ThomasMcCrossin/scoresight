@@ -2,7 +2,7 @@
 title: Outbound HTTP API
 parent: Outputs
 nav_order: 6
-description: "Send every ScoreSight reading to your own HTTP endpoint as JSON, XML, CSV or GET query parameters."
+description: "Send ScoreSight's readings to your own HTTP endpoint as JSON, XML, CSV or GET query parameters."
 ---
 
 # Outbound HTTP API
@@ -23,18 +23,23 @@ The **API** tab sends the readings to a URL of your choice on every detection cy
 
 1. Open the **API** tab.
 2. Enter the **URL** of your endpoint, including the scheme and host, for example `http://192.168.1.10:8091/scores`.
-3. Choose the **method**: `POST`, `PUT` or `GET`.
-4. Choose the **Encode** format (used for `POST` and `PUT`): *JSON (Full)*, *JSON (Simple key-value)*, *XML* or *CSV*.
+3. Choose the **method**: `POST` (the default), `PUT` or `GET`.
+4. Choose the **Encode** format (used for `POST` and `PUT`): *JSON (Full)* (the default), *JSON (Simple key-value)*, *XML* or *CSV*.
 5. Tick **Send out API requests to external services.**
 
 ## When requests are sent
 
-- One request per **detection cycle** (see **Detections / s**). Each request contains **all** boxes, whatever their state. This differs from the vMix/UNO/OBS outputs, which send only new values.
+- One request per **detection cycle** (see **Detections / s**).
+- With *JSON (Full)*, *XML* and *CSV*, each request contains **all** boxes, whatever their state. This differs from the vMix/UNO/OBS outputs, which send only new values.
+- *JSON (Simple key-value)* and the `GET` method can't carry a state, so they contain only **good** readings (`Success` or `SameNoChange`). A box whose latest reading was rejected or empty is left out, and no request is sent in a cycle where no box has a good reading.
 - **Stop Updates** pauses the requests.
-- Requests are sent in the background with a timeout. If your endpoint is slower than the detection rate, ScoreSight skips intermediate cycles and sends the most recent readings, so requests never pile up.
-- Respond with HTTP **200**. Other status codes, connection errors and timeouts are written to the ScoreSight log.
+- Requests are sent in the background, with a 2-second timeout to connect and another 2 seconds to answer. If your endpoint is slower than the detection rate, ScoreSight skips intermediate cycles and sends only the most recent readings, so requests never pile up. If the endpoint can't be reached, ScoreSight retries with an increasing delay (up to 5 seconds) and sends the latest readings once it is back.
+- Any **2xx** status (for example `200 OK` or `204 No Content`) counts as success. Other status codes, connection errors and timeouts are written to the ScoreSight log (see [Troubleshooting](#troubleshooting)).
 
 Because every cycle is sent, the receiver should filter on the `state` of each reading (formats that include it) and/or ignore values that haven't changed.
+
+{: .new }
+In ScoreSight 0.2.0, *JSON (Simple key-value)* and `GET` send only good readings (0.1.x also sent rejected and empty ones), and any 2xx response counts as success (0.1.x expected exactly 200).
 
 ## Payload formats
 
@@ -63,7 +68,7 @@ The examples show two boxes. `rect` / `x`, `y`, `width`, `height` give the box p
 {"Home Score": "65", "Time": "4:27"}
 ```
 
-This format carries no state. If you need to tell new, unchanged, rejected and empty readings apart, use *JSON (Full)*, *XML* or *CSV*.
+This format carries no state, so it contains only the boxes with a good reading (`Success` or `SameNoChange`). If you need to tell new, unchanged, rejected and empty readings apart, use *JSON (Full)*, *XML* or *CSV*.
 
 ### XML
 
@@ -88,13 +93,17 @@ Time,4:27,Success,843.6,663.0,359.1,207.2
 
 ### GET (query parameters)
 
-With the `GET` method, the **Encode** setting is ignored. ScoreSight appends each box as a URL query parameter (`name=value`, URL-encoded) to your URL and sends no body. Existing query parameters in your URL are kept.
+With the `GET` method, the **Encode** setting is ignored. ScoreSight appends each box with a good reading as a URL query parameter (`name=value`, URL-encoded) to your URL and sends no body. Existing query parameters in your URL are kept.
 
 ```
 GET http://192.168.1.10:8091/scores?Home+Score=65&Time=4%3A27
 ```
 
-Like *JSON (Simple key-value)*, this carries no state.
+Like *JSON (Simple key-value)*, this carries no state, so only good readings (`Success` or `SameNoChange`) are included, and no request is sent when there are none.
+
+### Encoding setting
+
+The XML body is UTF-8 without an XML declaration, and all text is escaped. If the stored encoding is blank or unknown (for example in a hand-edited settings file), ScoreSight sends *JSON (Full)* and logs a warning once.
 
 ## Authentication
 
@@ -137,15 +146,17 @@ if __name__ == "__main__":
 
 ## Troubleshooting
 
-1. **Read the log** (**File > View Current Log**). Errors look like this:
+1. **Read the log** (**File > View Current Log**). Output API errors start with `Output API:` and the type of the error, for example:
 
    ```
-   ERROR - api_output - Error sending data to output API: http://localahost:8091, HTTPConnectionPool(host='localahost', port=8091): Max retries exceeded ... Failed to resolve 'localahost'
+   ERROR - output_worker - Output API: ConnectionError: HTTPConnectionPool(host='localahost', port=8091): Max retries exceeded ... Failed to resolve 'localahost'
+   ERROR - output_worker - Output API: OutputError: POST http://192.168.1.10:8091/scores returned HTTP 500: Internal Server Error
    ```
 
-   Common causes are a typo in the host name, "Connection refused" (nothing is listening on that port) or a timeout (firewall or wrong IP address).
-2. **"Invalid URL" in the log**: the URL needs a scheme and host, such as `http://host:port/path`.
+   Common causes are a typo in the host name, "Connection refused" (nothing is listening on that port) or a timeout (firewall or wrong IP address). To keep the log readable, the same output logs at most one error every 30 seconds and adds `(N more error(s) since the last report were not logged)`. When the endpoint is reachable again, the log shows `Output API: connection restored`.
+2. **`Output API: Invalid URL` or `Output API: no URL set` in the log**: the URL needs a scheme and host, such as `http://host:port/path`.
 3. **Wrong format**: make sure the receiver expects the chosen encoding and method.
-4. **Status code errors**: your endpoint returned something other than 200. Check the endpoint's own logs.
-5. **Firewall**: when testing across computers, allow the receiver's port on the receiving computer.
-6. Test with the receiver script above to find out whether the problem is ScoreSight or your endpoint.
+4. **Status code errors** (`returned HTTP 4xx/5xx`): your endpoint answered with an error status. Any 2xx status is fine. Check the endpoint's own logs.
+5. **Nothing arrives with *JSON (Simple key-value)* or `GET`**: these send only good readings. If every box is yellow or red, nothing is sent. Check the boxes in ScoreSight, or use *JSON (Full)* to see every reading.
+6. **Firewall**: when testing across computers, allow the receiver's port on the receiving computer.
+7. Test with the receiver script above to find out whether the problem is ScoreSight or your endpoint.

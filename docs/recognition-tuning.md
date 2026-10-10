@@ -68,7 +68,9 @@ Select the box and look at it in **Binary View**. You want solid, unbroken digit
 | Very tall, narrow digits | Lower **V.Scale**, or turn on **Normalize W-H Ratio** |
 | Reading improves when the colours are swapped | Toggle **Invert Input** |
 
-Keep **Rescale Input** on (the default). It resizes the box content to the height the OCR models were trained on.
+Binary View shows exactly what the OCR reads: **Dilate**, **Cleanup**, **V.Scale** and **Skew** apply to the OCR with every **Binarize** method. Keep **Rescale Input** on (the default). It resizes the box content to the height the OCR models were trained on.
+
+A box over an empty area (for example an unlit digit position, or a board that is switched off) reads as empty (red `EMP`). ScoreSight doesn't run the OCR on a blank image, so the scoreboard models can't invent digits there.
 
 ## 6. Constrain what counts as valid
 
@@ -96,8 +98,8 @@ Even a good picture produces an occasional wrong reading, for example while digi
   {: .note }
   *Time 0-59* and *Shotclock 0-39* require **two** digits. If your shot clock shows `9` rather than `09`, type the format `^[0-3]?\d$` instead.
 - **Remove leading 0s**: turns `07` into `7`. Use it for boards that zero-pad scores.
-- **Average Output**: votes over the last 5 readings, character by character, to smooth out flicker. It adds a little delay when the value changes.
-- **Conf. Th** (confidence threshold): readings the OCR engine is less confident about than this are marked *failed filter*. Raise it if you see random wrong values. Lower it if good values turn yellow.
+- **Average Output**: shows the most common of the last 5 accepted readings to smooth out flicker. It compares whole values, so a change from `12` to `9` never shows a mix such as `92`. It adds a little delay when the value changes.
+- **Conf. Th** (confidence threshold): the minimum Tesseract confidence, in percent. Readings the OCR engine is less confident about are marked *failed filter*. It is **off (0) by default**. If random wrong values still get through a strict Format, try 30–50. Lower it if good values turn yellow: correct readings of real scoreboards often score only 30–50 %. See [Conf. Th](box-settings.md#conf-th-confidence-threshold).
 - **Ordinal**: adds st/nd/rd/th (`1st`, `2nd`...). It is on by default for Period.
 
 ## 7. Indicator lights and dots
@@ -121,7 +123,8 @@ For possession arrows, bonus lights, timeout dots or balls/strikes/outs, don't r
 | Letters appear in a clock | **Type: Time** plus a **Time** format preset |
 | Score shows `07` instead of `7` | **Remove leading 0s** |
 | Value flickers between two readings | **Average Output**, a stricter **Format**, better exposure |
-| Box stays yellow with `SIM` | **Skip Similar Image** is on and the picture didn't change. This is normal. Turn it off if real changes are missed |
-| Box shows red `EMP` | Nothing was read: check that the box is on the digits, then check **Binary View** and **Invert Input** |
+| Correct readings turn yellow | The **Format** doesn't match (check the preset), or **Conf. Th** is too high. Set it to 0 to test |
+| A change on the board is missed | **Skip Similar Image** treats changes of less than 2% of the digit pixels as no change. Turn it off for that box |
+| Box shows red `EMP` | Nothing was read, or the box image is blank: check that the box is on the digits, then check **Binary View** and **Invert Input** |
 | Low-contrast stadium board, dark surroundings | Crop tightly, **Binarize: Local** or **Adaptive**, one box per value, **Remove leading 0s**, a strict **Format** |
 | Readings fine in daylight, bad at night (or the reverse) | Lock exposure; use **Local**/**Adaptive** binarization; save separate [profiles](profiles.md) for day and night |

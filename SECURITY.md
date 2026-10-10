@@ -21,8 +21,8 @@ Please include the affected version and platform, a description of the issue and
 ## Download integrity
 
 - Official builds are published **only** on [GitHub Releases](https://github.com/royshil/scoresight/releases).
-- Every release lists SHA-256 checksums (`SHA256SUMS.txt`, or the release notes for older releases). Verify your download, for example with `Get-FileHash <file> -Algorithm SHA256` (Windows), `shasum -a 256 <file>` (macOS) or `sha256sum -c SHA256SUMS.txt` (Linux).
-- The former project domain **`scoresight[.]live` (including its `download.` subdomain) is no longer controlled by the project.** ScoreSight 0.1.x and older still show links to it in the About and "Update Available" dialogs. Do not download anything from that domain, and upgrade to a current release, which no longer contains those links.
+- Every release includes `SHA256SUMS.txt` with the SHA-256 checksum of each package (older releases list them in the release notes). Verify your download, for example with `Get-FileHash <file> -Algorithm SHA256` (Windows), `shasum -a 256 --check --ignore-missing SHA256SUMS.txt` (macOS) or `sha256sum --check --ignore-missing SHA256SUMS.txt` (Linux).
+- The former project domain **`scoresight[.]live` (including its `download.` subdomain) is no longer controlled by the project.** ScoreSight 0.1.x and older still show links to it in the About and "Update Available" dialogs. Do not download anything from that domain, and upgrade to a current release: from 0.2.0 on, the dialogs link to GitHub and the update check asks GitHub Releases.
 - The macOS app is signed and notarized by Apple in official releases. The Windows installer is not code-signed yet, so Windows SmartScreen shows a warning. Verify the checksum before choosing **Run anyway**.
 
 ## Network exposure
@@ -31,9 +31,9 @@ ScoreSight is a desktop app, but it opens network connections. Here's what to kn
 
 ### Built-in HTTP server
 
-- ScoreSight starts an HTTP server automatically, listening on **all network interfaces (`0.0.0.0`) on port 18099** (or the port given with `--port`).
-- It has **no authentication**, and CORS allows **any origin** (`*`). Anyone who can reach the port, including web pages open in a browser on your network, can read your current scoreboard readings, box names and box positions.
-- The server is **read-only** from ScoreSight 0.2.0. Version 0.1.x and older also had an unauthenticated `GET /shutdown` endpoint that let any device that could reach the port close ScoreSight. Please upgrade.
+- ScoreSight starts an HTTP server automatically, listening on **all IPv4 network interfaces (`0.0.0.0`) on port 18099** (or the port given with `--port`). If the port is taken, ScoreSight logs it and runs without the server; on Windows the port is bound exclusively, so another program can't share it.
+- It has **no authentication**, and CORS allows `GET` requests from **any origin** (`*`, without credentials). Anyone who can reach the port, including web pages open in a browser on your network, can read your current scoreboard readings, box names and box positions.
+- The server is **read-only** from ScoreSight 0.2.0. Version 0.1.x and older also had an unauthenticated `GET /shutdown` endpoint that let any device that could reach the port (or any web page) close ScoreSight. Please upgrade.
 
 **Recommendations:**
 
@@ -43,17 +43,19 @@ ScoreSight is a desktop app, but it opens network connections. Here's what to kn
 
 ### Outbound connections
 
-ScoreSight connects only to the destinations you configure:
+ScoreSight connects to the destinations you configure:
 
 - **OBS** (WebSocket, port 4455 by default), **vMix** (HTTP Web API, port 8088 by default), **overlays.uno** (HTTPS) and the **outbound HTTP API** (any URL you enter).
 - `http://` and `ws://` connections are **unencrypted**. Use them only on trusted local networks, and prefer `https://` endpoints on the internet.
 - NDI and RTSP sources are received over the network as configured in their senders.
 
+It also checks for updates: at startup (unless **Don't check for updates at startup** is ticked in the update dialog) and when you choose **File > Check for Updates**, it makes one HTTPS request to `api.github.com` for the latest release of `royshil/scoresight`. The request carries only a `ScoreSight/<version>` user agent.
+
 ### Stored credentials
 
 - The settings file `scoresight.json` (see [Settings, Files & Command Line](https://royshil.github.io/scoresight/configuration.html)) stores the **OBS WebSocket password**, the **overlays.uno control URL** (which works like a password) and **outbound API URLs** (which may contain tokens) in **plain text**. Protect your user account and don't share this file.
 - **File > Export Configuration** exports boxes only, without connection settings. Still check exported files before sharing them.
-- Log files can contain host names, URLs and connection details. Check them before attaching them to a public issue.
+- Log files can contain host names, URLs (including any tokens in them) and connection details. ScoreSight 0.1.x also logged the OBS WebSocket password (through the obsws-python library); 0.2.0 no longer does. Check logs before attaching them to a public issue.
 
 ## Scope
 

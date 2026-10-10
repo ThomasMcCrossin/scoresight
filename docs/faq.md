@@ -36,11 +36,13 @@ Yes, by running two instances with different [profiles](profiles.md), for exampl
 
 ## Does ScoreSight need an internet connection?
 
-No. Reading the scoreboard and all local outputs (files, the HTTP server, OBS, vMix) work offline. You only need a network for network sources (NDI, RTSP), for outputs on other computers, and for cloud services you configure yourself (overlays.uno or your own API URL).
+No. Reading the scoreboard and all local outputs (files, the HTTP server, OBS, vMix) work offline. You only need a network for network sources (NDI, RTSP), for outputs on other computers, for cloud services you configure yourself (overlays.uno or your own API URL), and for the update check.
 
 ## Does ScoreSight send my data anywhere?
 
-Only to the outputs you configure. It has no accounts, no cloud service of its own and no analytics.
+Your readings go only to the outputs you configure. ScoreSight has no accounts, no cloud service of its own and no analytics.
+
+The only other connection is the update check: at startup, and when you choose **File > Check for Updates**, ScoreSight asks GitHub (`api.github.com`) for the latest ScoreSight release. The request carries nothing but the ScoreSight version. At startup, a dialog appears only when a newer version exists. To turn off the startup check, tick **Don't check for updates at startup** in the update dialog (open it with **File > Check for Updates**).
 
 ## How many boxes can I use?
 
@@ -52,15 +54,15 @@ Up to 15 readings per second (the **Detections / s** slider), with all boxes rea
 
 ## Which languages is the interface available in?
 
-English, French, Spanish, German, Italian, Japanese, Korean, Dutch, Polish, Portuguese (Brazil), Portuguese (Portugal), Russian and Chinese (Simplified). ScoreSight picks your system language at startup. Change it with **File > Language**. Want to help translate? See [Translations](development/translations.md).
+English, French, Spanish, German, Italian, Japanese, Korean, Dutch, Polish, Portuguese (Brazil), Portuguese (Portugal), Russian and Chinese (Simplified). ScoreSight follows your system language, also for regional variants (for example Austrian German gets the German translation). Choose another one with **File > Language**: ScoreSight remembers it for the next start. Want to help translate? See [Translations](development/translations.md).
 
 ## Can I make the interface dark (or light)?
 
-Yes: **File > Appearance** > **Dark**, **Light** or **System** ([#50](https://github.com/royshil/scoresight/issues/50)).
+Yes: **File > Appearance** > **Dark**, **Light** or **System** ([#50](https://github.com/royshil/scoresight/issues/50)). ScoreSight remembers the choice.
 
 ## Can other computers on my network read the data?
 
-Yes, through the [HTTP server](http_server.md) at `http://<scoresight-ip>:18099`. Allow ScoreSight through the firewall on trusted networks only. There is no password protection (see [SECURITY.md](https://github.com/royshil/scoresight/blob/main/SECURITY.md)).
+Yes, through the [HTTP server](http_server.md) at `http://<scoresight-ip>:18099`. Allow ScoreSight through the firewall on trusted networks only. There is no password protection (see [SECURITY.md](https://github.com/royshil/scoresight/blob/main/SECURITY.md)). The demo page `/scoresight` also works from other computers.
 
 ## Can I control ScoreSight remotely (start/stop, change boxes)?
 

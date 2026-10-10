@@ -32,7 +32,7 @@ The log almost always shows what went wrong.
 3. Each session writes `scoresight_<date>_<time>.log` and `scoresight_std_<date>_<time>.log`. Attach **both** files from the session with the problem to your issue.
 
 {: .warning }
-Logs can contain host names, URLs and, depending on the version, connection details such as the OBS WebSocket password. Look through them and remove secrets before posting them publicly.
+Logs can contain host names and URLs (including any tokens in them). ScoreSight 0.1.x also logged the OBS WebSocket password; 0.2.0 doesn't. Look through the logs and remove secrets before posting them publicly.
 
 For even more detail, start ScoreSight with the environment variable `SCORESIGHT_DEBUG=1` (see [Environment variables](configuration.md#environment-variables)).
 
@@ -47,16 +47,18 @@ For even more detail, start ScoreSight with the environment variable `SCORESIGHT
 1. Make sure you run a current version. Versions before 0.0.12 tried to open URLs with DirectShow on Windows, which can never work.
 2. Test the exact URL in VLC (**Media** > **Open Network Stream**). If VLC can't play it, fix the URL, the credentials or the network first.
 3. Include user, password, port and path: `rtsp://user:password@192.168.1.50:554/stream1`. URL-encode special characters in the password.
-4. Force **RTSP over TCP**: set `OPENCV_FFMPEG_CAPTURE_OPTIONS=rtsp_transport;tcp` before starting ScoreSight (see [RTSP over TCP](sources.md#rtsp-over-tcp)). This fixes most streams that work in VLC but not in ScoreSight, especially across VPNs, Wi-Fi or NAT.
+4. Check the RTSP transport. ScoreSight 0.2.0 uses **RTSP over TCP** by default, which fixes most streams that work in VLC but not in ScoreSight, especially across VPNs, Wi-Fi or NAT. If your camera only supports UDP, set `OPENCV_FFMPEG_CAPTURE_OPTIONS=rtsp_transport;udp` before starting ScoreSight. On 0.1.x, set `OPENCV_FFMPEG_CAPTURE_OPTIONS=rtsp_transport;tcp` to force TCP. See [RTSP over TCP](sources.md#rtsp-over-tcp).
 5. Try the camera's sub stream (lower resolution).
 6. Fallback: open the stream in OBS and send it to ScoreSight with NDI or OBS's Virtual Camera.
+
+ScoreSight 0.2.0 gives up opening or reading a stream after 5 seconds, so a dead stream no longer freezes the window or makes switching sources hang.
 
 ### Camera not listed or black picture
 
 - Click **Reload** after plugging in a camera.
 - Close other apps that use the camera (OBS, Zoom, Teams, the camera vendor's software). Most cameras serve only one app at a time.
 - **macOS**: allow **Camera** access in System Settings > Privacy & Security > Camera.
-- **Linux**: add your user to the `video` group and log in again.
+- **Linux**: add your user to the `video` group and log in again. Cameras are listed as *name (/dev/videoN)*; only device nodes that can capture video are shown.
 - Open **Video Settings** and try another **Capture Backend** or **Video Format** (`MJPG` vs `YUY2`).
 - Capture cards: make sure the input signal is present (a resolution and frame rate the card supports), and try it in the vendor's own software.
 
@@ -78,8 +80,11 @@ For even more detail, start ScoreSight with the environment variable `SCORESIGHT
 
 **Causes and fixes in 0.2.0**:
 
+- The slow start came from the packaging: the 0.1.x macOS app unpacked itself into a temporary folder on every launch. The 0.2.0 app is a regular app bundle that starts in seconds. Finding cameras and NDI sources and connecting to OBS also happen in the background now, so the window appears right away.
 - The quit hang came from the built-in HTTP server, which didn't shut down cleanly on macOS. ScoreSight 0.2.0 stops it internally, so quitting is immediate.
 - Freezes during use came from network outputs (OBS, vMix, UNO) waiting for slow or unreachable targets on the main thread. In 0.2.0, all outputs run in the background with timeouts.
+- Closing or switching away from a stalled source waits at most 3 seconds.
+- macOS App Nap no longer slows ScoreSight down while its window is in the background.
 
 **If you still see it**:
 
@@ -93,14 +98,14 @@ Force-quitting doesn't damage your settings: they are saved as you work.
 
 ### vMix shows no data (#55, #25)
 
-**Symptom**: vMix titles don't change. The log shows `Failed to send data to http://localhost:8099/api/... BadStatusLine('VERSION OK ...')` ([#55](https://github.com/royshil/scoresight/issues/55), [#25](https://github.com/royshil/scoresight/issues/25)).
+**Symptom**: vMix titles don't change. ScoreSight 0.1.x logged `Failed to send data to http://localhost:8099/api/... BadStatusLine('VERSION OK ...')`. ScoreSight 0.2.0 logs `vMix: VMixTCPPortError: localhost:8099 answered like the vMix TCP API ('VERSION OK')` with a hint to use the Web Controller port ([#55](https://github.com/royshil/scoresight/issues/55), [#25](https://github.com/royshil/scoresight/issues/25)).
 
 **Cause**: port 8099 is vMix's TCP API. ScoreSight uses vMix's HTTP **Web API**, which listens on port **8088**.
 
 **Fix**:
 
 1. In vMix, enable **Settings** > **Web Controller** (port 8088).
-2. In ScoreSight's **VMix** tab, set the port to **8088**. ScoreSight 0.2.0 does this automatically if you had 8099 saved.
+2. In ScoreSight's **VMix** tab, set the port to **8088** and press **Enter**. ScoreSight 0.2.0 changes a saved 8099 to 8088 automatically the first time it starts.
 3. Use the exact field names from the vMix Title Editor, **including `.Text`** (for example `Home Score.Text`).
 4. Check the **Input** number, and click **Start**.
 
@@ -109,9 +114,9 @@ Full guide: [vMix](vmix.md).
 ### OBS text doesn't update (#30)
 
 - In ScoreSight 0.1.x, OBS updates only worked when an output folder was set in the **Text Files** tab. 0.2.0 removed that requirement. Update, or set a folder as a workaround.
-- The OBS text sources must be named exactly `Home score`, `Away score`, `Clock`, `Period`, `#Home Fouls`, `#Away Fouls` or `shotclock`, or use **Create OBS Scene**. Custom fields don't update OBS by default (see [OBS: Custom fields](obs.md#custom-fields)).
-- If updates stop after a few minutes ([#30](https://github.com/royshil/scoresight/issues/30)), check whether OBS restarted or the WebSocket dropped (the log shows "unable to update text source"). Reconnect with **Connect OBS**. A [Browser Source](http_server.md) overlay is a robust alternative.
-- On macOS, keep ScoreSight visible on screen or prevent your Mac from sleeping during a stream. macOS can slow down apps that are completely hidden.
+- The OBS text sources must be named exactly `Home score`, `Away score`, `Clock`, `Period`, `#Home Fouls`, `#Away Fouls` or `shotclock`, or use **Create OBS Scene**. Custom fields don't update OBS by default (see [OBS: Custom fields](obs.md#custom-fields)). A wrong name shows up in the log as `OBS: OBSSDKRequestError: Request SetInputSettings returned code 600`.
+- If updates stop after a few minutes ([#30](https://github.com/royshil/scoresight/issues/30)), check whether OBS restarted or the WebSocket dropped. ScoreSight 0.2.0 reconnects by itself (the log shows `OBS: OBSConnectionLost: ...` while OBS is unreachable, then `OBS: reconnected to <host>:<port>`). On 0.1.x, reconnect with **Connect OBS**. A [Browser Source](http_server.md) overlay is a robust alternative.
+- On macOS, prevent your Mac from sleeping during a stream. ScoreSight 0.2.0 turns off App Nap for itself, so it keeps full speed while its window is hidden.
 
 ### Text files are not written (#6)
 
@@ -119,19 +124,21 @@ Full guide: [vMix](vmix.md).
 
 **Cause (0.1.x)**: `.txt` files were written only at the exact moment a value changed. If that moment fell between two file saves, the file wasn't written until the next change.
 
-**Fix**: ScoreSight 0.2.0 writes each file whenever its value differs from what's on disk, or when the file is missing. If files are still missing:
+**Fix**: ScoreSight 0.2.0 writes each file whenever its value differs from what it last wrote, or when the file is missing, and a value that changes between two saves is written at the next save. If files are still missing:
 
-- Check that an output folder is set and still exists (ScoreSight forgets a folder that was deleted).
+- Check that an output folder is set and still exists (ScoreSight forgets a folder that was deleted, and logs `Output folder does not exist`).
 - Check that the box's reading is green or light green. Rejected (yellow) and empty readings aren't written.
-- Look for "Error writing to file" in the log (permissions, a full disk, or a folder synced by OneDrive/Dropbox).
+- Look for `Error writing to <path>` in the log (permissions, a full disk, or a folder synced by OneDrive/Dropbox).
+- Box names with characters that aren't allowed in file names are written with `_` instead, for example `Home_Away.txt` for *Home/Away*.
 
 ### CSV doesn't update in real time (#29)
 
-In ScoreSight 0.2.0, `results.csv` is updated atomically with the current values (header once, values properly quoted). For a live data file, use **Don't append results**. For a game log, use **Results in .csv file**. See [Text, CSV & XML Files](text-files.md) and [#29](https://github.com/royshil/scoresight/issues/29).
+In ScoreSight 0.2.0, `results.csv` is updated atomically with the current values (header once, values properly quoted). For a live data file, use **Don't append results**, or read `http://localhost:18099/csv?pivot` from the [HTTP server](http_server.md#get-csvpivot). For a game log, use **Results in .csv file**: a row is added whenever a value changes, and when you add, remove or rename a box, the old log is kept as `results-<timestamp>.csv` and a new file is started. See [Text, CSV & XML Files](text-files.md#resultscsv) and [#29](https://github.com/royshil/scoresight/issues/29).
 
 ### HTTP server not reachable
 
-- **Port 18099 is already in use**: another ScoreSight instance (or another program) uses the port. Close it, or start this instance with `--port 18100` (see [profiles](profiles.md)).
+- **Port 18099 is already in use**: the log shows `HTTP server: port 18099 is already in use or not available`. Another ScoreSight instance (or another program) uses the port, and this instance runs without its HTTP server. Close the other program, or start this instance with `--port 18100` (see [profiles](profiles.md)).
+- **Works in a browser but not in PowerShell or a script**: the server listens on IPv4 only. Use `http://127.0.0.1:18099` instead of `localhost`.
 - From another computer: use the ScoreSight computer's IP address and allow ScoreSight through its firewall.
 
 ## Recognition problems
@@ -151,7 +158,11 @@ The full method is in [Recognition Tuning](recognition-tuning.md).
 
 ### Readings are yellow even though they look right
 
-The reading failed the box's **Format** (the raw text didn't fully match) or the **Conf. Th** confidence threshold. Check the format (for example *Shotclock 0-39* needs two digits) and lower the threshold a little. `SIM` means **Skip Similar Image** skipped an unchanged image, which is normal.
+The reading failed the box's **Format** (the raw text didn't fully match) or the **Conf. Th** confidence threshold. Check the format (for example *Shotclock 0-39* needs two digits). The confidence threshold is off (0) by default; if you raised it, lower it or set it back to 0. Correct readings of real scoreboards often have a Tesseract confidence of only 30–50 %. See [Conf. Th](box-settings.md#conf-th-confidence-threshold).
+
+### Digits appear on a blank box
+
+ScoreSight 0.1.x could read digits on an empty area, such as an unlit digit position. ScoreSight 0.2.0 doesn't run the OCR on a blank image, so such a box reads as empty (red `EMP`). If you still see invented digits, the area isn't really blank in **Binary View**: try another **Binarize** method or raise **Cleanup**.
 
 ## Performance problems
 
@@ -167,7 +178,7 @@ See [Performance Tuning](performance.md).
 
 ### Video freezes when Detections / s is at 1 (#53)
 
-In ScoreSight 0.1.x, setting **Detections / s** to 1 stopped all processing, and the UI could stay disabled after a restart ([#53](https://github.com/royshil/scoresight/issues/53)). This is fixed in 0.2.0. On older versions, set the slider to 2 or higher.
+In ScoreSight 0.1.x, setting **Detections / s** to 1 stopped all processing, and the UI could stay disabled after a restart ([#53](https://github.com/royshil/scoresight/issues/53)). This is fixed in 0.2.0: the first frame is shown and read right away, and the preview refreshes about once a second at any detection rate. On older versions, set the slider to 2 or higher.
 
 ### The window is slow or freezes when a vMix/UNO/API target is offline
 
@@ -177,15 +188,11 @@ Fixed in 0.2.0: outputs send in the background with timeouts. On older versions,
 
 ### OCR training data goes to the wrong folder (#52)
 
-In 0.1.x, a changed **Save Folder** in **OCR Training Data Setup** was ignored ([#52](https://github.com/royshil/scoresight/issues/52)). This is fixed in 0.2.0: the chosen folder is used. See [OCR Training Data](data_annotation.md).
+In 0.1.x, a changed **Save Folder** in **OCR Training Data Setup** was ignored ([#52](https://github.com/royshil/scoresight/issues/52)). This is fixed in 0.2.0: the chosen folder is used and remembered. See [OCR Training Data](data_annotation.md).
 
 ### The interface is too light or hard to read (#50)
 
-Use **File** > **Appearance** to choose **Dark**, **Light** or **System** (follow the operating system) ([#50](https://github.com/royshil/scoresight/issues/50)).
-
-### The File menu disappeared
-
-In ScoreSight 0.1.x on Windows and Linux, the menu bar could disappear after the window lost focus. Restart ScoreSight to get it back, and update to the latest version.
+Use **File** > **Appearance** to choose **Dark**, **Light** or **System** (follow the operating system) ([#50](https://github.com/royshil/scoresight/issues/50)). The choice is remembered.
 
 ### Two cameras at once (#8)
 

@@ -33,11 +33,11 @@ python scripts/compile_ui.py      # generate src/ui_*.py from src/*.ui
 python src/main.py --profile dev  # run with separate "dev" settings
 ```
 
-On Windows, build the camera enumerator once:
+On Windows, build the camera enumerator once (from the repository root):
 
 ```powershell
 uv pip install -r requirements-build.txt
-cd src\win32DeviceEnum; python setup.py build_ext --inplace; cd ..\..
+python src\win32DeviceEnum\setup.py build_ext --inplace
 ```
 
 The full guide, including packaging, is in the [Developer Guide](https://royshil.github.io/scoresight/development/). The [architecture overview](https://royshil.github.io/scoresight/development/architecture.html) explains how the code fits together.
@@ -58,6 +58,7 @@ The full guide, including packaging, is in the [Developer Guide](https://royshil
   ```bash
   ruff check .
   ruff format --check .
+  python scripts/compile_ui.py --check
   ```
 
   Run `ruff check --fix .` and `ruff format .` to fix most issues automatically.
@@ -71,7 +72,7 @@ The full guide, including packaging, is in the [Developer Guide](https://royshil
 ```bash
 python -m pytest                      # everything
 python -m pytest -m "not ocr and not qt"   # quick pure-Python subset
-QT_QPA_PLATFORM=offscreen python src/main.py --self-test
+python src/main.py --self-test        # headless check of the whole app
 ```
 
 - Tests that need Tesseract are marked `ocr`, and tests that create Qt widgets are marked `qt`.
@@ -105,7 +106,7 @@ A new box setting must be added in several places:
 UI strings are translated with Qt Linguist. After changing UI text:
 
 ```bash
-for ts in translations/*.ts; do pyside6-lupdate src -ts "$ts"; done   # extract strings
+python scripts/update_translations.py   # extract strings from src/ into every .ts file
 # translate in Qt Linguist: pyside6-linguist translations/scoresight_de_DE.ts
 for ts in translations/*.ts; do pyside6-lrelease "$ts" -qm "${ts%.ts}.qm"; done   # compile
 ```
@@ -114,11 +115,11 @@ Commit both `.ts` and `.qm` files. Details, and how to add a new language: [Tran
 
 ## Packaging
 
-If you add a new data file (icon, model, translation, OBS asset) or a module that PyInstaller can't discover, make sure `scoresight.spec` includes it, and check that the packaged app's `--self-test` still passes. See [Building from Source](https://royshil.github.io/scoresight/development/building.html#package-with-pyinstaller).
+PyInstaller follows the imports of `src/main.py`, so new modules are bundled automatically. Add every new module to `SELF_TEST_MODULES` in `src/main.py` (a test checks this). If you add a new data file (icon, model, translation, OBS asset) loaded through `resource_path(...)`, make sure a pattern in `DATA_GLOBS` in `scoresight.spec` matches it: `tests/test_packaging.py` fails otherwise. Pull requests that change packaging files also get test builds of every platform, including the packaged app's `--self-test`. See [Building from Source](https://royshil.github.io/scoresight/development/building.html#package-with-pyinstaller).
 
 ## Pull request expectations
 
-- **CI is green**: ruff, tests and builds pass.
+- **CI is green**: lint and tests pass, and the platform builds when your change touches packaging.
 - **Scope**: the PR does one thing and explains why in the description. Link the issue (`Fixes #123`).
 - **Tested**: say which platforms you tested on (Windows / macOS Apple Silicon / macOS Intel / Linux) and how (video file, camera, NDI, RTSP...).
 - **Screenshots** for UI changes.

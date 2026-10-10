@@ -22,7 +22,7 @@ description: "All mouse and keyboard controls in ScoreSight's viewer, field list
 | Set 4-corner points | With **4-corner Correction** active, **left-click** four corners |
 | Add a per-character sub-box | With **Composite (Per-Character)** on, click the green **+** in the box (experimental) |
 
-Box positions are saved when you release the mouse button.
+Box positions and sizes are saved automatically.
 
 ## Field list
 
@@ -38,14 +38,16 @@ Box positions are saved when you release the mouse button.
 
 ## Training Dojo
 
+On macOS, use **⌘ Cmd** wherever this table says **Ctrl**. The shortcuts work while you type in the annotation box.
+
 | Key | Action |
 |---|---|
 | **Enter** | Approve and go to the next image |
 | **Shift + Enter** | Previous image |
 | **Up** / **Down** | Previous / next image |
 | **Ctrl + Up** / **Ctrl + Down** | Previous / next unapproved image |
-| **N** / **B** | Next / back |
-| **U** | Remove the approval |
+| **Ctrl + N** / **Ctrl + B** | Next / back |
+| **Ctrl + U** | Remove the approval |
 
 See [OCR Training Data](data_annotation.md).
 
@@ -53,9 +55,9 @@ See [OCR Training Data](data_annotation.md).
 
 On Windows and Linux, the **File** menu is at the top of the main window. On macOS it is in the system menu bar. It includes:
 
-- **Check for Updates**, **About**
+- **Check for Updates** (asks GitHub for the latest release and always shows the result), **About**
 - **View Current Log**
 - **Import Configuration**, **Export Configuration**, **Open Configuration Folder**
 - **OCR Training Data Setup**
-- **Language**: English (US), French, Spanish, German, Italian, Japanese, Korean, Dutch, Polish, Portuguese (Brazil), Portuguese (Portugal), Russian and Chinese (Simplified)
-- **Appearance**: System, Light or Dark colour scheme
+- **Language**: English (US), French, Spanish, German, Italian, Japanese, Korean, Dutch, Polish, Portuguese (Brazil), Portuguese (Portugal), Russian and Chinese (Simplified). The choice is remembered
+- **Appearance**: System, Light or Dark colour scheme. The choice is remembered
