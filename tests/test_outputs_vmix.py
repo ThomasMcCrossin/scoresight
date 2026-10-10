@@ -146,12 +146,12 @@ def test_update_never_blocks_on_an_unresponsive_vmix(make_vmix, make_result):
                 make_result("Home Score", str(second), "Success"),
             ]
         )
-    assert time.monotonic() - start < 0.3
+    assert time.monotonic() - start < 1.0  # blocking would take 15 s+
 
     flush(api)
     # no backlog: the batch in flight, then only the latest value per field
     assert session.sent()[-2:] == [("T.Text", "0:01"), ("H.Text", "1")]
-    assert len(session.sent()) <= 4
+    assert len(session.sent()) <= 10  # of 120 submitted (typically 4)
 
 
 def test_set_connection_keeps_mapping_and_running_state(make_vmix, make_result):

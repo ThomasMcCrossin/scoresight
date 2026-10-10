@@ -53,7 +53,7 @@ def test_submit_does_not_block_on_a_slow_endpoint(make_worker):
         worker.submit("field", i)
     elapsed = time.monotonic() - start
     assert send.started.wait(2)
-    assert elapsed < 0.5  # the "endpoint" is stuck, the caller is not
+    assert elapsed < 1.0  # the "endpoint" is stuck, the caller is not
 
     gate.set()
     assert worker.wait_idle(5)

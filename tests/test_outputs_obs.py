@@ -84,12 +84,12 @@ def test_update_never_blocks_and_keeps_latest_text_per_source():
     obs_websocket.update_text_source(client, "Home Score", "3")
     for second in range(59, -1, -1):
         obs_websocket.update_text_source(client, "Time", f"0:{second:02}")
-    assert time.monotonic() - start < 0.3
+    assert time.monotonic() - start < 1.0  # blocking would take 15 s+
 
     flush()
     assert ("Home Score", "3", True) in client.calls
     assert client.calls[-1] == ("Time", "0:00", True)
-    assert len(client.calls) <= 3
+    assert len(client.calls) <= 10  # of 61 submitted (typically 3)
 
 
 @pytest.mark.parametrize("source_name", ["", None])

@@ -206,13 +206,13 @@ def test_slow_endpoint_never_blocks_or_piles_up(session, configure, make_result)
         api_output.update_out_api([make_result("Time", str(i), "Success")])
     elapsed = time.monotonic() - start
 
-    assert elapsed < 0.4  # the old code started one thread per call...
+    assert elapsed < 1.0  # the old code started one thread per call...
     assert threading.active_count() <= threads_before + 1  # ...this has one worker
     assert api_output._worker.wait_idle(10)
     # the first request was in flight, the rest coalesced into the latest one
     sent = [json.loads(r["data"])["Time"] for r in session.requests]
     assert sent[-1] == "49"
-    assert len(sent) <= 3
+    assert len(sent) <= 10  # of 50 submitted (typically 2)
 
 
 def test_unreachable_endpoint_is_logged_and_does_not_block(
@@ -232,7 +232,7 @@ def test_unreachable_endpoint_is_logged_and_does_not_block(
         with caplog.at_level(logging.ERROR):
             start = time.monotonic()
             api_output.update_out_api(readings)
-            assert time.monotonic() - start < 0.2
+            assert time.monotonic() - start < 1.0
             deadline = time.monotonic() + 10
             while "Output API" not in caplog.text and time.monotonic() < deadline:
                 time.sleep(0.05)

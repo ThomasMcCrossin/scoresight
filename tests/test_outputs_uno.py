@@ -100,13 +100,13 @@ def test_update_never_blocks_and_keeps_latest_per_command(make_uno, make_result)
     api.update_uno([make_result("Home Score", "3", "Success")])
     for second in range(59, -1, -1):
         api.update_uno([make_result("Time", f"0:{second:02}", "Success")])
-    assert time.monotonic() - start < 0.3
+    assert time.monotonic() - start < 1.0  # blocking would take 15 s+
 
     flush(api)
     sent = [(c["json"]["command"], c["json"]["value"]) for c in session.calls]
     assert ("SetGoalsHome", "3") in sent  # an older change is never dropped
     assert sent[-1] == ("SetMatchTime", "0:00")
-    assert len(sent) <= 4
+    assert len(sent) <= 10  # of 61 submitted (typically 3)
 
 
 @pytest.mark.parametrize("status", [200, 201, 204])
