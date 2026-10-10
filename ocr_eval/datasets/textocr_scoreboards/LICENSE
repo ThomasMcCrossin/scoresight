@@ -1,0 +1,24 @@
+The textocr_scoreboards dataset combines material under these licenses:
+
+1. Images (images/*.png). Each crop is an adaptation of a photograph from the
+   Open Images dataset, published on Flickr by its author under the license in
+   the "license" field of the crop's row in manifest.jsonl (CC-BY-2.0 = Creative
+   Commons Attribution 2.0, https://creativecommons.org/licenses/by/2.0/;
+   CC-BY-SA-2.0 = Attribution-ShareAlike 2.0; CC0-1.0; PDM-1.0 = public domain
+   mark). The author, title and source of every photograph are in the row's
+   "author", "source_url" and "attribution" fields and in ATTRIBUTION.md.
+   Changes: cropped around one word of text and, if taller than 160 pixels,
+   downscaled. No endorsement by the authors is implied.
+
+2. Transcriptions and word boxes ("text" and "word_box") come from TextOCR
+   (Singh et al., "TextOCR: Towards large-scale end-to-end reasoning for
+   arbitrary-shaped scene text", CVPR 2021, https://textvqa.org/textocr/),
+   licensed under Creative Commons Attribution 4.0
+   (https://creativecommons.org/licenses/by/4.0/). Image classes come from
+   TextVQA (https://textvqa.org/), CC BY 4.0.
+
+3. The rest of manifest.jsonl (field types, display technologies, splits and
+   the review decisions in ocr_eval/builders/textocr_scoreboards_review.json)
+   is by the ScoreSight contributors, licensed under CC BY 4.0.
+
+These licenses apply to this folder only; the ScoreSight code is MIT licensed.
