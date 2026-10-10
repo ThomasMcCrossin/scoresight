@@ -7,6 +7,7 @@ import fnmatch
 import importlib.util
 import re
 import sys
+import textwrap
 from pathlib import Path
 
 import pytest
@@ -17,6 +18,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 SRC_DIR = REPO_ROOT / "src"
 SPEC_FILE = REPO_ROOT / "scoresight.spec"
 ISS_FILE = REPO_ROOT / "scoresight.iss"
+WORKFLOWS = REPO_ROOT / ".github" / "workflows"
 
 
 def _load_script(name, path):
@@ -29,6 +31,7 @@ def _load_script(name, path):
 
 versioning = _load_script("versioning", REPO_ROOT / "scripts" / "ci" / "versioning.py")
 bump_version = _load_script("bump_version", REPO_ROOT / "scripts" / "bump_version.py")
+smoke_test = _load_script("smoke_test", REPO_ROOT / "scripts" / "ci" / "smoke_test.py")
 
 
 # --- version parsing ----------------------------------------------------------
@@ -512,3 +515,117 @@ def test_installer_upgrades_existing_installs_and_names_the_output():
     assert 'Source: "dist\\scoresight\\*"' in iss
     icon = re.search(r"^SetupIconFile=(.+)$", iss, re.MULTILINE).group(1)
     assert (REPO_ROOT / icon.replace("\\", "/")).is_file()
+
+
+# --- scripts/ci/smoke_test.py -------------------------------------------------
+
+
+def _fake_app(tmp_path, body):
+    script = tmp_path / "fake_app.py"
+    script.write_text(
+        "import os, sys, time\n"
+        "assert sys.argv[1:] == ['--self-test'], sys.argv\n"
+        "assert os.environ['QT_QPA_PLATFORM'] == 'offscreen'\n"
+        "log_dir = os.environ['SCORESIGHT_LOG_DIR']\n"
+        "assert os.environ['SCORESIGHT_DATA_DIR']\n" + textwrap.dedent(body),
+        encoding="utf-8",
+    )
+    return [sys.executable, str(script)]
+
+
+def test_smoke_test_passes(tmp_path, capsys):
+    app = _fake_app(tmp_path, "print('SELF-TEST OK')\n")
+    assert smoke_test.run_smoke_test(app, timeout=60) == 0
+    assert "smoke test passed" in capsys.readouterr().out
+
+
+@pytest.mark.parametrize(
+    "body, reason",
+    [
+        ("print('SELF-TEST OK')\nsys.exit(2)\n", "exit code 2"),
+        ("print('all good')\n", "no 'SELF-TEST OK'"),
+        ("time.sleep(60)\n", "no result within 3 s"),
+    ],
+)
+def test_smoke_test_fails(tmp_path, capsys, body, reason):
+    app = _fake_app(tmp_path, body)
+    assert smoke_test.run_smoke_test(app, timeout=3) == 1
+    assert reason in capsys.readouterr().out
+
+
+def test_smoke_test_failure_prints_the_app_logs(tmp_path, capsys):
+    app = _fake_app(
+        tmp_path,
+        """
+        os.makedirs(log_dir, exist_ok=True)
+        with open(os.path.join(log_dir, 'scoresight_1.log'), 'w') as f:
+            f.write('Traceback: missing module foo')
+        sys.exit(1)
+        """,
+    )
+    assert smoke_test.run_smoke_test(app, timeout=60) == 1
+    output = capsys.readouterr().out
+    assert "scoresight_1.log" in output
+    assert "missing module foo" in output
+
+
+def test_smoke_test_command_needs_an_existing_executable(tmp_path, capsys):
+    assert smoke_test.main([str(tmp_path / "missing.exe")]) == 1
+    assert "does not exist" in capsys.readouterr().err
+
+
+# --- workflows --------------------------------------------------------------------
+
+
+def _github_tag_filter_to_regex(pattern):
+    # GitHub's filter syntax as used in release.yml: [..] classes, "+" (one or
+    # more of the previous character) and literal characters.
+    regex = ""
+    for token in re.findall(r"\[[^\]]*\]|.", pattern):
+        if token.startswith("[") or token == "+":
+            regex += token
+        elif token in "*?!":
+            raise AssertionError(f"unsupported filter syntax in {pattern!r}")
+        else:
+            regex += re.escape(token)
+    return re.compile(regex)
+
+
+def test_release_tag_filters_match_the_accepted_versions():
+    yaml = pytest.importorskip("yaml")
+    workflow = yaml.safe_load((WORKFLOWS / "release.yml").read_text(encoding="utf-8"))
+    # PyYAML reads the bare `on:` key as the boolean True
+    triggers = workflow.get("on", workflow.get(True))
+    filters = [_github_tag_filter_to_regex(p) for p in triggers["push"]["tags"]]
+    samples = [
+        "0.2.0",
+        "10.20.30",
+        "0.2.0-beta.1",
+        "0.2.0-rc.12",
+        "v0.2.0",
+        "0.2",
+        "0.2.0-alpha.1",
+        "0.2.0-rc",
+        "0.2.0rc1",
+        "0.2.0-rc.1-hotfix",
+        "latest",
+    ]
+    for tag in samples:
+        triggers_release = any(f.fullmatch(tag) for f in filters)
+        assert triggers_release == bool(versioning.VERSION_RE.fullmatch(tag)), tag
+
+
+def test_build_workflow_uploads_the_packages_the_release_expects():
+    build = (WORKFLOWS / "build.yml").read_text(encoding="utf-8")
+    release = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
+    for suffix in [
+        "windows-x64-setup.exe",
+        "windows-x64-portable.zip",
+        "linux-x64.tar.gz",
+    ]:
+        assert f"-{suffix}" in build, suffix
+        assert f'"scoresight-$VERSION-{suffix}"' in release, suffix
+    assert "-${{ matrix.target }}.dmg" in build
+    for target in ["macos-arm64", "macos-x64"]:
+        assert f"target: {target}" in build
+        assert f'"scoresight-$VERSION-{target}.dmg"' in release
