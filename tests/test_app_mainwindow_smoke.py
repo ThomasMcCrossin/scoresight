@@ -856,6 +856,33 @@ def test_manual_update_check_always_shows_the_result(make_window, monkeypatch, q
     window.update_dialog.close()
 
 
+def test_a_manual_check_during_the_startup_check_shows_its_result(
+    make_window, monkeypatch, qtbot
+):
+    # File > Check for Updates while the startup check was still running did
+    # nothing, and the startup check shows no dialog when there is no update.
+    import mainwindow
+
+    release = threading.Event()
+    calls = []
+
+    def slow_check():
+        calls.append(threading.current_thread())
+        release.wait(5)
+        return UpdateCheckResult(__version__, __version__)
+
+    monkeypatch.setattr(mainwindow, "check_for_updates", slow_check)
+    window = make_window()
+    assert window.update_check_running
+    window.checkForUpdates(True)
+    release.set()
+    qtbot.waitUntil(lambda: window.update_dialog is not None)
+    assert len(calls) == 1
+    assert not window.update_dialog.ui.label_noNewVersion.isHidden()
+    window.update_dialog.close()
+    assert not window.update_check_manual_pending
+
+
 def test_confidence_threshold_slider(main_window, make_target):
     ui = main_window.ui
     assert "Tesseract" in ui.horizontalSlider_conf_thresh.toolTip()

@@ -198,6 +198,8 @@ class MainWindow(QMainWindow):
         file_menu = self.menubar.addMenu("File")
 
         self.update_check_running = False
+        # a manual check was asked for while another check was running
+        self.update_check_manual_pending = False
         self.update_dialog = None
         self.update_check_finished.connect(self.updateCheckFinished)
         file_menu.addAction("Check for Updates", lambda: self.checkForUpdates(True))
@@ -749,6 +751,8 @@ class MainWindow(QMainWindow):
         check at startup honors "Don't check for updates at startup"; a manual
         check (File > Check for Updates) always runs and always shows a result."""
         if self.update_check_running:
+            # the running check shows its result to this request too
+            self.update_check_manual_pending |= manual
             return
         if not manual and not update_checks_enabled():
             logger.info("Update checks at startup are disabled")
@@ -763,6 +767,8 @@ class MainWindow(QMainWindow):
     @Slot(object, bool)
     def updateCheckFinished(self, result, manual: bool):
         self.update_check_running = False
+        manual = manual or self.update_check_manual_pending
+        self.update_check_manual_pending = False
         if not isinstance(result, UpdateCheckResult):
             result = UpdateCheckResult(__version__, error="the update check failed")
         if not (manual or result.update_available):
