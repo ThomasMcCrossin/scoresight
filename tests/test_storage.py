@@ -646,7 +646,9 @@ def test_configuration_exported_by_0_1_x_is_migrated(tmp_path, memory_storage):
     assert conf_thresholds(memory_storage) == {"Away Score": 0.0}
 
 
-@pytest.mark.parametrize("content", ["{not json", '{"no": "boxes"}', '"text"'])
+@pytest.mark.parametrize(
+    "content", ["{not json", '{"no": "boxes"}', '"text"', '["box"]', "[1]"]
+)
 def test_invalid_configuration_file_keeps_the_boxes(tmp_path, memory_storage, content):
     memory_storage.add_item(make_box("Home Score", (1, 2, 3, 4)))
     bad = tmp_path / "bad.json"

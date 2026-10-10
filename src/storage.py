@@ -337,12 +337,17 @@ def migrate_boxes(boxes: list, origin: str) -> list:
     0.5 default that did nothing. Applying it now would reject many correct
     readings, so it is reset to 0 (off), which keeps the old behavior.
     Returns migrated copies; origin names where the boxes came from, for the log.
+    Malformed entries are left for loadBoxesFromDict to reject.
     """
     migrated = []
     for box in boxes:
-        box = dict(box)
-        box["settings"] = {**(box.get("settings") or {}), "conf_thresh": 0.0}
+        if isinstance(box, dict):
+            settings = box.get("settings")
+            settings = dict(settings) if isinstance(settings, dict) else {}
+            box = {**box, "settings": {**settings, "conf_thresh": 0.0}}
         migrated.append(box)
+    if not migrated:
+        return migrated
     logger.info(
         "Migrated %d box(es) from %s, saved by an older ScoreSight: their "
         "confidence threshold had no effect before 0.2.0 and is now off (0); "
