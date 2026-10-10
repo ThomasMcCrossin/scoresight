@@ -253,9 +253,9 @@ def test_bump_version_keeps_crlf_line_endings(release_files):
 @pytest.mark.parametrize(
     "new_version, date, message",
     [
-        ("0.1.0", "2026-10-10", "not newer"),
-        ("0.1.0-rc.1", "2026-10-10", "not newer"),
-        ("0.0.9", "2026-10-10", "not newer"),
+        ("0.1.0", "2026-10-10", "already has a '## \\[0.1.0\\]' section"),
+        ("0.1.0-rc.1", "2026-10-10", "older than"),
+        ("0.0.9", "2026-10-10", "older than"),
         ("v0.2.0", "2026-10-10", "invalid version"),
         ("0.2.0", "10/10/2026", "invalid --date"),
     ],
@@ -266,6 +266,18 @@ def test_bump_version_refuses(release_files, new_version, date, message):
         bump_version.bump(new_version, date, version_file, changelog)
     assert versioning.read_version(version_file) == "0.1.0"
     assert changelog.read_text(encoding="utf-8") == CHANGELOG
+
+
+def test_bump_version_to_the_version_already_set(release_files):
+    # src/version.py is set to the upcoming version during development, so the
+    # first release only cuts the CHANGELOG section
+    version_file, changelog = release_files
+    version_file.write_text('__version__ = "0.2.0"\n', encoding="utf-8")
+    diff = bump_version.bump("0.2.0", "2026-10-10", version_file, changelog)
+    assert version_file.read_text(encoding="utf-8") == '__version__ = "0.2.0"\n'
+    assert "version.py" not in diff
+    text = changelog.read_text(encoding="utf-8")
+    assert "Profiles" in versioning.changelog_section(text, "0.2.0")
 
 
 def test_bump_version_refuses_an_empty_unreleased_section(release_files):
@@ -300,7 +312,9 @@ def test_bump_version_command(release_files, monkeypatch, capsys):
     assert versioning.read_version(version_file) == "0.2.0"
 
     assert bump_version.main(["0.2.0"]) == 1
-    assert "not newer" in capsys.readouterr().err
+    assert "already has" in capsys.readouterr().err
+    assert bump_version.main(["0.1.5"]) == 1
+    assert "older than" in capsys.readouterr().err
 
 
 def test_bumped_version_file_stays_trivially_parseable(tmp_path):

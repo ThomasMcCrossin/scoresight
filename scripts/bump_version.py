@@ -6,8 +6,10 @@
 It sets `__version__` in src/version.py, renames CHANGELOG.md's
 `## [Unreleased]` section to `## [X.Y.Z] - YYYY-MM-DD` (today, or --date), adds
 a fresh empty `## [Unreleased]` above it, and updates the comparison links at the
-bottom of the changelog. It refuses to go backwards, to reuse a version that
-already has a section, or to release an empty Unreleased section.
+bottom of the changelog. If src/version.py already has the new version (as for
+the first release after the version was set during development), only the
+CHANGELOG changes. It refuses to go backwards, to reuse a version that already
+has a section, or to release an empty Unreleased section.
 
 Afterwards, review and commit, then tag (the release workflow builds the tag):
     git commit -am "Release X.Y.Z"
@@ -126,10 +128,11 @@ def bump(
         current_key = parse_version(current)
     except ValueError:
         current_key = None  # an unparseable current version can always be replaced
-    if current_key is not None and new_key <= current_key:
-        raise BumpError(
-            f"{new_version} is not newer than the current version {current}"
-        )
+    # Releasing the version src/version.py already has is allowed: then only
+    # the CHANGELOG changes (and bump_changelog refuses a version that already
+    # has a section, so nothing can be released twice).
+    if current_key is not None and new_key < current_key:
+        raise BumpError(f"{new_version} is older than the current version {current}")
     try:
         datetime.date.fromisoformat(date)
     except ValueError as e:
@@ -180,7 +183,8 @@ def main(argv: list[str] | None = None) -> int:
         print("\n(dry run: nothing was written)")
     else:
         print(
-            f"\nUpdated src/version.py and CHANGELOG.md to {args.version}. Next:\n"
+            f"\nsrc/version.py and CHANGELOG.md are ready for {args.version}. "
+            "Review the changes, then:\n"
             f'  git commit -am "Release {args.version}"\n'
             f'  git tag -a {args.version} -m "ScoreSight {args.version}"\n'
             f"  git push origin main {args.version}"
