@@ -34,13 +34,15 @@ ScoreSight can update text sources in OBS Studio directly over the OBS WebSocket
 
 ## 2. Connect ScoreSight
 
-1. In ScoreSight, open the **OBS** tab and click **Connect OBS**.
+1. In ScoreSight, select **OBS** in the **Outputs** list (or click **OBS** in the status bar) and click **Connect OBS**. The OBS row's switch does the same.
 2. Enter the OBS computer's address (`localhost` if OBS runs on the same computer), port `4455`, and the password. The password is hidden; tick **Show password** to check it. **Cancel** closes the dialog without connecting.
-3. Click **Connect**. If the connection works within 3 seconds, the dialog closes and the scene controls in the tab become available. If not, it shows "Cannot connect to OBS".
+3. Click **Connect**. If the connection works within 3 seconds, the dialog closes and the scene controls become available. If not, the dialog says "Cannot connect to OBS" and why, for example *Can't reach localhost:4455* (OBS isn't running, or its WebSocket server is off) or *OBS refused the connection: check the password*.
 
-ScoreSight remembers the connection and connects again in the background the next time it starts, so the window appears right away even if OBS isn't running yet.
+Once connected, the OBS row says *Connected to localhost:4455* with a green ●, and when a text source was last updated. The button becomes **Change connection...** (to connect to another OBS), and **Disconnect** closes the connection.
 
-If OBS restarts or the connection drops while ScoreSight is running, ScoreSight reconnects by itself as soon as OBS is reachable again (the log shows `OBS: reconnected to <host>:<port>`). The latest value of each text source is sent after the reconnect.
+ScoreSight remembers the connection and connects again in the background the next time it starts, so the window appears right away even if OBS isn't running yet. If that fails, the OBS row shows ■ *Not connected* with the reason: start OBS, then click **Connect OBS**. After you click **Disconnect**, ScoreSight keeps the connection settings for the dialog but doesn't connect at the next start until you connect again.
+
+If OBS restarts or the connection drops while ScoreSight is running, the OBS row shows ▲ *Reconnecting to OBS at localhost:4455…*, and ScoreSight reconnects by itself as soon as OBS is reachable again (the log shows `OBS: reconnected to <host>:<port>`). The latest value of each text source is sent after the reconnect.
 
 ## 3. Create the text sources
 
@@ -64,12 +66,12 @@ You have two options:
 Once connected, every change of a field's value updates its OBS text source.
 
 {: .new }
-In ScoreSight 0.1.x, OBS updates only ran when an output folder was set in the **Text Files** tab, and a slow OBS connection could freeze ScoreSight. In 0.2.0, OBS updates are independent of the file output, are sent in the background, and survive an OBS restart.
+In ScoreSight 0.1.x, OBS updates only ran when an output folder was set in the **Text Files** tab, and a slow OBS connection could freeze ScoreSight. In 0.2.0, OBS updates are independent of the file output, are sent in the background, survive an OBS restart, and the OBS row of the **Outputs** list shows whether they arrive.
 
 ## What gets sent
 
 - A box's **good** reading (green or light green) is sent when it differs from the text ScoreSight last sent to that OBS source. Rejected (yellow) and empty readings never change the OBS text, so it keeps the last good value.
-- Updates are sent as soon as the value changes, in the background. They are **not** limited by the **Save / s** setting of the Text Files tab, and they don't need an output folder.
+- Updates are sent as soon as the value changes, in the background. They are **not** limited by the **Save / s** setting of the text files, and they don't need an output folder.
 - If OBS is slow, only the latest text of each source is kept and sent.
 - Boxes without an OBS source name are skipped (see [Custom fields](#custom-fields)).
 - **Pause outputs** freezes the OBS text.
@@ -84,14 +86,16 @@ Custom fields have no OBS source name by default, so they don't update OBS. Your
 
 ## Troubleshooting
 
-OBS messages in the log start with `OBS:`.
+Start with the OBS row of the **Outputs** list (or **OBS** in the status bar): it says what is wrong. OBS messages in the log start with `OBS:`.
 
-| Problem | Check |
+| The OBS row (or the dialog) says | Check |
 |---|---|
-| "Cannot connect to OBS" | OBS is running, the WebSocket server is enabled, the port and password match, and the firewall on the OBS computer allows the port |
-| Connected, but text doesn't change | The OBS source names match the table exactly (including case, spaces and `#`). The reading is green in ScoreSight. **Pause outputs** is off |
-| Log shows `OBS: OBSSDKRequestError: Request SetInputSettings returned code 600...` | OBS has no input with that name (code 600 means "resource not found"). Check the source names |
-| Updates stop after a while | While OBS can't be reached, the log shows `OBS: OBSConnectionLost: ...` (at most every 30 seconds). ScoreSight reconnects by itself when OBS is back. If it doesn't, click **Connect OBS** again |
+| *Can't reach localhost:4455* or *No answer from ...* | OBS is running, the WebSocket server is enabled (**Tools** > **WebSocket Server Settings**), the port matches, and the firewall on the OBS computer allows the port |
+| *OBS refused the connection: check the password* or *OBS needs a password* | The password matches the one in OBS (**Show Connect Info**) |
+| *OBS has no text source "Clock"* (▲ when other fields work) | OBS has no input with that name (code 600, "resource not found", in the log). Check the source names: they are case-sensitive |
+| *Connected, but no field has an OBS text source* | No field on the picture has an OBS source name. Place the standard fields, or see [Custom fields](#custom-fields) |
+| *Reconnecting to OBS at ...* | OBS closed or the network dropped. ScoreSight reconnects by itself when OBS is back (the log shows `OBS: OBSConnectionLost: ...` at most every 30 seconds). If it doesn't, click **Connect OBS** again |
+| ● *Connected*, but the text doesn't change | The reading is green in ScoreSight, and **Pause outputs** is off. The time next to the OBS row shows when a text source was last updated |
 | One field never updates | It is a custom field (see [Custom fields](#custom-fields)) |
 
 {: .note }

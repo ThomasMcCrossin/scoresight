@@ -8,7 +8,7 @@ description: "Send ScoreSight's readings to your own HTTP endpoint as JSON, XML,
 # Outbound HTTP API
 {: .no_toc }
 
-The **API** tab sends the readings to a URL of your choice on every detection cycle. Use it to feed your own server, a cloud function, a database, or automation tools such as Node-RED, n8n or Home Assistant webhooks.
+The **HTTP API** output sends the readings to a URL of your choice on every detection cycle. Use it to feed your own server, a cloud function, a database, or automation tools such as Node-RED, n8n or Home Assistant webhooks.
 
 <details open markdown="block">
   <summary>On this page</summary>
@@ -19,13 +19,15 @@ The **API** tab sends the readings to a URL of your choice on every detection cy
 
 ## Setup
 
-![The API tab](image-29.png)
+![The outbound API settings (ScoreSight 0.1.x showed them on an API tab)](image-29.png)
 
-1. Open the **API** tab.
+1. Select **HTTP API** in the **Outputs** list at the bottom left (or click **API** in the status bar).
 2. Enter the **URL** of your endpoint, including the scheme and host, for example `http://192.168.1.10:8091/scores`.
 3. Choose the **method**: `POST` (the default), `PUT` or `GET`.
 4. Choose the **Encode** format (used for `POST` and `PUT`): *JSON (Full)* (the default), *JSON (Simple key-value)*, *XML* or *CSV*.
-5. Tick **Send out API requests to external services.**
+5. Tick **Send out API requests to external services.** (or turn on the switch of the HTTP API row).
+
+The HTTP API row of the **Outputs** list then shows ● *POST JSON (Full) to 192.168.1.10:8091* and when the last request succeeded. Before the first request it shows ◐ *Waiting for readings*; ▲ *Enter a URL* or *The URL isn't valid* when the URL is missing or has no scheme and host. Keys in the URL (`?token=...`) are never shown.
 
 ## When requests are sent
 
@@ -142,11 +144,16 @@ if __name__ == "__main__":
 
 1. Save it as `scoresight_receiver.py` and run `python scoresight_receiver.py`.
 2. In ScoreSight, set the URL to `http://localhost:8091`, then choose a method and encoding.
-3. Tick **Send out API requests to external services.** The requests appear in the console.
+3. Tick **Send out API requests to external services.** The requests appear in the console, and the HTTP API row shows ●.
 
 ## Troubleshooting
 
-1. **Read the log** (**File > View Current Log**). Output API errors start with `Output API:` and the type of the error, for example:
+1. **Look at the HTTP API row** of the **Outputs** list. It says what went wrong in plain words:
+   - ▲ *Can't reach 192.168.1.10:8091 · retrying* or *No answer from ... · retrying*: nothing answers at that address (a typo, the receiver isn't running, a firewall). ScoreSight retries by itself.
+   - ▲ *Can't find somehost · retrying*: the host name is unknown.
+   - ■ *HTTP 401: access denied*, *HTTP 404: check the URL*, *HTTP 500: the receiver reported an error*: your endpoint answered with that status. Hover the row for what it answered.
+   - ▲ *HTTP 429: too many requests*: your endpoint limits the requests.
+2. **Read the log** (**File > View Current Log**). Output API errors start with `Output API:` and the type of the error, for example:
 
    ```
    ERROR - output_worker - Output API: ConnectionError: HTTPConnectionPool(host='localahost', port=8091): Max retries exceeded ... Failed to resolve 'localahost'
@@ -154,9 +161,9 @@ if __name__ == "__main__":
    ```
 
    Common causes are a typo in the host name, "Connection refused" (nothing is listening on that port) or a timeout (firewall or wrong IP address). To keep the log readable, the same output logs at most one error every 30 seconds and adds `(N more error(s) since the last report were not logged)`. When the endpoint is reachable again, the log shows `Output API: connection restored`.
-2. **`Output API: Invalid URL` or `Output API: no URL set` in the log**: the URL needs a scheme and host, such as `http://host:port/path`.
-3. **Wrong format**: make sure the receiver expects the chosen encoding and method.
-4. **Status code errors** (`returned HTTP 4xx/5xx`): your endpoint answered with an error status. Any 2xx status is fine. Check the endpoint's own logs.
-5. **Nothing arrives with *JSON (Simple key-value)* or `GET`**: these send only good readings. If every box is yellow or red, nothing is sent. Check the boxes in ScoreSight, or use *JSON (Full)* to see every reading.
-6. **Firewall**: when testing across computers, allow the receiver's port on the receiving computer.
-7. Test with the receiver script above to find out whether the problem is ScoreSight or your endpoint.
+3. **`Output API: Invalid URL` or `Output API: no URL set` in the log**: the URL needs a scheme and host, such as `http://host:port/path`.
+4. **Wrong format**: make sure the receiver expects the chosen encoding and method.
+5. **Status code errors** (`returned HTTP 4xx/5xx`): your endpoint answered with an error status. Any 2xx status is fine. Check the endpoint's own logs.
+6. **Nothing arrives with *JSON (Simple key-value)* or `GET`**: these send only good readings. If every box is yellow or red, nothing is sent (the time next to the HTTP API row stops advancing). Check the boxes in ScoreSight, or use *JSON (Full)* to see every reading.
+7. **Firewall**: when testing across computers, allow the receiver's port on the receiving computer.
+8. Test with the receiver script above to find out whether the problem is ScoreSight or your endpoint.

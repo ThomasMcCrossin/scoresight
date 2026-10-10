@@ -47,15 +47,15 @@ Field names in the Title Editor look like `Home Score.Text`, `Away Score.Text` o
 {: .tip }
 The repository includes a ready-made vMix preset, [`scoresight.vmix`](https://github.com/royshil/scoresight/blob/main/scoresight.vmix). It contains a scoreboard title with the fields `Home Score.Text`, `Away Score.Text`, `CLOCK.Text`, `Home Title.Text`, `Away Title.Text`, `Title 1.Text` and `Title 2.Text`. Open it in vMix (**Open** preset) to get started quickly.
 
-## 3. Configure the VMix tab in ScoreSight
+## 3. Configure vMix in ScoreSight
 
 Set up your boxes first (see the [Quickstart](quickstart.md)):
 
 ![Boxes placed over the scores and clock in ScoreSight](image-11.png)
 
-Then open the **VMix** tab:
+Then select **vMix** in the **Outputs** list at the bottom left (or click **vMix** in the status bar). Its settings show under the list:
 
-![The VMix tab with host, port 8088, input and the field mapping](image-12.png)
+![The vMix settings with host, port 8088, input and the field mapping (ScoreSight 0.1.x showed them on a VMix tab)](image-12.png)
 
 | Setting | Value |
 |---|---|
@@ -64,13 +64,27 @@ Then open the **VMix** tab:
 | **Output Mapping** | One row per ScoreSight field. In the right column, type the exact vMix field name, for example `Home Score.Text`. The default is the ScoreSight field name, which usually needs the `.Text` suffix added. The mapping the table shows is used right away, even for rows you haven't edited. Clear a cell to stop sending that field |
 | **Send Same?** | Off: send only new values. On: also resend unchanged values on every cycle. This is useful if someone else may overwrite the title in vMix |
 
-Click **Start vMix** to begin sending (the button changes to **Stop vMix**). Click it again to pause sending without losing the settings.
+Click **Start vMix** (or the switch of the vMix row) to begin sending (the button changes to **Stop vMix**). Click it again to stop sending without losing the settings.
 
 A change to the host, port or input takes effect when you press **Enter** or leave the field. Spaces around the values are ignored. You don't need to stop and start the output: the mapping and the Start/Stop state are kept.
 
 Once the mapping is complete, the title updates live in vMix:
 
 ![The vMix title showing live values from ScoreSight](image-13.png)
+
+## Is vMix receiving the values?
+
+The vMix row of the **Outputs** list (and **vMix** in the status bar) shows it:
+
+| State | The vMix row says |
+|---|---|
+| ● Working | *Sending to localhost:8088, input 1*, and when the last value was sent (*2 s ago*) |
+| ◐ Waiting | *Waiting for a new value for ...*: started, but no field changed yet. vMix gets a value when it changes (or every time, with **Send Same?**) |
+| ▲ Retrying | *Can't reach 192.168.1.40:8088 · retrying* or *No answer from ... · retrying*: vMix can't be reached. ScoreSight retries by itself and sends the latest values when vMix is back |
+| ▲ Needs attention | *No fields to send* (nothing mapped), or *1 of 4 failing: ...* when some fields arrive and others don't |
+| ■ Not working | *Port 8099 is vMix's TCP API: use 8088*, *HTTP 401: vMix asks for a login*, or another error vMix answered with |
+
+When vMix is selected and has a problem, a box over its settings says what to do. Hover the row for the full error.
 
 ## What ScoreSight sends
 
@@ -93,12 +107,13 @@ Instead of the direct integration, you can feed vMix titles from ScoreSight's fi
 
 ## Troubleshooting
 
-vMix errors in the log start with `vMix:`.
+The vMix row of the **Outputs** list says what is wrong (see [above](#is-vmix-receiving-the-values)). vMix errors in the log start with `vMix:`.
 
-| Symptom | Fix |
+| The vMix row says (the log says) | Fix |
 |---|---|
-| Log shows `vMix: VMixTCPPortError: localhost:8099 answered like the vMix TCP API ('VERSION OK')...` | You are pointing at the vMix **TCP API** port (8099). Change the port to the Web Controller port, **8088** by default |
-| Log shows `vMix: ConnectionError: ...` (connection refused) or a timeout | The vMix Web Controller is not enabled, the port is wrong, or a firewall blocks it. Open `http://<host>:8088/api` in a browser to test |
-| Nothing changes, no errors | The mapping names don't match the Title Editor (remember `.Text`), the **Input** is wrong, or **Start** isn't active |
-| Some fields update, others don't | Check each mapping row: empty cells are not sent. Readings that are yellow or red in ScoreSight are not sent |
-| `vMix: OutputError: SetText 'Home Score.Text' returned HTTP 401` (or 403) | The Web Controller requires a login. Allow API access without login (see step 1) |
+| *Port 8099 is vMix's TCP API: use 8088* (`vMix: VMixTCPPortError: localhost:8099 answered like the vMix TCP API ('VERSION OK')...`) | You are pointing at the vMix **TCP API** port (8099). Change the port to the Web Controller port, **8088** by default |
+| *Can't reach ...* or *No answer from ...* (`vMix: ConnectionError: ...`, connection refused, or a timeout) | The vMix Web Controller is not enabled, the port is wrong, or a firewall blocks it. Open `http://<host>:8088/api` in a browser to test |
+| *HTTP 401: vMix asks for a login* (`vMix: OutputError: SetText 'Home Score.Text' returned HTTP 401`, or 403) | The Web Controller requires a login. Allow API access without login (see step 1) |
+| ◐ *Waiting for a new value*, nothing changes in vMix | The mapping names don't match the Title Editor (remember `.Text`), or the **Input** is wrong. Values are sent when they change: turn on **Send Same?** to send them every time |
+| ○ *Off* | Click **Start vMix** |
+| Some fields update, others don't (*1 of 4 failing: ...* when vMix answers some of them with an error) | Check each mapping row against the Title Editor: empty cells are not sent. Readings that are yellow or red in ScoreSight are not sent |

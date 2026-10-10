@@ -27,9 +27,11 @@ ScoreSight can update [overlays.uno](https://overlays.uno/) graphics directly th
 
    Treat this URL like a password: anyone who has it can control your overlay.
 
-2. In ScoreSight, open the **UNO** tab and paste the URL into **URL**. The URL takes effect when you press **Enter** or leave the field (spaces around it are ignored). Changing it while sending keeps the mapping and the running state.
+2. In ScoreSight, select **UNO** in the **Outputs** list (or click **UNO** in the status bar) and paste the URL into **URL**. The URL takes effect when you press **Enter** or leave the field (spaces around it are ignored). Changing it while sending keeps the mapping and the running state.
 3. Check the **mapping table**: for each ScoreSight field, the right column holds the UNO command (or, in Essentials mode, the field ID) it should drive.
-4. Click **Start sending**. The button changes to **Stop sending**; click it again to stop.
+4. Click **Start sending** (or the switch of the UNO row). The button changes to **Stop sending**; click it again to stop.
+
+The UNO row of the **Outputs** list shows whether the values arrive: ● *Sending to app.overlays.uno* with the time of the last update, ◐ while it waits for a value that changed, ▲ *Can't reach app.overlays.uno · retrying* when there's no connection, and ■ with the HTTP error overlays.uno answered (see [Troubleshooting](#troubleshooting)). It never shows the token in your URL.
 
 ## Mapping
 
@@ -73,5 +75,10 @@ ScoreSight 0.2.0 removed the **Rate Limit** field of 0.1.x, which had no effect.
 
 ## Troubleshooting
 
-- Open the log (**File > View Current Log**) and look for lines that start with `UNO:`, for example `UNO: OutputError: UNO SetGoalsHome returned HTTP 401: ...`. The status code is a clue: `401` or `403` usually means a wrong or expired URL, and `429` means too many requests (the request is dropped; lower the number of updates). Errors are logged at most once every 30 seconds.
+- Look at the UNO row of the **Outputs** list. It says, for example:
+  - ■ *HTTP 401: check the UNO URL* (or 403, 404): the URL is wrong or expired. Copy the API URL of your control app again.
+  - ▲ *HTTP 429: too many requests*: overlays.uno's limit; the updates over it are dropped. Keep **Send Same?** off and **Update on change** on.
+  - ▲ *Enter your UNO API URL*: the URL field still holds the example URL.
+  - ▲ *Can't reach app.overlays.uno · retrying*: no internet connection. ScoreSight sends the latest values when it's back.
+- The log (**File > View Current Log**) has the details in lines that start with `UNO:`, for example `UNO: OutputError: UNO SetGoalsHome returned HTTP 401: ...`. Errors are logged at most once every 30 seconds.
 - Make sure the overlay supports the command you mapped, and that the values have the format the overlay expects (for example `mm:ss` for match time). Use the box's [Format](box-settings.md#format) setting to enforce it.

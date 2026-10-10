@@ -39,7 +39,7 @@ The folder is listed in [Settings, Files & Command Line](configuration.md#where-
 | `--profile NAME` | Use the settings file `scoresight-NAME.json`. The environment variable `SCORESIGHT_PROFILE=NAME` does the same. |
 | `--port N` | Serve the [HTTP API](http_server.md) on port `N` instead of 18099. |
 
-Two instances cannot share an HTTP port. If the port is already taken, the second instance logs `HTTP server: port ... is already in use or not available` and runs without its HTTP server. Closing one instance never stops another instance's server. Give every instance a different `--port`. The **Browser** tab of each instance shows the links for its own port.
+Two instances cannot share an HTTP port. If the port is already taken, the second instance logs `HTTP server: port ... is already in use or not available` and runs without its HTTP server. Closing one instance never stops another instance's server. Give every instance a different `--port`. The **HTTP server** page of each instance (in its **Outputs** list) shows the links for its own port, and its HTTP server row shows ■ *Not running: port ... is in use* if its port was taken.
 
 ## Starting a second instance
 

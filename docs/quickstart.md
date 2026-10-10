@@ -73,16 +73,18 @@ The [Recognition Tuning](recognition-tuning.md) guide walks through this step by
 
 ## 5. Send the results to your graphics
 
-Pick one or more tabs at the bottom left:
+Pick one or more outputs in the **Outputs** list at the bottom left. Select one to show its settings under the list, and turn it on with its switch:
 
-| Tab | What it does | Guide |
+| Output | What it does | Guide |
 |---|---|---|
-| **Text Files** | Writes `<Box Name>.txt`, and optionally `results.csv` and `results.xml`, to a folder | [Text, CSV & XML Files](text-files.md) |
-| **Browser** | Serves live HTML, JSON, XML and CSV at `http://localhost:18099` (or the port set with `--port`) | [HTTP Server API](http_server.md) |
+| **Text files** | Writes `<Box Name>.txt`, and optionally `results.csv` and `results.xml`, to a folder | [Text, CSV & XML Files](text-files.md) |
+| **HTTP server** | Serves live HTML, JSON, XML and CSV at `http://localhost:18099` (or the port set with `--port`). Always on | [HTTP Server API](http_server.md) |
 | **OBS** | Updates OBS text sources over the OBS WebSocket | [OBS Studio](obs.md) |
-| **VMix** | Updates vMix title fields through the vMix Web API (port 8088) | [vMix](vmix.md) |
+| **vMix** | Updates vMix title fields through the vMix Web API (port 8088) | [vMix](vmix.md) |
 | **UNO** | Updates an overlays.uno control app | [Overlays.uno](uno.md) |
-| **API** | Sends the readings to your own HTTP endpoint | [Outbound HTTP API](out_api.md) |
+| **HTTP API** | Sends the readings to your own HTTP endpoint | [Outbound HTTP API](out_api.md) |
+
+Each row shows whether that output works: ● working, ◐ waiting for a value, ▲ retrying or needs attention, ■ not working (with what to do), ○ off. The status bar repeats it for every output; click one to show its settings. See [Outputs](outputs.md#is-it-working-the-outputs-list-and-the-status-bar).
 
 The quickest test: open [http://localhost:18099/json?pivot](http://localhost:18099/json?pivot) in a browser on the same computer. You should see something like `{"Home Score": "65", "Away Score": "39", "Time": "4:27"}`.
 
