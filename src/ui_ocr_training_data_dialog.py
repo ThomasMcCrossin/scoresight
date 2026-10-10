@@ -113,7 +113,7 @@ class Ui_OCRTrainingDataDialog(object):
     # setupUi
 
     def retranslateUi(self, OCRTrainingDataDialog):
-        OCRTrainingDataDialog.setWindowTitle(QCoreApplication.translate("OCRTrainingDataDialog", u"Dialog", None))
+        OCRTrainingDataDialog.setWindowTitle(QCoreApplication.translate("OCRTrainingDataDialog", u"OCR Training Data Setup", None))
         self.label.setText(QCoreApplication.translate("OCRTrainingDataDialog", u"Save Folder", None))
         self.toolButton_chooseSaveFolder.setText(QCoreApplication.translate("OCRTrainingDataDialog", u"...", None))
         self.pushButton_openFolder.setText(QCoreApplication.translate("OCRTrainingDataDialog", u"Open Folder", None))

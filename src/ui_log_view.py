@@ -57,8 +57,9 @@ class Ui_Dialog(object):
         self.gridLayout_2 = QGridLayout(self.scrollAreaWidgetContents)
         self.gridLayout_2.setObjectName(u"gridLayout_2")
         self.gridLayout_2.setContentsMargins(0, 0, 0, 0)
-        self.textEdit_log = QTextEdit(self.scrollAreaWidgetContents)
+        self.textEdit_log = QPlainTextEdit(self.scrollAreaWidgetContents)
         self.textEdit_log.setObjectName(u"textEdit_log")
+        self.textEdit_log.setReadOnly(True)
 
         self.gridLayout_2.addWidget(self.textEdit_log, 0, 0, 1, 1)
 
