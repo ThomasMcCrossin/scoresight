@@ -22,8 +22,15 @@ logging.getLogger("obsws_python").setLevel(logging.CRITICAL)
 OBS_TIMEOUT = 3
 
 # errors that mean the websocket connection is broken (or out of sync after a
-# timeout) and has to be re-established
-_CONNECTION_ERRORS = (OSError, websocket.WebSocketException, OBSSDKTimeoutError)
+# timeout) and has to be re-established. The close frame of an OBS that is
+# shutting down (or restarting its websocket server) reads as an empty
+# response, which fails to parse as JSON.
+_CONNECTION_ERRORS = (
+    OSError,
+    websocket.WebSocketException,
+    OBSSDKTimeoutError,
+    json.JSONDecodeError,
+)
 
 
 class OBSConnectionLost(Exception):
@@ -124,6 +131,10 @@ def _set_text(_key, item) -> None:
     if obs_client in _closed_clients:
         return
     with client_lock(obs_client):
+        # close_obs_websocket marks the client closed before it takes the lock:
+        # if that happened while this waited for the lock, don't reconnect it
+        if obs_client in _closed_clients:
+            return
         try:
             obs_client.set_input_settings(source_name, {"text": text}, True)
         except _CONNECTION_ERRORS:

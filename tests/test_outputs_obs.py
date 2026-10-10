@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 import threading
@@ -55,6 +56,8 @@ class FakeClient:
 
     def disconnect(self):
         self.disconnected = True
+        # like ReqClient.disconnect(): later requests fail on the closed socket
+        self.base_client.ws.shutdown()
 
 
 @pytest.fixture(autouse=True)
@@ -136,6 +139,25 @@ def test_lost_connection_is_reestablished(monkeypatch, caplog):
     assert "reconnected" in caplog.text
 
 
+def test_a_close_frame_from_obs_is_a_lost_connection(monkeypatch):
+    # OBS shutting down (or restarting its websocket server) sends a close frame:
+    # the next request reads an empty message, which obsws-python fails to parse.
+    # That update used to be dropped, and it wasn't sent again until it changed.
+    client = FakeClient()
+    client.errors = [json.JSONDecodeError("Expecting value", "", 0)]
+    created = []
+
+    def fake_req_client(**kwargs):
+        created.append(kwargs)
+        return SimpleNamespace(base_client=new_base(**kwargs))
+
+    monkeypatch.setattr(obs_websocket.obs, "ReqClient", fake_req_client)
+    obs_websocket.update_text_source(client, "Home Score", "12")
+    flush()
+    assert len(created) == 1
+    assert client.calls == [("Home Score", "12", True)]
+
+
 def test_unreachable_obs_is_retried_until_it_is_back(monkeypatch, caplog):
     client = FakeClient()
     client.errors = [ConnectionResetError("reset")]
@@ -167,6 +189,37 @@ def test_closed_client_is_not_updated_or_reconnected():
     assert client.disconnected
     obs_websocket.update_text_source(client, "Time", "1:00")
     flush()
+    assert client.calls == []
+
+
+def test_a_client_closed_while_an_update_waits_is_not_reconnected(monkeypatch):
+    # The update passed the "closed" check, then waited for the client's lock
+    # while close_obs_websocket disconnected the client. It used to see the
+    # closed socket as a lost connection and reconnect the closed client.
+    client = FakeClient()
+    created = []
+
+    def fake_req_client(**kwargs):
+        created.append(kwargs)
+        return SimpleNamespace(base_client=new_base(**kwargs))
+
+    monkeypatch.setattr(obs_websocket.obs, "ReqClient", fake_req_client)
+    real_client_lock = obs_websocket.client_lock
+    waiting = threading.Event()
+
+    def spying_client_lock(obs_client):
+        if threading.current_thread().name == "output-OBS":
+            waiting.set()  # past the first "closed" check
+        return real_client_lock(obs_client)
+
+    monkeypatch.setattr(obs_websocket, "client_lock", spying_client_lock)
+    with real_client_lock(client):  # e.g. a scene function running
+        obs_websocket.update_text_source(client, "Time", "1:00")
+        assert waiting.wait(5)
+        obs_websocket.close_obs_websocket(client)
+    flush()
+    assert client.disconnected
+    assert created == []
     assert client.calls == []
 
 
