@@ -69,6 +69,21 @@ class ThrottledErrorLog:
             self._suppressed = 0
 
 
+class OutputError(Exception):
+    """The endpoint answered, but with an error (e.g. an HTTP error status)."""
+
+
+def check_http_response(response, request_description: str) -> None:
+    """Raise OutputError unless response (a requests.Response) has a 2xx status."""
+    if 200 <= response.status_code < 300:
+        return
+    body = " ".join((response.text or "").split())[:200]
+    raise OutputError(
+        f"{request_description} returned HTTP {response.status_code}"
+        + (f": {body}" if body else "")
+    )
+
+
 _workers: "weakref.WeakSet[OutputWorker]" = weakref.WeakSet()
 _workers_lock = threading.Lock()
 
