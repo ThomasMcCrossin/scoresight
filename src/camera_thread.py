@@ -47,7 +47,9 @@ URL_CAPTURE_PARAMS = [
 ]
 
 FFMPEG_CAPTURE_OPTIONS_ENV = "OPENCV_FFMPEG_CAPTURE_OPTIONS"
-DEFAULT_FFMPEG_CAPTURE_OPTIONS = "rtsp_transport;tcp"
+# RTSP over TCP first, falling back to UDP for a server that refuses TCP (461
+# Unsupported Transport). "rtsp_transport;tcp" would be TCP only.
+DEFAULT_FFMPEG_CAPTURE_OPTIONS = "rtsp_flags;prefer_tcp"
 
 # How long closing a source waits for its capture thread to stop before letting
 # it finish in the background.
@@ -75,9 +77,11 @@ def set_process_env(name: str, value: str | None):
 
 
 def ensure_ffmpeg_capture_options():
-    """Use RTSP over TCP for URL sources: FFmpeg's UDP transport fails behind
-    NAT, firewalls and VPNs. A user-provided OPENCV_FFMPEG_CAPTURE_OPTIONS is
-    left alone."""
+    """Have URL sources try RTSP over TCP first (UDP fails behind NAT,
+    firewalls and VPNs) and fall back to UDP for cameras that only offer it.
+    This is what OpenCV does when the variable is unset; setting it makes the
+    default explicit. A user-provided OPENCV_FFMPEG_CAPTURE_OPTIONS (e.g.
+    rtsp_transport;udp to force UDP) is left alone."""
     if os.environ.get(FFMPEG_CAPTURE_OPTIONS_ENV) is not None:
         return
     set_process_env(FFMPEG_CAPTURE_OPTIONS_ENV, DEFAULT_FFMPEG_CAPTURE_OPTIONS)

@@ -658,7 +658,7 @@ def ffmpeg_env():
     camera_thread.set_process_env(name, original)
 
 
-def test_url_sources_use_ffmpeg_with_timeouts_and_rtsp_over_tcp(
+def test_url_sources_use_ffmpeg_with_timeouts_and_rtsp_tcp_first(
     make_thread, fake_video_capture, ffmpeg_env
 ):
     thread = make_thread(
@@ -676,7 +676,9 @@ def test_url_sources_use_ffmpeg_with_timeouts_and_rtsp_over_tcp(
     ]
     # no Video Settings and no highest-resolution probing for streams
     assert stream.calls == []
-    assert os.environ[ffmpeg_env] == "rtsp_transport;tcp"
+    # TCP first with FFmpeg's fallback to UDP, not TCP only
+    # ("rtsp_transport;tcp"), which fails with cameras that refuse TCP
+    assert os.environ[ffmpeg_env] == "rtsp_flags;prefer_tcp"
 
 
 def test_user_ffmpeg_options_are_kept(make_thread, fake_video_capture, ffmpeg_env):
@@ -711,6 +713,9 @@ def test_ffmpeg_options_reach_opencvs_ffmpeg_backend(tmp_path, ffmpeg_env):
     camera_thread.set_process_env(ffmpeg_env, "protocol_whitelist;tcp")
     assert not cv2.VideoCapture(path, cv2.CAP_FFMPEG).isOpened()
     camera_thread.set_process_env(ffmpeg_env, None)
+    assert cv2.VideoCapture(path, cv2.CAP_FFMPEG).isOpened()
+    # the default options don't get in the way of other inputs
+    camera_thread.ensure_ffmpeg_capture_options()
     assert cv2.VideoCapture(path, cv2.CAP_FFMPEG).isOpened()
 
 
