@@ -87,6 +87,11 @@ from vmix_ui_handler import VMixUIHanlder
 
 DEFAULT_HTTP_PORT = 18099
 
+# The values api_output understands, in the order of comboBox_api_encode and
+# comboBox_outApiMethod. The settings store these, not the (translated) item text.
+OUT_API_ENCODINGS = ("JSON (Full)", "JSON (Simple key-value)", "XML", "CSV")
+OUT_API_METHODS = ("POST", "PUT", "GET")
+
 # comboBox_camera_source items before the discovered cameras
 SOURCE_INDEX_NONE = 0
 SOURCE_INDEX_FILE = 1
@@ -289,27 +294,11 @@ class MainWindow(QMainWindow):
             fetch_data("scoresight.json", "out_api_url", "")
         )
 
-        self.ui.checkBox_enableOutAPI.toggled.connect(
-            partial(self.globalSettingsChanged, "enable_out_api")
+        self.setupChoiceSetting(
+            self.ui.comboBox_api_encode, "out_api_encoding", OUT_API_ENCODINGS
         )
-        self.ui.checkBox_enableOutAPI.setChecked(
-            fetch_data("scoresight.json", "enable_out_api", False)
-        )
-        self.ui.comboBox_api_encode.currentTextChanged.connect(
-            partial(self.globalSettingsChanged, "out_api_encoding")
-        )
-        self.ui.comboBox_api_encode.setCurrentIndex(
-            self.ui.comboBox_api_encode.findText(
-                fetch_data("scoresight.json", "out_api_encoding", "JSON")
-            )
-        )
-        self.ui.comboBox_outApiMethod.currentTextChanged.connect(
-            partial(self.globalSettingsChanged, "out_api_method")
-        )
-        self.ui.comboBox_outApiMethod.setCurrentIndex(
-            self.ui.comboBox_outApiMethod.findText(
-                fetch_data("scoresight.json", "out_api_method", "POST")
-            )
+        self.setupChoiceSetting(
+            self.ui.comboBox_outApiMethod, "out_api_method", OUT_API_METHODS
         )
 
         self.obs_websocket_client = None
@@ -482,6 +471,29 @@ class MainWindow(QMainWindow):
             )
         )
 
+    def setupChoiceSetting(self, combo_box, setting_name: str, values: tuple):
+        """Bind a combo box whose items are values (their text may be translated)
+        to a setting that stores the value itself."""
+        stored = fetch_data("scoresight.json", setting_name)
+        if stored in values:
+            index = values.index(stored)
+        else:
+            # 0.1.x stored the item text, which could be blank or translated
+            index = max(
+                combo_box.findText(stored if isinstance(stored, str) else ""), 0
+            )
+        combo_box.blockSignals(True)
+        combo_box.setCurrentIndex(index)
+        combo_box.blockSignals(False)
+        if stored != values[index]:
+            self.globalSettingsChanged(setting_name, values[index])
+
+        def choiceChanged(index: int):
+            if 0 <= index < len(values):
+                self.globalSettingsChanged(setting_name, values[index])
+
+        combo_box.currentIndexChanged.connect(choiceChanged)
+
     def setStyleTheme(self, theme):
         QApplication.instance().setStyle(theme)
 
@@ -572,6 +584,8 @@ class MainWindow(QMainWindow):
         if not self.translator.load(locale_file):
             logger.error(f"Could not load translation for {locale_file}")
             return
+        # used at the next start instead of the system language
+        self.globalSettingsChanged("language", locale)
         appInstance = QApplication.instance()
         if appInstance:
             logger.info(f"installing translator for {locale}")
@@ -580,6 +594,10 @@ class MainWindow(QMainWindow):
                 self.ui.retranslateUi(self)
             except Exception as e:
                 logger.error(f"Error retranslating UI: {e}")
+            # retranslateUi resets these texts to their .ui defaults
+            self.updateWindowTitle()
+            self.updateBrowserEndpoints()
+            self.updateStopUpdatesButtonText()
 
     def addLanguageOption(self, menu: QMenu, language_name: str, locale: str):
         menu.addAction(language_name, lambda: self.changeLanguage(locale))
@@ -732,11 +750,15 @@ class MainWindow(QMainWindow):
 
     def toggleStopUpdates(self, value):
         self.updateOCRResults = not value
-        # change the text on the button
+        self.updateStopUpdatesButtonText()
+
+    def updateStopUpdatesButtonText(self):
+        # QCoreApplication.translate falls back to the source text when a
+        # translation is missing (QTranslator.translate returns "")
         self.ui.pushButton_stopUpdates.setText(
-            self.translator.translate("MainWindow", "Resume Updates")
-            if value
-            else self.translator.translate("MainWindow", "Stop Updates")
+            QCoreApplication.translate("MainWindow", "Resume Updates")
+            if self.ui.pushButton_stopUpdates.isChecked()
+            else QCoreApplication.translate("MainWindow", "Stop Updates")
         )
 
     def selectOutputFolder(self):

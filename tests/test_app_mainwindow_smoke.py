@@ -255,6 +255,56 @@ def test_box_changes_do_not_truncate_the_csv_log(
     assert [row[1] for row in rows[1:]] == ["1", "2"]
 
 
+def test_api_output_encoding_defaults_to_json_full(main_window):
+    # api-encoding-blank-on-fresh-install: the default "JSON" matched no item,
+    # so "" was stored and POST/PUT output never sent anything.
+    assert main_window.ui.comboBox_api_encode.currentIndex() == 0
+    assert fetch_data("scoresight.json", "out_api_encoding") == "JSON (Full)"
+    assert fetch_data("scoresight.json", "out_api_method") == "POST"
+
+
+@pytest.mark.parametrize(
+    ("stored", "index", "expected"),
+    [("", 0, "JSON (Full)"), ("XML", 2, "XML"), ("JSON (Simple key-value)", 1, None)],
+)
+def test_api_output_encoding_is_restored_or_repaired(
+    make_window, stored, index, expected
+):
+    store_data("scoresight.json", "out_api_encoding", stored)
+    window = make_window()
+    assert window.ui.comboBox_api_encode.currentIndex() == index
+    assert fetch_data("scoresight.json", "out_api_encoding") == (expected or stored)
+    window.ui.comboBox_api_encode.setCurrentIndex(3)
+    assert fetch_data("scoresight.json", "out_api_encoding") == "CSV"
+
+
+def test_language_change_keeps_settings_and_texts(main_window, qapp):
+    main_window.ui.comboBox_api_encode.setCurrentIndex(2)
+    main_window.ui.lineEdit_vmixPort.setText("8123")
+    main_window.changeLanguage("de_DE")
+    try:
+        assert fetch_data("scoresight.json", "language") == "de_DE"
+        # retranslateUi used to store the translated item text / reset fields
+        assert fetch_data("scoresight.json", "out_api_encoding") == "XML"
+        assert main_window.ui.lineEdit_vmixPort.text() == "8123"
+        assert main_window.windowTitle() == f"ScoreSight - v{__version__}"
+    finally:
+        qapp.removeTranslator(main_window.translator)
+
+
+def test_stop_updates_button_text_with_a_translation(main_window, qapp):
+    # stop-updates-button-blank-i18n: QTranslator.translate returns "" for a
+    # missing translation, which blanked the button in every non-English UI.
+    main_window.changeLanguage("de_DE")
+    try:
+        main_window.ui.pushButton_stopUpdates.setChecked(True)
+        assert main_window.ui.pushButton_stopUpdates.text() == "Resume Updates"
+        main_window.ui.pushButton_stopUpdates.setChecked(False)
+        assert main_window.ui.pushButton_stopUpdates.text() not in ("", "Stop Updates")
+    finally:
+        qapp.removeTranslator(main_window.translator)
+
+
 def test_browser_tab_shows_the_http_port(make_window, patched):
     window = make_window(http_port=18100)
     assert patched["http"] == [{"port": 18100}]
