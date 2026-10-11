@@ -2,11 +2,21 @@ import logging
 import threading
 import time
 import weakref
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 import pytest
+import requests
 
 import output_worker
-from output_worker import OutputWorker, ThrottledErrorLog, stop_all_workers
+from output_worker import (
+    ErrorInfo,
+    OutputError,
+    OutputWorker,
+    SendSkipped,
+    ThrottledErrorLog,
+    check_http_response,
+    stop_all_workers,
+)
 
 
 class Recorder:
@@ -291,3 +301,256 @@ def test_throttled_error_log(caplog):
         "vMix: still down (5 more error(s) since the last report were not logged)",
         "vMix: down again",
     ]
+
+
+# --- status() ---------------------------------------------------------------------
+
+
+def wait_for(condition, timeout=10.0):
+    deadline = time.monotonic() + timeout
+    while not condition():
+        assert time.monotonic() < deadline, "timed out"
+        time.sleep(0.01)
+
+
+def test_status_of_a_new_worker(make_worker):
+    status = make_worker(Recorder()).status()
+    assert (status.name, status.sent, status.failed, status.pending) == (
+        "test",
+        0,
+        0,
+        0,
+    )
+    assert not status.retrying and status.retry_delay is None
+    assert status.last_success_at is None and status.last_error is None
+
+
+def test_status_counts_what_was_sent_and_what_failed(make_worker):
+    now = [100.0]
+    send = Recorder(errors={1: OutputError("returned HTTP 401", status_code=401)})
+    worker = make_worker(send, clock=lambda: now[0])
+    worker.submit("Home", "1")
+    assert worker.wait_idle(5)
+    now[0] = 105.0
+    worker.submit("Away", "2")  # fails
+    assert worker.wait_idle(5)
+
+    status = worker.status()
+    assert (status.sent, status.failed, status.consecutive_failures) == (1, 1, 1)
+    assert (status.ok_keys, status.failing_keys) == (1, 1)
+    assert (status.last_success_at, status.last_failure_at) == (100.0, 105.0)
+    assert not status.retrying  # the endpoint answered
+    error = status.last_error
+    assert (error.type, error.code, error.unreachable) == (OutputError, 401, False)
+    assert str(error) == "OutputError: returned HTTP 401"
+
+    # the failing key succeeds again
+    worker.submit("Away", "3")
+    assert worker.wait_idle(5)
+    status = worker.status()
+    assert (status.ok_keys, status.failing_keys, status.consecutive_failures) == (
+        2,
+        0,
+        0,
+    )
+
+
+def test_status_while_the_endpoint_is_unreachable(make_worker):
+    gate = threading.Event()
+    send = Recorder(gate, errors={i: ConnectionError("refused") for i in range(3)})
+    worker = make_worker(
+        send, retry_on=(ConnectionError,), initial_backoff=0.05, max_backoff=0.05
+    )
+    gate.set()
+    worker.submit("a", 1)
+    wait_for(lambda: worker.status().retrying)
+    status = worker.status()
+    assert status.retry_delay == 0.05
+    assert status.last_error.unreachable
+    assert status.last_error.type is ConnectionError
+    assert status.failing_keys == 0  # kept for a retry, not dropped
+
+    wait_for(lambda: worker.status().sent == 1)  # the 4th attempt succeeds
+    status = worker.status()
+    assert not status.retrying and status.failed == 3
+
+
+def test_a_recovered_outage_does_not_hide_a_failing_field(make_worker):
+    # key "a" is rejected by the endpoint (dropped), then the endpoint is
+    # unreachable for a while: once it is back, the status is about "a" again,
+    # not about the outage that is over
+    send = Recorder(
+        errors={
+            0: OutputError("returned HTTP 500", status_code=500),
+            2: ConnectionError("refused"),
+        }
+    )
+    worker = make_worker(
+        send, retry_on=(ConnectionError,), initial_backoff=0.01, max_backoff=0.01
+    )
+    worker.submit("a", 1)  # fails: HTTP 500
+    assert worker.wait_idle(5)
+    worker.submit("b", 1)  # ok
+    assert worker.wait_idle(5)
+    worker.submit("b", 2)  # unreachable, then sent on the retry
+    wait_for(lambda: worker.status().sent == 2)
+    status = worker.status()
+    assert not status.retrying
+    assert (status.ok_keys, status.failing_keys) == (1, 1)
+    assert status.last_error.code == 500 and not status.last_error.unreachable
+
+
+def test_reset_status_ends_the_backoff_and_ignores_the_old_target(make_worker):
+    # e.g. a new vMix host while the old one is unreachable: the values are
+    # sent to the new host right away, and the old host's failure in flight
+    # isn't the new host's status
+    gate = threading.Event()
+    target = {"host": "old"}
+    calls = []
+
+    def send(key, item):
+        calls.append(target["host"])
+        if target["host"] == "old":
+            assert gate.wait(5)
+            raise ConnectionError("refused")
+
+    worker = make_worker(
+        send, retry_on=(ConnectionError,), initial_backoff=30, max_backoff=30
+    )
+    worker.submit("a", 1)
+    wait_for(lambda: calls)
+    target["host"] = "new"
+    worker.reset_status()  # while the request to "old" is in flight
+    gate.set()
+    start = time.monotonic()
+    wait_for(lambda: worker.status().sent == 1)
+    assert time.monotonic() - start < 5  # not the 30 s backoff
+    assert calls == ["old", "new"]
+    status = worker.status()
+    assert (status.failed, status.retrying, status.last_error) == (0, False, None)
+
+
+def test_reset_status(make_worker):
+    send = Recorder(errors={0: ValueError("bad")})
+    worker = make_worker(send)
+    worker.submit("a", 1)
+    worker.submit("b", 2)
+    assert worker.wait_idle(5)
+    assert worker.status().failed == 1
+    worker.reset_status()
+    status = worker.status()
+    assert (status.sent, status.failed, status.ok_keys, status.failing_keys) == (
+        0,
+        0,
+        0,
+        0,
+    )
+    assert status.last_error is None and status.last_success_at is None
+
+
+def test_forget_keys(make_worker):
+    send = Recorder(errors={0: ValueError("gone")})
+    worker = make_worker(send)
+    worker.submit(("client 1", "Clock"), "1:00")
+    worker.submit(("client 2", "Clock"), "1:00")
+    assert worker.wait_idle(5)
+    assert (worker.status().ok_keys, worker.status().failing_keys) == (1, 1)
+    worker.forget_keys(lambda key: key[0] == "client 1")
+    status = worker.status()
+    assert (status.ok_keys, status.failing_keys) == (1, 0)
+    assert status.last_error is None
+
+
+def test_a_skipped_item_is_neither_sent_nor_failed(make_worker):
+    def send(key, item):
+        raise SendSkipped()
+
+    worker = make_worker(send)
+    worker.submit("a", 1)
+    assert worker.wait_idle(5)
+    status = worker.status()
+    assert (status.sent, status.failed, status.ok_keys) == (0, 0, 0)
+
+
+def test_the_result_of_a_cleared_request_does_not_count(make_worker):
+    gate = threading.Event()
+    send = Recorder(gate, errors={0: ValueError("late")})
+    worker = make_worker(send)
+    worker.submit("a", 1)
+    assert send.started.wait(5)
+    worker.clear()  # e.g. the output was turned off
+    worker.reset_status()
+    gate.set()
+    assert worker.wait_idle(5)
+    assert worker.status().failed == 0
+
+
+def test_error_info():
+    error = ErrorInfo.of(OutputError("SetText returned HTTP 404", status_code=404))
+    assert (error.code, error.unreachable) == (404, False)
+    assert ErrorInfo.of(ValueError()).message == ""
+    assert str(ErrorInfo.of(ValueError())) == "ValueError"
+    assert ErrorInfo.of(ConnectionError("x"), unreachable=True).unreachable
+
+
+class _OkHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header("Content-Length", "2")
+        self.end_headers()
+        self.wfile.write(b"OK")
+
+    def log_message(self, *args):
+        pass
+
+
+def _serve(port=0) -> ThreadingHTTPServer:
+    server = ThreadingHTTPServer(("127.0.0.1", port), _OkHandler)
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    return server
+
+
+def test_status_follows_a_real_endpoint_that_goes_down_and_comes_back(make_worker):
+    server = _serve()
+    port = server.server_address[1]
+    session = requests.Session()
+
+    def send(key, item):
+        # like the outputs: one session, short timeouts, 2xx or OutputError
+        response = session.get(f"http://127.0.0.1:{port}/{key}", timeout=(0.5, 0.5))
+        check_http_response(response, f"GET {key}")
+
+    worker = make_worker(
+        send,
+        retry_on=(requests.ConnectionError, requests.Timeout),
+        initial_backoff=0.05,
+        max_backoff=0.2,
+    )
+    try:
+        # ok
+        worker.submit("Time", "1:00")
+        assert worker.wait_idle(10)
+        status = worker.status()
+        assert status.sent == 1 and not status.retrying
+        assert status.last_success_at is not None and status.last_error is None
+
+        # unreachable: the server is gone
+        server.shutdown()
+        server.server_close()
+        worker.submit("Time", "0:59")
+        wait_for(lambda: worker.status().retrying)
+        status = worker.status()
+        assert status.last_error.unreachable
+        assert issubclass(status.last_error.type, requests.RequestException)
+        assert status.retry_delay is not None
+
+        # restored: the server is back on the same port, the value arrives
+        server = _serve(port)
+        wait_for(lambda: worker.status().sent == 2)
+        status = worker.status()
+        assert not status.retrying and status.consecutive_failures == 0
+        assert status.pending == 0
+    finally:
+        server.shutdown()
+        server.server_close()
+        session.close()

@@ -1,6 +1,8 @@
 from PySide6.QtGui import QStandardItemModel, QStandardItem
 from PySide6.QtCore import QCoreApplication, Qt
 
+from theme import button_text_color, media_icon
+
 from text_detection_target import TextDetectionTarget
 from ui_mainwindow import Ui_MainWindow
 from vmix_output import DEFAULT_VMIX_PORT, VMIX_TCP_API_PORT, VMixAPI
@@ -119,11 +121,21 @@ class VMixUIHanlder:
         self._updateToggleText(self.vmixUpdater.running)
 
     def _updateToggleText(self, running):
-        self.ui.pushButton_startvmix.setText(
-            "🛑 " + QCoreApplication.translate("MainWindow", "Stop vMix")
+        button = self.ui.pushButton_startvmix
+        button.setText(
+            QCoreApplication.translate("MainWindow", "Stop vMix")
             if running
-            else "▶️ " + QCoreApplication.translate("MainWindow", "Start vMix")
+            else QCoreApplication.translate("MainWindow", "Start vMix")
         )
+        button.setIcon(
+            media_icon(
+                "stop" if running else "play", button_text_color(button.palette())
+            )
+        )
+
+    def refreshToggleButton(self):
+        """Redraw the start/stop button, e.g. after a light/dark switch."""
+        self._updateToggleText(self.ui.pushButton_startvmix.isChecked())
 
     def togglevMix(self, value):
         if not self.vmixUpdater:

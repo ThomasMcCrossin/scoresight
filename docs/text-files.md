@@ -8,7 +8,7 @@ description: "Write each field to a .txt file, plus results.csv and results.xml,
 # Text, CSV & XML Files
 {: .no_toc }
 
-The **Text Files** tab writes the readings to files in a folder. Almost any broadcast or office software can read them: OBS (*Text (GDI+/FreeType 2)* > *Read from file*), vMix Data Sources, NewBlue Captivate/Titler Live, CasparCG, Excel and more.
+The **Text files** output writes the readings to files in a folder. Almost any broadcast or office software can read them: OBS (*Text (GDI+/FreeType 2)* > *Read from file*), vMix Data Sources, NewBlue Captivate/Titler Live, CasparCG, Excel and more.
 
 <details open markdown="block">
   <summary>On this page</summary>
@@ -19,10 +19,12 @@ The **Text Files** tab writes the readings to files in a folder. Almost any broa
 
 ## Setup
 
-1. Open the **Text Files** tab.
-2. Click **Open** next to **Folder** and choose an output folder. **Clear** stops file output.
+1. Select **Text files** in the **Outputs** tab on the right (or click **Files** in the status bar). (In ScoreSight 0.1.x this was the **Text Files** tab.)
+2. Click **Open** next to **Folder** and choose an output folder. **Clear** stops file output. The switch of the Text files row does the same: turning it on asks for a folder, turning it off clears it.
 3. Optionally tick **Save .csv file** and/or **Save .xml file**.
 4. Choose an **Append** mode and a **Save / s** rate (see below).
+
+The Text files row then shows ● *Writing to D:\Scores · 4 files* and when a file was last written (files are written when a value changes, so a few minutes is normal for a score). Before the first reading it shows ◐ *Waiting for readings*.
 
 ## Files written
 
@@ -119,8 +121,8 @@ Use **Don't append results** for live graphics, and an append mode to log a whol
 
 ## Errors
 
-- If a file can't be written (permissions, a full disk, a file locked by another program), the log shows `Error writing to <path>: <error>` once, and ScoreSight tries again at the next save. When it works again, the log shows `Writing to <path> works again`.
-- If the output folder is deleted while ScoreSight is running, ScoreSight logs `Output folder does not exist`, clears the folder setting and stops writing files. Choose a folder again to resume.
+- If a file can't be written (permissions, a full disk, a file locked by another program), the Text files row shows ■ *Can't write Home Score.txt* (hover it for the error), the log shows `Error writing to <path>: <error>` once, and ScoreSight tries again at the next save. When it works again, the row turns ● and the log shows `Writing to <path> works again`.
+- If the output folder is deleted while ScoreSight is running (or is missing when it starts), ScoreSight logs `Output folder does not exist`, clears the folder setting and stops writing files. The Text files row shows ■ *Folder not found: ...* until you choose a folder again.
 
 ## Using the files
 

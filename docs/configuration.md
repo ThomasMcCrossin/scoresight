@@ -50,13 +50,13 @@ If a settings file is damaged anyway, for example by a full disk or manual editi
 When ScoreSight 0.2.0 first opens a settings file from an older version, it adjusts two settings once and writes a line about each to the log:
 
 - A vMix port of `8099` becomes `8088` (see [vMix](vmix.md)). The key `vmix_port_migrated` records that this was done.
-- The **Conf. Th** confidence threshold of every box becomes 0 (off). It had no effect in older versions, so the boxes read exactly as before (see [Conf. Th](box-settings.md#conf-th-confidence-threshold)). The key `boxes_schema_version` (set to `2`) records that this was done.
+- The **Minimum confidence** (in 0.1.x: **Conf. Th**) of every box becomes 0 (off). It had no effect in older versions, so the boxes read exactly as before (see [Minimum confidence](box-settings.md#conf-th-confidence-threshold)). The key `boxes_schema_version` (set to `2`) records that this was done.
 
 Settings you change afterwards are kept as you set them.
 
 ### Logs
 
-Each run creates two log files: `scoresight_<date>_<time>.log` (ScoreSight's own log) and `scoresight_std_<date>_<time>.log` (messages from libraries). ScoreSight keeps the 10 most recent logs of each kind and deletes older ones automatically, but never those of the current session. Attach both files from the session that had the problem when you [report a bug](troubleshooting.md#collect-logs-first).
+Each run creates two log files: `scoresight_<date>_<time>.log` (ScoreSight's own log) and `scoresight_std_<date>_<time>.log` (messages from libraries, and the details of a crash if ScoreSight closes unexpectedly). ScoreSight keeps the 10 most recent logs of each kind and deletes older ones automatically, but never those of the current session. Attach both files from the session that had the problem when you [report a bug](troubleshooting.md#collect-logs-first).
 
 ## Command-line options
 
@@ -92,6 +92,7 @@ python src/main.py --self-test
 | `SCORESIGHT_DATA_DIR` | Use this folder instead of the default settings folder. |
 | `SCORESIGHT_LOG_DIR` | Write logs to this folder instead of the default log folder. |
 | `SCORESIGHT_DEBUG` | If set (to any value), also print the log to the console, log more detail, and log every request to the HTTP server. |
+| `SCORESIGHT_STARTUP_REPORT` | A file path. Once ScoreSight is ready, it writes how long each startup phase took to this file as JSON (the same times as the `Startup:` line in the log, see [Troubleshooting](troubleshooting.md#slow-start)). Used by the boot time tests. |
 | `OPENCV_FFMPEG_CAPTURE_OPTIONS` | Options for OpenCV's FFmpeg backend, used by URL sources. If it isn't set, ScoreSight sets it to `rtsp_flags;prefer_tcp`: RTSP over TCP first, falling back to UDP ([RTSP over TCP](sources.md#rtsp-over-tcp)). Set it to `rtsp_transport;udp` to force UDP for cameras that only support RTSP over UDP. |
 | `QT_QPA_PLATFORM` | Qt platform plugin. `offscreen` runs without a display. `--self-test` sets it to `offscreen` if it isn't set. |
 
@@ -134,12 +135,13 @@ You normally never edit this file: everything is set through the UI. This list h
 
 | Key | Meaning |
 |---|---|
-| `output_folder`, `save_csv`, `save_xml`, `append_method`, `aggs_per_second` | [Text Files](text-files.md) tab (`append_method`: `0` CSV, `1` TXT, `2` both, `3` don't append; `aggs_per_second`: Save / s) |
+| `output_folder`, `save_csv`, `save_xml`, `append_method`, `aggs_per_second` | [Text files](text-files.md) output (`append_method`: `0` CSV, `1` TXT, `2` both, `3` don't append; `aggs_per_second`: Save / s) |
 | `obs` | OBS connection: `ip`, `port`, `password` |
-| `vmix_host`, `vmix_port`, `vmix_input`, `vmix_mapping`, `vmix_send_same` | [vMix](vmix.md) tab |
+| `obs_auto_connect` | `false` after **Disconnect**: the saved OBS connection isn't opened at startup until you connect again. Missing or `true`: ScoreSight connects to OBS at startup |
+| `vmix_host`, `vmix_port`, `vmix_input`, `vmix_mapping`, `vmix_send_same` | [vMix](vmix.md) output |
 | `vmix_port_migrated` | `true` once the one-time change of a saved port 8099 to 8088 has run |
-| `uno_url`, `uno_mapping`, `uno_send_same`, `uno_essentials`, `uno_essentials_id` | [UNO](uno.md) tab |
-| `enable_out_api`, `out_api_url`, `out_api_method`, `out_api_encoding` | [API](out_api.md) tab. `out_api_method` is `POST`, `PUT` or `GET`; `out_api_encoding` is `JSON (Full)`, `JSON (Simple key-value)`, `XML` or `CSV`, in English whatever the interface language |
+| `uno_url`, `uno_mapping`, `uno_send_same`, `uno_essentials`, `uno_essentials_id` | [UNO](uno.md) output |
+| `enable_out_api`, `out_api_url`, `out_api_method`, `out_api_encoding` | [HTTP API](out_api.md) output. `out_api_method` is `POST`, `PUT` or `GET`; `out_api_encoding` is `JSON (Full)`, `JSON (Simple key-value)`, `XML` or `CSV`, in English whatever the interface language |
 
 ### Application
 
@@ -147,6 +149,8 @@ You normally never edit this file: everything is set through the UI. This list h
 |---|---|
 | `language` | The language chosen in **File > Language**, for example `de_DE`. Without it, ScoreSight follows the system language |
 | `color_scheme` | **File > Appearance**: `System`, `Light` or `Dark` |
+| `main_splitter_sizes` | The widths of the field list, the picture and the inspector in pixels, for example `[260, 742, 340]`. `0` means the pane is hidden |
+| `image_cleanup_expanded` | `true` while the **Image cleanup** section of the Box tab is open |
 | `open_on_startup` | Show the log window at startup |
 | `disable_update_checks` | `true` turns off the update check at startup (the **Don't check for updates at startup** checkbox in the update dialog). **File > Check for Updates** always works |
 | `save_ocr_training_data`, `ocr_training_data_folder`, `ocr_training_data_max_size` | [OCR training data](data_annotation.md) collection. An empty `ocr_training_data_folder` means the default folder. The 0.1.x key `ocr_training_data_save_folder` is still read if the new key was never set |

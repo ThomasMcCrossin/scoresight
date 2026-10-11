@@ -75,6 +75,22 @@ def test_sends_put_with_timeout(make_uno, make_result):
     ]
 
 
+def test_unchanged_values_are_sent_on_request(make_uno, make_result):
+    # after the outputs were paused (see MainWindow.ocrResult)
+    api = make_uno(mapping={"Time": "SetMatchTime", "Home Score": "SetGoalsHome"})
+    api.start()
+    results = [
+        make_result("Time", "12:00", "SameNoChange"),
+        make_result("Home Score", "3", "SameNoChange"),  # not asked for
+    ]
+    api.update_uno(results, resend_unchanged={"Time"})
+    api.update_uno(results)
+    flush(api)
+    assert [call["json"] for call in api._session.calls] == [
+        {"command": "SetMatchTime", "value": "12:00"}
+    ]
+
+
 def test_essentials_payload(make_uno, make_result):
     store_data(SETTINGS, "uno_essentials", True)
     store_data(SETTINGS, "uno_essentials_id", "overlay-1")
@@ -126,6 +142,30 @@ def test_error_status_is_logged(make_uno, make_result, caplog):
         api.update_uno([make_result("Time", "1:00", "Success")])
         flush(api)
     assert "returned HTTP 429" in caplog.text
+
+
+def test_status_of_the_rate_limit_and_a_new_url(make_uno, make_result):
+    import output_status
+
+    def destination(api):
+        return output_status.uno_status(
+            api.running, api.endpoint, api.field_mapping, api.status()
+        )
+
+    api = make_uno(mapping={"Time": "SetMatchTime"}, session=FakeSession(429))
+    api.start()
+    api.update_uno([make_result("Time", "1:00", "Success")])
+    flush(api)
+    status = destination(api)
+    assert (status.state, status.detail) == ("warning", "HTTP 429: too many requests")
+    assert "Send Same?" in status.hint
+    assert "abc" not in status.technical  # the URL's token
+
+    # another URL: the status starts over
+    api.set_endpoint("https://app.overlays.uno/apiv2/controlapps/other/api")
+    assert destination(api).state == "sending"
+    api.stop()
+    assert destination(api).state == "off"
 
 
 def test_set_endpoint_keeps_mapping_and_running_state(make_uno, make_result):
@@ -229,5 +269,9 @@ def test_restore_ui_state(handler, uno_ui):
 
     handler.restoreUiState()
     assert uno_ui.lineEdit_unoUrl.text() == URL
-    assert uno_ui.toolButton_toggleUno.text() == "🛑"
+    # a text and an icon, no emoji (#M4)
+    assert uno_ui.toolButton_toggleUno.text() == "Stop sending"
+    assert not uno_ui.toolButton_toggleUno.icon().isNull()
     assert handler.unoUpdater.running
+    uno_ui.toolButton_toggleUno.setChecked(False)
+    assert uno_ui.toolButton_toggleUno.text() == "Start sending"

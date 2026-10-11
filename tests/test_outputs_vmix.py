@@ -122,6 +122,24 @@ def test_only_new_good_values_are_sent(make_vmix, make_result):
     assert api._session.sent()[1:] == [("Home.Text", "12"), ("Away.Text", "7")]
 
 
+def test_unchanged_values_are_sent_on_request(make_vmix, make_result):
+    # after the outputs were paused, a value that changed meanwhile is an
+    # unchanged reading: the main window asks for it, for the boxes named
+    api = make_vmix(
+        mapping={"Home Score": "Home.Text", "Away Score": "Away.Text", "Time": "T.Text"}
+    )
+    api.start()
+    results = [
+        make_result("Home Score", "3", "SameNoChange"),
+        make_result("Away Score", "7", "SameNoChange"),
+        make_result("Time", "SIM", "FailedFilter"),  # never sent
+    ]
+    api.update_vmix(results, resend_unchanged={"Away Score", "Time"})
+    api.update_vmix(results)
+    flush(api)
+    assert api._session.sent() == [("Away.Text", "7")]
+
+
 def test_nothing_is_sent_unless_running(make_vmix, make_result):
     api = make_vmix(mapping={"Time": "T.Text"})
     api.update_vmix([make_result("Time", "1:00", "Success")])
@@ -234,6 +252,115 @@ def test_tcp_api_port_gets_a_clear_hint(
     assert "vMix TCP API" in caplog.text
     assert "Web Controller" in caplog.text
     assert "8088" in caplog.text
+
+
+def wait_for(condition, timeout=10.0):
+    deadline = time.monotonic() + timeout
+    while not condition():
+        assert time.monotonic() < deadline, "timed out"
+        time.sleep(0.02)
+
+
+def vmix_destination(api):
+    import output_status
+
+    return output_status.vmix_status(
+        api.running,
+        api.host,
+        api.port,
+        api.input_number,
+        api.field_mapping,
+        api.status(),
+    )
+
+
+def test_status_on_the_tcp_api_port(make_vmix, make_result, fake_vmix_tcp_api):
+    # issue #55, as the window shows it
+    with requests.Session() as session:
+        api = make_vmix(
+            host="127.0.0.1",
+            port=str(fake_vmix_tcp_api),
+            mapping={"Time": "CLOCK.Text"},
+            session=session,
+        )
+        api.start()
+        api.update_vmix([make_result("Time", "23:17", "Success")])
+        wait_for(lambda: api.status().last_error is not None)
+        destination = vmix_destination(api)
+        api.stop()
+        flush(api)
+    assert destination.state == "error"
+    assert destination.detail == (
+        f"Port {fake_vmix_tcp_api} is vMix's TCP API: use 8088"
+    )
+    # stopping turns it off and forgets the error
+    assert api.status().last_error is None
+    assert vmix_destination(api).state == "off"
+
+
+@pytest.fixture
+def fake_vmix_web_api():
+    """A local HTTP server answering like vMix's Web API, with a settable
+    status (401 when vMix requires a login)."""
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+
+    state = {"status": 200, "requests": 0}
+
+    class Handler(BaseHTTPRequestHandler):
+        def do_GET(self):
+            state["requests"] += 1
+            body = b"Function completed successfully."
+            if state["status"] == 401:
+                body = b"Unauthorized"
+            self.send_response(state["status"])
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+
+        def log_message(self, *args):
+            pass
+
+    server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    state["port"] = server.server_address[1]
+    yield state
+    server.shutdown()
+    server.server_close()
+
+
+def test_status_ok_then_login_required(make_vmix, make_result, fake_vmix_web_api):
+    with requests.Session() as session:
+        api = make_vmix(
+            host="127.0.0.1",
+            port=str(fake_vmix_web_api["port"]),
+            mapping={"Time": "CLOCK.Text"},
+            session=session,
+        )
+        api.start()
+        assert vmix_destination(api).state == "sending"  # nothing sent yet
+        api.update_vmix([make_result("Time", "1:00", "Success")])
+        flush(api)
+        ok = vmix_destination(api)
+        assert (ok.state, ok.last_activity_at is not None) == ("ok", True)
+        assert ok.detail == (
+            f"Sending to 127.0.0.1:{fake_vmix_web_api['port']}, input 1"
+        )
+
+        fake_vmix_web_api["status"] = 401  # a Web Controller password was set
+        api.update_vmix([make_result("Time", "0:59", "Success")])
+        flush(api)
+        error = vmix_destination(api)
+        assert (error.state, error.detail) == (
+            "error",
+            "HTTP 401: vMix asks for a login",
+        )
+        assert "without login" in error.hint
+
+        fake_vmix_web_api["status"] = 200  # the API page is allowed again
+        api.update_vmix([make_result("Time", "0:58", "Success")])
+        flush(api)
+        assert vmix_destination(api).state == "ok"
 
 
 def test_close_unsubscribes_from_settings(make_vmix):

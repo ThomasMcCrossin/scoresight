@@ -116,6 +116,36 @@ def test_failed_request_is_logged_and_others_still_update(caplog):
     assert "No source" in caplog.text
 
 
+def test_a_missing_text_source_shows_in_the_status_until_closed():
+    import output_status
+
+    obs_websocket._text_worker.reset_status()
+    client = FakeClient()
+    client.errors = [
+        OBSSDKRequestError(
+            "SetInputSettings", 600, "No source was found by the name of `Clock`."
+        )
+    ]
+    obs_websocket.update_text_source(client, "Clock", "1:00")
+    obs_websocket.update_text_source(client, "Home Score", "12")
+    flush()
+    worker = obs_websocket.obs_output_status()
+    assert (worker.ok_keys, worker.failing_keys) == (1, 1)
+    assert worker.last_error.code == 600
+    status = output_status.obs_status("obs-pc:4455", None, None, worker)
+    assert status.state == "warning"
+    assert status.detail == "1 of 2 failing: OBS has no text source “Clock”"
+
+    # a closed connection's text sources are forgotten; its updates are skipped
+    obs_websocket.close_obs_websocket(client)
+    worker = obs_websocket.obs_output_status()
+    assert (worker.ok_keys, worker.failing_keys, worker.last_error) == (0, 0, None)
+    sent = worker.sent
+    obs_websocket.update_text_source(client, "Clock", "0:59")
+    flush()
+    assert obs_websocket.obs_output_status().sent == sent
+
+
 def test_lost_connection_is_reestablished(monkeypatch, caplog):
     client = FakeClient()
     old_ws = client.base_client.ws

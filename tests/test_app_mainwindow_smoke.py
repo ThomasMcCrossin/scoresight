@@ -21,6 +21,7 @@ from PySide6.QtCore import (  # noqa: E402
     QTranslator,
     Signal,
 )
+from PySide6.QtGui import QKeySequence  # noqa: E402
 from PySide6.QtWidgets import QApplication, QWidget  # noqa: E402
 
 from camera_info import CameraInfo  # noqa: E402
@@ -35,11 +36,16 @@ class FakeViewer(QWidget):
     first_frame_received_signal = Signal()
     error_signal = Signal(str)
 
-    def __init__(self, camera_info, fourCornersApplied, storage, itemSelected):
+    def __init__(
+        self, camera_info, fourCornersApplied, storage, itemSelected, start=True
+    ):
         super().__init__()
         self.camera_info = camera_info
         self.timerThread = None
         self.four_corner_calls = []
+
+    def startCapture(self):
+        pass
 
     def toggleFourCorner(self, state):
         self.four_corner_calls.append(state)
@@ -397,9 +403,72 @@ def test_language_change_keeps_settings_and_texts(main_window, qapp, caplog):
         qapp.removeTranslator(main_window.translator)
 
 
-def test_language_change_keeps_the_output_controls(main_window, qapp, monkeypatch):
+def test_language_change_keeps_the_runtime_texts(
+    main_window, qapp, make_result, make_target
+):
+    # retranslateUi resets every text to the .ui's: the paused banner, the
+    # slider readouts, the window title and the inspector's state are set again
+    ui = main_window.ui
+    main_window.show()
+    storage = main_window.detectionTargetsStorage
+    storage.add_item(make_target("Home Score", dilate=2, format_regex="^(1?\\d$"))
+    main_window.itemSelected("Home Score")
+    ui.horizontalSlider_conf_thresh.setValue(45)
+    ui.toolButton_imageCleanup.setChecked(True)
+    ui.tabWidget_inspector.setCurrentWidget(ui.widget_outputs)
+    main_window.ocrResult([make_result("Home Score", "21")])
+    ui.pushButton_stopUpdates.setChecked(True)
+    main_window.changeLanguage("de_DE")
+    try:
+        assert ui.pushButton_stopUpdates.isChecked()
+        assert ui.pushButton_stopUpdates.text() == "Resume outputs"
+        assert ui.frame_pausedBanner.isVisibleTo(main_window)
+        assert ui.label_pausedBanner.text() != ""
+        assert main_window.windowTitle().startswith("⏸ ")
+        assert ui.label_confThreshValue.text() == "45 %"
+        assert ui.label_detectionCadenceValue.text() == "5 /s"
+        shortcut = QKeySequence("Ctrl+Shift+P").toString(
+            QKeySequence.SequenceFormat.NativeText
+        )
+        assert f"({shortcut})" in ui.pushButton_stopUpdates.toolTip()
+        assert box_value(main_window, "Home Score") == "21"
+        assert main_window.statusBarWidgets.label_http.text() != ""
+        checked = [
+            a.data() for a in main_window.language_actions.actions() if a.isChecked()
+        ]
+        assert checked == ["de_DE"]
+        # the inspector: the tab, the selected field, the open section, the
+        # badge and the format's error
+        assert ui.tabWidget_inspector.currentWidget() is ui.widget_outputs
+        assert ui.tableWidget_boxes.currentItem().text() == "Home Score"
+        assert ui.stackedWidget_boxSettings.currentWidget() is ui.page_boxSettings
+        assert ui.label_selectedInfo.text() == "Home Score"
+        assert ui.toolButton_imageCleanup.isChecked()
+        assert ui.frame_imageCleanup.isVisibleTo(ui.tab_box)
+        # (in the language loaded, whether these strings are translated or not)
+        assert ui.label_imageCleanupBadge.text() == QCoreApplication.translate(
+            "BoxSettings", "%n changed", None, 1
+        )
+        assert ui.label_formatStatus.isVisibleTo(ui.tab_box)
+        assert ui.label_formatStatus.text() == QCoreApplication.translate(
+            "BoxSettings",
+            "Not a valid expression, so it is ignored: every reading passes.",
+        )
+        assert ui.label_templateHint.text() != ""
+        assert ui.comboBox_ocrModel.itemText(4) != ""
+        assert ui.pushButton_removeBox.isVisibleTo(main_window)
+        assert not ui.pushButton_makeBox.isVisibleTo(main_window)
+    finally:
+        qapp.removeTranslator(main_window.translator)
+
+
+def test_language_change_keeps_the_output_controls(
+    main_window, qapp, monkeypatch, make_target
+):
     # retranslateUi reset the vMix/UNO start buttons to their .ui texts
     # ("Start"), the OBS scene name and the playback speed.
+    ui = main_window.ui
+    main_window.detectionTargetsStorage.add_item(make_target("Home Score"))
     vmix = main_window.vmixUiHandler
     uno = main_window.unoUiHandler
     monkeypatch.setattr(vmix.vmixUpdater, "start", lambda: None, raising=False)
@@ -408,27 +477,52 @@ def test_language_change_keeps_the_output_controls(main_window, qapp, monkeypatc
     uno_text = main_window.ui.toolButton_toggleUno.text()
     main_window.ui.lineEdit_sceneName.setText("Court 2")
     main_window.ui.toolButton_speed.setText("x4")
+    # the destinations: OBS selected and connected
+    main_window.showDestination("obs")
+    main_window.obs_websocket_client = FakeObsClient()
+    main_window.obsAddress = "obs-pc:4455"
+    main_window.updateObsUi()
+    main_window.refreshLiveStatus()
+    connect_text = ui.pushButton_connectObs.text()
+    assert connect_text == "Change connection..."
     main_window.changeLanguage("de_DE")
     try:
         assert main_window.ui.pushButton_startvmix.text() == vmix_text
         assert main_window.ui.toolButton_toggleUno.text() == uno_text
         assert main_window.ui.lineEdit_sceneName.text() == "Court 2"
         assert main_window.ui.toolButton_speed.text() == "x4"
+        # retranslateUi set "Connect OBS" again; the selected destination and
+        # its page stay
+        assert ui.pushButton_connectObs.text() == connect_text
+        assert ui.pushButton_disconnectObs.isEnabled()
+        assert ui.listView_destinations.currentIndex().row() == 2
+        assert ui.stackedWidget_outputs.currentWidget() is ui.tab_obs
+        model = main_window.destinationsModel
+        assert all(model.item(row).text() for row in range(model.rowCount()))
+        assert model.status("obs").detail == "Connected to obs-pc:4455"
+        buttons = main_window.statusBarWidgets.output_buttons
+        assert all(button.text() for button in buttons.values())
+        assert main_window.statusBarWidgets.label_outputs.text().strip()
     finally:
         qapp.removeTranslator(main_window.translator)
 
 
-def test_stop_updates_button_text_with_a_translation(main_window, qapp):
+def test_pause_outputs_button_text_with_a_translation(main_window, qapp):
     # stop-updates-button-blank-i18n: QTranslator.translate returns "" for a
     # missing translation, which blanked the button in every non-English UI.
+    assert main_window.ui.pushButton_stopUpdates.text() == "Pause outputs"
     main_window.changeLanguage("de_DE")
     try:
-        main_window.ui.pushButton_stopUpdates.setChecked(True)
-        assert main_window.ui.pushButton_stopUpdates.text() == "Resume Updates"
-        main_window.ui.pushButton_stopUpdates.setChecked(False)
-        assert main_window.ui.pushButton_stopUpdates.text() not in ("", "Stop Updates")
+        button = main_window.ui.pushButton_stopUpdates
+        button.setChecked(True)
+        paused_text = button.text()
+        button.setChecked(False)
+        assert paused_text not in ("", button.text())
+        assert button.text() != ""
     finally:
         qapp.removeTranslator(main_window.translator)
+    main_window.ui.pushButton_stopUpdates.setChecked(True)
+    assert main_window.ui.pushButton_stopUpdates.text() == "Resume outputs"
 
 
 def test_browser_tab_shows_the_http_port(make_window, patched):
@@ -460,10 +554,30 @@ def box_rows(window):
     return [table.item(row, 0).text() for row in range(table.rowCount())]
 
 
-def select_box_row(window, name):
+def box_name_item(window, name):
+    """A box's item in the boxes list's Field column."""
     table = window.ui.tableWidget_boxes
-    [item] = table.findItems(name, QtCore.Qt.MatchFlag.MatchExactly)
-    table.setCurrentItem(item)
+    [item] = [
+        item
+        for item in table.findItems(name, QtCore.Qt.MatchFlag.MatchExactly)
+        if item.column() == 0
+    ]
+    return item
+
+
+def box_value_item(window, name):
+    """A box's item in the boxes list's Value column."""
+    return window.ui.tableWidget_boxes.item(box_name_item(window, name).row(), 1)
+
+
+def box_value(window, name):
+    """The text in the boxes list's Value column for a box."""
+    return box_value_item(window, name).text()
+
+
+def select_box_row(window, name):
+    item = box_name_item(window, name)
+    window.ui.tableWidget_boxes.setCurrentItem(item)
     return item
 
 
@@ -580,6 +694,1345 @@ def test_viewer_is_connected_once(main_window, monkeypatch):
     main_window.ui.pushButton_fourCorner.setChecked(False)
     assert viewer.four_corner_calls == [True]
     assert new_viewer.four_corner_calls == [False]
+
+
+def test_readings_from_the_start_of_the_capture_reach_the_window(
+    make_window, monkeypatch, make_result
+):
+    # The window connected to the capture thread only when the first preview
+    # frame arrived, so the readings made before it were lost. For a box whose
+    # value doesn't change those were its only Success (the later ones are
+    # SameNoChange): its value never showed in the boxes list, and vMix and UNO
+    # (which send only Success unless "Send Same?" is on) never got it.
+    import mainwindow
+
+    http_updates = []
+    monkeypatch.setattr(mainwindow, "update_http_server", http_updates.append)
+
+    class StartingViewer(FakeViewer):
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.timerThread = FakeTimerThread()
+            self.timerThread.textDetector = None
+
+        def startCapture(self):
+            self.timerThread.ocr_result_signal.emit([make_result("Home Score", "21")])
+
+    monkeypatch.setattr(mainwindow, "ImageViewer", StartingViewer)
+    store_data("scoresight.json", "source_selected", "rtsp://10.0.1.200:554/11")
+    window = make_window()
+    assert [[result.result for result in update] for update in http_updates] == [["21"]]
+    assert box_value(window, "Home Score") == "21"
+
+
+def test_the_boxes_list_shows_the_last_good_reading(main_window, make_result):
+    main_window.ocrResult([make_result("Home Score", "21", state="SameNoChange")])
+    assert box_value(main_window, "Home Score") == "21"
+    main_window.ocrResult([make_result("Home Score", "2l", state="FailedFilter")])
+    main_window.ocrResult([make_result("Home Score", "", state="Empty")])
+    assert box_value(main_window, "Home Score") == "21"
+
+
+def test_the_boxes_list_shows_every_reading_state(main_window, make_result):
+    # The Value column was greyed out (NoItemFlags) and showed only new
+    # (Success) readings: now it shows the state of every reading, and a
+    # rejected or empty one keeps the last good value
+    from readings_view import REJECTED_TEXT_ROLE, STATE_ROLE, reading_at
+
+    item = box_value_item(main_window, "Home Score")
+    assert item.flags() & QtCore.Qt.ItemFlag.ItemIsEnabled
+    assert not item.flags() & QtCore.Qt.ItemFlag.ItemIsSelectable
+    table = main_window.ui.tableWidget_boxes
+    for state, text in (
+        ("Success", "21"),
+        ("SameNoChange", "21"),
+        ("FailedFilter", "2l"),
+        ("Empty", ""),
+    ):
+        main_window.ocrResult([make_result("Home Score", text, state=state)])
+        assert item.data(STATE_ROLE) == state
+        reading = reading_at(table.indexFromItem(item))
+        assert (reading.value, reading.age is not None) == ("21", True)
+    assert item.data(REJECTED_TEXT_ROLE) == "2l"
+    assert table.itemDelegateForColumn(1) is main_window.readingDelegate
+    main_window.show()
+    table.grab()  # paints every row
+
+
+def test_a_click_on_a_reading_selects_its_box(main_window, make_result):
+    ui = main_window.ui
+    select_box_row(main_window, "Home Score")
+    main_window.makeBox()
+    main_window.ocrResult([make_result("Home Score", "21")])
+    value = box_value_item(main_window, "Home Score")
+    ui.tableWidget_boxes.setCurrentItem(value)
+    main_window.listItemClicked(value)
+    # the name stays the current item: the settings, rename and remove use it
+    assert ui.tableWidget_boxes.currentItem().text() == "Home Score"
+    assert ui.label_selectedInfo.text() == "Home Score"
+    # (the list is disabled until a source opens)
+    assert ui.pushButton_removeBox.isEnabledTo(ui.groupBox_sb_info)
+
+    # taken off the picture: its last reading isn't shown as current
+    main_window.removeBox()
+    assert box_value(main_window, "Home Score") == ""
+
+
+def test_the_boxes_list_matches_names_not_values(main_window, make_result):
+    # a reading that equals another box's name doesn't confuse the list
+    main_window.ocrResult([make_result("Home Score", "Period", state="Success")])
+    main_window.ocrResult([make_result("Period", "2")])
+    assert box_value(main_window, "Home Score") == "Period"
+    assert box_value(main_window, "Period") == "2"
+
+
+# --- the inspector's Box tab and the Fields pane ---------------------------------------
+
+
+def custom_field_names():
+    return fetch_data("scoresight.json", "custom_boxes_names", [])
+
+
+def test_the_box_tab_shows_the_selected_field(main_window, make_target):
+    ui = main_window.ui
+    storage = main_window.detectionTargetsStorage
+    # nothing selected: how to select one
+    assert ui.stackedWidget_boxSettings.currentWidget() is ui.page_boxEmpty
+    assert ui.groupBox_allBoxes.isEnabled()  # for every field, always
+
+    # a box on the picture: its reading settings
+    storage.add_item(make_target("Home Score"))
+    main_window.itemSelected("Home Score")
+    assert ui.stackedWidget_boxSettings.currentWidget() is ui.page_boxSettings
+    assert ui.label_selectedInfo.text() == "Home Score"
+    assert ui.groupBox_target_settings.isEnabled()
+    assert not ui.groupBox_target_settings.isHidden()
+    assert ui.label_boxNote.isHidden()
+    assert ui.pushButton_restoreDefaults.isEnabled()
+    # a standard field can't be built from other fields
+    assert ui.checkBox_templatefield.isHidden()
+    assert "only custom fields" in ui.label_templateHint.text()
+
+    # a field that isn't on the picture: how to place it
+    main_window.itemSelected("Home Fouls")
+    assert ui.label_selectedInfo.text() == "Home Fouls"
+    assert ui.groupBox_target_settings.isHidden()
+    assert not ui.groupBox_target_settings.isEnabled()
+    assert "Place on picture" in ui.label_boxNote.text()
+    assert not ui.pushButton_restoreDefaults.isEnabled()
+
+    # a new custom field is selected; it can become a template
+    main_window.addBox()
+    [name] = custom_field_names()
+    assert ui.label_selectedInfo.text() == name
+    assert ui.checkBox_templatefield.isEnabled()
+    assert not ui.lineEdit_templatefield.isEnabled()
+    ui.checkBox_templatefield.setChecked(True)
+    assert storage.find_item_by_name(name).settings["templatefield"]
+    assert ui.lineEdit_templatefield.isEnabled()
+    assert ui.toolButton_insertField.isEnabled()
+    assert ui.groupBox_target_settings.isHidden()
+    assert "built from other fields" in ui.label_boxNote.text()
+
+    # a custom field on the picture can't be a template too
+    main_window.addBox()
+    main_window.makeBox()
+    assert not ui.checkBox_templatefield.isEnabled()
+    assert "remove it from the picture" in ui.label_templateHint.text()
+
+    # Esc deselects: the explanation again
+    main_window.itemSelected(None)
+    assert ui.stackedWidget_boxSettings.currentWidget() is ui.page_boxEmpty
+
+
+def test_the_box_tab_follows_the_keyboard(main_window, make_target, qtbot):
+    # The Box tab, the footer and the field's actions followed clicks only: after
+    # the arrow keys, Place on picture made a second box for a placed field,
+    # and the settings shown were written to another box.
+    from PySide6.QtTest import QTest
+
+    ui = main_window.ui
+    table = ui.tableWidget_boxes
+    storage = main_window.detectionTargetsStorage
+    ui.groupBox_sb_info.setEnabled(True)  # as with a source
+    storage.add_item(make_target("Away Score", dilate=3))
+    with qtbot.waitActive(main_window):
+        main_window.show()
+        main_window.activateWindow()
+    main_window.itemSelected("Time")  # not on the picture
+    table.setFocus()
+    QTest.keyClick(table, QtCore.Qt.Key.Key_Up)  # Away Score, on the picture
+    assert ui.label_selectedInfo.text() == "Away Score"
+    assert ui.horizontalSlider_dilate.value() == 3
+    assert ui.pushButton_makeBox.isHidden()
+    assert not ui.pushButton_removeBox.isHidden()
+    ui.horizontalSlider_dilate.setValue(4)
+    assert storage.find_item_by_name("Away Score").settings["dilate"] == 4
+    QTest.keyClick(table, QtCore.Qt.Key.Key_Up)  # Home Score
+    assert ui.label_selectedInfo.text() == "Home Score"
+    assert ui.pushButton_makeBox.isEnabled()
+
+    # a field never gets a second box, nor a box and a template
+    main_window.itemSelected("Away Score")
+    main_window.makeBox()
+    main_window.makeTemplateField(True)
+    assert [box.name for box in storage.get_data()] == ["Away Score"]
+    assert not storage.find_item_by_name("Away Score").settings["templatefield"]
+
+
+def test_an_imported_layout_replaces_the_placed_fields(
+    main_window, make_target, tmp_path, monkeypatch
+):
+    # Fields whose box wasn't in the imported file stayed "on the picture"
+    import json
+
+    import mainwindow
+
+    ui = main_window.ui
+    storage = main_window.detectionTargetsStorage
+    storage.add_item(make_target("Home Score"))
+    storage.add_item(make_target("Time"))
+    main_window.itemSelected("Home Score")
+    layout = tmp_path / "layout.json"
+    rect = {"x": 1, "y": 2, "width": 30, "height": 20}
+    layout.write_text(
+        json.dumps(
+            {
+                "boxes_schema_version": 2,
+                "boxes": [{"name": "Time", "rect": rect, "settings": {}}],
+            }
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(
+        mainwindow.QFileDialog,
+        "getOpenFileName",
+        lambda *args, **kwargs: (str(layout), ""),
+    )
+    main_window.importConfiguration()
+    role = QtCore.Qt.ItemDataRole.UserRole
+    assert box_name_item(main_window, "Home Score").data(role) == "unchecked"
+    assert box_name_item(main_window, "Time").data(role) == "checked"
+    # the Box tab says Home Score isn't on the picture any more
+    assert ui.groupBox_target_settings.isHidden()
+    assert not ui.pushButton_makeBox.isHidden()
+
+
+def test_the_image_cleanup_section(make_window, make_target):
+    window = make_window()
+    ui = window.ui
+    storage = window.detectionTargetsStorage
+    # collapsed at first, with what it holds in plain words (the tooltips
+    # have the names of 0.1.x)
+    assert not ui.toolButton_imageCleanup.isChecked()
+    assert ui.frame_imageCleanup.isHidden()
+    assert ui.label_binarizationMethod.text() == "Black & white"
+    assert "Binarize" in ui.label_binarizationMethod.toolTip()
+    # the stored index keeps its meaning
+    assert [ui.comboBox_binarizationMethod.itemText(i) for i in range(4)] == [
+        "Whole picture",
+        "None",
+        "This box",
+        "Adaptive",
+    ]
+    assert "no effect" in ui.label_skipEmptyHint.text()
+
+    # how many of its settings were changed
+    storage.add_item(make_target("Home Score", dilate=2, binarization_method=2))
+    window.itemSelected("Home Score")
+    assert ui.label_imageCleanupBadge.text() == "2 changed"
+    ui.checkBox_invertPatch.setChecked(True)
+    assert ui.label_imageCleanupBadge.text() == "3 changed"
+    ui.horizontalSlider_conf_thresh.setValue(30)  # Filtering: not counted
+    assert ui.label_imageCleanupBadge.text() == "3 changed"
+    ui.pushButton_restoreDefaults.click()
+    assert ui.label_imageCleanupBadge.text() == "all default"
+    assert storage.find_item_by_name("Home Score").settings["dilate"] == 1
+
+    # opened, and still open at the next start
+    ui.toolButton_imageCleanup.click()
+    assert not ui.frame_imageCleanup.isHidden()
+    assert ui.toolButton_imageCleanup.arrowType() == QtCore.Qt.ArrowType.DownArrow
+    assert fetch_data("scoresight.json", "image_cleanup_expanded") is True
+    window.close()
+    again = make_window()
+    assert again.ui.toolButton_imageCleanup.isChecked()
+    assert not again.ui.frame_imageCleanup.isHidden()
+
+
+def test_the_binary_view_shortcut(main_window, make_target):
+    ui = main_window.ui
+    main_window.detectionTargetsStorage.add_item(make_target("Home Score"))
+    main_window.itemSelected("Home Score")
+    ui.widget_viewTools.setEnabled(True)  # as with a source
+    ui.toolButton_cleanupBinary.click()
+    assert ui.pushButton_binary.isChecked()
+    assert ui.toolButton_cleanupBinary.isChecked()
+    ui.actionBinaryView.trigger()  # Ctrl+B
+    assert not ui.toolButton_cleanupBinary.isChecked()
+    # no source: the view tools are off, and so is the shortcut
+    ui.widget_viewTools.setEnabled(False)
+    ui.toolButton_cleanupBinary.click()
+    assert not ui.pushButton_binary.isChecked()
+    assert not ui.toolButton_cleanupBinary.isChecked()
+
+
+def test_the_format_shows_its_preset_and_an_invalid_expression(
+    main_window, make_target
+):
+    from defaults import format_prefixes
+
+    ui = main_window.ui
+    storage = main_window.detectionTargetsStorage
+    storage.add_item(make_target("Home Score"))
+    main_window.itemSelected("Home Score")
+    combo = ui.comboBox_formatPrefix
+    assert combo.currentText() == "Score 1dd"  # the field's default format
+    ui.lineEdit_format.setText("^[0-3]?\\d$")
+    assert combo.currentText() == "Custom"
+    combo.setCurrentIndex(1)
+    assert ui.lineEdit_format.text() == format_prefixes[1]
+    assert (
+        storage.find_item_by_name("Home Score").settings["format_regex"]
+        == (format_prefixes[1])
+    )
+    assert combo.currentText() == "Time mm:ss"
+    # "Custom" keeps the expression, to edit it
+    combo.setCurrentIndex(combo.count() - 1)
+    assert ui.lineEdit_format.text() == format_prefixes[1]
+
+    # an expression the OCR can't use (it ignores it) is marked
+    assert ui.label_formatStatus.isHidden()
+    ui.lineEdit_format.setText("^(1?\\d$")
+    assert not ui.label_formatStatus.isHidden()
+    assert "ignored" in ui.label_formatStatus.text()
+    assert "missing )" in ui.label_formatStatus.toolTip()
+    assert "border" in ui.lineEdit_format.styleSheet()
+    ui.lineEdit_format.setText("^1?\\d$")
+    assert ui.label_formatStatus.isHidden()
+    assert ui.lineEdit_format.styleSheet() == ""
+
+
+def test_insert_field_into_a_template(main_window, make_target):
+    ui = main_window.ui
+    storage = main_window.detectionTargetsStorage
+    storage.add_item(make_target("Home Score"))
+    main_window.addBox()
+    [name] = custom_field_names()
+    ui.checkBox_templatefield.setChecked(True)
+    handler = main_window.boxSettingsUiHandler
+    handler.fillInsertFieldMenu()
+    actions = {action.text(): action for action in handler.insertFieldMenu.actions()}
+    # every other field, and whether it's on the picture
+    assert "Home Score" in actions
+    assert "Away Score (not on the picture)" in actions
+    assert name not in actions
+    ui.lineEdit_templatefield.setText("Score: ")
+    actions["Home Score"].trigger()
+    assert ui.lineEdit_templatefield.text() == "Score: {{Home Score}}"
+    assert storage.find_item_by_name(name).settings["templatefield_text"] == (
+        "Score: {{Home Score}}"
+    )
+
+
+def test_the_fields_footer_shows_what_applies(main_window):
+    ui = main_window.ui
+    ui.groupBox_sb_info.setEnabled(True)  # as with a source
+    # nothing selected
+    assert not ui.pushButton_makeBox.isHidden()
+    assert not ui.pushButton_makeBox.isEnabled()
+    assert ui.pushButton_removeBox.isHidden()
+    assert ui.toolButton_removeBox.isHidden()
+    # a standard field, not on the picture: Place on picture, no Delete
+    main_window.itemSelected("Home Score")
+    assert ui.pushButton_makeBox.isEnabled()
+    assert ui.pushButton_removeBox.isHidden()
+    assert ui.toolButton_removeBox.isHidden()
+    ui.pushButton_makeBox.click()
+    assert main_window.detectionTargetsStorage.find_item_by_name("Home Score")
+    assert ui.tabWidget_inspector.currentWidget() is ui.tab_box
+    # on the picture: Remove from picture instead
+    assert ui.pushButton_makeBox.isHidden()
+    assert not ui.pushButton_removeBox.isHidden()
+    assert ui.pushButton_removeBox.isEnabled()
+    # a custom field: Delete field too
+    main_window.addBox()
+    assert not ui.toolButton_removeBox.isHidden()
+    assert ui.pushButton_makeBox.isEnabled()
+    # a template field: neither Place nor Remove
+    ui.checkBox_templatefield.setChecked(True)
+    assert ui.pushButton_makeBox.isHidden() and ui.pushButton_removeBox.isHidden()
+    assert not ui.toolButton_removeBox.isHidden()
+
+
+def test_the_fields_hint_before_a_source(make_window):
+    store_data("scoresight.json", "source_selected", "rtsp://10.0.1.200:554/11")
+    window = make_window()
+    ui = window.ui
+    # the source is opening: no picture yet
+    assert not ui.groupBox_sb_info.isEnabled()
+    assert not ui.label_fieldsHint.isHidden()
+    window.cameraConnectedEnableUI()  # the first frame
+    assert ui.label_fieldsHint.isHidden()
+    ui.comboBox_camera_source.setCurrentIndex(0)  # no source
+    assert not ui.label_fieldsHint.isHidden()
+
+
+def test_removing_a_tuned_box_from_the_picture_asks_first(main_window):
+    ui = main_window.ui
+    asked = []
+    answer = [False]
+    main_window.confirm = lambda title, text, action: asked.append(text) or answer[0]
+    storage = main_window.detectionTargetsStorage
+    main_window.itemSelected("Home Score")
+    main_window.makeBox()
+    # nothing to lose: no question
+    main_window.removeFromPicture()
+    assert asked == []
+    assert storage.find_item_by_name("Home Score") is None
+    # its settings were changed: Cancel keeps it
+    main_window.makeBox()
+    ui.horizontalSlider_dilate.setValue(3)
+    main_window.removeFromPicture()
+    assert len(asked) == 1 and "Home Score" in asked[0]
+    assert storage.find_item_by_name("Home Score") is not None
+    answer[0] = True
+    main_window.removeFromPicture()
+    assert storage.find_item_by_name("Home Score") is None
+    assert box_name_item(main_window, "Home Score").data(
+        QtCore.Qt.ItemDataRole.UserRole
+    ) == ("unchecked")
+
+
+def test_deleting_a_custom_field_asks_first(main_window):
+    ui = main_window.ui
+    asked = []
+    answers = [False, True]
+    main_window.confirm = lambda title, text, action: (
+        asked.append(text) or answers.pop(0)
+    )
+    main_window.addBox()
+    [name] = custom_field_names()
+    main_window.deleteField()  # Cancel
+    assert name in box_rows(main_window)
+    main_window.deleteField()  # Delete
+    assert name not in box_rows(main_window)
+    assert custom_field_names() == []
+    assert len(asked) == 2 and name in asked[0]
+    # nothing is selected after it
+    assert ui.stackedWidget_boxSettings.currentWidget() is ui.page_boxEmpty
+    # a standard field isn't deleted (nor asked about)
+    main_window.itemSelected("Home Score")
+    main_window.deleteField()
+    assert len(asked) == 2 and "Home Score" in box_rows(main_window)
+
+
+def test_the_fields_context_menu(main_window, make_result, qapp):
+    from PySide6.QtGui import QGuiApplication
+
+    ui = main_window.ui
+    main_window.itemSelected("Time")
+    menu = main_window.fieldContextMenu()
+    names = [action.objectName() for action in menu.actions()]
+    assert names[0] == "actionPlaceOnPicture"  # not on the picture yet
+    menu.deleteLater()
+
+    main_window.makeBox()
+    main_window.ocrResult([make_result("Time", "04:23")])
+    menu = main_window.fieldContextMenu()
+    names = [action.objectName() for action in menu.actions() if action.objectName()]
+    assert names == [
+        "actionRemoveFromPicture",
+        "actionRenameField",
+        "actionDeleteField",
+        "actionResetFieldSettings",
+        "actionCopyValue",
+        "actionZoomToBox",
+    ]
+    # a standard field: no Rename or Delete, and the menu says why
+    assert not ui.actionRenameField.isEnabled()
+    assert not ui.actionDeleteField.isEnabled()
+    assert "custom fields" in ui.actionRenameField.toolTip()
+    assert ui.actionResetFieldSettings.isEnabled()
+    assert not ui.actionZoomToBox.isEnabled()  # no picture
+    ui.actionCopyValue.trigger()
+    assert QGuiApplication.clipboard().text() == "04:23"
+    menu.deleteLater()
+
+    # a custom field
+    main_window.addBox()
+    main_window.fieldContextMenu().deleteLater()
+    assert ui.actionRenameField.isEnabled() and ui.actionDeleteField.isEnabled()
+    assert not ui.actionCopyValue.isEnabled()  # no value yet
+    assert not ui.actionResetFieldSettings.isEnabled()  # no box
+
+
+def test_zoom_to_box(main_window, make_target, qtbot):
+    # with the real viewer (not capturing): it fits the whole picture again
+    # when its viewport is resized, which zooming in does
+    from PySide6.QtCore import QRectF
+
+    from source_view import ImageViewer
+
+    ui = main_window.ui
+    storage = main_window.detectionTargetsStorage
+    viewer = ImageViewer(
+        CameraInfo("stub", "stub", "stub", CameraInfo.CameraType.FILE),
+        lambda corners: None,
+        storage,
+        lambda name: None,
+        start=False,
+    )
+    try:
+        viewer.resize(800, 450)
+        with qtbot.waitExposed(viewer):
+            viewer.show()
+        viewer.scene.setSceneRect(0, 0, 1920, 1080)
+        viewer.resetZoom()
+        whole = viewer.transform().m11()
+        main_window.image_viewer = viewer
+        box = make_target("Home Score", rect=(900, 500, 120, 60))
+        storage.add_item(box)
+        main_window.itemSelected("Home Score")
+        main_window.fieldContextMenu().deleteLater()
+        assert ui.actionZoomToBox.isEnabled()
+        ui.actionZoomToBox.trigger()
+        qtbot.wait(100)  # the viewport's resize has been handled
+        zoom = viewer.transform().m11()
+        assert whole * 5 < zoom <= 3.0
+        # the box, with some of the picture around it
+        shown = viewer.mapToScene(viewer.viewport().rect()).boundingRect()
+        assert shown.contains(QRectF(box))
+        assert shown.width() < 400
+    finally:
+        main_window.image_viewer = None
+        viewer.close()
+        viewer.deleteLater()
+
+
+def test_renaming_to_a_used_name_says_so(main_window, monkeypatch):
+    import mainwindow
+
+    ui = main_window.ui
+    main_window.addBox()
+    [name] = custom_field_names()
+    answers = [("  time ", True), ("Score Line", True)]
+    asked_with = []
+
+    def get_text(parent, title, label, text=""):
+        asked_with.append(text)
+        return answers.pop(0)
+
+    warnings = []
+    monkeypatch.setattr(mainwindow.QInputDialog, "getText", get_text)
+    monkeypatch.setattr(
+        mainwindow.QMessageBox,
+        "warning",
+        lambda parent, title, text: warnings.append(text),
+    )
+    ui.actionRenameField.trigger()  # F2
+    # "time" is the Time field (names that differ only in case are the same)
+    assert len(warnings) == 1 and "“time”" in warnings[0]
+    # asked again, with the name typed
+    assert asked_with == [name, "time"]
+    assert "Score Line" in box_rows(main_window)
+    assert custom_field_names() == ["Score Line"]
+    assert ui.label_selectedInfo.text() == "Score Line"
+
+
+def test_pausing_the_outputs_shows_everywhere(main_window, patched, make_result):
+    ui = main_window.ui
+    main_window.show()
+    assert ui.pushButton_stopUpdates.text() == "Pause outputs"
+    assert not ui.frame_pausedBanner.isVisibleTo(main_window)
+    assert main_window.statusBarWidgets.label_paused.isHidden()
+
+    main_window.ui.actionPauseOutputs.trigger()  # Ctrl+Shift+P
+    assert ui.pushButton_stopUpdates.isChecked()
+    assert ui.pushButton_stopUpdates.text() == "Resume outputs"
+    assert ":checked" in ui.pushButton_stopUpdates.styleSheet()
+    assert ui.frame_pausedBanner.isVisibleTo(main_window)
+    assert "Outputs paused" in ui.label_pausedBanner.text()
+    assert main_window.windowTitle() == f"⏸ ScoreSight - v{__version__}"
+    chip = main_window.statusBarWidgets.label_paused
+    assert not chip.isHidden() and chip.text().startswith("PAUSED 00:0")
+    assert main_window.readingDelegate.paused
+    # the readings keep updating, the outputs don't get them
+    main_window.obs_websocket_client = FakeObsClient()
+    main_window.ocrResult([make_result("Home Score", "12")])
+    assert box_value(main_window, "Home Score") == "12"
+    assert patched["obs"] == []
+
+    ui.pushButton_resumeOutputs.click()  # the banner's Resume
+    assert not ui.pushButton_stopUpdates.isChecked()
+    assert not ui.frame_pausedBanner.isVisibleTo(main_window)
+    assert main_window.windowTitle() == f"ScoreSight - v{__version__}"
+    assert chip.isHidden()
+    assert not main_window.readingDelegate.paused
+
+
+def test_the_keyboard_shortcuts(main_window, qtbot):
+    ui = main_window.ui
+    shortcuts = {
+        action.objectName(): action.shortcut().toString()
+        for action in main_window.actions()
+    }
+    assert shortcuts == {
+        "actionPauseOutputs": "Ctrl+Shift+P",
+        "actionBinaryView": "Ctrl+B",
+        "actionFitPicture": "Ctrl+0",
+        "actionReloadSources": "F5",
+        "actionNewField": "Ctrl+N",
+    }
+    # the selected field's keys, while the fields list has the focus
+    table = ui.tableWidget_boxes
+    field_keys = {
+        action.objectName(): action.shortcut().toString() for action in table.actions()
+    }
+    assert field_keys == {
+        "actionRenameField": "F2",
+        "actionDeleteField": "Del",
+        "actionCopyValue": "Ctrl+C",
+    }
+    assert all(
+        action.shortcutContext() == QtCore.Qt.ShortcutContext.WidgetShortcut
+        for action in table.actions()
+    )
+    from PySide6.QtTest import QTest
+
+    with qtbot.waitActive(main_window):
+        main_window.show()
+        main_window.activateWindow()
+    # through the window, as a real key press (shortcuts are matched there)
+    QTest.keyClick(
+        main_window.windowHandle(),
+        QtCore.Qt.Key.Key_P,
+        QtCore.Qt.KeyboardModifier.ControlModifier
+        | QtCore.Qt.KeyboardModifier.ShiftModifier,
+    )
+    assert ui.pushButton_stopUpdates.isChecked()
+    # the tooltip shows the shortcut as the platform writes it (⌘B on macOS)
+    native = QKeySequence.SequenceFormat.NativeText
+    assert QKeySequence("Ctrl+B").toString(native) in ui.pushButton_binary.toolTip()
+    # the buttons do nothing while they are disabled (no source yet)
+    assert not ui.widget_viewTools.isEnabled()
+    ui.actionBinaryView.trigger()
+    assert not ui.pushButton_binary.isChecked()
+
+    # Ctrl+N: a new custom field, selected
+    QTest.keyClick(
+        main_window.windowHandle(),
+        QtCore.Qt.Key.Key_N,
+        QtCore.Qt.KeyboardModifier.ControlModifier,
+    )
+    [name] = custom_field_names()
+    assert ui.label_selectedInfo.text() == name
+
+
+def test_ctrl_c_in_the_fields_list_copies_the_value(main_window, make_result, qtbot):
+    from PySide6.QtGui import QGuiApplication
+    from PySide6.QtTest import QTest
+
+    ui = main_window.ui
+    ui.groupBox_sb_info.setEnabled(True)  # as with a source
+    main_window.itemSelected("Time")
+    main_window.makeBox()
+    main_window.ocrResult([make_result("Time", "04:23")])
+    with qtbot.waitActive(main_window):
+        main_window.show()
+        main_window.activateWindow()
+    ui.tableWidget_boxes.setFocus()
+    QGuiApplication.clipboard().setText("")
+    # (the list copies the current item, the field's name, by itself)
+    QTest.keyClick(
+        ui.tableWidget_boxes,
+        QtCore.Qt.Key.Key_C,
+        QtCore.Qt.KeyboardModifier.ControlModifier,
+    )
+    assert QGuiApplication.clipboard().text() == "04:23"
+
+
+def test_resuming_sends_unchanged_values_to_vmix_and_uno(
+    main_window, make_result, make_target
+):
+    # A value that changed while the outputs were paused is an unchanged
+    # (SameNoChange) reading after resuming, which vMix and UNO don't send.
+    # Each box's first good reading after resuming is sent anyway.
+    calls = []
+    vmix = main_window.vmixUiHandler.vmixUpdater
+    uno = main_window.unoUiHandler.unoUpdater
+    vmix.update_vmix = lambda results, resend_unchanged=(): calls.append(
+        ("vmix", set(resend_unchanged))
+    )
+    uno.update_uno = lambda results, resend_unchanged=(): calls.append(
+        ("uno", set(resend_unchanged))
+    )
+    storage = main_window.detectionTargetsStorage
+    storage.add_item(make_target("Home Score"))
+    storage.add_item(make_target("Time"))
+
+    def cycle(home, time):
+        calls.clear()
+        main_window.ocrResult(
+            [make_result("Home Score", *home), make_result("Time", *time)]
+        )
+        return calls[:]
+
+    assert cycle(("12", "Success"), ("1:00", "Success")) == [
+        ("vmix", set()),
+        ("uno", set()),
+    ]
+    main_window.ui.pushButton_stopUpdates.setChecked(True)
+    assert cycle(("13", "Success"), ("0:45", "Success")) == []  # paused
+    main_window.ui.pushButton_stopUpdates.setChecked(False)
+    # the clock's first reading after resuming is rejected: it stays pending
+    both = {"Home Score", "Time"}
+    assert cycle(("13", "SameNoChange"), ("0:4S", "FailedFilter")) == [
+        ("vmix", both),
+        ("uno", both),
+    ]
+    assert cycle(("13", "SameNoChange"), ("0:45", "SameNoChange")) == [
+        ("vmix", {"Time"}),
+        ("uno", {"Time"}),
+    ]
+    assert cycle(("13", "SameNoChange"), ("0:45", "SameNoChange")) == [
+        ("vmix", set()),
+        ("uno", set()),
+    ]
+
+
+class FakeCaptureThread(FakeTimerThread):
+    def __init__(self):
+        super().__init__()
+        import time
+
+        self.frame_size = (1280, 720)
+        self.fps = 29.97
+        self.ups = 4.8
+        self.update_frame_interval = 200
+        self.last_frame_timestamp = time.monotonic()
+        self.textDetector = None
+
+
+def test_the_status_bar(make_window, monkeypatch, patched):
+    import mainwindow
+
+    class RunningViewer(FakeViewer):
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.timerThread = FakeCaptureThread()
+            self.firstFrameReceived = True
+
+    monkeypatch.setattr(mainwindow, "ImageViewer", RunningViewer)
+    monkeypatch.setattr(mainwindow, "primary_lan_address", lambda: "192.168.1.20")
+    store_data("scoresight.json", "source_selected", "rtsp://user:pw@10.0.1.200:554/11")
+    window = make_window(http_port=18100)
+    window.refreshLiveStatus()
+    bar = window.statusBarWidgets
+    assert "rtsp://10.0.1.200:554/11 · 1280×720 · 30.0 fps" in bar.label_source.text()
+    assert "pw" not in bar.label_source.text()
+    assert bar.label_ocr.text() == "Reading 4.8/s of 5"
+    assert bar.label_http.text() == "http://192.168.1.20:18100"
+    assert "http://localhost:18100" in bar.label_http.toolTip()
+
+    window.updateError("Unable to play the stream")
+    window.refreshLiveStatus()
+    assert "can't be read" in bar.label_source.text()
+    window.reset_playing_source()
+    window.refreshLiveStatus()
+    assert "No source" in bar.label_source.text()
+
+
+def test_the_status_bar_when_the_http_port_is_busy(make_window, patched):
+    patched["http_port_busy"] = True
+    window = make_window(http_port=18100)
+    bar = window.statusBarWidgets
+    assert "not running (port 18100 busy)" in bar.label_http.text()
+    assert bar.button_copy.isHidden()
+    status = destination_status(window, "http")
+    assert (status.state, status.detail) == (
+        "error",
+        "Not running: port 18100 is in use",
+    )
+    assert "■" in bar.output_buttons["http"].toolTip()
+
+
+# --- the output destinations -----------------------------------------------------------
+
+
+def destination_index(window, key):
+    model = window.destinationsModel
+    return model.index(model.rowOf(key), 0)
+
+
+def destination_status(window, key):
+    window.refreshLiveStatus()
+    return window.destinationsModel.status(key)
+
+
+def switch_is_on(window, key):
+    model = window.destinationsModel
+    return model.item(model.rowOf(key)).checkState() == QtCore.Qt.CheckState.Checked
+
+
+def free_port():
+    import socket
+
+    with socket.socket() as sock:
+        sock.bind(("127.0.0.1", 0))
+        return sock.getsockname()[1]
+
+
+def test_the_outputs_are_destinations_over_their_pages(main_window):
+    from PySide6.QtTest import QTest
+
+    ui = main_window.ui
+    model = main_window.destinationsModel
+    # the Outputs tab of the inspector, in a laptop-sized window
+    main_window.resize(1366, 768)
+    main_window.show()
+    ui.tabWidget_inspector.setCurrentWidget(ui.widget_outputs)
+    # the list over the pages, with a divider to give the pages more room
+    assert ui.splitter_outputs.widget(0) is ui.listView_destinations
+    assert ui.splitter_outputs.widget(1).isAncestorOf(ui.stackedWidget_outputs)
+    names = [model.item(row).text() for row in range(model.rowCount())]
+    assert names == ["Text files", "HTTP server", "OBS", "vMix", "UNO", "HTTP API"]
+    stack = ui.stackedWidget_outputs
+    assert [stack.widget(i).objectName() for i in range(stack.count())] == [
+        "tab_textFiles",
+        "tab_browser",
+        "tab_obs",
+        "tab_vmix",
+        "tab_uno",
+        "tab_api",
+    ]
+    assert not hasattr(ui, "tabWidget_outputs")
+    # the first one shows, as the first tab did
+    assert ui.listView_destinations.currentIndex().row() == 0
+    assert stack.currentWidget() is ui.tab_textFiles
+    # a destination shows its page, with the controls it always had
+    ui.listView_destinations.setCurrentIndex(destination_index(main_window, "vmix"))
+    assert stack.currentWidget() is ui.tab_vmix
+    assert ui.tab_vmix.isAncestorOf(ui.pushButton_startvmix)
+    # the keyboard moves between them
+    QTest.keyClick(ui.listView_destinations, QtCore.Qt.Key.Key_Down)
+    assert stack.currentWidget() is ui.tab_uno
+    # every destination shows without scrolling
+    view = ui.listView_destinations
+    assert view.height() >= model.rowCount() * view.sizeHintForRow(0)
+    # the state is told by a glyph and words too (never by colour alone)
+    main_window.refreshLiveStatus()
+    vmix = destination_index(main_window, "vmix")
+    assert vmix.data(QtCore.Qt.ItemDataRole.AccessibleTextRole) == "vMix, off, Off"
+    view.grab()  # paints every row
+
+
+def test_the_switches_mirror_the_output_controls(main_window):
+    ui = main_window.ui
+    model = main_window.destinationsModel
+    vmix = main_window.vmixUiHandler.vmixUpdater
+    uno = main_window.unoUiHandler.unoUpdater
+    main_window.refreshLiveStatus()
+    assert not any(switch_is_on(main_window, key) for key in ("vmix", "uno", "api"))
+
+    # the outputs' own controls move the switches...
+    ui.pushButton_startvmix.setChecked(True)
+    assert vmix.running and switch_is_on(main_window, "vmix")
+    ui.toolButton_toggleUno.setChecked(True)
+    assert uno.running and switch_is_on(main_window, "uno")
+    ui.checkBox_enableOutAPI.setChecked(True)
+    assert switch_is_on(main_window, "api")
+
+    # ...and the switches operate the controls, which stay the source of truth
+    model.setData(
+        destination_index(main_window, "vmix"),
+        QtCore.Qt.CheckState.Unchecked,
+        QtCore.Qt.ItemDataRole.CheckStateRole,
+    )
+    assert not ui.pushButton_startvmix.isChecked() and not vmix.running
+    assert ui.pushButton_startvmix.text() == "Start vMix"
+    assert not switch_is_on(main_window, "vmix")
+    model.requestToggle(destination_index(main_window, "uno"))
+    assert not ui.toolButton_toggleUno.isChecked() and not uno.running
+    model.requestToggle(destination_index(main_window, "api"))
+    assert not ui.checkBox_enableOutAPI.isChecked()
+    assert fetch_data("scoresight.json", "enable_out_api") is False
+    model.requestToggle(destination_index(main_window, "api"))
+    assert ui.checkBox_enableOutAPI.isChecked()
+    assert fetch_data("scoresight.json", "enable_out_api") is True
+
+    # the HTTP server is always on: it has no switch
+    http = destination_index(main_window, "http")
+    assert not model.flags(http) & QtCore.Qt.ItemFlag.ItemIsUserCheckable
+    model.requestToggle(http)
+    assert model.status("http").enabled and not model.status("http").switchable
+
+
+def test_a_switch_is_clicked_or_toggled_with_space(main_window, qtbot):
+    from PySide6.QtTest import QTest
+
+    ui = main_window.ui
+    view = ui.listView_destinations
+    with qtbot.waitExposed(main_window):
+        main_window.show()
+    main_window.showDestination("vmix")
+    main_window.refreshLiveStatus()
+    rect = view.visualRect(destination_index(main_window, "vmix"))
+    switch = main_window.destinationDelegate.switchRect(rect).center().toPoint()
+    QTest.mouseClick(view.viewport(), QtCore.Qt.MouseButton.LeftButton, pos=switch)
+    assert ui.pushButton_startvmix.isChecked()
+    # a click on the row elsewhere selects it, nothing more
+    QTest.mouseClick(
+        view.viewport(), QtCore.Qt.MouseButton.LeftButton, pos=rect.center()
+    )
+    assert ui.pushButton_startvmix.isChecked()
+    QTest.keyClick(view, QtCore.Qt.Key.Key_Space)
+    assert not ui.pushButton_startvmix.isChecked()
+
+
+def test_the_text_files_switch_chooses_or_forgets_the_folder(
+    main_window, monkeypatch, tmp_path, qtbot, make_result
+):
+    import mainwindow
+
+    monkeypatch.setattr(
+        mainwindow.QFileDialog,
+        "getExistingDirectory",
+        lambda *args, **kwargs: str(tmp_path),
+    )
+    model = main_window.destinationsModel
+    assert destination_status(main_window, "files").state == "off"
+    model.requestToggle(destination_index(main_window, "files"))
+    qtbot.waitUntil(lambda: main_window.out_folder == str(tmp_path))
+    assert main_window.ui.lineEdit_folder.text() == str(tmp_path)
+    status = destination_status(main_window, "files")
+    assert (status.state, status.enabled) == ("sending", True)  # nothing read yet
+
+    main_window.ocrResult([make_result("Home Score", "3")])
+    status = destination_status(main_window, "files")
+    assert status.state == "ok" and status.detail.endswith("· 1 file")
+    assert status.last_activity_at is not None
+
+    model.requestToggle(destination_index(main_window, "files"))
+    assert main_window.out_folder is None
+    assert fetch_data("scoresight.json", "output_folder") is None
+    assert destination_status(main_window, "files").state == "off"
+
+
+def test_a_missing_output_folder_is_reported(main_window, tmp_path, make_result):
+    ui = main_window.ui
+    folder = tmp_path / "gone"
+    folder.mkdir()
+    main_window.setOutputFolder(str(folder))
+    folder.rmdir()
+    main_window.ocrResult([make_result("Home Score", "3")])
+    status = destination_status(main_window, "files")
+    assert (status.state, status.enabled) == ("error", False)
+    assert status.detail.startswith("Folder not found")
+    main_window.showDestination("files")
+    assert ui.frame_destinationStatus.isVisibleTo(main_window)
+    assert "Folder not found" in ui.label_destinationStatus.text()
+    main_window.setOutputFolder(str(tmp_path))
+    assert destination_status(main_window, "files").state != "error"
+    assert not ui.frame_destinationStatus.isVisibleTo(main_window)
+
+
+def test_the_status_bar_shows_every_output_and_opens_it(main_window):
+    ui = main_window.ui
+    bar = main_window.statusBarWidgets
+    main_window.refreshLiveStatus()
+    assert not bar.widget_outputs.isHidden()
+    texts = [button.text() for button in bar.output_buttons.values()]
+    assert texts == ["Files", "HTTP", "OBS", "vMix", "UNO", "API"]
+    vmix = bar.output_buttons["vmix"]
+    assert vmix.toolTip().startswith("vMix: ○ off")
+    assert vmix.accessibleName() == "vMix: off"
+    assert not vmix.icon().isNull()
+
+    # the inspector shows the Outputs tab, also when it was hidden
+    main_window.resize(1366, 768)
+    main_window.show()
+    ui.tabWidget_inspector.setCurrentWidget(ui.tab_box)
+    main_window.setPaneHidden(2, True)
+    assert main_window.isPaneHidden(2)
+    bar.output_buttons["api"].click()
+    assert ui.tabWidget_inspector.currentWidget() is ui.widget_outputs
+    assert not main_window.isPaneHidden(2)
+    assert ui.listView_destinations.currentIndex().row() == 5
+    assert ui.stackedWidget_outputs.currentWidget() is ui.tab_api
+    bar.output_buttons["obs"].click()
+    assert ui.stackedWidget_outputs.currentWidget() is ui.tab_obs
+
+
+def test_an_unreachable_vmix_shows_everywhere(main_window, make_result, qtbot):
+    ui = main_window.ui
+    port = free_port()  # nothing listens there
+    ui.lineEdit_vmixHost.setText("127.0.0.1")
+    ui.lineEdit_vmixHost.editingFinished.emit()
+    ui.lineEdit_vmixPort.setText(str(port))
+    ui.lineEdit_vmixPort.editingFinished.emit()
+    vmix = main_window.vmixUiHandler.vmixUpdater
+    vmix.set_field_mapping({"Time": "CLOCK.Text"})
+    ui.pushButton_startvmix.setChecked(True)
+    assert destination_status(main_window, "vmix").state == "sending"
+
+    main_window.ocrResult([make_result("Time", "1:00")])
+    qtbot.waitUntil(
+        lambda: destination_status(main_window, "vmix").state == "retrying",
+        timeout=15000,
+    )
+    status = main_window.destinationsModel.status("vmix")
+    assert f"127.0.0.1:{port}" in status.detail and "retrying" in status.detail
+    # the details over the vMix page say what to do
+    main_window.showDestination("vmix")
+    assert ui.frame_destinationStatus.isVisibleTo(main_window)
+    assert f"127.0.0.1:{port}" in ui.label_destinationStatus.text()
+    assert "Web Controller" in ui.label_destinationStatus.text()
+    # and the status bar: a triangle (not only a colour)
+    button = main_window.statusBarWidgets.output_buttons["vmix"]
+    assert button.toolTip().startswith("vMix: ▲ retrying")
+
+    ui.pushButton_startvmix.setChecked(False)  # Stop vMix
+    assert destination_status(main_window, "vmix").state == "off"
+    assert not ui.frame_destinationStatus.isVisibleTo(main_window)
+
+
+def test_obs_connect_and_disconnect(make_window, monkeypatch, qtbot, make_target):
+    import mainwindow
+
+    clients = []
+
+    def fake_open(info):
+        clients.append(FakeObsClient())
+        return clients[-1]
+
+    monkeypatch.setattr(mainwindow, "open_obs_websocket", fake_open)
+    store_data(
+        "scoresight.json", "obs", {"ip": "localhost", "port": "4455", "password": "x"}
+    )
+    window = make_window()
+    ui = window.ui
+    window.detectionTargetsStorage.add_item(make_target("Home Score"))
+    qtbot.waitUntil(lambda: window.obs_websocket_client is not None)
+    status = destination_status(window, "obs")
+    assert (status.state, status.enabled, status.detail) == (
+        "ok",
+        True,
+        "Connected to localhost:4455",
+    )
+    assert switch_is_on(window, "obs")
+    assert ui.pushButton_connectObs.text() == "Change connection..."
+    assert "localhost:4455" in ui.pushButton_connectObs.toolTip()
+    assert ui.pushButton_disconnectObs.isEnabled()
+
+    ui.pushButton_disconnectObs.click()
+    assert window.obs_websocket_client is None
+    qtbot.waitUntil(lambda: clients[0].disconnected)  # closed off the GUI thread
+    status = destination_status(window, "obs")
+    assert (status.state, status.enabled) == ("off", False)
+    assert ui.pushButton_connectObs.text() == "Connect OBS"
+    assert not ui.pushButton_disconnectObs.isEnabled()
+    assert not ui.pushButton_createOBSScene.isEnabled()
+    # the saved connection stays (for the dialog), but isn't opened at startup
+    assert fetch_data("scoresight.json", "obs")["ip"] == "localhost"
+    assert fetch_data("scoresight.json", "obs_auto_connect") is False
+    window.close()
+    again = make_window()
+    assert len(clients) == 1 and again.obs_websocket_client is None
+
+    # the OBS switch opens the connect dialog; connecting turns auto-connect on
+    again.destinationsModel.requestToggle(destination_index(again, "obs"))
+    assert again.obs_connect_modal.isVisible()
+    again.obs_modal_ui.pushButton_connect.click()
+    qtbot.waitUntil(lambda: again.obs_websocket_client is not None)
+    assert fetch_data("scoresight.json", "obs_auto_connect") is True
+    # and the switch disconnects
+    again.destinationsModel.requestToggle(destination_index(again, "obs"))
+    assert again.obs_websocket_client is None
+    qtbot.waitUntil(lambda: clients[-1].disconnected)
+
+
+def test_a_failed_obs_connection_says_why(make_window, monkeypatch, qtbot):
+    import obs_websocket
+
+    def refuse(**kwargs):
+        raise ConnectionRefusedError("[WinError 10061] the target machine refused it")
+
+    monkeypatch.setattr(obs_websocket.obs, "ReqClient", refuse)
+    store_data(
+        "scoresight.json", "obs", {"ip": "127.0.0.1", "port": "4455", "password": "x"}
+    )
+    window = make_window()  # connects at startup, in the background
+    qtbot.waitUntil(lambda: window.obsConnectError is not None)
+    status = destination_status(window, "obs")
+    assert (status.state, status.enabled) == ("error", False)
+    assert status.detail == "Not connected: Can't reach 127.0.0.1:4455"
+    assert "WebSocket server" in status.hint
+
+    window.show()
+    window.openOBSConnectModal()
+    window.obs_modal_ui.pushButton_connect.click()
+    qtbot.waitUntil(lambda: window.obs_modal_ui.pushButton_connect.isEnabled())
+    label = window.obs_modal_ui.label_error
+    assert label.text() == "Cannot connect to OBS\nCan't reach 127.0.0.1:4455"
+    assert "WebSocket server" in label.toolTip()
+
+
+def test_the_http_page_shows_the_address_for_other_computers(
+    make_window, monkeypatch, qapp
+):
+    import mainwindow
+
+    monkeypatch.setattr(mainwindow, "primary_lan_address", lambda: "192.168.1.20")
+    window = make_window(http_port=18100)
+    link = 'href="http://192.168.1.20:18100/scoresight"'
+    assert link in window.ui.label_8.text()
+    status = destination_status(window, "http")
+    assert status.state == "ok"
+    assert status.detail.startswith("http://192.168.1.20:18100 · ")
+    window.changeLanguage("de_DE")
+    try:
+        assert window.ui.label_8.text().count(link) == 1
+        assert "localhost:18100" in window.ui.label_8.text()
+    finally:
+        qapp.removeTranslator(window.translator)
+
+
+@pytest.fixture
+def reference_font(qapp):
+    """Segoe UI 9 pt (the Windows UI font) where it's installed; the offscreen
+    platform doesn't find the system fonts by itself."""
+    import os
+    import sys
+
+    from PySide6.QtGui import QFont, QFontDatabase
+
+    previous = qapp.font()
+    path = os.path.join(os.environ.get("WINDIR", r"C:\Windows"), "Fonts", "segoeui.ttf")
+    loaded = sys.platform == "win32" and QFontDatabase.addApplicationFont(path) >= 0
+    if loaded:
+        qapp.setFont(QFont("Segoe UI", 9))
+    yield loaded
+    qapp.setFont(previous)
+
+
+# the reference text for scaling the size limit with another font
+SIZE_REFERENCE_TEXT = "Detections / s Update on change Binary View 4-corner Correction"
+
+
+def test_the_window_fits_a_small_screen(make_window, qapp, qtbot, reference_font):
+    # The window needed 1016x750 (1158 wide in German): more than a 1366x768
+    # laptop shows. Three panes now share the width (the fields, the picture
+    # and the inspector), the side panes scroll inside. The limit is for
+    # Segoe UI 9 pt; a wider font (Linux, the offscreen fallback font) widens it
+    # in proportion.
+    from PySide6.QtGui import QFontMetricsF
+
+    window = make_window()
+    width_ratio = 1.0
+    if not reference_font:
+        # Segoe UI 9 pt draws the reference text 342 px wide
+        width_ratio = max(
+            1.0, QFontMetricsF(qapp.font()).horizontalAdvance(SIZE_REFERENCE_TEXT) / 342
+        )
+    ui = window.ui
+    window.show()
+    for language in ("en_US", "de_DE"):
+        window.changeLanguage(language)
+        qapp.processEvents()
+        hint = window.minimumSizeHint()
+        assert hint.width() <= 1024 * width_ratio, (language, hint)
+        assert hint.height() <= 640, (language, hint)
+        # On a 1366x768 laptop the side panes get their widths (enough for
+        # their content), and the picture the rest
+        window.resize(1366, 768)
+        ui.splitter_main.setSizes(window.defaultPaneSizes(1366))
+        qapp.processEvents()
+        fields, viewer, inspector = ui.splitter_main.sizes()
+        assert fields >= max(220, ui.widget_leftPane.minimumSizeHint().width())
+        assert inspector >= max(300, ui.tabWidget_inspector.minimumSizeHint().width())
+        assert viewer >= 360, (language, ui.splitter_main.sizes())
+    qapp.removeTranslator(window.translator)
+
+
+def test_the_panes_widths_and_hidden_panes_are_kept(make_window, qtbot):
+    from PySide6.QtTest import QTest
+
+    def settled(window):
+        # wide enough for any font, laid out
+        window.resize(max(2000, window.minimumSizeHint().width() + 400), 800)
+        with qtbot.waitExposed(window):
+            window.show()
+        return window.ui.splitter_main
+
+    # the two-pane layout before the inspector is forgotten
+    store_data("scoresight.json", "main_splitter_state", "AAAA/wAAAAEAAAAC")
+    window = make_window()
+    assert fetch_data("scoresight.json", "main_splitter_state") is None
+    splitter = settled(window)
+    fields, viewer, inspector = splitter.sizes()
+    assert fields > 0 and inspector > 0
+    left = window.ui.widget_leftPane.minimumSizeHint().width() + 60
+    splitter.setSizes([left, fields + viewer - left, inspector])
+    assert splitter.sizes()[0] == left
+    # a double-click on the divider hides the inspector, another one shows it
+    # again at its width
+    QTest.mouseDClick(splitter.handle(2), QtCore.Qt.MouseButton.LeftButton)
+    assert window.isPaneHidden(2)
+    QTest.mouseDClick(splitter.handle(2), QtCore.Qt.MouseButton.LeftButton)
+    assert splitter.sizes()[2] == inspector
+    QTest.mouseDClick(splitter.handle(2), QtCore.Qt.MouseButton.LeftButton)
+    window.close()
+    stored = fetch_data("scoresight.json", "main_splitter_sizes")
+    assert stored[0] == left and stored[2] == 0
+
+    # hidden at the next start too
+    restored = settled(make_window())
+    qtbot.waitUntil(lambda: restored.sizes()[0] == left)
+    assert restored.sizes()[2] == 0
+    QTest.mouseDClick(restored.handle(2), QtCore.Qt.MouseButton.LeftButton)
+    assert restored.sizes()[2] > 0
+
+
+def test_slider_readouts(main_window, make_target):
+    ui = main_window.ui
+    storage = main_window.detectionTargetsStorage
+    storage.add_item(make_target("Home Score", conf_thresh=0, skew=-3, vscale=8))
+    main_window.itemSelected("Home Score")
+    assert ui.label_confThreshValue.text() == "Off"
+    assert ui.label_skewValue.text() == "\u22123"
+    assert ui.label_vscaleValue.text() == "80 %"
+    assert ui.label_dilateValue.text() == "1"
+    assert ui.label_cleanupValue.text() == "Off"
+    ui.horizontalSlider_conf_thresh.setValue(45)
+    assert ui.label_confThreshValue.text() == "45 %"
+    assert ui.horizontalSlider_conf_thresh.accessibleDescription() == "45 %"
+    ui.horizontalSlider_detectionCadence.setValue(12)
+    assert ui.label_detectionCadenceValue.text() == "12 /s"
+    ui.horizontalSlider_aggsPerSecond.setValue(3)
+    assert ui.label_aggsPerSecondValue.text() == "3 /s"
+
+
+def test_controls_have_tooltips(main_window):
+    # the controls the design critique found without one
+    for name in (
+        "checkBox_smoothing",
+        "horizontalSlider_vscale",
+        "horizontalSlider_skew",
+        "horizontalSlider_dilate",
+        "horizontalSlider_cleanup",
+        "checkBox_compositeBox",
+        "comboBox_binarizationMethod",
+        "checkBox_autocrop",
+        "checkBox_skip_similar_image",
+        "pushButton_stopUpdates",
+        "horizontalSlider_detectionCadence",
+        "comboBox_ocrModel",
+        "pushButton_saveOCRTrainingData",
+        "toolButton_videoSettings",
+        "toolButton_addBox",
+        "toolButton_removeBox",
+    ):
+        assert getattr(main_window.ui, name).toolTip(), name
+
+
+def test_output_buttons_have_text_and_no_emoji(main_window):
+    for button in (
+        main_window.ui.pushButton_startvmix,
+        main_window.ui.toolButton_toggleUno,
+    ):
+        text = button.text()
+        assert text in ("Start vMix", "Start sending")
+        assert not button.icon().isNull()
+        assert not any(ord(c) > 0x2000 for c in text)
+
+
+def test_the_obs_dialog(main_window, qapp):
+    from PySide6.QtWidgets import QLineEdit
+
+    store_data(
+        "scoresight.json", "obs", {"ip": "localhost", "port": "4455", "password": "x"}
+    )
+    main_window.show()
+    main_window.openOBSConnectModal()
+    dialog = main_window.obs_connect_modal
+    ui = main_window.obs_modal_ui
+    # a child of the main window: it stays in front of it
+    assert dialog.parent() is main_window
+    assert ui.lineEdit_password.echoMode() == QLineEdit.EchoMode.Password
+    ui.checkBox_showPassword.setChecked(True)
+    assert ui.lineEdit_password.echoMode() == QLineEdit.EchoMode.Normal
+    assert not main_window.ui.pushButton_createOBSScene.isEnabled()
+
+    # connected meanwhile, then Cancel: the scene controls work again
+    main_window.obs_websocket_client = FakeObsClient()
+    ui.pushButton_cancel.click()
+    assert not dialog.isVisible()
+    assert main_window.ui.pushButton_createOBSScene.isEnabled()
+    main_window.obs_websocket_client = None
+
+    # opening it again while it's open doesn't make a second one
+    main_window.openOBSConnectModal()
+    second = main_window.obs_connect_modal
+    main_window.openOBSConnectModal()
+    assert main_window.obs_connect_modal is second
+
+
+def test_cancel_while_connecting_to_obs(main_window, monkeypatch, qtbot):
+    # Cancel didn't stop the connection attempt: when it succeeded later, it
+    # replaced the current connection and stored the cancelled settings
+    import mainwindow
+
+    release = threading.Event()
+    finished = threading.Event()
+    client = FakeObsClient()
+
+    def slow_open(info):
+        release.wait(5)
+        finished.set()
+        return client
+
+    monkeypatch.setattr(mainwindow, "open_obs_websocket", slow_open)
+    main_window.show()
+    main_window.openOBSConnectModal()
+    ui = main_window.obs_modal_ui
+    ui.lineEdit_ip.setText("other-pc")
+    ui.pushButton_connect.click()
+    assert not ui.pushButton_connect.isEnabled()  # connecting
+    ui.pushButton_cancel.click()
+    release.set()
+    assert finished.wait(5)
+    # the (ignored) client is closed off the GUI thread
+    qtbot.waitUntil(lambda: client.disconnected)
+    assert main_window.obs_websocket_client is None
+    assert fetch_data("scoresight.json", "obs") is None
+
+
+def test_the_file_menu_is_translatable(main_window, qapp):
+    # The File menu was made in code without tr(): never translated
+    from PySide6.QtCore import QTranslator
+
+    class Marking(QTranslator):
+        def translate(self, context, source, disambiguation=None, n=-1):
+            return f"«{source}»" if context == "MainWindow" else ""
+
+    translator = Marking()
+    qapp.installTranslator(translator)
+    try:
+        main_window.ui.retranslateUi(main_window)
+        main_window.applyRuntimeTexts()
+        assert main_window.ui.menuFile.title() == "«File»"
+        assert "«Check for Updates»" in menu_titles(main_window)
+        assert "«Appearance»" in menu_titles(main_window)
+        appearance = [a.text() for a in main_window.appearance_actions.actions()]
+        assert appearance == ["«System»", "«Light»", "«Dark»"]
+    finally:
+        qapp.removeTranslator(translator)
+        main_window.ui.retranslateUi(main_window)
+    # the languages in their own language, not translated
+    languages = [a.text() for a in main_window.language_actions.actions()]
+    assert "Deutsch" in languages and "日本語" in languages and "Français" in languages
+    assert len(languages) == 13
 
 
 def test_replaced_viewers_are_deleted(make_window, qapp):

@@ -29,7 +29,7 @@ The log almost always shows what went wrong.
    | macOS | `~/Library/Logs/scoresight` |
    | Linux | `~/.local/state/scoresight/log` |
 
-3. Each session writes `scoresight_<date>_<time>.log` and `scoresight_std_<date>_<time>.log`. Attach **both** files from the session with the problem to your issue.
+3. Each session writes `scoresight_<date>_<time>.log` and `scoresight_std_<date>_<time>.log`. Attach **both** files from the session with the problem to your issue. If ScoreSight closed by itself (a crash), the end of the `scoresight_std_` file shows where: `Windows fatal exception` or `Fatal Python error`, followed by what each part of the program was doing at that moment.
 
 {: .warning }
 Logs can contain host names and URLs (including any tokens in them). ScoreSight 0.1.x also logged the OBS WebSocket password; 0.2.0 doesn't. Look through the logs and remove secrets before posting them publicly.
@@ -74,6 +74,21 @@ ScoreSight 0.2.0 gives up opening or reading a stream after 5 seconds, so a dead
 - **Linux**: screen capture isn't supported. Use OBS with NDI or the virtual camera.
 - Minimized windows can't be captured. Keep the window visible and at a fixed size.
 
+## Slow start
+
+Every start logs how long it took, one line per session that begins with `Startup:` in `scoresight_<date>_<time>.log` (see [Collect logs first](#collect-logs-first)), for example:
+
+```
+Startup: before main.py 0.20 s, arguments 0.00 s, imports 0.35 s, QApplication 0.00 s, main window 0.03 s, show 0.00 s, first event loop pass 0.01 s; total 0.59 s; HTTP server ready at 0.57 s, video sources discovered at 0.62 s
+```
+
+- **before main.py**: from launching the app until its Python code runs (unpacking and loading the app, which antivirus scanning or a slow disk can make long).
+- **imports**, **QApplication**, **main window**, **show**, **first event loop pass**: the steps that build the window.
+- **total**: from launching the app until its window is ready.
+- **HTTP server ready** and **video sources discovered** happen in the background and don't hold the window up. A slow camera or NDI discovery shows here; if it took longer than about 5 seconds, it has a `Startup:` line of its own.
+
+If ScoreSight is slow to start, [open an issue](https://github.com/royshil/scoresight/issues/new/choose) with the `Startup:` line (or the whole log) of a slow start, your OS and its version, how you installed ScoreSight (installer, portable zip, disk image, from source) and whether a second start right after the first is also slow.
+
 ## macOS: slow start, freezes, or hang when quitting (#33, #7)
 
 **Symptoms**: in ScoreSight 0.1.x and older on macOS, the app took up to a minute to appear ([#33](https://github.com/royshil/scoresight/issues/33)), the window froze ("beach ball") for long periods, or it showed "Not Responding" when quitting and had to be force-quit ([#7](https://github.com/royshil/scoresight/issues/7)).
@@ -89,6 +104,7 @@ ScoreSight 0.2.0 gives up opening or reading a stream after 5 seconds, so a dead
 **If you still see it**:
 
 - Update to the latest release.
+- For a slow start, look at the `Startup:` line in the log (see [Slow start](#slow-start)).
 - Turn off outputs whose target is offline (stop vMix/UNO, disconnect OBS).
 - Collect the logs and, for hangs, a sample from **Activity Monitor** (select ScoreSight > the "..." menu > **Sample Process**), and [open an issue](https://github.com/royshil/scoresight/issues/new/choose).
 
@@ -98,14 +114,14 @@ Force-quitting doesn't damage your settings: they are saved as you work.
 
 ### vMix shows no data (#55, #25)
 
-**Symptom**: vMix titles don't change. ScoreSight 0.1.x logged `Failed to send data to http://localhost:8099/api/... BadStatusLine('VERSION OK ...')`. ScoreSight 0.2.0 logs `vMix: VMixTCPPortError: localhost:8099 answered like the vMix TCP API ('VERSION OK')` with a hint to use the Web Controller port ([#55](https://github.com/royshil/scoresight/issues/55), [#25](https://github.com/royshil/scoresight/issues/25)).
+**Symptom**: vMix titles don't change. ScoreSight 0.1.x logged `Failed to send data to http://localhost:8099/api/... BadStatusLine('VERSION OK ...')`. ScoreSight 0.2.0 shows ■ *Port 8099 is vMix's TCP API: use 8088* in the vMix row of the **Outputs** list and logs `vMix: VMixTCPPortError: localhost:8099 answered like the vMix TCP API ('VERSION OK')` ([#55](https://github.com/royshil/scoresight/issues/55), [#25](https://github.com/royshil/scoresight/issues/25)).
 
 **Cause**: port 8099 is vMix's TCP API. ScoreSight uses vMix's HTTP **Web API**, which listens on port **8088**.
 
 **Fix**:
 
 1. In vMix, enable **Settings** > **Web Controller** (port 8088).
-2. In ScoreSight's **VMix** tab, set the port to **8088** and press **Enter**. ScoreSight 0.2.0 changes a saved 8099 to 8088 automatically the first time it starts.
+2. In ScoreSight, select **vMix** in the **Outputs** list, set the port to **8088** and press **Enter**. ScoreSight 0.2.0 changes a saved 8099 to 8088 automatically the first time it starts.
 3. Use the exact field names from the vMix Title Editor, **including `.Text`** (for example `Home Score.Text`).
 4. Check the **Input** number, and click **Start**.
 
@@ -113,6 +129,7 @@ Full guide: [vMix](vmix.md).
 
 ### OBS text doesn't update (#30)
 
+- Look at the OBS row of the **Outputs** list: it says whether ScoreSight is connected, and why not (see [OBS: Troubleshooting](obs.md#troubleshooting)).
 - In ScoreSight 0.1.x, OBS updates only worked when an output folder was set in the **Text Files** tab. 0.2.0 removed that requirement. Update, or set a folder as a workaround.
 - The OBS text sources must be named exactly `Home score`, `Away score`, `Clock`, `Period`, `#Home Fouls`, `#Away Fouls` or `shotclock`, or use **Create OBS Scene**. Custom fields don't update OBS by default (see [OBS: Custom fields](obs.md#custom-fields)). A wrong name shows up in the log as `OBS: OBSSDKRequestError: Request SetInputSettings returned code 600`.
 - If updates stop after a few minutes ([#30](https://github.com/royshil/scoresight/issues/30)), check whether OBS restarted or the WebSocket dropped. ScoreSight 0.2.0 reconnects by itself (the log shows `OBS: OBSConnectionLost: ...` while OBS is unreachable, then `OBS: reconnected to <host>:<port>`). On 0.1.x, reconnect with **Connect OBS**. A [Browser Source](http_server.md) overlay is a robust alternative.
@@ -152,7 +169,7 @@ Readings come from the picture, so start there ([#30](https://github.com/royshil
 3. Set **Binarize** to **Local** or **Adaptive** for low-contrast boards or dark surroundings.
 4. Set the **Type** and a strict **Format** so impossible values are rejected.
 5. Use **Remove leading 0s** for zero-padded scores, and consider one box per digit for very poor boards.
-6. Try another **OCR Model**.
+6. Try another **OCR model** (under **All boxes**, in the Box tab).
 
 The full method is in [Recognition Tuning](recognition-tuning.md).
 

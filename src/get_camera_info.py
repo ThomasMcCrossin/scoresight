@@ -1,7 +1,6 @@
 import platform
 import sys
 from camera_info import CameraInfo
-from ndi import NDICapture
 from sc_logging import logger
 
 # This file contains the code to get the camera information for the current OS
@@ -138,6 +137,12 @@ def get_camera_info_linux(
 
 def get_camera_info() -> list[CameraInfo]:
     logger.info("Getting cameras info")
+    # Imported here, by the source discovery (a background thread at startup),
+    # not by the app's startup: cyndilib and the NDI library take a while to
+    # load. Importing it starts the NDI discovery, which then runs while the
+    # cameras are listed.
+    from ndi import NDICapture
+
     os_name = platform.system()
     cameras = []
     if os_name == "Windows":

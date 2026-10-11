@@ -1,24 +1,41 @@
+from datetime import datetime
 from functools import partial
+import html
 import math
 import os
 import platform
 import threading
+import time
 from typing import Callable
 from PySide6.QtWidgets import (
     QApplication,
     QDialog,
     QFileDialog,
+    QHeaderView,
     QInputDialog,
+    QLabel,
+    QLineEdit,
     QMainWindow,
     QMenu,
     QMessageBox,
     QTableWidgetItem,
 )
-from PySide6.QtGui import QActionGroup, QGuiApplication, QIcon, QDesktopServices
+from PySide6.QtGui import (
+    QActionGroup,
+    QDesktopServices,
+    QFont,
+    QFontMetrics,
+    QGuiApplication,
+    QIcon,
+    QKeySequence,
+    QPalette,
+    QTransform,
+)
 from PySide6.QtCore import (
     Qt,
     Signal,
     Slot,
+    QRectF,
     QTimer,
     QTranslator,
     QObject,
@@ -29,19 +46,49 @@ from PySide6.QtCore import (
 )
 from os import path
 
-from api_output import update_out_api
-from box_settings_ui_handler import BoxSettingsUIHandler
+from api_output import out_api_status, update_out_api
+from box_settings_ui_handler import (
+    NOT_PLACED,
+    PLACED,
+    TEMPLATE,
+    BoxSettingsUIHandler,
+    changed_settings,
+)
 from camera_info import CameraInfo
+from destinations_view import STATUS_ROLE, DestinationDelegate, DestinationsModel
 from get_camera_info import get_camera_info
 from http_server import (
     get_http_server_port,
+    http_server_stats,
     start_http_server,
     update_http_server,
 )
 from ocr_training_data import OCRTrainingDataDialog
+import output_status
+from output_status import (
+    STATE_COLORS,
+    STATE_GLYPHS,
+    DestinationStatus,
+    describe_error,
+    status_tooltip,
+)
+from output_worker import ErrorInfo
+from readings_view import ReadingDelegate, clear_reading, record_reading
 from resource_path import resource_path
-from screen_capture_source import ScreenCapture
 from source_view import ImageViewer
+from status_bar import (
+    SOURCE_ERROR,
+    SOURCE_NONE,
+    SOURCE_OPENING,
+    SOURCE_RUNNING,
+    SOURCE_STALLED,
+    MainStatusBar,
+    StatusSnapshot,
+    http_server_urls,
+    primary_lan_address,
+    source_display_name,
+)
+import theme
 from defaults import (
     default_boxes,
     default_info_for_box_name,
@@ -63,10 +110,14 @@ from storage import (
 from obs_websocket import (
     close_obs_websocket,
     create_obs_scene_from_export,
+    last_connect_error,
+    obs_client_address,
+    obs_output_status,
     open_obs_websocket,
     update_text_source,
 )
 
+import startup_timing
 from template_fields import apply_template_fields
 from text_detection_target import TextDetectionTarget, TextDetectionTargetWithResult
 from sc_logging import logger
@@ -112,6 +163,48 @@ FIRST_CAMERA_SOURCE_INDEX = 4
 
 # Box edits are written to the settings this long after the last change.
 BOXES_SAVE_DELAY_MS = 500
+
+# File > Language: (locale, the language's name in that language)
+LANGUAGES = (
+    ("en_US", "English (US)"),
+    ("fr_FR", "Français"),
+    ("es_ES", "Español"),
+    ("de_DE", "Deutsch"),
+    ("it_IT", "Italiano"),
+    ("ja_JP", "日本語"),
+    ("ko_KR", "한국어"),
+    ("nl_NL", "Nederlands"),
+    ("pl_PL", "Polski"),
+    ("pt_BR", "Português (Brasil)"),
+    ("pt_PT", "Português (Portugal)"),
+    ("ru_RU", "Русский"),
+    ("zh_CN", "简体中文"),
+)
+
+# The widths of the Fields | viewer | Inspector panes ([fields, viewer,
+# inspector]; 0 = hidden), and of the two-pane layout before them (the
+# QSplitter.saveState of the boxes list | viewer splitter), which is dropped.
+PANE_SIZES_SETTING = "main_splitter_sizes"
+OLD_SPLITTER_STATE_SETTING = "main_splitter_state"
+# The panes' default and minimum widths (pixels)
+FIELDS_PANE_WIDTH = 260
+INSPECTOR_WIDTH = 340
+VIEWER_MIN_WIDTH = 360
+# The status bar, the readings' ages and the paused time are refreshed this often.
+STATUS_INTERVAL_MS = 1000
+# A source that delivered no frame for this long is shown as stalled.
+SOURCE_STALL_S = 3.0
+# The boxes list is at least this many rows tall (it gets the pane's height).
+BOXES_LIST_MIN_ROWS = 3
+# The outputs list is at least this many rows tall (it scrolls when shorter).
+DESTINATIONS_LIST_MIN_ROWS = 2
+# Zoom to box zooms in no further than the viewer's Ctrl+wheel zoom (3x).
+MAX_ZOOM = 3.0
+# The window's default size, made smaller on smaller screens.
+DEFAULT_WINDOW_SIZE = (1280, 800)
+# False after OBS was disconnected: the saved connection ("obs") isn't opened
+# at startup until the user connects again
+OBS_AUTO_CONNECT_SETTING = "obs_auto_connect"
 
 
 def apply_color_scheme(name: str | None) -> str:
@@ -188,67 +281,37 @@ class MainWindow(QMainWindow):
         self.ui = Ui_MainWindow()
         logger.info("Starting ScoreSight %s", __version__)
         self.ui.setupUi(self)
+        # the HTTP server page's text, before the real port and address are
+        # filled in
+        self.browserEndpointsTemplate = self.ui.label_8.text()
+        # this computer's address on the network (for the HTTP server's URLs)
+        self.lanAddress = primary_lan_address()
+        self.lanAddressCheckedAt = time.monotonic()
         self.translator = translator
+        # when the outputs were paused (Pause outputs), None while they run
+        self.outputsPausedAt: datetime | None = None
+        self.outputsPausedMonotonic: float | None = None
+        # After the outputs are resumed, vMix and UNO get each of these boxes'
+        # next good reading, even an unchanged one (they normally send only
+        # changed values)
+        self.resendAfterPause: set[str] = set()
         self.updateWindowTitle()
         if platform.system() == "Windows":
             # set the icon
             self.setWindowIcon(QIcon(resource_path("icons", "Windows-icon-open.ico")))
-
-        self.menubar = self.menuBar()
-        file_menu = self.menubar.addMenu("File")
 
         self.update_check_running = False
         # a manual check was asked for while another check was running
         self.update_check_manual_pending = False
         self.update_dialog = None
         self.update_check_finished.connect(self.updateCheckFinished)
-        file_menu.addAction("Check for Updates", lambda: self.checkForUpdates(True))
-        file_menu.addAction("About", self.openAboutDialog)
-        file_menu.addAction("View Current Log", self.openLogsDialog)
-        file_menu.addAction("Import Configuration", self.importConfiguration)
-        file_menu.addAction("Export Configuration", self.exportConfiguration)
-        file_menu.addAction("Open Configuration Folder", self.openConfigurationFolder)
-        file_menu.addAction("OCR Training Data Setup", self.openOCRTrainingDataDialog)
-
-        # Add "Language" menu
-        languageMenu = file_menu.addMenu("Language")
-
-        # Add language options
-        self.addLanguageOption(languageMenu, "English (US)", "en_US")
-        self.addLanguageOption(languageMenu, "French (France)", "fr_FR")
-        self.addLanguageOption(languageMenu, "Spanish (Spain)", "es_ES")
-        self.addLanguageOption(languageMenu, "German", "de_DE")
-        self.addLanguageOption(languageMenu, "Italian", "it_IT")
-        self.addLanguageOption(languageMenu, "Japanese", "ja_JP")
-        self.addLanguageOption(languageMenu, "Korean", "ko_KR")
-        self.addLanguageOption(languageMenu, "Dutch", "nl_NL")
-        self.addLanguageOption(languageMenu, "Polish", "pl_PL")
-        self.addLanguageOption(languageMenu, "Portuguese (Brazil)", "pt_BR")
-        self.addLanguageOption(languageMenu, "Portuguese (Portugal)", "pt_PT")
-        self.addLanguageOption(languageMenu, "Russian", "ru_RU")
-        self.addLanguageOption(languageMenu, "Chinese (Simplified)", "zh_CN")
-
-        # File > Appearance: System / Light / Dark color scheme (#50)
-        appearance_menu = file_menu.addMenu("Appearance")
-        self.appearance_actions = QActionGroup(self)
-        self.appearance_actions.setExclusive(True)
-        current_scheme = fetch_data("scoresight.json", "color_scheme")
-        if current_scheme not in COLOR_SCHEMES:
-            current_scheme = DEFAULT_COLOR_SCHEME
-        for scheme in COLOR_SCHEMES:
-            action = appearance_menu.addAction(scheme)
-            action.setCheckable(True)
-            action.setChecked(scheme == current_scheme)
-            action.setData(scheme)
-            action.triggered.connect(
-                lambda checked=False, scheme=scheme: self.setColorScheme(scheme)
-            )
-            self.appearance_actions.addAction(action)
+        self.setupMenus()
 
         # handle the Escape key (deselect the current box)
         self.installEventFilter(self)
 
         self.ui.pushButton_connectObs.clicked.connect(self.openOBSConnectModal)
+        self.ui.pushButton_disconnectObs.clicked.connect(self.disconnectObs)
 
         self.vmixUiHandler = VMixUIHanlder(self.ui)
         self.unoUiHandler = UNOUIHandler(self.ui)
@@ -303,7 +366,6 @@ class MainWindow(QMainWindow):
         # connect toolButton_rotate
         self.ui.toolButton_rotate.clicked.connect(self.rotateImage)
 
-        self.ui.widget_detectionCadence.setVisible(True)
         self.ui.horizontalSlider_detectionCadence.setValue(
             fetch_data("scoresight.json", "detection_cadence", 5)
         )
@@ -311,7 +373,7 @@ class MainWindow(QMainWindow):
             self.detectionCadenceChanged
         )
         self.ui.toolButton_addBox.clicked.connect(self.addBox)
-        self.ui.toolButton_removeBox.clicked.connect(self.removeCustomBox)
+        self.ui.toolButton_removeBox.clicked.connect(self.deleteField)
 
         self.video_settings_dialog = None
         self.ui.toolButton_videoSettings.clicked.connect(self.openVideoSettings)
@@ -335,13 +397,22 @@ class MainWindow(QMainWindow):
         self.obs_last_sent: dict[str, str] = {}
         self.obs_connect_attempt = 0
         self.obs_connection_result.connect(self.obsConnectionResult)
+        # for the OBS status: "host:port" of the connection, of an attempt
+        # running, and why the last attempt failed
+        self.obsAddress: str | None = None
+        self.obsConnectedAt: float | None = None
+        self.obsConnecting: str | None = None
+        self.obsConnectError: ErrorInfo | None = None
+        self.obsConnectTarget: str | None = None
 
+        # the models' names (not translated), by the index stored as ocr_model,
+        # then "Load external model..." (text set in applyRuntimeTexts)
         ocr_models = [
             "Daktronics",
             "General Scoreboard",
             "General Fonts (English)",
             "General Scoreboard Large",
-            "Load External OCR Model",
+            "",
         ]
         self.ui.comboBox_ocrModel.addItems(ocr_models)
         # default to General Scoreboard
@@ -351,12 +422,15 @@ class MainWindow(QMainWindow):
         self.ui.comboBox_ocrModel.setCurrentIndex(ocr_model_from_storage)
 
         self.ui.frame_source_view.setEnabled(False)
-        self.ui.groupBox_target_settings.setEnabled(False)
-        self.ui.pushButton_makeBox.clicked.connect(self.makeBox)
-        self.ui.pushButton_removeBox.clicked.connect(self.removeBox)
+        self.ui.pushButton_makeBox.clicked.connect(self.placeOnPicture)
+        self.ui.pushButton_removeBox.clicked.connect(self.removeFromPicture)
         self.ui.tableWidget_boxes.itemClicked.connect(self.listItemClicked)
         # connect the edit triggers
         self.ui.tableWidget_boxes.itemDoubleClicked.connect(self.editBoxName)
+        # the current item is always a box's name: the box settings, removing
+        # and renaming use its text
+        self.ui.tableWidget_boxes.currentCellChanged.connect(self.keepNameCellCurrent)
+        self.setupBoxesList()
         self.ui.pushButton_refresh_sources.clicked.connect(
             lambda: self.get_sources.emit()
         )
@@ -389,20 +463,9 @@ class MainWindow(QMainWindow):
         custom_boxes_names = fetch_custom_box_names()
 
         for box_name in [box["name"] for box in default_boxes] + custom_boxes_names:
-            item = QTableWidgetItem(
-                QIcon(resource_path("icons", "circle-x.svg")),
-                box_name,
-            )
-            item.setData(Qt.ItemDataRole.UserRole, "unchecked")
-            self.ui.tableWidget_boxes.insertRow(self.ui.tableWidget_boxes.rowCount())
-            self.ui.tableWidget_boxes.setItem(
-                self.ui.tableWidget_boxes.rowCount() - 1, 0, item
-            )
-            disabledItem = QTableWidgetItem()
-            disabledItem.setFlags(Qt.ItemFlag.NoItemFlags)
-            self.ui.tableWidget_boxes.setItem(
-                self.ui.tableWidget_boxes.rowCount() - 1, 1, disabledItem
-            )
+            item = self.appendBoxRow(box_name)
+            item.setIcon(QIcon(resource_path("icons", "circle-x.svg")))
+            item.setData(Qt.ItemDataRole.UserRole, NOT_PLACED)
 
         # The boxes are app state (not per source): load them once at startup.
         # From now on the in-memory storage is the source of truth, and changes
@@ -422,12 +485,18 @@ class MainWindow(QMainWindow):
             logger.info("Opening log dialog on startup")
             self.openLogsDialog()
 
-        if fetch_data("scoresight.json", "obs"):
+        if fetch_data("scoresight.json", "obs") and fetch_data(
+            "scoresight.json", OBS_AUTO_CONNECT_SETTING, True
+        ):
             self.connectObs()
 
+        # the output folder that was found missing (the files output stopped)
+        self.outputFolderLost: str | None = None
         self.out_folder = fetch_data("scoresight.json", "output_folder")
         if self.out_folder:
             if not path.exists(self.out_folder):
+                logger.warning("Output folder does not exist: %s", self.out_folder)
+                self.outputFolderLost = self.out_folder
                 self.out_folder = None
                 remove_data("scoresight.json", "output_folder")
             else:
@@ -479,22 +548,389 @@ class MainWindow(QMainWindow):
 
         self.ui.toolButton_speed.clicked.connect(self.toggleSpeed)
 
+        # Pause outputs: the banner over the viewer, the status bar chip
+        self.ui.frame_pausedBanner.hide()
+        self.ui.pushButton_resumeOutputs.clicked.connect(
+            lambda: self.ui.pushButton_stopUpdates.setChecked(False)
+        )
+        self.ui.horizontalSlider_detectionCadence.valueChanged.connect(
+            self.updateSliderReadouts
+        )
+        self.ui.horizontalSlider_aggsPerSecond.valueChanged.connect(
+            self.updateSliderReadouts
+        )
+
+        # the outputs' list (with their status) over their settings pages
+        self.setupDestinations()
+
+        # the source, OCR rate, the outputs and the HTTP address, and the
+        # readings' ages
+        self.sourceError = None
+        self.statusBarWidgets = MainStatusBar(self.ui.statusbar)
+        self.statusBarWidgets.destination_clicked.connect(self.showDestination)
+        self.statusTimer = QTimer(self)
+        self.statusTimer.setInterval(STATUS_INTERVAL_MS)
+        self.statusTimer.timeout.connect(self.refreshLiveStatus)
+        self.statusTimer.start()
+
+        # the label hides when the view tools need its room
+        self.ui.widget_viewTools.installEventFilter(self)
+        # "Open a source to place fields" while the fields list is disabled
+        self.ui.groupBox_sb_info.installEventFilter(self)
+
+        self.styleLabels()
+        self.setupLayout()
+        self.applyRuntimeTexts()
+
         self.update_sources.connect(self.updateSources)
         self.get_sources.connect(self.getSources)
         self.get_sources.emit()
 
         self.checkForUpdates(False)
 
+    # --- layout, menus and texts set at runtime ---------------------------------
+
+    def setupMenus(self):
+        """Connect the File menu's actions (defined in the .ui, so they are
+        translated), fill the Language and Appearance submenus, and add the
+        window's keyboard shortcuts."""
+        ui = self.ui
+        ui.actionCheckForUpdates.triggered.connect(lambda: self.checkForUpdates(True))
+        ui.actionAbout.triggered.connect(self.openAboutDialog)
+        ui.actionViewLog.triggered.connect(self.openLogsDialog)
+        ui.actionImportConfiguration.triggered.connect(self.importConfiguration)
+        ui.actionExportConfiguration.triggered.connect(self.exportConfiguration)
+        ui.actionOpenConfigurationFolder.triggered.connect(self.openConfigurationFolder)
+        ui.actionOCRTrainingDataSetup.triggered.connect(self.openOCRTrainingDataDialog)
+
+        # File > Language, each language in its own language
+        self.language_actions = QActionGroup(self)
+        self.language_actions.setExclusive(True)
+        current_locale = self.currentLocale()
+        for locale, name in LANGUAGES:
+            action = ui.menuLanguage.addAction(name)
+            action.setCheckable(True)
+            action.setChecked(locale == current_locale)
+            action.setData(locale)
+            action.triggered.connect(
+                lambda checked=False, locale=locale: self.changeLanguage(locale)
+            )
+            self.language_actions.addAction(action)
+
+        # File > Appearance: System / Light / Dark color scheme (#50)
+        self.appearance_actions = QActionGroup(self)
+        self.appearance_actions.setExclusive(True)
+        current_scheme = fetch_data("scoresight.json", "color_scheme")
+        if current_scheme not in COLOR_SCHEMES:
+            current_scheme = DEFAULT_COLOR_SCHEME
+        for scheme in COLOR_SCHEMES:
+            action = ui.menuAppearance.addAction(scheme)
+            action.setCheckable(True)
+            action.setChecked(scheme == current_scheme)
+            action.setData(scheme)
+            action.triggered.connect(
+                lambda checked=False, scheme=scheme: self.setColorScheme(scheme)
+            )
+            self.appearance_actions.addAction(action)
+
+        # shortcuts of the window (the actions aren't in a menu)
+        for action in (
+            ui.actionPauseOutputs,
+            ui.actionBinaryView,
+            ui.actionFitPicture,
+            ui.actionReloadSources,
+            ui.actionNewField,
+        ):
+            action.setShortcutContext(Qt.ShortcutContext.WindowShortcut)
+            self.addAction(action)
+        ui.actionPauseOutputs.triggered.connect(ui.pushButton_stopUpdates.toggle)
+        ui.actionNewField.triggered.connect(self.addBox)
+        # through the buttons: they do nothing while disabled (no source yet, a
+        # reload running)
+        ui.actionBinaryView.triggered.connect(ui.pushButton_binary.click)
+        ui.actionFitPicture.triggered.connect(ui.toolButton_zoomReset.click)
+        ui.actionReloadSources.triggered.connect(ui.pushButton_refresh_sources.click)
+
+    def currentLocale(self) -> str | None:
+        """The locale of the loaded translation (e.g. "de_DE"), if any."""
+        loaded = path.basename(self.translator.filePath() or "")
+        if loaded.startswith("scoresight_") and loaded.endswith(".qm"):
+            return loaded[len("scoresight_") : -len(".qm")]
+        return None
+
+    def setupBoxesList(self):
+        """The boxes list: names, and the readings drawn by ReadingDelegate; a
+        context menu and keys for the selected field."""
+        table = self.ui.tableWidget_boxes
+        self.readingDelegate = ReadingDelegate(table)
+        table.setItemDelegateForColumn(1, self.readingDelegate)
+        header = table.verticalHeader()
+        header.setSectionResizeMode(QHeaderView.ResizeMode.Fixed)
+        self.updateBoxesListHeight()
+
+        ui = self.ui
+        # the Box tab and the field's actions follow the selection, however it
+        # changes (a click, the arrow keys, typing a name)
+        table.itemSelectionChanged.connect(self.fieldSelectionChanged)
+        table.customContextMenuRequested.connect(self.showFieldContextMenu)
+        # F2, Del and Ctrl+C act on the selected field while the list has the
+        # focus (Ctrl+C elsewhere copies as usual)
+        for action in (ui.actionRenameField, ui.actionDeleteField, ui.actionCopyValue):
+            action.setShortcutContext(Qt.ShortcutContext.WidgetShortcut)
+            table.addAction(action)
+        if platform.system() == "Darwin":
+            # the key labelled "delete" on a Mac keyboard is Backspace
+            ui.actionDeleteField.setShortcuts(
+                [QKeySequence("Del"), QKeySequence("Backspace")]
+            )
+        # the list takes Ctrl+C itself (it copies the current item: the field's
+        # name), before the shortcut: see eventFilter
+        table.installEventFilter(self)
+        ui.actionPlaceOnPicture.triggered.connect(self.placeOnPicture)
+        ui.actionRemoveFromPicture.triggered.connect(self.removeFromPicture)
+        ui.actionRenameField.triggered.connect(self.renameField)
+        ui.actionDeleteField.triggered.connect(self.deleteField)
+        ui.actionResetFieldSettings.triggered.connect(
+            self.boxSettingsUiHandler.restoreDefaults
+        )
+        ui.actionCopyValue.triggered.connect(self.copyFieldValue)
+        ui.actionZoomToBox.triggered.connect(self.zoomToBox)
+
+    def updateBoxesListHeight(self, *_):
+        """Size the rows for the readings. The list gets the Fields pane's
+        height; it is at least BOXES_LIST_MIN_ROWS rows tall."""
+        table = self.ui.tableWidget_boxes
+        row_height = self.readingDelegate.rowHeight(table.font())
+        table.verticalHeader().setDefaultSectionSize(row_height)
+        header_height = table.horizontalHeader().sizeHint().height()
+        table.setMinimumHeight(
+            header_height + BOXES_LIST_MIN_ROWS * row_height + 2 * table.frameWidth()
+        )
+
+    def styleLabels(self):
+        """The hint labels (the "hint" property in the .ui) in a muted, smaller
+        type, and the selected field's name large. Colours from the palette, so
+        they follow File > Appearance."""
+        for label in self.findChildren(QLabel):
+            if label.property("hint"):
+                label.setForegroundRole(QPalette.ColorRole.PlaceholderText)
+                font = QFont(label.font())
+                if font.pointSizeF() > 0:
+                    font.setPointSizeF(max(7.0, font.pointSizeF() * 0.9))
+                label.setFont(font)
+        name = self.ui.label_selectedInfo
+        font = QFont(name.font())
+        if font.pointSizeF() > 0:
+            font.setPointSizeF(font.pointSizeF() * 1.35)
+        font.setBold(True)
+        name.setFont(font)
+
+    def setupLayout(self):
+        """The three panes: Fields | viewer | Inspector. Fit the window to the
+        screen and restore the panes' widths (the side panes can be hidden:
+        dragged to the edge, or with a double-click on their divider)."""
+        splitter = self.ui.splitter_main
+        for index, (stretch, collapsible) in enumerate(
+            ((0, True), (1, False), (0, True))
+        ):
+            splitter.setStretchFactor(index, stretch)
+            splitter.setCollapsible(index, collapsible)
+        # The viewer column's toolbars are wider than this; it may be made
+        # narrower anyway (they are then cut off), so that the three panes fit a
+        # small screen.
+        self.ui.frame_source_view.setMinimumWidth(VIEWER_MIN_WIDTH)
+        for index in (1, 2):
+            splitter.handle(index).installEventFilter(self)
+        # the size of a pane before it was hidden, to show it again at that size
+        self.paneSizesBeforeHiding = {0: FIELDS_PANE_WIDTH, 2: INSPECTOR_WIDTH}
+
+        screen = self.screen()
+        width, height = DEFAULT_WINDOW_SIZE
+        if screen is not None:
+            available = screen.availableGeometry()
+            # leave room for the title bar and the window frame
+            width = min(width, available.width() - 16)
+            height = min(height, available.height() - 48)
+        self.resize(width, height)
+
+        stored = fetch_data("scoresight.json", PANE_SIZES_SETTING)
+        if (
+            isinstance(stored, list)
+            and len(stored) == 3
+            and all(isinstance(size, int) and size >= 0 for size in stored)
+            and stored[1] > 0
+        ):
+            splitter.setSizes(stored)
+            for index in (0, 2):
+                if stored[index] > 0:
+                    self.paneSizesBeforeHiding[index] = stored[index]
+        else:
+            splitter.setSizes(self.defaultPaneSizes(width))
+        # the two-pane layout before the Inspector
+        if fetch_data("scoresight.json", OLD_SPLITTER_STATE_SETTING) is not None:
+            remove_data("scoresight.json", OLD_SPLITTER_STATE_SETTING)
+        self.splitterSaveTimer = QTimer(self)
+        self.splitterSaveTimer.setSingleShot(True)
+        self.splitterSaveTimer.setInterval(BOXES_SAVE_DELAY_MS)
+        self.splitterSaveTimer.timeout.connect(self.saveSplitterState)
+        splitter.splitterMoved.connect(lambda *_: self.splitterSaveTimer.start())
+
+    def defaultPaneSizes(self, window_width: int) -> list[int]:
+        """[fields, viewer, inspector] for a window this wide: the side panes'
+        default widths, made narrower (down to their minimum) when the viewer
+        would get less than its toolbars need."""
+        splitter = self.ui.splitter_main
+        margins = self.ui.centralwidget.layout().contentsMargins()
+        total = (
+            window_width - margins.left() - margins.right() - 2 * splitter.handleWidth()
+        )
+        fields, inspector = FIELDS_PANE_WIDTH, INSPECTOR_WIDTH
+        # what the viewer's toolbars need, beyond what it gets
+        missing = self.ui.frame_source_view.minimumSizeHint().width() - (
+            total - fields - inspector
+        )
+        # taken from the Inspector first, then from the Fields pane
+        spare = inspector - self.ui.tabWidget_inspector.minimumSizeHint().width()
+        taken = max(0, min(missing, spare))
+        inspector -= taken
+        missing -= taken
+        spare = fields - self.ui.widget_leftPane.minimumSizeHint().width()
+        fields -= max(0, min(missing, spare))
+        return [fields, max(VIEWER_MIN_WIDTH, total - fields - inspector), inspector]
+
+    def saveSplitterState(self):
+        self.splitterSaveTimer.stop()
+        if not self.ui.splitter_main.isVisible():
+            # not laid out yet: its sizes mean nothing
+            return
+        sizes = self.ui.splitter_main.sizes()
+        if fetch_data("scoresight.json", PANE_SIZES_SETTING) != sizes:
+            self.globalSettingsChanged(PANE_SIZES_SETTING, sizes)
+
+    def isPaneHidden(self, index: int) -> bool:
+        return self.ui.splitter_main.sizes()[index] == 0
+
+    def setPaneHidden(self, index: int, hidden: bool):
+        """Hide (collapse) or show the Fields pane (0) or the Inspector (2); the
+        viewer gets or gives the room."""
+        splitter = self.ui.splitter_main
+        sizes = splitter.sizes()
+        if hidden == (sizes[index] == 0):
+            return
+        if hidden:
+            if splitter.isVisible():
+                self.paneSizesBeforeHiding[index] = sizes[index]
+            sizes[1] += sizes[index]
+            sizes[index] = 0
+        else:
+            size = self.paneSizesBeforeHiding.get(index) or (
+                FIELDS_PANE_WIDTH if index == 0 else INSPECTOR_WIDTH
+            )
+            sizes[index] = size
+            sizes[1] = max(VIEWER_MIN_WIDTH, sizes[1] - size)
+        splitter.setSizes(sizes)
+        self.saveSplitterState()
+
+    def applyRuntimeTexts(self):
+        """Set the texts that are made at runtime: at startup and again after a
+        language change (retranslateUi resets them to the .ui texts)."""
+        self.updateWindowTitle()
+        self.updateBrowserEndpoints()
+        self.updatePauseUi()
+        self.updateSliderReadouts()
+        self.boxSettingsUiHandler.retranslate()
+        self.retranslateMenus()
+        self.applyShortcutHints()
+        self.updateObsUi()
+        self.destinationsModel.retranslate()
+        self.updateDestinationsListHeight()
+        self.statusBarWidgets.retranslate()
+        self.refreshLiveStatus()
+        self.updateZoomHintVisibility()
+        self.ui.comboBox_ocrModel.setItemText(
+            4, QCoreApplication.translate("MainWindow", "Load external model...")
+        )
+        self.updateFieldsHint()
+        self.updateFieldActions()
+        splitter = self.ui.splitter_main
+        splitter.handle(1).setToolTip(
+            QCoreApplication.translate(
+                "MainWindow",
+                "Drag to resize the fields list. Double-click to hide or show it.",
+            )
+        )
+        splitter.handle(2).setToolTip(
+            QCoreApplication.translate(
+                "MainWindow",
+                "Drag to resize the Box and Outputs settings. Double-click to hide "
+                "or show them.",
+            )
+        )
+
+    def retranslateMenus(self):
+        names = {
+            "System": QCoreApplication.translate("MainWindow", "System"),
+            "Light": QCoreApplication.translate("MainWindow", "Light"),
+            "Dark": QCoreApplication.translate("MainWindow", "Dark"),
+        }
+        for action in self.appearance_actions.actions():
+            action.setText(names.get(action.data(), action.data()))
+
+    def applyShortcutHints(self):
+        """Add the keyboard shortcut to the tooltips of the buttons that have
+        one ("... (Ctrl+B)"); ⌘ on macOS."""
+        for button, action in (
+            (self.ui.pushButton_stopUpdates, self.ui.actionPauseOutputs),
+            (self.ui.pushButton_binary, self.ui.actionBinaryView),
+            (self.ui.toolButton_zoomReset, self.ui.actionFitPicture),
+            (self.ui.pushButton_refresh_sources, self.ui.actionReloadSources),
+            (self.ui.toolButton_addBox, self.ui.actionNewField),
+            (self.ui.toolButton_removeBox, self.ui.actionDeleteField),
+            (self.ui.toolButton_cleanupBinary, self.ui.actionBinaryView),
+        ):
+            shortcut = action.shortcut().toString(
+                QKeySequence.SequenceFormat.NativeText
+            )
+            tooltip = button.toolTip()
+            if shortcut and f"({shortcut})" not in tooltip:
+                button.setToolTip(f"{tooltip} ({shortcut})".strip())
+        # the zoom hint, also when the label is hidden for lack of room
+        zoom_tip = self.ui.toolButton_zoomReset.toolTip()
+        hint = self.ui.label_11.text()
+        if hint and hint not in zoom_tip:
+            self.ui.toolButton_zoomReset.setToolTip(f"{zoom_tip}\n{hint}")
+
+    def updateZoomHintVisibility(self):
+        """Show the "Ctrl-scroll to zoom" hint only when the view tools row has
+        room for it: it never makes the window wider."""
+        row = self.ui.widget_viewTools
+        hint = self.ui.label_11
+        layout = row.layout()
+        needed = layout.contentsMargins().left() + layout.contentsMargins().right()
+        visible = 0
+        for index in range(layout.count()):
+            widget = layout.itemAt(index).widget()
+            if widget is None or widget is hint or widget.isHidden():
+                continue
+            needed += widget.sizeHint().width()
+            visible += 1
+        needed += layout.spacing() * visible + hint.sizeHint().width()
+        hint.setVisible(row.width() >= needed)
+
     def updateWindowTitle(self):
         title = f"ScoreSight - v{__version__}"
         profile = get_profile()
         if profile:
             title += f" [{profile}]"
+        if self.outputsPausedAt is not None:
+            # visible in the taskbar too
+            title = f"⏸ {title}"
         self.setWindowTitle(title)
 
     def updateBrowserEndpoints(self):
-        """Show the HTTP server's real port in the Browser tab, or that the
-        server isn't running (its port was busy)."""
+        """Show the HTTP server's real port on its page, and its address for
+        other computers, or that the server isn't running (its port was
+        busy)."""
         port = get_http_server_port()
         if port is None:
             self.ui.label_8.setText(
@@ -507,12 +943,22 @@ class MainWindow(QMainWindow):
                 ).format(port=self.http_port)
             )
             return
-        # the Browser tab's links are written for the default port
-        self.ui.label_8.setText(
-            self.ui.label_8.text().replace(
-                f"localhost:{DEFAULT_HTTP_PORT}", f"localhost:{port}"
-            )
+        # the page's links are written for the default port
+        text = self.browserEndpointsTemplate.replace(
+            f"localhost:{DEFAULT_HTTP_PORT}", f"localhost:{port}"
         )
+        if self.lanAddress:
+            url = f"http://{self.lanAddress}:{port}"
+            other_computers = QCoreApplication.translate(
+                "MainWindow",
+                "<p>From other computers on your network, use {url} instead of "
+                "http://localhost:{port}.</p>",
+            ).format(url=f'<a href="{url}/scoresight">{url}</a>', port=port)
+            if "</body>" in text:
+                text = text.replace("</body>", other_computers + "</body>", 1)
+            else:
+                text += other_computers
+        self.ui.label_8.setText(text)
 
     def setupChoiceSetting(self, combo_box, setting_name: str, values: tuple):
         """Bind a combo box whose items are values (their text may be translated)
@@ -611,13 +1057,49 @@ class MainWindow(QMainWindow):
         store_data("scoresight.json", settingName, value)
 
     def eventFilter(self, obj, event):
-        if event.type() == QEvent.KeyPress:
+        if (
+            event.type() == QEvent.Type.KeyPress
+            and obj is self.ui.tableWidget_boxes
+            and event.matches(QKeySequence.StandardKey.Copy)
+        ):
+            # Ctrl+C in the fields list: the value, not the name
+            self.copyFieldValue()
+            return True
+        if event.type() == QEvent.KeyPress and obj is self:
+            # (a key the focused widget doesn't use reaches the window last)
             if event.key() == Qt.Key_Escape:
                 # deselect any selected item
                 self.itemSelected(None)
                 if self.image_viewer is not None:
                     self.image_viewer.selectBox(None)
+        elif event.type() == QEvent.Type.Resize and obj is self.ui.widget_viewTools:
+            self.updateZoomHintVisibility()
+        elif (
+            event.type() == QEvent.Type.EnabledChange
+            and obj is self.ui.groupBox_sb_info
+        ):
+            self.updateFieldsHint()
+        elif event.type() == QEvent.Type.MouseButtonDblClick:
+            # a double-click on a divider hides or shows the pane beside it
+            splitter = self.ui.splitter_main
+            for handle, pane in ((1, 0), (2, 2)):
+                if obj is splitter.handle(handle):
+                    self.setPaneHidden(pane, not self.isPaneHidden(pane))
+                    return True
         return super().eventFilter(obj, event)
+
+    def changeEvent(self, event):
+        # File > Appearance or the system switched between light and dark: the
+        # state colours follow the palette
+        if event.type() in (
+            QEvent.Type.PaletteChange,
+            QEvent.Type.ApplicationPaletteChange,
+        ) and hasattr(self, "statusBarWidgets"):
+            self.updatePauseUi()
+            self.refreshLiveStatus()
+            # an invalid format's red
+            self.boxSettingsUiHandler.updateFormatState()
+        super().changeEvent(event)
 
     def changeLanguage(self, locale):
         locale_file = resource_path("translations", f"scoresight_{locale}.qm")
@@ -627,6 +1109,8 @@ class MainWindow(QMainWindow):
             return
         # used at the next start instead of the system language
         self.globalSettingsChanged("language", locale)
+        for action in self.language_actions.actions():
+            action.setChecked(action.data() == locale)
         appInstance = QApplication.instance()
         if appInstance:
             logger.info(f"installing translator for {locale}")
@@ -638,16 +1122,12 @@ class MainWindow(QMainWindow):
             except Exception as e:
                 logger.error(f"Error retranslating UI: {e}")
             # retranslateUi resets these texts to their .ui defaults
-            self.updateWindowTitle()
-            self.updateBrowserEndpoints()
-            self.updateStopUpdatesButtonText()
+            self.browserEndpointsTemplate = self.ui.label_8.text()
             self.ui.lineEdit_sceneName.setText(scene_name)
             self.ui.toolButton_speed.setText(speed)
             self.vmixUiHandler.restoreUiState()
             self.unoUiHandler.restoreUiState()
-
-    def addLanguageOption(self, menu: QMenu, language_name: str, locale: str):
-        menu.addAction(language_name, lambda: self.changeLanguage(locale))
+            self.applyRuntimeTexts()
 
     def toggleUpdateOnChange(self, value):
         self.globalSettingsChanged("update_on_change", value)
@@ -706,6 +1186,282 @@ class MainWindow(QMainWindow):
     def detectionCadenceChanged(self, detections_per_second):
         # the capture thread follows the detection_cadence setting
         self.globalSettingsChanged("detection_cadence", detections_per_second)
+
+    def updateSliderReadouts(self, *_):
+        """Show the values of the Detections / s and Save / s sliders."""
+        for slider, label in (
+            (
+                self.ui.horizontalSlider_detectionCadence,
+                self.ui.label_detectionCadenceValue,
+            ),
+            (self.ui.horizontalSlider_aggsPerSecond, self.ui.label_aggsPerSecondValue),
+        ):
+            text = QCoreApplication.translate("MainWindow", "{value} /s").format(
+                value=slider.value()
+            )
+            widest = QCoreApplication.translate("MainWindow", "{value} /s").format(
+                value=slider.maximum()
+            )
+            label.setText(text)
+            label.setMinimumWidth(
+                QFontMetrics(label.font()).horizontalAdvance(widest) + 2
+            )
+            slider.setAccessibleDescription(text)
+
+    def refreshLiveStatus(self):
+        """Once a second (and when an output is turned on or off): the
+        outputs' statuses, the status bar, and the boxes list (the readings'
+        ages)."""
+        now = time.monotonic()
+        if now - self.lanAddressCheckedAt > 30:
+            # the network may have changed (no traffic: a route lookup)
+            lan_address = primary_lan_address()
+            self.lanAddressCheckedAt = now
+            if lan_address != self.lanAddress:
+                self.lanAddress = lan_address
+                self.updateBrowserEndpoints()
+        outputs = self.refreshDestinations(now)
+        self.statusBarWidgets.update(self.statusSnapshot(now, outputs))
+        cadence = self.ui.horizontalSlider_detectionCadence.value()
+        # stale after 20 detection cycles (at least 10 s)
+        self.readingDelegate.setStaleAfter(20.0 / max(cadence, 0.1))
+        self.ui.tableWidget_boxes.viewport().update()
+
+    def statusSnapshot(
+        self,
+        now: float | None = None,
+        outputs: list[DestinationStatus] | None = None,
+    ) -> StatusSnapshot:
+        """What the status bar shows, from what the window already knows."""
+        now = time.monotonic() if now is None else now
+        if outputs is None:
+            outputs = self.destinationStatuses(now)
+        values = {"outputs": tuple(outputs), "now": now}
+        viewer = self.image_viewer
+        if viewer is not None:
+            values["source_name"] = source_display_name(viewer.getCameraInfo())
+            thread = getattr(viewer, "timerThread", None)
+            last_frame = getattr(thread, "last_frame_timestamp", None)
+            if self.sourceError:
+                state = SOURCE_ERROR
+            elif not getattr(viewer, "firstFrameReceived", False):
+                state = SOURCE_OPENING
+            elif last_frame is None or now - last_frame > SOURCE_STALL_S:
+                state = SOURCE_STALLED
+            else:
+                state = SOURCE_RUNNING
+            values["source_state"] = state
+            # the capture thread's counters (written by it, read here)
+            frame_size = getattr(thread, "frame_size", None)
+            if frame_size:
+                values["resolution"] = tuple(frame_size)
+            values["fps"] = getattr(thread, "fps", None)
+            values["ocr_rate"] = getattr(thread, "ups", None)
+            interval = getattr(thread, "update_frame_interval", None)
+            if interval:
+                values["ocr_target"] = round(1000.0 / max(interval, 1), 2)
+        else:
+            values["source_state"] = SOURCE_NONE
+        if self.outputsPausedMonotonic is not None:
+            values["paused_seconds"] = now - self.outputsPausedMonotonic
+        port = get_http_server_port()
+        if port is None:
+            values["http_port"] = self.http_port
+        else:
+            urls = http_server_urls(port, self.lanAddress)
+            values["http_url"] = urls[0]
+            values["http_urls"] = urls
+            values["http_port"] = port
+        return StatusSnapshot(**values)
+
+    # --- the outputs: destinations and their status --------------------------------
+
+    def setupDestinations(self):
+        """The destinations list: a row per output (with its switch and status)
+        that shows the output's page below it."""
+        view = self.ui.listView_destinations
+        self.destinationsModel = DestinationsModel(self)
+        self.destinationDelegate = DestinationDelegate(view)
+        view.setModel(self.destinationsModel)
+        view.setItemDelegate(self.destinationDelegate)
+        view.selectionModel().currentRowChanged.connect(self.destinationSelected)
+        view.setCurrentIndex(self.destinationsModel.index(0, 0))
+        self.destinationsModel.toggleRequested.connect(self.destinationToggleRequested)
+        self.ui.frame_destinationStatus.hide()
+        self.updateDestinationsListHeight()
+        # The list over the selected output's page; the divider between them
+        # can be dragged to give the page (e.g. a mapping table) more room. At
+        # first the list shows every output.
+        splitter = self.ui.splitter_outputs
+        splitter.setStretchFactor(0, 0)
+        splitter.setStretchFactor(1, 1)
+        splitter.setSizes([self.destinationsListHeight(), 10000])
+        # the controls the switches mirror: show their changes right away
+        for signal in (
+            self.ui.pushButton_startvmix.toggled,
+            self.ui.toolButton_toggleUno.toggled,
+            self.ui.checkBox_enableOutAPI.toggled,
+        ):
+            signal.connect(lambda *_: self.refreshLiveStatus())
+
+    def destinationsListHeight(self, rows: int | None = None) -> int:
+        """The height of the destinations list showing rows rows (all of
+        them by default)."""
+        view = self.ui.listView_destinations
+        if rows is None:
+            rows = self.destinationsModel.rowCount()
+        row_height = self.destinationDelegate.rowHeight(view.font())
+        return rows * row_height + 2 * view.frameWidth()
+
+    def updateDestinationsListHeight(self):
+        """The destinations list can be made shorter (it scrolls then), down to
+        DESTINATIONS_LIST_MIN_ROWS rows."""
+        self.ui.listView_destinations.setMinimumHeight(
+            self.destinationsListHeight(DESTINATIONS_LIST_MIN_ROWS)
+        )
+
+    def destinationSelected(self, current, previous=None):
+        if current.isValid():
+            self.ui.stackedWidget_outputs.setCurrentIndex(current.row())
+        self.updateDestinationDetails()
+
+    def showDestination(self, key: str):
+        """Select a destination (e.g. clicked in the status bar): the Inspector
+        shows the Outputs tab (also when it was hidden) with its page."""
+        self.setPaneHidden(2, False)
+        self.ui.tabWidget_inspector.setCurrentWidget(self.ui.widget_outputs)
+        view = self.ui.listView_destinations
+        index = self.destinationsModel.index(self.destinationsModel.rowOf(key), 0)
+        view.setCurrentIndex(index)
+        view.scrollTo(index)
+        view.setFocus(Qt.FocusReason.OtherFocusReason)
+
+    def destinationToggleRequested(self, key: str, on: bool):
+        """A destination's switch was clicked: operate the output's own control,
+        which stays the source of truth (the switch shows its state)."""
+        if key == output_status.FILES:
+            if on:
+                # a modal dialog: not from inside the list's event handling
+                QTimer.singleShot(0, self.selectOutputFolder)
+            else:
+                self.clearOutputFolder()
+        elif key == output_status.OBS:
+            if on:
+                self.openOBSConnectModal()
+            else:
+                self.disconnectObs()
+        elif key == output_status.VMIX:
+            self.ui.pushButton_startvmix.setChecked(on)
+        elif key == output_status.UNO:
+            self.ui.toolButton_toggleUno.setChecked(on)
+        elif key == output_status.API:
+            self.ui.checkBox_enableOutAPI.setChecked(on)
+        self.refreshLiveStatus()
+
+    def destinationStatuses(self, now: float) -> list[DestinationStatus]:
+        """The status of every output, from snapshots (nothing here waits for
+        the network)."""
+        port = get_http_server_port()
+        urls = http_server_urls(port, self.lanAddress) if port is not None else ()
+        vmix = self.vmixUiHandler.vmixUpdater
+        uno = self.unoUiHandler.unoUpdater
+        method_index = self.ui.comboBox_outApiMethod.currentIndex()
+        encoding_index = self.ui.comboBox_api_encode.currentIndex()
+        return [
+            output_status.files_status(
+                self.out_folder, self.fileOutput.status(), self.outputFolderLost
+            ),
+            output_status.http_status(
+                port, self.http_port, urls, http_server_stats(now)
+            ),
+            self.obsDestinationStatus(),
+            output_status.vmix_status(
+                vmix.running,
+                vmix.host,
+                vmix.port,
+                vmix.input_number,
+                vmix.field_mapping,
+                vmix.status(),
+            ),
+            output_status.uno_status(
+                uno.running, uno.endpoint, uno.field_mapping, uno.status()
+            ),
+            output_status.api_status(
+                self.ui.checkBox_enableOutAPI.isChecked(),
+                self.ui.lineEdit_api_url.text(),
+                OUT_API_METHODS[method_index]
+                if 0 <= method_index < len(OUT_API_METHODS)
+                else "POST",
+                OUT_API_ENCODINGS[encoding_index]
+                if 0 <= encoding_index < len(OUT_API_ENCODINGS)
+                else OUT_API_ENCODINGS[0],
+                out_api_status(),
+            ),
+        ]
+
+    def obsDestinationStatus(self) -> DestinationStatus:
+        client = self.obs_websocket_client
+        address = None
+        if client is not None:
+            address = self.obsAddress or obs_client_address(client) or "OBS"
+        has_sources = any(
+            (box.settings or {}).get("obs_source_name")
+            for box in self.detectionTargetsStorage.get_data()
+        )
+        return output_status.obs_status(
+            address,
+            self.obsConnecting,
+            self.obsConnectError,
+            obs_output_status() if client is not None else None,
+            connected_at=self.obsConnectedAt,
+            has_sources=has_sources,
+            connect_target=self.obsConnectTarget,
+        )
+
+    def refreshDestinations(self, now: float | None = None) -> list[DestinationStatus]:
+        """Show every output's status in the destinations list."""
+        now = time.monotonic() if now is None else now
+        statuses = self.destinationStatuses(now)
+        self.destinationsModel.setStatuses(statuses)
+        # the times of the last activity
+        self.ui.listView_destinations.viewport().update()
+        self.updateDestinationDetails(now)
+        return statuses
+
+    def updateDestinationDetails(self, now: float | None = None):
+        """Over the selected destination's page: its problem, if it has one, and
+        what to do about it."""
+        now = time.monotonic() if now is None else now
+        frame = self.ui.frame_destinationStatus
+        label = self.ui.label_destinationStatus
+        index = self.ui.listView_destinations.currentIndex()
+        status = index.data(STATUS_ROLE) if index.isValid() else None
+        if status is None or not status.has_problem:
+            frame.hide()
+            return
+        palette = self.palette()
+        color = theme.color(STATE_COLORS[status.state], palette)
+        text = (
+            f'<b><span style="color:{color.name()}">{STATE_GLYPHS[status.state]}'
+            f"</span> {html.escape(status.detail, quote=False)}</b>"
+        )
+        if status.hint:
+            text += f"<br>{html.escape(status.hint, quote=False)}"
+        if label.text() != text:
+            label.setText(text)
+        label.setToolTip(status_tooltip(status, now))
+        label.setAccessibleName(
+            f"{output_status.destination_name(status.key)}: {status.detail}"
+        )
+        style_sheet = (
+            "QFrame#frame_destinationStatus {"
+            f" background-color: {theme.tint(STATE_COLORS[status.state], palette).name()};"
+            f" border: 1px solid {color.name()}; border-left: 4px solid {color.name()};"
+            " border-radius: 3px; }"
+        )
+        if frame.styleSheet() != style_sheet:
+            frame.setStyleSheet(style_sheet)
+        frame.show()
 
     def ocrModelChanged(self, index: int | str):
         ocrModel = None
@@ -804,17 +1560,76 @@ class MainWindow(QMainWindow):
         self.image_viewer.toggleStabilization(self.ui.pushButton_stabilize.isChecked())
 
     def toggleStopUpdates(self, value):
+        """Pause outputs (checked) or resume them. The readings keep updating in
+        the window; only the outputs freeze."""
         self.updateOCRResults = not value
-        self.updateStopUpdatesButtonText()
+        if value:
+            self.outputsPausedAt = datetime.now()
+            self.outputsPausedMonotonic = time.monotonic()
+            self.resendAfterPause = set()
+            logger.info("Outputs paused")
+        else:
+            if self.outputsPausedAt is not None:
+                logger.info("Outputs resumed")
+                # values that changed while paused are unchanged readings now
+                self.resendAfterPause = {
+                    box.name for box in self.detectionTargetsStorage.get_data()
+                }
+            self.outputsPausedAt = None
+            self.outputsPausedMonotonic = None
+        self.updatePauseUi()
+        self.refreshLiveStatus()
 
-    def updateStopUpdatesButtonText(self):
+    def updatePauseUi(self):
+        """Show whether the outputs are paused: the button (amber while paused),
+        the banner over the viewer, the window title and the boxes list."""
+        paused = self.ui.pushButton_stopUpdates.isChecked()
+        button = self.ui.pushButton_stopUpdates
         # QCoreApplication.translate falls back to the source text when a
         # translation is missing (QTranslator.translate returns "")
-        self.ui.pushButton_stopUpdates.setText(
-            QCoreApplication.translate("MainWindow", "Resume Updates")
-            if self.ui.pushButton_stopUpdates.isChecked()
-            else QCoreApplication.translate("MainWindow", "Stop Updates")
+        button.setText(
+            QCoreApplication.translate("MainWindow", "Resume outputs")
+            if paused
+            else QCoreApplication.translate("MainWindow", "Pause outputs")
         )
+        palette = self.palette()
+        amber = theme.color("paused", palette).name()
+        on_amber = theme.on_color(palette).name()
+        button.setIcon(
+            theme.media_icon("play", theme.on_color(palette))
+            if paused
+            else theme.media_icon("pause", theme.button_text_color(palette))
+        )
+        button.setStyleSheet(
+            "QPushButton#pushButton_stopUpdates:checked {"
+            f" background-color: {amber}; color: {on_amber};"
+            f" border: 1px solid {amber}; border-radius: 3px;"
+            " padding: 4px 8px; font-weight: bold; }"
+        )
+
+        banner = self.ui.frame_pausedBanner
+        banner.setVisible(paused)
+        if paused and self.outputsPausedAt is not None:
+            self.ui.label_pausedBanner.setText(
+                QCoreApplication.translate(
+                    "MainWindow",
+                    "<b>Outputs paused</b> since {time}. Your graphics show the "
+                    "last values sent; the readings here keep updating.",
+                ).format(time=self.outputsPausedAt.strftime("%H:%M:%S"))
+            )
+        banner.setStyleSheet(
+            "QFrame#frame_pausedBanner {"
+            f" background-color: {theme.paused_tint(palette).name()};"
+            f" border: 1px solid {amber}; border-left: 4px solid {amber}; }}"
+        )
+        self.ui.pushButton_resumeOutputs.setIcon(
+            theme.media_icon("play", theme.button_text_color(palette))
+        )
+        self.vmixUiHandler.refreshToggleButton()
+        self.unoUiHandler.refreshToggleButton()
+        self.updateWindowTitle()
+        self.readingDelegate.setPaused(paused)
+        self.ui.tableWidget_boxes.viewport().update()
 
     def selectOutputFolder(self):
         # open a Qt dialog to select the output folder
@@ -830,55 +1645,105 @@ class MainWindow(QMainWindow):
     def setOutputFolder(self, folder: str):
         self.ui.lineEdit_folder.setText(folder)
         self.out_folder = folder
+        self.outputFolderLost = None
         self.globalSettingsChanged("output_folder", folder)
         # write the current values to the new folder right away
         self.scheduleFileOutputFlush()
+        self.refreshLiveStatus()
 
     def clearOutputFolder(self):
         # clear the output folder
         self.ui.lineEdit_folder.setText("")
         self.out_folder = None
+        self.outputFolderLost = None
         remove_data("scoresight.json", "output_folder")
+        self.refreshLiveStatus()
+
+    # --- the boxes list -------------------------------------------------------------
+
+    def appendBoxRow(self, name: str) -> QTableWidgetItem:
+        """Add a row for a box to the boxes list; returns its name item."""
+        table = self.ui.tableWidget_boxes
+        row = table.rowCount()
+        table.insertRow(row)
+        item = QTableWidgetItem(name)
+        table.setItem(row, 0, item)
+        # the reading: enabled (so it isn't drawn greyed out), not selectable
+        # or editable (the name item stays the current item)
+        valueItem = QTableWidgetItem()
+        valueItem.setFlags(Qt.ItemFlag.ItemIsEnabled)
+        table.setItem(row, 1, valueItem)
+        return item
+
+    def boxNameItem(self, name: str) -> QTableWidgetItem | None:
+        """The name item (column 0) of a box in the boxes list. findItems also
+        matches the Value column, which may hold the same text."""
+        for item in self.ui.tableWidget_boxes.findItems(
+            name, Qt.MatchFlag.MatchExactly
+        ):
+            if item.column() == 0:
+                return item
+        return None
+
+    def boxValueItem(self, name: str) -> QTableWidgetItem | None:
+        """The Value item (column 1) of a box in the boxes list."""
+        item = self.boxNameItem(name)
+        if item is None:
+            return None
+        return self.ui.tableWidget_boxes.item(item.row(), 1)
+
+    def nameItemOfRow(self, item: QTableWidgetItem | None) -> QTableWidgetItem | None:
+        if item is None or item.column() == 0:
+            return item
+        return self.ui.tableWidget_boxes.item(item.row(), 0)
+
+    def keepNameCellCurrent(self, row, column, previous_row, previous_column):
+        # e.g. a click on a reading or the arrow keys: the row's name becomes
+        # the current item
+        if column != 0 and row >= 0:
+            self.ui.tableWidget_boxes.setCurrentCell(row, 0)
 
     def detectionTargetsChanged(self, detectionTargets: list[TextDetectionTarget]):
         for box in detectionTargets:
             logger.debug(f"Change: Detection target: {box.name}")
             # change the list icon to green checkmark
-            items = self.ui.tableWidget_boxes.findItems(
-                box.name, Qt.MatchFlag.MatchExactly
-            )
-            if len(items) == 0:
+            item = self.boxNameItem(box.name)
+            if item is None:
                 logger.warning(f"Item not found: {box.name}. Adding it to the list.")
                 # add the item to the list
-                self.ui.tableWidget_boxes.insertRow(
-                    self.ui.tableWidget_boxes.rowCount()
-                )
-                item = QTableWidgetItem(box.name)
-                self.ui.tableWidget_boxes.setItem(
-                    self.ui.tableWidget_boxes.rowCount() - 1, 0, item
-                )
-                disabledItem = QTableWidgetItem()
-                disabledItem.setFlags(Qt.ItemFlag.NoItemFlags)
-                self.ui.tableWidget_boxes.setItem(
-                    self.ui.tableWidget_boxes.rowCount() - 1, 1, disabledItem
-                )
-            else:
-                item = items[0]
+                item = self.appendBoxRow(box.name)
 
             if box.settings is None or not box.settings["templatefield"]:
                 # this is a detection target
                 item.setIcon(QIcon(resource_path("icons", "circle-check.svg")))
-                item.setData(Qt.ItemDataRole.UserRole, "checked")
+                item.setData(Qt.ItemDataRole.UserRole, PLACED)
             else:
                 # this is a template field
                 item.setIcon(QIcon(resource_path("icons", "template-field.svg")))
-                item.setData(Qt.ItemDataRole.UserRole, "templatefield")
+                item.setData(Qt.ItemDataRole.UserRole, TEMPLATE)
+        # the fields whose box is gone (e.g. File > Import Configuration replaced
+        # the boxes) aren't on the picture any more
+        names = {box.name for box in detectionTargets}
+        table = self.ui.tableWidget_boxes
+        for row in range(table.rowCount()):
+            item = table.item(row, 0)
+            if item.text() in names or item.data(Qt.ItemDataRole.UserRole) in (
+                NOT_PLACED,
+                None,
+            ):
+                continue
+            item.setIcon(QIcon(resource_path("icons", "circle-x.svg")))
+            item.setData(Qt.ItemDataRole.UserRole, NOT_PLACED)
+            clear_reading(table.item(row, 1))
 
         self.vmixUiHandler.updatevMixTable(detectionTargets)
         self.unoUiHandler.updateUNOTable(detectionTargets)
         # Note: results.csv is not touched here. data_changed fires on every box
         # click and settings tweak; file_output starts a new CSV file by itself
         # when the set of boxes changes.
+        # the Box tab follows a change of the selected field's placement
+        self.fieldSelectionChanged()
+        self.updateFieldActions()
 
     def scheduleBoxesSave(self, *_):
         # (re)start the timer: a burst of edits (e.g. dragging a slider) is
@@ -890,49 +1755,256 @@ class MainWindow(QMainWindow):
         self.detectionTargetsStorage.saveBoxesToStorage()
 
     def listItemClicked(self, item):
-        user_role = item.data(Qt.ItemDataRole.UserRole)
-        if user_role in ["checked", "templatefield"] and item.column() == 0:
-            # enable the remove box button and disable the make box button
-            self.ui.pushButton_makeBox.setEnabled(False)
-            self.ui.pushButton_removeBox.setEnabled(user_role == "checked")
-            self.ui.groupBox_target_settings.setEnabled(user_role == "checked")
-            self.boxSettingsUiHandler.populateSettings(item.text())
-        else:
-            # enable the make box button and disable the remove box button
-            self.ui.pushButton_removeBox.setEnabled(False)
-            self.ui.pushButton_makeBox.setEnabled(item.column() == 0)
-            self.ui.groupBox_target_settings.setEnabled(False)
-            self.boxSettingsUiHandler.populateSettings("")
-
-        if item.column() == 0:
-            # if this is not a default box - enable the template field checkbox
-            if item.text() not in [box["name"] for box in default_boxes]:
-                self.ui.checkBox_templatefield.setEnabled(True)
-                self.ui.lineEdit_templatefield.setEnabled(True)
-            else:
-                self.ui.checkBox_templatefield.setEnabled(False)
-                self.ui.lineEdit_templatefield.setEnabled(False)
+        # a click on a reading selects its box
+        if item.column() != 0:
+            item = self.nameItemOfRow(item)
+            if item is None:
+                return
+            self.ui.tableWidget_boxes.setCurrentItem(item)
+        # the Box tab shows the field's settings
+        self.boxSettingsUiHandler.showField(
+            item.text(),
+            item.data(Qt.ItemDataRole.UserRole),
+            custom=self.isCustomField(item.text()),
+        )
+        self.updateFieldActions()
 
         # notify the image viewer to select the box
         if self.image_viewer:
             self.image_viewer.selectBox(item.text())
 
+    # --- the Fields pane: the selected field's actions ------------------------------
+
+    @staticmethod
+    def isCustomField(name: str) -> bool:
+        return name not in [box["name"] for box in default_boxes]
+
+    def currentFieldItem(self) -> QTableWidgetItem | None:
+        """The name item of the selected field, if any."""
+        table = self.ui.tableWidget_boxes
+        item = self.nameItemOfRow(table.currentItem())
+        if item is None or not item.isSelected():
+            return None
+        return item
+
+    def fieldSelectionChanged(self):
+        item = self.currentFieldItem()
+        handler = self.boxSettingsUiHandler
+        if item is None:
+            if handler.fieldName is not None:
+                handler.showField(None)
+            self.updateFieldActions()
+        elif (item.text(), item.data(Qt.ItemDataRole.UserRole)) != (
+            handler.fieldName,
+            handler.fieldRole,
+        ):
+            self.listItemClicked(item)
+
+    def updateFieldsHint(self):
+        # the fields list is disabled until a source shows a picture
+        self.ui.label_fieldsHint.setVisible(not self.ui.groupBox_sb_info.isEnabled())
+
+    def updateFieldActions(self):
+        """Enable the selected field's actions, and show the footer's buttons
+        that apply to it: Place on picture or Remove from picture, and Delete
+        field for a custom field."""
+        ui = self.ui
+        item = self.currentFieldItem()
+        role = item.data(Qt.ItemDataRole.UserRole) if item is not None else None
+        custom = item is not None and self.isCustomField(item.text())
+        placed = role == PLACED
+        value_item = (
+            ui.tableWidget_boxes.item(item.row(), 1) if item is not None else None
+        )
+        ui.actionPlaceOnPicture.setEnabled(role == NOT_PLACED)
+        ui.actionRemoveFromPicture.setEnabled(placed)
+        ui.actionRenameField.setEnabled(custom)
+        ui.actionDeleteField.setEnabled(custom)
+        ui.actionResetFieldSettings.setEnabled(placed)
+        ui.actionCopyValue.setEnabled(
+            value_item is not None and bool(value_item.text())
+        )
+        # (also called while the boxes load, before there is an image_viewer)
+        viewer = getattr(self, "image_viewer", None)
+        ui.actionZoomToBox.setEnabled(placed and viewer is not None)
+        # (a template field has no box: neither applies)
+        ui.pushButton_makeBox.setVisible(not placed and role != TEMPLATE)
+        ui.pushButton_makeBox.setEnabled(role == NOT_PLACED)
+        ui.pushButton_removeBox.setVisible(placed)
+        ui.pushButton_removeBox.setEnabled(placed)
+        ui.toolButton_removeBox.setVisible(custom)
+        ui.toolButton_removeBox.setEnabled(custom)
+
+    def fieldContextMenu(self) -> QMenu:
+        """The selected field's context menu (with the keys of its actions)."""
+        ui = self.ui
+        self.updateFieldActions()
+        menu = QMenu(self)
+        # the disabled actions say why
+        menu.setToolTipsVisible(True)
+        item = self.currentFieldItem()
+        if item is not None and item.data(Qt.ItemDataRole.UserRole) == PLACED:
+            menu.addAction(ui.actionRemoveFromPicture)
+        else:
+            menu.addAction(ui.actionPlaceOnPicture)
+        menu.addAction(ui.actionRenameField)
+        menu.addAction(ui.actionDeleteField)
+        menu.addSeparator()
+        menu.addAction(ui.actionResetFieldSettings)
+        menu.addAction(ui.actionCopyValue)
+        # A "Hold value..." action (send a value typed in instead of the
+        # readings, until released) belongs here, before Zoom to box.
+        menu.addAction(ui.actionZoomToBox)
+        standard_only = QCoreApplication.translate(
+            "MainWindow", "Only custom fields can be renamed or deleted"
+        )
+        for action in (ui.actionRenameField, ui.actionDeleteField):
+            action.setToolTip("" if action.isEnabled() else standard_only)
+        return menu
+
+    def showFieldContextMenu(self, pos):
+        table = self.ui.tableWidget_boxes
+        item = self.nameItemOfRow(table.itemAt(pos))
+        if item is None:
+            return
+        table.setCurrentItem(item)
+        self.listItemClicked(item)
+        menu = self.fieldContextMenu()
+        menu.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
+        menu.popup(table.viewport().mapToGlobal(pos))
+
+    def confirm(self, title: str, text: str, action_text: str) -> bool:
+        """Ask before a destructive action; True to go ahead."""
+        box = QMessageBox(QMessageBox.Icon.Question, title, text, parent=self)
+        go = box.addButton(action_text, QMessageBox.ButtonRole.DestructiveRole)
+        box.addButton(QMessageBox.StandardButton.Cancel)
+        box.setDefaultButton(QMessageBox.StandardButton.Cancel)
+        box.exec()
+        confirmed = box.clickedButton() is go
+        box.deleteLater()
+        return confirmed
+
+    def placeOnPicture(self):
+        """Place on picture: the field's box, then its settings in the Box tab."""
+        if self.currentFieldItem() is None:
+            return
+        self.makeBox()
+        self.ui.tabWidget_inspector.setCurrentWidget(self.ui.tab_box)
+
+    def removeFromPicture(self):
+        """Remove from picture, after asking when the box's settings (which are
+        lost) differ from the defaults."""
+        item = self.currentFieldItem()
+        if item is None or item.data(Qt.ItemDataRole.UserRole) != PLACED:
+            return
+        box = self.detectionTargetsStorage.find_item_by_name(item.text())
+        changed = changed_settings(box.settings, box.name) if box is not None else []
+        if changed and not self.confirm(
+            QCoreApplication.translate("MainWindow", "Remove from picture"),
+            QCoreApplication.translate(
+                "MainWindow",
+                "Remove “{name}” from the picture? Its settings go back to the "
+                "defaults, so the settings you changed are lost.",
+            ).format(name=item.text()),
+            QCoreApplication.translate("MainWindow", "Remove"),
+        ):
+            return
+        self.removeBox()
+
+    def deleteField(self):
+        """Delete field, after asking: the custom field, its box and settings."""
+        item = self.currentFieldItem()
+        if item is None or not self.isCustomField(item.text()):
+            return
+        if not self.confirm(
+            QCoreApplication.translate("MainWindow", "Delete field"),
+            QCoreApplication.translate(
+                "MainWindow",
+                "Delete the field “{name}”? Its box and its settings are deleted too.",
+            ).format(name=item.text()),
+            QCoreApplication.translate("MainWindow", "Delete"),
+        ):
+            return
+        self.removeCustomBox()
+
+    def renameField(self):
+        item = self.currentFieldItem()
+        if item is not None:
+            self.editBoxName(item)
+
+    def copyFieldValue(self):
+        """Copy the selected field's value (its last good reading)."""
+        item = self.currentFieldItem()
+        if item is None:
+            return
+        value = self.ui.tableWidget_boxes.item(item.row(), 1).text()
+        if value:
+            QGuiApplication.clipboard().setText(value)
+
+    def zoomToBox(self):
+        """Zoom the picture in on the selected field's box (Fit shows it all
+        again)."""
+        item = self.currentFieldItem()
+        viewer = self.image_viewer
+        if item is None or viewer is None:
+            return
+        box = self.detectionTargetsStorage.find_item_by_name(item.text())
+        if box is None or box.width() <= 0 or box.height() <= 0:
+            return
+        # with some of the picture around it
+        margin = max(box.width(), box.height()) * 0.5
+        rect = QRectF(box).adjusted(-margin, -margin, margin, margin)
+        # The viewer fits the whole picture again when its viewport is resized,
+        # which zooming in does (its scroll bars appear), unless it is scaling:
+        # as for a Ctrl+wheel zoom (ImageViewer.wheelEvent).
+        scaling = hasattr(viewer, "resetScalingFlag")
+        if scaling:
+            viewer._isScaling = True
+        viewer.fitInView(rect, Qt.AspectRatioMode.KeepAspectRatio)
+        # no closer than the wheel zooms (3x)
+        if viewer.transform().m11() > MAX_ZOOM:
+            viewer.setTransform(QTransform.fromScale(MAX_ZOOM, MAX_ZOOM))
+            viewer.centerOn(rect.center())
+        if scaling:
+            QTimer.singleShot(0, viewer.resetScalingFlag)
+        viewer.selectBox(item.text())
+
     def openOBSConnectModal(self):
+        if self.obs_connect_modal is not None and self.obs_connect_modal.isVisible():
+            self.obs_connect_modal.raise_()
+            self.obs_connect_modal.activateWindow()
+            return
+        if self.obs_connect_modal is not None:
+            # a new dialog, in the current language
+            self.obs_connect_modal.deleteLater()
+
         # disable OBS options
         self.ui.lineEdit_sceneName.setEnabled(False)
         self.ui.checkBox_recreate.setEnabled(False)
         self.ui.pushButton_createOBSScene.setEnabled(False)
 
-        # load the ui from "connect_obs.ui"
+        # load the ui from "connect_obs.ui"; a child of the main window, so it
+        # stays in front of it
         self.obs_modal_ui = Ui_ConnectObs()
-        self.obs_connect_modal = QDialog()
+        self.obs_connect_modal = QDialog(self)
         self.obs_modal_ui.setupUi(self.obs_connect_modal)
-        self.obs_connect_modal.setWindowTitle("Connect to OBS")
+        self.obs_connect_modal.setWindowTitle(
+            QCoreApplication.translate("MainWindow", "Connect to OBS")
+        )
 
         # connect the "connect" button to a function
         self.obs_modal_ui.pushButton_connect.clicked.connect(
             lambda: self.connectObs(from_dialog=True)
         )
+        password = self.obs_modal_ui.lineEdit_password
+        self.obs_modal_ui.checkBox_showPassword.toggled.connect(
+            lambda show: password.setEchoMode(
+                QLineEdit.EchoMode.Normal if show else QLineEdit.EchoMode.Password
+            )
+        )
+        # closed without connecting (Cancel): the scene controls are usable
+        # again with the current connection
+        self.obs_connect_modal.rejected.connect(self.obsConnectDialogClosed)
 
         # load the saved data from scoresight.json
         obs_data = fetch_data("scoresight.json", "obs")
@@ -944,6 +2016,28 @@ class MainWindow(QMainWindow):
         self.obs_connect_modal.show()
         # focus the connect button
         self.obs_modal_ui.pushButton_connect.setFocus()
+
+    def obsConnectDialogClosed(self):
+        if not self.obs_modal_ui.pushButton_connect.isEnabled():
+            # Cancel while connecting: ignore that attempt's result (it would
+            # replace the current connection and store the cancelled settings)
+            self.obs_connect_attempt += 1
+            self.obsConnecting = None
+        connected = self.obs_websocket_client is not None
+        self.ui.lineEdit_sceneName.setEnabled(connected)
+        self.ui.checkBox_recreate.setEnabled(connected)
+        self.ui.pushButton_createOBSScene.setEnabled(connected)
+        self.updateObsUi()
+        self.refreshLiveStatus()
+
+    @staticmethod
+    def obsTarget(connection_info) -> str | None:
+        """The "host:port" of an OBS connection's settings."""
+        if not isinstance(connection_info, dict):
+            return None
+        host = str(connection_info.get("ip") or "").strip() or "localhost"
+        port = str(connection_info.get("port") or "").strip()
+        return f"{host}:{port}" if port else host
 
     def connectObs(self, from_dialog: bool = False):
         """Open a websocket connection to OBS, with the connect dialog's fields or
@@ -959,6 +2053,7 @@ class MainWindow(QMainWindow):
             self.obs_modal_ui.label_error.setText(
                 QCoreApplication.translate("MainWindow", "Connecting...")
             )
+            self.obs_modal_ui.label_error.setToolTip("")
         else:
             connection_info = fetch_data("scoresight.json", "obs")
             if not connection_info:
@@ -966,44 +2061,136 @@ class MainWindow(QMainWindow):
         # a newer attempt supersedes the ones still running
         self.obs_connect_attempt += 1
         attempt = self.obs_connect_attempt
+        self.obsConnecting = self.obsTarget(connection_info)
+
+        def attempt_connection():
+            client = open_obs_websocket(connection_info)
+            # why it failed (recorded on this thread)
+            return client, None if client else last_connect_error()
+
         run_in_background(
             "OBS connection",
-            partial(open_obs_websocket, connection_info),
-            lambda client: self.obs_connection_result.emit(
-                client, attempt, from_dialog, connection_info
+            attempt_connection,
+            lambda result: self.obs_connection_result.emit(
+                result, attempt, from_dialog, connection_info
             ),
         )
+        self.updateObsUi()
+        if hasattr(self, "statusBarWidgets"):
+            self.refreshLiveStatus()
 
     @Slot(object, int, bool, object)
-    def obsConnectionResult(self, client, attempt, from_dialog, connection_info):
+    def obsConnectionResult(self, result, attempt, from_dialog, connection_info):
+        client, error = result if isinstance(result, tuple) else (result, None)
         if attempt != self.obs_connect_attempt:
             self.closeObsClient(client)
             return
+        self.obsConnecting = None
         if from_dialog and self.obs_connect_modal is not None:
             self.obs_modal_ui.pushButton_connect.setEnabled(True)
         if not client:
+            target = self.obsTarget(connection_info)
+            self.obsConnectError = error or ErrorInfo(ConnectionError, "")
+            self.obsConnectTarget = target
             # show error in label_error
             if from_dialog and self.obs_connect_modal is not None:
+                problem = describe_error(
+                    output_status.OBS, self.obsConnectError, target
+                )
                 self.obs_modal_ui.label_error.setText(
                     QCoreApplication.translate("MainWindow", "Cannot connect to OBS")
+                    + "\n"
+                    + problem.detail
                 )
+                self.obs_modal_ui.label_error.setToolTip(problem.hint)
+            self.updateObsUi()
+            self.refreshLiveStatus()
             return
 
         # connection was successful
         self.closeObsClient(self.obs_websocket_client)
         self.obs_websocket_client = client
+        self.obsAddress = obs_client_address(client) or self.obsTarget(connection_info)
+        self.obsConnectedAt = time.monotonic()
+        self.obsConnectError = None
         # send every current value to the (new) connection
         self.obs_last_sent.clear()
         if from_dialog:
             store_data("scoresight.json", "obs", connection_info)
             if self.obs_connect_modal is not None:
                 self.obs_connect_modal.close()
+        if fetch_data("scoresight.json", OBS_AUTO_CONNECT_SETTING, True) is not True:
+            # connected again after a Disconnect: also at the next start
+            store_data("scoresight.json", OBS_AUTO_CONNECT_SETTING, True)
 
         self.ui.lineEdit_sceneName.setEnabled(True)
         self.ui.checkBox_recreate.setEnabled(True)
         self.ui.pushButton_createOBSScene.setEnabled(True)
 
         logger.info("OBS: Connected")
+        self.updateObsUi()
+        self.refreshLiveStatus()
+
+    def disconnectObs(self):
+        """Close the connection to OBS (or stop connecting). The saved connection
+        is kept for the connect dialog, but isn't opened at the next start until
+        the user connects again."""
+        # ignore connection attempts that are still running
+        self.obs_connect_attempt += 1
+        self.obsConnecting = None
+        self.obsConnectError = None
+        if self.obs_connect_modal is not None and self.obs_connect_modal.isVisible():
+            # the dialog's attempt (if any) was cancelled with it
+            self.obs_modal_ui.pushButton_connect.setEnabled(True)
+            self.obs_modal_ui.label_error.setText("")
+        client = self.obs_websocket_client
+        self.obs_websocket_client = None
+        self.obsAddress = None
+        self.obsConnectedAt = None
+        self.obs_last_sent.clear()
+        self.closeObsClient(client)
+        if fetch_data("scoresight.json", OBS_AUTO_CONNECT_SETTING, True) is not False:
+            store_data("scoresight.json", OBS_AUTO_CONNECT_SETTING, False)
+        if client is not None:
+            logger.info("OBS: Disconnected")
+        self.ui.lineEdit_sceneName.setEnabled(False)
+        self.ui.checkBox_recreate.setEnabled(False)
+        self.ui.pushButton_createOBSScene.setEnabled(False)
+        self.updateObsUi()
+        self.refreshLiveStatus()
+
+    def updateObsUi(self):
+        """The OBS page's buttons show the connection: Connect OBS, Connecting...
+        or Change connection..., and Disconnect while connected (or
+        connecting)."""
+        connected = self.obs_websocket_client is not None
+        connecting = self.obsConnecting is not None
+        button = self.ui.pushButton_connectObs
+        if connected:
+            button.setText(
+                QCoreApplication.translate("MainWindow", "Change connection...")
+            )
+            button.setToolTip(
+                QCoreApplication.translate(
+                    "MainWindow",
+                    "Connected to OBS at {target}. Click to connect to another OBS.",
+                ).format(target=self.obsAddress or "?")
+            )
+        elif connecting:
+            button.setText(QCoreApplication.translate("MainWindow", "Connecting..."))
+            button.setToolTip(
+                QCoreApplication.translate(
+                    "MainWindow", "Connecting to OBS at {target}..."
+                ).format(target=self.obsConnecting)
+            )
+        else:
+            button.setText(QCoreApplication.translate("MainWindow", "Connect OBS"))
+            button.setToolTip(
+                QCoreApplication.translate(
+                    "MainWindow", "Connect to the WebSocket server of OBS Studio"
+                )
+            )
+        self.ui.pushButton_disconnectObs.setEnabled(connected or connecting)
 
     @staticmethod
     def closeObsClient(client):
@@ -1032,6 +2219,8 @@ class MainWindow(QMainWindow):
 
     @Slot(list)
     def updateSources(self, camera_sources: list[CameraInfo]):
+        # only the first discovery (at startup) counts
+        startup_timing.mark("sources_discovered")
         self.sources_discovery_running = False
         if self.closing:
             # the discovery finished after the window was closed: don't reopen
@@ -1053,6 +2242,12 @@ class MainWindow(QMainWindow):
         for source in camera_sources:
             combo.addItem(source.description, source)
         combo.blockSignals(False)
+        # the combo box is kept narrow (long camera names don't widen the
+        # window); its list shows the whole names
+        view = combo.view()
+        view.setMinimumWidth(
+            view.sizeHintForColumn(0) + view.verticalScrollBar().sizeHint().width()
+        )
 
         self.ui.comboBox_camera_source.setEnabled(True)
         currentIndexChangedSignal = QMetaMethod.fromSignal(
@@ -1099,9 +2294,18 @@ class MainWindow(QMainWindow):
         self.sourceSelectionSucessful()
 
     @staticmethod
+    def screenCaptureWindows() -> list:
+        """The windows a Screen Capture source can capture, as (title, id)."""
+        # imported when first used: it loads pywin32 / pyobjc's Quartz, which
+        # would slow down every start
+        from screen_capture_source import ScreenCapture
+
+        return ScreenCapture.list_windows()
+
+    @staticmethod
     def screenCaptureWindowIds() -> list:
         try:
-            return [window[1] for window in ScreenCapture.list_windows()]
+            return [window[1] for window in MainWindow.screenCaptureWindows()]
         except Exception:
             logger.exception("Could not list the windows for screen capture")
             return []
@@ -1166,6 +2370,7 @@ class MainWindow(QMainWindow):
         if viewer is None:
             return
         self.image_viewer = None
+        self.sourceError = None
         self.disconnectViewer()
         # remove the image viewer from the layout frame_for_source_view_label
         self.ui.frame_for_source_view_label.layout().removeWidget(viewer)
@@ -1242,7 +2447,7 @@ class MainWindow(QMainWindow):
                 ),
                 -1,
             )
-            for window in ScreenCapture.list_windows():
+            for window in self.screenCaptureWindows():
                 ui_screencapture.comboBox_window.addItem(window[0], window[1])
             screen_dialog.exec()
             # check if the dialog was accepted
@@ -1257,19 +2462,16 @@ class MainWindow(QMainWindow):
 
     def itemSelected(self, item_name):
         if item_name is None:
-            # clear the selected item
+            # clear the selected item: the Box tab explains how to select one
             self.ui.tableWidget_boxes.clearSelection()
-            self.ui.groupBox_target_settings.setEnabled(False)
-            self.boxSettingsUiHandler.populateSettings("")
+            self.boxSettingsUiHandler.showField(None)
+            self.updateFieldActions()
             return
-        # select the item in the tableWidget_boxes
-        items = self.ui.tableWidget_boxes.findItems(
-            item_name, Qt.MatchFlag.MatchExactly
-        )
-        if len(items) == 0:
+        # select the item in the tableWidget_boxes (and only it: the list is
+        # single-selection, but setSelected() doesn't deselect the others)
+        item = self.boxNameItem(item_name)
+        if item is None:
             return
-        item = items[0]
-        item.setSelected(True)
         self.ui.tableWidget_boxes.setCurrentItem(item)
         self.listItemClicked(item)
 
@@ -1340,6 +2542,7 @@ class MainWindow(QMainWindow):
             self.fourCornersApplied,
             self.detectionTargetsStorage,
             self.itemSelected,
+            start=False,
         )
         self.ui.toolButton_videoSettings.setEnabled(
             camera_info.type == CameraInfo.CameraType.OPENCV
@@ -1348,27 +2551,38 @@ class MainWindow(QMainWindow):
             self.cameraConnectedEnableUI
         )
         self.image_viewer.error_signal.connect(self.updateError)
+        # connected before the capture starts: the first readings are often the
+        # only Success of a box whose value doesn't change (later ones are
+        # SameNoChange), and vMix and UNO only send Success unless "Send Same?"
+        self.connectViewer()
         self.ocrModelChanged(fetch_data("scoresight.json", "ocr_model", 1))
 
         # in the placeholder label's place (frame_for_source_view_label's grid)
         self.ui.frame_for_source_view_label.layout().addWidget(self.image_viewer, 0, 0)
+        self.image_viewer.startCapture()
+
+    def connectViewer(self):
+        """Connect the main window to the current image viewer and its capture
+        thread. Each viewer is connected only once (the first frame is signalled
+        again after e.g. a video settings change), or every result would be
+        handled twice."""
+        if self.image_viewer is None or self.connected_viewer is self.image_viewer:
+            return
+        self.disconnectViewer()
+        self.connected_viewer = self.image_viewer
+        self.ui.pushButton_fourCorner.toggled.connect(
+            self.image_viewer.toggleFourCorner
+        )
+        self.ui.pushButton_binary.clicked.connect(self.image_viewer.toggleBinary)
+        if self.image_viewer.timerThread:
+            self.image_viewer.timerThread.ocr_result_signal.connect(self.ocrResult)
+            self.image_viewer.timerThread.update_error.connect(self.updateError)
 
     def cameraConnectedEnableUI(self):
         if self.image_viewer is None:
             self.updateError("Image viewer is None")
             return
-        # The first frame is signalled again after e.g. a video settings change:
-        # connect each viewer only once, or every result would be handled twice.
-        if self.connected_viewer is not self.image_viewer:
-            self.disconnectViewer()
-            self.connected_viewer = self.image_viewer
-            self.ui.pushButton_fourCorner.toggled.connect(
-                self.image_viewer.toggleFourCorner
-            )
-            self.ui.pushButton_binary.clicked.connect(self.image_viewer.toggleBinary)
-            if self.image_viewer.timerThread:
-                self.image_viewer.timerThread.ocr_result_signal.connect(self.ocrResult)
-                self.image_viewer.timerThread.update_error.connect(self.updateError)
+        self.connectViewer()
 
         # enable groupBox_sb_info
         self.ui.groupBox_sb_info.setEnabled(True)
@@ -1379,12 +2593,14 @@ class MainWindow(QMainWindow):
 
         # The boxes are not reloaded from scoresight.json here: they were loaded
         # at startup and the in-memory boxes may have newer, unsaved edits.
-        self.updateError(None)
+        self.sourceError = None
+        self.refreshLiveStatus()
 
     def updateError(self, error):
         if not error:
             return
         logger.error(error)
+        self.sourceError = error
         self.ui.frame_source_view.setEnabled(True)
         self.ui.widget_viewTools.setEnabled(False)
         self.ui.widget_cropPanel.setEnabled(False)
@@ -1394,24 +2610,19 @@ class MainWindow(QMainWindow):
         # template is Success when its text changed, SameNoChange otherwise
         apply_template_fields(results)
 
-        # update the table widget value items
+        # The boxes list: each box's last good reading (a SameNoChange is its
+        # last good reading), and the state of its latest one (a rejected or
+        # empty reading is shown, but doesn't replace the value)
+        now = time.monotonic()
         for targetWithResult in results:
-            if (
-                targetWithResult.result_state
-                == TextDetectionTargetWithResult.ResultState.Success
-            ):
-                items = self.ui.tableWidget_boxes.findItems(
-                    targetWithResult.name, Qt.MatchFlag.MatchExactly
+            item = self.boxValueItem(targetWithResult.name)
+            if item is not None:
+                record_reading(
+                    item, targetWithResult.result_state, targetWithResult.result, now
                 )
-                if len(items) == 0:
-                    continue
-                item = items[0]
-                # get the value (1 column) of the item
-                item = self.ui.tableWidget_boxes.item(item.row(), 1)
-                item.setText(targetWithResult.result)
 
         if not self.updateOCRResults:
-            # don't update the results, the user has disabled updates
+            # the outputs are paused (the readings above keep updating)
             return
 
         update_http_server(results)
@@ -1419,11 +2630,24 @@ class MainWindow(QMainWindow):
         if self.ui.checkBox_enableOutAPI.isChecked():
             update_out_api(results)
 
-        # update vmix and uno
+        # update vmix and uno. After a pause they also get the boxes' unchanged
+        # values (which may have changed while the outputs were paused), once
+        # per box: until the box's first good reading since
+        resend = frozenset(self.resendAfterPause)
+        if resend:
+            self.resendAfterPause -= {
+                result.name
+                for result in results
+                if result.result_state
+                in (
+                    TextDetectionTargetWithResult.ResultState.Success,
+                    TextDetectionTargetWithResult.ResultState.SameNoChange,
+                )
+            }
         if self.vmixUiHandler.vmixUpdater is not None:
-            self.vmixUiHandler.vmixUpdater.update_vmix(results)
+            self.vmixUiHandler.vmixUpdater.update_vmix(results, resend_unchanged=resend)
         if self.unoUiHandler.unoUpdater is not None:
-            self.unoUiHandler.unoUpdater.update_uno(results)
+            self.unoUiHandler.unoUpdater.update_uno(results, resend_unchanged=resend)
 
         # OBS text sources don't depend on the output folder (#30)
         self.updateObsTextSources(results)
@@ -1469,6 +2693,8 @@ class MainWindow(QMainWindow):
             return
         if not path.isdir(path.abspath(self.out_folder)):
             logger.warning("Output folder does not exist: %s", self.out_folder)
+            # the Text files destination says so until a folder is chosen
+            self.outputFolderLost = self.out_folder
             self.out_folder = None
             self.ui.lineEdit_folder.setText("")
             remove_data("scoresight.json", "output_folder")
@@ -1498,20 +2724,12 @@ class MainWindow(QMainWindow):
             new_box_name = f"Custom {i + 1}"
 
         store_custom_box_name(new_box_name)
-        item = QTableWidgetItem(
-            QIcon(resource_path("icons", "circle-x.svg")),
-            new_box_name,
-        )
-        item.setData(Qt.ItemDataRole.UserRole, "unchecked")
-        self.ui.tableWidget_boxes.insertRow(self.ui.tableWidget_boxes.rowCount())
-        self.ui.tableWidget_boxes.setItem(
-            self.ui.tableWidget_boxes.rowCount() - 1, 0, item
-        )
-        disabledItem = QTableWidgetItem()
-        disabledItem.setFlags(Qt.ItemFlag.NoItemFlags)
-        self.ui.tableWidget_boxes.setItem(
-            self.ui.tableWidget_boxes.rowCount() - 1, 1, disabledItem
-        )
+        item = self.appendBoxRow(new_box_name)
+        item.setIcon(QIcon(resource_path("icons", "circle-x.svg")))
+        item.setData(Qt.ItemDataRole.UserRole, NOT_PLACED)
+        # selected, ready to be placed or renamed
+        self.ui.tableWidget_boxes.scrollToItem(item)
+        self.itemSelected(new_box_name)
 
     def removeCustomBox(self):
         item = self.ui.tableWidget_boxes.currentItem()
@@ -1529,39 +2747,78 @@ class MainWindow(QMainWindow):
         remove_custom_box_name_in_storage(item.text())
         # remove the selected item from the tableWidget_boxes
         self.ui.tableWidget_boxes.removeRow(item.row())
+        # (the next row became the current one, but isn't selected)
+        self.itemSelected(None)
+
+    def fieldNameTaken(self, name: str, except_row: int = -1) -> bool:
+        """Whether another field has this name. Names that differ only in case
+        are the same: their text files would be the same file on Windows and
+        macOS."""
+        table = self.ui.tableWidget_boxes
+        return any(
+            table.item(row, 0).text().casefold() == name.casefold()
+            for row in range(table.rowCount())
+            if row != except_row
+        )
 
     def editBoxName(self, item):
+        # a double-click on a reading renames its box
+        item = self.nameItemOfRow(item)
+        if item is None:
+            return
         if item.text() in [o["name"] for o in default_boxes]:
             # dont allow editing default boxes
             return
-        new_name, ok = QInputDialog.getText(
-            self, "Edit Box Name", "New Name:", text=item.text()
-        )
         old_name = item.text()
-        if ok and new_name != "" and new_name != old_name:
-            # check if name doesn't exist already
-            for i in range(self.ui.tableWidget_boxes.rowCount()):
-                if new_name == self.ui.tableWidget_boxes.item(i, 0).text():
-                    logger.info("Name '%s' already exists", new_name)
-                    return
-            # rename the item in the tableWidget_boxes
-            rename_custom_box_name_in_storage(old_name, new_name)
-            item.setText(new_name)
-            # rename the item in the detectionTargetsStorage (a box that isn't
-            # made yet isn't there). The row was renamed in place above, and
-            # detectionTargetsChanged keeps its icon and role.
-            if not self.detectionTargetsStorage.rename_item(old_name, new_name):
-                logger.info("Error renaming item in application storage")
+        title = QCoreApplication.translate("MainWindow", "Rename field")
+        proposed = old_name
+        while True:
+            new_name, ok = QInputDialog.getText(
+                self,
+                title,
+                QCoreApplication.translate("MainWindow", "New name:"),
+                text=proposed,
+            )
+            new_name = new_name.strip()
+            if not ok or new_name == "" or new_name == old_name:
+                return
+            if not self.fieldNameTaken(new_name, except_row=item.row()):
+                break
+            logger.info("Name '%s' already exists", new_name)
+            QMessageBox.warning(
+                self,
+                title,
+                QCoreApplication.translate(
+                    "MainWindow",
+                    "There is already a field named “{name}”. Choose another name.",
+                ).format(name=new_name),
+            )
+            # ask again, with the name typed
+            proposed = new_name
+        # rename the item in the tableWidget_boxes
+        rename_custom_box_name_in_storage(old_name, new_name)
+        item.setText(new_name)
+        # rename the item in the detectionTargetsStorage (a box that isn't
+        # made yet isn't there). The row was renamed in place above, and
+        # detectionTargetsChanged keeps its icon and role.
+        if not self.detectionTargetsStorage.rename_item(old_name, new_name):
+            logger.info("Error renaming item in application storage")
+        if item.isSelected():
+            # the Box tab shows the new name
+            self.listItemClicked(item)
 
     def makeBox(self):
-        item = self.ui.tableWidget_boxes.currentItem()
+        item = self.nameItemOfRow(self.ui.tableWidget_boxes.currentItem())
         if not item:
+            return
+        if self.detectionTargetsStorage.find_item_by_name(item.text()) is not None:
+            # it has a box (or is a template) already: never two with one name
+            logger.info("'%s' is already on the picture", item.text())
             return
         # create a new box on self.image_viewer with the name of the selected item from the tableWidget_boxes
         # change the list icon to green checkmark
         item.setIcon(QIcon(resource_path("icons/circle-check.svg")))
-        item.setData(Qt.ItemDataRole.UserRole, "checked")
-        self.listItemClicked(item)
+        item.setData(Qt.ItemDataRole.UserRole, PLACED)
 
         # get the size of the box from the name
         info = default_info_for_box_name(item.text())
@@ -1576,30 +2833,42 @@ class MainWindow(QMainWindow):
                 normalize_settings_dict({}, info),
             )
         )
+        # the new box's settings (and the box selected on the picture)
+        self.listItemClicked(item)
 
     def removeBox(self):
         item = self.ui.tableWidget_boxes.currentItem()
         if not item:
             return
+        item = self.nameItemOfRow(item)
         # change the list icon to red x
         item.setIcon(QIcon(resource_path("icons", "circle-x.svg")))
-        item.setData(Qt.ItemDataRole.UserRole, "unchecked")
-        self.listItemClicked(item)
+        item.setData(Qt.ItemDataRole.UserRole, NOT_PLACED)
+        # it isn't read any more: don't show its last reading as current
+        clear_reading(self.ui.tableWidget_boxes.item(item.row(), 1))
         self.detectionTargetsStorage.remove_item(item.text())
+        self.listItemClicked(item)
 
     def makeTemplateField(self, toggled: bool):
-        item = self.ui.tableWidget_boxes.currentItem()
+        item = self.nameItemOfRow(self.ui.tableWidget_boxes.currentItem())
         if not item:
             return
+        role = item.data(Qt.ItemDataRole.UserRole)
 
         if not toggled:
-            self.removeBox()
+            if role == TEMPLATE:
+                self.removeBox()
+            return
+        if role != NOT_PLACED or not self.isCustomField(item.text()):
+            # only a custom field without a box can be built from other fields
+            logger.info("'%s' can't be a template field", item.text())
+            self.listItemClicked(item)  # shows its real state again
             return
 
         # create a new box on self.image_viewer with the name of the selected item from the tableWidget_boxes
         # change the list icon to green checkmark
         item.setIcon(QIcon(resource_path("icons", "template-field.svg")))
-        item.setData(Qt.ItemDataRole.UserRole, "templatefield")
+        item.setData(Qt.ItemDataRole.UserRole, TEMPLATE)
 
         self.detectionTargetsStorage.add_item(
             TextDetectionTarget(
@@ -1627,6 +2896,8 @@ class MainWindow(QMainWindow):
     def closeEvent(self, event):
         logger.info("Closing")
         self.closing = True
+        self.statusTimer.stop()
+        self.saveSplitterState()
         self.closeImageViewer()
 
         if self.log_dialog:

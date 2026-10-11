@@ -65,6 +65,54 @@ python src/main.py --self-test
 
 CI runs the same check against the frozen (PyInstaller) app on every platform with `scripts/ci/smoke_test.py`, to catch missing modules or data files in the package (see [Building from Source](building.md#package-with-pyinstaller)).
 
+## The end-to-end test
+
+`scripts/ci/e2e_test.py` runs the real app headless against a synthetic scoreboard video and checks that the readings reach the outputs. Give it the command that starts the app, from source or a packaged build:
+
+```bash
+python scripts/ci/e2e_test.py -- python src/main.py
+python scripts/ci/e2e_test.py -- dist/scoresight/scoresight.exe                 # Windows build
+python scripts/ci/e2e_test.py -- dist/ScoreSight.app/Contents/MacOS/scoresight  # macOS build
+```
+
+It:
+
+1. renders a short video with the 7-segment digits of `tests/synthetic_images.py`: the home score goes 0, 1, 2 while the away score stays 3 and the clock counts down from 12:00, then the final state (2, 3, 11:51) holds for 8 seconds;
+2. writes the settings of a profile `e2e` in a temporary settings folder: the video as the source, Home Score, Away Score and Time boxes, the `.txt`, `results.csv` and `results.xml` file outputs, and the outbound API pointed at a mock server that the script runs;
+3. starts the app with `--profile e2e --port <free port>` and follows `GET /json`, `/csv?pivot` and `/xml`, the files and the mock server until each has shown the home score going 0, 1, 2 and the final state. A good reading that isn't one of the video's values fails the test (a rejected or empty reading doesn't);
+4. stops the app the way a user would (`SIGTERM`, or Ctrl+Break on Windows), requires exit code 0 and checks that the settings file still has the boxes.
+
+A run takes about 10 seconds. `--work-dir DIR` keeps the video, settings, logs and outputs, `--json FILE` writes the timings and the checks, and a failure prints the app's output and log files. A video file source plays in a loop (the capture thread starts it again at the end), which is why each output is checked over the whole run. vMix isn't covered: it sends only after **Start vMix**, which isn't saved.
+
+The boxes use the General Scoreboard model with autocrop on and no dilation. `tests/test_ci_scripts.py` checks with the real OCR that this reads every state of the video, so a change in the models or in Tesseract shows up in the test suite first.
+
+## Boot time
+
+`scripts/ci/boot_benchmark.py` measures how long the app takes from launch until its HTTP server answers, over several runs with fresh settings:
+
+```bash
+python scripts/ci/boot_benchmark.py --runs 5 -- dist/scoresight/scoresight.exe
+python scripts/ci/boot_benchmark.py --runs 5 -- python src/main.py
+```
+
+Run 1 is reported as cold (the first launch of that binary), the others as warm (median and range), together with the startup phases the app measures itself (see below). In `build.yml` the self-test and the end-to-end test have already started the build, so its run 1 is the first start with fresh settings rather than the first launch of the binary (the 0.1.0 comparison's run 1 is a true first launch). `--max-cold-seconds` and `--max-warm-seconds` make it fail above a limit, `--json FILE` writes the results and `--compare A.json B.json` shows earlier results side by side. `--legacy` measures a 0.1.x build, which has no `--port` option and always serves on port 18099 (close any other ScoreSight first). It also ignores `SCORESIGHT_DATA_DIR` and `SCORESIGHT_LOG_DIR`, so it uses your real settings and log folders.
+
+### Startup timing
+
+Once the app is ready, it logs one line with the time each startup phase took:
+
+```
+Startup: before main.py 0.20 s, arguments 0.00 s, imports 0.35 s, QApplication 0.00 s, main window 0.03 s, show 0.00 s, first event loop pass 0.01 s; total 0.59 s; HTTP server ready at 0.57 s, video sources discovered at 0.62 s
+```
+
+"before main.py" is the time from the creation of the process (the packaged app's loader and the Python interpreter) to `src/main.py`, the phases follow each other, and "total" and the "at" times count from the creation of the process. The line is logged when the video sources are discovered, or 5 seconds after the window appeared; a later "video sources discovered" gets a line of its own. With `SCORESIGHT_STARTUP_REPORT=<path>` set, the app also writes the milestones to that file as JSON, which the benchmark reads. The milestones are recorded in `src/startup_timing.py`.
+
+To see which imports are slow, run the app from source with Python's import timer and stop it with Ctrl+C once it is up:
+
+```bash
+python -X importtime src/main.py -platform offscreen 2> importtime.txt
+```
+
 ## Code style: ruff
 
 ScoreSight uses [ruff](https://docs.astral.sh/ruff/) for linting and formatting (configured in `pyproject.toml`, targeting Python 3.13). The generated `src/ui_*.py` files are excluded.
@@ -95,8 +143,8 @@ Four workflows in `.github/workflows/` run on GitHub Actions:
 
 | Workflow | Runs on | What it does |
 |---|---|---|
-| `ci.yml` | Every pull request, every push to `main`, manual runs | **Lint**: `ruff check`, `ruff format --check`, `scripts/compile_ui.py --check`, `scripts/update_translations.py --check`, and a check that no file links to the lapsed `scoresight[.]live` domain. **Test**: `pytest` with Python 3.13 on Ubuntu 24.04 and Windows. macOS runs the tests only on pushes to `main`, to save scarce macOS runners. An extra Python 3.14 leg on Ubuntu is allowed to fail |
-| `build.yml` | Pull requests that change packaging files (`scoresight.spec`, `scoresight.iss`, `entitlements.plist`, the `requirements*.txt` files except dev/tools, `scripts/ci/`, `src/main.py`, `src/resource_path.py`, `src/version.py`, `src/win32DeviceEnum/`, the workflow itself), manual runs (**Actions > Build > Run workflow**), and release tags through `release.yml` | Builds Windows x64, macOS arm64, macOS x86_64 and Linux x86_64 with PyInstaller, runs the frozen app's `--self-test`, and packages the installer, portable zip, disk images and archive. On Windows it also installs the installer silently, self-tests the installed app and uninstalls it. The packages are uploaded as workflow artifacts |
+| `ci.yml` | Every pull request, every push to `main`, manual runs | **Lint**: `ruff check`, `ruff format --check`, `scripts/compile_ui.py --check`, `scripts/update_translations.py --check`, and a check that no file links to the lapsed `scoresight[.]live` domain. **Test**: `pytest` with Python 3.13 on Ubuntu 24.04 and Windows, then the [end-to-end test](#the-end-to-end-test) from source (its files are uploaded if the job fails). macOS runs the tests only on pushes to `main`, to save scarce macOS runners. An extra Python 3.14 leg on Ubuntu is allowed to fail |
+| `build.yml` | Pull requests that change packaging files (`scoresight.spec`, `scoresight.iss`, `entitlements.plist`, the `requirements*.txt` files except dev/tools, `scripts/ci/`, `src/main.py`, `src/resource_path.py`, `src/version.py`, `src/win32DeviceEnum/`, the workflow itself), manual runs (**Actions > Build > Run workflow**), and release tags through `release.yml` | Builds Windows x64, macOS arm64, macOS x86_64 and Linux x86_64 with PyInstaller, runs the frozen app's `--self-test`, the [end-to-end test](#the-end-to-end-test) and the [boot benchmark](#boot-time) (5 runs; it fails above 60 s cold or a 20 s warm median, generous limits for GitHub-hosted runners that only catch a gross regression), and packages the installer, portable zip, disk images and archive. For comparison it also downloads the 0.1.0 release for the platform and benchmarks it (3 runs; these steps never fail the build). The job summary shows the end-to-end test and both boot times side by side, and the `ci-results-<target>` artifact has the JSON results. On Windows it also installs the installer silently, self-tests the installed app and uninstalls it. The packages are uploaded as workflow artifacts |
 | `release.yml` | Version tags only | See [Releasing](releasing.md) |
 | `ocr-eval.yml` | Pull requests that change recognition (`src/tesseract.py`, `src/defaults.py`, `src/text_detection_target.py`, `tesseract/`, `ocr_eval/`, `requirements.txt`, the workflow itself) and manual runs | Runs ScoreSight's Tesseract pipeline with every bundled model on the committed evaluation datasets and fails if exact-match accuracy drops by more than 2 points against `ocr_eval/baselines/tesseract.json`. The report is in the job summary and the results are uploaded as an artifact. See [OCR Evaluation](ocr-eval.md) |
 

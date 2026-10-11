@@ -30,6 +30,8 @@ A low **Previews/s** is **not** a problem. The preview is refreshed about once p
 
 When a source opens, its first frame is shown and read right away, whatever the detection rate.
 
+The status bar at the bottom of the window shows the same numbers without the OSD: the source with its resolution and **frames per second**, and **Reading 4.7/s of 5**, the detection rate against your **Detections / s** setting. The reading rate turns orange when it falls below 70% of the setting: the computer can't keep up, so lower **Detections / s**, use fewer boxes or a lower source resolution.
+
 ## How fast do you need to be?
 
 **Detections / s** sets how often the boxes are read:
@@ -49,7 +51,7 @@ The slider goes from 1 to 15. For values that change very rarely, you can set `d
 1. **Lower Detections / s** to what you actually need.
 2. **Remove boxes you don't use**, and keep boxes tight around the digits.
 3. **Crop** the picture to the scoreboard. Less picture means less processing per frame.
-4. Turn on **Skip Similar Image** for values that rarely change (scores, periods). When a box's image hasn't changed, OCR is skipped for that box and its last good value is repeated.
+4. Turn on **Skip OCR while image is unchanged** (in the Box tab's **Filtering**) for values that rarely change (scores, periods). When a box's image hasn't changed, OCR is skipped for that box and its last good value is repeated.
 5. Turn **Stabilize** off when the camera is fixed or you use screen capture.
 6. Use a lower source resolution. In [Video Settings](sources.md#cameras-and-capture-cards), 1280x720 with the `MJPG` format is a good choice for USB cameras. For IP cameras, use a sub stream.
 7. Prefer **General Scoreboard** over **General Scoreboard Large** if both read your board correctly. The large model is slower.
@@ -58,9 +60,9 @@ The slider goes from 1 to 15. For values that change very rarely, you can set `d
 ## Output latency
 
 - Outputs (OBS, vMix, UNO, the outbound API) send in the background. If a target is slow or unreachable, ScoreSight keeps only the latest values and drops intermediate ones. The window and the readings never wait for the network.
-- **Update on change** (on by default) means unchanged values are not resent to vMix and UNO, which keeps traffic low. Turn on **Send Same?** in the vMix/UNO tabs only if your target needs constant refreshes. OBS text sources and files are only updated when their value changes anyway.
+- **Update on change** (on by default) means unchanged values are not resent to vMix and UNO, which keeps traffic low. Turn on **Send Same?** on the vMix or UNO page only if your target needs constant refreshes. OBS text sources and files are only updated when their value changes anyway.
 - The [outbound HTTP API](out_api.md) sends on **every** detection cycle. Point it at a fast endpoint on your local network.
-- OBS updates go out as soon as a value changes. File outputs are written at most **Save / s** times per second (1–10, set in the **Text Files** tab), and the last change always reaches the files.
+- OBS updates go out as soon as a value changes. File outputs are written at most **Save / s** times per second (1–10, set on the **Text files** page), and the last change always reaches the files.
 - The built-in [HTTP server](http_server.md) always serves the latest values. Browser overlays that poll it every 100–250 ms are fine.
 
 ## Video files

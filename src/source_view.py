@@ -49,8 +49,11 @@ class ImageViewer(CameraView):
         fourCornersAppliedCallback: callable,
         detectionTargetsStorage: TextDetectionTargetMemoryStorage | None,
         itemSelectedCallback: callable,
+        start: bool = True,
     ):
-        super().__init__(camera_index, detectionTargetsStorage)
+        # the capture starts once this viewer is connected to the thread (and
+        # with start=False, when the caller calls startCapture())
+        super().__init__(camera_index, detectionTargetsStorage, start=False)
         self.setMouseTracking(True)
         self.fourCornerSelectionMode = False
         self.fourCorners = []
@@ -76,6 +79,8 @@ class ImageViewer(CameraView):
             "scoresight.json", "box_display_style", 3
         )
         subscribe_to_data("scoresight.json", "box_display_style", self.boxDisplayStyle)
+        if start:
+            self.startCapture()
 
     def resizeEvent(self, event):
         if self._isScaling:

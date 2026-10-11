@@ -10,7 +10,13 @@ through to QApplication.
 
 The app modules are imported only after --profile has been applied: some of them
 read (and subscribe to) settings when they are imported.
+
+Startup is timed from here on (startup_timing, imported first): the log gets a
+"Startup: ..." line once the app is ready.
 """
+
+# first: the time it is imported is "main.py started"
+import startup_timing
 
 import argparse
 import importlib
@@ -34,25 +40,32 @@ SELF_TEST_MODULES = (
     "camera_thread",
     "camera_view",
     "defaults",
+    "destinations_view",
     "file_output",
     "frame_stabilizer",
     "get_camera_info",
+    "gui_garbage_collector",
     "http_server",
     "log_view",
     "mainwindow",
     "ndi",
     "obs_websocket",
     "ocr_training_data",
+    "output_status",
     "output_worker",
+    "readings_view",
     "resizable_rect",
     "resource_path",
     "sc_logging",
     "screen_capture_source",
     "source_view",
+    "startup_timing",
+    "status_bar",
     "storage",
     "template_fields",
     "tesseract",
     "text_detection_target",
+    "theme",
     "training_dojo",
     "ui_about",
     "ui_connect_obs",
@@ -245,24 +258,122 @@ def install_quit_signal_handlers(app, window):
     return timer
 
 
+# console control handlers registered by attach_console_for_quit_signals (a
+# reference keeps each ctypes callback alive)
+_console_ctrl_handlers = []
+
+
+def attach_console_for_quit_signals(app) -> bool:
+    """On Windows, let Ctrl+C and Ctrl+Break stop a headless (offscreen)
+    instance of the windowed build. That build has no console, so console
+    control events never reached it, and offscreen it has no window to close:
+    it could only be killed. Attach it to the console of the program that
+    started it, if there is one (AttachConsole fails harmlessly when the
+    process already has a console or the parent has none). A visible window is
+    closed as usual, so this is only done offscreen. Returns whether it
+    attached."""
+    if sys.platform != "win32" or app.platformName() != "offscreen":
+        return False
+    import _thread
+    import ctypes
+
+    ATTACH_PARENT_PROCESS = -1
+    CTRL_C_EVENT, CTRL_BREAK_EVENT = 0, 1
+    try:
+        kernel32 = ctypes.WinDLL("kernel32")
+        if not kernel32.AttachConsole(ATTACH_PARENT_PROCESS):
+            return False
+    except (AttributeError, OSError):
+        return False
+    from ctypes import wintypes
+
+    # Attaching drops the C runtime's console control handler, which turns
+    # Ctrl+C and Ctrl+Break into SIGINT and SIGBREAK (the console's default
+    # handler would end the process right away): forward them again.
+    signals = {CTRL_C_EVENT: signal.SIGINT, CTRL_BREAK_EVENT: signal.SIGBREAK}
+
+    @ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.DWORD)
+    def forward(event):
+        signum = signals.get(event)
+        if signum is None:
+            return False  # e.g. the console is closing: the default handling
+        _thread.interrupt_main(signum)
+        return True
+
+    kernel32.SetConsoleCtrlHandler(forward, True)
+    _console_ctrl_handlers.append(forward)
+    return True
+
+
+# How long after the first event loop pass the startup timing waits for the
+# background startup work (video source discovery) before it is logged.
+STARTUP_REPORT_WAIT_S = 5.0
+STARTUP_REPORT_POLL_MS = 100
+
+
+def report_startup_when_ready(app):
+    """Mark the first event loop pass, then log the startup timing (and write
+    the SCORESIGHT_STARTUP_REPORT file) once the background startup work is
+    done, or STARTUP_REPORT_WAIT_S later. Never blocks. Returns the timer."""
+    import time
+
+    from PySide6.QtCore import QTimer
+
+    timer = QTimer(app)
+    timer.setInterval(STARTUP_REPORT_POLL_MS)
+    deadline = 0.0
+
+    def poll():
+        if startup_timing.background_done() or time.monotonic() >= deadline:
+            timer.stop()
+            startup_timing.finish()
+
+    def idle():
+        nonlocal deadline
+        startup_timing.mark("event_loop_idle")
+        deadline = time.monotonic() + STARTUP_REPORT_WAIT_S
+        if startup_timing.background_done():
+            startup_timing.finish()
+        else:
+            timer.start()
+
+    timer.timeout.connect(poll)
+    QTimer.singleShot(0, idle)
+    return timer
+
+
 def run_app(args: argparse.Namespace, qt_args: list[str]) -> int:
     from PySide6.QtWidgets import QApplication
 
+    from gui_garbage_collector import GuiThreadGarbageCollector
     from http_server import stop_http_server
     from mainwindow import MainWindow, apply_color_scheme
     from output_worker import stop_all_workers
-    from sc_logging import logger
+    from sc_logging import enable_crash_traces, logger
     from storage import fetch_data
 
+    enable_crash_traces()
+    startup_timing.mark("modules_imported")
     app = QApplication([sys.argv[0], *qt_args])
+    startup_timing.mark("qapplication_created")
+    # before any background thread starts: collect reference cycles only on the
+    # GUI thread, where finalizing Qt objects is safe (kept until the app ends)
+    garbage_collector = GuiThreadGarbageCollector(app)  # noqa: F841
     apply_color_scheme(fetch_data("scoresight.json", "color_scheme"))
     translator = load_translator(app, fetch_data("scoresight.json", "language"))
 
     main_window = MainWindow(translator, app, http_port=args.port)
+    startup_timing.mark("main_window_created")
     main_window.show()
+    startup_timing.mark("window_shown")
+    if attach_console_for_quit_signals(app):
+        logger.info("Attached to the parent console: Ctrl+C or Ctrl+Break quits")
     install_quit_signal_handlers(app, main_window)
+    report_startup_when_ready(app)
 
     exit_code = app.exec()
+    # quit before the startup timing was logged
+    startup_timing.finish()
     logger.info("Exiting...")
     stop_http_server()
     # The output threads are daemons and never block the exit; give a send in
@@ -426,6 +537,9 @@ def _self_test_steps():
 
 def run_self_test() -> int:
     _attach_parent_console()
+    from sc_logging import enable_crash_traces
+
+    enable_crash_traces()
     try:
         for line in _self_test_steps():
             print(line, flush=True)
@@ -440,6 +554,7 @@ def run_self_test() -> int:
 def main(argv: list[str] | None = None) -> int:
     args, qt_args = parse_args(sys.argv[1:] if argv is None else argv)
     apply_profile(args.profile)
+    startup_timing.mark("args_parsed")
     close_splash_screen()
     if args.self_test:
         return run_self_test()

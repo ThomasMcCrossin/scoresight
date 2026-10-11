@@ -96,7 +96,7 @@ In ScoreSight 0.1.x, the shortcuts were the plain letters **N**, **B** and **U**
 ## 4. Export and use the data
 
 1. In **OCR Training Data Setup**, click **Save Zip File** and choose where to save the archive.
-2. Use the approved samples (each `.png` with its `.txt`) to train or fine-tune a Tesseract model with [tesstrain](https://github.com/tesseract-ocr/tesstrain). Then load it with **OCR Model** > **Load External OCR Model**.
+2. Use the approved samples (each `.png` with its `.txt`) to train or fine-tune a Tesseract model with [tesstrain](https://github.com/tesseract-ocr/tesstrain). Then load it with **OCR model** > **Load external model...** (under **All boxes**, in the Box tab).
 
 If you'd like your data to help improve the models bundled with ScoreSight, [open an issue](https://github.com/royshil/scoresight/issues/new/choose) describing your scoreboard and the size of your dataset, and the maintainers will reply there. Please don't attach large archives to an issue without asking first.
 

@@ -26,7 +26,18 @@ your outputs and sources do, and adds profiles for running several instances.
   reading a test image) that prints `SELF-TEST OK` and exits with code 0.
 - Ctrl+C, `SIGTERM` and Ctrl+Break (Windows) quit ScoreSight cleanly, saving
   the boxes and stopping the HTTP server, even with a dialog open. This is how
-  to stop an instance that runs without a window (`-platform offscreen`).
+  to stop an instance that runs without a window (`-platform offscreen`). On
+  Windows, such an instance attaches to the Command Prompt or PowerShell
+  window it was started from, so that Ctrl+C and Ctrl+Break reach it.
+- The log shows how long each start took: a `Startup:` line with the time of
+  each startup phase (until the app's code runs, loading its modules, building
+  the window) and when the HTTP server and the video sources were ready, to
+  diagnose a slow start ([#33](https://github.com/royshil/scoresight/issues/33)).
+  The `SCORESIGHT_STARTUP_REPORT` environment variable also writes these times
+  to a JSON file.
+- If ScoreSight crashes in a library (Qt, OpenCV, Tesseract...), the
+  `scoresight_std_` log shows where: what every part of the program was doing
+  at that moment. Before, such a crash left no trace.
 - **File > Appearance** with System, Light and Dark colour schemes,
   remembered between runs ([#50](https://github.com/royshil/scoresight/issues/50)).
 - **File > Check for Updates** checks GitHub Releases and always shows the
@@ -44,6 +55,10 @@ your outputs and sources do, and adds profiles for running several instances.
   them.
 - Every packaged build is tested with `--self-test` on Windows, macOS and
   Linux before it is released, and the Windows installer is test-installed.
+- Every packaged build (and the app from source, on every pull request) is
+  also run end to end: headless, it reads a test scoreboard video and its
+  readings must reach the HTTP server, the files and the outbound API. Its
+  startup time is measured and compared with 0.1.0 on each platform.
 - New documentation site at <https://royshil.github.io/scoresight/>:
   quickstart, installation (including the portable version, macOS permissions
   and Linux), video sources (including RTSP,
@@ -60,6 +75,47 @@ your outputs and sources do, and adds profiles for running several instances.
   `scripts/compile_ui.py` to compile the Qt Designer files on every platform,
   `scripts/update_translations.py` to refresh the translation sources from
   `src/` only, and `scripts/bump_version.py` to prepare a release.
+- A status bar: the source with its resolution and frame rate, how many times
+  per second the boxes are read against the **Detections / s** setting (orange
+  when the computer can't keep up), **PAUSED** while the outputs are paused,
+  and the HTTP server's address on your network with a **Copy** button.
+- Keyboard shortcuts: **Ctrl+Shift+P** pauses and resumes the outputs,
+  **Ctrl+B** toggles **Binary View**, **Ctrl+0** fits the picture to the
+  window and **F5** reloads the sources (**⌘** on macOS). The buttons'
+  tooltips show them.
+- Every slider shows its value next to it (*Off* when the setting is off), and
+  every control has a tooltip.
+- The outputs show whether they work. The **Outputs** list has a row for each
+  output with an on/off switch, a symbol for its state (● working, ◐ waiting,
+  ▲ retrying or needs attention, ■ not working, ○ off) and a line about what
+  is happening, for example *Connected to localhost:4455*, *Can't reach
+  192.168.1.40:8088 · retrying* or *HTTP 401: vMix asks for a login*, with
+  the time it last sent something. When the selected output has a problem, a
+  box over its settings says what to do. The status bar shows the state of
+  every output, and a click on one shows its settings. The documented problems
+  are explained in plain words: vMix on its TCP API port 8099, a vMix login,
+  an overlays.uno URL that is refused or rate-limited (HTTP 429), a wrong OBS
+  password, a missing OBS text source, an unreachable target, a busy HTTP port
+  and a missing output folder. The UNO URL's token and keys in an API URL are
+  never shown.
+- **Disconnect** for OBS. After it, ScoreSight keeps the connection settings
+  but doesn't connect to OBS at its next start until you connect again. The
+  connect button shows **Change connection...** while connected, and a failed
+  connection says why (in the dialog and in the Outputs list).
+- The HTTP server's page shows its address for other computers on your
+  network, and its row in the Outputs list shows how many computers or
+  programs read it.
+- The field list has a context menu: **Place on picture** or **Remove from
+  picture**, **Rename...** (**F2** or a double-click), **Delete field...**
+  (**Del**), **Reset settings to defaults**, **Copy value** (**Ctrl+C**, the
+  last good reading) and **Zoom to box**. **Ctrl+N** adds a custom field.
+- **Insert field** next to a template adds another field to it, spelled
+  exactly as the template needs it.
+- The **Format** list always shows the preset the expression matches (or
+  *Custom*), instead of going back to *Select Preset*. An expression that
+  isn't a valid regular expression is shown in red with *Not a valid
+  expression, so it is ignored* (the OCR accepted every reading without a
+  word), and its tooltip says what is wrong.
 
 ### Changed
 
@@ -84,6 +140,9 @@ your outputs and sources do, and adds profiles for running several instances.
   update check are handled in the background, so the window appears
   immediately and no longer freezes
   ([#33](https://github.com/royshil/scoresight/issues/33)).
+- ScoreSight starts faster: screen capture support (pywin32 on Windows,
+  Quartz on macOS) is loaded only when a screen capture source is used, and
+  NDI support is loaded in the background while the sources are listed.
 - ScoreSight remembers the type of the last source and reopens URL/RTSP
   streams, video files, cameras, NDI sources and screen capture at the next
   start ([#10](https://github.com/royshil/scoresight/issues/10)).
@@ -149,14 +208,107 @@ your outputs and sources do, and adds profiles for running several instances.
   Windows camera enumerator builds with pybind11 from `requirements-build.txt`
   from any directory, and the PyInstaller spec builds every platform with the
   same command.
+- The window has three parts: the **Fields** list on the left, the picture
+  in the middle and the **inspector** on the right, with a **Box** tab (the
+  selected field's settings) and an **Outputs** tab. The dividers between them
+  can be dragged, a double-click on one hides or shows the field list or the
+  inspector, and ScoreSight remembers the widths and the hidden panes. The
+  window opens at a size that fits the screen. It fits small screens and long
+  languages: its minimum size is about 910×410 pixels, in English and in
+  German (it was 1016×750 and 1158×750), so it fits a 1366×768 laptop.
+- The box settings are in the inspector's **Box** tab, under the field's name
+  and *Settings for this field only*, in three sections: **Reading**,
+  **Filtering** and **Image cleanup**. Image cleanup is collapsed until you
+  open it (ScoreSight remembers it), and its header says how many of its
+  settings you changed and has a **Binary view** button. The settings have
+  plain names, with the 0.1.x names in their tooltips: *Remove leading zeros*
+  (Remove leading 0s), *Add ordinal suffix* (Ordinal), *Count lights* (Dot
+  Counter), *Minimum confidence* (Conf. Th), *Smooth over last 5 readings*
+  (Average Output), *Skip OCR while image is unchanged* (Skip Similar Image),
+  *Black & white* with *Whole picture*, *None*, *This box* and *Adaptive*
+  (Binarize: Global, No Binarization, Local, Adaptive), *Remove specks*
+  (Cleanup), *Squash height* (V.Scale), *Straighten slant* (Skew), *Thicken
+  strokes* (Dilate), *Invert colours* (Invert Input), *Crop to text* (Auto
+  Crop), *Resize to 35 px* (Rescale Input), *Normalize digit width* (Normalize
+  W-H Ratio), *Build from other fields* (Template Field) and **Reset to
+  defaults** (Defaults). *Per-character sub-boxes* (Composite) and *Skip empty
+  values* (which has no effect since 0.2.0) are under *Experimental / legacy*.
+  With no field selected, the tab explains how to select one; for a field
+  that isn't on the picture, how to place it; a template field shows only its
+  template.
+- The settings for every box are together under **All boxes**, at the bottom
+  of the Box tab and always available: the **OCR model** (*Load external
+  model...*), **Detections / s** and **Update on change**, whose tooltip now
+  says what it does.
+- **Add to Scene** and **Remove Selected** are **Place on picture** and
+  **Remove from picture**: one button under the field list, the one that
+  applies to the selected field. **-** is **Delete field**, shown only for
+  custom fields (on a standard field it did nothing). Removing a box whose
+  settings you changed, and deleting a field, ask first.
+- The boxes list shows the readings: each box's last good value in large type,
+  a symbol and a word for the state of its latest reading (✓ new, = same,
+  ! rejected, with the rejected text, ∅ no reading) and how long ago the last
+  good reading was made, highlighted when it's old. A rejected or empty
+  reading no longer greys out or hides the value, the list is tall enough for
+  every standard box, and a click on a value selects its box.
+- **Stop Updates** is now **Pause outputs** / **Resume outputs**, at the top
+  of the field list. While the outputs are paused, the button is orange, a
+  banner over the picture shows since when (with a **Resume outputs**
+  button), the values in the boxes list are marked *not sent*, the window
+  title starts with ⏸ and the status bar shows how long they have been paused.
+- The **File** menu is translated, and **File > Language** lists each language
+  in its own language (Deutsch, Français, 日本語, ...) with the current one
+  ticked.
+- **Connect to OBS** hides the password (with **Show password**), has a
+  **Cancel** button and stays in front of the main window.
+- The vMix and UNO start buttons show a text and an icon instead of emoji:
+  **Start vMix** / **Stop vMix** and **Start sending** / **Stop sending**.
+- Long camera names no longer make the window wider: the source list is kept
+  narrow, and its drop-down shows the whole names.
+- The output tabs (**Text Files**, **Browser**, **OBS**, **VMix**, **UNO**,
+  **API**) are replaced by the **Outputs** list, in the inspector's **Outputs**
+  tab: select an output to show its settings under the list. The settings are
+  the same as on the tabs, and a divider between the list and the settings
+  gives the vMix and UNO mapping tables as much room as you need.
 
 ### Fixed
 
+- Renaming a field to a name that was taken did nothing, without a message.
+  ScoreSight now says so and asks again. Names that differ only in upper and
+  lower case count as the same, because their text files are the same file on
+  Windows and macOS.
+- A custom field on the picture could also be made a template field, which
+  left two boxes with the same name. Only a field that isn't on the picture
+  can become a template.
+- Right after **Add to Scene** (now **Place on picture**), the settings panel
+  showed values that weren't the new box's (for example **Average Output**
+  on), until another box was selected.
+- After a language change, the settings panel showed *Select an item above*
+  instead of the selected box's name.
+- Moving through the field list with the arrow keys didn't update the
+  settings shown, so a change was saved to another box than the one shown,
+  and **Add to Scene** could add a second box with the same name.
+- After **File > Import Configuration**, fields that weren't in the file were
+  still marked as being on the picture.
 - Setting **Detections / s** to 1 froze the video and could leave the controls
   disabled. The preview and the first reading now start on the first frame,
   and the preview refreshes about once a second at any detection rate
   ([#53](https://github.com/royshil/scoresight/issues/53),
   [#20](https://github.com/royshil/scoresight/issues/20)).
+- ScoreSight could crash at random (an access violation, most likely at
+  startup or with outputs active) when Python's memory cleanup ran on one of
+  its background threads while the window was being updated. The cleanup now
+  runs only on the window's thread.
+- The first readings after a source opened were lost. A value that never
+  changed (for example a score after a restart) then didn't show in the boxes
+  list, and vMix and UNO didn't receive it until it changed (unless **Send
+  Same?** was on).
+- A value that changed while the outputs were paused didn't reach vMix and UNO
+  after resuming until it changed again (unless **Send Same?** was on). After
+  resuming, they now get each box's next good value even if it is unchanged.
+- Closing the **Connect to OBS** dialog without connecting left **Create OBS
+  Scene** disabled, even with OBS connected.
+- The outbound API's method list was too narrow to show `POST`.
 - Saved **Video Settings** (capture backend, video format, resolution, frame
   rate) were not applied when a camera opened, and pressing **OK** in Video
   Settings reopened the camera and threw them away

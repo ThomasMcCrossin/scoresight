@@ -68,7 +68,11 @@ class CameraView(QGraphicsView):
         self,
         camera_index: CameraInfo,
         detectionTargetsStorage: TextDetectionTargetMemoryStorage | None = None,
+        start: bool = True,
     ):
+        """start=False leaves the capture thread stopped until startCapture(),
+        so that a caller can connect to its signals first: a reading the thread
+        emits before a slot is connected never reaches that slot."""
         super().__init__()
         self.scene = QGraphicsScene(self)
         self.setScene(self.scene)
@@ -78,7 +82,7 @@ class CameraView(QGraphicsView):
         self.timerThread.update_signal.connect(self.update_pixmap)
         self.timerThread.update_error.connect(self.error_event)
         self.timerThread.processing_error.connect(self.show_error_text)
-        self.timerThread.start()
+        self._capture_started = False
         self.scenePixmapItem = None
         self.detectionTargetsStorage = detectionTargetsStorage
         self.firstFrameReceived = False
@@ -88,6 +92,15 @@ class CameraView(QGraphicsView):
         self.camera_width = 0
         self.camera_height = 0
         subscribe_to_data("scoresight.json", "video_settings", self.resetFrame)
+        if start:
+            self.startCapture()
+
+    def startCapture(self):
+        """Start the capture thread (once)."""
+        if self.timerThread is None or self._capture_started:
+            return
+        self._capture_started = True
+        self.timerThread.start()
 
     def resetFrame(self, data):
         self.firstFrameReceived = False
