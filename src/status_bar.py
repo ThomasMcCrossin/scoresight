@@ -126,6 +126,12 @@ class StatusSnapshot:
     # data), into this folder
     collecting_training_data: bool = False
     training_data_folder: str = ""
+    # the picture adjustments in effect: the rotation in degrees, and whether
+    # the picture is cropped, corrected with four corners and stabilized
+    rotation: int = 0
+    cropped: bool = False
+    four_corner_corrected: bool = False
+    stabilized: bool = False
     # the HTTP server's URL, None when it isn't running
     http_url: str | None = None
     http_urls: tuple[str, ...] = ()
@@ -250,6 +256,29 @@ def source_text(snapshot: StatusSnapshot) -> str:
                 )
             )
     return " · ".join(parts)
+
+
+def adjustments_text(snapshot: StatusSnapshot) -> str:
+    """The picture adjustments in effect ("Adjust picture: rotated 90°,
+    cropped"), or "" without any."""
+    parts = []
+    if snapshot.rotation:
+        parts.append(
+            QCoreApplication.translate("StatusBar", "rotated {angle}°").format(
+                angle=snapshot.rotation
+            )
+        )
+    if snapshot.cropped:
+        parts.append(QCoreApplication.translate("StatusBar", "cropped"))
+    if snapshot.four_corner_corrected:
+        parts.append(QCoreApplication.translate("StatusBar", "4-corner corrected"))
+    if snapshot.stabilized:
+        parts.append(QCoreApplication.translate("StatusBar", "stabilized"))
+    if not parts:
+        return ""
+    return QCoreApplication.translate("StatusBar", "Adjust picture: {list}").format(
+        list=", ".join(parts)
+    )
 
 
 def source_state_description(state: str) -> str:
@@ -438,11 +467,13 @@ class MainStatusBar(QObject):
         self.label_source.setText(
             f"{_colored(glyph, color)}&nbsp;{html.escape(source_text(snapshot), quote=False)}"
         )
-        self.label_source.setToolTip(
-            QCoreApplication.translate(
-                "StatusBar", "The video source, its resolution and frame rate"
-            )
+        tooltip = QCoreApplication.translate(
+            "StatusBar", "The video source, its resolution and frame rate"
         )
+        adjustments = adjustments_text(snapshot)
+        if adjustments:
+            tooltip += "\n" + adjustments
+        self.label_source.setToolTip(tooltip)
 
         text = ocr_text(snapshot)
         self.label_ocr.setVisible(bool(text))

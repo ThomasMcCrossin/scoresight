@@ -914,7 +914,7 @@ class MainWindow(QMainWindow):
         store_data("scoresight.json", settingName, value)
 
     def eventFilter(self, obj, event):
-        if event.type() == QEvent.KeyPress:
+        if event.type() == QEvent.KeyPress and obj is self:
             if event.key() == Qt.Key_Escape:
                 viewer = self.image_viewer
                 if viewer is not None and viewer.fourCornerSelectionMode:
@@ -1116,6 +1116,12 @@ class MainWindow(QMainWindow):
                 values["resolution"] = tuple(frame_size)
             values["fps"] = getattr(thread, "fps", None)
             values["nominal_fps"] = getattr(thread, "nominal_fps", None)
+            # the picture adjustments, for the source's tooltip
+            crop = getattr(thread, "crop", None)
+            values["rotation"] = int(getattr(crop, "rotation", 0) or 0)
+            values["cropped"] = bool(getattr(crop, "isCropSet", False))
+            values["four_corner_corrected"] = viewer.hasFourCornerCorrection()
+            values["stabilized"] = bool(getattr(thread, "stabilizationEnabled", False))
             values["ocr_rate"] = getattr(thread, "ups", None)
             interval = getattr(thread, "update_frame_interval", None)
             if interval:
@@ -2042,6 +2048,9 @@ class MainWindow(QMainWindow):
     def reset_playing_source(self):
         self.closeImageViewer()
         self.sourceWindowTitle = None
+        # e.g. a source that couldn't be opened again: another one can be
+        # chosen
+        self.ui.frame_source_view.setEnabled(True)
         # the first-run card. It is hidden, never deleted: the .ui's
         # retranslateUi sets its texts (label_12 is its title) on a language
         # change.
@@ -2161,8 +2170,6 @@ class MainWindow(QMainWindow):
         if self.ui.comboBox_camera_source.currentIndex() == 0:
             return
 
-        self.ui.frame_source_view.setEnabled(False)
-
         if self.ui.comboBox_camera_source.currentIndex() == 1:
             if self.source_name is None or not path.exists(self.source_name):
                 logger.error("No file selected")
@@ -2211,6 +2218,8 @@ class MainWindow(QMainWindow):
         # remember the source (with its type) for the next start
         self.globalSettingsChanged("source_selected", self.sourceToStore(camera_info))
 
+        # until its first frame (or its error)
+        self.ui.frame_source_view.setEnabled(False)
         self.closeImageViewer()
         self.ui.frame_firstRun.hide()
 
@@ -2222,8 +2231,10 @@ class MainWindow(QMainWindow):
             self.itemSelected,
             start=False,
         )
-        # a new capture plays at x1
+        # a new capture plays at x1, without Binary View and stabilization
         self.ui.toolButton_speed.setText(source_bar.speed_text(1))
+        self.ui.pushButton_binary.setChecked(False)
+        self.ui.pushButton_stabilize.setChecked(False)
         self.image_viewer.first_frame_received_signal.connect(
             self.cameraConnectedEnableUI
         )

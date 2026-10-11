@@ -135,8 +135,9 @@ class ImageViewer(CameraView):
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
-        if self._isScaling:
-            # scrollbars appearing while zooming: keep the zoom
+        if self._isScaling or not self.fitted:
+            # scrollbars appearing while zooming, or a banner over the viewer
+            # while zoomed in: keep the zoom
             return
         self.fitPicture()
         self.detectionTargetsChanged()
@@ -488,6 +489,7 @@ class ImageViewer(CameraView):
         if abs(target - zoom) < 1e-9:
             return False
         self._isScaling = True
+        self.fitted = False
         self.scale(target / zoom, target / zoom)
         # the resize events of the scrollbars appearing come first
         QTimer.singleShot(0, self.resetScalingFlag)

@@ -92,6 +92,9 @@ class FakeViewer(QWidget):
     def toggleBinary(self):
         pass
 
+    def toggleStabilization(self, state):
+        pass
+
     def selectBox(self, name):
         pass
 
@@ -2391,3 +2394,64 @@ def test_a_narrow_source_bar_shows_icons(main_window, qtbot):
     main_window.resize(2000, 800)
     qtbot.waitUntil(lambda: not row.compact)
     assert ui.label_boxDisplayStyle.isVisibleTo(main_window)
+
+
+def test_retrying_a_missing_file_leaves_the_source_usable(main_window, tmp_path):
+    # the file was moved: Retry can't open it, and the source bar must still
+    # work (it was disabled while opening and stayed so)
+    ui = main_window.ui
+    main_window.show()
+    video = open_video(main_window, tmp_path)
+    main_window.updateError("Error: Unable to play video stream")
+    assert "Can't play the video file" in ui.label_sourceError.text()
+    video.unlink()
+    ui.pushButton_retrySource.click()
+    assert main_window.image_viewer is None
+    assert ui.comboBox_camera_source.currentIndex() == 0
+    assert ui.frame_source_view.isEnabled()
+    assert ui.comboBox_camera_source.isEnabledTo(main_window)
+    assert ui.frame_firstRun.isVisibleTo(main_window)
+    assert not ui.frame_sourceError.isVisibleTo(main_window)
+
+
+def test_esc_in_the_source_list_only_closes_the_list(main_window):
+    from PySide6.QtGui import QKeyEvent
+
+    viewer = FakeViewer(None, None, None, None)
+    main_window.image_viewer = viewer
+    main_window.cameraConnectedEnableUI()
+    viewer.startFourCornerSelection()
+    # (the list is a popup window: its Esc doesn't reach the main window)
+    QApplication.sendEvent(
+        main_window.ui.comboBox_camera_source.view(),
+        QKeyEvent(
+            QEvent.Type.KeyPress,
+            QtCore.Qt.Key.Key_Escape,
+            QtCore.Qt.KeyboardModifier.NoModifier,
+        ),
+    )
+    assert viewer.fourCornerSelectionMode
+    # Esc in the window cancels it
+    QApplication.sendEvent(
+        main_window,
+        QKeyEvent(
+            QEvent.Type.KeyPress,
+            QtCore.Qt.Key.Key_Escape,
+            QtCore.Qt.KeyboardModifier.NoModifier,
+        ),
+    )
+    assert not viewer.fourCornerSelectionMode
+
+
+def test_a_new_source_starts_without_binary_view(main_window, tmp_path):
+    ui = main_window.ui
+    open_video(main_window, tmp_path)
+    main_window.cameraConnectedEnableUI()
+    ui.pushButton_binary.click()
+    ui.pushButton_stabilize.click()
+    assert ui.actionBinaryView.isChecked()
+    open_video(main_window, tmp_path, "second half.mp4")
+    # the new capture shows the picture and isn't stabilized
+    assert not ui.pushButton_binary.isChecked()
+    assert not ui.actionBinaryView.isChecked()
+    assert not ui.pushButton_stabilize.isChecked()

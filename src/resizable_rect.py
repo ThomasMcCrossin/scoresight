@@ -374,7 +374,9 @@ class BoxLabel(QGraphicsItem):
         )
         height = round(max(name_metrics.height(), value_metrics.height()) + 5)
         self._disc = height - 6 if state_look(self.state) else 0
-        width = LABEL_PADDING_PX * 2 + name_metrics.horizontalAdvance(self._nameText)
+        # measured here, not in paint(): readings arrive several times a second
+        self._nameWidth = name_metrics.horizontalAdvance(self._nameText)
+        width = LABEL_PADDING_PX * 2 + self._nameWidth
         if self._disc:
             width += self._disc + 4
         if self._valueText:
@@ -440,7 +442,7 @@ class BoxLabel(QGraphicsItem):
             x = disc.right() + 4
         painter.setFont(self.nameFont)
         painter.setPen(LABEL_NAME)
-        name_width = QFontMetricsF(self.nameFont).horizontalAdvance(self._nameText)
+        name_width = self._nameWidth
         painter.drawText(
             QRectF(x, rect.top(), name_width + 1, rect.height()),
             Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,

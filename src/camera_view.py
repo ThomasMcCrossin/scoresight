@@ -130,6 +130,8 @@ class CameraView(QGraphicsView):
         self.camera_width = 0
         self.camera_height = 0
         self._zoom = None
+        # the whole picture is shown (it is fitted again when the view resizes)
+        self.fitted = True
         # the statistics overlay: a child of the view, not of its viewport, so
         # it stays at the top-left when the picture is scrolled
         self.osd = QLabel(self)
@@ -185,6 +187,7 @@ class CameraView(QGraphicsView):
         """Show the whole picture."""
         self.resetTransform()
         self.fitInView(self.scene.sceneRect(), Qt.AspectRatioMode.KeepAspectRatio)
+        self.fitted = True
         self.emitZoom()
 
     def placeOSD(self):

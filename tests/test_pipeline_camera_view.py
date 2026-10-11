@@ -560,3 +560,22 @@ def test_a_source_error_is_not_drawn_over_the_picture(running_viewer):
     assert errors == ["Error: Unable to play video stream"]
     # the main window's source banner says it
     assert running_viewer.error_text is None
+
+
+def test_a_resize_keeps_the_zoom_unless_the_picture_is_fitted(running_viewer, qapp):
+    running_viewer.show()
+    qapp.processEvents()
+    fitted = running_viewer.zoomLevel()
+    # fitted: a smaller viewer fits it again
+    running_viewer.resize(400, 300)
+    smaller = running_viewer.zoomLevel()
+    assert smaller < fitted
+    # zoomed in: a banner over the viewer (a resize) keeps the zoom
+    running_viewer.zoomIn()
+    qapp.processEvents()  # the zoom is done
+    zoomed = running_viewer.zoomLevel()
+    running_viewer.resize(400, 260)
+    assert running_viewer.zoomLevel() == pytest.approx(zoomed)
+    running_viewer.resetZoom()
+    running_viewer.resize(800, 600)
+    assert running_viewer.zoomLevel() == pytest.approx(fitted)

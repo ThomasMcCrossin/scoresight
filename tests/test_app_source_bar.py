@@ -17,6 +17,7 @@ from status_bar import (
     SOURCE_SLOW,
     SOURCE_STALLED,
     StatusSnapshot,
+    adjustments_text,
     source_look,
     source_state,
     source_text,
@@ -175,3 +176,13 @@ def test_the_status_bar_says_slow_and_reconnecting():
     assert "slow: 11.0 of 30 fps" in source_text(slow)
     reconnecting = StatusSnapshot(source_name="cam", source_state=SOURCE_RECONNECTING)
     assert source_text(reconnecting) == "cam: reconnecting…"
+
+
+def test_the_source_tooltip_lists_the_picture_adjustments():
+    assert adjustments_text(StatusSnapshot()) == ""
+    snapshot = StatusSnapshot(
+        rotation=90, cropped=True, four_corner_corrected=True, stabilized=True
+    )
+    assert adjustments_text(snapshot) == (
+        "Adjust picture: rotated 90°, cropped, 4-corner corrected, stabilized"
+    )

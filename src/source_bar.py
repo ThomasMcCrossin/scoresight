@@ -32,10 +32,6 @@ PLAYBACK_SPEEDS = (1, 2, 4, 8, 16, 32)
 ENTIRE_SCREEN = -1
 
 
-def _translate(text: str) -> str:
-    return QCoreApplication.translate("SourceBar", text)
-
-
 def file_name(path) -> str:
     path = str(path)
     return path.replace("\\", "/").rsplit("/", 1)[-1] or path
@@ -45,8 +41,10 @@ def screen_title(window_id, window_title: str | None = None) -> str:
     """The name of a screen capture's window ("Entire screen" for the whole
     screen)."""
     if window_id == ENTIRE_SCREEN or window_id is None:
-        return _translate("Entire screen")
-    return window_title or _translate("Window {id}").format(id=window_id)
+        return QCoreApplication.translate("SourceBar", "Entire screen")
+    return window_title or QCoreApplication.translate(
+        "SourceBar", "Window {id}"
+    ).format(id=window_id)
 
 
 def source_combo_text(
@@ -58,13 +56,15 @@ def source_combo_text(
     if camera_info is None:
         return None
     if camera_info.type == CameraInfo.CameraType.FILE:
-        return _translate("Video file: {name}").format(name=file_name(camera_info.id))
+        return QCoreApplication.translate("SourceBar", "Video file: {name}").format(
+            name=file_name(camera_info.id)
+        )
     if camera_info.type == CameraInfo.CameraType.URL:
-        return _translate("Stream: {url}").format(
+        return QCoreApplication.translate("SourceBar", "Stream: {url}").format(
             url=without_credentials(str(camera_info.id))
         )
     if camera_info.type == CameraInfo.CameraType.SCREEN_CAPTURE:
-        return _translate("Screen: {window}").format(
+        return QCoreApplication.translate("SourceBar", "Screen: {window}").format(
             window=screen_title(camera_info.id, window_title)
         )
     return None
@@ -102,46 +102,58 @@ def source_error_text(
 ) -> tuple[str, str]:
     """(What failed, what to do) for a source that can't be opened or read."""
     if camera_info is None:
-        return _translate("The source can't be read."), ""
+        return QCoreApplication.translate("SourceBar", "The source can't be read."), ""
     name = source_full_name(camera_info, window_title)
     kind = camera_info.type
     if kind == CameraInfo.CameraType.FILE:
         return (
-            _translate("Can't play the video file {name}.").format(
-                name=file_name(camera_info.id)
-            ),
-            _translate(
+            QCoreApplication.translate(
+                "SourceBar", "Can't play the video file {name}."
+            ).format(name=file_name(camera_info.id)),
+            QCoreApplication.translate(
+                "SourceBar",
                 "It may have been moved, be damaged or use a format that can't be "
-                "read (MP4 and AVI work best)."
+                "read (MP4 and AVI work best).",
             ),
         )
     if kind == CameraInfo.CameraType.URL:
         return (
-            _translate("Can't open the stream {url}.").format(url=name),
-            _translate(
+            QCoreApplication.translate(
+                "SourceBar", "Can't open the stream {url}."
+            ).format(url=name),
+            QCoreApplication.translate(
+                "SourceBar",
                 "Check the address, the user name and password, and that the camera "
                 "or server is on and reachable from this computer. A stream gets "
-                "5 seconds to answer."
+                "5 seconds to answer.",
             ),
         )
     if kind == CameraInfo.CameraType.SCREEN_CAPTURE:
         return (
-            _translate("Can't capture {window}.").format(window=name),
-            _translate("The window may have been closed or minimized."),
+            QCoreApplication.translate("SourceBar", "Can't capture {window}.").format(
+                window=name
+            ),
+            QCoreApplication.translate(
+                "SourceBar", "The window may have been closed or minimized."
+            ),
         )
     if kind == CameraInfo.CameraType.NDI:
         return (
-            _translate("Can't receive the NDI source {name}.").format(name=name),
-            _translate(
+            QCoreApplication.translate(
+                "SourceBar", "Can't receive the NDI source {name}."
+            ).format(name=name),
+            QCoreApplication.translate(
+                "SourceBar",
                 "Check that it is still on the network, then Retry or reload the "
-                "sources."
+                "sources.",
             ),
         )
     return (
-        _translate("Can't open {name}.").format(name=name),
-        _translate(
+        QCoreApplication.translate("SourceBar", "Can't open {name}.").format(name=name),
+        QCoreApplication.translate(
+            "SourceBar",
             "It may be unplugged or used by another program: close that program, "
-            "then Retry."
+            "then Retry.",
         ),
     )
 
@@ -150,10 +162,13 @@ def screen_recording_permission_text() -> tuple[str, str]:
     """(What's wrong, what to do) when macOS doesn't let ScoreSight record the
     screen: the capture then shows only the desktop."""
     return (
-        _translate("ScoreSight isn't allowed to record the screen."),
-        _translate(
+        QCoreApplication.translate(
+            "SourceBar", "ScoreSight isn't allowed to record the screen."
+        ),
+        QCoreApplication.translate(
+            "SourceBar",
             "macOS shows only the desktop to apps without the Screen Recording "
-            "permission. Allow ScoreSight in System Settings, then restart it."
+            "permission. Allow ScoreSight in System Settings, then restart it.",
         ),
     )
 
@@ -178,13 +193,15 @@ def screen_recording_allowed() -> bool | None:
 def four_corner_banner_text(picked: int, has_correction: bool) -> str:
     """The four-corner picking banner: how many corners were clicked, and what
     Esc does."""
-    text = _translate(
-        "<b>Click the 4 corners of the scoreboard:</b> {picked} of 4."
+    text = QCoreApplication.translate(
+        "SourceBar", "<b>Click the 4 corners of the scoreboard:</b> {picked} of 4."
     ).format(picked=picked)
     if has_correction:
-        text += " " + _translate("Esc cancels and keeps the previous correction.")
+        text += " " + QCoreApplication.translate(
+            "SourceBar", "Esc cancels and keeps the previous correction."
+        )
     else:
-        text += " " + _translate("Esc cancels.")
+        text += " " + QCoreApplication.translate("SourceBar", "Esc cancels.")
     return text
 
 
