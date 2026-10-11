@@ -47,27 +47,36 @@ def action_rows(actions: Iterable[QAction]) -> list[tuple[str, str]]:
 
 def viewer_rows() -> list[tuple[str, str]]:
     """The viewer's keys and mouse controls, which no action has."""
-    tr = QCoreApplication.translate
     ctrl = key_text("Ctrl+B").replace("B", "").rstrip("+") or "Ctrl"
     return [
         (
-            tr("KeyboardShortcuts", "Zoom in or out"),
-            tr("KeyboardShortcuts", "{ctrl} + mouse wheel").format(ctrl=ctrl),
+            QCoreApplication.translate("KeyboardShortcuts", "Zoom in or out"),
+            QCoreApplication.translate(
+                "KeyboardShortcuts", "{ctrl} + mouse wheel"
+            ).format(ctrl=ctrl),
         ),
         (
-            tr("KeyboardShortcuts", "Move the picture"),
-            tr("KeyboardShortcuts", "Drag with the middle mouse button"),
+            QCoreApplication.translate("KeyboardShortcuts", "Move the picture"),
+            QCoreApplication.translate(
+                "KeyboardShortcuts", "Drag with the middle mouse button"
+            ),
         ),
         (
-            tr("KeyboardShortcuts", "Move the selected box by 1 pixel"),
-            tr("KeyboardShortcuts", "Arrow keys"),
+            QCoreApplication.translate(
+                "KeyboardShortcuts", "Move the selected box by 1 pixel"
+            ),
+            QCoreApplication.translate("KeyboardShortcuts", "Arrow keys"),
         ),
         (
-            tr("KeyboardShortcuts", "Move the selected box by 10 pixels"),
-            tr("KeyboardShortcuts", "Shift + arrow keys"),
+            QCoreApplication.translate(
+                "KeyboardShortcuts", "Move the selected box by 10 pixels"
+            ),
+            QCoreApplication.translate("KeyboardShortcuts", "Shift + arrow keys"),
         ),
         (
-            tr("KeyboardShortcuts", "Deselect, or stop picking the 4 corners"),
+            QCoreApplication.translate(
+                "KeyboardShortcuts", "Deselect, or stop picking the 4 corners"
+            ),
             key_text("Esc"),
         ),
     ]

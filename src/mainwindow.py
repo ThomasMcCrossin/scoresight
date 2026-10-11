@@ -2453,10 +2453,9 @@ class MainWindow(QMainWindow):
     def keyboardShortcutGroups(self) -> list[tuple[str, list[tuple[str, str]]]]:
         """The window's keys in groups, from the actions that have them."""
         ui = self.ui
-        tr = QCoreApplication.translate
         return [
             (
-                tr("MainWindow", "Window"),
+                QCoreApplication.translate("MainWindow", "Window"),
                 action_rows(
                     [
                         ui.actionSetupLayout,
@@ -2472,7 +2471,7 @@ class MainWindow(QMainWindow):
                 ),
             ),
             (
-                tr("MainWindow", "Fields"),
+                QCoreApplication.translate("MainWindow", "Fields"),
                 action_rows(
                     [
                         ui.actionNewField,
@@ -2484,7 +2483,7 @@ class MainWindow(QMainWindow):
                 ),
             ),
             (
-                tr("MainWindow", "Picture"),
+                QCoreApplication.translate("MainWindow", "Picture"),
                 action_rows(
                     [
                         ui.actionBinaryView,
@@ -4087,19 +4086,20 @@ class MainWindow(QMainWindow):
             label.hide()
             return
         outcome, name = self.obsSceneOutcome
-        tr = QCoreApplication.translate
         texts = {
-            SCENE_CREATED: tr("MainWindow", "Created the scene “{name}” in OBS."),
-            SCENE_RECREATED: tr(
+            SCENE_CREATED: QCoreApplication.translate(
+                "MainWindow", "Created the scene “{name}” in OBS."
+            ),
+            SCENE_RECREATED: QCoreApplication.translate(
                 "MainWindow",
                 "Made the scene “{name}” again: its sources were replaced.",
             ),
-            SCENE_KEPT: tr(
+            SCENE_KEPT: QCoreApplication.translate(
                 "MainWindow",
                 "OBS already has a scene “{name}”: it was kept as it is. Tick "
                 "Recreate to make it again.",
             ),
-            SCENE_FAILED: tr(
+            SCENE_FAILED: QCoreApplication.translate(
                 "MainWindow",
                 "Couldn't create the scene “{name}”. Tools > View log has the details.",
             ),
