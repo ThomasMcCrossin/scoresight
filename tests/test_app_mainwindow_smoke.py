@@ -2931,7 +2931,8 @@ def test_a_manual_check_during_the_startup_check_shows_its_result(
 
 def test_confidence_threshold_slider(main_window, make_target):
     ui = main_window.ui
-    assert "Tesseract" in ui.horizontalSlider_conf_thresh.toolTip()
+    # either engine's confidence, with the advice for PP-OCR's
+    assert "PP-OCR, 80-90" in ui.horizontalSlider_conf_thresh.toolTip()
     assert "%" in ui.label_3.toolTip()
     handler = main_window.boxSettingsUiHandler
     handler.populateSettings("")  # no box selected: the default, off

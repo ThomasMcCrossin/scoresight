@@ -28,11 +28,11 @@ description: "Set up a ScoreSight development environment with uv and Python 3.1
 
 | File | Contents |
 |---|---|
-| `requirements.txt` | Runtime dependencies for all platforms (with environment markers) |
+| `requirements.txt` | Runtime dependencies for all platforms (with environment markers), including onnxruntime for PP-OCR: 1.31.0, and 1.23.2 on macOS x86_64 (the last release with Intel Mac wheels, CPython 3.10–3.13) |
 | `requirements-win.txt` | Windows extras, including the prebuilt Windows `tesserocr` wheel |
 | `requirements-mac.txt` | macOS extras (PyObjC frameworks for camera enumeration and screen capture) |
-| `requirements-dev.txt` | `-r requirements.txt` plus pytest, pytest-qt, ruff and pre-commit |
-| `requirements-build.txt` | Packaging tools: PyInstaller, pyinstaller-hooks-contrib, pybind11, setuptools |
+| `requirements-dev.txt` | `-r requirements.txt` plus pytest, pytest-qt, ruff, pre-commit and PyYAML (for `scripts/fetch_models.py`) |
+| `requirements-build.txt` | Packaging tools: PyInstaller, pyinstaller-hooks-contrib, pybind11, setuptools, PyYAML |
 | `requirements-tools.txt` | Dependencies of the standalone scripts in `scripts/` (training-data utilities) |
 
 `tesserocr` comes as a binary wheel with Tesseract included: from PyPI on macOS and Linux, and from the [simonflueckiger/tesserocr-windows_build](https://github.com/simonflueckiger/tesserocr-windows_build) releases on Windows (referenced in `requirements-win.txt`). You don't need a system-wide Tesseract installation.
@@ -77,6 +77,19 @@ python src\win32DeviceEnum\setup.py build_ext --inplace
 ```
 
 This produces `win32DeviceEnumBind.cp313-win_amd64.pyd` (the name depends on your Python version) next to `setup.py`. The script works from any directory (`cd src\win32DeviceEnum` + `python setup.py build_ext --inplace` works too), and it stops with a clear message when it isn't run on Windows or pybind11 is missing. Without the extension, ScoreSight from source still runs but can't list cameras on Windows (`--self-test` only warns about it from source, and fails in a packaged build).
+
+### Download the PP-OCR models
+
+The PP-OCR engine's models (PaddleOCR's PP-OCRv6 small and tiny recognition models, 21 MB and 4.5 MB) aren't in git. Download them once:
+
+```bash
+python scripts/fetch_models.py           # what is missing; checks every file
+python scripts/fetch_models.py --check   # only check (exit 1 if anything is missing or wrong)
+```
+
+It downloads each model's `inference.onnx` and `inference.yml` from its Hugging Face repository at a pinned revision (the revisions the [OCR evaluation](ocr-eval.md) measured), checks each against a pinned SHA-256, and writes `ocr_models/ppocr/<model>/inference.onnx`, `characters.txt` (the character list, so the app doesn't parse YAML) and `config.json` (the input size and channel order). It retries a failed download with a growing delay, writes through `.part` files, keeps files that are present and match (a second run downloads nothing) and exits with 1 on any failure. `HF_ENDPOINT` selects a Hugging Face mirror. `ocr_models/ppocr/` is gitignored except its `LICENSE` (Apache-2.0) and `NOTICE`, which are committed.
+
+Without the models (or without onnxruntime) ScoreSight runs from source with Tesseract: the PP-OCR items of the OCR model list are disabled with a tooltip saying how to get them, and the `ppocr` tests are skipped. A packaged build needs them: the spec fails without them.
 
 ### Compile the UI files
 
@@ -125,7 +138,7 @@ pyinstaller --clean --noconfirm scoresight.spec              # release build
 pyinstaller --clean --noconfirm scoresight.spec -- --debug   # Windows console build that shows the log
 ```
 
-On Windows, build the camera enumerator first (see above). Options after `--` are passed to the spec file. The old `-- --win` and `-- --mac_osx` flags are still accepted, but no longer needed.
+On Windows, build the camera enumerator first, and on every OS download the PP-OCR models (see above). Options after `--` are passed to the spec file. The old `-- --win` and `-- --mac_osx` flags are still accepted, but no longer needed.
 
 The spec builds a folder ("onedir") app on every OS:
 
@@ -138,7 +151,8 @@ The spec builds a folder ("onedir") app on every OS:
 How the spec works:
 
 - `src/main.py` is the only entry script. PyInstaller follows its imports, so new modules in `src/` are bundled automatically.
-- Data files come from the `DATA_GLOBS` list in the spec: icons, the `.traineddata` models, the translations (`.qm`) and the OBS scene assets. The build fails if a pattern matches nothing. `tests/test_packaging.py` checks that every resource the code loads through `resource_path()` is covered, so **a new data file needs a matching glob** in `DATA_GLOBS`.
+- Data files come from the `DATA_GLOBS` list in the spec: icons, the `.traineddata` models, the PP-OCR models (each model's `inference.onnx`, `characters.txt` and `config.json`, with the folder's `LICENSE` and `NOTICE`), the translations (`.qm`) and the OBS scene assets. The build fails if a pattern matches nothing. `tests/test_packaging.py` checks that every resource the code loads through `resource_path()` is covered, so **a new data file needs a matching glob** in `DATA_GLOBS`.
+- onnxruntime is a hidden import (the PP-OCR engine imports it only when a PP-OCR model loads); pyinstaller-hooks-contrib's hook collects its native libraries, and its `LICENSE` and `ThirdPartyNotices.txt` are bundled. On Windows onnxruntime and the PP-OCR models add 66 MB to the app folder (345 MB to 411 MB): 39.7 MB of onnxruntime, 25.7 MB of models and 0.6 MB of the MSVC runtime.
 - The version is read from `src/version.py`.
 - The macOS app requires macOS 15 (`LSMinimumSystemVersion`), turns off App Nap, and carries the camera and screen-recording usage texts. It is signed with the identity in the `APPLE_APP_DEVELOPER_ID` environment variable if set, and ad-hoc signed otherwise.
 

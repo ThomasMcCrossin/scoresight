@@ -36,3 +36,9 @@ htmlcov/
 
 # Claude Code agent worktrees
 .claude/worktrees/
+
+# PP-OCR models: downloaded by scripts/fetch_models.py (LICENSE and NOTICE
+# are committed)
+/ocr_models/ppocr/*
+!/ocr_models/ppocr/LICENSE
+!/ocr_models/ppocr/NOTICE

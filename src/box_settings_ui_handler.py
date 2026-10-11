@@ -6,7 +6,10 @@ on the field (MainWindow.listItemClicked calls showField):
 - a box on the picture: its reading settings (groupBox_target_settings) in
   three sections: Reading, Filtering and Image cleanup. Image cleanup is
   collapsed unless the user opened it (remembered as "image_cleanup_expanded")
-  and says how many of its settings differ from the defaults;
+  and says how many of its settings differ from the defaults. Its settings
+  prepare the box's image for Tesseract: while a PP-OCR model reads the boxes
+  (setPpocr) they are disabled, and kept, with a note, except for a dot
+  counter, which uses them with any engine;
 - a field that isn't on the picture: how to place it;
 - a template field: its template, with Insert field to add another field.
 Only custom fields can be templates, and a field on the picture can't become
@@ -22,7 +25,7 @@ from functools import partial
 
 from PySide6.QtCore import QCoreApplication, Qt
 from PySide6.QtGui import QFont, QFontDatabase, QFontMetrics
-from PySide6.QtWidgets import QMenu
+from PySide6.QtWidgets import QFormLayout, QMenu
 
 import theme
 from defaults import (
@@ -58,6 +61,9 @@ IMAGE_CLEANUP_SETTINGS = (
 )
 # whether the Image cleanup section is open
 IMAGE_CLEANUP_SETTING = "image_cleanup_expanded"
+# the label of the first Image cleanup row that isn't Tesseract preprocessing:
+# the rows above it are disabled while a PP-OCR model reads the boxes
+IMAGE_CLEANUP_LEGACY_LABEL = "label_legacy"
 
 
 def _off():
@@ -73,7 +79,7 @@ def slider_readout(name: str, value: int) -> str:
     if name == "cleanup":
         return _off() if value == 0 else _percent(value)
     if name == "conf_thresh":
-        # Tesseract's confidence in %
+        # the OCR model's confidence in %
         return _off() if value == 0 else _percent(value)
     if name == "vscale":
         # value/10 of the height
@@ -106,6 +112,50 @@ def regex_error(pattern: str) -> str | None:
     return None
 
 
+def image_cleanup_engine_note() -> str:
+    return QCoreApplication.translate(
+        "BoxSettings",
+        "Image cleanup is for the Tesseract models; PP-OCR reads the picture as it is.",
+    )
+
+
+def _layout_widgets(item) -> list:
+    """The widgets of a layout item (a widget, or every widget of a layout)."""
+    if item is None:
+        return []
+    widget = item.widget()
+    if widget is not None:
+        return [widget]
+    layout = item.layout()
+    if layout is None:
+        return []
+    widgets = []
+    for index in range(layout.count()):
+        widgets += _layout_widgets(layout.itemAt(index))
+    return widgets
+
+
+def tesseract_cleanup_widgets(ui) -> list:
+    """The Image cleanup controls that prepare a box's image for Tesseract
+    (black & white, specks, squash, slant, thicken, invert, crop, resize,
+    digit width): the form's rows above "Experimental / legacy"."""
+    layout = ui.formLayout_imageCleanup
+    legacy = getattr(ui, IMAGE_CLEANUP_LEGACY_LABEL)
+    widgets = []
+    for row in range(layout.rowCount()):
+        row_widgets = []
+        for role in (
+            QFormLayout.ItemRole.LabelRole,
+            QFormLayout.ItemRole.FieldRole,
+            QFormLayout.ItemRole.SpanningRole,
+        ):
+            row_widgets += _layout_widgets(layout.itemAt(row, role))
+        if legacy in row_widgets:
+            break
+        widgets += row_widgets
+    return widgets
+
+
 def changed_settings(settings: dict | None, name: str, keys=None) -> list[str]:
     """The settings (of the given keys, or all) of the box name that differ
     from the defaults for that field."""
@@ -128,6 +178,9 @@ class BoxSettingsUIHandler:
         self.fieldName: str | None = None
         self.fieldRole: str | None = None
         self.fieldCustom = False
+        # a PP-OCR model reads the boxes: the Tesseract Image cleanup settings
+        # don't apply (except to dot counters)
+        self.ppocr = False
         self.boxSettingsUiSetup()
 
     def readoutSliders(self):
@@ -285,6 +338,8 @@ class BoxSettingsUIHandler:
         self.ui.checkBox_dotDetector.toggled.connect(
             partial(self.genericSettingsChanged, "dot_detector")
         )
+        # a dot counter uses the Image cleanup settings with any engine
+        self.ui.checkBox_dotDetector.toggled.connect(self.updateImageCleanupEngine)
         self.ui.checkBox_ordinalIndicator.toggled.connect(
             partial(self.genericSettingsChanged, "ordinal_indicator")
         )
@@ -409,6 +464,34 @@ class BoxSettingsUIHandler:
         self.updateFormatState()
         self.updateBadge()
         self.updateReadouts()
+        self.updateImageCleanupEngine()
+
+    # --- the OCR engine: Image cleanup is Tesseract's -------------------------------
+
+    def setPpocr(self, ppocr: bool):
+        """A PP-OCR model (True) or a Tesseract model reads the boxes."""
+        self.ppocr = bool(ppocr)
+        self.updateImageCleanupEngine()
+
+    def updateImageCleanupEngine(self, *_):
+        """With PP-OCR, the Tesseract preprocessing settings of Image cleanup
+        are disabled (and kept) with a note, except for a dot counter, which
+        counts the lights in the cleaned-up image whatever the engine."""
+        ui = self.ui
+        disabled = self.ppocr and not ui.checkBox_dotDetector.isChecked()
+        for widget in tesseract_cleanup_widgets(ui):
+            widget.setEnabled(not disabled)
+        note = ui.label_imageCleanupEngineNote
+        note.setText(image_cleanup_engine_note())
+        note.setVisible(disabled)
+        ui.toolButton_imageCleanup.setToolTip(
+            QCoreApplication.translate(
+                "MainWindow",
+                "Show or hide the settings that clean up the box's image before a "
+                "Tesseract model reads it. Binary view shows the result.",
+            )
+            + ("\n" + image_cleanup_engine_note() if disabled else "")
+        )
 
     def populateSettings(self, name):
         widgets = self.settingsWidgets()
@@ -430,7 +513,7 @@ class BoxSettingsUIHandler:
         ui.comboBox_fieldType.setCurrentIndex(settings["type"])
         ui.checkBox_smoothing.setChecked(settings["smoothing"])
         ui.checkBox_skip_empty.setChecked(settings["skip_empty"])
-        # stored as a fraction of Tesseract's confidence %; a value above 1
+        # stored as a fraction of the OCR's confidence %; a value above 1
         # (hand-edited) is already a percentage, as in tesseract.py
         conf_thresh = float(settings["conf_thresh"])
         ui.horizontalSlider_conf_thresh.setValue(
@@ -459,6 +542,7 @@ class BoxSettingsUIHandler:
         self.updateFormatState()
         self.updateBadge()
         self.updateReadouts()
+        self.updateImageCleanupEngine()
 
     # --- Format: the matching preset, an invalid expression ------------------------
 
