@@ -141,7 +141,7 @@ uv pip install --python .venv-eval/Scripts/python.exe -r requirements.txt -r req
 .venv-eval/Scripts/python.exe -m ocr_eval run --dataset textocr_scoreboards --dataset synthetic_7seg --engine ppocr --out results/ppocr
 ```
 
-`ocr_eval/baselines/ppocr.json` and `ppocr.md` hold the run of every variant (Windows 11, onnxruntime 1.31.0). `textocr_scoreboards` exact match (95% CI), next to Tesseract's best variant and the app's default:
+`ocr_eval/baselines/ppocr.json.gz` and `ppocr.md` hold the run of every variant (Windows 11, onnxruntime 1.31.0). `textocr_scoreboards` exact match (95% CI), next to Tesseract's best variant and the app's default:
 
 | Variant | Exact % | Clock % | Number % | Text % | Post-filter % | `synthetic_7seg` % |
 |---|---:|---:|---:|---:|---:|---:|
@@ -193,7 +193,7 @@ Caveat: PaddleOCR's training data is in-house and not published, so these models
 
 ### Windows OCR results
 
-`ocr_eval/baselines/windows-ocr.json` and `windows-ocr.md` hold every `windows-ocr` variant on both datasets (Windows 11 build 26200, Intel Core i9-14900K). CI doesn't run them (it runs on Linux); compare a change to the adapter with `python -m ocr_eval compare ocr_eval/baselines/windows-ocr.json NEW.json`. On `textocr_scoreboards`, next to Tesseract (same machine, same run), exact match:
+`ocr_eval/baselines/windows-ocr.json.gz` and `windows-ocr.md` hold every `windows-ocr` variant on both datasets (Windows 11 build 26200, Intel Core i9-14900K). CI doesn't run them (it runs on Linux); compare a change to the adapter with `python -m ocr_eval compare ocr_eval/baselines/windows-ocr.json.gz NEW.json`. On `textocr_scoreboards`, next to Tesseract (same machine, same run), exact match:
 
 | Engine:variant | Exact % (95% CI) | Clock % | Number % | Text % | 1 char % | 2 chars % | 3+ chars % | ms p50 / p95 |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
@@ -216,6 +216,8 @@ What this says:
 - Being Windows-only, it can't be ScoreSight's cross-platform engine; it is at most a candidate for text and clock boxes on Windows.
 
 ## Vision-language models
+
+**The VLM evaluation was stopped before it was finished, and VLMs are not candidates for ScoreSight's per-frame loop.** They read real scoreboards well (Qwen3.5-0.8B 91.5%, Qwen3-VL-2B 93.5% on `textocr_scoreboards`), but on a CPU they take 0.4–0.9 s per crop, 100–400 times Tesseract's cost and far beyond a budget of tens of crops per second, and they need PyTorch and a 0.5–4 GB model. PP-OCR's recognizers read as well or better at a few milliseconds per crop (see the [OCR engine evaluation report](https://github.com/royshil/scoresight/blob/main/ocr_eval/results/2026-10-11/REPORT.md)). What was measured is below, as a reference; the runs it lists are the finished ones, and the variants whose runs weren't finished or were invalidated by a bug are left out.
 
 `ocr_eval/engines/vlm.py` runs small vision-language models (VLMs) on the CPU with PyTorch and Hugging Face transformers. They are optional extras, so install them in a separate virtual environment (on Linux, install PyTorch's CPU wheels first: PyPI's Linux wheels bundle CUDA, about 3 GB):
 
@@ -242,7 +244,7 @@ uv pip install --python .venv-vlm/Scripts/python.exe -r requirements.txt -r requ
 
 ### Results on CPU
 
-Measured on Windows 11 with an Intel Core i9-14900K (24 cores, 32 threads; PyTorch's 24 threads, fp32), torch 2.14.1 and transformers 5.18.0; no GPU. Every prediction is in `ocr_eval/baselines/vlm/`: `crops.json` (the variants run on every crop), `sample400.json` (those run on a stratified sample of 400 `textocr_scoreboards` crops, and every `synthetic_7seg` crop), `latency.json`, and `frames219.json` and `frames100.json` (whole frames, below), each with its `.md` report. They are reference results, not checked by CI; `python -m ocr_eval compare` against them checks a change to an adapter.
+Measured on Windows 11 with an Intel Core i9-14900K (24 cores, 32 threads; PyTorch's 24 threads, fp32), torch 2.14.1 and transformers 5.18.0; no GPU. Every prediction is in `ocr_eval/baselines/vlm/`: `crops.json.gz` (the variants run on every crop), `sample400.json.gz` (those run on a stratified sample of 400 `textocr_scoreboards` crops, and every `synthetic_7seg` crop), `latency.json.gz`, and `frames219.json.gz` and `frames100.json.gz` (whole frames, below), each with its `.md` report. They are reference results, not checked by CI; `python -m ocr_eval compare` against them checks a change to an adapter.
 
 `textocr_scoreboards`, exact match (95% CI) by field type, with ScoreSight's Tesseract pipeline from the baseline for comparison:
 
@@ -255,20 +257,19 @@ Measured on Windows 11 with an Intel Core i9-14900K (24 cores, 32 threads; PyTor
 | `smolvlm:smolvlm-256m` | 1276 | 67.8 (65.2–70.3) | 46.8 | 68.6 | 80.5 | 58.1 | 68.1 |
 | `smolvlm:smolvlm-256m-wl` | 1276 | 68.6 (66.0–71.1) | 54.7 | 68.5 | 80.5 | 25.0 | 68.3 |
 | `smolvlm:smolvlm-500m` | 400 | 66.2 (61.5–70.7) | 29.5 | 69.7 | 77.6 | 48.0 | 66.2 |
-| `smolvlm:smolvlm-500m-wl` | 400 | SMOL500_WL |
-| `florence2:florence2-base-wl` | 400 | FLOR_BASE_WL |
+| `florence2:florence2-base-wl` | 400 | 64.2 (59.4–68.8) | 40.9 | 64.6 | 81.0 | 25.0 | 64.2 |
 | `florence2:florence2-base` | 400 | 56.5 (51.6–61.3) | 36.4 | 54.9 | 81.0 | 30.3 | 56.5 |
 | `florence2:florence2-base-sq` | 400 | 47.8 (42.9–52.6) | 18.2 | 47.5 | 72.4 | 40.2 | 48.0 |
-| `florence2:florence2-large` | 400 | FLOR_LARGE |
-| `florence2:florence2-large-wl` | 400 | FLOR_LARGE_WL |
 | `tesseract:eng-nobin` (baseline) | 1276 | 35.9 (33.3–38.6) | 12.2 | 40.6 | 30.3 | 55.6 | 35.9 |
 | `tesseract:scoreboard_general` (the app's default) | 1276 | 17.6 (15.6–19.7) | 4.3 | 23.0 | 0.0 | 84.8 | 17.6 |
 
-The 400-crop sample is `run --sample 400` (seed 0: 297 numbers, 58 texts, 44 clocks, 1 other); on those crops Tesseract `eng-nobin` reads 37.0% (32.4–41.8), Qwen3.5-0.8B 90.2% (86.9–92.8) and Qwen3-VL-2B 91.5% (88.4–93.9), within about a point of their full-set numbers, so the sample's rows compare with the others. On `synthetic_7seg` (56 crops): Qwen3.5-0.8B 98.2% (90.5–99.7), Qwen3-VL-2B 94.6%, SmolVLM-256M 51.8%, Florence-2-base-wl SYN_FLOR, against 58.9% for `scoreboard_general`.
+The 400-crop sample is `run --sample 400` (seed 0: 297 numbers, 58 texts, 44 clocks, 1 other); on those crops Tesseract `eng-nobin` reads 37.0% (32.4–41.8), Qwen3.5-0.8B 90.2% (86.9–92.8) and Qwen3-VL-2B 91.5% (88.4–93.9), within about a point of their full-set numbers, so the sample's rows compare with the others. On `synthetic_7seg` (56 crops): Qwen3.5-0.8B 98.2% (90.5–99.7), Qwen3-VL-2B 94.6%, SmolVLM-500M 69.6%, Florence-2-base-wl 57.1%, SmolVLM-256M 51.8%, against 58.9% for `scoreboard_general`.
+
+Not in the table: `florence2-large` was never run, and the 400-crop runs of `florence2-large-wl` (45.3%) and `smolvlm-500m-wl` (62.5%) are left out because they ran before the fix of the `-wl` decoding (commit "a masked period or newline ends a constrained answer"): most of their errors are the run-on answers that fix is about (`90 1 1 1 0 1 1 2 …` for `90`). The `florence2-base-wl` run predates that fix too, but only 1 of its 143 errors is such an answer, so it is kept.
 
 Head to head on the same 1,276 crops (`python -m ocr_eval.pairwise`): Qwen3.5-0.8B reads 727 crops right that `tesseract:eng-nobin` gets wrong and 20 the other way round (McNemar p < 10⁻¹⁸⁰); against the app's default model, 961 against 18. Qwen3-VL-2B beats Qwen3.5-0.8B by 1.7 points (62 crops against 40, p = 0.04).
 
-Latency per crop, measured separately on a stratified sample of 100 crops with the machine otherwise idle (`latency.json`; one crop per call, and in calls of 8 crops for the chat models):
+Latency per crop, measured separately on a stratified sample of 100 crops with the machine otherwise idle (`latency.json.gz`; one crop per call, and in calls of 8 crops for the chat models):
 
 | Engine:variant | One crop: p50 / p95 ms | In batches of 8: p50 ms per crop | Load s |
 |---|---:|---:|---:|
@@ -279,7 +280,6 @@ Latency per crop, measured separately on a stratified sample of 100 crops with t
 | `qwen-vl:qwen3.5-0.8b-wl` | 622 / 901 | 390 | 2.5 |
 | `florence2:florence2-base-wl` | 663 / 703 | – | 1.0 |
 | `qwen-vl:qwen3-vl-2b` | 898 / 1325 | 704 | 3.9 |
-| `florence2:florence2-large-wl` | about 2,300 (from its accuracy run) | – | |
 
 Load times are with the model already in the Hugging Face cache (the first run downloads it); the `-wl` row was measured before the two fixes to its token mask (spaces, and periods or newlines ending an answer), which don't change what a token costs. Qwen3.5's linear-attention layers run PyTorch's reference implementation on a CPU (the fast kernels need CUDA), so it may get faster.
 
@@ -290,7 +290,7 @@ What this says:
 - Every model reads real scoreboards far better than ScoreSight's Tesseract pipeline, even the 256M control. A 0.8B model reads nine crops in ten exactly where Tesseract reads one in three at best (one in six with the app's defaults), on every field type and display technology; its weakest are incandescent bulb boards (65%) and LCDs (86.5%).
 - The cost is time and size: 0.4–0.7 s per crop against 2 ms, so about 4 s for a frame of 10 boxes on a fast desktop CPU (a laptop CPU will be slower; a GPU or Apple silicon faster, not measured here), and PyTorch plus a 1.7 GB model. That doesn't fit ScoreSight's per-frame loop as it is.
 - The errors left are small or dim digits on dot-matrix and bulb boards (a dark "0" read as "1" is the commonest), a missed clock separator, and a few crops whose truth is debatable (a neighbour's digit at the crop's edge).
-- `-wl` makes no difference to the Qwen models, which already answer with just the characters; it helps Florence-2, whose `<OCR>` output mixes up letters and digits. Florence-2 needs its crop letterboxed (stretched, it loses 8.8 points); `florence2-large` is not better than `base` here.
+- `-wl` makes no difference to the Qwen models, which already answer with just the characters; it helps Florence-2 (+7.7 points), whose `<OCR>` output mixes up letters and digits. Florence-2 needs its crop letterboxed (stretched, it loses 8.8 points).
 
 Next steps this suggests (not measured yet): a VLM per box at a lower rate, only for boxes whose image changed (ScoreSight already detects that), with its confidence deciding whether to keep the previous value; or Tesseract every frame with a VLM checking it; Qwen3.5-0.8B on a GPU, Apple's MPS, or as a GGUF in llama.cpp, to see how fast it gets; and the VLM's readings as labels to train a small fast recognizer (PP-OCR, PARSeq) on scoreboards.
 
