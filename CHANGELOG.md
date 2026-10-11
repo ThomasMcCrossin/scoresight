@@ -8,6 +8,12 @@ Release tags are the bare version number (for example `0.1.0`).
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-10-11
+
+The new logo, and two fixes: shot clocks that drop the leading zero are read
+to the end again, and the field list keeps its row heights after the Live
+layout.
+
 ### Changed
 
 - **A new logo and app icon.** An amber seven-segment "S" inside the corner
@@ -999,7 +1005,8 @@ end to end on every platform before it ships. Highlights:
 
 - First open-source release of ScoreSight.
 
-[Unreleased]: https://github.com/royshil/scoresight/compare/0.3.0...HEAD
+[Unreleased]: https://github.com/royshil/scoresight/compare/0.3.1...HEAD
+[0.3.1]: https://github.com/royshil/scoresight/compare/0.3.0...0.3.1
 [0.3.0]: https://github.com/royshil/scoresight/compare/0.2.0...0.3.0
 [0.2.0]: https://github.com/royshil/scoresight/compare/0.1.0...0.2.0
 [0.1.0]: https://github.com/royshil/scoresight/compare/0.0.17...0.1.0
