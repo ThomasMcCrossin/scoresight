@@ -13,24 +13,28 @@ from PySide6.QtWidgets import (
     QFileDialog,
     QHeaderView,
     QInputDialog,
+    QLabel,
     QLineEdit,
     QMainWindow,
+    QMenu,
     QMessageBox,
     QTableWidgetItem,
 )
 from PySide6.QtGui import (
     QActionGroup,
     QDesktopServices,
+    QFont,
     QFontMetrics,
     QGuiApplication,
     QIcon,
     QKeySequence,
+    QPalette,
 )
 from PySide6.QtCore import (
     Qt,
     Signal,
     Slot,
-    QByteArray,
+    QRectF,
     QTimer,
     QTranslator,
     QObject,
@@ -42,7 +46,13 @@ from PySide6.QtCore import (
 from os import path
 
 from api_output import out_api_status, update_out_api
-from box_settings_ui_handler import BoxSettingsUIHandler
+from box_settings_ui_handler import (
+    NOT_PLACED,
+    PLACED,
+    TEMPLATE,
+    BoxSettingsUIHandler,
+    changed_settings,
+)
 from camera_info import CameraInfo
 from destinations_view import STATUS_ROLE, DestinationDelegate, DestinationsModel
 from get_camera_info import get_camera_info
@@ -170,14 +180,23 @@ LANGUAGES = (
     ("zh_CN", "简体中文"),
 )
 
-# The sizes of the boxes list | viewer splitter (QSplitter.saveState, base64).
-SPLITTER_STATE_SETTING = "main_splitter_state"
+# The widths of the Fields | viewer | Inspector panes ([fields, viewer,
+# inspector]; 0 = hidden), and of the two-pane layout before them (the
+# QSplitter.saveState of the boxes list | viewer splitter), which is dropped.
+PANE_SIZES_SETTING = "main_splitter_sizes"
+OLD_SPLITTER_STATE_SETTING = "main_splitter_state"
+# The panes' default and minimum widths (pixels)
+FIELDS_PANE_WIDTH = 260
+INSPECTOR_WIDTH = 340
+VIEWER_MIN_WIDTH = 360
 # The status bar, the readings' ages and the paused time are refreshed this often.
 STATUS_INTERVAL_MS = 1000
 # A source that delivered no frame for this long is shown as stalled.
 SOURCE_STALL_S = 3.0
-# The boxes list shows at most this many rows without scrolling.
-BOXES_LIST_MAX_VISIBLE_ROWS = 8
+# The boxes list is at least this many rows tall (it gets the pane's height).
+BOXES_LIST_MIN_ROWS = 3
+# The outputs list is at least this many rows tall (it scrolls when shorter).
+DESTINATIONS_LIST_MIN_ROWS = 2
 # The window's default size, made smaller on smaller screens.
 DEFAULT_WINDOW_SIZE = (1280, 800)
 # False after OBS was disconnected: the saved connection ("obs") isn't opened
@@ -344,7 +363,6 @@ class MainWindow(QMainWindow):
         # connect toolButton_rotate
         self.ui.toolButton_rotate.clicked.connect(self.rotateImage)
 
-        self.ui.widget_detectionCadence.setVisible(True)
         self.ui.horizontalSlider_detectionCadence.setValue(
             fetch_data("scoresight.json", "detection_cadence", 5)
         )
@@ -352,7 +370,7 @@ class MainWindow(QMainWindow):
             self.detectionCadenceChanged
         )
         self.ui.toolButton_addBox.clicked.connect(self.addBox)
-        self.ui.toolButton_removeBox.clicked.connect(self.removeCustomBox)
+        self.ui.toolButton_removeBox.clicked.connect(self.deleteField)
 
         self.video_settings_dialog = None
         self.ui.toolButton_videoSettings.clicked.connect(self.openVideoSettings)
@@ -384,12 +402,14 @@ class MainWindow(QMainWindow):
         self.obsConnectError: ErrorInfo | None = None
         self.obsConnectTarget: str | None = None
 
+        # the models' names (not translated), by the index stored as ocr_model,
+        # then "Load external model..." (text set in applyRuntimeTexts)
         ocr_models = [
             "Daktronics",
             "General Scoreboard",
             "General Fonts (English)",
             "General Scoreboard Large",
-            "Load External OCR Model",
+            "",
         ]
         self.ui.comboBox_ocrModel.addItems(ocr_models)
         # default to General Scoreboard
@@ -399,9 +419,8 @@ class MainWindow(QMainWindow):
         self.ui.comboBox_ocrModel.setCurrentIndex(ocr_model_from_storage)
 
         self.ui.frame_source_view.setEnabled(False)
-        self.ui.groupBox_target_settings.setEnabled(False)
-        self.ui.pushButton_makeBox.clicked.connect(self.makeBox)
-        self.ui.pushButton_removeBox.clicked.connect(self.removeBox)
+        self.ui.pushButton_makeBox.clicked.connect(self.placeOnPicture)
+        self.ui.pushButton_removeBox.clicked.connect(self.removeFromPicture)
         self.ui.tableWidget_boxes.itemClicked.connect(self.listItemClicked)
         # connect the edit triggers
         self.ui.tableWidget_boxes.itemDoubleClicked.connect(self.editBoxName)
@@ -443,7 +462,7 @@ class MainWindow(QMainWindow):
         for box_name in [box["name"] for box in default_boxes] + custom_boxes_names:
             item = self.appendBoxRow(box_name)
             item.setIcon(QIcon(resource_path("icons", "circle-x.svg")))
-            item.setData(Qt.ItemDataRole.UserRole, "unchecked")
+            item.setData(Qt.ItemDataRole.UserRole, NOT_PLACED)
 
         # The boxes are app state (not per source): load them once at startup.
         # From now on the in-memory storage is the source of truth, and changes
@@ -553,9 +572,10 @@ class MainWindow(QMainWindow):
 
         # the label hides when the view tools need its room
         self.ui.widget_viewTools.installEventFilter(self)
-        # the left column is as wide as its content
-        self.ui.frame.installEventFilter(self)
+        # "Open a source to place fields" while the fields list is disabled
+        self.ui.groupBox_sb_info.installEventFilter(self)
 
+        self.styleLabels()
         self.setupLayout()
         self.applyRuntimeTexts()
 
@@ -616,10 +636,12 @@ class MainWindow(QMainWindow):
             ui.actionBinaryView,
             ui.actionFitPicture,
             ui.actionReloadSources,
+            ui.actionNewField,
         ):
             action.setShortcutContext(Qt.ShortcutContext.WindowShortcut)
             self.addAction(action)
         ui.actionPauseOutputs.triggered.connect(ui.pushButton_stopUpdates.toggle)
+        ui.actionNewField.triggered.connect(self.addBox)
         # through the buttons: they do nothing while disabled (no source yet, a
         # reload running)
         ui.actionBinaryView.triggered.connect(ui.pushButton_binary.click)
@@ -634,36 +656,82 @@ class MainWindow(QMainWindow):
         return None
 
     def setupBoxesList(self):
-        """The boxes list: names, and the readings drawn by ReadingDelegate."""
+        """The boxes list: names, and the readings drawn by ReadingDelegate; a
+        context menu and keys for the selected field."""
         table = self.ui.tableWidget_boxes
         self.readingDelegate = ReadingDelegate(table)
         table.setItemDelegateForColumn(1, self.readingDelegate)
         header = table.verticalHeader()
         header.setSectionResizeMode(QHeaderView.ResizeMode.Fixed)
-        model = table.model()
-        model.rowsInserted.connect(self.updateBoxesListHeight)
-        model.rowsRemoved.connect(self.updateBoxesListHeight)
         self.updateBoxesListHeight()
 
+        ui = self.ui
+        table.customContextMenuRequested.connect(self.showFieldContextMenu)
+        # F2, Del and Ctrl+C act on the selected field while the list has the
+        # focus (Ctrl+C elsewhere copies as usual)
+        for action in (ui.actionRenameField, ui.actionDeleteField, ui.actionCopyValue):
+            action.setShortcutContext(Qt.ShortcutContext.WidgetShortcut)
+            table.addAction(action)
+        # the list takes Ctrl+C itself (it copies the current item: the field's
+        # name), before the shortcut: see eventFilter
+        table.installEventFilter(self)
+        ui.actionPlaceOnPicture.triggered.connect(self.placeOnPicture)
+        ui.actionRemoveFromPicture.triggered.connect(self.removeFromPicture)
+        ui.actionRenameField.triggered.connect(self.renameField)
+        ui.actionDeleteField.triggered.connect(self.deleteField)
+        ui.actionResetFieldSettings.triggered.connect(
+            self.boxSettingsUiHandler.restoreDefaults
+        )
+        ui.actionCopyValue.triggered.connect(self.copyFieldValue)
+        ui.actionZoomToBox.triggered.connect(self.zoomToBox)
+
     def updateBoxesListHeight(self, *_):
-        """Size the rows for the readings, and make the list tall enough to show
-        every box (up to BOXES_LIST_MAX_VISIBLE_ROWS) without scrolling: the
-        readings are the window's main live information."""
+        """Size the rows for the readings. The list gets the Fields pane's
+        height; it is at least BOXES_LIST_MIN_ROWS rows tall."""
         table = self.ui.tableWidget_boxes
         row_height = self.readingDelegate.rowHeight(table.font())
         table.verticalHeader().setDefaultSectionSize(row_height)
-        rows = max(3, min(table.rowCount(), BOXES_LIST_MAX_VISIBLE_ROWS))
         header_height = table.horizontalHeader().sizeHint().height()
         table.setMinimumHeight(
-            header_height + rows * row_height + 2 * table.frameWidth()
+            header_height + BOXES_LIST_MIN_ROWS * row_height + 2 * table.frameWidth()
         )
 
+    def styleLabels(self):
+        """The hint labels (the "hint" property in the .ui) in a muted, smaller
+        type, and the selected field's name large. Colours from the palette, so
+        they follow File > Appearance."""
+        for label in self.findChildren(QLabel):
+            if label.property("hint"):
+                label.setForegroundRole(QPalette.ColorRole.PlaceholderText)
+                font = QFont(label.font())
+                if font.pointSizeF() > 0:
+                    font.setPointSizeF(max(7.0, font.pointSizeF() * 0.9))
+                label.setFont(font)
+        name = self.ui.label_selectedInfo
+        font = QFont(name.font())
+        if font.pointSizeF() > 0:
+            font.setPointSizeF(font.pointSizeF() * 1.35)
+        font.setBold(True)
+        name.setFont(font)
+
     def setupLayout(self):
-        """Fit the window to the screen and restore the splitter's sizes."""
+        """The three panes: Fields | viewer | Inspector. Fit the window to the
+        screen and restore the panes' widths (the side panes can be hidden:
+        dragged to the edge, or with a double-click on their divider)."""
         splitter = self.ui.splitter_main
-        splitter.setStretchFactor(0, 0)
-        splitter.setStretchFactor(1, 1)
-        self.fitLeftPaneWidth()
+        for index, (stretch, collapsible) in enumerate(
+            ((0, True), (1, False), (0, True))
+        ):
+            splitter.setStretchFactor(index, stretch)
+            splitter.setCollapsible(index, collapsible)
+        # The viewer column's toolbars are wider than this; it may be made
+        # narrower anyway (they are then cut off), so that the three panes fit a
+        # small screen.
+        self.ui.frame_source_view.setMinimumWidth(VIEWER_MIN_WIDTH)
+        for index in (1, 2):
+            splitter.handle(index).installEventFilter(self)
+        # the size of a pane before it was hidden, to show it again at that size
+        self.paneSizesBeforeHiding = {0: FIELDS_PANE_WIDTH, 2: INSPECTOR_WIDTH}
 
         screen = self.screen()
         width, height = DEFAULT_WINDOW_SIZE
@@ -674,34 +742,79 @@ class MainWindow(QMainWindow):
             height = min(height, available.height() - 48)
         self.resize(width, height)
 
-        stored = fetch_data("scoresight.json", SPLITTER_STATE_SETTING)
-        restored = isinstance(stored, str) and splitter.restoreState(
-            QByteArray.fromBase64(stored.encode("ascii", "ignore"))
-        )
-        if not restored:
-            left = self.ui.widget_leftPane.minimumSizeHint().width()
-            splitter.setSizes([left, max(1, self.width() - left)])
+        stored = fetch_data("scoresight.json", PANE_SIZES_SETTING)
+        if (
+            isinstance(stored, list)
+            and len(stored) == 3
+            and all(isinstance(size, int) and size >= 0 for size in stored)
+            and stored[1] > 0
+        ):
+            splitter.setSizes(stored)
+            for index in (0, 2):
+                if stored[index] > 0:
+                    self.paneSizesBeforeHiding[index] = stored[index]
+        else:
+            splitter.setSizes(self.defaultPaneSizes(width))
+        # the two-pane layout before the Inspector
+        if fetch_data("scoresight.json", OLD_SPLITTER_STATE_SETTING) is not None:
+            remove_data("scoresight.json", OLD_SPLITTER_STATE_SETTING)
         self.splitterSaveTimer = QTimer(self)
         self.splitterSaveTimer.setSingleShot(True)
         self.splitterSaveTimer.setInterval(BOXES_SAVE_DELAY_MS)
         self.splitterSaveTimer.timeout.connect(self.saveSplitterState)
         splitter.splitterMoved.connect(lambda *_: self.splitterSaveTimer.start())
 
+    def defaultPaneSizes(self, window_width: int) -> list[int]:
+        """[fields, viewer, inspector] for a window this wide: the side panes'
+        default widths, made narrower (down to their minimum) when the viewer
+        would get less than its toolbars need."""
+        splitter = self.ui.splitter_main
+        margins = self.ui.centralwidget.layout().contentsMargins()
+        total = (
+            window_width - margins.left() - margins.right() - 2 * splitter.handleWidth()
+        )
+        fields, inspector = FIELDS_PANE_WIDTH, INSPECTOR_WIDTH
+        # what the viewer's toolbars need, beyond what it gets
+        missing = self.ui.frame_source_view.minimumSizeHint().width() - (
+            total - fields - inspector
+        )
+        # taken from the Inspector first, then from the Fields pane
+        spare = inspector - self.ui.tabWidget_inspector.minimumSizeHint().width()
+        taken = max(0, min(missing, spare))
+        inspector -= taken
+        missing -= taken
+        spare = fields - self.ui.widget_leftPane.minimumSizeHint().width()
+        fields -= max(0, min(missing, spare))
+        return [fields, max(VIEWER_MIN_WIDTH, total - fields - inspector), inspector]
+
     def saveSplitterState(self):
         self.splitterSaveTimer.stop()
-        state = bytes(self.ui.splitter_main.saveState().toBase64()).decode("ascii")
-        if fetch_data("scoresight.json", SPLITTER_STATE_SETTING) != state:
-            self.globalSettingsChanged(SPLITTER_STATE_SETTING, state)
+        sizes = self.ui.splitter_main.sizes()
+        if fetch_data("scoresight.json", PANE_SIZES_SETTING) != sizes:
+            self.globalSettingsChanged(PANE_SIZES_SETTING, sizes)
 
-    def fitLeftPaneWidth(self):
-        """The left column scrolls vertically, never horizontally: it is at least
-        as wide as its content (which depends on the language)."""
-        scroll_area = self.ui.scrollArea_left
-        content = self.ui.frame.minimumSizeHint().width()
-        scrollbar = scroll_area.verticalScrollBar().sizeHint().width()
-        width = content + scrollbar + 2 * scroll_area.frameWidth()
-        if scroll_area.minimumWidth() != width:
-            scroll_area.setMinimumWidth(width)
+    def isPaneHidden(self, index: int) -> bool:
+        return self.ui.splitter_main.sizes()[index] == 0
+
+    def setPaneHidden(self, index: int, hidden: bool):
+        """Hide (collapse) or show the Fields pane (0) or the Inspector (2); the
+        viewer gets or gives the room."""
+        splitter = self.ui.splitter_main
+        sizes = splitter.sizes()
+        if hidden == (sizes[index] == 0):
+            return
+        if hidden:
+            self.paneSizesBeforeHiding[index] = sizes[index]
+            sizes[1] += sizes[index]
+            sizes[index] = 0
+        else:
+            size = self.paneSizesBeforeHiding.get(index) or (
+                FIELDS_PANE_WIDTH if index == 0 else INSPECTOR_WIDTH
+            )
+            sizes[index] = size
+            sizes[1] = max(VIEWER_MIN_WIDTH, sizes[1] - size)
+        splitter.setSizes(sizes)
+        self.saveSplitterState()
 
     def applyRuntimeTexts(self):
         """Set the texts that are made at runtime: at startup and again after a
@@ -710,7 +823,7 @@ class MainWindow(QMainWindow):
         self.updateBrowserEndpoints()
         self.updatePauseUi()
         self.updateSliderReadouts()
-        self.boxSettingsUiHandler.updateReadouts()
+        self.boxSettingsUiHandler.retranslate()
         self.retranslateMenus()
         self.applyShortcutHints()
         self.updateObsUi()
@@ -718,8 +831,26 @@ class MainWindow(QMainWindow):
         self.updateDestinationsListHeight()
         self.statusBarWidgets.retranslate()
         self.refreshLiveStatus()
-        self.fitLeftPaneWidth()
         self.updateZoomHintVisibility()
+        self.ui.comboBox_ocrModel.setItemText(
+            4, QCoreApplication.translate("MainWindow", "Load external model...")
+        )
+        self.updateFieldsHint()
+        self.updateFieldActions()
+        splitter = self.ui.splitter_main
+        splitter.handle(1).setToolTip(
+            QCoreApplication.translate(
+                "MainWindow",
+                "Drag to resize the fields list. Double-click to hide or show it.",
+            )
+        )
+        splitter.handle(2).setToolTip(
+            QCoreApplication.translate(
+                "MainWindow",
+                "Drag to resize the Box and Outputs settings. Double-click to hide "
+                "or show them.",
+            )
+        )
 
     def retranslateMenus(self):
         names = {
@@ -738,6 +869,9 @@ class MainWindow(QMainWindow):
             (self.ui.pushButton_binary, self.ui.actionBinaryView),
             (self.ui.toolButton_zoomReset, self.ui.actionFitPicture),
             (self.ui.pushButton_refresh_sources, self.ui.actionReloadSources),
+            (self.ui.toolButton_addBox, self.ui.actionNewField),
+            (self.ui.toolButton_removeBox, self.ui.actionDeleteField),
+            (self.ui.toolButton_cleanupBinary, self.ui.actionBinaryView),
         ):
             shortcut = action.shortcut().toString(
                 QKeySequence.SequenceFormat.NativeText
@@ -908,6 +1042,14 @@ class MainWindow(QMainWindow):
         store_data("scoresight.json", settingName, value)
 
     def eventFilter(self, obj, event):
+        if (
+            event.type() == QEvent.Type.KeyPress
+            and obj is self.ui.tableWidget_boxes
+            and event.matches(QKeySequence.StandardKey.Copy)
+        ):
+            # Ctrl+C in the fields list: the value, not the name
+            self.copyFieldValue()
+            return True
         if event.type() == QEvent.KeyPress:
             if event.key() == Qt.Key_Escape:
                 # deselect any selected item
@@ -916,9 +1058,18 @@ class MainWindow(QMainWindow):
                     self.image_viewer.selectBox(None)
         elif event.type() == QEvent.Type.Resize and obj is self.ui.widget_viewTools:
             self.updateZoomHintVisibility()
-        elif event.type() == QEvent.Type.LayoutRequest and obj is self.ui.frame:
-            # its minimum width changed (fonts, language, a label's text)
-            self.fitLeftPaneWidth()
+        elif (
+            event.type() == QEvent.Type.EnabledChange
+            and obj is self.ui.groupBox_sb_info
+        ):
+            self.updateFieldsHint()
+        elif event.type() == QEvent.Type.MouseButtonDblClick:
+            # a double-click on a divider hides or shows the pane beside it
+            splitter = self.ui.splitter_main
+            for handle, pane in ((1, 0), (2, 2)):
+                if obj is splitter.handle(handle):
+                    self.setPaneHidden(pane, not self.isPaneHidden(pane))
+                    return True
         return super().eventFilter(obj, event)
 
     def changeEvent(self, event):
@@ -930,6 +1081,8 @@ class MainWindow(QMainWindow):
         ) and hasattr(self, "statusBarWidgets"):
             self.updatePauseUi()
             self.refreshLiveStatus()
+            # an invalid format's red
+            self.boxSettingsUiHandler.updateFormatState()
         super().changeEvent(event)
 
     def changeLanguage(self, locale):
@@ -1120,6 +1273,13 @@ class MainWindow(QMainWindow):
         self.destinationsModel.toggleRequested.connect(self.destinationToggleRequested)
         self.ui.frame_destinationStatus.hide()
         self.updateDestinationsListHeight()
+        # The list over the selected output's page; the divider between them
+        # can be dragged to give the page (e.g. a mapping table) more room. At
+        # first the list shows every output.
+        splitter = self.ui.splitter_outputs
+        splitter.setStretchFactor(0, 0)
+        splitter.setStretchFactor(1, 1)
+        splitter.setSizes([self.destinationsListHeight(), 10000])
         # the controls the switches mirror: show their changes right away
         for signal in (
             self.ui.pushButton_startvmix.toggled,
@@ -1128,12 +1288,20 @@ class MainWindow(QMainWindow):
         ):
             signal.connect(lambda *_: self.refreshLiveStatus())
 
-    def updateDestinationsListHeight(self):
-        """The destinations list shows every destination without scrolling."""
+    def destinationsListHeight(self, rows: int | None = None) -> int:
+        """The height of the destinations list showing rows rows (all of
+        them by default)."""
         view = self.ui.listView_destinations
+        if rows is None:
+            rows = self.destinationsModel.rowCount()
         row_height = self.destinationDelegate.rowHeight(view.font())
-        view.setFixedHeight(
-            self.destinationsModel.rowCount() * row_height + 2 * view.frameWidth()
+        return rows * row_height + 2 * view.frameWidth()
+
+    def updateDestinationsListHeight(self):
+        """The destinations list can be made shorter (it scrolls then), down to
+        DESTINATIONS_LIST_MIN_ROWS rows."""
+        self.ui.listView_destinations.setMinimumHeight(
+            self.destinationsListHeight(DESTINATIONS_LIST_MIN_ROWS)
         )
 
     def destinationSelected(self, current, previous=None):
@@ -1142,13 +1310,14 @@ class MainWindow(QMainWindow):
         self.updateDestinationDetails()
 
     def showDestination(self, key: str):
-        """Select a destination (e.g. clicked in the status bar): its page shows,
-        and the left column scrolls to it."""
+        """Select a destination (e.g. clicked in the status bar): the Inspector
+        shows the Outputs tab (also when it was hidden) with its page."""
+        self.setPaneHidden(2, False)
+        self.ui.tabWidget_inspector.setCurrentWidget(self.ui.widget_outputs)
         view = self.ui.listView_destinations
-        view.setCurrentIndex(
-            self.destinationsModel.index(self.destinationsModel.rowOf(key), 0)
-        )
-        self.ui.scrollArea_left.ensureWidgetVisible(self.ui.widget_outputs, 0, 0)
+        index = self.destinationsModel.index(self.destinationsModel.rowOf(key), 0)
+        view.setCurrentIndex(index)
+        view.scrollTo(index)
         view.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def destinationToggleRequested(self, key: str, on: bool):
@@ -1531,17 +1700,18 @@ class MainWindow(QMainWindow):
             if box.settings is None or not box.settings["templatefield"]:
                 # this is a detection target
                 item.setIcon(QIcon(resource_path("icons", "circle-check.svg")))
-                item.setData(Qt.ItemDataRole.UserRole, "checked")
+                item.setData(Qt.ItemDataRole.UserRole, PLACED)
             else:
                 # this is a template field
                 item.setIcon(QIcon(resource_path("icons", "template-field.svg")))
-                item.setData(Qt.ItemDataRole.UserRole, "templatefield")
+                item.setData(Qt.ItemDataRole.UserRole, TEMPLATE)
 
         self.vmixUiHandler.updatevMixTable(detectionTargets)
         self.unoUiHandler.updateUNOTable(detectionTargets)
         # Note: results.csv is not touched here. data_changed fires on every box
         # click and settings tweak; file_output starts a new CSV file by itself
         # when the set of boxes changes.
+        self.updateFieldActions()
 
     def scheduleBoxesSave(self, *_):
         # (re)start the timer: a burst of edits (e.g. dragging a slider) is
@@ -1559,32 +1729,188 @@ class MainWindow(QMainWindow):
             if item is None:
                 return
             self.ui.tableWidget_boxes.setCurrentItem(item)
-        user_role = item.data(Qt.ItemDataRole.UserRole)
-        if user_role in ["checked", "templatefield"] and item.column() == 0:
-            # enable the remove box button and disable the make box button
-            self.ui.pushButton_makeBox.setEnabled(False)
-            self.ui.pushButton_removeBox.setEnabled(user_role == "checked")
-            self.ui.groupBox_target_settings.setEnabled(user_role == "checked")
-            self.boxSettingsUiHandler.populateSettings(item.text())
-        else:
-            # enable the make box button and disable the remove box button
-            self.ui.pushButton_removeBox.setEnabled(False)
-            self.ui.pushButton_makeBox.setEnabled(item.column() == 0)
-            self.ui.groupBox_target_settings.setEnabled(False)
-            self.boxSettingsUiHandler.populateSettings("")
-
-        if item.column() == 0:
-            # if this is not a default box - enable the template field checkbox
-            if item.text() not in [box["name"] for box in default_boxes]:
-                self.ui.checkBox_templatefield.setEnabled(True)
-                self.ui.lineEdit_templatefield.setEnabled(True)
-            else:
-                self.ui.checkBox_templatefield.setEnabled(False)
-                self.ui.lineEdit_templatefield.setEnabled(False)
+        # the Box tab shows the field's settings
+        self.boxSettingsUiHandler.showField(
+            item.text(),
+            item.data(Qt.ItemDataRole.UserRole),
+            custom=self.isCustomField(item.text()),
+        )
+        self.updateFieldActions()
 
         # notify the image viewer to select the box
         if self.image_viewer:
             self.image_viewer.selectBox(item.text())
+
+    # --- the Fields pane: the selected field's actions ------------------------------
+
+    @staticmethod
+    def isCustomField(name: str) -> bool:
+        return name not in [box["name"] for box in default_boxes]
+
+    def currentFieldItem(self) -> QTableWidgetItem | None:
+        """The name item of the selected field, if any."""
+        table = self.ui.tableWidget_boxes
+        item = self.nameItemOfRow(table.currentItem())
+        if item is None or not item.isSelected():
+            return None
+        return item
+
+    def updateFieldsHint(self):
+        # the fields list is disabled until a source shows a picture
+        self.ui.label_fieldsHint.setVisible(not self.ui.groupBox_sb_info.isEnabled())
+
+    def updateFieldActions(self):
+        """Enable the selected field's actions, and show the footer's buttons
+        that apply to it: Place on picture or Remove from picture, and Delete
+        field for a custom field."""
+        ui = self.ui
+        item = self.currentFieldItem()
+        role = item.data(Qt.ItemDataRole.UserRole) if item is not None else None
+        custom = item is not None and self.isCustomField(item.text())
+        placed = role == PLACED
+        value_item = (
+            ui.tableWidget_boxes.item(item.row(), 1) if item is not None else None
+        )
+        ui.actionPlaceOnPicture.setEnabled(role == NOT_PLACED)
+        ui.actionRemoveFromPicture.setEnabled(placed)
+        ui.actionRenameField.setEnabled(custom)
+        ui.actionDeleteField.setEnabled(custom)
+        ui.actionResetFieldSettings.setEnabled(placed)
+        ui.actionCopyValue.setEnabled(
+            value_item is not None and bool(value_item.text())
+        )
+        # (also called while the boxes load, before there is an image_viewer)
+        viewer = getattr(self, "image_viewer", None)
+        ui.actionZoomToBox.setEnabled(placed and viewer is not None)
+        # (a template field has no box: neither applies)
+        ui.pushButton_makeBox.setVisible(not placed and role != TEMPLATE)
+        ui.pushButton_makeBox.setEnabled(role == NOT_PLACED)
+        ui.pushButton_removeBox.setVisible(placed)
+        ui.pushButton_removeBox.setEnabled(placed)
+        ui.toolButton_removeBox.setVisible(custom)
+        ui.toolButton_removeBox.setEnabled(custom)
+
+    def fieldContextMenu(self) -> QMenu:
+        """The selected field's context menu (with the keys of its actions)."""
+        ui = self.ui
+        self.updateFieldActions()
+        menu = QMenu(self)
+        # the disabled actions say why
+        menu.setToolTipsVisible(True)
+        item = self.currentFieldItem()
+        if item is not None and item.data(Qt.ItemDataRole.UserRole) == PLACED:
+            menu.addAction(ui.actionRemoveFromPicture)
+        else:
+            menu.addAction(ui.actionPlaceOnPicture)
+        menu.addAction(ui.actionRenameField)
+        menu.addAction(ui.actionDeleteField)
+        menu.addSeparator()
+        menu.addAction(ui.actionResetFieldSettings)
+        menu.addAction(ui.actionCopyValue)
+        # A "Hold value..." action (send a value typed in instead of the
+        # readings, until released) belongs here, before Zoom to box.
+        menu.addAction(ui.actionZoomToBox)
+        standard_only = QCoreApplication.translate(
+            "MainWindow", "Only custom fields can be renamed or deleted"
+        )
+        for action in (ui.actionRenameField, ui.actionDeleteField):
+            action.setToolTip("" if action.isEnabled() else standard_only)
+        return menu
+
+    def showFieldContextMenu(self, pos):
+        table = self.ui.tableWidget_boxes
+        item = self.nameItemOfRow(table.itemAt(pos))
+        if item is None:
+            return
+        table.setCurrentItem(item)
+        self.listItemClicked(item)
+        menu = self.fieldContextMenu()
+        menu.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
+        menu.popup(table.viewport().mapToGlobal(pos))
+
+    def confirm(self, title: str, text: str, action_text: str) -> bool:
+        """Ask before a destructive action; True to go ahead."""
+        box = QMessageBox(QMessageBox.Icon.Question, title, text, parent=self)
+        go = box.addButton(action_text, QMessageBox.ButtonRole.DestructiveRole)
+        box.addButton(QMessageBox.StandardButton.Cancel)
+        box.setDefaultButton(QMessageBox.StandardButton.Cancel)
+        box.exec()
+        return box.clickedButton() is go
+
+    def placeOnPicture(self):
+        """Place on picture: the field's box, then its settings in the Box tab."""
+        if self.currentFieldItem() is None:
+            return
+        self.makeBox()
+        self.ui.tabWidget_inspector.setCurrentWidget(self.ui.tab_box)
+
+    def removeFromPicture(self):
+        """Remove from picture, after asking when the box's settings (which are
+        lost) differ from the defaults."""
+        item = self.currentFieldItem()
+        if item is None or item.data(Qt.ItemDataRole.UserRole) != PLACED:
+            return
+        box = self.detectionTargetsStorage.find_item_by_name(item.text())
+        changed = changed_settings(box.settings, box.name) if box is not None else []
+        if changed and not self.confirm(
+            QCoreApplication.translate("MainWindow", "Remove from picture"),
+            QCoreApplication.translate(
+                "MainWindow",
+                "Remove “{name}” from the picture? Its settings go back to the "
+                "defaults, so the settings you changed are lost.",
+            ).format(name=item.text()),
+            QCoreApplication.translate("MainWindow", "Remove"),
+        ):
+            return
+        self.removeBox()
+
+    def deleteField(self):
+        """Delete field, after asking: the custom field, its box and settings."""
+        item = self.currentFieldItem()
+        if item is None or not self.isCustomField(item.text()):
+            return
+        if not self.confirm(
+            QCoreApplication.translate("MainWindow", "Delete field"),
+            QCoreApplication.translate(
+                "MainWindow",
+                "Delete the field “{name}”? Its box and its settings are deleted too.",
+            ).format(name=item.text()),
+            QCoreApplication.translate("MainWindow", "Delete"),
+        ):
+            return
+        self.removeCustomBox()
+
+    def renameField(self):
+        item = self.currentFieldItem()
+        if item is not None:
+            self.editBoxName(item)
+
+    def copyFieldValue(self):
+        """Copy the selected field's value (its last good reading)."""
+        item = self.currentFieldItem()
+        if item is None:
+            return
+        value = self.ui.tableWidget_boxes.item(item.row(), 1).text()
+        if value:
+            QGuiApplication.clipboard().setText(value)
+
+    def zoomToBox(self):
+        """Zoom the picture in on the selected field's box (Fit shows it all
+        again)."""
+        item = self.currentFieldItem()
+        viewer = self.image_viewer
+        if item is None or viewer is None:
+            return
+        box = self.detectionTargetsStorage.find_item_by_name(item.text())
+        if box is None or box.width() <= 0 or box.height() <= 0:
+            return
+        # with some of the picture around it
+        margin = max(box.width(), box.height()) * 0.5
+        viewer.fitInView(
+            QRectF(box).adjusted(-margin, -margin, margin, margin),
+            Qt.AspectRatioMode.KeepAspectRatio,
+        )
+        viewer.selectBox(item.text())
 
     def openOBSConnectModal(self):
         if self.obs_connect_modal is not None and self.obs_connect_modal.isVisible():
@@ -2079,10 +2405,10 @@ class MainWindow(QMainWindow):
 
     def itemSelected(self, item_name):
         if item_name is None:
-            # clear the selected item
+            # clear the selected item: the Box tab explains how to select one
             self.ui.tableWidget_boxes.clearSelection()
-            self.ui.groupBox_target_settings.setEnabled(False)
-            self.boxSettingsUiHandler.populateSettings("")
+            self.boxSettingsUiHandler.showField(None)
+            self.updateFieldActions()
             return
         # select the item in the tableWidget_boxes
         item = self.boxNameItem(item_name)
@@ -2343,7 +2669,10 @@ class MainWindow(QMainWindow):
         store_custom_box_name(new_box_name)
         item = self.appendBoxRow(new_box_name)
         item.setIcon(QIcon(resource_path("icons", "circle-x.svg")))
-        item.setData(Qt.ItemDataRole.UserRole, "unchecked")
+        item.setData(Qt.ItemDataRole.UserRole, NOT_PLACED)
+        # selected, ready to be placed or renamed
+        self.ui.tableWidget_boxes.scrollToItem(item)
+        self.itemSelected(new_box_name)
 
     def removeCustomBox(self):
         item = self.ui.tableWidget_boxes.currentItem()
@@ -2361,6 +2690,19 @@ class MainWindow(QMainWindow):
         remove_custom_box_name_in_storage(item.text())
         # remove the selected item from the tableWidget_boxes
         self.ui.tableWidget_boxes.removeRow(item.row())
+        # (the next row became the current one, but isn't selected)
+        self.itemSelected(None)
+
+    def fieldNameTaken(self, name: str, except_row: int = -1) -> bool:
+        """Whether another field has this name. Names that differ only in case
+        are the same: their text files would be the same file on Windows and
+        macOS."""
+        table = self.ui.tableWidget_boxes
+        return any(
+            table.item(row, 0).text().casefold() == name.casefold()
+            for row in range(table.rowCount())
+            if row != except_row
+        )
 
     def editBoxName(self, item):
         # a double-click on a reading renames its box
@@ -2370,24 +2712,43 @@ class MainWindow(QMainWindow):
         if item.text() in [o["name"] for o in default_boxes]:
             # dont allow editing default boxes
             return
-        new_name, ok = QInputDialog.getText(
-            self, "Edit Box Name", "New Name:", text=item.text()
-        )
         old_name = item.text()
-        if ok and new_name != "" and new_name != old_name:
-            # check if name doesn't exist already
-            for i in range(self.ui.tableWidget_boxes.rowCount()):
-                if new_name == self.ui.tableWidget_boxes.item(i, 0).text():
-                    logger.info("Name '%s' already exists", new_name)
-                    return
-            # rename the item in the tableWidget_boxes
-            rename_custom_box_name_in_storage(old_name, new_name)
-            item.setText(new_name)
-            # rename the item in the detectionTargetsStorage (a box that isn't
-            # made yet isn't there). The row was renamed in place above, and
-            # detectionTargetsChanged keeps its icon and role.
-            if not self.detectionTargetsStorage.rename_item(old_name, new_name):
-                logger.info("Error renaming item in application storage")
+        title = QCoreApplication.translate("MainWindow", "Rename field")
+        proposed = old_name
+        while True:
+            new_name, ok = QInputDialog.getText(
+                self,
+                title,
+                QCoreApplication.translate("MainWindow", "New name:"),
+                text=proposed,
+            )
+            new_name = new_name.strip()
+            if not ok or new_name == "" or new_name == old_name:
+                return
+            if not self.fieldNameTaken(new_name, except_row=item.row()):
+                break
+            logger.info("Name '%s' already exists", new_name)
+            QMessageBox.warning(
+                self,
+                title,
+                QCoreApplication.translate(
+                    "MainWindow",
+                    "There is already a field named “{name}”. Choose another name.",
+                ).format(name=new_name),
+            )
+            # ask again, with the name typed
+            proposed = new_name
+        # rename the item in the tableWidget_boxes
+        rename_custom_box_name_in_storage(old_name, new_name)
+        item.setText(new_name)
+        # rename the item in the detectionTargetsStorage (a box that isn't
+        # made yet isn't there). The row was renamed in place above, and
+        # detectionTargetsChanged keeps its icon and role.
+        if not self.detectionTargetsStorage.rename_item(old_name, new_name):
+            logger.info("Error renaming item in application storage")
+        if item.isSelected():
+            # the Box tab shows the new name
+            self.listItemClicked(item)
 
     def makeBox(self):
         item = self.ui.tableWidget_boxes.currentItem()
@@ -2396,8 +2757,7 @@ class MainWindow(QMainWindow):
         # create a new box on self.image_viewer with the name of the selected item from the tableWidget_boxes
         # change the list icon to green checkmark
         item.setIcon(QIcon(resource_path("icons/circle-check.svg")))
-        item.setData(Qt.ItemDataRole.UserRole, "checked")
-        self.listItemClicked(item)
+        item.setData(Qt.ItemDataRole.UserRole, PLACED)
 
         # get the size of the box from the name
         info = default_info_for_box_name(item.text())
@@ -2412,6 +2772,8 @@ class MainWindow(QMainWindow):
                 normalize_settings_dict({}, info),
             )
         )
+        # the new box's settings (and the box selected on the picture)
+        self.listItemClicked(item)
 
     def removeBox(self):
         item = self.ui.tableWidget_boxes.currentItem()
@@ -2420,11 +2782,11 @@ class MainWindow(QMainWindow):
         item = self.nameItemOfRow(item)
         # change the list icon to red x
         item.setIcon(QIcon(resource_path("icons", "circle-x.svg")))
-        item.setData(Qt.ItemDataRole.UserRole, "unchecked")
+        item.setData(Qt.ItemDataRole.UserRole, NOT_PLACED)
         # it isn't read any more: don't show its last reading as current
         clear_reading(self.ui.tableWidget_boxes.item(item.row(), 1))
-        self.listItemClicked(item)
         self.detectionTargetsStorage.remove_item(item.text())
+        self.listItemClicked(item)
 
     def makeTemplateField(self, toggled: bool):
         item = self.ui.tableWidget_boxes.currentItem()
@@ -2438,7 +2800,7 @@ class MainWindow(QMainWindow):
         # create a new box on self.image_viewer with the name of the selected item from the tableWidget_boxes
         # change the list icon to green checkmark
         item.setIcon(QIcon(resource_path("icons", "template-field.svg")))
-        item.setData(Qt.ItemDataRole.UserRole, "templatefield")
+        item.setData(Qt.ItemDataRole.UserRole, TEMPLATE)
 
         self.detectionTargetsStorage.add_item(
             TextDetectionTarget(

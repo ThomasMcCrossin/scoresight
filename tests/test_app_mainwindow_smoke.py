@@ -403,12 +403,19 @@ def test_language_change_keeps_settings_and_texts(main_window, qapp, caplog):
         qapp.removeTranslator(main_window.translator)
 
 
-def test_language_change_keeps_the_runtime_texts(main_window, qapp, qtbot, make_result):
+def test_language_change_keeps_the_runtime_texts(
+    main_window, qapp, make_result, make_target
+):
     # retranslateUi resets every text to the .ui's: the paused banner, the
-    # slider readouts and the window title are set again
+    # slider readouts, the window title and the inspector's state are set again
     ui = main_window.ui
     main_window.show()
+    storage = main_window.detectionTargetsStorage
+    storage.add_item(make_target("Home Score", dilate=2, format_regex="^(1?\\d$"))
+    main_window.itemSelected("Home Score")
     ui.horizontalSlider_conf_thresh.setValue(45)
+    ui.toolButton_imageCleanup.setChecked(True)
+    ui.tabWidget_inspector.setCurrentWidget(ui.widget_outputs)
     main_window.ocrResult([make_result("Home Score", "21")])
     ui.pushButton_stopUpdates.setChecked(True)
     main_window.changeLanguage("de_DE")
@@ -430,12 +437,21 @@ def test_language_change_keeps_the_runtime_texts(main_window, qapp, qtbot, make_
             a.data() for a in main_window.language_actions.actions() if a.isChecked()
         ]
         assert checked == ["de_DE"]
-        # the left column becomes as wide as its (German) content
-        qtbot.waitUntil(
-            lambda: (
-                ui.scrollArea_left.minimumWidth() >= ui.frame.minimumSizeHint().width()
-            )
-        )
+        # the inspector: the tab, the selected field, the open section, the
+        # badge and the format's error
+        assert ui.tabWidget_inspector.currentWidget() is ui.widget_outputs
+        assert ui.tableWidget_boxes.currentItem().text() == "Home Score"
+        assert ui.stackedWidget_boxSettings.currentWidget() is ui.page_boxSettings
+        assert ui.label_selectedInfo.text() == "Home Score"
+        assert ui.toolButton_imageCleanup.isChecked()
+        assert ui.frame_imageCleanup.isVisibleTo(ui.tab_box)
+        assert ui.label_imageCleanupBadge.text() == "1 changed"
+        assert ui.label_formatStatus.isVisibleTo(ui.tab_box)
+        assert "ignored" in ui.label_formatStatus.text()
+        assert ui.label_templateHint.text() != ""
+        assert ui.comboBox_ocrModel.itemText(4) != ""
+        assert ui.pushButton_removeBox.isVisibleTo(main_window)
+        assert not ui.pushButton_makeBox.isVisibleTo(main_window)
     finally:
         qapp.removeTranslator(main_window.translator)
 
@@ -764,6 +780,374 @@ def test_the_boxes_list_matches_names_not_values(main_window, make_result):
     assert box_value(main_window, "Period") == "2"
 
 
+# --- the inspector's Box tab and the Fields pane ---------------------------------------
+
+
+def custom_field_names():
+    return fetch_data("scoresight.json", "custom_boxes_names", [])
+
+
+def test_the_box_tab_shows_the_selected_field(main_window, make_target):
+    ui = main_window.ui
+    storage = main_window.detectionTargetsStorage
+    # nothing selected: how to select one
+    assert ui.stackedWidget_boxSettings.currentWidget() is ui.page_boxEmpty
+    assert ui.groupBox_allBoxes.isEnabled()  # for every field, always
+
+    # a box on the picture: its reading settings
+    storage.add_item(make_target("Home Score"))
+    main_window.itemSelected("Home Score")
+    assert ui.stackedWidget_boxSettings.currentWidget() is ui.page_boxSettings
+    assert ui.label_selectedInfo.text() == "Home Score"
+    assert ui.groupBox_target_settings.isEnabled()
+    assert not ui.groupBox_target_settings.isHidden()
+    assert ui.label_boxNote.isHidden()
+    assert ui.pushButton_restoreDefaults.isEnabled()
+    # a standard field can't be built from other fields
+    assert ui.checkBox_templatefield.isHidden()
+    assert "only custom fields" in ui.label_templateHint.text()
+
+    # a field that isn't on the picture: how to place it
+    main_window.itemSelected("Home Fouls")
+    assert ui.label_selectedInfo.text() == "Home Fouls"
+    assert ui.groupBox_target_settings.isHidden()
+    assert not ui.groupBox_target_settings.isEnabled()
+    assert "Place on picture" in ui.label_boxNote.text()
+    assert not ui.pushButton_restoreDefaults.isEnabled()
+
+    # a new custom field is selected; it can become a template
+    main_window.addBox()
+    [name] = custom_field_names()
+    assert ui.label_selectedInfo.text() == name
+    assert ui.checkBox_templatefield.isEnabled()
+    assert not ui.lineEdit_templatefield.isEnabled()
+    ui.checkBox_templatefield.setChecked(True)
+    assert storage.find_item_by_name(name).settings["templatefield"]
+    assert ui.lineEdit_templatefield.isEnabled()
+    assert ui.toolButton_insertField.isEnabled()
+    assert ui.groupBox_target_settings.isHidden()
+    assert "built from other fields" in ui.label_boxNote.text()
+
+    # a custom field on the picture can't be a template too
+    main_window.addBox()
+    main_window.makeBox()
+    assert not ui.checkBox_templatefield.isEnabled()
+    assert "remove it from the picture" in ui.label_templateHint.text()
+
+    # Esc deselects: the explanation again
+    main_window.itemSelected(None)
+    assert ui.stackedWidget_boxSettings.currentWidget() is ui.page_boxEmpty
+
+
+def test_the_image_cleanup_section(make_window, make_target):
+    window = make_window()
+    ui = window.ui
+    storage = window.detectionTargetsStorage
+    # collapsed at first, with what it holds in plain words (the tooltips
+    # have the names of 0.1.x)
+    assert not ui.toolButton_imageCleanup.isChecked()
+    assert ui.frame_imageCleanup.isHidden()
+    assert ui.label_binarizationMethod.text() == "Black & white"
+    assert "Binarize" in ui.label_binarizationMethod.toolTip()
+    # the stored index keeps its meaning
+    assert [ui.comboBox_binarizationMethod.itemText(i) for i in range(4)] == [
+        "Whole picture",
+        "None",
+        "This box",
+        "Adaptive",
+    ]
+    assert "no effect" in ui.label_skipEmptyHint.text()
+
+    # how many of its settings were changed
+    storage.add_item(make_target("Home Score", dilate=2, binarization_method=2))
+    window.itemSelected("Home Score")
+    assert ui.label_imageCleanupBadge.text() == "2 changed"
+    ui.checkBox_invertPatch.setChecked(True)
+    assert ui.label_imageCleanupBadge.text() == "3 changed"
+    ui.horizontalSlider_conf_thresh.setValue(30)  # Filtering: not counted
+    assert ui.label_imageCleanupBadge.text() == "3 changed"
+    ui.pushButton_restoreDefaults.click()
+    assert ui.label_imageCleanupBadge.text() == "all default"
+    assert storage.find_item_by_name("Home Score").settings["dilate"] == 1
+
+    # opened, and still open at the next start
+    ui.toolButton_imageCleanup.click()
+    assert not ui.frame_imageCleanup.isHidden()
+    assert ui.toolButton_imageCleanup.arrowType() == QtCore.Qt.ArrowType.DownArrow
+    assert fetch_data("scoresight.json", "image_cleanup_expanded") is True
+    window.close()
+    again = make_window()
+    assert again.ui.toolButton_imageCleanup.isChecked()
+    assert not again.ui.frame_imageCleanup.isHidden()
+
+
+def test_the_binary_view_shortcut(main_window, make_target):
+    ui = main_window.ui
+    main_window.detectionTargetsStorage.add_item(make_target("Home Score"))
+    main_window.itemSelected("Home Score")
+    ui.widget_viewTools.setEnabled(True)  # as with a source
+    ui.toolButton_cleanupBinary.click()
+    assert ui.pushButton_binary.isChecked()
+    assert ui.toolButton_cleanupBinary.isChecked()
+    ui.actionBinaryView.trigger()  # Ctrl+B
+    assert not ui.toolButton_cleanupBinary.isChecked()
+    # no source: the view tools are off, and so is the shortcut
+    ui.widget_viewTools.setEnabled(False)
+    ui.toolButton_cleanupBinary.click()
+    assert not ui.pushButton_binary.isChecked()
+    assert not ui.toolButton_cleanupBinary.isChecked()
+
+
+def test_the_format_shows_its_preset_and_an_invalid_expression(
+    main_window, make_target
+):
+    from defaults import format_prefixes
+
+    ui = main_window.ui
+    storage = main_window.detectionTargetsStorage
+    storage.add_item(make_target("Home Score"))
+    main_window.itemSelected("Home Score")
+    combo = ui.comboBox_formatPrefix
+    assert combo.currentText() == "Score 1dd"  # the field's default format
+    ui.lineEdit_format.setText("^[0-3]?\\d$")
+    assert combo.currentText() == "Custom"
+    combo.setCurrentIndex(1)
+    assert ui.lineEdit_format.text() == format_prefixes[1]
+    assert (
+        storage.find_item_by_name("Home Score").settings["format_regex"]
+        == (format_prefixes[1])
+    )
+    assert combo.currentText() == "Time mm:ss"
+    # "Custom" keeps the expression, to edit it
+    combo.setCurrentIndex(combo.count() - 1)
+    assert ui.lineEdit_format.text() == format_prefixes[1]
+
+    # an expression the OCR can't use (it ignores it) is marked
+    assert ui.label_formatStatus.isHidden()
+    ui.lineEdit_format.setText("^(1?\\d$")
+    assert not ui.label_formatStatus.isHidden()
+    assert "ignored" in ui.label_formatStatus.text()
+    assert "missing )" in ui.label_formatStatus.toolTip()
+    assert "border" in ui.lineEdit_format.styleSheet()
+    ui.lineEdit_format.setText("^1?\\d$")
+    assert ui.label_formatStatus.isHidden()
+    assert ui.lineEdit_format.styleSheet() == ""
+
+
+def test_insert_field_into_a_template(main_window, make_target):
+    ui = main_window.ui
+    storage = main_window.detectionTargetsStorage
+    storage.add_item(make_target("Home Score"))
+    main_window.addBox()
+    [name] = custom_field_names()
+    ui.checkBox_templatefield.setChecked(True)
+    handler = main_window.boxSettingsUiHandler
+    handler.fillInsertFieldMenu()
+    actions = {action.text(): action for action in handler.insertFieldMenu.actions()}
+    # every other field, and whether it's on the picture
+    assert "Home Score" in actions
+    assert "Away Score (not on the picture)" in actions
+    assert name not in actions
+    ui.lineEdit_templatefield.setText("Score: ")
+    actions["Home Score"].trigger()
+    assert ui.lineEdit_templatefield.text() == "Score: {{Home Score}}"
+    assert storage.find_item_by_name(name).settings["templatefield_text"] == (
+        "Score: {{Home Score}}"
+    )
+
+
+def test_the_fields_footer_shows_what_applies(main_window):
+    ui = main_window.ui
+    ui.groupBox_sb_info.setEnabled(True)  # as with a source
+    # nothing selected
+    assert not ui.pushButton_makeBox.isHidden()
+    assert not ui.pushButton_makeBox.isEnabled()
+    assert ui.pushButton_removeBox.isHidden()
+    assert ui.toolButton_removeBox.isHidden()
+    # a standard field, not on the picture: Place on picture, no Delete
+    main_window.itemSelected("Home Score")
+    assert ui.pushButton_makeBox.isEnabled()
+    assert ui.pushButton_removeBox.isHidden()
+    assert ui.toolButton_removeBox.isHidden()
+    ui.pushButton_makeBox.click()
+    assert main_window.detectionTargetsStorage.find_item_by_name("Home Score")
+    assert ui.tabWidget_inspector.currentWidget() is ui.tab_box
+    # on the picture: Remove from picture instead
+    assert ui.pushButton_makeBox.isHidden()
+    assert not ui.pushButton_removeBox.isHidden()
+    assert ui.pushButton_removeBox.isEnabled()
+    # a custom field: Delete field too
+    main_window.addBox()
+    assert not ui.toolButton_removeBox.isHidden()
+    assert ui.pushButton_makeBox.isEnabled()
+    # a template field: neither Place nor Remove
+    ui.checkBox_templatefield.setChecked(True)
+    assert ui.pushButton_makeBox.isHidden() and ui.pushButton_removeBox.isHidden()
+    assert not ui.toolButton_removeBox.isHidden()
+
+
+def test_the_fields_hint_before_a_source(make_window):
+    store_data("scoresight.json", "source_selected", "rtsp://10.0.1.200:554/11")
+    window = make_window()
+    ui = window.ui
+    # the source is opening: no picture yet
+    assert not ui.groupBox_sb_info.isEnabled()
+    assert not ui.label_fieldsHint.isHidden()
+    window.cameraConnectedEnableUI()  # the first frame
+    assert ui.label_fieldsHint.isHidden()
+    ui.comboBox_camera_source.setCurrentIndex(0)  # no source
+    assert not ui.label_fieldsHint.isHidden()
+
+
+def test_removing_a_tuned_box_from_the_picture_asks_first(main_window):
+    ui = main_window.ui
+    asked = []
+    answer = [False]
+    main_window.confirm = lambda title, text, action: asked.append(text) or answer[0]
+    storage = main_window.detectionTargetsStorage
+    main_window.itemSelected("Home Score")
+    main_window.makeBox()
+    # nothing to lose: no question
+    main_window.removeFromPicture()
+    assert asked == []
+    assert storage.find_item_by_name("Home Score") is None
+    # its settings were changed: Cancel keeps it
+    main_window.makeBox()
+    ui.horizontalSlider_dilate.setValue(3)
+    main_window.removeFromPicture()
+    assert len(asked) == 1 and "Home Score" in asked[0]
+    assert storage.find_item_by_name("Home Score") is not None
+    answer[0] = True
+    main_window.removeFromPicture()
+    assert storage.find_item_by_name("Home Score") is None
+    assert box_name_item(main_window, "Home Score").data(
+        QtCore.Qt.ItemDataRole.UserRole
+    ) == ("unchecked")
+
+
+def test_deleting_a_custom_field_asks_first(main_window):
+    ui = main_window.ui
+    asked = []
+    answers = [False, True]
+    main_window.confirm = lambda title, text, action: (
+        asked.append(text) or answers.pop(0)
+    )
+    main_window.addBox()
+    [name] = custom_field_names()
+    main_window.deleteField()  # Cancel
+    assert name in box_rows(main_window)
+    main_window.deleteField()  # Delete
+    assert name not in box_rows(main_window)
+    assert custom_field_names() == []
+    assert len(asked) == 2 and name in asked[0]
+    # nothing is selected after it
+    assert ui.stackedWidget_boxSettings.currentWidget() is ui.page_boxEmpty
+    # a standard field isn't deleted (nor asked about)
+    main_window.itemSelected("Home Score")
+    main_window.deleteField()
+    assert len(asked) == 2 and "Home Score" in box_rows(main_window)
+
+
+def test_the_fields_context_menu(main_window, make_result, qapp):
+    from PySide6.QtGui import QGuiApplication
+
+    ui = main_window.ui
+    main_window.itemSelected("Time")
+    menu = main_window.fieldContextMenu()
+    names = [action.objectName() for action in menu.actions()]
+    assert names[0] == "actionPlaceOnPicture"  # not on the picture yet
+    menu.deleteLater()
+
+    main_window.makeBox()
+    main_window.ocrResult([make_result("Time", "04:23")])
+    menu = main_window.fieldContextMenu()
+    names = [action.objectName() for action in menu.actions() if action.objectName()]
+    assert names == [
+        "actionRemoveFromPicture",
+        "actionRenameField",
+        "actionDeleteField",
+        "actionResetFieldSettings",
+        "actionCopyValue",
+        "actionZoomToBox",
+    ]
+    # a standard field: no Rename or Delete, and the menu says why
+    assert not ui.actionRenameField.isEnabled()
+    assert not ui.actionDeleteField.isEnabled()
+    assert "custom fields" in ui.actionRenameField.toolTip()
+    assert ui.actionResetFieldSettings.isEnabled()
+    assert not ui.actionZoomToBox.isEnabled()  # no picture
+    ui.actionCopyValue.trigger()
+    assert QGuiApplication.clipboard().text() == "04:23"
+    menu.deleteLater()
+
+    # a custom field
+    main_window.addBox()
+    main_window.fieldContextMenu().deleteLater()
+    assert ui.actionRenameField.isEnabled() and ui.actionDeleteField.isEnabled()
+    assert not ui.actionCopyValue.isEnabled()  # no value yet
+    assert not ui.actionResetFieldSettings.isEnabled()  # no box
+
+
+def test_zoom_to_box(main_window, make_target):
+    from PySide6.QtCore import QRectF
+
+    class ZoomingViewer(FakeViewer):
+        def __init__(self):
+            super().__init__(None, None, None, None)
+            self.fitted = []
+            self.selected = []
+
+        def fitInView(self, rect, mode):
+            self.fitted.append(rect)
+
+        def selectBox(self, name):
+            self.selected.append(name)
+
+    ui = main_window.ui
+    viewer = ZoomingViewer()
+    main_window.image_viewer = viewer
+    box = make_target("Home Score", rect=(100, 50, 40, 20))
+    main_window.detectionTargetsStorage.add_item(box)
+    main_window.itemSelected("Home Score")
+    main_window.fieldContextMenu().deleteLater()
+    assert ui.actionZoomToBox.isEnabled()
+    ui.actionZoomToBox.trigger()
+    [rect] = viewer.fitted
+    # the box, with some of the picture around it
+    assert rect.contains(QRectF(box)) and rect.width() == 80
+    assert viewer.selected[-1] == "Home Score"
+
+
+def test_renaming_to_a_used_name_says_so(main_window, monkeypatch):
+    import mainwindow
+
+    ui = main_window.ui
+    main_window.addBox()
+    [name] = custom_field_names()
+    answers = [("  time ", True), ("Score Line", True)]
+    asked_with = []
+
+    def get_text(parent, title, label, text=""):
+        asked_with.append(text)
+        return answers.pop(0)
+
+    warnings = []
+    monkeypatch.setattr(mainwindow.QInputDialog, "getText", get_text)
+    monkeypatch.setattr(
+        mainwindow.QMessageBox,
+        "warning",
+        lambda parent, title, text: warnings.append(text),
+    )
+    ui.actionRenameField.trigger()  # F2
+    # "time" is the Time field (names that differ only in case are the same)
+    assert len(warnings) == 1 and "“time”" in warnings[0]
+    # asked again, with the name typed
+    assert asked_with == [name, "time"]
+    assert "Score Line" in box_rows(main_window)
+    assert custom_field_names() == ["Score Line"]
+    assert ui.label_selectedInfo.text() == "Score Line"
+
+
 def test_pausing_the_outputs_shows_everywhere(main_window, patched, make_result):
     ui = main_window.ui
     main_window.show()
@@ -806,7 +1190,22 @@ def test_the_keyboard_shortcuts(main_window, qtbot):
         "actionBinaryView": "Ctrl+B",
         "actionFitPicture": "Ctrl+0",
         "actionReloadSources": "F5",
+        "actionNewField": "Ctrl+N",
     }
+    # the selected field's keys, while the fields list has the focus
+    table = ui.tableWidget_boxes
+    field_keys = {
+        action.objectName(): action.shortcut().toString() for action in table.actions()
+    }
+    assert field_keys == {
+        "actionRenameField": "F2",
+        "actionDeleteField": "Del",
+        "actionCopyValue": "Ctrl+C",
+    }
+    assert all(
+        action.shortcutContext() == QtCore.Qt.ShortcutContext.WidgetShortcut
+        for action in table.actions()
+    )
     from PySide6.QtTest import QTest
 
     with qtbot.waitActive(main_window):
@@ -827,6 +1226,38 @@ def test_the_keyboard_shortcuts(main_window, qtbot):
     assert not ui.widget_viewTools.isEnabled()
     ui.actionBinaryView.trigger()
     assert not ui.pushButton_binary.isChecked()
+
+    # Ctrl+N: a new custom field, selected
+    QTest.keyClick(
+        main_window.windowHandle(),
+        QtCore.Qt.Key.Key_N,
+        QtCore.Qt.KeyboardModifier.ControlModifier,
+    )
+    [name] = custom_field_names()
+    assert ui.label_selectedInfo.text() == name
+
+
+def test_ctrl_c_in_the_fields_list_copies_the_value(main_window, make_result, qtbot):
+    from PySide6.QtGui import QGuiApplication
+    from PySide6.QtTest import QTest
+
+    ui = main_window.ui
+    ui.groupBox_sb_info.setEnabled(True)  # as with a source
+    main_window.itemSelected("Time")
+    main_window.makeBox()
+    main_window.ocrResult([make_result("Time", "04:23")])
+    with qtbot.waitActive(main_window):
+        main_window.show()
+        main_window.activateWindow()
+    ui.tableWidget_boxes.setFocus()
+    QGuiApplication.clipboard().setText("")
+    # (the list copies the current item, the field's name, by itself)
+    QTest.keyClick(
+        ui.tableWidget_boxes,
+        QtCore.Qt.Key.Key_C,
+        QtCore.Qt.KeyboardModifier.ControlModifier,
+    )
+    assert QGuiApplication.clipboard().text() == "04:23"
 
 
 def test_resuming_sends_unchanged_values_to_vmix_and_uno(
@@ -965,7 +1396,13 @@ def test_the_outputs_are_destinations_over_their_pages(main_window):
 
     ui = main_window.ui
     model = main_window.destinationsModel
+    # the Outputs tab of the inspector, in a laptop-sized window
+    main_window.resize(1366, 768)
     main_window.show()
+    ui.tabWidget_inspector.setCurrentWidget(ui.widget_outputs)
+    # the list over the pages, with a divider to give the pages more room
+    assert ui.splitter_outputs.widget(0) is ui.listView_destinations
+    assert ui.splitter_outputs.widget(1).isAncestorOf(ui.stackedWidget_outputs)
     names = [model.item(row).text() for row in range(model.rowCount())]
     assert names == ["Text files", "HTTP server", "OBS", "vMix", "UNO", "HTTP API"]
     stack = ui.stackedWidget_outputs
@@ -1120,7 +1557,15 @@ def test_the_status_bar_shows_every_output_and_opens_it(main_window):
     assert vmix.accessibleName() == "vMix: off"
     assert not vmix.icon().isNull()
 
+    # the inspector shows the Outputs tab, also when it was hidden
+    main_window.resize(1366, 768)
+    main_window.show()
+    ui.tabWidget_inspector.setCurrentWidget(ui.tab_box)
+    main_window.setPaneHidden(2, True)
+    assert main_window.isPaneHidden(2)
     bar.output_buttons["api"].click()
+    assert ui.tabWidget_inspector.currentWidget() is ui.widget_outputs
+    assert not main_window.isPaneHidden(2)
     assert ui.listView_destinations.currentIndex().row() == 5
     assert ui.stackedWidget_outputs.currentWidget() is ui.tab_api
     bar.output_buttons["obs"].click()
@@ -1285,9 +1730,10 @@ SIZE_REFERENCE_TEXT = "Detections / s Update on change Binary View 4-corner Corr
 
 def test_the_window_fits_a_small_screen(make_window, qapp, qtbot, reference_font):
     # The window needed 1016x750 (1158 wide in German): more than a 1366x768
-    # laptop shows. The left column now scrolls, and a splitter divides the
-    # space. The limit is for Segoe UI 9 pt; a wider font (Linux, the
-    # offscreen fallback font) widens it in proportion.
+    # laptop shows. Three panes now share the width (the fields, the picture
+    # and the inspector), the side panes scroll inside. The limit is for
+    # Segoe UI 9 pt; a wider font (Linux, the offscreen fallback font) widens it
+    # in proportion.
     from PySide6.QtGui import QFontMetricsF
 
     window = make_window()
@@ -1301,43 +1747,59 @@ def test_the_window_fits_a_small_screen(make_window, qapp, qtbot, reference_font
     window.show()
     for language in ("en_US", "de_DE"):
         window.changeLanguage(language)
-        # the left column doesn't scroll sideways: it becomes as wide as its
-        # content
-        qtbot.waitUntil(
-            lambda: (
-                ui.scrollArea_left.minimumWidth() >= ui.frame.minimumSizeHint().width()
-            )
-        )
         qapp.processEvents()
         hint = window.minimumSizeHint()
         assert hint.width() <= 1024 * width_ratio, (language, hint)
         assert hint.height() <= 640, (language, hint)
+        # On a 1366x768 laptop the side panes get their widths (enough for
+        # their content), and the picture the rest
+        window.resize(1366, 768)
+        ui.splitter_main.setSizes(window.defaultPaneSizes(1366))
+        qapp.processEvents()
+        fields, viewer, inspector = ui.splitter_main.sizes()
+        assert fields >= max(220, ui.widget_leftPane.minimumSizeHint().width())
+        assert inspector >= max(300, ui.tabWidget_inspector.minimumSizeHint().width())
+        assert viewer >= 360, (language, ui.splitter_main.sizes())
     qapp.removeTranslator(window.translator)
 
 
-def test_the_splitter_sizes_are_kept(make_window, qtbot):
+def test_the_panes_widths_and_hidden_panes_are_kept(make_window, qtbot):
+    from PySide6.QtTest import QTest
+
     def settled(window):
         # wide enough for any font, laid out
         window.resize(max(2000, window.minimumSizeHint().width() + 400), 800)
-        window.show()
-        ui = window.ui
-        qtbot.waitUntil(
-            lambda: (
-                ui.scrollArea_left.minimumWidth() >= ui.frame.minimumSizeHint().width()
-            )
-        )
+        with qtbot.waitExposed(window):
+            window.show()
         return window.ui.splitter_main
 
+    # the two-pane layout before the inspector is forgotten
+    store_data("scoresight.json", "main_splitter_state", "AAAA/wAAAAEAAAAC")
     window = make_window()
+    assert fetch_data("scoresight.json", "main_splitter_state") is None
     splitter = settled(window)
+    fields, viewer, inspector = splitter.sizes()
+    assert fields > 0 and inspector > 0
     left = window.ui.widget_leftPane.minimumSizeHint().width() + 60
-    splitter.setSizes([left, splitter.width() - left])
+    splitter.setSizes([left, fields + viewer - left, inspector])
     assert splitter.sizes()[0] == left
+    # a double-click on the divider hides the inspector, another one shows it
+    # again at its width
+    QTest.mouseDClick(splitter.handle(2), QtCore.Qt.MouseButton.LeftButton)
+    assert window.isPaneHidden(2)
+    QTest.mouseDClick(splitter.handle(2), QtCore.Qt.MouseButton.LeftButton)
+    assert splitter.sizes()[2] == inspector
+    QTest.mouseDClick(splitter.handle(2), QtCore.Qt.MouseButton.LeftButton)
     window.close()
-    assert fetch_data("scoresight.json", "main_splitter_state")
+    stored = fetch_data("scoresight.json", "main_splitter_sizes")
+    assert stored[0] == left and stored[2] == 0
 
+    # hidden at the next start too
     restored = settled(make_window())
     qtbot.waitUntil(lambda: restored.sizes()[0] == left)
+    assert restored.sizes()[2] == 0
+    QTest.mouseDClick(restored.handle(2), QtCore.Qt.MouseButton.LeftButton)
+    assert restored.sizes()[2] > 0
 
 
 def test_slider_readouts(main_window, make_target):
