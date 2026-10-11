@@ -1407,6 +1407,15 @@ def test_pausing_the_outputs_shows_everywhere(main_window, patched, make_result)
     assert ui.pushButton_stopUpdates.isChecked()
     assert ui.pushButton_stopUpdates.text() == "Resume outputs"
     assert ":checked" in ui.pushButton_stopUpdates.styleSheet()
+    # bold, and as wide as its bold text ("Resume output" was cut off)
+    from PySide6.QtGui import QFontMetrics
+
+    button = ui.pushButton_stopUpdates
+    assert button.font().bold()
+    assert button.sizeHint().width() >= (
+        QFontMetrics(button.font()).horizontalAdvance(button.text())
+        + button.iconSize().width()
+    )
     assert ui.frame_pausedBanner.isVisibleTo(main_window)
     assert "Outputs paused" in ui.label_pausedBanner.text()
     assert main_window.windowTitle() == f"⏸ ScoreSight - v{__version__}"

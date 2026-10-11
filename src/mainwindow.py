@@ -1979,8 +1979,14 @@ class MainWindow(QMainWindow):
             "QPushButton#pushButton_stopUpdates:checked {"
             f" background-color: {amber}; color: {on_amber};"
             f" border: 1px solid {amber}; border-radius: 3px;"
-            " padding: 4px 8px; font-weight: bold; }"
+            " padding: 4px 8px; }"
         )
+        # bold while paused, in the button's font (not the style sheet's), so
+        # its size fits the bold text: "Resume outputs" was cut off
+        font = QFont(button.font())
+        if font.bold() != paused:
+            font.setBold(paused)
+            button.setFont(font)
 
         banner = self.ui.frame_pausedBanner
         banner.setVisible(paused)
