@@ -8,6 +8,24 @@ Release tags are the bare version number (for example `0.1.0`).
 
 ## [Unreleased]
 
+### Added
+
+- **TCP / UDP output** for graphics systems that take text over a socket: a
+  **TCP / UDP** row in the Outputs list, with presets for CasparCG (AMCP
+  `CG ADD` and `CG UPDATE`, with a bundled HTML scorebug template and Play /
+  Stop buttons), Chyron PRIME (Intelligent Interface `P\UPDATE`), Live Score
+  (its Scoreboard OCR input), MagicSoft CG (`[name]=value`) and Vizrt Viz
+  Engine (Shared Memory `key|value`), and a template for any other line
+  protocol. It keeps a TCP connection open and reconnects by itself (or sends
+  UDP datagrams), sends an optional "on connect" message, and has options for
+  the line ending, the encoding, the escaping, changes only, a minimum interval
+  and a periodic resend. Its status shows the connection and the receiver's
+  answers (an AMCP error such as `404 CG ERROR` turns it orange), and the page
+  previews what is sent. The presets haven't been tested with the real
+  products yet; the Live Score and MagicSoft formats come from another
+  vendor's public documentation. See the
+  [TCP / UDP output](https://royshil.github.io/scoresight/tcp-output.html) page.
+
 ## [0.2.0] - 2026-10-10
 
 ScoreSight is actively maintained again. This release modernizes the whole

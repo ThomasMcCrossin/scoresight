@@ -62,7 +62,7 @@ flowchart LR
    - applies the held values (**Hold value**): `held_values.HeldValues.apply(results)` replaces each held field's result with a copy carrying the value typed in (`Success` once, then `SameNoChange`; a held template field isn't evaluated) and makes a released field's next good reading a `Success` (`finish_released()` for template fields, after they are evaluated). Templates and every output see the held values; the capture thread doesn't know about them, so the OCR goes on unchanged. Held values are not persisted,
    - evaluates template fields: `template_fields.apply_template_fields(results)` sets each template's text from the last good readings and its state (`Success`, `SameNoChange` or `Empty`),
    - updates the field table: every OCR reading (not the held values) is stored in its box's Value item (`readings_view.record_reading`: the last good text, the state, the time of the last good reading, a rejected text; `set_held` adds the held value), which `readings_view.ReadingDelegate` paints,
-   - publishes to `http_server.update_http_server` (which snapshots the results), the outbound API (`api_output.update_out_api`), the vMix and UNO updaters (owned by `vmix_ui_handler` / `uno_ui_handler`), OBS text sources (`obs_websocket.update_text_source`, for good values that changed) and `file_output.FileOutput` (txt/csv/xml).
+   - publishes to `http_server.update_http_server` (which snapshots the results), the outbound API (`api_output.update_out_api`), the vMix and UNO updaters (owned by `vmix_ui_handler` / `uno_ui_handler`), the TCP / UDP output (`tcp_output.TcpOutput`, owned by `tcp_ui_handler`), OBS text sources (`obs_websocket.update_text_source`, for good values that changed) and `file_output.FileOutput` (txt/csv/xml).
    - Network outputs hand their payload to background workers (`output_worker.OutputWorker`, one daemon thread per output) that coalesce pending items per key (latest value wins), use request timeouts, back off while the target is unreachable and throttle their error logging, so the GUI thread never blocks on I/O.
    - File output is state-based and atomic: `FileOutput.record()` remembers every box's last good reading, and `flush()` (at most **Save / s** times per second, with a `QTimer` for the pending change) writes only files whose content changed or that are missing.
 
@@ -70,12 +70,13 @@ flowchart LR
 
 ### Output status
 
-The **Outputs** list (`listView_destinations`, with `destinations_view.DestinationsModel` and `DestinationDelegate`), in the Inspector's Outputs tab, has a row per output over `stackedWidget_outputs` (a vertical `splitter_outputs` divides them), whose pages are the output settings (the old tabs, with their objectNames). Once a second (and when an output is switched), `MainWindow.destinationStatuses()` builds a `output_status.DestinationStatus` for every output from cheap, thread-safe snapshots, never from the network:
+The **Outputs** list (`listView_destinations`, with `destinations_view.DestinationsModel` and `DestinationDelegate`), in the Inspector's Outputs tab, has a row per output over `stackedWidget_outputs` (a vertical `splitter_outputs` divides them), whose pages are the output settings (the old tabs, with their objectNames; the TCP / UDP output's page, `tab_tcp`, is its own Designer form, `tcp_output.ui`, which `tcp_ui_handler.TcpUIHandler` adds as the last page). Once a second (and when an output is switched), `MainWindow.destinationStatuses()` builds a `output_status.DestinationStatus` for every output from cheap, thread-safe snapshots, never from the network:
 
 - `OutputWorker.status()`: a `WorkerStatus` taken under the worker's lock: items sent and failed, consecutive failures, whether the endpoint is being retried (and the backoff), the keys whose latest item was sent or dropped, the last success and failure times, and the last error as an `ErrorInfo` (the exception's type, message and HTTP status or OBS code, without the exception object). `reset_status()` starts over when an output is stopped or sends somewhere else; `forget_keys()` drops a closed OBS connection's text sources. A send function raises `SendSkipped` for an item it deliberately didn't send.
 - `http_server.http_server_stats()`: a request counter (an ASGI middleware), the time of the last request, the clients seen in the last 10 s, and why the server couldn't start.
 - `FileOutput.status()`: the folder, the files written, the last write, and the files whose last write failed (GUI thread only, like `FileOutput`).
 - the OBS client, the attempt running and why the last one failed (`obs_websocket.last_connect_error()`, recorded on the connecting thread).
+- `TcpOutput.connection_status()`: whether the TCP connection is open or being opened, and the receiver's last answer (an AMCP-style answer with a 4xx/5xx code is an error until a 2xx one), written by its worker and reader threads under a lock.
 
 `output_status.describe_error()` turns a failure into a short line and what to do, for the documented cases (vMix's TCP API port, HTTP 401/403/404/429/5xx per output, refused, timed-out or unknown hosts, OBS password and missing-source errors). Secrets are redacted (`url_secrets`, `redact`). The switches never change an output themselves: `DestinationsModel.setData(CheckStateRole)` emits `toggleRequested`, and `MainWindow.destinationToggleRequested` operates the output's own control, which stays the source of truth.
 
@@ -154,6 +155,7 @@ Logging goes through `from sc_logging import logger`. It writes to `platformdirs
 | `obs_ui_handler.py` | The OBS page's table of each field's OBS text source (`obs_source_name`), saved through the box storage |
 | `vmix_output.py`, `vmix_ui_handler.py` | vMix Web API sender and its settings page |
 | `uno_output.py`, `uno_ui_handler.py` | overlays.uno sender and its settings page |
+| `tcp_output.py`, `tcp_ui_handler.py` | TCP / UDP line output: templates, escaping, presets (CasparCG, Chyron PRIME, Live Score, MagicSoft CG, Vizrt), the persistent connection with its reply reader; and its settings page (`tcp_output.ui`) |
 | `file_output.py` | Text, CSV and XML file output |
 | `ocr_training_data.py`, `training_dojo.py` | Training data collection and the annotation tool |
 | `log_view.py` | Log viewer dialog |

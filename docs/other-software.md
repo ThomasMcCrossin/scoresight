@@ -1,7 +1,7 @@
 ---
 title: Other Software
 parent: Outputs
-nav_order: 7
+nav_order: 8
 description: "Use ScoreSight with NewBlue Captivate/Titler Live, CasparCG, Streamlabs, Home Assistant, Node-RED and anything that reads files or JSON."
 ---
 
@@ -15,6 +15,7 @@ ScoreSight has built-in integrations for [OBS](obs.md), [vMix](vmix.md) and [ove
 | poll a URL for JSON, XML or CSV | [HTTP Server API](http_server.md) (`http://<scoresight-ip>:18099/json?pivot`) |
 | show a web page (browser source, HTML template) | An HTML page that polls the [HTTP server](http_server.md#custom-html-overlay-obs-browser-source-vmix-web-browser-input) |
 | receive webhooks / HTTP requests | [Outbound HTTP API](out_api.md) |
+| take text lines over a TCP connection or UDP | [TCP / UDP output](tcp-output.md) (presets for CasparCG, Chyron PRIME, Live Score, MagicSoft CG and Vizrt) |
 
 ## NewBlue Captivate / Titler Live
 
@@ -24,7 +25,9 @@ ScoreSight has no NewBlue-specific integration, but works with NewBlue through i
 
 ## CasparCG
 
-Use an HTML template that polls `http://<scoresight-ip>:18099/json?pivot` and updates its elements. The [custom HTML overlay example](http_server.md#custom-html-overlay-obs-browser-source-vmix-web-browser-input) is a good starting point. Play it with CasparCG's HTML producer.
+Use the [TCP / UDP output](tcp-output.md#casparcg) with its CasparCG preset: it loads ScoreSight's scorebug template (or your own) over AMCP and updates it as the values change.
+
+Without it, an HTML template can poll `http://<scoresight-ip>:18099/json?pivot` and update its elements. The [custom HTML overlay example](http_server.md#custom-html-overlay-obs-browser-source-vmix-web-browser-input) is a good starting point. Play it with CasparCG's HTML producer.
 
 ## Streamlabs Desktop and other OBS-like apps
 
