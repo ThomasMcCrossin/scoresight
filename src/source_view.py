@@ -197,6 +197,9 @@ class Drawing:
     view_origin: QPoint
     scene_origin: QPointF
     band: RubberBand
+    # started by the second press of a double-click: without a drag, it is a
+    # double-click (DRAW_PLACE: the box there)
+    double_click: bool = False
 
 
 def nudged_rect(rect: QRectF, dx: float, dy: float, bounds: QRectF) -> QRectF:
@@ -754,7 +757,13 @@ class ImageViewer(CameraView):
             return DRAW_REDRAW, self.selectedBoxName
         return None
 
-    def startDrawing(self, mode: str, name: str | None, view_position: QPoint):
+    def startDrawing(
+        self,
+        mode: str,
+        name: str | None,
+        view_position: QPoint,
+        double_click: bool = False,
+    ):
         self.cancelDrawing()
         picture = self.pictureRect()
         band = RubberBand(picture, shade=mode == DRAW_CROP)
@@ -766,8 +775,15 @@ class ImageViewer(CameraView):
             QPoint(view_position),
             clamped_point(self.mapToScene(view_position), picture),
             band,
+            double_click,
         )
         self.updateCursor()
+
+    @staticmethod
+    def isClick(moved: QPoint) -> bool:
+        """A drag this small (less than DRAW_MIN_PX wide or tall) is a click:
+        it draws nothing."""
+        return abs(moved.x()) < DRAW_MIN_PX or abs(moved.y()) < DRAW_MIN_PX
 
     def isDrawing(self) -> bool:
         return self.drawing is not None
@@ -779,10 +795,8 @@ class ImageViewer(CameraView):
                 drawing.scene_origin, self.mapToScene(view_position), self.pictureRect()
             )
         )
-        moved = view_position - drawing.view_origin
-        drawing.band.setVisible(
-            abs(moved.x()) >= DRAW_MIN_PX or abs(moved.y()) >= DRAW_MIN_PX
-        )
+        # (shown when its release would draw it)
+        drawing.band.setVisible(not self.isClick(view_position - drawing.view_origin))
 
     def cancelDrawing(self) -> bool:
         """Stop drawing (Esc); returns False if nothing was being drawn."""
@@ -797,12 +811,15 @@ class ImageViewer(CameraView):
     def finishDrawing(self, view_position: QPoint):
         """The drag ended: a box (or the crop) with the rectangle dragged. A
         drag less than DRAW_MIN_PX wide or tall is a click: nothing is
-        drawn."""
+        drawn (the second click of a double-click places the field's box
+        there)."""
         drawing = self.drawing
         picture = self.pictureRect()
         self.cancelDrawing()
-        moved = view_position - drawing.view_origin
-        if abs(moved.x()) < DRAW_MIN_PX or abs(moved.y()) < DRAW_MIN_PX:
+        if self.isClick(view_position - drawing.view_origin):
+            if drawing.double_click and drawing.mode == DRAW_PLACE:
+                # the field's box, centred where the double-click was
+                self.place_requested.emit(drawing.name, drawing.scene_origin)
             return
         rect = drawn_rect(drawing.scene_origin, self.mapToScene(view_position), picture)
         if rect.width() < 1 or rect.height() < 1:
@@ -852,9 +869,12 @@ class ImageViewer(CameraView):
             self.viewport().setCursor(Qt.CursorShape.ClosedHandCursor)
             return
         if self.drawing is not None:
-            # another button while drawing
-            event.accept()
-            return
+            if button != Qt.MouseButton.LeftButton:
+                # another button while drawing
+                event.accept()
+                return
+            # the drag's release went elsewhere (e.g. a dialog opened meanwhile)
+            self.cancelDrawing()
         if self.fourCornerSelectionMode and button == Qt.MouseButton.LeftButton:
             self.addFourCornerPoint(self.mapToScene(position))
             return
@@ -910,30 +930,41 @@ class ImageViewer(CameraView):
                 self.verticalScrollBar().value() - delta.y()
             )
         elif self.drawing is not None:
-            self.updateDrawing(position)
+            if event.buttons() & Qt.MouseButton.LeftButton:
+                self.updateDrawing(position)
+            else:
+                # the drag's release went elsewhere
+                self.cancelDrawing()
         else:
             super().mouseMoveEvent(event)
             self.updateCursor(event.modifiers())
 
     def mouseDoubleClickEvent(self, event: QMouseEvent | None) -> None:
-        position = event.position().toPoint()
-        if (
-            event.button() == Qt.MouseButton.LeftButton
-            and self.placementField is not None
-            and self.hasPicture()
-            and not self.fourCornerSelectionMode
-            and not self.cropSelectionMode
-            and self.boxAt(position) is None
-        ):
-            # the field's box, centred where the double-click was
-            self.cancelDrawing()
-            self.place_requested.emit(
-                self.placementField,
-                clamped_point(self.mapToScene(position), self.pictureRect()),
-            )
-            event.accept()
-            return
+        """The second press of a quick pair of clicks. It starts drawing as a
+        press does: a drag right after a click still draws. Released without
+        a drag, it is a double-click: with a field without a box selected, its
+        box goes there (finishDrawing)."""
+        self.lastMousePosition = event.position().toPoint()
+        if self.drawing is None:
+            draw = self.drawModeFor(event)
+            if draw is not None:
+                self.startDrawing(*draw, self.lastMousePosition, double_click=True)
+                event.accept()
+                return
         super().mouseDoubleClickEvent(event)
+
+    def focusOutEvent(self, event):
+        if event.reason() in (
+            Qt.FocusReason.ActiveWindowFocusReason,
+            Qt.FocusReason.PopupFocusReason,
+        ):
+            # e.g. a dialog opened during a drag: its release goes elsewhere
+            self.cancelDrawing()
+        super().focusOutEvent(event)
+
+    def hideEvent(self, event):
+        self.cancelDrawing()
+        super().hideEvent(event)
 
     def contextMenuEvent(self, event: QContextMenuEvent | None) -> None:
         """A right-click on a box (or the menu key with a box selected): the
@@ -983,6 +1014,7 @@ class ImageViewer(CameraView):
             key in _NUDGE_KEYS
             and self.drawing is None
             and not self.fourCornerSelectionMode
+            and not self.cropSelectionMode
             and modifiers
             in (Qt.KeyboardModifier.NoModifier, Qt.KeyboardModifier.ShiftModifier)
         ):
@@ -999,7 +1031,8 @@ class ImageViewer(CameraView):
 
     def keyReleaseEvent(self, event: QKeyEvent | None) -> None:
         if event.key() == Qt.Key.Key_Alt:
-            self.updateCursor(event.modifiers())
+            # (on X11 the event still has the modifier it releases)
+            self.updateCursor(event.modifiers() & ~Qt.KeyboardModifier.AltModifier)
         super().keyReleaseEvent(event)
 
     def leaveEvent(self, event):

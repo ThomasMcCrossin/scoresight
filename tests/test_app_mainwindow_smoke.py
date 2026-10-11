@@ -2158,6 +2158,10 @@ def test_every_language_fits(language, make_window, make_target, qapp, reference
         ui.splitter_main.setSizes(window.defaultPaneSizes(window.width()))
         window.itemSelected("Home Score")
         ui.toolButton_imageCleanup.setChecked(True)
+        # the crop panel (with Drag to crop) and the crop picking's banner
+        ui.toolButton_topCrop.setChecked(True)
+        window.cropMode()
+        ui.frame_cropBanner.show()
         qapp.processEvents()
         qapp.processEvents()
         hint = window.minimumSizeHint()

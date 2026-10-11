@@ -214,6 +214,47 @@ def test_a_tiny_drag_is_a_click(viewer):
     # and the field stays selected, to be placed
     assert viewer.selected == []
     assert viewer.placementField == "Home Fouls"
+    # (the rubber band shows only when the release would draw it)
+    from source_view import RubberBand
+
+    drag(viewer, (100, 100), (300, 102), release=False)
+    [band] = [item for item in viewer.scene.items() if isinstance(item, RubberBand)]
+    assert not band.isVisible()
+    mouse(viewer, QEvent.Type.MouseButtonRelease, QPoint(300, 102))
+
+
+def test_a_drag_right_after_a_click_draws(viewer):
+    # Qt makes the second press of a quick pair a double-click
+    recorded = signals(viewer)
+    viewer.setPlacementField("Time")
+    mouse(viewer, QEvent.Type.MouseButtonPress, QPoint(100, 100))
+    mouse(viewer, QEvent.Type.MouseButtonRelease, QPoint(100, 100))
+    mouse(viewer, QEvent.Type.MouseButtonDblClick, QPoint(102, 101))
+    for x, y in ((150, 140), (240, 200)):
+        mouse(viewer, QEvent.Type.MouseMove, QPoint(x, y), NO_BUTTON, LEFT)
+    mouse(viewer, QEvent.Type.MouseButtonRelease, QPoint(240, 200))
+    [(name, rect)] = recorded["drawn"]
+    assert rect == expected_rect(viewer, (102, 101), (240, 200))
+    assert recorded["place"] == []
+
+
+def test_a_lost_release_ends_the_drawing(viewer):
+    # e.g. a dialog opened during the drag: the release went to it
+    recorded = signals(viewer)
+    viewer.setPlacementField("Time")
+    drag(viewer, (100, 100), (300, 200), release=False)
+    # the next move without the button
+    mouse(viewer, QEvent.Type.MouseMove, QPoint(320, 220), NO_BUTTON, NO_BUTTON)
+    assert not viewer.isDrawing()
+    # or the next press: a new drag from there
+    drag(viewer, (100, 100), (300, 200), release=False)
+    drag(viewer, (400, 300), (500, 380))
+    [(name, rect)] = recorded["drawn"]
+    assert rect == expected_rect(viewer, (400, 300), (500, 380))
+    # a hidden viewer stops drawing
+    drag(viewer, (100, 100), (300, 200), release=False)
+    viewer.hide()
+    assert not viewer.isDrawing()
 
 
 def test_esc_cancels_the_drawing(viewer):
@@ -897,6 +938,15 @@ def test_a_box_outside_the_crop_stays_and_is_named(cropping_window):
     ui.spinBox_bottomCrop.setValue(0)
     assert window.boxesOutsidePicture() == []
     assert not ui.label_cropWarning.isVisible()
+
+
+def test_the_hidden_boxes_dont_move_while_the_crop_is_picked(cropping_window):
+    window, view = cropping_window
+    box = window.detectionTargetsStorage.find_item_by_name("Home Score")
+    view.selectBox("Home Score")
+    pick_crop(window, view)
+    key(view, Qt.Key.Key_Right)
+    assert (box.x(), box.y()) == (500, 300)
 
 
 def test_crop_and_four_corner_picking_exclude_each_other(cropping_window):

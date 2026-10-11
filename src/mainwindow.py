@@ -1229,7 +1229,6 @@ class MainWindow(QMainWindow):
             (self.ui.toolButton_zoomReset, self.ui.actionFitPicture),
             (self.ui.pushButton_refresh_sources, self.ui.actionReloadSources),
             (self.ui.toolButton_addBox, self.ui.actionNewField),
-            (self.ui.toolButton_removeBox, self.ui.actionDeleteField),
             (self.ui.toolButton_cleanupBinary, self.ui.actionBinaryView),
         ):
             shortcut = action.shortcut().toString(
@@ -1423,8 +1422,10 @@ class MainWindow(QMainWindow):
 
     def moveForCrop(self, dx: int, dy: int):
         """Move the boxes and the 4-corner corners by (dx, dy) pixels."""
-        logger.info("The crop moved: moving the boxes by (%d, %d) pixels", dx, dy)
+        # right after the crop was stored (and the capture thread follows it),
+        # before anything that could let that thread run (the log's I/O)
         self.detectionTargetsStorage.move_items(dx, dy)
+        logger.info("The crop moved: moved the boxes by (%d, %d) pixels", dx, dy)
         corners = fetch_data("scoresight.json", "four_corners")
         if isinstance(corners, list) and len(corners) == 4:
             try:
