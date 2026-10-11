@@ -1,6 +1,6 @@
 # OCR evaluation: PP-OCR in the app (ocr_eval/engines/ppocr_scoresight.py), CI baseline (Linux)
 
-Created 2026-10-11T04:21:32+00:00 with harness v1 on Linux 5.15.167.4-microsoft-standard-WSL2 x86_64, Python 3.13.2.
+Created 2026-10-11T13:43:30+00:00 with harness v1 on Linux 5.15.167.4-microsoft-standard-WSL2 x86_64, Python 3.13.2.
 
 Exact = normalized exact match; Digits = same digits ignoring separators; CER = character error rate; Empty = no output; Post-filter = exact match after ScoreSight's whitelist and format regex for the field type. Percentages with 95% confidence intervals (Wilson; CER: bootstrap). Latency per crop in ms, p50 / p95.
 
@@ -10,8 +10,8 @@ Real scoreboard and clock crops cut from Open Images photos (CC BY), with TextOC
 
 | Engine:variant | Exact % | Digits % | CER % | Empty % | Post-filter exact % | ms single | ms batch | Load s |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| ppocr-app:accurate | 94.7 (93.4–95.8) | 95.7 | 3.0 (2.2–3.9) | 0.1 | 94.4 (93.0–95.5) | 12.2 / 15.1 | 9.9 / 10.8 | 0.484 |
-| ppocr-app:fast | 90.8 (89.0–92.2) | 91.8 | 5.8 (4.7–7.0) | 2.0 | 90.4 (88.7–91.9) | 2.8 / 3.2 | 2.1 / 2.3 | 0.052 |
+| ppocr-app:accurate | 94.7 (93.4–95.8) | 95.7 | 3.0 (2.2–3.9) | 0.1 | 94.4 (93.0–95.5) | 12.4 / 13.8 | 11.0 / 11.9 | 1.5 |
+| ppocr-app:fast | 90.8 (89.0–92.2) | 91.8 | 5.8 (4.7–7.0) | 2.0 | 90.4 (88.7–91.9) | 3.3 / 3.9 | 2.3 / 2.6 | 0.044 |
 
 ### By field type (exact %, 95% CI)
 
@@ -72,8 +72,8 @@ Real scoreboard fields (scores, clocks, shot clocks, periods, fouls ...) cut fro
 
 | Engine:variant | Exact % | Digits % | CER % | Empty % | Post-filter exact % | ms single | ms batch | Load s |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| ppocr-app:accurate | 94.8 (93.3–96.0) | 95.1 | 2.5 (1.8–3.3) | 0.5 | 93.2 (91.5–94.6) | 12.7 / 16.5 | 9.9 / 10.7 | 0.004 |
-| ppocr-app:fast | 88.1 (86.0–90.0) | 89.3 | 7.1 (5.9–8.5) | 1.9 | 86.6 (84.4–88.5) | 3.4 / 5.8 | 2.1 / 2.4 | 0.004 |
+| ppocr-app:accurate | 94.8 (93.3–96.0) | 95.1 | 2.5 (1.8–3.3) | 0.5 | 93.3 (91.6–94.7) | 13.2 / 14.8 | 10.7 / 11.3 | 0.003 |
+| ppocr-app:fast | 88.1 (86.0–90.0) | 89.3 | 7.1 (5.9–8.5) | 1.9 | 86.7 (84.5–88.6) | 3.4 / 5.3 | 2.5 / 2.7 | 0.004 |
 
 ### By field type (exact %, 95% CI)
 
@@ -134,8 +134,8 @@ Rendered 7-segment LED and LCD digits (scores, clocks, periods): a synthetic con
 
 | Engine:variant | Exact % | Digits % | CER % | Empty % | Post-filter exact % | ms single | ms batch | Load s |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| ppocr-app:accurate | 100.0 (93.6–100.0) | 100.0 | 0.0 (0.0–0.0) | 0.0 | 100.0 (93.6–100.0) | 11.3 / 12.5 | 10.0 / 10.6 | 0.004 |
-| ppocr-app:fast | 100.0 (93.6–100.0) | 100.0 | 0.0 (0.0–0.0) | 0.0 | 100.0 (93.6–100.0) | 2.9 / 3.2 | 2.1 / 2.3 | 0.004 |
+| ppocr-app:accurate | 100.0 (93.6–100.0) | 100.0 | 0.0 (0.0–0.0) | 0.0 | 100.0 (93.6–100.0) | 14.2 / 15.7 | 12.7 / 13.3 | 0.003 |
+| ppocr-app:fast | 100.0 (93.6–100.0) | 100.0 | 0.0 (0.0–0.0) | 0.0 | 100.0 (93.6–100.0) | 3.6 / 6.0 | 2.5 / 2.6 | 0.005 |
 
 ### By field type (exact %, 95% CI)
 

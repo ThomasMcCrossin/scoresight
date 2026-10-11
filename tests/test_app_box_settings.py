@@ -24,9 +24,21 @@ def test_every_preset_matches_itself():
         assert matching_preset(preset) == format_prefixes.index(preset), index
 
 
-@pytest.mark.parametrize("regex", ["", "^[0-3]?\\d$", "^1?\\d{1,2}", "^(bad$"])
+@pytest.mark.parametrize("regex", ["", "^[0-3]\\d\\d$", "^1?\\d{1,2}", "^(bad$"])
 def test_other_expressions_are_custom(regex):
     assert matching_preset(regex) == CUSTOM_PRESET_INDEX
+
+
+@pytest.mark.parametrize(("old", "index"), [("^[0-5]\\d$", 3), ("^[0-3]\\d$", 4)])
+def test_migrated_two_digit_formats_show_their_preset(old, index):
+    # boxes stored with Time 0-59's or Shotclock 0-39's two-digit expression
+    # (up to 0.3.0) are migrated to the preset's expression, so the Format list
+    # shows the preset, not Custom
+    from storage import TWO_DIGIT_FORMATS
+
+    assert matching_preset(TWO_DIGIT_FORMATS[old]) == index
+    # typed again after the upgrade, the old expression is a custom one
+    assert matching_preset(old) == CUSTOM_PRESET_INDEX
 
 
 def test_regex_error():
