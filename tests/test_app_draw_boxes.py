@@ -755,6 +755,54 @@ def test_the_preview_is_uncropped_while_the_crop_is_picked(memory_storage):
         thread.cleanup()
 
 
+def test_readings_of_frames_cropped_as_before_are_dropped(memory_storage, make_target):
+    # The OCR reads a frame on its own thread, after the frame was cropped: a
+    # crop change meanwhile moves the boxes, which would read other pixels.
+    from text_detection_target import TextDetectionResult, TextDetectionTargetWithResult
+
+    class Detector:
+        def __init__(self):
+            self.calls = 0
+            self.on_call = None
+
+        def detect_multi_text(self, binary, gray, rects, display=None, color=None):
+            self.calls += 1
+            if self.on_call is not None:
+                self.on_call()
+            return [
+                TextDetectionResult(
+                    "7", TextDetectionTargetWithResult.ResultState.Success
+                )
+                for _ in rects
+            ]
+
+    thread = camera_thread.TimerThread(file_source(), memory_storage)
+    try:
+        clock = [100.0]
+        thread._clock = lambda: clock[0]
+        thread.textDetector = Detector()
+        results = []
+        thread.ocr_result_signal.connect(results.append)
+        memory_storage.add_item(make_target("Home Score"))
+        frame = np.zeros((48, 64, 3), np.uint8)
+        thread.run_ocr_cycle(frame, 99.0)
+        assert len(results) == 1
+        # the boxes moved after the frame was read: not even read
+        thread.boxesMoved()
+        thread.run_ocr_cycle(frame, 99.5)
+        assert len(results) == 1 and thread.textDetector.calls == 1
+        # ... or while it was read: not published
+        clock[0] = 101.0
+        thread.textDetector.on_call = thread.boxesMoved
+        thread.run_ocr_cycle(frame, 100.5)
+        assert len(results) == 1
+        thread.textDetector.on_call = None
+        thread.run_ocr_cycle(frame, 101.5)
+        assert len(results) == 2
+    finally:
+        thread.cleanup()
+
+
 @pytest.fixture
 def cropping_window(main_window, qtbot):
     """The window with a real viewer on a 1280x720 frame, Crop on (no
@@ -897,9 +945,12 @@ def test_the_crop_values_move_the_boxes_too(cropping_window):
     window, view = cropping_window
     ui = window.ui
     box = window.detectionTargetsStorage.find_item_by_name("Home Score")
+    assert view.timerThread.boxes_moved_at is None
     ui.spinBox_leftCrop.setValue(100)
     ui.spinBox_topCrop.setValue(50)
     assert (box.x(), box.y()) == (400, 250)
+    # the readings of the frames cropped as before are dropped
+    assert view.timerThread.boxes_moved_at is not None
     # right and bottom don't move the picture's corner
     ui.spinBox_rightCrop.setValue(80)
     ui.spinBox_bottomCrop.setValue(40)

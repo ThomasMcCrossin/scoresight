@@ -1428,6 +1428,10 @@ class MainWindow(QMainWindow):
         # right after the crop was stored (and the capture thread follows it),
         # before anything that could let that thread run (the log's I/O)
         self.detectionTargetsStorage.move_items(dx, dy)
+        viewer = self.image_viewer
+        if viewer is not None and viewer.timerThread is not None:
+            # the readings of the frames cropped as before are dropped
+            viewer.timerThread.boxesMoved()
         logger.info("The crop moved: moved the boxes by (%d, %d) pixels", dx, dy)
         corners = fetch_data("scoresight.json", "four_corners")
         if isinstance(corners, list) and len(corners) == 4:
@@ -1436,8 +1440,8 @@ class MainWindow(QMainWindow):
             except (TypeError, ValueError):
                 return
             store_data("scoresight.json", "four_corners", moved)
-            if self.image_viewer is not None:
-                self.image_viewer.setFourCornersForHomography(moved)
+            if viewer is not None:
+                viewer.setFourCornersForHomography(moved)
 
     def croppedPictureRect(self) -> QRectF | None:
         """The picture the boxes are read from (rotated and cropped), in its

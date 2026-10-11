@@ -565,6 +565,8 @@ class TimerThread(QThread):
         # rotated frame, without the crop and the corrections after it. The OCR
         # keeps reading the cropped picture until the new crop replaces it.
         self.preview_uncropped = False
+        # When the boxes last moved with the crop (boxesMoved), on _clock
+        self.boxes_moved_at: float | None = None
         self.last_frame_timestamp = None
         self.last_update_timestamp = None
         self.last_emit_time = None
@@ -913,6 +915,17 @@ class TimerThread(QThread):
             else:
                 self.update_signal.emit(frame_rgb)
 
+    def boxesMoved(self):
+        """The boxes were moved to stay on the same part of the picture,
+        because the crop's corner moved. A frame read until now was cropped
+        as before: read with the boxes' new places, it would give readings of
+        other pixels, so they are dropped (the OCR worker may hold one)."""
+        self.boxes_moved_at = self._clock()
+
+    def readBeforeBoxesMoved(self, frame_time) -> bool:
+        moved = self.boxes_moved_at
+        return moved is not None and frame_time is not None and frame_time <= moved
+
     def run_ocr_cycle(self, frame_rgb, frame_time, want_display=False):
         """Read the boxes of a (transformed) frame read at frame_time and
         publish the results. Returns (the boxes, the gray frame, the binary
@@ -921,8 +934,8 @@ class TimerThread(QThread):
         # One snapshot of the boxes per frame: the GUI thread may add or
         # remove boxes while the OCR runs.
         targets = self._snapshot_targets()
-        if not targets:
-            return targets, None, None
+        if not targets or self.readBeforeBoxesMoved(frame_time):
+            return [], None, None
         gray = to_gray(frame_rgb)
         binary = None
         display = None
@@ -973,6 +986,9 @@ class TimerThread(QThread):
 
     def _publish_results(self, targets, texts, display, gray, frame_time=None):
         if len(texts) == 0 or len(targets) != len(texts):
+            return
+        if self.readBeforeBoxesMoved(frame_time):
+            # the boxes moved with the crop while this frame was read
             return
         # augment the text detection targets with the results
         results = []
