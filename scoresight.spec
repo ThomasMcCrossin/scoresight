@@ -236,9 +236,10 @@ if IS_WINDOWS:
         os.path.join(ROOT, "icons", "splash.png"),
         binaries=a.binaries,
         datas=a.datas,
-        text_pos=(10, 20),
-        text_size=10,
-        text_color="black",
+        # the loading messages, under the logo (brand/make_assets.py)
+        text_pos=(73, 330),
+        text_size=9,
+        text_color="#9AA7BD",
     )
     exe = EXE(
         pyz,
@@ -247,7 +248,7 @@ if IS_WINDOWS:
         [],
         exclude_binaries=True,
         name="scoresight",
-        icon=os.path.join(ROOT, "icons", "Windows-icon-open.ico"),
+        icon=os.path.join(ROOT, "icons", "scoresight.ico"),
         version=version_info,
         console=args.debug,
         upx=False,
@@ -274,7 +275,7 @@ elif IS_MACOS:
     app = BUNDLE(
         coll,
         name="ScoreSight.app",
-        icon=os.path.join(ROOT, "icons", "MacOS_icon.png"),
+        icon=os.path.join(ROOT, "icons", "scoresight-macos.png"),
         # Keep the identifier: macOS ties the camera permission to it.
         bundle_identifier="com.royshilkrot.scoresight",
         version=SHORT_VERSION,
