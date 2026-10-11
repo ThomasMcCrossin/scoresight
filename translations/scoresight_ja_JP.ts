@@ -282,27 +282,32 @@ Resolution: {width}×{height}</source>
     <message>
         <location filename="../src/held_values.py" line="175"/>
         <source>Hold value: {name}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">値を固定：{name}</translation>
     </message>
     <message>
         <location filename="../src/held_values.py" line="181"/>
         <source>Every output gets this value instead of the readings of “{name}”, until you release it. The readings go on in the background.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">解除するまで、すべての出力に「{name}」の読み取り値の代わりにこの値が送られます。読み取りはバックグラウンドで続きます。</translation>
     </message>
     <message>
         <location filename="../src/held_values.py" line="193"/>
         <source>Value to send</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">送信する値</translation>
     </message>
     <message>
         <location filename="../src/held_values.py" line="199"/>
         <source>Hold</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">固定</translation>
     </message>
     <message>
         <location filename="../src/held_values.py" line="205"/>
         <source>Release</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">固定を解除</translation>
     </message>
 </context>
 <context>
@@ -319,62 +324,74 @@ Resolution: {width}×{height}</source>
     <message>
         <location filename="../src/keyboard_shortcuts.py" line="53"/>
         <source>Zoom in or out</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">拡大または縮小</translation>
     </message>
     <message>
         <location filename="../src/keyboard_shortcuts.py" line="54"/>
         <source>{ctrl} + mouse wheel</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">{ctrl} + マウスホイール</translation>
     </message>
     <message>
         <location filename="../src/keyboard_shortcuts.py" line="59"/>
         <source>Move the picture</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">映像を移動</translation>
     </message>
     <message>
         <location filename="../src/keyboard_shortcuts.py" line="60"/>
         <source>Drag with the middle mouse button</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">マウスの中ボタンでドラッグ</translation>
     </message>
     <message>
         <location filename="../src/keyboard_shortcuts.py" line="65"/>
         <source>Move the selected box by 1 pixel</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">選択したボックスを1ピクセル移動</translation>
     </message>
     <message>
         <location filename="../src/keyboard_shortcuts.py" line="68"/>
         <source>Arrow keys</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">矢印キー</translation>
     </message>
     <message>
         <location filename="../src/keyboard_shortcuts.py" line="71"/>
         <source>Move the selected box by 10 pixels</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">選択したボックスを10ピクセル移動</translation>
     </message>
     <message>
         <location filename="../src/keyboard_shortcuts.py" line="74"/>
         <source>Shift + arrow keys</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Shift + 矢印キー</translation>
     </message>
     <message>
         <location filename="../src/keyboard_shortcuts.py" line="77"/>
         <source>Deselect, or stop picking the 4 corners</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">選択を解除、または4隅の選択を中止</translation>
     </message>
     <message>
         <location filename="../src/keyboard_shortcuts.py" line="91"/>
         <source>Keyboard shortcuts</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">キーボードショートカット</translation>
     </message>
     <message>
         <location filename="../src/keyboard_shortcuts.py" line="98"/>
         <source>Action</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">操作</translation>
     </message>
     <message>
         <location filename="../src/keyboard_shortcuts.py" line="99"/>
         <source>Keys</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">キー</translation>
     </message>
 </context>
 <context>
@@ -1135,17 +1152,20 @@ Resolution: {width}×{height}</source>
     <message>
         <location filename="../src/mainwindow.ui" line="221"/>
         <source>The fields that aren&apos;t on the picture are hidden in this layout (View &gt; Show unused fields)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">このレイアウトでは、映像に配置されていないフィールドは非表示です（表示 &gt; 未使用のフィールドを表示）</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="346"/>
         <source>The outputs and what they are doing. Double-click one to show its settings.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">出力とその動作状況。ダブルクリックすると設定を表示します。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="349"/>
         <source>Outputs and their state</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">出力とその状態</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="520"/>
@@ -1816,60 +1836,69 @@ Resolution: {width}×{height}</source>
         <translation type="unfinished">選択したボックスだけでなく、すべてのボックスを読み取るOCRモデル。「外部モデルを読み込む...」でTesseractの.traineddataファイルを読み込みます。</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2871"/>
         <source>Report a reading that equals the field&apos;s last good value as unchanged (=, SameNoChange) instead of new (✓). vMix and UNO then don&apos;t resend unchanged values (unless their Send Same? is on), and the HTTP server and the outbound API mark them as unchanged. OBS and the text files get a value only when it changes either way.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
-        <translation type="unfinished">フィールドの最後の正常な値と同じ読み取り値を、新規（✓）ではなく変化なし（=、SameNoChange）として報告します。これによりvMixとUNOは変化のない値を再送信せず（「同じ値も送信？」がオンの場合を除く）、HTTPサーバーと送信APIはその値を変化なしとして示します。OBSとテキストファイルには、どちらの場合も値が変わったときにのみ送られます。</translation>
+        <translation type="obsolete">フィールドの最後の正常な値と同じ読み取り値を、新規（✓）ではなく変化なし（=、SameNoChange）として報告します。これによりvMixとUNOは変化のない値を再送信せず（「同じ値も送信？」がオンの場合を除く）、HTTPサーバーと送信APIはその値を変化なしとして示します。OBSとテキストファイルには、どちらの場合も値が変わったときにのみ送られます。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4298"/>
         <source>Quit</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">終了</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4315"/>
         <source>Setup layout</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">設定用レイアウト</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4318"/>
         <source>For placing and tuning the fields and setting up the outputs: the field list, the picture with its adjustments, and the inspector</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">フィールドの配置と調整、出力の設定用：フィールドリスト、映像とその調整、インスペクターを表示します</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4332"/>
         <source>Live layout</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">ライブ用レイアウト</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4335"/>
         <source>For the game: large readings and the state of every output next to the picture. The inspector and the picture adjustments are hidden; the reading and the outputs work the same.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">試合中用：映像の横に、大きな読み取り値とすべての出力の状態を表示します。インスペクターと映像の調整は非表示になりますが、読み取りと出力は同じように動作します。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4349"/>
         <source>Show unused fields</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">未使用のフィールドを表示</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4352"/>
         <source>Show the fields that aren&apos;t on the picture in the field list (remembered for each layout)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">映像に配置されていないフィールドをフィールドリストに表示します（レイアウトごとに記憶されます）</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4360"/>
         <source>User guide</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">ユーザーガイド</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4363"/>
         <source>Open the ScoreSight documentation in your web browser</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">ScoreSightのドキュメントをWebブラウザで開きます</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4374"/>
         <source>Keyboard shortcuts</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">キーボードショートカット</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="339"/>
@@ -1878,6 +1907,12 @@ Resolution: {width}×{height}</source>
         <source>Outputs</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">出力</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="2871"/>
+        <source>Report a reading that equals the field&apos;s last good value as unchanged (=, SameNoChange) instead of new (✓). vMix and UNO then don&apos;t resend unchanged values (unless their “Also resend unchanged values” is on), and the HTTP server and the outbound API mark them as unchanged. OBS and the text files get a value only when it changes either way.</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">フィールドの最後の正常な値と同じ読み取り値を、新規（✓）ではなく変化なし（=、SameNoChange）として報告します。これによりvMixとUNOは変化のない値を再送信せず（「変化のない値も再送信」がオンの場合を除く）、HTTPサーバーと送信APIはその値を変化なしとして示します。OBSとテキストファイルには、どちらの場合も値が変わったときにのみ送られます。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2941"/>
@@ -1900,43 +1935,51 @@ Resolution: {width}×{height}</source>
     <message>
         <location filename="../src/mainwindow.ui" line="3366"/>
         <source>OBS scene name</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">OBSシーン名</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3395"/>
         <source>If OBS already has a scene with this name, delete its sources and make it again. Off: an existing scene is kept as it is.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">OBSに同じ名前のシーンが既にある場合は、そのソースを削除して作り直します。オフ：既存のシーンはそのまま残ります。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3418"/>
         <source>&lt;b&gt;Text sources&lt;/b&gt;: the OBS text source each field updates. Double-click a name to change it; leave it empty to not send that field to OBS.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">&lt;b&gt;テキストソース&lt;/b&gt;：各フィールドが更新するOBSのテキストソース。名前をダブルクリックすると変更できます。空にすると、そのフィールドはOBSに送信されません。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3434"/>
         <source>Each field and the OBS text source it updates. Edit the right column; an empty name sends nothing to OBS.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">各フィールドと、それが更新するOBSのテキストソース。右の列を編集してください。名前が空の場合、OBSには何も送信されません。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3437"/>
         <source>OBS text sources of the fields</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">フィールドのOBSテキストソース</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3638"/>
         <source>Also send a field&apos;s value when it hasn&apos;t changed (marked “same”), at every detection, for example if someone may change the title in vMix by hand. Off: vMix gets a value only when it changes. Formerly “Send Same?”.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">フィールドの値が変化していない（「変化なし」と表示される）ときも、検出のたびに値を送信します。vMixで誰かがタイトルを手動で変更する可能性がある場合などに使います。オフ：vMixには値が変わったときにのみ送られます。旧名称「同じ値も送信？」。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3641"/>
         <location filename="../src/mainwindow.ui" line="3759"/>
         <source>Also resend unchanged values</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">変化のない値も再送信</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3756"/>
         <source>Also send a field&apos;s value when it hasn&apos;t changed (marked “same”), at every detection. Off: the overlay gets a value only when it changes, which keeps within overlays.uno&apos;s request limits. Formerly “Send Same?”.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">フィールドの値が変化していない（「変化なし」と表示される）ときも、検出のたびに値を送信します。オフ：オーバーレイには値が変わったときにのみ送られるため、overlays.unoのリクエスト制限内に収まります。旧名称「同じ値も送信？」。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3806"/>
@@ -1965,79 +2008,94 @@ Resolution: {width}×{height}</source>
     <message>
         <location filename="../src/mainwindow.ui" line="4052"/>
         <source>Help</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">ヘルプ</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4120"/>
         <location filename="../src/mainwindow.py" line="2224"/>
         <source>Hold value...</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">値を固定...</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4123"/>
         <location filename="../src/mainwindow.py" line="2266"/>
         <source>Send a value you type to every output instead of this field&apos;s readings, until you release it</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">解除するまで、このフィールドの読み取り値の代わりに、入力した値をすべての出力に送信します</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4134"/>
         <source>Release held value</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">固定を解除</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4137"/>
         <source>Send this field&apos;s readings to the outputs again</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">このフィールドの読み取り値を再び出力に送信します</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4145"/>
         <source>Check for updates...</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">更新を確認...</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4161"/>
         <source>View log</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">ログを表示</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4164"/>
         <source>Show the log of this session as it is written</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">このセッションのログをリアルタイムで表示します</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4175"/>
         <source>Import field layout...</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">フィールド配置をインポート...</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4178"/>
         <source>Replace the fields on the picture (their boxes and settings) with the ones saved in a file. Formerly “Import Configuration”.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">映像上のフィールド（ボックスと設定）を、ファイルに保存されたものに置き換えます。旧名称「設定をインポート」。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4189"/>
         <source>Export field layout...</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">フィールド配置をエクスポート...</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4192"/>
         <source>Save the fields on the picture (their boxes and settings) to a file. Formerly “Export Configuration”.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">映像上のフィールド（ボックスと設定）をファイルに保存します。旧名称「設定をエクスポート」。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4203"/>
         <source>Open settings folder</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">設定フォルダを開く</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4206"/>
         <source>Open the folder with ScoreSight&apos;s settings file</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">ScoreSightの設定ファイルがあるフォルダを開きます</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4214"/>
         <source>OCR training data setup...</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">OCR学習データの設定...</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4260"/>
@@ -2624,12 +2682,14 @@ Resolution: {width}×{height}</source>
     <message>
         <location filename="../src/mainwindow.py" line="1046"/>
         <source>Readings</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">読み取り値</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="1125"/>
         <source>Fields not on the picture: {count} hidden. &lt;a href=&quot;#show&quot;&gt;Show them&lt;/a&gt;</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">映像に未配置のフィールド：{count}件を非表示。&lt;a href=&quot;#show&quot;&gt;表示する&lt;/a&gt;</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="1151"/>
@@ -2701,7 +2761,8 @@ Resolution: {width}×{height}</source>
     <message>
         <location filename="../src/mainwindow.py" line="2222"/>
         <source>Change held value...</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">固定値を変更...</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="2260"/>
@@ -2712,7 +2773,8 @@ Resolution: {width}×{height}</source>
     <message>
         <location filename="../src/mainwindow.py" line="2272"/>
         <source>Place the field on the picture first</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">まずフィールドを映像に配置してください</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="2317"/>
@@ -2741,12 +2803,14 @@ Resolution: {width}×{height}</source>
     <message>
         <location filename="../src/mainwindow.py" line="2458"/>
         <source>Window</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">ウィンドウ</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="2486"/>
         <source>Picture</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">映像</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="2526"/>
@@ -2890,22 +2954,26 @@ Resolution: {width}×{height}</source>
     <message>
         <location filename="../src/mainwindow.py" line="4090"/>
         <source>Created the scene “{name}” in OBS.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">OBSにシーン「{name}」を作成しました。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="4093"/>
         <source>Made the scene “{name}” again: its sources were replaced.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">シーン「{name}」を作り直しました。ソースは置き換えられました。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="4097"/>
         <source>OBS already has a scene “{name}”: it was kept as it is. Tick Recreate to make it again.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">OBSには既にシーン「{name}」があるため、そのまま残しました。作り直すには「再作成」にチェックを入れてください。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="4102"/>
         <source>Couldn&apos;t create the scene “{name}”. Tools &gt; View log has the details.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">シーン「{name}」を作成できませんでした。詳細は「ツール &gt; ログを表示」で確認できます。</translation>
     </message>
     <message>
         <location filename="../src/vmix_ui_handler.py" line="126"/>
@@ -2955,12 +3023,19 @@ Resolution: {width}×{height}</source>
     <message>
         <location filename="../src/obs_ui_handler.py" line="49"/>
         <source>OBS text source</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">OBSテキストソース</translation>
     </message>
     <message>
         <location filename="../src/obs_ui_handler.py" line="79"/>
+        <source>The OBS text source that “{name}” updates. Empty: “{name}” isn&apos;t sent to OBS.</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">「{name}」が更新するOBSのテキストソース。空の場合：「{name}」はOBSに送信されません。</translation>
+    </message>
+    <message>
         <source>The OBS text source “{name}” updates. Empty: “{name}” isn&apos;t sent to OBS.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="obsolete">「{name}」が更新するOBSのテキストソース。空の場合：「{name}」はOBSに送信されません。</translation>
     </message>
 </context>
 <context>
@@ -3368,351 +3443,361 @@ Resolution: {width}×{height}</source>
         <translation type="unfinished">エンドポイントのこのアドレスには何もありません。パスを確認してください。</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="701"/>
         <source>overlays.uno limits how many updates it accepts, and drops the others. Keep Send Same? off and Update on change on.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
-        <translation type="unfinished">overlays.unoは受け付ける更新の数を制限しており、超過分は破棄されます。「同じ値も送信？」はオフ、「変更時に更新」はオンにしておいてください。</translation>
+        <translation type="obsolete">overlays.unoは受け付ける更新の数を制限しており、超過分は破棄されます。「同じ値も送信？」はオフ、「変更時に更新」はオンにしておいてください。</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="707"/>
+        <location filename="../src/output_status.py" line="708"/>
         <source>The endpoint limits the requests, and drops the others: lower Detections / s.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">エンドポイントはリクエスト数を制限しており、超過分は破棄されます。「検出数 / 秒」を下げてください。</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="714"/>
+        <location filename="../src/output_status.py" line="715"/>
         <source>HTTP 429: too many requests</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">HTTP 429：リクエストが多すぎます</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="719"/>
+        <location filename="../src/output_status.py" line="720"/>
         <source>Check the Input and the vMix field names in the table (for example Home Score.Text).</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">「入力」と、表のvMixフィールド名（例：Home Score.Text）を確認してください。</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="730"/>
-        <location filename="../src/output_status.py" line="747"/>
+        <location filename="../src/output_status.py" line="731"/>
+        <location filename="../src/output_status.py" line="748"/>
         <source>It answered: {text}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">応答：{text}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="739"/>
+        <location filename="../src/output_status.py" line="740"/>
         <source>HTTP {code}: the receiver reported an error</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">HTTP {code}：受信側がエラーを返しました</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="746"/>
+        <location filename="../src/output_status.py" line="747"/>
         <source>HTTP {code}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">HTTP {code}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="776"/>
+        <location filename="../src/output_status.py" line="777"/>
         <source>{failing} of {total} failing: {problem}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{total}件中{failing}件が失敗：{problem}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="823"/>
+        <location filename="../src/output_status.py" line="824"/>
         <source>Folder not found: {folder}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">フォルダが見つかりません：{folder}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="826"/>
+        <location filename="../src/output_status.py" line="827"/>
         <source>The output folder {folder} doesn&apos;t exist any more, so no files are written. Choose a folder to write them again.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">出力フォルダ{folder}が存在しないため、ファイルは書き込まれません。再び書き込むには、フォルダを選択してください。</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="835"/>
-        <location filename="../src/output_status.py" line="1065"/>
-        <location filename="../src/output_status.py" line="1131"/>
-        <location filename="../src/output_status.py" line="1202"/>
+        <location filename="../src/output_status.py" line="836"/>
+        <location filename="../src/output_status.py" line="1066"/>
+        <location filename="../src/output_status.py" line="1132"/>
+        <location filename="../src/output_status.py" line="1203"/>
         <source>Off</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">オフ</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="836"/>
+        <location filename="../src/output_status.py" line="837"/>
         <source>Choose a folder to write the readings to files.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">読み取り値をファイルに書き込むフォルダを選択してください。</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="845"/>
+        <location filename="../src/output_status.py" line="846"/>
         <source>Waiting for readings to write to {folder}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{folder}に書き込む読み取り値を待機中</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="854"/>
+        <location filename="../src/output_status.py" line="855"/>
         <source>Can&apos;t write {file}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{file}に書き込めません</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="858"/>
+        <location filename="../src/output_status.py" line="859"/>
         <source>Can&apos;t write {file} and {count} more</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{file}ほか{count}件に書き込めません</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="866"/>
+        <location filename="../src/output_status.py" line="867"/>
         <source>Check that the folder can be written to and that no other program locks the files. ScoreSight tries again at every save.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">フォルダに書き込めること、他のプログラムがファイルをロックしていないことを確認してください。ScoreSightは保存のたびに再試行します。</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="878"/>
+        <location filename="../src/output_status.py" line="879"/>
         <source>Writing to {folder} · 1 file</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{folder}に書き込み中 · 1ファイル</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="882"/>
+        <location filename="../src/output_status.py" line="883"/>
         <source>Writing to {folder} · {count} files</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{folder}に書き込み中 · {count}ファイル</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="890"/>
+        <location filename="../src/output_status.py" line="891"/>
         <source>The files are in {folder}. A file is written when its value changes.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">ファイルは{folder}にあります。ファイルは値が変わったときに書き込まれます。</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="912"/>
+        <location filename="../src/output_status.py" line="913"/>
         <source>Not running: port {port} is in use</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">停止中：ポート{port}は使用中です</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="917"/>
+        <location filename="../src/output_status.py" line="918"/>
         <source>Another program (or another ScoreSight) uses port {port}. Close it, or start ScoreSight with --port to use another port.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">他のプログラム（または別のScoreSight）がポート{port}を使用しています。そのプログラムを閉じるか、--portを指定してScoreSightを起動し、別のポートを使用してください。</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="926"/>
+        <location filename="../src/output_status.py" line="927"/>
         <source>{url} · no requests yet</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{url} · リクエストなし</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="930"/>
+        <location filename="../src/output_status.py" line="931"/>
         <source>{url} · 1 client</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{url} · 1クライアント</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="934"/>
+        <location filename="../src/output_status.py" line="935"/>
         <source>{url} · {count} clients</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{url} · {count}クライアント</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="938"/>
+        <location filename="../src/output_status.py" line="939"/>
         <source>{url} · no recent requests</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{url} · 最近のリクエストなし</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="947"/>
+        <location filename="../src/output_status.py" line="948"/>
         <source>Always on. Open {url}/scoresight in a browser, or read {url}/json, /xml or /csv from other software.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">常にオン。ブラウザで{url}/scoresightを開くか、他のソフトウェアから{url}/json、/xml、/csvを読み取ってください。</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="974"/>
+        <location filename="../src/output_status.py" line="975"/>
         <source>Connecting to {target}…</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{target}に接続中…</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="984"/>
+        <location filename="../src/output_status.py" line="985"/>
         <source>Not connected: {problem}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">未接続：{problem}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="991"/>
+        <location filename="../src/output_status.py" line="992"/>
         <source>Then click Connect OBS.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">その後、「OBSに接続」をクリックしてください。</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1002"/>
+        <location filename="../src/output_status.py" line="1003"/>
         <source>Not connected</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">未接続</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1003"/>
+        <location filename="../src/output_status.py" line="1004"/>
         <source>Click Connect OBS to update text sources in OBS Studio.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">「OBSに接続」をクリックすると、OBS Studioのテキストソースを更新できます。</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1014"/>
+        <location filename="../src/output_status.py" line="1015"/>
         <source>Connected to {target}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{target}に接続済み</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1018"/>
+        <location filename="../src/output_status.py" line="1019"/>
         <source>A text source is updated when its field&apos;s value changes.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">テキストソースは、そのフィールドの値が変わったときに更新されます。</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1027"/>
+        <location filename="../src/output_status.py" line="1028"/>
         <source>Reconnecting to OBS at {target}…</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{target}のOBSに再接続中…</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1030"/>
+        <location filename="../src/output_status.py" line="1031"/>
         <source>The connection to OBS was lost. ScoreSight reconnects by itself as soon as OBS is reachable again.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">OBSとの接続が切断されました。OBSに再び接続できるようになると、ScoreSightは自動的に再接続します。</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1039"/>
+        <location filename="../src/output_status.py" line="1040"/>
         <source>Connected, but no field has an OBS text source</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">接続済みですが、OBSのテキストソースがあるフィールドがありません</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1042"/>
+        <location filename="../src/output_status.py" line="1043"/>
         <source>The standard fields update OBS text sources with their names (Home score, Clock...). Place them on the picture.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">標準フィールドは、決まった名前（Home score、Clock...）のOBSテキストソースを更新します。映像に配置してください。</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1066"/>
+        <location filename="../src/output_status.py" line="1067"/>
         <source>Click Start vMix to update input {input} at {target}.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">「vMixを開始」をクリックすると、{target}の入力{input}を更新します。</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1074"/>
-        <location filename="../src/output_status.py" line="1153"/>
+        <location filename="../src/output_status.py" line="1075"/>
+        <location filename="../src/output_status.py" line="1154"/>
         <source>No fields to send</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">送信するフィールドがありません</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1076"/>
+        <location filename="../src/output_status.py" line="1077"/>
         <source>Place fields on the picture and enter their vMix field names (for example Home Score.Text) in the table.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">フィールドを映像に配置し、表にvMixのフィールド名（例：Home Score.Text）を入力してください。</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1087"/>
+        <location filename="../src/output_status.py" line="1088"/>
         <source>Waiting for a new value for {target}, input {input}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{target}、入力{input}の新しい値を待機中</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1091"/>
-        <location filename="../src/output_status.py" line="1105"/>
         <source>vMix gets a field&apos;s value when it changes (or every time, with Send Same?).</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
-        <translation type="unfinished">vMixには、フィールドの値が変わったとき（「同じ値も送信？」がオンなら毎回）に値が送られます。</translation>
+        <translation type="obsolete">vMixには、フィールドの値が変わったとき（「同じ値も送信？」がオンなら毎回）に値が送られます。</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1101"/>
+        <location filename="../src/output_status.py" line="1102"/>
         <source>Sending to {target}, input {input}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{target}、入力{input}に送信中</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1132"/>
+        <location filename="../src/output_status.py" line="1133"/>
         <source>Click Start sending to drive your overlays.uno overlay.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">「送信開始」をクリックすると、overlays.unoのオーバーレイを操作します。</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1141"/>
+        <location filename="../src/output_status.py" line="1142"/>
         <source>Enter your UNO API URL</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">UNOのAPI URLを入力してください</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1143"/>
+        <location filename="../src/output_status.py" line="1144"/>
         <source>Copy the API URL of your overlay&apos;s control app in overlays.uno into URL.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">overlays.unoでオーバーレイのコントロールアプリのAPI URLをコピーし、「URL」に貼り付けてください。</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1155"/>
+        <location filename="../src/output_status.py" line="1156"/>
         <source>Place fields on the picture and enter the UNO commands in the table.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">フィールドを映像に配置し、表にUNOコマンドを入力してください。</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1165"/>
+        <location filename="../src/output_status.py" line="1166"/>
         <source>Waiting for a new value for {host}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{host}の新しい値を待機中</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1174"/>
+        <location filename="../src/output_status.py" line="1175"/>
         <source>Sending to {host}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{host}に送信中</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1203"/>
+        <location filename="../src/output_status.py" line="1204"/>
         <source>Tick the checkbox to send the readings to a URL on every detection cycle.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">チェックボックスをオンにすると、検出サイクルごとに読み取り値をURLに送信します。</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1213"/>
+        <location filename="../src/output_status.py" line="1214"/>
         <source>Enter a URL</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">URLを入力してください</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1215"/>
+        <location filename="../src/output_status.py" line="1216"/>
         <source>Enter the URL to send the readings to, for example http://192.168.1.10:8091/scores.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">読み取り値の送信先URLを入力してください（例：http://192.168.1.10:8091/scores）。</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="511"/>
-        <location filename="../src/output_status.py" line="1225"/>
+        <location filename="../src/output_status.py" line="1226"/>
         <source>The URL isn&apos;t valid</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">URLが無効です</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="512"/>
-        <location filename="../src/output_status.py" line="1227"/>
+        <location filename="../src/output_status.py" line="1228"/>
         <source>The URL needs a scheme and a host, for example http://192.168.1.10:8091/scores.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">URLにはスキームとホストが必要です（例：http://192.168.1.10:8091/scores）。</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1234"/>
+        <location filename="../src/output_status.py" line="701"/>
+        <source>overlays.uno limits how many updates it accepts, and drops the others. Keep “Also resend unchanged values” off and “Update on change” on.</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">overlays.unoは受け付ける更新の数を制限しており、超過分は破棄されます。「変化のない値も再送信」はオフ、「変更時に更新」はオンにしておいてください。</translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1092"/>
+        <location filename="../src/output_status.py" line="1106"/>
+        <source>vMix gets a field&apos;s value when it changes (or every time, with “Also resend unchanged values”).</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">vMixには、フィールドの値が変わったとき（「変化のない値も再送信」がオンなら毎回）に値が送られます。</translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1235"/>
         <source>GET to {target}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{target}へGET</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1238"/>
+        <location filename="../src/output_status.py" line="1239"/>
         <source>{method} {encoding} to {target}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{target}へ{method} {encoding}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1246"/>
+        <location filename="../src/output_status.py" line="1247"/>
         <source>Waiting for readings: {request}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">読み取り値を待機中：{request}</translation>
@@ -3771,23 +3856,27 @@ Resolution: {width}×{height}</source>
     <message>
         <location filename="../src/readings_view.py" line="241"/>
         <source>HELD</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">固定</translation>
     </message>
     <message>
         <location filename="../src/readings_view.py" line="250"/>
         <location filename="../src/readings_view.py" line="263"/>
         <source>held</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">固定中</translation>
     </message>
     <message>
         <location filename="../src/readings_view.py" line="251"/>
         <source>held · OCR: {value}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">固定中 · OCR：{value}</translation>
     </message>
     <message>
         <location filename="../src/readings_view.py" line="272"/>
         <source>Held value: {value}. Every output gets it instead of the readings until you release it (Release, or right-click the field).</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">固定値：{value}。解除するまで、すべての出力に読み取り値の代わりにこの値が送られます（「解除」をクリックするか、フィールドを右クリック）。</translation>
     </message>
     <message>
         <location filename="../src/readings_view.py" line="282"/>
@@ -3816,7 +3905,8 @@ Resolution: {width}×{height}</source>
     <message>
         <location filename="../src/readings_view.py" line="396"/>
         <source>Release</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">解除</translation>
     </message>
     <message>
         <location filename="../src/readings_view.py" line="564"/>
@@ -3827,7 +3917,8 @@ Resolution: {width}×{height}</source>
     <message>
         <location filename="../src/readings_view.py" line="679"/>
         <source>Send this field&apos;s readings to the outputs again</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">このフィールドの読み取り値を再び出力に送信します</translation>
     </message>
 </context>
 <context>

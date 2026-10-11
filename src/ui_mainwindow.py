@@ -2531,7 +2531,7 @@ class Ui_MainWindow(object):
         self.horizontalSlider_detectionCadence.setToolTip(QCoreApplication.translate("MainWindow", u"How many times per second the boxes are read (1-15). Higher values use more CPU; 5 suits most clocks.", None))
 #endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(tooltip)
-        self.checkBox_updateOnchange.setToolTip(QCoreApplication.translate("MainWindow", u"Report a reading that equals the field's last good value as unchanged (=, SameNoChange) instead of new (\u2713). vMix and UNO then don't resend unchanged values (unless their Send Same? is on), and the HTTP server and the outbound API mark them as unchanged. OBS and the text files get a value only when it changes either way.", None))
+        self.checkBox_updateOnchange.setToolTip(QCoreApplication.translate("MainWindow", u"Report a reading that equals the field's last good value as unchanged (=, SameNoChange) instead of new (\u2713). vMix and UNO then don't resend unchanged values (unless their \u201cAlso resend unchanged values\u201d is on), and the HTTP server and the outbound API mark them as unchanged. OBS and the text files get a value only when it changes either way.", None))
 #endif // QT_CONFIG(tooltip)
         self.checkBox_updateOnchange.setText(QCoreApplication.translate("MainWindow", u"Update on change", None))
         self.tabWidget_inspector.setTabText(self.tabWidget_inspector.indexOf(self.tab_box), QCoreApplication.translate("MainWindow", u"Box", None))

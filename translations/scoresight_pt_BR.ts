@@ -283,27 +283,32 @@ Resolução: {width}×{height}</translation>
     <message>
         <location filename="../src/held_values.py" line="175"/>
         <source>Hold value: {name}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Fixar valor: {name}</translation>
     </message>
     <message>
         <location filename="../src/held_values.py" line="181"/>
         <source>Every output gets this value instead of the readings of “{name}”, until you release it. The readings go on in the background.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Todas as saídas recebem este valor em vez das leituras de “{name}” até você liberá-lo. As leituras continuam em segundo plano.</translation>
     </message>
     <message>
         <location filename="../src/held_values.py" line="193"/>
         <source>Value to send</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Valor a enviar</translation>
     </message>
     <message>
         <location filename="../src/held_values.py" line="199"/>
         <source>Hold</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Fixar</translation>
     </message>
     <message>
         <location filename="../src/held_values.py" line="205"/>
         <source>Release</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Liberar</translation>
     </message>
 </context>
 <context>
@@ -320,62 +325,74 @@ Resolução: {width}×{height}</translation>
     <message>
         <location filename="../src/keyboard_shortcuts.py" line="53"/>
         <source>Zoom in or out</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Aumentar ou diminuir o zoom</translation>
     </message>
     <message>
         <location filename="../src/keyboard_shortcuts.py" line="54"/>
         <source>{ctrl} + mouse wheel</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">{ctrl} + roda do mouse</translation>
     </message>
     <message>
         <location filename="../src/keyboard_shortcuts.py" line="59"/>
         <source>Move the picture</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Mover a imagem</translation>
     </message>
     <message>
         <location filename="../src/keyboard_shortcuts.py" line="60"/>
         <source>Drag with the middle mouse button</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Arrastar com o botão do meio do mouse</translation>
     </message>
     <message>
         <location filename="../src/keyboard_shortcuts.py" line="65"/>
         <source>Move the selected box by 1 pixel</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Mover a caixa selecionada 1 pixel</translation>
     </message>
     <message>
         <location filename="../src/keyboard_shortcuts.py" line="68"/>
         <source>Arrow keys</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Teclas de seta</translation>
     </message>
     <message>
         <location filename="../src/keyboard_shortcuts.py" line="71"/>
         <source>Move the selected box by 10 pixels</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Mover a caixa selecionada 10 pixels</translation>
     </message>
     <message>
         <location filename="../src/keyboard_shortcuts.py" line="74"/>
         <source>Shift + arrow keys</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Shift + teclas de seta</translation>
     </message>
     <message>
         <location filename="../src/keyboard_shortcuts.py" line="77"/>
         <source>Deselect, or stop picking the 4 corners</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Cancelar a seleção ou parar de marcar os 4 cantos</translation>
     </message>
     <message>
         <location filename="../src/keyboard_shortcuts.py" line="91"/>
         <source>Keyboard shortcuts</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Atalhos de teclado</translation>
     </message>
     <message>
         <location filename="../src/keyboard_shortcuts.py" line="98"/>
         <source>Action</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Ação</translation>
     </message>
     <message>
         <location filename="../src/keyboard_shortcuts.py" line="99"/>
         <source>Keys</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Teclas</translation>
     </message>
 </context>
 <context>
@@ -1140,17 +1157,20 @@ Resolução: {width}×{height}</translation>
     <message>
         <location filename="../src/mainwindow.ui" line="221"/>
         <source>The fields that aren&apos;t on the picture are hidden in this layout (View &gt; Show unused fields)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Os campos que não estão na imagem ficam ocultos neste layout (Exibir &gt; Mostrar campos não usados)</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="346"/>
         <source>The outputs and what they are doing. Double-click one to show its settings.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">As saídas e o que elas estão fazendo. Clique duas vezes em uma para ver as configurações dela.</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="349"/>
         <source>Outputs and their state</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Saídas e seu estado</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="520"/>
@@ -1821,60 +1841,69 @@ Resolução: {width}×{height}</translation>
         <translation type="unfinished">O modelo OCR que lê todas as caixas, não só a selecionada. Carregar modelo externo... lê um arquivo .traineddata do Tesseract.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2871"/>
         <source>Report a reading that equals the field&apos;s last good value as unchanged (=, SameNoChange) instead of new (✓). vMix and UNO then don&apos;t resend unchanged values (unless their Send Same? is on), and the HTTP server and the outbound API mark them as unchanged. OBS and the text files get a value only when it changes either way.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
-        <translation type="unfinished">Marca como inalterada (=, SameNoChange) uma leitura igual ao último valor válido do campo, em vez de nova (✓). Assim o vMix e o UNO não reenviam valores inalterados (a menos que “Enviar repetidos?” esteja ativado), e o servidor HTTP e a API de saída os marcam como inalterados. O OBS e os arquivos de texto só recebem um valor quando ele muda, de qualquer forma.</translation>
+        <translation type="obsolete">Marca como inalterada (=, SameNoChange) uma leitura igual ao último valor válido do campo, em vez de nova (✓). Assim o vMix e o UNO não reenviam valores inalterados (a menos que “Enviar repetidos?” esteja ativado), e o servidor HTTP e a API de saída os marcam como inalterados. O OBS e os arquivos de texto só recebem um valor quando ele muda, de qualquer forma.</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4298"/>
         <source>Quit</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Sair</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4315"/>
         <source>Setup layout</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Layout de configuração</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4318"/>
         <source>For placing and tuning the fields and setting up the outputs: the field list, the picture with its adjustments, and the inspector</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Para posicionar e ajustar os campos e configurar as saídas: a lista de campos, a imagem com suas correções e o inspetor</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4332"/>
         <source>Live layout</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Layout ao vivo</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4335"/>
         <source>For the game: large readings and the state of every output next to the picture. The inspector and the picture adjustments are hidden; the reading and the outputs work the same.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Para o jogo: leituras grandes e o estado de cada saída ao lado da imagem. O inspetor e as correções da imagem ficam ocultos; a leitura e as saídas funcionam da mesma forma.</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4349"/>
         <source>Show unused fields</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Mostrar campos não usados</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4352"/>
         <source>Show the fields that aren&apos;t on the picture in the field list (remembered for each layout)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Mostrar na lista de campos os que não estão na imagem (lembrado para cada layout)</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4360"/>
         <source>User guide</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Guia do usuário</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4363"/>
         <source>Open the ScoreSight documentation in your web browser</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Abrir a documentação do ScoreSight no navegador</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4374"/>
         <source>Keyboard shortcuts</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Atalhos de teclado</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="339"/>
@@ -1883,6 +1912,12 @@ Resolução: {width}×{height}</translation>
         <source>Outputs</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Saídas</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="2871"/>
+        <source>Report a reading that equals the field&apos;s last good value as unchanged (=, SameNoChange) instead of new (✓). vMix and UNO then don&apos;t resend unchanged values (unless their “Also resend unchanged values” is on), and the HTTP server and the outbound API mark them as unchanged. OBS and the text files get a value only when it changes either way.</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Marca como inalterada (=, SameNoChange) uma leitura igual ao último valor válido do campo, em vez de nova (✓). Assim o vMix e o UNO não reenviam valores inalterados (a menos que “Reenviar também valores inalterados” esteja ativado), e o servidor HTTP e a API de saída os marcam como inalterados. O OBS e os arquivos de texto só recebem um valor quando ele muda, de qualquer forma.</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2941"/>
@@ -1905,43 +1940,51 @@ Resolução: {width}×{height}</translation>
     <message>
         <location filename="../src/mainwindow.ui" line="3366"/>
         <source>OBS scene name</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Nome da cena do OBS</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3395"/>
         <source>If OBS already has a scene with this name, delete its sources and make it again. Off: an existing scene is kept as it is.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Se o OBS já tiver uma cena com este nome, excluir as fontes dela e criá-la de novo. Desativado: uma cena existente é mantida como está.</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3418"/>
         <source>&lt;b&gt;Text sources&lt;/b&gt;: the OBS text source each field updates. Double-click a name to change it; leave it empty to not send that field to OBS.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">&lt;b&gt;Fontes de texto&lt;/b&gt;: a fonte de texto do OBS que cada campo atualiza. Clique duas vezes em um nome para alterá-lo; deixe-o vazio para não enviar esse campo ao OBS.</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3434"/>
         <source>Each field and the OBS text source it updates. Edit the right column; an empty name sends nothing to OBS.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Cada campo e a fonte de texto do OBS que ele atualiza. Edite a coluna da direita; um nome vazio não envia nada ao OBS.</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3437"/>
         <source>OBS text sources of the fields</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Fontes de texto do OBS dos campos</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3638"/>
         <source>Also send a field&apos;s value when it hasn&apos;t changed (marked “same”), at every detection, for example if someone may change the title in vMix by hand. Off: vMix gets a value only when it changes. Formerly “Send Same?”.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Enviar também o valor de um campo quando ele não mudou (marcado como “igual”), a cada detecção, por exemplo se alguém puder alterar o título no vMix manualmente. Desativado: o vMix só recebe um valor quando ele muda. Nome anterior: “Enviar repetidos?”.</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3641"/>
         <location filename="../src/mainwindow.ui" line="3759"/>
         <source>Also resend unchanged values</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Reenviar também valores inalterados</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3756"/>
         <source>Also send a field&apos;s value when it hasn&apos;t changed (marked “same”), at every detection. Off: the overlay gets a value only when it changes, which keeps within overlays.uno&apos;s request limits. Formerly “Send Same?”.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Enviar também o valor de um campo quando ele não mudou (marcado como “igual”), a cada detecção. Desativado: o overlay só recebe um valor quando ele muda, o que respeita os limites de requisições do overlays.uno. Nome anterior: “Enviar repetidos?”.</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3806"/>
@@ -1970,79 +2013,94 @@ Resolução: {width}×{height}</translation>
     <message>
         <location filename="../src/mainwindow.ui" line="4052"/>
         <source>Help</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Ajuda</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4120"/>
         <location filename="../src/mainwindow.py" line="2224"/>
         <source>Hold value...</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Fixar valor...</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4123"/>
         <location filename="../src/mainwindow.py" line="2266"/>
         <source>Send a value you type to every output instead of this field&apos;s readings, until you release it</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Enviar a todas as saídas um valor digitado por você em vez das leituras deste campo, até você liberá-lo</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4134"/>
         <source>Release held value</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Liberar valor fixo</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4137"/>
         <source>Send this field&apos;s readings to the outputs again</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Enviar de novo as leituras deste campo para as saídas</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4145"/>
         <source>Check for updates...</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Verificar atualizações...</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4161"/>
         <source>View log</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Ver log</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4164"/>
         <source>Show the log of this session as it is written</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Mostrar o log desta sessão à medida que é gravado</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4175"/>
         <source>Import field layout...</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Importar disposição dos campos...</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4178"/>
         <source>Replace the fields on the picture (their boxes and settings) with the ones saved in a file. Formerly “Import Configuration”.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Substituir os campos na imagem (caixas e configurações) pelos salvos em um arquivo. Nome anterior: “Importar Configuração”.</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4189"/>
         <source>Export field layout...</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Exportar disposição dos campos...</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4192"/>
         <source>Save the fields on the picture (their boxes and settings) to a file. Formerly “Export Configuration”.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Salvar em um arquivo os campos na imagem (caixas e configurações). Nome anterior: “Exportar Configuração”.</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4203"/>
         <source>Open settings folder</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Abrir pasta de configurações</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4206"/>
         <source>Open the folder with ScoreSight&apos;s settings file</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Abrir a pasta com o arquivo de configurações do ScoreSight</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4214"/>
         <source>OCR training data setup...</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Configurar dados de treinamento OCR...</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4260"/>
@@ -2625,12 +2683,14 @@ Resolução: {width}×{height}</translation>
     <message>
         <location filename="../src/mainwindow.py" line="1046"/>
         <source>Readings</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Leituras</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="1125"/>
         <source>Fields not on the picture: {count} hidden. &lt;a href=&quot;#show&quot;&gt;Show them&lt;/a&gt;</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Campos fora da imagem ocultos: {count}. &lt;a href=&quot;#show&quot;&gt;Mostrá-los&lt;/a&gt;</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="1151"/>
@@ -2702,7 +2762,8 @@ Resolução: {width}×{height}</translation>
     <message>
         <location filename="../src/mainwindow.py" line="2222"/>
         <source>Change held value...</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Alterar valor fixo...</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="2260"/>
@@ -2713,7 +2774,8 @@ Resolução: {width}×{height}</translation>
     <message>
         <location filename="../src/mainwindow.py" line="2272"/>
         <source>Place the field on the picture first</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Primeiro posicione o campo na imagem</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="2317"/>
@@ -2742,12 +2804,14 @@ Resolução: {width}×{height}</translation>
     <message>
         <location filename="../src/mainwindow.py" line="2458"/>
         <source>Window</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Janela</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="2486"/>
         <source>Picture</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Imagem</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="2526"/>
@@ -2891,22 +2955,26 @@ Resolução: {width}×{height}</translation>
     <message>
         <location filename="../src/mainwindow.py" line="4090"/>
         <source>Created the scene “{name}” in OBS.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">A cena “{name}” foi criada no OBS.</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="4093"/>
         <source>Made the scene “{name}” again: its sources were replaced.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">A cena “{name}” foi recriada: as fontes dela foram substituídas.</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="4097"/>
         <source>OBS already has a scene “{name}”: it was kept as it is. Tick Recreate to make it again.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">O OBS já tem uma cena “{name}”: ela foi mantida como está. Marque Recriar para criá-la de novo.</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="4102"/>
         <source>Couldn&apos;t create the scene “{name}”. Tools &gt; View log has the details.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Não foi possível criar a cena “{name}”. Os detalhes estão em Ferramentas &gt; Ver log.</translation>
     </message>
     <message>
         <location filename="../src/vmix_ui_handler.py" line="126"/>
@@ -2956,12 +3024,19 @@ Resolução: {width}×{height}</translation>
     <message>
         <location filename="../src/obs_ui_handler.py" line="49"/>
         <source>OBS text source</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Fonte de texto do OBS</translation>
     </message>
     <message>
         <location filename="../src/obs_ui_handler.py" line="79"/>
+        <source>The OBS text source that “{name}” updates. Empty: “{name}” isn&apos;t sent to OBS.</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">A fonte de texto do OBS que “{name}” atualiza. Vazia: “{name}” não é enviado ao OBS.</translation>
+    </message>
+    <message>
         <source>The OBS text source “{name}” updates. Empty: “{name}” isn&apos;t sent to OBS.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="obsolete">A fonte de texto do OBS que “{name}” atualiza. Vazia: “{name}” não é enviado ao OBS.</translation>
     </message>
 </context>
 <context>
@@ -3369,351 +3444,361 @@ Resolução: {width}×{height}</translation>
         <translation type="unfinished">O endpoint não tem nada neste endereço: verifique o caminho.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="701"/>
         <source>overlays.uno limits how many updates it accepts, and drops the others. Keep Send Same? off and Update on change on.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
-        <translation type="unfinished">O overlays.uno limita quantas atualizações aceita e descarta as demais. Mantenha “Enviar repetidos?” desativado e “Atualizar ao mudar” ativado.</translation>
+        <translation type="obsolete">O overlays.uno limita quantas atualizações aceita e descarta as demais. Mantenha “Enviar repetidos?” desativado e “Atualizar ao mudar” ativado.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="707"/>
+        <location filename="../src/output_status.py" line="708"/>
         <source>The endpoint limits the requests, and drops the others: lower Detections / s.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">O endpoint limita as requisições e descarta as demais: diminua Detecções / s.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="714"/>
+        <location filename="../src/output_status.py" line="715"/>
         <source>HTTP 429: too many requests</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">HTTP 429: requisições demais</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="719"/>
+        <location filename="../src/output_status.py" line="720"/>
         <source>Check the Input and the vMix field names in the table (for example Home Score.Text).</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Verifique a Entrada e os nomes de campo do vMix na tabela (por exemplo Home Score.Text).</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="730"/>
-        <location filename="../src/output_status.py" line="747"/>
+        <location filename="../src/output_status.py" line="731"/>
+        <location filename="../src/output_status.py" line="748"/>
         <source>It answered: {text}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Resposta: {text}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="739"/>
+        <location filename="../src/output_status.py" line="740"/>
         <source>HTTP {code}: the receiver reported an error</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">HTTP {code}: o receptor relatou um erro</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="746"/>
+        <location filename="../src/output_status.py" line="747"/>
         <source>HTTP {code}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">HTTP {code}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="776"/>
+        <location filename="../src/output_status.py" line="777"/>
         <source>{failing} of {total} failing: {problem}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{failing} de {total} falhando: {problem}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="823"/>
+        <location filename="../src/output_status.py" line="824"/>
         <source>Folder not found: {folder}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Pasta não encontrada: {folder}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="826"/>
+        <location filename="../src/output_status.py" line="827"/>
         <source>The output folder {folder} doesn&apos;t exist any more, so no files are written. Choose a folder to write them again.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">A pasta de saída {folder} não existe mais, então nenhum arquivo é gravado. Escolha uma pasta para voltar a gravá-los.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="835"/>
-        <location filename="../src/output_status.py" line="1065"/>
-        <location filename="../src/output_status.py" line="1131"/>
-        <location filename="../src/output_status.py" line="1202"/>
+        <location filename="../src/output_status.py" line="836"/>
+        <location filename="../src/output_status.py" line="1066"/>
+        <location filename="../src/output_status.py" line="1132"/>
+        <location filename="../src/output_status.py" line="1203"/>
         <source>Off</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Desativado</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="836"/>
+        <location filename="../src/output_status.py" line="837"/>
         <source>Choose a folder to write the readings to files.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Escolha uma pasta para gravar as leituras em arquivos.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="845"/>
+        <location filename="../src/output_status.py" line="846"/>
         <source>Waiting for readings to write to {folder}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Aguardando leituras para gravar em {folder}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="854"/>
+        <location filename="../src/output_status.py" line="855"/>
         <source>Can&apos;t write {file}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Não é possível gravar {file}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="858"/>
+        <location filename="../src/output_status.py" line="859"/>
         <source>Can&apos;t write {file} and {count} more</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Não é possível gravar {file} e mais {count}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="866"/>
+        <location filename="../src/output_status.py" line="867"/>
         <source>Check that the folder can be written to and that no other program locks the files. ScoreSight tries again at every save.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Verifique se a pasta permite gravação e se nenhum outro programa está bloqueando os arquivos. O ScoreSight tenta de novo a cada gravação.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="878"/>
+        <location filename="../src/output_status.py" line="879"/>
         <source>Writing to {folder} · 1 file</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Gravando em {folder} · 1 arquivo</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="882"/>
+        <location filename="../src/output_status.py" line="883"/>
         <source>Writing to {folder} · {count} files</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Gravando em {folder} · {count} arquivos</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="890"/>
+        <location filename="../src/output_status.py" line="891"/>
         <source>The files are in {folder}. A file is written when its value changes.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Os arquivos estão em {folder}. Um arquivo é gravado quando o valor dele muda.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="912"/>
+        <location filename="../src/output_status.py" line="913"/>
         <source>Not running: port {port} is in use</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Parado: a porta {port} está em uso</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="917"/>
+        <location filename="../src/output_status.py" line="918"/>
         <source>Another program (or another ScoreSight) uses port {port}. Close it, or start ScoreSight with --port to use another port.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Outro programa (ou outro ScoreSight) usa a porta {port}. Feche-o ou inicie o ScoreSight com --port para usar outra porta.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="926"/>
+        <location filename="../src/output_status.py" line="927"/>
         <source>{url} · no requests yet</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{url} · nenhuma requisição ainda</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="930"/>
+        <location filename="../src/output_status.py" line="931"/>
         <source>{url} · 1 client</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{url} · 1 cliente</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="934"/>
+        <location filename="../src/output_status.py" line="935"/>
         <source>{url} · {count} clients</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{url} · {count} clientes</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="938"/>
+        <location filename="../src/output_status.py" line="939"/>
         <source>{url} · no recent requests</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{url} · nenhuma requisição recente</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="947"/>
+        <location filename="../src/output_status.py" line="948"/>
         <source>Always on. Open {url}/scoresight in a browser, or read {url}/json, /xml or /csv from other software.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Sempre ativo. Abra {url}/scoresight em um navegador ou leia {url}/json, /xml ou /csv em outro software.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="974"/>
+        <location filename="../src/output_status.py" line="975"/>
         <source>Connecting to {target}…</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Conectando a {target}…</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="984"/>
+        <location filename="../src/output_status.py" line="985"/>
         <source>Not connected: {problem}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Não conectado: {problem}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="991"/>
+        <location filename="../src/output_status.py" line="992"/>
         <source>Then click Connect OBS.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Depois clique em Conectar OBS.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1002"/>
+        <location filename="../src/output_status.py" line="1003"/>
         <source>Not connected</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Não conectado</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1003"/>
+        <location filename="../src/output_status.py" line="1004"/>
         <source>Click Connect OBS to update text sources in OBS Studio.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Clique em Conectar OBS para atualizar fontes de texto no OBS Studio.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1014"/>
+        <location filename="../src/output_status.py" line="1015"/>
         <source>Connected to {target}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Conectado a {target}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1018"/>
+        <location filename="../src/output_status.py" line="1019"/>
         <source>A text source is updated when its field&apos;s value changes.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Uma fonte de texto é atualizada quando o valor do campo dela muda.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1027"/>
+        <location filename="../src/output_status.py" line="1028"/>
         <source>Reconnecting to OBS at {target}…</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Reconectando ao OBS em {target}…</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1030"/>
+        <location filename="../src/output_status.py" line="1031"/>
         <source>The connection to OBS was lost. ScoreSight reconnects by itself as soon as OBS is reachable again.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">A conexão com o OBS foi perdida. O ScoreSight se reconecta sozinho assim que o OBS estiver acessível de novo.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1039"/>
+        <location filename="../src/output_status.py" line="1040"/>
         <source>Connected, but no field has an OBS text source</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Conectado, mas nenhum campo tem fonte de texto no OBS</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1042"/>
+        <location filename="../src/output_status.py" line="1043"/>
         <source>The standard fields update OBS text sources with their names (Home score, Clock...). Place them on the picture.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Os campos padrão atualizam as fontes de texto do OBS com os nomes deles (Home score, Clock...). Posicione-os na imagem.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1066"/>
+        <location filename="../src/output_status.py" line="1067"/>
         <source>Click Start vMix to update input {input} at {target}.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Clique em Iniciar vMix para atualizar a entrada {input} em {target}.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1074"/>
-        <location filename="../src/output_status.py" line="1153"/>
+        <location filename="../src/output_status.py" line="1075"/>
+        <location filename="../src/output_status.py" line="1154"/>
         <source>No fields to send</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Nenhum campo para enviar</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1076"/>
+        <location filename="../src/output_status.py" line="1077"/>
         <source>Place fields on the picture and enter their vMix field names (for example Home Score.Text) in the table.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Posicione campos na imagem e digite na tabela os nomes de campo do vMix correspondentes (por exemplo Home Score.Text).</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1087"/>
+        <location filename="../src/output_status.py" line="1088"/>
         <source>Waiting for a new value for {target}, input {input}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Aguardando um novo valor para {target}, entrada {input}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1091"/>
-        <location filename="../src/output_status.py" line="1105"/>
         <source>vMix gets a field&apos;s value when it changes (or every time, with Send Same?).</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
-        <translation type="unfinished">O vMix recebe o valor de um campo quando ele muda (ou sempre, com “Enviar repetidos?”).</translation>
+        <translation type="obsolete">O vMix recebe o valor de um campo quando ele muda (ou sempre, com “Enviar repetidos?”).</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1101"/>
+        <location filename="../src/output_status.py" line="1102"/>
         <source>Sending to {target}, input {input}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Enviando para {target}, entrada {input}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1132"/>
+        <location filename="../src/output_status.py" line="1133"/>
         <source>Click Start sending to drive your overlays.uno overlay.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Clique em Iniciar envio para comandar seu overlay do overlays.uno.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1141"/>
+        <location filename="../src/output_status.py" line="1142"/>
         <source>Enter your UNO API URL</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Digite a URL da sua API do UNO</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1143"/>
+        <location filename="../src/output_status.py" line="1144"/>
         <source>Copy the API URL of your overlay&apos;s control app in overlays.uno into URL.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Copie para URL a URL da API do app de controle do seu overlay no overlays.uno.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1155"/>
+        <location filename="../src/output_status.py" line="1156"/>
         <source>Place fields on the picture and enter the UNO commands in the table.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Posicione campos na imagem e digite os comandos do UNO na tabela.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1165"/>
+        <location filename="../src/output_status.py" line="1166"/>
         <source>Waiting for a new value for {host}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Aguardando um novo valor para {host}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1174"/>
+        <location filename="../src/output_status.py" line="1175"/>
         <source>Sending to {host}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Enviando para {host}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1203"/>
+        <location filename="../src/output_status.py" line="1204"/>
         <source>Tick the checkbox to send the readings to a URL on every detection cycle.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Marque a opção para enviar as leituras para uma URL a cada ciclo de detecção.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1213"/>
+        <location filename="../src/output_status.py" line="1214"/>
         <source>Enter a URL</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Digite uma URL</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1215"/>
+        <location filename="../src/output_status.py" line="1216"/>
         <source>Enter the URL to send the readings to, for example http://192.168.1.10:8091/scores.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Digite a URL para onde enviar as leituras, por exemplo http://192.168.1.10:8091/scores.</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="511"/>
-        <location filename="../src/output_status.py" line="1225"/>
+        <location filename="../src/output_status.py" line="1226"/>
         <source>The URL isn&apos;t valid</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">A URL não é válida</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="512"/>
-        <location filename="../src/output_status.py" line="1227"/>
+        <location filename="../src/output_status.py" line="1228"/>
         <source>The URL needs a scheme and a host, for example http://192.168.1.10:8091/scores.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">A URL precisa de um esquema e um host, por exemplo http://192.168.1.10:8091/scores.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1234"/>
+        <location filename="../src/output_status.py" line="701"/>
+        <source>overlays.uno limits how many updates it accepts, and drops the others. Keep “Also resend unchanged values” off and “Update on change” on.</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">O overlays.uno limita quantas atualizações aceita e descarta as demais. Mantenha “Reenviar também valores inalterados” desativado e “Atualizar ao mudar” ativado.</translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1092"/>
+        <location filename="../src/output_status.py" line="1106"/>
+        <source>vMix gets a field&apos;s value when it changes (or every time, with “Also resend unchanged values”).</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">O vMix recebe o valor de um campo quando ele muda (ou sempre, com “Reenviar também valores inalterados”).</translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1235"/>
         <source>GET to {target}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">GET para {target}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1238"/>
+        <location filename="../src/output_status.py" line="1239"/>
         <source>{method} {encoding} to {target}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{method} {encoding} para {target}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1246"/>
+        <location filename="../src/output_status.py" line="1247"/>
         <source>Waiting for readings: {request}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Aguardando leituras: {request}</translation>
@@ -3772,23 +3857,27 @@ Resolução: {width}×{height}</translation>
     <message>
         <location filename="../src/readings_view.py" line="241"/>
         <source>HELD</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">FIXO</translation>
     </message>
     <message>
         <location filename="../src/readings_view.py" line="250"/>
         <location filename="../src/readings_view.py" line="263"/>
         <source>held</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">fixo</translation>
     </message>
     <message>
         <location filename="../src/readings_view.py" line="251"/>
         <source>held · OCR: {value}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">fixo · OCR: {value}</translation>
     </message>
     <message>
         <location filename="../src/readings_view.py" line="272"/>
         <source>Held value: {value}. Every output gets it instead of the readings until you release it (Release, or right-click the field).</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Valor fixo: {value}. Todas as saídas o recebem em vez das leituras até você liberá-lo (Liberar, ou clique com o botão direito no campo).</translation>
     </message>
     <message>
         <location filename="../src/readings_view.py" line="282"/>
@@ -3817,7 +3906,8 @@ Resolução: {width}×{height}</translation>
     <message>
         <location filename="../src/readings_view.py" line="396"/>
         <source>Release</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Liberar</translation>
     </message>
     <message>
         <location filename="../src/readings_view.py" line="564"/>
@@ -3828,7 +3918,8 @@ Resolução: {width}×{height}</translation>
     <message>
         <location filename="../src/readings_view.py" line="679"/>
         <source>Send this field&apos;s readings to the outputs again</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Enviar de novo as leituras deste campo para as saídas</translation>
     </message>
 </context>
 <context>

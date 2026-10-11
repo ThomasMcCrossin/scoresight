@@ -2868,7 +2868,7 @@
            <item row="3" column="0" colspan="2">
             <widget class="QCheckBox" name="checkBox_updateOnchange">
              <property name="toolTip">
-              <string>Report a reading that equals the field's last good value as unchanged (=, SameNoChange) instead of new (✓). vMix and UNO then don't resend unchanged values (unless their Send Same? is on), and the HTTP server and the outbound API mark them as unchanged. OBS and the text files get a value only when it changes either way.</string>
+              <string>Report a reading that equals the field's last good value as unchanged (=, SameNoChange) instead of new (✓). vMix and UNO then don't resend unchanged values (unless their “Also resend unchanged values” is on), and the HTTP server and the outbound API mark them as unchanged. OBS and the text files get a value only when it changes either way.</string>
              </property>
              <property name="text">
               <string>Update on change</string>

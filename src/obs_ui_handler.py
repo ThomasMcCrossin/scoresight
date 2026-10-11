@@ -78,7 +78,7 @@ class OBSSourcesTable:
                 source_item.setToolTip(
                     QCoreApplication.translate(
                         "OBSSources",
-                        "The OBS text source “{name}” updates. Empty: “{name}” "
+                        "The OBS text source that “{name}” updates. Empty: “{name}” "
                         "isn't sent to OBS.",
                     ).format(name=name)
                 )

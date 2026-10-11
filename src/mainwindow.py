@@ -3122,7 +3122,7 @@ class MainWindow(QMainWindow):
         self.image_viewer.error_signal.connect(self.updateError)
         # connected before the capture starts: the first readings are often the
         # only Success of a box whose value doesn't change (later ones are
-        # SameNoChange), and vMix and UNO only send Success unless "Send Same?"
+        # SameNoChange), and vMix and UNO only send Success unless "Also resend unchanged values"
         self.connectViewer()
         self.ocrModelChanged(fetch_data("scoresight.json", "ocr_model", 1))
 

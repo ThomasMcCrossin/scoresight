@@ -65,7 +65,7 @@ class UNOAPI:
     ):
         """Queue the new values of the mapped fields. Never blocks.
         The boxes named in resend_unchanged also send an unchanged value (as
-        "Send Same?" does for every box), e.g. after the outputs were paused."""
+        "Also resend unchanged values" does for every box), e.g. after the outputs were paused."""
         if not self.running:
             return
 
