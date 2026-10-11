@@ -8,9 +8,35 @@ Release tags are the bare version number (for example `0.1.0`).
 
 ## [Unreleased]
 
-A new OCR engine: PaddleOCR's PP-OCRv6 text recognition models read about
-three times as many real scoreboard values right as Tesseract did with its
-default settings, and are the default for new setups.
+## [0.3.0] - 2026-10-11
+
+A new OCR engine, live overlays, and many more broadcast products. Highlights:
+
+- **PP-OCR, a much more accurate OCR engine.** PaddleOCR's PP-OCRv6 models
+  read 95% of real scoreboard crops exactly in our evaluation, against 31%
+  for Tesseract with its default settings. **PP-OCR (automatic)** is the
+  default for new setups: it uses the accurate model, and switches to the
+  fast one (90%) when the computer can't keep up, and says so. Existing setups
+  keep their Tesseract model until you choose another. OCR also runs on its
+  own thread now, so a slow reading can't make a live stream fall behind.
+- **Live browser overlays.** ScoreSight serves transparent scorebug, lower
+  third, clock and field pages that update the moment a value changes, for
+  OBS, vMix, Wirecast, CasparCG, TriCaster, Magewell, Pearl and anything else
+  that shows a web page. Bring your own HTML with `data-field` attributes. The
+  HTTP server's page builds the URLs.
+- **More broadcast products.** A **TCP / UDP output** with presets for
+  CasparCG (with a ready template), Chyron PRIME, Live Score, MagicSoft and
+  Vizrt; **TriCaster DataLink** and **Epiphan Pearl** presets for the
+  outbound API; and a **Works with…** page covering 21 products with setup
+  guides.
+- **Draw a field's box right on the picture**: select a field, then drag
+  over its numbers. **Drag to crop** works the same way, and boxes stay on
+  their digits when the crop changes.
+- **Fixes** for Create OBS Scene (it could delete sources other scenes used),
+  overlays.uno (values lost when it throttled ScoreSight), and vMix (spaces
+  sent as `+`).
+- The whole window is translated into 12 languages (machine drafts so far:
+  corrections from native speakers are welcome).
 
 ### Added
 
@@ -155,9 +181,6 @@ default settings, and are the default for new setups.
 - With the **All** box display style, the area read and the characters found
   were drawn in the wrong place on a box moved with the arrow keys (and now
   with the crop or drawn again).
-
-### Fixed
-
 - **Create OBS Scene** with **Recreate** deleted every source of the scene
   from the whole OBS scene collection, including sources other scenes
   shared. It now removes only the scene's items, and deletes a source only
@@ -955,7 +978,8 @@ end to end on every platform before it ships. Highlights:
 
 - First open-source release of ScoreSight.
 
-[Unreleased]: https://github.com/royshil/scoresight/compare/0.2.0...HEAD
+[Unreleased]: https://github.com/royshil/scoresight/compare/0.3.0...HEAD
+[0.3.0]: https://github.com/royshil/scoresight/compare/0.2.0...0.3.0
 [0.2.0]: https://github.com/royshil/scoresight/compare/0.1.0...0.2.0
 [0.1.0]: https://github.com/royshil/scoresight/compare/0.0.17...0.1.0
 [0.0.17]: https://github.com/royshil/scoresight/compare/0.0.16...0.0.17
