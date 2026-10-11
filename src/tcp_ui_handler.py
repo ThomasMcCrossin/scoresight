@@ -81,50 +81,52 @@ MONOSPACE_FAMILIES = [
 TEXT_APPLY_DELAY_MS = 400
 
 
-def tr(text: str) -> str:
-    return QCoreApplication.translate("TcpOutput", text)
-
-
 def preset_name(key: str) -> str:
     """The preset's name in the picker ("Custom" is translated)."""
     if key == CUSTOM:
-        return tr("Custom")
+        return QCoreApplication.translate("TcpOutput", "Custom")
     return PRESETS[key].name
 
 
 def preset_note(key: str) -> str:
     """Where the preset's protocol comes from and what to set up."""
     if key == CASPARCG:
-        return tr(
+        return QCoreApplication.translate(
+            "TcpOutput",
             "From CasparCG's AMCP documentation; not tested with CasparCG yet. "
-            "Copy the bundled template into CasparCG's templates folder."
+            "Copy the bundled template into CasparCG's templates folder.",
         )
     if key == CHYRON:
-        return tr(
+        return QCoreApplication.translate(
+            "TcpOutput",
             "From Chyron's Intelligent Interface documentation; not tested with "
             "PRIME yet. Use the port of PRIME's Intelligent Interface connection, "
-            "and name the scene's objects like the names below."
+            "and name the scene's objects like the names below.",
         )
     if key == LIVE_SCORE:
-        return tr(
+        return QCoreApplication.translate(
+            "TcpOutput",
             "Based on public documentation, untested: the format comes from "
             "another OCR app's guide. Use the port and the field names of Live "
-            "Score's OCR Setup."
+            "Score's OCR Setup.",
         )
     if key == MAGICSOFT:
-        return tr(
+        return QCoreApplication.translate(
+            "TcpOutput",
             "Based on public documentation, untested: the format comes from "
             "another OCR app's guide. Put [name] in a text item, then File › "
-            "Refresh All projects."
+            "Refresh All projects.",
         )
     if key == VIZRT:
-        return tr(
+        return QCoreApplication.translate(
+            "TcpOutput",
             "From Vizrt's Shared Memory documentation; not tested with Viz Engine "
-            "yet. Use the Shared Memory port set in Viz Configuration."
+            "yet. Use the Shared Memory port set in Viz Configuration.",
         )
-    return tr(
+    return QCoreApplication.translate(
+        "TcpOutput",
         "Your own protocol: edit the template and the options. The preview shows "
-        "what is sent."
+        "what is sent.",
     )
 
 
@@ -132,15 +134,21 @@ def _combo_texts() -> dict[str, list[tuple[str, str]]]:
     """(text, key) of the items of each choice."""
     return {
         "mode": [
-            (tr("A message per changed field"), "field"),
-            (tr("One message with every field"), "frame"),
+            (
+                QCoreApplication.translate("TcpOutput", "A message per changed field"),
+                "field",
+            ),
+            (
+                QCoreApplication.translate("TcpOutput", "One message with every field"),
+                "frame",
+            ),
         ],
         "line_ending": [
             ("CR LF (\\r\\n)", "crlf"),
             ("LF (\\n)", "lf"),
             ("CR (\\r)", "cr"),
             ("NUL (\\0)", "nul"),
-            (tr("None"), "none"),
+            (QCoreApplication.translate("TcpOutput", "None"), "none"),
         ],
         "encoding": [
             ("UTF-8", "utf-8"),
@@ -150,13 +158,13 @@ def _combo_texts() -> dict[str, list[tuple[str, str]]]:
             ("ASCII", "ascii"),
         ],
         "escape": [
-            (tr("None"), "none"),
-            (tr("Line breaks to spaces"), "line"),
-            (tr("JSON string"), "json"),
+            (QCoreApplication.translate("TcpOutput", "None"), "none"),
+            (QCoreApplication.translate("TcpOutput", "Line breaks to spaces"), "line"),
+            (QCoreApplication.translate("TcpOutput", "JSON string"), "json"),
             ("XML", "xml"),
-            (tr("AMCP (CasparCG)"), "amcp"),
-            (tr("Chyron fields"), "chyron"),
-            (tr("Leave out NUL"), "nul"),
+            (QCoreApplication.translate("TcpOutput", "AMCP (CasparCG)"), "amcp"),
+            (QCoreApplication.translate("TcpOutput", "Chyron fields"), "chyron"),
+            (QCoreApplication.translate("TcpOutput", "Leave out NUL"), "nul"),
         ],
     }
 
@@ -311,13 +319,18 @@ class TcpUIHandler(QObject):
             QCoreApplication.translate("MainWindow", "Also resend unchanged values")
         )
         ui.checkBox_tcpSendSame.setToolTip(
-            tr(
+            QCoreApplication.translate(
+                "TcpOutput",
                 "Also send a field's value when it hasn't changed, at every "
-                "detection. Off: a value is sent only when it changes."
+                "detection. Off: a value is sent only when it changes.",
             )
         )
-        ui.doubleSpinBox_tcpMinInterval.setSpecialValueText(tr("No limit"))
-        ui.doubleSpinBox_tcpRefresh.setSpecialValueText(tr("Never"))
+        ui.doubleSpinBox_tcpMinInterval.setSpecialValueText(
+            QCoreApplication.translate("TcpOutput", "No limit")
+        )
+        ui.doubleSpinBox_tcpRefresh.setSpecialValueText(
+            QCoreApplication.translate("TcpOutput", "Never")
+        )
         self.updateToggleText(ui.pushButton_tcpStart.isChecked())
         self.updatePresetNote()
         self.updatePreview()
@@ -527,18 +540,26 @@ class TcpUIHandler(QObject):
         result = preview(config, self.previewValues())
         parts = []
         if result.on_connect:
-            parts.append(tr("On connect:"))
+            parts.append(QCoreApplication.translate("TcpOutput", "On connect:"))
             parts.append(visible_text(result.on_connect).rstrip("\n"))
         if config.mode == PER_FIELD:
-            parts.append(tr("For a changed field:"))
+            parts.append(
+                QCoreApplication.translate("TcpOutput", "For a changed field:")
+            )
         else:
-            parts.append(tr("When a value changes:"))
-        parts.append(visible_text(result.message).rstrip("\n") or tr("(nothing)"))
+            parts.append(
+                QCoreApplication.translate("TcpOutput", "When a value changes:")
+            )
+        parts.append(
+            visible_text(result.message).rstrip("\n")
+            or QCoreApplication.translate("TcpOutput", "(nothing)")
+        )
         if result.more_fields:
             parts.append(
-                tr("(and a message like it for each of {count} more fields)").format(
-                    count=result.more_fields
-                )
+                QCoreApplication.translate(
+                    "TcpOutput",
+                    "(and a message like it for each of {count} more fields)",
+                ).format(count=result.more_fields)
             )
         text = "\n".join(parts)
         edit = self.ui.plainTextEdit_tcpPreview
@@ -553,7 +574,9 @@ class TcpUIHandler(QObject):
         label = self.ui.label_tcpReply
         status = self.output.connection_status()
         if self.output.running and status.last_reply:
-            text = tr("Last answer: {reply}").format(reply=status.last_reply)
+            text = QCoreApplication.translate(
+                "TcpOutput", "Last answer: {reply}"
+            ).format(reply=status.last_reply)
             if label.text() != text or label.isHidden():
                 label.setText(text)
                 label.show()
@@ -636,7 +659,10 @@ class TcpUIHandler(QObject):
 
     def copyCasparTemplate(self):
         folder = QFileDialog.getExistingDirectory(
-            self.page, tr("Choose CasparCG's templates folder")
+            self.page,
+            QCoreApplication.translate(
+                "TcpOutput", "Choose CasparCG's templates folder"
+            ),
         )
         if not folder:
             return
@@ -646,10 +672,10 @@ class TcpUIHandler(QObject):
             if target.exists() and not filecmp.cmp(source, target, shallow=False):
                 answer = QMessageBox.question(
                     self.page,
-                    tr("Replace the template?"),
-                    tr("{file} already exists in {folder}. Replace it?").format(
-                        file=CASPARCG_TEMPLATE_FILE, folder=folder
-                    ),
+                    QCoreApplication.translate("TcpOutput", "Replace the template?"),
+                    QCoreApplication.translate(
+                        "TcpOutput", "{file} already exists in {folder}. Replace it?"
+                    ).format(file=CASPARCG_TEMPLATE_FILE, folder=folder),
                 )
                 if answer != QMessageBox.StandardButton.Yes:
                     return
@@ -658,16 +684,18 @@ class TcpUIHandler(QObject):
             logger.error("Could not copy the CasparCG template to %s: %s", folder, e)
             QMessageBox.warning(
                 self.page,
-                tr("The template wasn't copied"),
-                tr("Could not copy {file} to {folder}: {error}").format(
-                    file=CASPARCG_TEMPLATE_FILE, folder=folder, error=e
-                ),
+                QCoreApplication.translate("TcpOutput", "The template wasn't copied"),
+                QCoreApplication.translate(
+                    "TcpOutput", "Could not copy {file} to {folder}: {error}"
+                ).format(file=CASPARCG_TEMPLATE_FILE, folder=folder, error=e),
             )
             return
         logger.info("Copied the CasparCG template to %s", target)
         button = self.ui.pushButton_tcpCopyTemplate
         QToolTip.showText(
             button.mapToGlobal(QPoint(0, button.height())),
-            tr("Copied to {path}").format(path=str(target)),
+            QCoreApplication.translate("TcpOutput", "Copied to {path}").format(
+                path=str(target)
+            ),
             button,
         )
