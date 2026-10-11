@@ -126,6 +126,11 @@ def state_glyph(state: ResultState | None) -> str:
     return _GLYPH_TEXT[_STATE_LOOK[state][1]]
 
 
+def state_look(state: ResultState | None) -> tuple[str, str] | None:
+    """(theme colour name, draw_glyph() glyph) of a reading state, or None."""
+    return _STATE_LOOK.get(state)
+
+
 def state_text(reading: Reading) -> str:
     """One or two words for the state of the latest reading."""
     if reading.state == ResultState.Success:
@@ -203,7 +208,7 @@ def reading_tooltip(reading: Reading) -> str:
     return "\n".join(lines)
 
 
-def _draw_glyph(painter: QPainter, rect: QRectF, glyph: str, color):
+def draw_glyph(painter: QPainter, rect: QRectF, glyph: str, color):
     """Draw a glyph (check, equals, exclamation, empty) as lines in rect, so it
     looks the same with every font."""
     x, y, w, h = rect.x(), rect.y(), rect.width(), rect.height()
@@ -367,7 +372,7 @@ class ReadingDelegate(QStyledItemDelegate):
             painter.setPen(Qt.PenStyle.NoPen)
             painter.setBrush(disc_color)
             painter.drawEllipse(disc)
-            _draw_glyph(painter, disc, glyph, theme.on_color(palette))
+            draw_glyph(painter, disc, glyph, theme.on_color(palette))
             left = disc.left()
 
         painter.setFont(note_font)
