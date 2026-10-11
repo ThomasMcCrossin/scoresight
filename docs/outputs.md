@@ -11,12 +11,13 @@ ScoreSight can publish its readings to several destinations at the same time. Th
 
 | Output | In the Outputs list | Direction | Sends | Best for |
 |---|---|---|---|---|
-| [Text, CSV & XML files](text-files.md) | **Text files** | ScoreSight writes files | `<Box Name>.txt`, `results.csv`, `results.xml` | Any software that reads text files: OBS text (from file), vMix Data Sources, NewBlue, CasparCG, Excel |
-| [HTTP server](http_server.md) | **HTTP server** | Other software pulls from ScoreSight | HTML, JSON, XML, CSV on port 18099 | Browser sources, web overlays, data feeds, scripts, Home Assistant |
+| [Text, CSV & XML files](text-files.md) | **Text files** | ScoreSight writes files | `<Box Name>.txt`, `results.csv`, `results.xml`, `results.json`, `results.txt` (key=value) | Any software that reads text files: OBS text (from file), Wirecast, vMix Data Sources, NewBlue, XPression, SuiteCG, Excel |
+| [HTTP server](http_server.md) | **HTTP server** | Other software pulls from ScoreSight | HTML, JSON, XML, CSV on port 18099 | Browser sources, web overlays, data feeds (vMix Data Sources, XPression DataLinq, SuiteCG, Captivate), scripts, Home Assistant |
 | [OBS Studio](obs.md) | **OBS** | ScoreSight pushes over the OBS WebSocket | Text of OBS text sources | OBS scoreboards without browser sources |
 | [vMix](vmix.md) | **vMix** | ScoreSight pushes to the vMix Web API | `SetText` on title fields | vMix GT titles |
 | [Overlays.uno](uno.md) | **UNO** | ScoreSight pushes to the UNO control app API | Commands / overlay fields | overlays.uno graphics |
-| [Outbound HTTP API](out_api.md) | **HTTP API** | ScoreSight pushes to your URL | JSON, XML, CSV or GET query | Your own server, cloud functions, automations |
+| [Outbound HTTP API](out_api.md) | **HTTP API** | ScoreSight pushes to your URL | JSON, XML, CSV or GET query, per cycle or per field, with presets | Your own server, cloud functions, automations, TriCaster DataLink, Epiphan Pearl, NewBlue Captivate |
+| [Works with…](integrations.md) | (uses the outputs above) | | | 21 broadcast products, with their status and setup guides |
 | [Other software](other-software.md) | (uses the outputs above) | | | NewBlue Captivate/Titler Live, CasparCG, Streamlabs, Home Assistant and more |
 
 {: .new }
