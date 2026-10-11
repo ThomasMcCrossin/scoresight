@@ -7,14 +7,22 @@
 <!-- tables:NAME --> and <!-- /tables:NAME --> markers); --check FILE exits
 with 1 if they are out of date (tests/test_ocr_eval_report.py runs it).
 
-Sections: leaderboards, pooled, field-types, display-techs, test-split,
-mcnemar, calibration, latency, threads, budget, startup, galleries (default:
-all).
+Sections: primary, subgroups, leaderboards, pooled, field-types,
+display-techs, test-split, mcnemar, tests, calibration, gray, latency, threads,
+budget, pinning, startup, galleries (default: all).
 
 Inputs: results.json.gz (the accuracy run: every non-VLM engine on the three
 datasets), latency.json.gz (the timing runs: for each engine and thread setting,
-the repeat during which the rest of the machine was least busy) and, for
-reference rows, ocr_eval/baselines/vlm/crops.json.gz (VLMs, not re-run).
+the repeat during which the rest of the machine was least busy), gray.json.gz
+(PP-OCRv6 on gray crops), pinned.json.gz (a timing spot check pinned to one
+core), startup.json and, for reference rows,
+ocr_eval/baselines/vlm/crops.json.gz (VLMs, not re-run).
+
+Intervals on the real datasets are clustered: a percentile bootstrap that
+resamples the photos (or groups of photos of one board) the crops come from
+(dataset.Sample.cluster), and paired comparisons add a sign-flip test on the
+per-photo differences next to McNemar's (which treats crops as independent).
+synthetic_7seg has no photos: its intervals are Wilson's.
 """
 
 import json
@@ -28,7 +36,13 @@ sys.path.insert(0, str(REPO))
 
 from ocr_eval import utf8_output  # noqa: E402
 from ocr_eval.dataset import load_dataset  # noqa: E402
-from ocr_eval.metrics import mcnemar_exact_p, wilson_interval  # noqa: E402
+from ocr_eval.metrics import (  # noqa: E402
+    cluster_bootstrap_interval,
+    cluster_count,
+    cluster_sign_flip_p,
+    mcnemar_exact_p,
+    wilson_interval,
+)
 from ocr_eval.report import read_results  # noqa: E402
 
 REAL = ("textocr_scoreboards", "commons_scoreboards")
@@ -38,6 +52,7 @@ SHORT = {
     "synthetic_7seg": "synthetic",
 }
 APP_DEFAULT = "tesseract:scoreboard_general"
+TUNED = "tesseract:tuned"
 # the engines of the detailed tables
 KEY_ENGINES = (
     "ppocr:v6-medium-wl",
@@ -48,10 +63,23 @@ KEY_ENGINES = (
     "onnxtr:parseq-wl",
     "onnxtr:crnn_mobilenet_v3_small-wl",
     "windows-ocr:tile-digits",
+    TUNED,
     "tesseract:eng-nobin",
     "tesseract:scoreboard_general-nobin",
     APP_DEFAULT,
 )
+# The parts of the real datasets (subgroup()): Commons' user-like boxes, and
+# TextOCR's word crops split into scoreboard values, the static captions
+# printed or lit on boards (BALL, PERIOD, R, H, E, OUT, FOULS...), and the
+# photos TextVQA tagged only "Digital clock" (clock radios, thermometers,
+# appliance displays). The first two are what a ScoreSight user boxes.
+SUBGROUPS = {
+    "commons": "Commons boxes",
+    "textocr-values": "TextOCR scoreboard values",
+    "textocr-captions": "TextOCR captions (words)",
+    "textocr-clock-photos": "TextOCR digital-clock photos",
+}
+USER_RELEVANT = ("commons", "textocr-values")
 PAIRS = (
     ("ppocr:v6-tiny-wl", "ppocr:v6-small-wl"),
     ("ppocr:v6-small-wl", "ppocr:v6-medium-wl"),
@@ -65,7 +93,12 @@ PAIRS = (
     ("tesseract:eng-nobin", "ppocr:v6-small-wl"),
     (APP_DEFAULT, "ppocr:v6-tiny-wl"),
     (APP_DEFAULT, "ppocr:v6-small-wl"),
+    ("tesseract:eng-nobin", TUNED),
+    (TUNED, "ppocr:v6-tiny-wl"),
+    # the VLMs ran on TextOCR only
     ("qwen-vl:qwen3.5-0.8b-wl", "ppocr:v6-small-wl"),
+    ("qwen-vl:qwen3.5-0.8b-wl", "ppocr:v6-medium-wl"),
+    ("qwen-vl:qwen3-vl-2b-wl", "ppocr:v6-small-wl"),
     ("qwen-vl:qwen3-vl-2b-wl", "ppocr:v6-medium-wl"),
 )
 CALIBRATED = (
@@ -73,6 +106,7 @@ CALIBRATED = (
     "ppocr:v6-small-wl",
     "ppocr:v6-tiny-wl",
     "onnxtr:parseq-wl",
+    TUNED,
     "tesseract:eng-nobin",
     APP_DEFAULT,
 )
@@ -105,6 +139,19 @@ def ci(k: int, n: int) -> str:
     return f"{pct(k / n)} ({pct(low)}–{pct(high)})"
 
 
+def clustered_ci(values: list, clusters: list) -> str:
+    """Accuracy with its 95% interval, photos resampled; Wilson's when every
+    crop is its own cluster (synthetic_7seg)."""
+    n = len(values)
+    if not n:
+        return "–"
+    k = sum(values)
+    if cluster_count(clusters) == n:
+        return ci(k, n)
+    low, high = cluster_bootstrap_interval(values, clusters)
+    return f"{pct(k / n)} ({pct(low)}–{pct(high)})"
+
+
 def p_value(p: float) -> str:
     if p >= 0.001:
         return f"{p:.3f}"
@@ -112,6 +159,25 @@ def p_value(p: float) -> str:
         return "<1e-300"
     mantissa, exponent = f"{p:.1e}".split("e")
     return f"{mantissa}e{int(exponent)}"
+
+
+def sign_flip_p(p: float) -> str:
+    """A Monte Carlo sign-flip p-value: one that no random pattern reached is
+    1 / 20001, i.e. below 1e-4."""
+    return "<1e-4" if p < 1e-4 else p_value(p)
+
+
+def subgroup(dataset: str, sample) -> str:
+    """The part of the real datasets a crop belongs to (SUBGROUPS)."""
+    if dataset == "commons_scoreboards":
+        return "commons"
+    if dataset == "textocr_scoreboards":
+        if "Scoreboard" not in (sample.notes or ""):
+            return "textocr-clock-photos"
+        if sample.field_type == "text":
+            return "textocr-captions"
+        return "textocr-values"
+    return dataset
 
 
 def table(header: list[str], rows: list[list[str]], align: str = "") -> list[str]:
@@ -142,13 +208,96 @@ class Data:
         self.manifest_dirs = {name: load_dataset(name).path for name in self.datasets}
         latency_path = HERE / "latency.json.gz"
         self.latency = read_results(latency_path) if latency_path.exists() else None
+        self._predictions = {
+            run_key: {p["id"]: p for p in run["predictions"]}
+            for run_key, run in self.runs.items()
+        }
 
     def predictions(self, dataset: str, key: str) -> dict:
-        run = self.runs.get((dataset, key))
-        return {p["id"]: p for p in run["predictions"]} if run else {}
+        return self._predictions.get((dataset, key), {})
+
+    def cluster(self, dataset: str, item_id: str) -> str:
+        return f"{dataset}/{self.samples[dataset][item_id].cluster}"
+
+    def crops(self, scope: str, split: str | None = None) -> list[tuple[str, str]]:
+        """(dataset, id) of the real crops in a scope: a dataset name, "both"
+        (the two real datasets), "user" (USER_RELEVANT) or a SUBGROUPS key."""
+        out = []
+        for dataset in REAL:
+            for item_id, sample in self.samples[dataset].items():
+                if split and sample.split != split:
+                    continue
+                part = subgroup(dataset, sample)
+                if (
+                    scope in (dataset, "both")
+                    or scope == part
+                    or (scope == "user" and part in USER_RELEVANT)
+                ):
+                    out.append((dataset, item_id))
+        return out
+
+    def accuracy(self, key: str, crops) -> str:
+        """Exact match of a run on crops, with the clustered 95% interval."""
+        values = []
+        for dataset, item_id in crops:
+            prediction = self.predictions(dataset, key).get(item_id)
+            if prediction is None:
+                return "–"
+            values.append(bool(prediction["exact"]))
+        return clustered_ci(values, [self.cluster(d, i) for d, i in crops])
+
+    def photos(self, crops) -> int:
+        return cluster_count(self.cluster(d, i) for d, i in crops)
 
     def label(self, key: str) -> str:
         return f"`{key}`" + (" (VLM, reference)" if key in self.vlm_keys else "")
+
+
+def primary(data: Data) -> list[str]:
+    """The headline: the crops a ScoreSight user boxes (Commons and TextOCR's
+    scoreboard values) and Commons alone, on the test split and on all
+    crops, photos resampled."""
+    scopes = [
+        ("user", "test", "User-relevant, test"),
+        ("user", None, "User-relevant, all"),
+        ("commons_scoreboards", "test", "Commons, test"),
+        ("commons_scoreboards", None, "Commons, all"),
+    ]
+    crops = {(scope, split): data.crops(scope, split) for scope, split, _ in scopes}
+    rows = [
+        [data.label(key)]
+        + [data.accuracy(key, crops[(scope, split)]) for scope, split, _ in scopes]
+        for key in KEY_ENGINES
+    ]
+    header = ["Engine:variant"] + [
+        f"{name} (n={len(crops[(scope, split)])}, "
+        f"{data.photos(crops[(scope, split)])} photos)"
+        for scope, split, name in scopes
+    ]
+    return table(header, rows)
+
+
+def subgroups(data: Data) -> list[str]:
+    """Exact match on each part of the real datasets, all splits."""
+    parts = {name: data.crops(name) for name in SUBGROUPS}
+    rows = []
+    for key in KEY_ENGINES + tuple(sorted(data.vlm_keys)):
+        if key in data.vlm_keys and not key.endswith("-wl"):
+            continue
+        cells = [data.label(key)]
+        for name in SUBGROUPS:
+            values = [
+                data.predictions(d, key).get(i, {}).get("exact") for d, i in parts[name]
+            ]
+            cells.append(
+                "–" if None in values else pct(sum(map(bool, values)) / len(values))
+            )
+        rows.append(cells)
+    header = ["Engine:variant"] + [
+        f"{label} (n={len(parts[name])}, {data.photos(parts[name])} photos)"
+        for name, label in SUBGROUPS.items()
+    ]
+    return table(header, rows)
 
 
 def leaderboards(data: Data) -> list[str]:
@@ -160,16 +309,24 @@ def leaderboards(data: Data) -> list[str]:
         rows = []
         for run in runs:
             raw, post = run["scores"]["raw"], run["scores"]["postfilter"]
+            ids = [p["id"] for p in run["predictions"]]
             rows.append(
                 [
                     data.label(run["key"]),
-                    ci(raw["exact"]["k"], raw["exact"]["n"]),
+                    clustered_ci(
+                        [bool(p["exact"]) for p in run["predictions"]],
+                        [data.cluster(dataset, i) for i in ids],
+                    ),
                     pct(raw["cer"]["value"]),
                     pct(raw["empty_rate"]["value"]),
                     pct(post["exact"]["value"]),
                 ]
             )
-        out += [f"#### {dataset} (n={n})", ""]
+        photos = cluster_count(s.cluster for s in data.samples[dataset].values())
+        out += [
+            f"#### {dataset} (n={n}" + (f", {photos} photos)" if photos < n else ")"),
+            "",
+        ]
         out += table(
             ["Engine:variant", "Exact % (95% CI)", "CER %", "Empty %", "Post-filter %"],
             rows,
@@ -203,22 +360,27 @@ def _cer(data: Data, keys_datasets) -> float:
 
 def pooled(data: Data) -> list[str]:
     rows = []
+    both_crops = data.crops("both")
     for key in dict.fromkeys(data.order):
         both = _pooled(data, key)
         if both is None:
             continue
         post = _pooled(data, key, "pf_exact")
-        cells = [data.label(key), ci(*both), pct(post[0] / post[1])]
+        cells = [
+            data.label(key),
+            data.accuracy(key, both_crops),
+            pct(post[0] / post[1]),
+        ]
         cells.append(pct(_cer(data, [(d, key) for d in REAL])))
         for dataset in data.datasets:
             run = data.runs.get((dataset, key))
             cells.append(pct(run["scores"]["raw"]["exact"]["value"]) if run else "–")
         rows.append((both[0] / both[1], cells))
     rows.sort(key=lambda r: -r[0])
-    n = sum(len(data.samples[d]) for d in REAL)
+    n = len(both_crops)
     header = [
         "Engine:variant",
-        f"Both real datasets, exact % (n={n})",
+        f"Both real datasets, exact % (n={n}, {data.photos(both_crops)} photos)",
         "Post-filter %",
         "CER %",
     ] + [f"{SHORT[d]} %" for d in data.datasets]
@@ -233,6 +395,14 @@ def _breakdown(data: Data, attribute: str) -> list[str]:
             run = data.runs.get((dataset, key))
             for name, summary in run["scores"]["raw"][f"by_{attribute}"].items():
                 groups[name] = summary["n"]
+        photos = {
+            name: cluster_count(
+                s.cluster
+                for s in data.samples[dataset].values()
+                if getattr(s, attribute) == name
+            )
+            for name in groups
+        }
         names = [g for g in sorted(groups, key=lambda g: -groups[g]) if groups[g] >= 20]
         rows = []
         for key in KEY_ENGINES:
@@ -242,7 +412,11 @@ def _breakdown(data: Data, attribute: str) -> list[str]:
                 + [pct(by[g]["exact"]["value"]) if g in by else "–" for g in names]
             )
         out += [f"{SHORT[dataset]}:", ""]
-        out += table(["Engine:variant"] + [f"{g} (n={groups[g]})" for g in names], rows)
+        out += table(
+            ["Engine:variant"]
+            + [f"{g} (n={groups[g]}, {photos[g]} photos)" for g in names],
+            rows,
+        )
         out.append("")
     return out
 
@@ -256,57 +430,121 @@ def display_techs(data: Data) -> list[str]:
 
 
 def test_split(data: Data) -> list[str]:
-    rows = []
-    for key in KEY_ENGINES:
-        test = _pooled(data, key, split="test")
-        dev = _pooled(data, key, split="dev")
-        rows.append([data.label(key), ci(*test), ci(*dev)])
-    n_test = _pooled(data, KEY_ENGINES[0], split="test")[1]
-    n_dev = _pooled(data, KEY_ENGINES[0], split="dev")[1]
+    test, dev = data.crops("both", "test"), data.crops("both", "dev")
+    rows = [
+        [data.label(key), data.accuracy(key, test), data.accuracy(key, dev)]
+        for key in KEY_ENGINES
+    ]
     return table(
-        ["Engine:variant", f"test split (n={n_test})", f"dev split (n={n_dev})"], rows
+        [
+            "Engine:variant",
+            f"test split (n={len(test)}, {data.photos(test)} photos)",
+            f"dev split (n={len(dev)}, {data.photos(dev)} photos)",
+        ],
+        rows,
     )
 
 
-def mcnemar(data: Data) -> list[str]:
+def paired(data: Data, a_flags: dict, b_flags: dict, crops) -> dict:
+    """A crop-by-crop comparison of two runs' exact flags ({(dataset, id):
+    bool}) on crops: counts, McNemar's p, and the clustered interval of the
+    difference and sign-flip p."""
+    a = [a_flags[c] for c in crops]
+    b = [b_flags[c] for c in crops]
+    n = len(crops)
+    a_only = sum(x and not y for x, y in zip(a, b))
+    b_only = sum(y and not x for x, y in zip(a, b))
+    clusters = [data.cluster(d, i) for d, i in crops]
+    differences = [int(y) - int(x) for x, y in zip(a, b)]
+    return {
+        "n": n,
+        "photos": cluster_count(clusters),
+        "a": sum(a) / n,
+        "b": sum(b) / n,
+        "a_only": a_only,
+        "b_only": b_only,
+        "p": mcnemar_exact_p(a_only, b_only),
+        "ci": cluster_bootstrap_interval(differences, clusters),
+        "cluster_p": cluster_sign_flip_p(differences, clusters),
+    }
+
+
+def _flags(data: Data, key: str, scope: str):
+    """{(dataset, id): exact} of a run on the crops of a scope, or None if the
+    run doesn't cover them."""
+    crops = data.crops(scope)
+    flags = {}
+    for dataset, item_id in crops:
+        prediction = data.predictions(dataset, key).get(item_id)
+        if prediction is None:
+            return None, crops
+        flags[(dataset, item_id)] = bool(prediction["exact"])
+    return flags, crops
+
+
+def _mcnemar_rows(data: Data) -> list[list[str]]:
     rows = []
     for a, b in PAIRS:
         for scope in REAL + ("both",):
-            datasets = REAL if scope == "both" else (scope,)
-            a_only = b_only = a_right = b_right = n = 0
-            missing = False
-            for dataset in datasets:
-                pa, pb = data.predictions(dataset, a), data.predictions(dataset, b)
-                if not pa or not pb:
-                    missing = True
-                    break
-                for item_id in pa:
-                    ea, eb = bool(pa[item_id]["exact"]), bool(pb[item_id]["exact"])
-                    n += 1
-                    a_right += ea
-                    b_right += eb
-                    a_only += ea and not eb
-                    b_only += eb and not ea
-            if missing:
+            a_flags, crops = _flags(data, a, scope)
+            b_flags, _ = _flags(data, b, scope)
+            if a_flags is None or b_flags is None:
                 continue
+            result = paired(data, a_flags, b_flags, crops)
+            low, high = result["ci"]
             rows.append(
                 [
                     f"`{a}` → `{b}`",
                     SHORT.get(scope, "both real"),
-                    str(n),
-                    pct(a_right / n),
-                    pct(b_right / n),
-                    f"{(b_right - a_right) / n * 100:+.1f}",
-                    str(b_only),
-                    str(a_only),
-                    p_value(mcnemar_exact_p(a_only, b_only)),
+                    str(result["n"]),
+                    str(result["photos"]),
+                    pct(result["a"]),
+                    pct(result["b"]),
+                    f"{(result['b'] - result['a']) * 100:+.1f}",
+                    f"{low * 100:+.1f} to {high * 100:+.1f}",
+                    str(result["b_only"]),
+                    str(result["a_only"]),
+                    p_value(result["p"]),
+                    sign_flip_p(result["cluster_p"]),
                 ]
             )
+    return rows
+
+
+def mcnemar(data: Data) -> list[str]:
     return table(
-        ["A → B", "Crops", "n", "A %", "B %", "Δ points", "B only", "A only", "p"],
-        rows,
-        "llrrrrrrr",
+        [
+            "A → B",
+            "Crops",
+            "n",
+            "Photos",
+            "A %",
+            "B %",
+            "Δ points",
+            "Δ 95% CI (photos)",
+            "B only",
+            "A only",
+            "p (McNemar)",
+            "p (photos)",
+        ],
+        _mcnemar_rows(data),
+        "llrrrrrrrrrr",
     )
+
+
+def tests(data: Data) -> list[str]:
+    """How many hypothesis tests the report shows."""
+    paired_rows = len(_mcnemar_rows(data))
+    gray_rows = 3 * (len(REAL) + 1)
+    total = paired_rows + gray_rows
+    return [
+        f"The report shows {total} paired comparisons ({paired_rows} in the table "
+        f"above and {gray_rows} in [Preprocessing](#preprocessing-colour-gray-or-"
+        "binarized)), each with McNemar's test and the sign-flip test on photos. "
+        "The p-values are not corrected for multiple comparisons; a Bonferroni "
+        f"correction for all {total} would ask for p < {0.05 / total:.1e} instead "
+        "of 0.05."
+    ]
 
 
 def calibration(data: Data) -> list[str]:
@@ -370,28 +608,24 @@ def gray(data: Data) -> list[str]:
         colour_key = f"ppocr:{model}-wl"
         gray_key = f"ppocr:{model}-gray-wl"
         for scope in REAL + ("both",):
-            datasets = REAL if scope == "both" else (scope,)
-            n = colour_right = gray_right = colour_only = gray_only = 0
-            for dataset in datasets:
-                colour = data.predictions(dataset, colour_key)
-                grays = gray_runs[(dataset, gray_key)]
-                for item_id, p in colour.items():
-                    c, g = bool(p["exact"]), bool(grays[item_id]["exact"])
-                    n += 1
-                    colour_right += c
-                    gray_right += g
-                    colour_only += c and not g
-                    gray_only += g and not c
+            colour, crops = _flags(data, colour_key, scope)
+            grays = {
+                (d, i): bool(gray_runs[(d, gray_key)][i]["exact"]) for d, i in crops
+            }
+            result = paired(data, colour, grays, crops)
+            low, high = result["ci"]
             rows.append(
                 [
                     f"`{colour_key}`",
                     SHORT.get(scope, "both real"),
-                    pct(colour_right / n),
-                    pct(gray_right / n),
-                    f"{(gray_right - colour_right) / n * 100:+.1f}",
-                    str(colour_only),
-                    str(gray_only),
-                    p_value(mcnemar_exact_p(colour_only, gray_only)),
+                    pct(result["a"]),
+                    pct(result["b"]),
+                    f"{(result['b'] - result['a']) * 100:+.1f}",
+                    f"{low * 100:+.1f} to {high * 100:+.1f}",
+                    str(result["a_only"]),
+                    str(result["b_only"]),
+                    p_value(result["p"]),
+                    sign_flip_p(result["cluster_p"]),
                 ]
             )
     return table(
@@ -401,12 +635,14 @@ def gray(data: Data) -> list[str]:
             "Colour %",
             "Gray %",
             "Δ points",
+            "Δ 95% CI (photos)",
             "Colour only",
             "Gray only",
-            "p",
+            "p (McNemar)",
+            "p (photos)",
         ],
         rows,
-        "llrrrrrr",
+        "llrrrrrrrr",
     )
 
 
@@ -540,6 +776,44 @@ def budget(data: Data) -> list[str]:
     return table(header, rows)
 
 
+def pinning(data: Data) -> list[str]:
+    """The timing spot check (pinned.json.gz): CPU time per crop, one call per
+    crop on one thread, not pinned and pinned to a performance or an
+    efficiency core, and what it means at ScoreSight's default load."""
+    path = HERE / "pinned.json.gz"
+    if not path.exists():
+        return ["(no pinned.json.gz)"]
+    runs = {}
+    for run in read_results(path)["runs"]:
+        runs.setdefault(run["key"], {})[run["cpu"]] = run["latency"]["cpu_ms"]["single"]
+    boxes, rate = LOADS[0]
+    rows = []
+    for key, cpu in runs.items():
+        rows.append(
+            [
+                f"`{key}`",
+                f"{cpu['not pinned']:.1f}",
+                f"{cpu['P-core']:.1f}",
+                f"{cpu['E-core']:.1f}",
+                f"{cpu['E-core'] / cpu['P-core']:.1f}×",
+                f"{boxes * rate * cpu['P-core'] / 10:.0f}%",
+                f"{boxes * rate * cpu['E-core'] / 10:.0f}%",
+            ]
+        )
+    return table(
+        [
+            "Engine:variant",
+            "CPU ms per crop, not pinned",
+            "pinned to a P-core",
+            "pinned to an E-core",
+            "E-core / P-core",
+            f"{boxes} boxes × {rate}/s, share of the P-core",
+            "share of the E-core",
+        ],
+        rows,
+    )
+
+
 def startup(data: Data) -> list[str]:
     path = HERE / "startup.json"
     if not path.exists():
@@ -627,17 +901,21 @@ def galleries(data: Data) -> list[str]:
 
 
 SECTIONS = {
+    "primary": primary,
+    "subgroups": subgroups,
     "leaderboards": leaderboards,
     "pooled": pooled,
     "field-types": field_types,
     "display-techs": display_techs,
     "test-split": test_split,
     "mcnemar": mcnemar,
+    "tests": tests,
     "calibration": calibration,
     "gray": gray,
     "latency": latency,
     "threads": threads,
     "budget": budget,
+    "pinning": pinning,
     "startup": startup,
     "galleries": galleries,
 }
