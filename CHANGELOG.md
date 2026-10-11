@@ -10,6 +10,8 @@ Release tags are the bare version number (for example `0.1.0`).
 
 ### Fixed
 
+- After going back from the Live layout to the Setup layout, the fields that
+  aren't on the picture kept the Live layout's taller rows in the field list.
 - The **Shotclock 0-39** and **Time 0-59** formats took exactly two digits,
   so a shot clock that shows `9`, `8`, ... `0` without a leading zero failed
   the filter, and the outputs stayed at `10` for the last ten seconds of

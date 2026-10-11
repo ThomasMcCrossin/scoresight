@@ -826,7 +826,14 @@ class MainWindow(QMainWindow):
         height; it is at least BOXES_LIST_MIN_ROWS rows tall."""
         table = self.ui.tableWidget_boxes
         row_height = self.readingDelegate.rowHeight(table.font())
-        table.verticalHeader().setDefaultSectionSize(row_height)
+        rows = table.verticalHeader()
+        rows.setDefaultSectionSize(row_height)
+        # a hidden row (an unused field in the Live layout) keeps the height it
+        # had when it was hidden, and gets it back when shown: give it the new
+        # one (resizeSection sets a hidden section's remembered size)
+        for row in range(table.rowCount()):
+            if rows.sectionSize(row) != row_height or table.isRowHidden(row):
+                rows.resizeSection(row, row_height)
         header = table.horizontalHeader()
         header_height = 0 if header.isHidden() else header.sizeHint().height()
         table.setMinimumHeight(
