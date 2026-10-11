@@ -8,9 +8,36 @@ Release tags are the bare version number (for example `0.1.0`).
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-10
+
 ScoreSight is actively maintained again. This release modernizes the whole
-stack, fixes the most reported problems, keeps the window responsive whatever
-your outputs and sources do, and adds profiles for running several instances.
+stack, redesigns the window, fixes the most reported problems, and is tested
+end to end on every platform before it ships. Highlights:
+
+- **A redesigned window.** The field list with large live values, the picture
+  and a settings panel (**Box** and **Outputs**) side by side, and a **Live
+  layout** (Ctrl+2) for game time. Each output (text files, HTTP server, OBS,
+  vMix, UNO, HTTP API) has an on/off switch and a live status that says what
+  is wrong and what to do ("vMix: no answer from 192.168.1.40:8088 ·
+  retrying"). **Pause outputs** says that it is paused everywhere, 4-corner
+  correction no longer throws away the previous one by accident, a first-run
+  card walks through the three steps, and **Hold value** (Ctrl+H) sends a
+  typed value instead of a misread one until you release it. The window fits
+  a 1366×768 laptop. Nothing was removed: every setting has a place.
+- **Starts in 1 to 2 seconds**, 3 to 6 times faster than 0.1.0, measured on
+  every platform in CI (on an Intel Mac, 2.0 s against 0.1.0's 12.9 s; users
+  reported up to 30 s before).
+- **The whole window is translated** into 12 languages (machine drafts so far:
+  corrections from native speakers are welcome).
+- **Outputs never freeze the window**, whatever vMix, UNO, OBS or an API
+  endpoint do, and the OBS text source of each field can be edited in place.
+- **Fewer crashes:** an intermittent native crash and a race that lost the
+  first readings of a source are fixed, and a crash now leaves a trace in the
+  log.
+- **Profiles** (`--profile`) and `--port` for running several instances
+  side by side, and `--self-test` to check an installation.
+- Downloads for Windows (installer and portable zip), macOS (Apple Silicon and
+  Intel) and Linux, with `SHA256SUMS.txt`.
 
 ### Added
 
@@ -755,7 +782,8 @@ your outputs and sources do, and adds profiles for running several instances.
 
 - First open-source release of ScoreSight.
 
-[Unreleased]: https://github.com/royshil/scoresight/compare/0.1.0...HEAD
+[Unreleased]: https://github.com/royshil/scoresight/compare/0.2.0...HEAD
+[0.2.0]: https://github.com/royshil/scoresight/compare/0.1.0...0.2.0
 [0.1.0]: https://github.com/royshil/scoresight/compare/0.0.17...0.1.0
 [0.0.17]: https://github.com/royshil/scoresight/compare/0.0.16...0.0.17
 [0.0.16]: https://github.com/royshil/scoresight/compare/0.0.15...0.0.16
