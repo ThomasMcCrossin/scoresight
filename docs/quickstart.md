@@ -35,7 +35,7 @@ Cameras and NDI sources are found in the background, so they may appear in the l
 The **Adjust picture** row above the picture helps when the camera is not square to the scoreboard:
 
 - **Rotate** turns the picture in 90° steps.
-- **Crop** removes pixels from the edges.
+- **Crop** removes the edges: click **Drag to crop** in the row that opens, then drag around the scoreboard on the whole picture.
 - **4-corner**: click it, then click the four corners of the scoreboard. ScoreSight warps the picture so the board becomes a flat rectangle.
 - **Stabilize** removes small camera bumps and drift.
 
@@ -45,12 +45,12 @@ Do this **before** you draw boxes, because boxes are placed on the corrected pic
 
 The **Fields** list on the left contains the standard fields: Home Score, Away Score, Time, Period, Home Fouls, Away Fouls and Shot Clock.
 
-1. Click a field, for example **Home Score**.
-2. Click **Place on picture** under the list. A box appears in the top-left corner of the picture, with a label under it, and the **Box** tab on the right shows its settings.
-3. Drag the box over the home score and drag its edges or corners to resize it. Leave a small margin around the digits.
+1. Click a field, for example **Home Score**. Over the picture, the pointer becomes a crosshair.
+2. Drag over the home score on the picture, leaving a small margin around the digits. A box appears where you dragged, with a label under it, and the **Box** tab on the right shows its settings. (Or double-click the field: its box appears in the middle of the picture, ready to be dragged over the digits.)
+3. To adjust it, drag the box or its edges and corners. **Alt**+drag (**⌥ Option**+drag on a Mac) draws it again.
 4. Repeat for every value you need.
 
-Need something that isn't in the list, such as "Downs", "Yards to go" or "Balls"? Click **+** to add a custom field, double-click it (or press **F2**) to rename it, then place it on the picture the same way. More details: [Detection Boxes & Templates](boxes.md).
+Need something that isn't in the list, such as "Downs", "Yards to go" or "Balls"? Click **+** to add a custom field, press **F2** to rename it, then place it on the picture the same way. More details: [Detection Boxes & Templates](boxes.md).
 
 ## 4. Check the readings
 

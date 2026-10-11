@@ -7,19 +7,19 @@ description: "Use ScoreSight with NewBlue Captivate/Titler Live, CasparCG, Strea
 
 # Other Software
 
-ScoreSight has built-in integrations for [OBS](obs.md), [vMix](vmix.md) and [overlays.uno](uno.md). Other tools can use one of the generic outputs:
+ScoreSight has built-in integrations for [OBS](obs.md), [vMix](vmix.md) and [overlays.uno](uno.md). Other tools can use one of the generic outputs. For broadcast products (Wirecast, NewBlue Captivate, Ross XPression, SuiteCG, TriCaster, Epiphan Pearl, CasparCG, Singular.live, Chyron PRIME and more), see [Works with…](integrations.md), which has a setup guide for each.
 
 | If your software can... | Use |
 |---|---|
 | read a text, CSV or XML file | [Text, CSV & XML Files](text-files.md) |
-| poll a URL for JSON, XML or CSV | [HTTP Server API](http_server.md) (`http://<scoresight-ip>:18099/json?pivot`) |
-| show a web page (browser source, HTML template) | An HTML page that polls the [HTTP server](http_server.md#custom-html-overlay-obs-browser-source-vmix-web-browser-input) |
+| poll a URL for JSON, XML or CSV | [HTTP Server API](http_server.md) (`http://<scoresight-ip>:18099/json?pivot&all`) |
+| show a web page (browser source, HTML template) | The [browser overlays](overlays.md) (built-in or your own HTML, pushed live) |
 | receive webhooks / HTTP requests | [Outbound HTTP API](out_api.md) |
 | take text lines over a TCP connection or UDP | [TCP / UDP output](tcp-output.md) (presets for CasparCG, Chyron PRIME, Live Score, MagicSoft CG and Vizrt) |
 
 ## NewBlue Captivate / Titler Live
 
-ScoreSight has no NewBlue-specific integration, but works with NewBlue through its data features. Point your title's data at the files from the [Text Files](text-files.md) output (one `.txt` per field, or `results.csv` / `results.xml`), or at the JSON/XML from the [HTTP server](http_server.md). This video shows a complete setup:
+ScoreSight has no NewBlue-specific integration, but works with NewBlue through its data features: ScoreSight can push the values to Captivate with the [Outbound HTTP API](out_api.md), or Captivate can read the JSON/XML from the [HTTP server](http_server.md) or the files from the [Text Files](text-files.md) output. [Works with…](integrations.md#newblue-captivate) has both setups. This video shows a complete setup:
 
 <a href="https://youtu.be/ptR-Yh5FSPg" target="_blank" rel="noopener"><img src="image-19.png" width="45%" alt="Video: ScoreSight with NewBlue Captivate"/></a>
 
@@ -27,7 +27,7 @@ ScoreSight has no NewBlue-specific integration, but works with NewBlue through i
 
 Use the [TCP / UDP output](tcp-output.md#casparcg) with its CasparCG preset: it loads ScoreSight's scorebug template (or your own) over AMCP and updates it as the values change.
 
-Without it, an HTML template can poll `http://<scoresight-ip>:18099/json?pivot` and update its elements. The [custom HTML overlay example](http_server.md#custom-html-overlay-obs-browser-source-vmix-web-browser-input) is a good starting point. Play it with CasparCG's HTML producer.
+Or play a [browser overlay](overlays.md#casparcg) with the HTML producer: `PLAY 1-20 [HTML] "http://<scoresight-ip>:18099/overlay/scorebug"`. For your own template, load `http://<scoresight-ip>:18099/overlay/client.js` in it and mark the elements with `data-field` (see [the overlay contract](overlays.md#the-overlay-contract)). Or adapt the polling template in [Works with…](integrations.md#casparcg).
 
 ## Streamlabs Desktop and other OBS-like apps
 

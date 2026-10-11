@@ -33,7 +33,7 @@ Every frame goes through the same steps, in this order:
 5. Convert to grayscale, plus one black-and-white version of the whole picture if a box uses [Global binarization](box-settings.md#binarize).
 6. Read every box with its own [per-box settings](box-settings.md), each on its own copy of the picture.
 
-Boxes are positioned on the **result** of steps 1–4. Change rotation, crop or 4-corner correction first, then place your boxes. If you change them later, check that the boxes still sit on the right digits.
+Boxes are positioned on the **result** of steps 1–4. Change rotation, crop or 4-corner correction first, then place your boxes. A crop change moves the boxes with it, so they stay over the same digits; after a rotation or a new 4-corner correction, check that the boxes still sit on the right digits.
 
 ## Navigating the viewer
 
@@ -43,9 +43,12 @@ Boxes are positioned on the **result** of steps 1–4. Change rotation, crop or 
 | Scroll | Mouse wheel (vertical). Use the scroll bars when zoomed in |
 | Pan | Drag with the **middle mouse button** |
 | Fit the picture to the window | **Fit** (it was **1:1**), or **Ctrl+0** |
+| Place the selected field's box | With a field that isn't on the picture selected, the pointer is a crosshair: drag over its numbers. Or double-click the picture to put the box there. **Esc** cancels a drag |
 | Select a box | Click it (the field list selects it too) |
 | Move a box | Drag it, or press the **arrow keys**: 1 pixel per press, 10 with **Shift** (click the picture first, so the viewer has the keyboard) |
 | Resize a box | Drag an edge or a corner handle. White square handles appear on the selected box |
+| Draw the selected box again | **Alt + drag** (**⌥ Option + drag** on macOS) on the picture |
+| The box's actions | Right-click it: **Remove from picture** (or **Del**), **Rename...**, **Hold value...**, **Zoom to box** |
 | Deselect | Click empty space in the picture, or press **Esc** |
 
 See [Keyboard & Mouse](keyboard-mouse.md) for the full reference.
@@ -81,7 +84,17 @@ Pick corners that form a real rectangle in the world, such as the outer frame of
 
 ## Crop
 
-**Crop** opens the crop panel with **Left**, **Top**, **Right** and **Bottom** values in pixels. Cropping removes the parts of the picture you don't need. That reduces CPU use, makes the picture larger in the viewer and, with [Global binarization](box-settings.md#binarize), improves the black-and-white threshold because the dark surroundings are gone. Click **Crop** again to turn cropping off; the values are kept for the next time.
+**Crop** opens the crop panel with **Drag to crop** and the **Left**, **Top**, **Right** and **Bottom** values in pixels. Cropping removes the parts of the picture you don't need. That reduces CPU use, makes the picture larger in the viewer and, with [Global binarization](box-settings.md#binarize), improves the black-and-white threshold because the dark surroundings are gone. Click **Crop** again to turn cropping off; the values are kept for the next time.
+
+To crop with the mouse:
+
+1. Click **Drag to crop**. The viewer shows the whole picture (rotated, but without the crop, so that you can also make the crop wider), the boxes are hidden, and a blue banner says **Drag around the part of the picture to keep**.
+2. Drag around the scoreboard. The part outside the rectangle is darkened while you drag.
+3. When you let go, the crop's four values are set, cropping is on and the cropped picture is fitted to the viewer.
+
+**Esc** (or the banner's **Cancel**, or **Drag to crop** again) stops and keeps the current crop. A drag of a few pixels is ignored. The values can be fine-tuned afterwards. **Drag to crop** and **4-corner** picking exclude each other, and the crop panel is hidden in the Live layout.
+
+**The boxes move with the crop.** The boxes are placed on the cropped picture, so a new left or top edge would leave them over other pixels: whenever the crop's top-left corner moves (with **Drag to crop**, the **Left** and **Top** values, or turning **Crop** on or off), every box, and the corners of a 4-corner correction, move by the same amount, and stay over the same digits. (In ScoreSight 0.2.0 and earlier they stayed where they were.) A box that ends up entirely outside the cropped picture keeps its place, so a wider crop brings it back, but it reads nothing meanwhile: a line under the crop panel names those fields.
 
 ## Rotate
 

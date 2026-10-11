@@ -1,5 +1,6 @@
 """Starting and stopping the HTTP server in-process (issues #7, #33, #8)."""
 
+import http.client
 import logging
 import socket
 import threading
@@ -65,6 +66,52 @@ def test_server_can_be_restarted_on_the_same_port():
     http_server.start_http_server(port=port)
     assert http_server.get_http_server_port() == port
     assert requests.get(f"http://127.0.0.1:{port}/json", timeout=5).ok
+
+
+def open_event_stream(port):
+    """An open /events stream (the overlays' live values), its snapshot read."""
+    connection = http.client.HTTPConnection("127.0.0.1", port, timeout=5)
+    connection.request("GET", "/events")
+    response = connection.getresponse()
+    assert response.status == 200
+    while b"event: snapshot" not in response.readline():
+        pass
+    assert response.readline().startswith(b"data: ")
+    assert response.readline() == b"\n"
+    return connection, response
+
+
+def test_stop_does_not_wait_for_overlay_streams(make_result):
+    http_server.update_http_server([])
+    http_server.start_http_server(port=0)
+    port = http_server.get_http_server_port()
+    connection, response = open_event_stream(port)
+    try:
+        start = time.monotonic()
+        http_server.stop_http_server(timeout=3.0)
+        # the streams end at once: no graceful-shutdown timeout
+        assert time.monotonic() - start < 0.9
+        # the stream ended cleanly
+        assert response.read() == b""
+    finally:
+        connection.close()
+
+    # after a restart (a new event loop) the streams get the changes again
+    http_server.start_http_server(port=0)
+    port = http_server.get_http_server_port()
+    connection, response = open_event_stream(port)
+    try:
+        http_server.update_http_server([make_result("Home Score", "3")])
+        lines = []
+        while not lines or not lines[-1].startswith(b"data: "):
+            line = response.readline()
+            if line.strip():
+                lines.append(line)
+        assert lines[-2] == b"event: change\n"
+        assert b'"Home Score":{"value":"3","state":"Success"}' in lines[-1]
+    finally:
+        connection.close()
+        http_server.update_http_server([])
 
 
 def test_starting_twice_keeps_one_server(caplog):

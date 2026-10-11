@@ -36,8 +36,11 @@ from PySide6.QtCore import (
     Qt,
     Signal,
     Slot,
+    QPoint,
+    QPointF,
     QRectF,
     QSize,
+    QSizeF,
     QTimer,
     QTranslator,
     QObject,
@@ -48,7 +51,8 @@ from PySide6.QtCore import (
 )
 from os import path
 
-from api_output import out_api_status, update_out_api
+from api_output import out_api_status, send_mode, update_out_api
+from api_ui_handler import APIUIHandler, OUT_API_ENCODINGS, OUT_API_METHODS
 from box_settings_ui_handler import (
     NOT_PLACED,
     PLACED,
@@ -57,6 +61,7 @@ from box_settings_ui_handler import (
     changed_settings,
 )
 from camera_info import CameraInfo
+from camera_thread import crop_margins
 from destinations_view import (
     KEY_ROLE,
     STATUS_ROLE,
@@ -84,8 +89,14 @@ from output_status import (
     status_tooltip,
 )
 from output_worker import ErrorInfo
-from keyboard_shortcuts import KeyboardShortcutsDialog, action_rows, viewer_rows
+from keyboard_shortcuts import (
+    KeyboardShortcutsDialog,
+    action_rows,
+    key_text,
+    viewer_rows,
+)
 from obs_ui_handler import OBSSourcesTable
+from overlay_ui_handler import OverlayBuilder
 from readings_view import (
     DENSITY_LIVE,
     DENSITY_SETUP,
@@ -97,7 +108,7 @@ from readings_view import (
 )
 from resource_path import resource_path
 import source_bar
-from source_view import ImageViewer
+from source_view import ImageViewer, centered_rect
 from status_bar import (
     SOURCE_NONE,
     MainStatusBar,
@@ -177,11 +188,6 @@ COLOR_SCHEMES = {
     "Dark": Qt.ColorScheme.Dark,
 }
 DEFAULT_COLOR_SCHEME = "System"
-
-# The values api_output understands, in the order of comboBox_api_encode and
-# comboBox_outApiMethod. The settings store these, not the (translated) item text.
-OUT_API_ENCODINGS = ("JSON (Full)", "JSON (Simple key-value)", "XML", "CSV")
-OUT_API_METHODS = ("POST", "PUT", "GET")
 
 # comboBox_camera_source items before the discovered cameras
 SOURCE_INDEX_NONE = 0
@@ -278,6 +284,13 @@ def apply_color_scheme(name: str | None) -> str:
     else:
         style_hints.setColorScheme(COLOR_SCHEMES[name])
     return name
+
+
+def alt_key_name() -> str:
+    """The Alt key's name, as written on the keyboard: Option on a Mac."""
+    if platform.system() == "Darwin":
+        return QCoreApplication.translate("MainWindow", "⌥ Option")
+    return QCoreApplication.translate("MainWindow", "Alt")
 
 
 def run_in_background(name: str, function: Callable, on_done: Callable):
@@ -390,6 +403,10 @@ class MainWindow(QMainWindow):
         self.ui.checkBox_templatefield.toggled.connect(self.makeTemplateField)
 
         start_http_server(port=self.http_port)
+        # the browser overlays' URL builder on the HTTP server's page
+        self.overlayBuilder = OverlayBuilder(
+            self.ui, self.overlayFieldNames, self.overlayBaseUrls
+        )
         self.updateBrowserEndpoints()
 
         self.ui.pushButton_stabilize.setEnabled(True)
@@ -402,26 +419,19 @@ class MainWindow(QMainWindow):
         )
         self.ui.widget_cropPanel.setVisible(self.ui.toolButton_topCrop.isChecked())
         self.ui.widget_cropPanel.setEnabled(self.ui.toolButton_topCrop.isChecked())
-        self.ui.spinBox_leftCrop.valueChanged.connect(
-            partial(self.globalSettingsChanged, "left_crop")
-        )
-        self.ui.spinBox_leftCrop.setValue(fetch_data("scoresight.json", "left_crop", 0))
-        self.ui.spinBox_rightCrop.valueChanged.connect(
-            partial(self.globalSettingsChanged, "right_crop")
-        )
-        self.ui.spinBox_rightCrop.setValue(
-            fetch_data("scoresight.json", "right_crop", 0)
-        )
-        self.ui.spinBox_topCrop.valueChanged.connect(
-            partial(self.globalSettingsChanged, "top_crop")
-        )
-        self.ui.spinBox_topCrop.setValue(fetch_data("scoresight.json", "top_crop", 0))
-        self.ui.spinBox_bottomCrop.valueChanged.connect(
-            partial(self.globalSettingsChanged, "bottom_crop")
-        )
-        self.ui.spinBox_bottomCrop.setValue(
-            fetch_data("scoresight.json", "bottom_crop", 0)
-        )
+        # The crop's top-left corner in the rotated frame ((0, 0) while the
+        # crop is off): the boxes move with it, so that they stay on the same
+        # part of the picture. None until the values are shown.
+        self.cropOrigin: tuple[int, int] | None = None
+        for spin_box, setting in (
+            (self.ui.spinBox_leftCrop, "left_crop"),
+            (self.ui.spinBox_rightCrop, "right_crop"),
+            (self.ui.spinBox_topCrop, "top_crop"),
+            (self.ui.spinBox_bottomCrop, "bottom_crop"),
+        ):
+            spin_box.valueChanged.connect(partial(self.cropValueChanged, setting))
+            spin_box.setValue(fetch_data("scoresight.json", setting, 0))
+        self.cropOrigin = self.currentCropOrigin()
         self.ui.checkBox_enableOutAPI.toggled.connect(
             partial(self.globalSettingsChanged, "enable_out_api")
         )
@@ -457,6 +467,8 @@ class MainWindow(QMainWindow):
         self.setupChoiceSetting(
             self.ui.comboBox_outApiMethod, "out_api_method", OUT_API_METHODS
         )
+        # the API page's other options and its presets
+        self.apiUiHandler = APIUIHandler(self.ui)
 
         self.obs_websocket_client = None
         # the text last sent to each OBS text source
@@ -484,8 +496,8 @@ class MainWindow(QMainWindow):
         self.ui.pushButton_makeBox.clicked.connect(self.placeOnPicture)
         self.ui.pushButton_removeBox.clicked.connect(self.removeFromPicture)
         self.ui.tableWidget_boxes.itemClicked.connect(self.listItemClicked)
-        # connect the edit triggers
-        self.ui.tableWidget_boxes.itemDoubleClicked.connect(self.editBoxName)
+        # a field without a box gets one, another one is renamed
+        self.ui.tableWidget_boxes.itemDoubleClicked.connect(self.fieldDoubleClicked)
         # the current item is always a box's name: the box settings, removing
         # and renaming use its text
         self.ui.tableWidget_boxes.currentCellChanged.connect(self.keepNameCellCurrent)
@@ -525,9 +537,7 @@ class MainWindow(QMainWindow):
         custom_boxes_names = fetch_custom_box_names()
 
         for box_name in [box["name"] for box in default_boxes] + custom_boxes_names:
-            item = self.appendBoxRow(box_name)
-            item.setIcon(QIcon(resource_path("icons", "circle-x.svg")))
-            item.setData(Qt.ItemDataRole.UserRole, NOT_PLACED)
+            self.setFieldPlacement(self.appendBoxRow(box_name), NOT_PLACED)
 
         # The boxes are app state (not per source): load them once at startup.
         # From now on the in-memory storage is the source of truth, and changes
@@ -583,6 +593,12 @@ class MainWindow(QMainWindow):
         self.ui.checkBox_saveXML.setChecked(
             fetch_data("scoresight.json", "save_xml", False)
         )
+        for checkbox, setting in (
+            (self.ui.checkBox_saveJson, "save_json"),
+            (self.ui.checkBox_saveKeyValue, "save_key_value"),
+        ):
+            checkbox.toggled.connect(partial(self.globalSettingsChanged, setting))
+            checkbox.setChecked(fetch_data("scoresight.json", setting, False))
         self.ui.comboBox_appendMethod.currentIndexChanged.connect(
             partial(self.globalSettingsChanged, "append_method")
         )
@@ -771,15 +787,27 @@ class MainWindow(QMainWindow):
         table.itemSelectionChanged.connect(self.fieldSelectionChanged)
         table.customContextMenuRequested.connect(self.showFieldContextMenu)
         # F2, Del and Ctrl+C act on the selected field while the list has the
-        # focus (Ctrl+C elsewhere copies as usual)
-        for action in (ui.actionRenameField, ui.actionDeleteField, ui.actionCopyValue):
+        # focus (Ctrl+C elsewhere copies as usual). Del takes the field's box
+        # off the picture, or deletes a custom field that has none: the key
+        # goes to one of the two actions (see updateFieldActions).
+        for action in (
+            ui.actionRenameField,
+            ui.actionRemoveFromPicture,
+            ui.actionDeleteField,
+            ui.actionCopyValue,
+        ):
             action.setShortcutContext(Qt.ShortcutContext.WidgetShortcut)
             table.addAction(action)
+        self.deleteKeys = [QKeySequence("Del")]
         if platform.system() == "Darwin":
             # the key labelled "delete" on a Mac keyboard is Backspace
-            ui.actionDeleteField.setShortcuts(
-                [QKeySequence("Del"), QKeySequence("Backspace")]
-            )
+            self.deleteKeys.append(QKeySequence("Backspace"))
+        ui.actionDeleteField.setShortcuts(self.deleteKeys)
+        # the footer's Place on picture and Remove from picture are there for
+        # the keyboard: quieter than the field list, whose drag and
+        # double-click come first (the hint above them says so)
+        for button in (ui.pushButton_makeBox, ui.pushButton_removeBox):
+            button.setFlat(True)
         # the list takes Ctrl+C itself (it copies the current item: the field's
         # name), before the shortcut: see eventFilter
         table.installEventFilter(self)
@@ -988,6 +1016,9 @@ class MainWindow(QMainWindow):
                 if viewer.fourCornerSelectionMode:
                     # the Adjust picture row is hidden: stop picking corners
                     self.cancelFourCornerSelection()
+                if viewer.cropSelectionMode:
+                    # (and the crop panel)
+                    self.cancelCropSelection()
             logger.info("%s layout", "Live" if mode == LAYOUT_LIVE else "Setup")
         if store and fetch_data("scoresight.json", LAYOUT_SETTING) != mode:
             self.globalSettingsChanged(LAYOUT_SETTING, mode)
@@ -1058,6 +1089,7 @@ class MainWindow(QMainWindow):
         # the picture adjustments are for setting up
         ui.widget_viewTools.setVisible(not live)
         ui.widget_cropPanel.setVisible(not live and ui.toolButton_topCrop.isChecked())
+        self.updateCropWarning()
         # the field actions are in the context menu (and their keys)
         ui.widget_fieldsFooter.setVisible(not live)
         ui.widget_liveDestinations.setVisible(live)
@@ -1142,6 +1174,7 @@ class MainWindow(QMainWindow):
         """Set the texts that are made at runtime: at startup and again after a
         language change (retranslateUi resets them to the .ui texts)."""
         self.updateWindowTitle()
+        self.overlayBuilder.retranslate()
         self.updateBrowserEndpoints()
         self.updatePauseUi()
         self.updateSliderReadouts()
@@ -1158,6 +1191,7 @@ class MainWindow(QMainWindow):
         self.applyOcrModelTexts()
         self.updateFieldsHint()
         self.updateFieldActions()
+        self.updateFieldToolTips()
         # "Readings" in the Live layout, the hidden fields' line
         self.applyLayoutUi()
         self.obsSourcesTable.retranslate()
@@ -1211,7 +1245,6 @@ class MainWindow(QMainWindow):
             (self.ui.toolButton_zoomReset, self.ui.actionFitPicture),
             (self.ui.pushButton_refresh_sources, self.ui.actionReloadSources),
             (self.ui.toolButton_addBox, self.ui.actionNewField),
-            (self.ui.toolButton_removeBox, self.ui.actionDeleteField),
             (self.ui.toolButton_cleanupBinary, self.ui.actionBinaryView),
         ):
             shortcut = action.shortcut().toString(
@@ -1220,6 +1253,12 @@ class MainWindow(QMainWindow):
             tooltip = button.toolTip()
             if shortcut and f"({shortcut})" not in tooltip:
                 button.setToolTip(f"{tooltip} ({shortcut})".strip())
+        # Remove from picture: Del while it is shown (the key moves between it
+        # and Delete field)
+        delete_key = key_text(self.deleteKeys[0])
+        button = self.ui.pushButton_removeBox
+        if f"({delete_key})" not in button.toolTip():
+            button.setToolTip(f"{button.toolTip()} ({delete_key})".strip())
         # how to zoom and pan, on the Fit button and the zoom readout
         native = QKeySequence.SequenceFormat.NativeText
         zoom_hint = QCoreApplication.translate(
@@ -1266,6 +1305,7 @@ class MainWindow(QMainWindow):
         """Show the HTTP server's real port on its page, and its address for
         other computers, or that the server isn't running (its port was
         busy)."""
+        self.overlayBuilder.refresh()
         port = get_http_server_port()
         if port is None:
             self.ui.label_8.setText(
@@ -1294,6 +1334,21 @@ class MainWindow(QMainWindow):
             else:
                 text += other_computers
         self.ui.label_8.setText(text)
+
+    def overlayBaseUrls(self) -> tuple[str, ...]:
+        """The HTTP server's URLs for the overlays (the network address first),
+        or () when it isn't running."""
+        port = get_http_server_port()
+        if port is None:
+            return ()
+        return http_server_urls(port, self.lanAddress)
+
+    def overlayFieldNames(self) -> list[str]:
+        """The boxes' names, in the fields list's order (for the overlays)."""
+        storage = getattr(self, "detectionTargetsStorage", None)
+        if storage is None:
+            return []
+        return [target.name for target in storage.get_data()]
 
     def setupChoiceSetting(self, combo_box, setting_name: str, values: tuple):
         """Bind a combo box whose items are values (their text may be translated)
@@ -1359,6 +1414,7 @@ class MainWindow(QMainWindow):
             rotation = 0
         self.globalSettingsChanged("rotation", rotation)
         self.updateRotateText(rotation)
+        self.updateCropWarning()
 
     def cropMode(self):
         # if the toolButton_topCrop is unchecked, go to crop mode
@@ -1367,9 +1423,112 @@ class MainWindow(QMainWindow):
             self.ui.widget_cropPanel.setEnabled(True)
             self.globalSettingsChanged("crop_mode", True)
         else:
+            self.cancelCropSelection()
             self.ui.widget_cropPanel.setVisible(False)
             self.ui.widget_cropPanel.setEnabled(False)
             self.globalSettingsChanged("crop_mode", False)
+        self.cropChanged()
+
+    def cropValueChanged(self, setting: str, value: int):
+        """A crop value (left_crop, ...) was changed."""
+        self.globalSettingsChanged(setting, value)
+        self.cropChanged()
+
+    def currentCropOrigin(self) -> tuple[int, int]:
+        """The crop's top-left corner in the rotated frame, (0, 0) while the
+        crop is off."""
+        if not self.ui.toolButton_topCrop.isChecked():
+            return 0, 0
+        return self.ui.spinBox_leftCrop.value(), self.ui.spinBox_topCrop.value()
+
+    def cropChanged(self):
+        """The crop was turned on or off or its values changed. The boxes are
+        placed on the cropped picture: when the crop's top-left corner moves,
+        they (and the 4-corner correction's corners) move with it, so that
+        they stay on the same part of the scoreboard."""
+        origin = self.currentCropOrigin()
+        previous, self.cropOrigin = self.cropOrigin, origin
+        if previous is not None and origin != previous:
+            self.moveForCrop(previous[0] - origin[0], previous[1] - origin[1])
+        self.updateCropWarning()
+
+    def moveForCrop(self, dx: int, dy: int):
+        """Move the boxes and the 4-corner corners by (dx, dy) pixels."""
+        # right after the crop was stored (and the capture thread follows it),
+        # before anything that could let that thread run (the log's I/O)
+        self.detectionTargetsStorage.move_items(dx, dy)
+        viewer = self.image_viewer
+        if viewer is not None and viewer.timerThread is not None:
+            # the readings of the frames cropped as before are dropped
+            viewer.timerThread.boxesMoved()
+        logger.info("The crop moved: moved the boxes by (%d, %d) pixels", dx, dy)
+        corners = fetch_data("scoresight.json", "four_corners")
+        if isinstance(corners, list) and len(corners) == 4:
+            try:
+                moved = [[x + dx, y + dy] for x, y in corners]
+            except (TypeError, ValueError):
+                return
+            store_data("scoresight.json", "four_corners", moved)
+            if viewer is not None:
+                viewer.setFourCornersForHomography(moved)
+
+    def croppedPictureRect(self) -> QRectF | None:
+        """The picture the boxes are read from (rotated and cropped), in its
+        own pixels, or None before the source's first frame."""
+        # (also called while the boxes load, before there is an image_viewer)
+        viewer = getattr(self, "image_viewer", None)
+        if viewer is None:
+            return None
+        size = viewer.uncroppedFrameSize()
+        if size is None:
+            return None
+        width, height = int(size.width()), int(size.height())
+        if self.ui.toolButton_topCrop.isChecked():
+            ui = self.ui
+            top, bottom, left, right = crop_margins(
+                width,
+                height,
+                ui.spinBox_topCrop.value(),
+                ui.spinBox_bottomCrop.value(),
+                ui.spinBox_leftCrop.value(),
+                ui.spinBox_rightCrop.value(),
+            )
+            width -= left + right
+            height -= top + bottom
+        return QRectF(0, 0, width, height)
+
+    def boxesOutsidePicture(self) -> list[str]:
+        """The fields whose box is entirely outside the (cropped) picture:
+        they read nothing."""
+        picture = self.croppedPictureRect()
+        if picture is None:
+            return []
+        return [
+            box.name
+            for box in self.detectionTargetsStorage.get_data()
+            if not (box.settings or {}).get("templatefield")
+            and not QRectF(box).intersects(picture)
+        ]
+
+    def updateCropWarning(self):
+        """Under the crop's values: the boxes the crop left outside the
+        picture. They are kept where they are (widening the crop brings them
+        back), but read nothing meanwhile."""
+        ui = self.ui
+        names = (
+            self.boxesOutsidePicture()
+            if ui.toolButton_topCrop.isChecked() and self.layoutMode != LAYOUT_LIVE
+            else []
+        )
+        if names:
+            ui.label_cropWarning.setText(
+                QCoreApplication.translate(
+                    "MainWindow",
+                    "Outside the cropped picture: {names}. They read nothing: widen "
+                    "the crop, or remove them from the picture and place them again.",
+                ).format(names=", ".join(names))
+            )
+        ui.label_cropWarning.setVisible(bool(names))
 
     def globalSettingsChanged(self, settingName, value):
         store_data("scoresight.json", settingName, value)
@@ -1387,7 +1546,13 @@ class MainWindow(QMainWindow):
             # (a key the focused widget doesn't use reaches the window last)
             if event.key() == Qt.Key_Escape:
                 viewer = self.image_viewer
-                if viewer is not None and viewer.fourCornerSelectionMode:
+                if viewer is not None and viewer.isDrawing():
+                    # the box (or crop) isn't drawn, the field stays selected
+                    viewer.cancelDrawing()
+                elif viewer is not None and viewer.cropSelectionMode:
+                    # stop the crop picking, the crop stays
+                    self.cancelCropSelection()
+                elif viewer is not None and viewer.fourCornerSelectionMode:
                     # stop picking corners, the correction stays
                     viewer.cancelFourCornerSelection()
                 else:
@@ -1475,6 +1640,7 @@ class MainWindow(QMainWindow):
             self.vmixUiHandler.restoreUiState()
             self.unoUiHandler.restoreUiState()
             self.tcpUiHandler.retranslate()
+            self.apiUiHandler.restoreUiState()
             self.applyRuntimeTexts()
 
     def toggleUpdateOnChange(self, value):
@@ -1778,7 +1944,7 @@ class MainWindow(QMainWindow):
                 vmix.status(),
             ),
             output_status.uno_status(
-                uno.running, uno.endpoint, uno.field_mapping, uno.status()
+                uno.running, uno.endpoint, uno.field_mapping, uno.status(), uno.quota()
             ),
             output_status.api_status(
                 self.ui.checkBox_enableOutAPI.isChecked(),
@@ -1790,6 +1956,7 @@ class MainWindow(QMainWindow):
                 if 0 <= encoding_index < len(OUT_API_ENCODINGS)
                 else OUT_API_ENCODINGS[0],
                 out_api_status(),
+                send_mode(),
             ),
             self.tcpUiHandler.destinationStatus(),
         ]
@@ -2362,12 +2529,10 @@ class MainWindow(QMainWindow):
 
             if box.settings is None or not box.settings["templatefield"]:
                 # this is a detection target
-                item.setIcon(QIcon(resource_path("icons", "circle-check.svg")))
-                item.setData(Qt.ItemDataRole.UserRole, PLACED)
+                self.setFieldPlacement(item, PLACED)
             else:
                 # this is a template field
-                item.setIcon(QIcon(resource_path("icons", "template-field.svg")))
-                item.setData(Qt.ItemDataRole.UserRole, TEMPLATE)
+                self.setFieldPlacement(item, TEMPLATE)
         # the fields whose box is gone (e.g. File > Import Configuration replaced
         # the boxes) aren't on the picture any more
         names = {box.name for box in detectionTargets}
@@ -2379,8 +2544,7 @@ class MainWindow(QMainWindow):
                 None,
             ):
                 continue
-            item.setIcon(QIcon(resource_path("icons", "circle-x.svg")))
-            item.setData(Qt.ItemDataRole.UserRole, NOT_PLACED)
+            self.setFieldPlacement(item, NOT_PLACED)
             clear_reading(table.item(row, 1))
             # nothing to hold any more
             if item.text() in self.heldValues:
@@ -2390,6 +2554,7 @@ class MainWindow(QMainWindow):
         self.vmixUiHandler.updatevMixTable(detectionTargets)
         self.unoUiHandler.updateUNOTable(detectionTargets)
         self.tcpUiHandler.updateTable(detectionTargets)
+        self.apiUiHandler.setBoxNames(box.name for box in detectionTargets)
         self.obsSourcesTable.refresh(detectionTargets)
         # Note: results.csv is not touched here. data_changed fires on every box
         # click and settings tweak; file_output starts a new CSV file by itself
@@ -2399,6 +2564,7 @@ class MainWindow(QMainWindow):
         self.updateFieldActions()
         self.updateHiddenFields()
         self.fitNameColumn()
+        self.updateCropWarning()
 
     def scheduleBoxesSave(self, *_):
         # (re)start the timer: a burst of edits (e.g. dragging a slider) is
@@ -2460,6 +2626,92 @@ class MainWindow(QMainWindow):
     def updateFieldsHint(self):
         # the fields list is disabled until a source shows a picture
         self.ui.label_fieldsHint.setVisible(not self.ui.groupBox_sb_info.isEnabled())
+        self.updateFieldActionHint()
+
+    def setFieldPlacement(self, item: QTableWidgetItem, role: str):
+        """A field's placement (NOT_PLACED, PLACED or TEMPLATE): its role, its
+        icon and its tooltip."""
+        if item.data(Qt.ItemDataRole.UserRole) != role or item.icon().isNull():
+            if role == PLACED:
+                icon = resource_path("icons", "circle-check.svg")
+            elif role == TEMPLATE:
+                icon = resource_path("icons", "template-field.svg")
+            else:
+                icon = resource_path("icons", "circle-x.svg")
+            item.setIcon(QIcon(icon))
+            item.setData(Qt.ItemDataRole.UserRole, role)
+        item.setToolTip(self.fieldToolTip(item.text(), role))
+
+    def fieldToolTip(self, name: str, role: str) -> str:
+        """What a double-click (and a drag on the picture) does with a field."""
+        if role == NOT_PLACED:
+            tip = QCoreApplication.translate(
+                "MainWindow",
+                "Not on the picture yet. Drag over its numbers on the picture, or "
+                "double-click here to put its box in the middle of the picture.",
+            )
+        elif role == TEMPLATE:
+            tip = QCoreApplication.translate(
+                "MainWindow", "Built from other fields: it has no box."
+            )
+        else:
+            tip = QCoreApplication.translate(
+                "MainWindow",
+                "On the picture: drag its box to move it, or {alt}+drag on the "
+                "picture to draw it again. Right-click for its actions.",
+            ).format(alt=alt_key_name())
+        if self.isCustomField(name):
+            tip += " " + (
+                QCoreApplication.translate("MainWindow", "F2 renames it.")
+                if role == NOT_PLACED
+                else QCoreApplication.translate(
+                    "MainWindow", "Double-click to rename it."
+                )
+            )
+        return tip
+
+    def updateFieldToolTips(self):
+        """The fields' tooltips, in the current language."""
+        table = self.ui.tableWidget_boxes
+        for row in range(table.rowCount()):
+            item = table.item(row, 0)
+            role = item.data(Qt.ItemDataRole.UserRole) if item is not None else None
+            if role in (NOT_PLACED, PLACED, TEMPLATE):
+                item.setToolTip(self.fieldToolTip(item.text(), role))
+
+    def updateFieldActionHint(self, role: str | None = None):
+        """The line over the footer's button: how to place, move or remove
+        the selected field's box."""
+        ui = self.ui
+        if role is None:
+            item = self.currentFieldItem()
+            role = item.data(Qt.ItemDataRole.UserRole) if item is not None else None
+        if role == NOT_PLACED:
+            hint = QCoreApplication.translate(
+                "MainWindow",
+                "Drag on the picture to place it, or double-click the field",
+            )
+        elif role == PLACED:
+            hint = QCoreApplication.translate(
+                "MainWindow", "Drag the box to move it · {delete} removes it"
+            ).format(delete=key_text(self.deleteKeys[0]))
+        elif role == TEMPLATE:
+            # the Box tab's note
+            hint = QCoreApplication.translate(
+                "BoxSettings",
+                "This field is built from other fields (see Template): it has no "
+                "box on the picture and no reading settings.",
+            )
+        else:
+            hint = QCoreApplication.translate(
+                "MainWindow",
+                "Select a field, then drag over its numbers on the picture.",
+            )
+        label = ui.label_fieldActionHint
+        if label.text() != hint:
+            label.setText(hint)
+        # (before a source: "Open a source to place fields on the picture")
+        label.setVisible(ui.groupBox_sb_info.isEnabled())
 
     def updateFieldActions(self):
         """Enable the selected field's actions, and show the footer's buttons
@@ -2500,6 +2752,15 @@ class MainWindow(QMainWindow):
         ui.pushButton_removeBox.setEnabled(placed)
         ui.toolButton_removeBox.setVisible(custom)
         ui.toolButton_removeBox.setEnabled(custom)
+        # Del: the box off the picture, else (a custom field) the field
+        delete_keys = getattr(self, "deleteKeys", [])
+        ui.actionRemoveFromPicture.setShortcuts(delete_keys if placed else [])
+        ui.actionDeleteField.setShortcuts([] if placed else delete_keys)
+        if delete_keys:
+            self.updateFieldActionHint(role)
+        # a drag on the picture draws the box of a field that has none
+        if viewer is not None:
+            viewer.setPlacementField(item.text() if role == NOT_PLACED else None)
 
     def fieldContextMenu(self) -> QMenu:
         """The selected field's context menu (with the keys of its actions)."""
@@ -2523,6 +2784,43 @@ class MainWindow(QMainWindow):
         if ui.actionReleaseValue.isEnabled():
             menu.addAction(ui.actionReleaseValue)
         menu.addAction(ui.actionZoomToBox)
+        self.updateFieldActionToolTips()
+        return menu
+
+    def boxContextMenu(self) -> QMenu:
+        """The menu of the selected box on the picture: the field's actions
+        that are about its box."""
+        ui = self.ui
+        self.updateFieldActions()
+        menu = QMenu(self)
+        menu.setToolTipsVisible(True)
+        menu.addAction(ui.actionRemoveFromPicture)
+        menu.addAction(ui.actionRenameField)
+        menu.addSeparator()
+        menu.addAction(ui.actionHoldValue)
+        if ui.actionReleaseValue.isEnabled():
+            menu.addAction(ui.actionReleaseValue)
+        menu.addAction(ui.actionZoomToBox)
+        self.updateFieldActionToolTips()
+        return menu
+
+    def showBoxContextMenu(self, name: str, position: QPoint):
+        """A right-click on a box on the picture: its field is selected, and
+        its menu shown."""
+        item = self.currentFieldItem()
+        if item is None or item.text() != name:
+            self.itemSelected(name)
+        item = self.currentFieldItem()
+        if item is None or item.text() != name:
+            return
+        menu = self.boxContextMenu()
+        menu.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
+        menu.popup(position)
+
+    def updateFieldActionToolTips(self):
+        """The tooltips of the field's actions in its menus: the disabled
+        actions say why."""
+        ui = self.ui
         standard_only = QCoreApplication.translate(
             "MainWindow", "Only custom fields can be renamed or deleted"
         )
@@ -2539,7 +2837,6 @@ class MainWindow(QMainWindow):
                 "MainWindow", "Place the field on the picture first"
             )
         )
-        return menu
 
     def showFieldContextMenu(self, pos):
         table = self.ui.tableWidget_boxes
@@ -2564,11 +2861,72 @@ class MainWindow(QMainWindow):
         return confirmed
 
     def placeOnPicture(self):
-        """Place on picture: the field's box, then its settings in the Box tab."""
-        if self.currentFieldItem() is None:
+        """Place on picture: the field's box, in the middle of the picture
+        shown, then its settings in the Box tab."""
+        item = self.currentFieldItem()
+        if item is None:
             return
-        self.makeBox()
+        self.placeFieldBox(item.text())
+
+    def placeFieldBox(self, name: str, rect: QRectF | None = None) -> bool:
+        """Put a field's box on the picture: at rect (picture pixels), or at
+        its default size in the middle of the picture shown. The field is
+        selected, with its box, and the Box tab shows its settings. Place on
+        picture, a double-click and a box drawn on the picture all come here.
+        Returns False if the field has a box already (or is a template)."""
+        item = self.boxNameItem(name)
+        if item is None or item.data(Qt.ItemDataRole.UserRole) != NOT_PLACED:
+            return False
+        self.ui.tableWidget_boxes.setCurrentItem(item)
+        if not self.makeBox(rect):
+            return False
         self.ui.tabWidget_inspector.setCurrentWidget(self.ui.tab_box)
+        return True
+
+    def defaultBoxRect(self, name: str, center: QPointF | None = None) -> QRectF:
+        """A new box for a field: its default size, centred on center (the
+        middle of the part of the picture shown by default), within the
+        picture. Without a picture, its default place."""
+        info = default_info_for_box_name(name)
+        viewer = self.image_viewer
+        if viewer is not None and viewer.hasPicture():
+            if center is None:
+                center = viewer.visiblePictureRect().center()
+            return centered_rect(
+                center, info["width"], info["height"], viewer.pictureRect()
+            )
+        return QRectF(info["x"], info["y"], info["width"], info["height"])
+
+    def fieldDoubleClicked(self, item: QTableWidgetItem):
+        """A double-click on a field (its name or its value): a field without
+        a box gets one, in the middle of the picture shown; a custom field on
+        the picture (or a template) is renamed."""
+        item = self.nameItemOfRow(item)
+        if item is None:
+            return
+        if item.data(Qt.ItemDataRole.UserRole) == NOT_PLACED:
+            self.placeFieldBox(item.text())
+        else:
+            self.editBoxName(item)
+
+    def boxDrawn(self, name: str, rect: QRectF):
+        """A box drawn on the picture: the box of a field that has none, or
+        the selected box drawn again (Alt+drag)."""
+        box = self.detectionTargetsStorage.find_item_by_name(name)
+        if box is None:
+            if self.placeFieldBox(name, rect):
+                logger.info("Drew the box of '%s' on the picture", name)
+            return
+        if (box.settings or {}).get("templatefield"):
+            return
+        box.setRect(rect.x(), rect.y(), rect.width(), rect.height())
+        self.detectionTargetsStorage.edit_item(name, box)
+        logger.info("Drew the box of '%s' again", name)
+        self.itemSelected(name)
+
+    def placeFieldAt(self, name: str, center: QPointF):
+        """A double-click on the picture: the field's box, centred there."""
+        self.placeFieldBox(name, self.defaultBoxRect(name, center))
 
     def removeFromPicture(self):
         """Remove from picture, after asking when the box's settings (which are
@@ -2719,6 +3077,7 @@ class MainWindow(QMainWindow):
     def keyboardShortcutGroups(self) -> list[tuple[str, list[tuple[str, str]]]]:
         """The window's keys in groups, from the actions that have them."""
         ui = self.ui
+        delete_keys = ", ".join(key_text(key) for key in self.deleteKeys)
         return [
             (
                 QCoreApplication.translate("MainWindow", "Window"),
@@ -2743,10 +3102,36 @@ class MainWindow(QMainWindow):
                         ui.actionNewField,
                         ui.actionHoldValue,
                         ui.actionRenameField,
-                        ui.actionDeleteField,
                         ui.actionCopyValue,
                     ]
-                ),
+                )
+                + [
+                    # Del goes to one of these, depending on the field
+                    (
+                        QCoreApplication.translate(
+                            "MainWindow",
+                            "Remove the selected field's box from the picture",
+                        ),
+                        delete_keys,
+                    ),
+                    (
+                        QCoreApplication.translate(
+                            "MainWindow",
+                            "Delete the selected custom field (not on the picture)",
+                        ),
+                        delete_keys,
+                    ),
+                    (
+                        QCoreApplication.translate(
+                            "MainWindow",
+                            "Put a field's box on the picture, or rename a custom "
+                            "field",
+                        ),
+                        QCoreApplication.translate(
+                            "MainWindow", "Double-click the field"
+                        ),
+                    ),
+                ],
             ),
             (
                 QCoreApplication.translate("MainWindow", "Picture"),
@@ -3160,6 +3545,11 @@ class MainWindow(QMainWindow):
             (self.ui.pushButton_binary.clicked, viewer.toggleBinary),
             (viewer.four_corner_changed, self.updateFourCornerUi),
             (viewer.zoom_changed, self.updateZoomReadout),
+            (viewer.box_drawn, self.boxDrawn),
+            (viewer.place_requested, self.placeFieldAt),
+            (viewer.box_menu_requested, self.showBoxContextMenu),
+            (viewer.crop_drawn, self.cropDrawn),
+            (viewer.crop_selection_changed, self.updateCropUi),
         ):
             try:
                 signal.disconnect(slot)
@@ -3186,6 +3576,8 @@ class MainWindow(QMainWindow):
         viewer.deleteLater()
         self.updateSourceBanner()
         self.updateFourCornerUi()
+        self.updateCropUi()
+        self.updateCropWarning()
         self.updateZoomReadout()
 
     def reset_playing_source(self):
@@ -3409,9 +3801,20 @@ class MainWindow(QMainWindow):
             return
         self.disconnectViewer()
         self.connected_viewer = self.image_viewer
-        self.ui.pushButton_binary.clicked.connect(self.image_viewer.toggleBinary)
-        self.image_viewer.four_corner_changed.connect(self.updateFourCornerUi)
-        self.image_viewer.zoom_changed.connect(self.updateZoomReadout)
+        viewer = self.image_viewer
+        self.ui.pushButton_binary.clicked.connect(viewer.toggleBinary)
+        viewer.four_corner_changed.connect(self.updateFourCornerUi)
+        viewer.zoom_changed.connect(self.updateZoomReadout)
+        # drawing boxes and the crop on the picture, a box's menu
+        viewer.box_drawn.connect(self.boxDrawn)
+        viewer.place_requested.connect(self.placeFieldAt)
+        viewer.box_menu_requested.connect(self.showBoxContextMenu)
+        viewer.crop_drawn.connect(self.cropDrawn)
+        viewer.crop_selection_changed.connect(self.updateCropUi)
+        # Del (Remove from picture) and F2 (Rename) on the selected box
+        for action in (self.ui.actionRemoveFromPicture, self.ui.actionRenameField):
+            viewer.addAction(action)
+        self.updateFieldActions()
         if self.image_viewer.timerThread:
             self.image_viewer.timerThread.ocr_result_signal.connect(self.ocrResult)
             self.image_viewer.timerThread.update_error.connect(self.updateError)
@@ -3433,6 +3836,7 @@ class MainWindow(QMainWindow):
         self.sourceError = None
         self.updateSourceBanner()
         self.updateZoomReadout()
+        self.updateCropWarning()
         self.refreshLiveStatus()
 
     def updateError(self, error):
@@ -3493,6 +3897,10 @@ class MainWindow(QMainWindow):
         ui.pushButton_fourCorner.clicked.connect(self.fourCornerClicked)
         ui.pushButton_cancelFourCorner.clicked.connect(self.cancelFourCornerSelection)
         ui.frame_fourCornerBanner.hide()
+        ui.toolButton_dragCrop.clicked.connect(self.dragCropClicked)
+        ui.pushButton_cancelCrop.clicked.connect(self.cancelCropSelection)
+        ui.frame_cropBanner.hide()
+        ui.label_cropWarning.hide()
         # the row's hint hides when the buttons need its room
         ui.widget_viewTools.installEventFilter(self)
         ui.label_adjustHint.setForegroundRole(QPalette.ColorRole.PlaceholderText)
@@ -3559,6 +3967,17 @@ class MainWindow(QMainWindow):
                 labels=[ui.label_adjustPicture],
                 ignore=[ui.label_adjustHint],
             ),
+            # Drag to crop goes under the values
+            source_bar.CompactToolRow(
+                ui.widget_cropPanel,
+                wraps=[
+                    (
+                        ui.toolButton_dragCrop,
+                        (0, 0),
+                        (1, 1, 1, 8, Qt.AlignmentFlag.AlignLeft),
+                    )
+                ],
+            ),
             source_bar.CompactToolRow(
                 ui.frame_firstRun,
                 wraps=[
@@ -3599,6 +4018,10 @@ class MainWindow(QMainWindow):
         self.updateFirstRunCameraMenu()
         self.firstRunLook = None
         self.updateFirstRunCard()
+        self.updateCropWarning()
+        if self.image_viewer is not None:
+            # "Drag over the numbers to place ..."
+            self.image_viewer.updatePlacementHint()
 
     def applyViewerStyles(self):
         """The colours of the viewer column's controls, from the palette (again
@@ -3610,7 +4033,7 @@ class MainWindow(QMainWindow):
         # a checked toggle (Binary View, Stats, Crop, 4-corner, Stabilize) is
         # filled: on and off are told apart at a glance
         style = theme.tool_button_style(palette)
-        for row in (ui.widget_4, ui.widget_viewTools):
+        for row in (ui.widget_4, ui.widget_viewTools, ui.widget_cropPanel):
             if row.styleSheet() != style:
                 row.setStyleSheet(style)
         icon_color = theme.button_text_color(palette)
@@ -3629,13 +4052,27 @@ class MainWindow(QMainWindow):
             f" border: 1px solid {red}; border-left: 4px solid {red}; }}"
         )
         highlight = palette.color(QPalette.ColorRole.Highlight)
-        ui.frame_fourCornerBanner.setStyleSheet(
-            "QFrame#frame_fourCornerBanner {"
-            f" background-color: rgba({highlight.red()}, {highlight.green()},"
-            f" {highlight.blue()}, 40);"
-            f" border: 1px solid {highlight.name()};"
-            f" border-left: 4px solid {highlight.name()}; }}"
+        for banner in (ui.frame_fourCornerBanner, ui.frame_cropBanner):
+            banner.setStyleSheet(
+                f"QFrame#{banner.objectName()} {{"
+                f" background-color: rgba({highlight.red()}, {highlight.green()},"
+                f" {highlight.blue()}, 40);"
+                f" border: 1px solid {highlight.name()};"
+                f" border-left: 4px solid {highlight.name()}; }}"
+            )
+        ui.label_cropWarning.setStyleSheet(
+            f"color: {theme.color('rejected', palette).name()};"
         )
+        # the Fields footer's flat buttons: in the link colour, so that they
+        # still look clickable
+        link = palette.color(QPalette.ColorRole.Link)
+        for button in (ui.pushButton_makeBox, ui.pushButton_removeBox):
+            button_palette = button.palette()
+            if button_palette.color(QPalette.ColorRole.ButtonText) != link:
+                # (disabled, it is greyed out as usual)
+                for group in (QPalette.ColorGroup.Active, QPalette.ColorGroup.Inactive):
+                    button_palette.setColor(group, QPalette.ColorRole.ButtonText, link)
+                button.setPalette(button_palette)
         ui.frame_firstRun.setStyleSheet(
             "QFrame#frame_firstRun {"
             f" background-color: {palette.color(QPalette.ColorRole.Base).name()};"
@@ -3951,6 +4388,65 @@ class MainWindow(QMainWindow):
                 )
             )
 
+    # Drag to crop
+
+    def dragCropClicked(self):
+        """Drag to crop: pick the crop on the whole picture (again: stop)."""
+        viewer = self.image_viewer
+        if viewer is not None:
+            if viewer.cropSelectionMode:
+                viewer.cancelCropSelection()
+            else:
+                # (it stops picking 4-corner points)
+                viewer.startCropSelection()
+        # a click toggled the button: it shows the state again
+        self.updateCropUi()
+
+    def cancelCropSelection(self):
+        if self.image_viewer is not None:
+            self.image_viewer.cancelCropSelection()
+        self.updateCropUi()
+
+    def updateCropUi(self, *_):
+        """Drag to crop is checked, and the banner shown, while the crop is
+        picked."""
+        viewer = self.image_viewer
+        picking = bool(viewer is not None and viewer.cropSelectionMode)
+        self.ui.toolButton_dragCrop.setChecked(picking)
+        self.ui.frame_cropBanner.setVisible(picking)
+
+    def cropDrawn(self, rect: QRectF, frame: QSizeF):
+        """A crop dragged on the whole picture (Drag to crop): the crop's
+        values, the crop on, and the whole cropped picture shown. The boxes
+        move with the crop (cropChanged)."""
+        ui = self.ui
+        left = max(0, round(rect.left()))
+        top = max(0, round(rect.top()))
+        right = max(0, round(frame.width() - rect.right()))
+        bottom = max(0, round(frame.height() - rect.bottom()))
+        logger.info(
+            "Crop dragged: left %d, top %d, right %d, bottom %d",
+            left,
+            top,
+            right,
+            bottom,
+        )
+        for spin_box, value in (
+            (ui.spinBox_leftCrop, left),
+            (ui.spinBox_topCrop, top),
+            (ui.spinBox_rightCrop, right),
+            (ui.spinBox_bottomCrop, bottom),
+        ):
+            spin_box.setValue(value)
+        if not ui.toolButton_topCrop.isChecked():
+            ui.toolButton_topCrop.setChecked(True)
+            self.cropMode()
+        self.updateCropUi()
+        if self.image_viewer is not None:
+            # Fit (the cropped picture is fitted again when it arrives, if its
+            # size changed)
+            self.image_viewer.resetZoom()
+
     # Tools > Collect OCR training data
 
     def toggleTrainingData(self, collecting: bool):
@@ -3985,8 +4481,11 @@ class MainWindow(QMainWindow):
         """Which of the first-run card's steps are done: a source is open, a
         box is on the picture, an output is on (the HTTP server always is)."""
         source_open = self.image_viewer is not None
+        # a box drawn (or placed) on the picture: a field that has one
         box_placed = any(
             not (box.settings or {}).get("templatefield")
+            and box.width() > 0
+            and box.height() > 0
             for box in self.detectionTargetsStorage.get_data()
         )
         output_on = any(
@@ -4146,6 +4645,8 @@ class MainWindow(QMainWindow):
             self.ui.comboBox_appendMethod.currentIndex(),
             self.ui.checkBox_saveCsv.isChecked(),
             self.ui.checkBox_saveXML.isChecked(),
+            self.ui.checkBox_saveJson.isChecked(),
+            self.ui.checkBox_saveKeyValue.isChecked(),
         )
 
     def addBox(self):
@@ -4167,8 +4668,7 @@ class MainWindow(QMainWindow):
 
         store_custom_box_name(new_box_name)
         item = self.appendBoxRow(new_box_name)
-        item.setIcon(QIcon(resource_path("icons", "circle-x.svg")))
-        item.setData(Qt.ItemDataRole.UserRole, NOT_PLACED)
+        self.setFieldPlacement(item, NOT_PLACED)
         # selected, ready to be placed or renamed
         self.ui.tableWidget_boxes.scrollToItem(item)
         self.itemSelected(new_box_name)
@@ -4240,6 +4740,9 @@ class MainWindow(QMainWindow):
         # rename the item in the tableWidget_boxes
         rename_custom_box_name_in_storage(old_name, new_name)
         item.setText(new_name)
+        item.setToolTip(
+            self.fieldToolTip(new_name, item.data(Qt.ItemDataRole.UserRole))
+        )
         # a held value stays held under the new name
         self.heldValues.rename(old_name, new_name)
         # rename the item in the detectionTargetsStorage (a box that isn't
@@ -4252,34 +4755,38 @@ class MainWindow(QMainWindow):
             # the Box tab shows the new name
             self.listItemClicked(item)
 
-    def makeBox(self):
+    def makeBox(self, rect: QRectF | None = None) -> bool:
+        """The selected field's box: at rect (picture pixels), or at its
+        default size in the middle of the picture shown, with the field's
+        default settings. Returns False if it has a box already."""
         item = self.nameItemOfRow(self.ui.tableWidget_boxes.currentItem())
         if not item:
-            return
+            return False
         if self.detectionTargetsStorage.find_item_by_name(item.text()) is not None:
             # it has a box (or is a template) already: never two with one name
             logger.info("'%s' is already on the picture", item.text())
-            return
-        # create a new box on self.image_viewer with the name of the selected item from the tableWidget_boxes
+            return False
+        if rect is None:
+            rect = self.defaultBoxRect(item.text())
         # change the list icon to green checkmark
-        item.setIcon(QIcon(resource_path("icons/circle-check.svg")))
-        item.setData(Qt.ItemDataRole.UserRole, PLACED)
+        self.setFieldPlacement(item, PLACED)
 
-        # get the size of the box from the name
+        # the field's default settings
         info = default_info_for_box_name(item.text())
 
         self.detectionTargetsStorage.add_item(
             TextDetectionTarget(
-                info["x"],
-                info["y"],
-                info["width"],
-                info["height"],
+                rect.x(),
+                rect.y(),
+                rect.width(),
+                rect.height(),
                 item.text(),
                 normalize_settings_dict({}, info),
             )
         )
         # the new box's settings (and the box selected on the picture)
         self.listItemClicked(item)
+        return True
 
     def removeBox(self):
         item = self.ui.tableWidget_boxes.currentItem()
@@ -4287,8 +4794,7 @@ class MainWindow(QMainWindow):
             return
         item = self.nameItemOfRow(item)
         # change the list icon to red x
-        item.setIcon(QIcon(resource_path("icons", "circle-x.svg")))
-        item.setData(Qt.ItemDataRole.UserRole, NOT_PLACED)
+        self.setFieldPlacement(item, NOT_PLACED)
         # it isn't read any more: don't show its last reading as current
         clear_reading(self.ui.tableWidget_boxes.item(item.row(), 1))
         # nor sent: a held value ends with it
@@ -4313,10 +4819,8 @@ class MainWindow(QMainWindow):
             self.listItemClicked(item)  # shows its real state again
             return
 
-        # create a new box on self.image_viewer with the name of the selected item from the tableWidget_boxes
-        # change the list icon to green checkmark
-        item.setIcon(QIcon(resource_path("icons", "template-field.svg")))
-        item.setData(Qt.ItemDataRole.UserRole, TEMPLATE)
+        # a template field: no box on the picture
+        self.setFieldPlacement(item, TEMPLATE)
 
         self.detectionTargetsStorage.add_item(
             TextDetectionTarget(

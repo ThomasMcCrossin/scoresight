@@ -63,6 +63,58 @@ default settings, and are the default for new setups.
   products yet; the Live Score and MagicSoft formats come from another
   vendor's public documentation. See the
   [TCP / UDP output](https://royshil.github.io/scoresight/tcp-output.html) page.
+- **Browser overlays** served by the HTTP server, for any software that shows
+  a web page as graphics (OBS, vMix, Wirecast, CasparCG, TriCaster, Magewell
+  Director, Epiphan Pearl...): a transparent scorebug, lower third, clock and
+  single field at `/overlay/...`, with fields, labels, theme, colours, font,
+  position, layout, scale and animation set in the address. Values are pushed
+  live (Server-Sent Events at `/events`, a JSON snapshot at `/overlay/state`
+  for polling) and the pages reconnect by themselves. Put your own HTML in the
+  `overlays` folder of the settings folder (it comes with an example): it is
+  served at `/overlay/custom/...`, and `/overlay/client.js` fills its
+  `data-field` elements and fires events. **Outputs > HTTP server** builds an
+  overlay's address with Copy and Open in browser. See
+  [Browser Overlays](docs/overlays.md).
+- **Draw a field's box on the picture.** Select a field that isn't on the
+  picture: the pointer turns into a crosshair, a hint says *Drag over the
+  numbers to place Home Fouls*, and a drag over the digits puts the box exactly
+  there, at any zoom, selected and with its settings shown. A drag of a few
+  pixels counts as a click, **Esc** cancels, and clicking another box still
+  selects that box. It works in the Setup and the Live layout.
+- A double-click on a field that isn't on the picture puts its box in the
+  middle of the part of the picture you see; a double-click on the picture
+  puts the selected field's box there. A double-click on a custom field on the
+  picture still renames it, as the fields' tooltips say.
+- **Alt+drag** (**⌥ Option+drag** on macOS) on the picture draws the selected
+  box again.
+- A right-click on a box on the picture opens its menu: **Remove from
+  picture**, **Rename...**, **Hold value...** and **Zoom to box**.
+- **Drag to crop** in the crop panel: the viewer shows the whole picture
+  (without the crop, so that it can also be made wider), and a drag around the
+  scoreboard sets the four crop values. **Esc** keeps the current crop. The
+  values stay for fine-tuning, and now go up to 9999 pixels for large
+  pictures.
+- **Works with…**: a docs page listing 21 broadcast products (Wirecast,
+  NewBlue Captivate, Ross XPression, SuiteCG, TriCaster, Epiphan Pearl,
+  CasparCG, Singular.live, Chyron PRIME and more), how well each works, and
+  setup guides.
+- **Outbound HTTP API**: **Only changes** (and **Resend all** every N s),
+  **Fields per request**, one request per field with `{field}` and `{value}`
+  in the URL, a **Rate** limit, names with letters, digits and `_` only,
+  custom **Headers** (for example an `Authorization` token), and Digest
+  logins. The defaults send as before.
+- **Presets** for the outbound API: **TriCaster DataLink** (a DataLink key
+  per field) and **Epiphan Pearl** (custom variables, 6 per request, at most
+  5 requests a second). Both untested on the hardware so far.
+- **HTTP server**: `?pivot&all` on `/json`, `/xml` and `/csv` gives every
+  field with its last good value, so columns never come and go, and
+  `/json?array` gives it as an array of one row, the shape vMix JSON Data
+  Sources expect (untested with vMix). Responses are never cached, and a page on a public site may
+  read a ScoreSight on the local network. The existing URLs answer as before.
+- **Text files**: optional `results.json` (one object) and `results.txt`
+  (`key=value` lines), for SuiteCG and similar.
+- **overlays.uno**: the calls left today are shown, and calls are spaced out
+  to stay under the per-minute limit overlays.uno reports.
 
 ### Changed
 
@@ -80,6 +132,48 @@ default settings, and are the default for new setups.
 - **Binary view** shows a PP-OCR box's picture in gray: what PP-OCR reads.
 - `--self-test` also reads its test image with every PP-OCR choice.
 - The Windows app is 66 MB larger (onnxruntime and the two models).
+- **The boxes move with the crop.** Changing the crop's left or top edge (with
+  **Drag to crop**, the **Left** and **Top** values, or turning **Crop** on or
+  off) used to leave every box over other pixels. The boxes, and the corners of
+  a 4-corner correction, now move with it and stay over the same digits. A box
+  left entirely outside the cropped picture keeps its place (a wider crop
+  brings it back), and a line under the crop panel names it.
+- **Del** takes the selected field's box off the picture (asking first only
+  when you changed its settings, as **Remove from picture** does), in the field
+  list and on the picture. For a custom field that isn't on the picture, it
+  deletes the field, as before.
+- **Place on picture** puts the box in the middle of the picture you see
+  instead of its top-left corner. It and **Remove from picture** are now quiet
+  link-style buttons under a line that says what to do with the selected
+  field, for example *Drag on the picture to place it, or double-click the
+  field*. The first-run card's second step says *Select a field, then drag
+  over its numbers on the picture*.
+- **Help > Keyboard shortcuts** lists the new mouse actions.
+
+### Fixed
+
+- With the **All** box display style, the area read and the characters found
+  were drawn in the wrong place on a box moved with the arrow keys (and now
+  with the crop or drawn again).
+
+### Fixed
+
+- **Create OBS Scene** with **Recreate** deleted every source of the scene
+  from the whole OBS scene collection, including sources other scenes
+  shared. It now removes only the scene's items, and deletes a source only
+  if ScoreSight made it and nothing else uses it.
+- **overlays.uno** dropped a value refused with HTTP 429 (too many
+  requests), so a score could stay wrong on air until it changed again. The
+  latest value of each field is now kept and sent when the limit resets
+  (the outbound API does the same). Custom fields no longer get a command
+  named after themselves by default, which overlays answered with HTTP 400
+  while it still counted against the daily limit.
+- **vMix** and the outbound API's `GET` sent spaces as `+`, which vMix and
+  other receivers may show literally. They are now sent as `%20`.
+- The vMix docs recommended `/json?pivot` as a vMix JSON Data Source, which
+  vMix can't read: they now recommend `/json?array`, `/xml?pivot&all` or
+  `/csv?pivot&all`.
+- The outbound API no longer writes the password of a URL login to the log.
 
 ## [0.2.0] - 2026-10-10
 

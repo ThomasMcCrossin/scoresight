@@ -257,10 +257,21 @@ class Ui_MainWindow(object):
 
         self.widget_fieldsFooter = QWidget(self.groupBox_sb_info)
         self.widget_fieldsFooter.setObjectName(u"widget_fieldsFooter")
-        self.horizontalLayout_fieldsFooter = QHBoxLayout(self.widget_fieldsFooter)
+        self.verticalLayout_fieldsFooter = QVBoxLayout(self.widget_fieldsFooter)
+        self.verticalLayout_fieldsFooter.setSpacing(2)
+        self.verticalLayout_fieldsFooter.setObjectName(u"verticalLayout_fieldsFooter")
+        self.verticalLayout_fieldsFooter.setContentsMargins(0, 0, 0, 0)
+        self.label_fieldActionHint = QLabel(self.widget_fieldsFooter)
+        self.label_fieldActionHint.setObjectName(u"label_fieldActionHint")
+        self.label_fieldActionHint.setMinimumSize(QSize(1, 0))
+        self.label_fieldActionHint.setWordWrap(True)
+        self.label_fieldActionHint.setProperty(u"hint", True)
+
+        self.verticalLayout_fieldsFooter.addWidget(self.label_fieldActionHint)
+
+        self.horizontalLayout_fieldsFooter = QHBoxLayout()
         self.horizontalLayout_fieldsFooter.setSpacing(4)
         self.horizontalLayout_fieldsFooter.setObjectName(u"horizontalLayout_fieldsFooter")
-        self.horizontalLayout_fieldsFooter.setContentsMargins(0, 0, 0, 0)
         self.pushButton_makeBox = QPushButton(self.widget_fieldsFooter)
         self.pushButton_makeBox.setObjectName(u"pushButton_makeBox")
         self.pushButton_makeBox.setEnabled(False)
@@ -281,6 +292,9 @@ class Ui_MainWindow(object):
         self.toolButton_removeBox.setObjectName(u"toolButton_removeBox")
 
         self.horizontalLayout_fieldsFooter.addWidget(self.toolButton_removeBox)
+
+
+        self.verticalLayout_fieldsFooter.addLayout(self.horizontalLayout_fieldsFooter)
 
 
         self.verticalLayout_3.addWidget(self.widget_fieldsFooter)
@@ -518,71 +532,90 @@ class Ui_MainWindow(object):
         self.widget_cropPanel = QWidget(self.frame_source_view)
         self.widget_cropPanel.setObjectName(u"widget_cropPanel")
         self.widget_cropPanel.setEnabled(False)
-        self.widget_cropPanel.setMaximumSize(QSize(16777215, 18))
+        sizePolicy6 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
+        sizePolicy6.setHorizontalStretch(0)
+        sizePolicy6.setVerticalStretch(0)
+        sizePolicy6.setHeightForWidth(self.widget_cropPanel.sizePolicy().hasHeightForWidth())
+        self.widget_cropPanel.setSizePolicy(sizePolicy6)
         font2 = QFont()
         font2.setPointSize(8)
         self.widget_cropPanel.setFont(font2)
-        self.horizontalLayout_26 = QHBoxLayout(self.widget_cropPanel)
-        self.horizontalLayout_26.setObjectName(u"horizontalLayout_26")
-        self.horizontalLayout_26.setContentsMargins(0, 0, 0, 0)
+        self.gridLayout_cropPanel = QGridLayout(self.widget_cropPanel)
+        self.gridLayout_cropPanel.setObjectName(u"gridLayout_cropPanel")
+        self.gridLayout_cropPanel.setHorizontalSpacing(6)
+        self.gridLayout_cropPanel.setVerticalSpacing(2)
+        self.gridLayout_cropPanel.setContentsMargins(0, 0, 0, 0)
+        self.toolButton_dragCrop = QToolButton(self.widget_cropPanel)
+        self.toolButton_dragCrop.setObjectName(u"toolButton_dragCrop")
+        self.toolButton_dragCrop.setCheckable(True)
+
+        self.gridLayout_cropPanel.addWidget(self.toolButton_dragCrop, 0, 0, 1, 1)
+
         self.label_16 = QLabel(self.widget_cropPanel)
         self.label_16.setObjectName(u"label_16")
 
-        self.horizontalLayout_26.addWidget(self.label_16)
+        self.gridLayout_cropPanel.addWidget(self.label_16, 0, 1, 1, 1)
 
         self.spinBox_leftCrop = QSpinBox(self.widget_cropPanel)
         self.spinBox_leftCrop.setObjectName(u"spinBox_leftCrop")
         self.spinBox_leftCrop.setMinimumSize(QSize(54, 0))
         self.spinBox_leftCrop.setButtonSymbols(QAbstractSpinBox.NoButtons)
-        self.spinBox_leftCrop.setMaximum(999)
+        self.spinBox_leftCrop.setMaximum(9999)
 
-        self.horizontalLayout_26.addWidget(self.spinBox_leftCrop)
+        self.gridLayout_cropPanel.addWidget(self.spinBox_leftCrop, 0, 2, 1, 1)
 
         self.label_17 = QLabel(self.widget_cropPanel)
         self.label_17.setObjectName(u"label_17")
 
-        self.horizontalLayout_26.addWidget(self.label_17)
+        self.gridLayout_cropPanel.addWidget(self.label_17, 0, 3, 1, 1)
 
         self.spinBox_topCrop = QSpinBox(self.widget_cropPanel)
         self.spinBox_topCrop.setObjectName(u"spinBox_topCrop")
         self.spinBox_topCrop.setMinimumSize(QSize(54, 0))
         self.spinBox_topCrop.setButtonSymbols(QAbstractSpinBox.NoButtons)
-        self.spinBox_topCrop.setMaximum(999)
+        self.spinBox_topCrop.setMaximum(9999)
 
-        self.horizontalLayout_26.addWidget(self.spinBox_topCrop)
+        self.gridLayout_cropPanel.addWidget(self.spinBox_topCrop, 0, 4, 1, 1)
 
         self.label_18 = QLabel(self.widget_cropPanel)
         self.label_18.setObjectName(u"label_18")
 
-        self.horizontalLayout_26.addWidget(self.label_18)
+        self.gridLayout_cropPanel.addWidget(self.label_18, 0, 5, 1, 1)
 
         self.spinBox_rightCrop = QSpinBox(self.widget_cropPanel)
         self.spinBox_rightCrop.setObjectName(u"spinBox_rightCrop")
         self.spinBox_rightCrop.setMinimumSize(QSize(54, 0))
         self.spinBox_rightCrop.setButtonSymbols(QAbstractSpinBox.NoButtons)
-        self.spinBox_rightCrop.setMaximum(999)
+        self.spinBox_rightCrop.setMaximum(9999)
 
-        self.horizontalLayout_26.addWidget(self.spinBox_rightCrop)
+        self.gridLayout_cropPanel.addWidget(self.spinBox_rightCrop, 0, 6, 1, 1)
 
         self.label_19 = QLabel(self.widget_cropPanel)
         self.label_19.setObjectName(u"label_19")
 
-        self.horizontalLayout_26.addWidget(self.label_19)
+        self.gridLayout_cropPanel.addWidget(self.label_19, 0, 7, 1, 1)
 
         self.spinBox_bottomCrop = QSpinBox(self.widget_cropPanel)
         self.spinBox_bottomCrop.setObjectName(u"spinBox_bottomCrop")
         self.spinBox_bottomCrop.setMinimumSize(QSize(54, 0))
         self.spinBox_bottomCrop.setButtonSymbols(QAbstractSpinBox.NoButtons)
-        self.spinBox_bottomCrop.setMaximum(999)
+        self.spinBox_bottomCrop.setMaximum(9999)
 
-        self.horizontalLayout_26.addWidget(self.spinBox_bottomCrop)
+        self.gridLayout_cropPanel.addWidget(self.spinBox_bottomCrop, 0, 8, 1, 1)
 
         self.horizontalSpacer_4 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
-        self.horizontalLayout_26.addItem(self.horizontalSpacer_4)
+        self.gridLayout_cropPanel.addItem(self.horizontalSpacer_4, 0, 9, 1, 1)
 
 
         self._3.addWidget(self.widget_cropPanel)
+
+        self.label_cropWarning = QLabel(self.frame_source_view)
+        self.label_cropWarning.setObjectName(u"label_cropWarning")
+        self.label_cropWarning.setMinimumSize(QSize(1, 0))
+        self.label_cropWarning.setWordWrap(True)
+
+        self._3.addWidget(self.label_cropWarning)
 
         self.frame_sourceError = QFrame(self.frame_source_view)
         self.frame_sourceError.setObjectName(u"frame_sourceError")
@@ -662,6 +695,30 @@ class Ui_MainWindow(object):
 
         self._3.addWidget(self.frame_fourCornerBanner)
 
+        self.frame_cropBanner = QFrame(self.frame_source_view)
+        self.frame_cropBanner.setObjectName(u"frame_cropBanner")
+        self.frame_cropBanner.setFrameShape(QFrame.StyledPanel)
+        self.horizontalLayout_cropBanner = QHBoxLayout(self.frame_cropBanner)
+        self.horizontalLayout_cropBanner.setSpacing(8)
+        self.horizontalLayout_cropBanner.setObjectName(u"horizontalLayout_cropBanner")
+        self.horizontalLayout_cropBanner.setContentsMargins(8, 4, 4, 4)
+        self.label_cropBanner = QLabel(self.frame_cropBanner)
+        self.label_cropBanner.setObjectName(u"label_cropBanner")
+        sizePolicy3.setHeightForWidth(self.label_cropBanner.sizePolicy().hasHeightForWidth())
+        self.label_cropBanner.setSizePolicy(sizePolicy3)
+        self.label_cropBanner.setMinimumSize(QSize(120, 0))
+        self.label_cropBanner.setWordWrap(True)
+
+        self.horizontalLayout_cropBanner.addWidget(self.label_cropBanner)
+
+        self.pushButton_cancelCrop = QPushButton(self.frame_cropBanner)
+        self.pushButton_cancelCrop.setObjectName(u"pushButton_cancelCrop")
+
+        self.horizontalLayout_cropBanner.addWidget(self.pushButton_cancelCrop)
+
+
+        self._3.addWidget(self.frame_cropBanner)
+
         self.frame_pausedBanner = QFrame(self.frame_source_view)
         self.frame_pausedBanner.setObjectName(u"frame_pausedBanner")
         self.frame_pausedBanner.setFrameShape(QFrame.StyledPanel)
@@ -689,11 +746,11 @@ class Ui_MainWindow(object):
         self.frame_for_source_view_label = QFrame(self.frame_source_view)
         self.frame_for_source_view_label.setObjectName(u"frame_for_source_view_label")
         self.frame_for_source_view_label.setEnabled(True)
-        sizePolicy6 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Expanding)
-        sizePolicy6.setHorizontalStretch(0)
-        sizePolicy6.setVerticalStretch(0)
-        sizePolicy6.setHeightForWidth(self.frame_for_source_view_label.sizePolicy().hasHeightForWidth())
-        self.frame_for_source_view_label.setSizePolicy(sizePolicy6)
+        sizePolicy7 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Expanding)
+        sizePolicy7.setHorizontalStretch(0)
+        sizePolicy7.setVerticalStretch(0)
+        sizePolicy7.setHeightForWidth(self.frame_for_source_view_label.sizePolicy().hasHeightForWidth())
+        self.frame_for_source_view_label.setSizePolicy(sizePolicy7)
         self.gridLayout = QGridLayout(self.frame_for_source_view_label)
         self.gridLayout.setObjectName(u"gridLayout")
         self.gridLayout.setSizeConstraint(QLayout.SetMaximumSize)
@@ -893,11 +950,11 @@ class Ui_MainWindow(object):
         self.label_selectedInfo.setObjectName(u"label_selectedInfo")
         self.label_selectedInfo.setFont(font)
         self.label_selectedInfo.setText(u"")
-        sizePolicy7 = QSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
-        sizePolicy7.setHorizontalStretch(0)
-        sizePolicy7.setVerticalStretch(0)
-        sizePolicy7.setHeightForWidth(self.label_selectedInfo.sizePolicy().hasHeightForWidth())
-        self.label_selectedInfo.setSizePolicy(sizePolicy7)
+        sizePolicy8 = QSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
+        sizePolicy8.setHorizontalStretch(0)
+        sizePolicy8.setVerticalStretch(0)
+        sizePolicy8.setHeightForWidth(self.label_selectedInfo.sizePolicy().hasHeightForWidth())
+        self.label_selectedInfo.setSizePolicy(sizePolicy8)
         self.label_selectedInfo.setTextInteractionFlags(Qt.NoTextInteraction)
 
         self.verticalLayout_boxTitle.addWidget(self.label_selectedInfo)
@@ -913,11 +970,11 @@ class Ui_MainWindow(object):
 
         self.pushButton_restoreDefaults = QPushButton(self.page_boxSettings)
         self.pushButton_restoreDefaults.setObjectName(u"pushButton_restoreDefaults")
-        sizePolicy8 = QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
-        sizePolicy8.setHorizontalStretch(0)
-        sizePolicy8.setVerticalStretch(0)
-        sizePolicy8.setHeightForWidth(self.pushButton_restoreDefaults.sizePolicy().hasHeightForWidth())
-        self.pushButton_restoreDefaults.setSizePolicy(sizePolicy8)
+        sizePolicy9 = QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        sizePolicy9.setHorizontalStretch(0)
+        sizePolicy9.setVerticalStretch(0)
+        sizePolicy9.setHeightForWidth(self.pushButton_restoreDefaults.sizePolicy().hasHeightForWidth())
+        self.pushButton_restoreDefaults.setSizePolicy(sizePolicy9)
 
         self.horizontalLayout_boxHeader.addWidget(self.pushButton_restoreDefaults, 0, Qt.AlignTop)
 
@@ -1543,11 +1600,11 @@ class Ui_MainWindow(object):
         self.stackedWidget_outputs.setFrameShape(QFrame.StyledPanel)
         self.tab_textFiles = QWidget()
         self.tab_textFiles.setObjectName(u"tab_textFiles")
-        sizePolicy9 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
-        sizePolicy9.setHorizontalStretch(0)
-        sizePolicy9.setVerticalStretch(0)
-        sizePolicy9.setHeightForWidth(self.tab_textFiles.sizePolicy().hasHeightForWidth())
-        self.tab_textFiles.setSizePolicy(sizePolicy9)
+        sizePolicy10 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
+        sizePolicy10.setHorizontalStretch(0)
+        sizePolicy10.setVerticalStretch(0)
+        sizePolicy10.setHeightForWidth(self.tab_textFiles.sizePolicy().hasHeightForWidth())
+        self.tab_textFiles.setSizePolicy(sizePolicy10)
         self.formLayout_2 = QFormLayout(self.tab_textFiles)
         self.formLayout_2.setObjectName(u"formLayout_2")
         self.formLayout_2.setFieldGrowthPolicy(QFormLayout.ExpandingFieldsGrow)
@@ -1560,11 +1617,11 @@ class Ui_MainWindow(object):
 
         self.widget_5 = QWidget(self.tab_textFiles)
         self.widget_5.setObjectName(u"widget_5")
-        sizePolicy10 = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
-        sizePolicy10.setHorizontalStretch(0)
-        sizePolicy10.setVerticalStretch(0)
-        sizePolicy10.setHeightForWidth(self.widget_5.sizePolicy().hasHeightForWidth())
-        self.widget_5.setSizePolicy(sizePolicy10)
+        sizePolicy11 = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        sizePolicy11.setHorizontalStretch(0)
+        sizePolicy11.setVerticalStretch(0)
+        sizePolicy11.setHeightForWidth(self.widget_5.sizePolicy().hasHeightForWidth())
+        self.widget_5.setSizePolicy(sizePolicy11)
         self.horizontalLayout_6 = QHBoxLayout(self.widget_5)
         self.horizontalLayout_6.setObjectName(u"horizontalLayout_6")
         self.horizontalLayout_6.setContentsMargins(0, 0, 0, 0)
@@ -1589,8 +1646,8 @@ class Ui_MainWindow(object):
 
         self.widget_12 = QWidget(self.tab_textFiles)
         self.widget_12.setObjectName(u"widget_12")
-        sizePolicy10.setHeightForWidth(self.widget_12.sizePolicy().hasHeightForWidth())
-        self.widget_12.setSizePolicy(sizePolicy10)
+        sizePolicy11.setHeightForWidth(self.widget_12.sizePolicy().hasHeightForWidth())
+        self.widget_12.setSizePolicy(sizePolicy11)
         self.horizontalLayout_14 = QVBoxLayout(self.widget_12)
         self.horizontalLayout_14.setObjectName(u"horizontalLayout_14")
         self.horizontalLayout_14.setContentsMargins(0, 0, 0, 0)
@@ -1603,6 +1660,16 @@ class Ui_MainWindow(object):
         self.checkBox_saveXML.setObjectName(u"checkBox_saveXML")
 
         self.horizontalLayout_14.addWidget(self.checkBox_saveXML)
+
+        self.checkBox_saveJson = QCheckBox(self.widget_12)
+        self.checkBox_saveJson.setObjectName(u"checkBox_saveJson")
+
+        self.horizontalLayout_14.addWidget(self.checkBox_saveJson)
+
+        self.checkBox_saveKeyValue = QCheckBox(self.widget_12)
+        self.checkBox_saveKeyValue.setObjectName(u"checkBox_saveKeyValue")
+
+        self.horizontalLayout_14.addWidget(self.checkBox_saveKeyValue)
 
 
         self.formLayout_2.setWidget(1, QFormLayout.ItemRole.FieldRole, self.widget_12)
@@ -1618,8 +1685,8 @@ class Ui_MainWindow(object):
         self.comboBox_appendMethod.addItem("")
         self.comboBox_appendMethod.addItem("")
         self.comboBox_appendMethod.setObjectName(u"comboBox_appendMethod")
-        sizePolicy10.setHeightForWidth(self.comboBox_appendMethod.sizePolicy().hasHeightForWidth())
-        self.comboBox_appendMethod.setSizePolicy(sizePolicy10)
+        sizePolicy11.setHeightForWidth(self.comboBox_appendMethod.sizePolicy().hasHeightForWidth())
+        self.comboBox_appendMethod.setSizePolicy(sizePolicy11)
 
         self.formLayout_2.setWidget(2, QFormLayout.ItemRole.FieldRole, self.comboBox_appendMethod)
 
@@ -1671,6 +1738,148 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_4.addWidget(self.label_8, 0, Qt.AlignTop)
 
+        self.groupBox_overlays = QGroupBox(self.tab_browser)
+        self.groupBox_overlays.setObjectName(u"groupBox_overlays")
+        self.formLayout_overlays = QFormLayout(self.groupBox_overlays)
+        self.formLayout_overlays.setObjectName(u"formLayout_overlays")
+        self.formLayout_overlays.setFieldGrowthPolicy(QFormLayout.AllNonFixedFieldsGrow)
+        self.formLayout_overlays.setHorizontalSpacing(6)
+        self.formLayout_overlays.setVerticalSpacing(3)
+        self.formLayout_overlays.setContentsMargins(6, 4, 6, 6)
+        self.label_overlayKind = QLabel(self.groupBox_overlays)
+        self.label_overlayKind.setObjectName(u"label_overlayKind")
+
+        self.formLayout_overlays.setWidget(0, QFormLayout.ItemRole.LabelRole, self.label_overlayKind)
+
+        self.widget_overlayKind = QWidget(self.groupBox_overlays)
+        self.widget_overlayKind.setObjectName(u"widget_overlayKind")
+        self.horizontalLayout_overlayKind = QHBoxLayout(self.widget_overlayKind)
+        self.horizontalLayout_overlayKind.setSpacing(3)
+        self.horizontalLayout_overlayKind.setObjectName(u"horizontalLayout_overlayKind")
+        self.horizontalLayout_overlayKind.setContentsMargins(0, 0, 0, 0)
+        self.comboBox_overlayKind = QComboBox(self.widget_overlayKind)
+        self.comboBox_overlayKind.setObjectName(u"comboBox_overlayKind")
+        sizePolicy11.setHeightForWidth(self.comboBox_overlayKind.sizePolicy().hasHeightForWidth())
+        self.comboBox_overlayKind.setSizePolicy(sizePolicy11)
+        self.comboBox_overlayKind.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
+        self.comboBox_overlayKind.setMinimumContentsLength(8)
+
+        self.horizontalLayout_overlayKind.addWidget(self.comboBox_overlayKind)
+
+        self.toolButton_overlaysFolder = QToolButton(self.widget_overlayKind)
+        self.toolButton_overlaysFolder.setObjectName(u"toolButton_overlaysFolder")
+        self.toolButton_overlaysFolder.setToolButtonStyle(Qt.ToolButtonIconOnly)
+
+        self.horizontalLayout_overlayKind.addWidget(self.toolButton_overlaysFolder)
+
+
+        self.formLayout_overlays.setWidget(0, QFormLayout.ItemRole.FieldRole, self.widget_overlayKind)
+
+        self.label_overlayFields = QLabel(self.groupBox_overlays)
+        self.label_overlayFields.setObjectName(u"label_overlayFields")
+
+        self.formLayout_overlays.setWidget(1, QFormLayout.ItemRole.LabelRole, self.label_overlayFields)
+
+        self.toolButton_overlayFields = QToolButton(self.groupBox_overlays)
+        self.toolButton_overlayFields.setObjectName(u"toolButton_overlayFields")
+        sizePolicy11.setHeightForWidth(self.toolButton_overlayFields.sizePolicy().hasHeightForWidth())
+        self.toolButton_overlayFields.setSizePolicy(sizePolicy11)
+        self.toolButton_overlayFields.setPopupMode(QToolButton.InstantPopup)
+        self.toolButton_overlayFields.setToolButtonStyle(Qt.ToolButtonTextOnly)
+
+        self.formLayout_overlays.setWidget(1, QFormLayout.ItemRole.FieldRole, self.toolButton_overlayFields)
+
+        self.label_overlayTheme = QLabel(self.groupBox_overlays)
+        self.label_overlayTheme.setObjectName(u"label_overlayTheme")
+
+        self.formLayout_overlays.setWidget(2, QFormLayout.ItemRole.LabelRole, self.label_overlayTheme)
+
+        self.widget_overlayLook = QWidget(self.groupBox_overlays)
+        self.widget_overlayLook.setObjectName(u"widget_overlayLook")
+        self.horizontalLayout_overlayLook = QHBoxLayout(self.widget_overlayLook)
+        self.horizontalLayout_overlayLook.setSpacing(6)
+        self.horizontalLayout_overlayLook.setObjectName(u"horizontalLayout_overlayLook")
+        self.horizontalLayout_overlayLook.setContentsMargins(0, 0, 0, 0)
+        self.comboBox_overlayTheme = QComboBox(self.widget_overlayLook)
+        self.comboBox_overlayTheme.addItem("")
+        self.comboBox_overlayTheme.addItem("")
+        self.comboBox_overlayTheme.addItem("")
+        self.comboBox_overlayTheme.addItem("")
+        self.comboBox_overlayTheme.setObjectName(u"comboBox_overlayTheme")
+        sizePolicy11.setHeightForWidth(self.comboBox_overlayTheme.sizePolicy().hasHeightForWidth())
+        self.comboBox_overlayTheme.setSizePolicy(sizePolicy11)
+        self.comboBox_overlayTheme.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
+        self.comboBox_overlayTheme.setMinimumContentsLength(5)
+
+        self.horizontalLayout_overlayLook.addWidget(self.comboBox_overlayTheme)
+
+        self.label_overlayScale = QLabel(self.widget_overlayLook)
+        self.label_overlayScale.setObjectName(u"label_overlayScale")
+
+        self.horizontalLayout_overlayLook.addWidget(self.label_overlayScale)
+
+        self.doubleSpinBox_overlayScale = QDoubleSpinBox(self.widget_overlayLook)
+        self.doubleSpinBox_overlayScale.setObjectName(u"doubleSpinBox_overlayScale")
+        self.doubleSpinBox_overlayScale.setSuffix(u"\u00d7")
+        self.doubleSpinBox_overlayScale.setDecimals(2)
+        self.doubleSpinBox_overlayScale.setMinimum(0.250000000000000)
+        self.doubleSpinBox_overlayScale.setMaximum(4.000000000000000)
+        self.doubleSpinBox_overlayScale.setSingleStep(0.250000000000000)
+        self.doubleSpinBox_overlayScale.setValue(1.000000000000000)
+
+        self.horizontalLayout_overlayLook.addWidget(self.doubleSpinBox_overlayScale)
+
+
+        self.formLayout_overlays.setWidget(2, QFormLayout.ItemRole.FieldRole, self.widget_overlayLook)
+
+        self.label_overlayHost = QLabel(self.groupBox_overlays)
+        self.label_overlayHost.setObjectName(u"label_overlayHost")
+
+        self.formLayout_overlays.setWidget(3, QFormLayout.ItemRole.LabelRole, self.label_overlayHost)
+
+        self.comboBox_overlayHost = QComboBox(self.groupBox_overlays)
+        self.comboBox_overlayHost.setObjectName(u"comboBox_overlayHost")
+        self.comboBox_overlayHost.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
+        self.comboBox_overlayHost.setMinimumContentsLength(12)
+
+        self.formLayout_overlays.setWidget(3, QFormLayout.ItemRole.FieldRole, self.comboBox_overlayHost)
+
+        self.lineEdit_overlayUrl = QLineEdit(self.groupBox_overlays)
+        self.lineEdit_overlayUrl.setObjectName(u"lineEdit_overlayUrl")
+        self.lineEdit_overlayUrl.setReadOnly(True)
+
+        self.formLayout_overlays.setWidget(4, QFormLayout.ItemRole.SpanningRole, self.lineEdit_overlayUrl)
+
+        self.widget_overlayButtons = QWidget(self.groupBox_overlays)
+        self.widget_overlayButtons.setObjectName(u"widget_overlayButtons")
+        self.horizontalLayout_overlayButtons = QHBoxLayout(self.widget_overlayButtons)
+        self.horizontalLayout_overlayButtons.setSpacing(6)
+        self.horizontalLayout_overlayButtons.setObjectName(u"horizontalLayout_overlayButtons")
+        self.horizontalLayout_overlayButtons.setContentsMargins(0, 0, 0, 0)
+        self.pushButton_copyOverlayUrl = QPushButton(self.widget_overlayButtons)
+        self.pushButton_copyOverlayUrl.setObjectName(u"pushButton_copyOverlayUrl")
+
+        self.horizontalLayout_overlayButtons.addWidget(self.pushButton_copyOverlayUrl)
+
+        self.pushButton_openOverlayUrl = QPushButton(self.widget_overlayButtons)
+        self.pushButton_openOverlayUrl.setObjectName(u"pushButton_openOverlayUrl")
+
+        self.horizontalLayout_overlayButtons.addWidget(self.pushButton_openOverlayUrl)
+
+        self.horizontalSpacer_overlayButtons = QSpacerItem(0, 0, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_overlayButtons.addItem(self.horizontalSpacer_overlayButtons)
+
+
+        self.formLayout_overlays.setWidget(5, QFormLayout.ItemRole.SpanningRole, self.widget_overlayButtons)
+
+
+        self.verticalLayout_4.addWidget(self.groupBox_overlays)
+
+        self.verticalSpacer_browser = QSpacerItem(0, 0, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+
+        self.verticalLayout_4.addItem(self.verticalSpacer_browser)
+
         self.stackedWidget_outputs.addWidget(self.tab_browser)
         self.tab_obs = QWidget()
         self.tab_obs.setObjectName(u"tab_obs")
@@ -1684,11 +1893,8 @@ class Ui_MainWindow(object):
         self.horizontalLayout_obsConnection.setContentsMargins(0, 0, 0, 0)
         self.pushButton_connectObs = QPushButton(self.widget_obsConnection)
         self.pushButton_connectObs.setObjectName(u"pushButton_connectObs")
-        sizePolicy11 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
-        sizePolicy11.setHorizontalStretch(0)
-        sizePolicy11.setVerticalStretch(0)
-        sizePolicy11.setHeightForWidth(self.pushButton_connectObs.sizePolicy().hasHeightForWidth())
-        self.pushButton_connectObs.setSizePolicy(sizePolicy11)
+        sizePolicy6.setHeightForWidth(self.pushButton_connectObs.sizePolicy().hasHeightForWidth())
+        self.pushButton_connectObs.setSizePolicy(sizePolicy6)
         self.pushButton_connectObs.setMinimumSize(QSize(0, 0))
 
         self.horizontalLayout_obsConnection.addWidget(self.pushButton_connectObs)
@@ -1696,8 +1902,8 @@ class Ui_MainWindow(object):
         self.pushButton_disconnectObs = QPushButton(self.widget_obsConnection)
         self.pushButton_disconnectObs.setObjectName(u"pushButton_disconnectObs")
         self.pushButton_disconnectObs.setEnabled(False)
-        sizePolicy8.setHeightForWidth(self.pushButton_disconnectObs.sizePolicy().hasHeightForWidth())
-        self.pushButton_disconnectObs.setSizePolicy(sizePolicy8)
+        sizePolicy9.setHeightForWidth(self.pushButton_disconnectObs.sizePolicy().hasHeightForWidth())
+        self.pushButton_disconnectObs.setSizePolicy(sizePolicy9)
 
         self.horizontalLayout_obsConnection.addWidget(self.pushButton_disconnectObs)
 
@@ -1794,8 +2000,8 @@ class Ui_MainWindow(object):
 
         self.lineEdit_vmixPort = QLineEdit(self.connectionWidget)
         self.lineEdit_vmixPort.setObjectName(u"lineEdit_vmixPort")
-        sizePolicy8.setHeightForWidth(self.lineEdit_vmixPort.sizePolicy().hasHeightForWidth())
-        self.lineEdit_vmixPort.setSizePolicy(sizePolicy8)
+        sizePolicy9.setHeightForWidth(self.lineEdit_vmixPort.sizePolicy().hasHeightForWidth())
+        self.lineEdit_vmixPort.setSizePolicy(sizePolicy9)
         self.lineEdit_vmixPort.setMaximumSize(QSize(50, 16777215))
         self.lineEdit_vmixPort.setText(u"8088")
 
@@ -1803,8 +2009,8 @@ class Ui_MainWindow(object):
 
         self.pushButton_startvmix = QPushButton(self.connectionWidget)
         self.pushButton_startvmix.setObjectName(u"pushButton_startvmix")
-        sizePolicy8.setHeightForWidth(self.pushButton_startvmix.sizePolicy().hasHeightForWidth())
-        self.pushButton_startvmix.setSizePolicy(sizePolicy8)
+        sizePolicy9.setHeightForWidth(self.pushButton_startvmix.sizePolicy().hasHeightForWidth())
+        self.pushButton_startvmix.setSizePolicy(sizePolicy9)
         self.pushButton_startvmix.setCheckable(True)
         self.pushButton_startvmix.setChecked(False)
 
@@ -1886,15 +2092,15 @@ class Ui_MainWindow(object):
         self.horizontalLayout_30.setContentsMargins(0, 5, 0, 5)
         self.checkBox_uno_send_same = QCheckBox(self.widget_26)
         self.checkBox_uno_send_same.setObjectName(u"checkBox_uno_send_same")
-        sizePolicy8.setHeightForWidth(self.checkBox_uno_send_same.sizePolicy().hasHeightForWidth())
-        self.checkBox_uno_send_same.setSizePolicy(sizePolicy8)
+        sizePolicy9.setHeightForWidth(self.checkBox_uno_send_same.sizePolicy().hasHeightForWidth())
+        self.checkBox_uno_send_same.setSizePolicy(sizePolicy9)
 
         self.horizontalLayout_30.addWidget(self.checkBox_uno_send_same)
 
         self.checkBox_uno_essentials = QCheckBox(self.widget_26)
         self.checkBox_uno_essentials.setObjectName(u"checkBox_uno_essentials")
-        sizePolicy8.setHeightForWidth(self.checkBox_uno_essentials.sizePolicy().hasHeightForWidth())
-        self.checkBox_uno_essentials.setSizePolicy(sizePolicy8)
+        sizePolicy9.setHeightForWidth(self.checkBox_uno_essentials.sizePolicy().hasHeightForWidth())
+        self.checkBox_uno_essentials.setSizePolicy(sizePolicy9)
 
         self.horizontalLayout_30.addWidget(self.checkBox_uno_essentials)
 
@@ -1915,8 +2121,8 @@ class Ui_MainWindow(object):
 
         self.lineEdit_uno_essentials_id = QLineEdit(self.widget_uno_essentials_details)
         self.lineEdit_uno_essentials_id.setObjectName(u"lineEdit_uno_essentials_id")
-        sizePolicy11.setHeightForWidth(self.lineEdit_uno_essentials_id.sizePolicy().hasHeightForWidth())
-        self.lineEdit_uno_essentials_id.setSizePolicy(sizePolicy11)
+        sizePolicy6.setHeightForWidth(self.lineEdit_uno_essentials_id.sizePolicy().hasHeightForWidth())
+        self.lineEdit_uno_essentials_id.setSizePolicy(sizePolicy6)
         self.lineEdit_uno_essentials_id.setText(u"")
 
         self.horizontalLayout_21.addWidget(self.lineEdit_uno_essentials_id)
@@ -1938,34 +2144,51 @@ class Ui_MainWindow(object):
         self.stackedWidget_outputs.addWidget(self.tab_uno)
         self.tab_api = QWidget()
         self.tab_api.setObjectName(u"tab_api")
-        self.formLayout_3 = QFormLayout(self.tab_api)
+        self.verticalLayout_api = QVBoxLayout(self.tab_api)
+        self.verticalLayout_api.setSpacing(0)
+        self.verticalLayout_api.setObjectName(u"verticalLayout_api")
+        self.verticalLayout_api.setContentsMargins(0, 0, 0, 0)
+        self.scrollArea_api = QScrollArea(self.tab_api)
+        self.scrollArea_api.setObjectName(u"scrollArea_api")
+        self.scrollArea_api.setFrameShape(QFrame.NoFrame)
+        self.scrollArea_api.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.scrollArea_api.setWidgetResizable(True)
+        self.scrollAreaWidgetContents_api = QWidget()
+        self.scrollAreaWidgetContents_api.setObjectName(u"scrollAreaWidgetContents_api")
+        self.formLayout_3 = QFormLayout(self.scrollAreaWidgetContents_api)
         self.formLayout_3.setObjectName(u"formLayout_3")
         self.formLayout_3.setFieldGrowthPolicy(QFormLayout.AllNonFixedFieldsGrow)
         self.formLayout_3.setVerticalSpacing(3)
-        self.checkBox_enableOutAPI = QCheckBox(self.tab_api)
+        self.checkBox_enableOutAPI = QCheckBox(self.scrollAreaWidgetContents_api)
         self.checkBox_enableOutAPI.setObjectName(u"checkBox_enableOutAPI")
 
         self.formLayout_3.setWidget(0, QFormLayout.ItemRole.FieldRole, self.checkBox_enableOutAPI)
 
-        self.label_21 = QLabel(self.tab_api)
-        self.label_21.setObjectName(u"label_21")
+        self.label_outApiPreset = QLabel(self.scrollAreaWidgetContents_api)
+        self.label_outApiPreset.setObjectName(u"label_outApiPreset")
 
-        self.formLayout_3.setWidget(4, QFormLayout.ItemRole.LabelRole, self.label_21)
+        self.formLayout_3.setWidget(1, QFormLayout.ItemRole.LabelRole, self.label_outApiPreset)
 
-        self.comboBox_api_encode = QComboBox(self.tab_api)
-        self.comboBox_api_encode.addItem("")
-        self.comboBox_api_encode.addItem("")
-        self.comboBox_api_encode.addItem("")
-        self.comboBox_api_encode.addItem("")
-        self.comboBox_api_encode.setObjectName(u"comboBox_api_encode")
+        self.comboBox_outApiPreset = QComboBox(self.scrollAreaWidgetContents_api)
+        self.comboBox_outApiPreset.addItem("")
+        self.comboBox_outApiPreset.addItem(u"TriCaster DataLink")
+        self.comboBox_outApiPreset.addItem(u"Epiphan Pearl")
+        self.comboBox_outApiPreset.setObjectName(u"comboBox_outApiPreset")
 
-        self.formLayout_3.setWidget(4, QFormLayout.ItemRole.FieldRole, self.comboBox_api_encode)
+        self.formLayout_3.setWidget(1, QFormLayout.ItemRole.FieldRole, self.comboBox_outApiPreset)
 
-        self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+        self.label_outApiPresetHelp = QLabel(self.scrollAreaWidgetContents_api)
+        self.label_outApiPresetHelp.setObjectName(u"label_outApiPresetHelp")
+        self.label_outApiPresetHelp.setWordWrap(True)
 
-        self.formLayout_3.setItem(5, QFormLayout.ItemRole.FieldRole, self.verticalSpacer)
+        self.formLayout_3.setWidget(2, QFormLayout.ItemRole.FieldRole, self.label_outApiPresetHelp)
 
-        self.widget_24 = QWidget(self.tab_api)
+        self.label_20 = QLabel(self.scrollAreaWidgetContents_api)
+        self.label_20.setObjectName(u"label_20")
+
+        self.formLayout_3.setWidget(3, QFormLayout.ItemRole.LabelRole, self.label_20)
+
+        self.widget_24 = QWidget(self.scrollAreaWidgetContents_api)
         self.widget_24.setObjectName(u"widget_24")
         self.horizontalLayout_27 = QHBoxLayout(self.widget_24)
         self.horizontalLayout_27.setSpacing(2)
@@ -1985,12 +2208,104 @@ class Ui_MainWindow(object):
         self.horizontalLayout_27.addWidget(self.comboBox_outApiMethod)
 
 
-        self.formLayout_3.setWidget(1, QFormLayout.ItemRole.FieldRole, self.widget_24)
+        self.formLayout_3.setWidget(3, QFormLayout.ItemRole.FieldRole, self.widget_24)
 
-        self.label_20 = QLabel(self.tab_api)
-        self.label_20.setObjectName(u"label_20")
+        self.label_21 = QLabel(self.scrollAreaWidgetContents_api)
+        self.label_21.setObjectName(u"label_21")
 
-        self.formLayout_3.setWidget(1, QFormLayout.ItemRole.LabelRole, self.label_20)
+        self.formLayout_3.setWidget(4, QFormLayout.ItemRole.LabelRole, self.label_21)
+
+        self.comboBox_api_encode = QComboBox(self.scrollAreaWidgetContents_api)
+        self.comboBox_api_encode.addItem("")
+        self.comboBox_api_encode.addItem("")
+        self.comboBox_api_encode.addItem("")
+        self.comboBox_api_encode.addItem("")
+        self.comboBox_api_encode.setObjectName(u"comboBox_api_encode")
+
+        self.formLayout_3.setWidget(4, QFormLayout.ItemRole.FieldRole, self.comboBox_api_encode)
+
+        self.label_outApiSend = QLabel(self.scrollAreaWidgetContents_api)
+        self.label_outApiSend.setObjectName(u"label_outApiSend")
+
+        self.formLayout_3.setWidget(5, QFormLayout.ItemRole.LabelRole, self.label_outApiSend)
+
+        self.checkBox_outApiOnlyChanges = QCheckBox(self.scrollAreaWidgetContents_api)
+        self.checkBox_outApiOnlyChanges.setObjectName(u"checkBox_outApiOnlyChanges")
+
+        self.formLayout_3.setWidget(5, QFormLayout.ItemRole.FieldRole, self.checkBox_outApiOnlyChanges)
+
+        self.label_outApiRefresh = QLabel(self.scrollAreaWidgetContents_api)
+        self.label_outApiRefresh.setObjectName(u"label_outApiRefresh")
+
+        self.formLayout_3.setWidget(6, QFormLayout.ItemRole.LabelRole, self.label_outApiRefresh)
+
+        self.spinBox_outApiRefresh = QSpinBox(self.scrollAreaWidgetContents_api)
+        self.spinBox_outApiRefresh.setObjectName(u"spinBox_outApiRefresh")
+        self.spinBox_outApiRefresh.setSuffix(u" s")
+        self.spinBox_outApiRefresh.setMaximum(3600)
+
+        self.formLayout_3.setWidget(6, QFormLayout.ItemRole.FieldRole, self.spinBox_outApiRefresh)
+
+        self.label_outApiFields = QLabel(self.scrollAreaWidgetContents_api)
+        self.label_outApiFields.setObjectName(u"label_outApiFields")
+
+        self.formLayout_3.setWidget(7, QFormLayout.ItemRole.LabelRole, self.label_outApiFields)
+
+        self.spinBox_outApiFieldsPerRequest = QSpinBox(self.scrollAreaWidgetContents_api)
+        self.spinBox_outApiFieldsPerRequest.setObjectName(u"spinBox_outApiFieldsPerRequest")
+        self.spinBox_outApiFieldsPerRequest.setMaximum(99)
+
+        self.formLayout_3.setWidget(7, QFormLayout.ItemRole.FieldRole, self.spinBox_outApiFieldsPerRequest)
+
+        self.label_outApiRate = QLabel(self.scrollAreaWidgetContents_api)
+        self.label_outApiRate.setObjectName(u"label_outApiRate")
+
+        self.formLayout_3.setWidget(8, QFormLayout.ItemRole.LabelRole, self.label_outApiRate)
+
+        self.spinBox_outApiMaxRate = QSpinBox(self.scrollAreaWidgetContents_api)
+        self.spinBox_outApiMaxRate.setObjectName(u"spinBox_outApiMaxRate")
+        self.spinBox_outApiMaxRate.setMaximum(100)
+
+        self.formLayout_3.setWidget(8, QFormLayout.ItemRole.FieldRole, self.spinBox_outApiMaxRate)
+
+        self.label_outApiNames = QLabel(self.scrollAreaWidgetContents_api)
+        self.label_outApiNames.setObjectName(u"label_outApiNames")
+
+        self.formLayout_3.setWidget(9, QFormLayout.ItemRole.LabelRole, self.label_outApiNames)
+
+        self.checkBox_outApiSafeNames = QCheckBox(self.scrollAreaWidgetContents_api)
+        self.checkBox_outApiSafeNames.setObjectName(u"checkBox_outApiSafeNames")
+
+        self.formLayout_3.setWidget(9, QFormLayout.ItemRole.FieldRole, self.checkBox_outApiSafeNames)
+
+        self.label_outApiNamesSent = QLabel(self.scrollAreaWidgetContents_api)
+        self.label_outApiNamesSent.setObjectName(u"label_outApiNamesSent")
+        self.label_outApiNamesSent.setWordWrap(True)
+        self.label_outApiNamesSent.setTextInteractionFlags(Qt.TextSelectableByMouse)
+
+        self.formLayout_3.setWidget(10, QFormLayout.ItemRole.FieldRole, self.label_outApiNamesSent)
+
+        self.label_outApiHeaders = QLabel(self.scrollAreaWidgetContents_api)
+        self.label_outApiHeaders.setObjectName(u"label_outApiHeaders")
+
+        self.formLayout_3.setWidget(11, QFormLayout.ItemRole.LabelRole, self.label_outApiHeaders)
+
+        self.plainTextEdit_outApiHeaders = QPlainTextEdit(self.scrollAreaWidgetContents_api)
+        self.plainTextEdit_outApiHeaders.setObjectName(u"plainTextEdit_outApiHeaders")
+        self.plainTextEdit_outApiHeaders.setMaximumSize(QSize(16777215, 52))
+        self.plainTextEdit_outApiHeaders.setTabChangesFocus(True)
+        self.plainTextEdit_outApiHeaders.setLineWrapMode(QPlainTextEdit.NoWrap)
+        self.plainTextEdit_outApiHeaders.setPlaceholderText(u"Authorization: Bearer \u2026")
+
+        self.formLayout_3.setWidget(11, QFormLayout.ItemRole.FieldRole, self.plainTextEdit_outApiHeaders)
+
+        self.verticalSpacer = QSpacerItem(20, 0, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+
+        self.formLayout_3.setItem(12, QFormLayout.ItemRole.FieldRole, self.verticalSpacer)
+
+        self.scrollArea_api.setWidget(self.scrollAreaWidgetContents_api)
+
+        self.verticalLayout_api.addWidget(self.scrollArea_api)
 
         self.stackedWidget_outputs.addWidget(self.tab_api)
 
@@ -2027,6 +2342,11 @@ class Ui_MainWindow(object):
 #if QT_CONFIG(shortcut)
         self.label.setBuddy(self.comboBox_camera_source)
         self.label_boxDisplayStyle.setBuddy(self.comboBox_boxDisplayStyle)
+        self.label_overlayKind.setBuddy(self.comboBox_overlayKind)
+        self.label_overlayFields.setBuddy(self.toolButton_overlayFields)
+        self.label_overlayTheme.setBuddy(self.comboBox_overlayTheme)
+        self.label_overlayScale.setBuddy(self.doubleSpinBox_overlayScale)
+        self.label_overlayHost.setBuddy(self.comboBox_overlayHost)
 #endif // QT_CONFIG(shortcut)
 
         self.menubar.addAction(self.menuFile.menuAction())
@@ -2166,7 +2486,7 @@ class Ui_MainWindow(object):
         self.label_hiddenFields.setToolTip(QCoreApplication.translate("MainWindow", u"The fields that aren't on the picture are hidden in this layout (View > Show unused fields)", None))
 #endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(tooltip)
-        self.pushButton_makeBox.setToolTip(QCoreApplication.translate("MainWindow", u"Put a box for the selected field on the picture, then drag it over the value. Formerly \u201cAdd to Scene\u201d.", None))
+        self.pushButton_makeBox.setToolTip(QCoreApplication.translate("MainWindow", u"Put a box for the selected field in the middle of the picture, then drag it over the value. You can also drag over the value on the picture, or double-click the field. Formerly \u201cAdd to Scene\u201d.", None))
 #endif // QT_CONFIG(tooltip)
         self.pushButton_makeBox.setText(QCoreApplication.translate("MainWindow", u"Place on picture", None))
 #if QT_CONFIG(tooltip)
@@ -2261,6 +2581,10 @@ class Ui_MainWindow(object):
 #endif // QT_CONFIG(tooltip)
         self.pushButton_stabilize.setText(QCoreApplication.translate("MainWindow", u"Stabilize", None))
         self.label_adjustHint.setText(QCoreApplication.translate("MainWindow", u"Set these first: the boxes sit on the adjusted picture.", None))
+#if QT_CONFIG(tooltip)
+        self.toolButton_dragCrop.setToolTip(QCoreApplication.translate("MainWindow", u"Drag around the part of the picture to keep, on the whole picture. The values next to it fine-tune the crop.", None))
+#endif // QT_CONFIG(tooltip)
+        self.toolButton_dragCrop.setText(QCoreApplication.translate("MainWindow", u"Drag to crop", None))
         self.label_16.setText(QCoreApplication.translate("MainWindow", u"Left", None))
 #if QT_CONFIG(tooltip)
         self.spinBox_leftCrop.setToolTip(QCoreApplication.translate("MainWindow", u"Pixels to cut off the left edge", None))
@@ -2301,6 +2625,11 @@ class Ui_MainWindow(object):
         self.pushButton_cancelFourCorner.setToolTip(QCoreApplication.translate("MainWindow", u"Stop picking corners and keep the current correction (Esc)", None))
 #endif // QT_CONFIG(tooltip)
         self.pushButton_cancelFourCorner.setText(QCoreApplication.translate("MainWindow", u"Cancel", None))
+        self.label_cropBanner.setText(QCoreApplication.translate("MainWindow", u"Drag around the part of the picture to keep. Esc cancels and keeps the current crop.", None))
+#if QT_CONFIG(tooltip)
+        self.pushButton_cancelCrop.setToolTip(QCoreApplication.translate("MainWindow", u"Stop and keep the current crop (Esc)", None))
+#endif // QT_CONFIG(tooltip)
+        self.pushButton_cancelCrop.setText(QCoreApplication.translate("MainWindow", u"Cancel", None))
 #if QT_CONFIG(tooltip)
         self.pushButton_resumeOutputs.setToolTip(QCoreApplication.translate("MainWindow", u"Send the current values to every output again", None))
 #endif // QT_CONFIG(tooltip)
@@ -2315,7 +2644,7 @@ class Ui_MainWindow(object):
         self.pushButton_firstRunUrl.setText(QCoreApplication.translate("MainWindow", u"Stream URL\u2026", None))
         self.pushButton_firstRunScreen.setText(QCoreApplication.translate("MainWindow", u"Screen\u2026", None))
         self.label_firstRunBoxes.setText(QCoreApplication.translate("MainWindow", u"Place fields over the numbers", None))
-        self.label_firstRunBoxesHint.setText(QCoreApplication.translate("MainWindow", u"Select a field in the list, put it on the picture and drag its box over the numbers.", None))
+        self.label_firstRunBoxesHint.setText(QCoreApplication.translate("MainWindow", u"Select a field, then drag over its numbers on the picture.", None))
         self.label_firstRunOutputs.setText(QCoreApplication.translate("MainWindow", u"Send them", None))
         self.label_firstRunOutputsHint.setText(QCoreApplication.translate("MainWindow", u"To OBS, vMix, UNO, text files or a browser overlay: turn one on in the Outputs list.", None))
 #if QT_CONFIG(accessibility)
@@ -2570,6 +2899,14 @@ class Ui_MainWindow(object):
 #endif // QT_CONFIG(tooltip)
         self.checkBox_saveXML.setText(QCoreApplication.translate("MainWindow", u"Save .xml file", None))
 #if QT_CONFIG(tooltip)
+        self.checkBox_saveJson.setToolTip(QCoreApplication.translate("MainWindow", u"Also write results.json: one object with every field's latest value, {\"Home Score\": \"21\", ...} (for example for SuiteCG)", None))
+#endif // QT_CONFIG(tooltip)
+        self.checkBox_saveJson.setText(QCoreApplication.translate("MainWindow", u"Save .json file", None))
+#if QT_CONFIG(tooltip)
+        self.checkBox_saveKeyValue.setToolTip(QCoreApplication.translate("MainWindow", u"Also write results.txt: a \"Field Name=value\" line per field (for example for SuiteCG or a TriCaster DataLink watch folder)", None))
+#endif // QT_CONFIG(tooltip)
+        self.checkBox_saveKeyValue.setText(QCoreApplication.translate("MainWindow", u"Save key=value .txt file", None))
+#if QT_CONFIG(tooltip)
         self.label_append.setToolTip(QCoreApplication.translate("MainWindow", u"Add each new value to a log, or keep only the latest values", None))
 #endif // QT_CONFIG(tooltip)
         self.label_append.setText(QCoreApplication.translate("MainWindow", u"Append", None))
@@ -2592,6 +2929,58 @@ class Ui_MainWindow(object):
         self.horizontalSlider_aggsPerSecond.setToolTip(QCoreApplication.translate("MainWindow", u"How many times per second the files are written (1-10). Affects only the files.", None))
 #endif // QT_CONFIG(tooltip)
         self.label_8.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p>Use these endpoints in external software to get live data updates</p><p>HTML Scoreboard: <a href=\"http://localhost:18099/scoresight\">http://localhost:18099/scoresight</a><br/>JSON: <a href=\"http://localhost:18099/json\">http://localhost:18099/json</a> (optional: ?pivot)<br/>XML: <a href=\"http://localhost:18099/xml\">http://localhost:18099/xml</a> (optional: ?pivot)<br/>CSV: <a href=\"http://localhost:18099/csv\">http://localhost:18099/csv</a> (optional: ?pivot)</p></body></html>", None))
+#if QT_CONFIG(tooltip)
+        self.groupBox_overlays.setToolTip(QCoreApplication.translate("MainWindow", u"Transparent pages with live values, for a browser source in OBS, vMix, Wirecast, CasparCG and other production software", None))
+#endif // QT_CONFIG(tooltip)
+        self.groupBox_overlays.setTitle(QCoreApplication.translate("MainWindow", u"Browser overlays", None))
+        self.label_overlayKind.setText(QCoreApplication.translate("MainWindow", u"Overlay", None))
+#if QT_CONFIG(tooltip)
+        self.comboBox_overlayKind.setToolTip(QCoreApplication.translate("MainWindow", u"A built-in overlay, or one of yours from the overlays folder", None))
+#endif // QT_CONFIG(tooltip)
+#if QT_CONFIG(tooltip)
+        self.toolButton_overlaysFolder.setToolTip(QCoreApplication.translate("MainWindow", u"Open the overlays folder: put your own HTML overlays there", None))
+#endif // QT_CONFIG(tooltip)
+#if QT_CONFIG(accessibility)
+        self.toolButton_overlaysFolder.setAccessibleName(QCoreApplication.translate("MainWindow", u"Open the overlays folder", None))
+#endif // QT_CONFIG(accessibility)
+        self.label_overlayFields.setText(QCoreApplication.translate("MainWindow", u"Fields", None))
+#if QT_CONFIG(tooltip)
+        self.toolButton_overlayFields.setToolTip(QCoreApplication.translate("MainWindow", u"The fields the overlay shows", None))
+#endif // QT_CONFIG(tooltip)
+#if QT_CONFIG(accessibility)
+        self.toolButton_overlayFields.setAccessibleName(QCoreApplication.translate("MainWindow", u"Overlay fields", None))
+#endif // QT_CONFIG(accessibility)
+        self.label_overlayTheme.setText(QCoreApplication.translate("MainWindow", u"Theme", None))
+        self.comboBox_overlayTheme.setItemText(0, QCoreApplication.translate("MainWindow", u"Dark", None))
+        self.comboBox_overlayTheme.setItemText(1, QCoreApplication.translate("MainWindow", u"Light", None))
+        self.comboBox_overlayTheme.setItemText(2, QCoreApplication.translate("MainWindow", u"Minimal", None))
+        self.comboBox_overlayTheme.setItemText(3, QCoreApplication.translate("MainWindow", u"Bold", None))
+
+#if QT_CONFIG(tooltip)
+        self.comboBox_overlayTheme.setToolTip(QCoreApplication.translate("MainWindow", u"The overlay's colors. Minimal has no panels: white text with a shadow", None))
+#endif // QT_CONFIG(tooltip)
+        self.label_overlayScale.setText(QCoreApplication.translate("MainWindow", u"Scale", None))
+#if QT_CONFIG(tooltip)
+        self.doubleSpinBox_overlayScale.setToolTip(QCoreApplication.translate("MainWindow", u"The overlays fit the page's width (1920x1080, 1280x720...); this makes them bigger or smaller", None))
+#endif // QT_CONFIG(tooltip)
+        self.label_overlayHost.setText(QCoreApplication.translate("MainWindow", u"Address", None))
+#if QT_CONFIG(tooltip)
+        self.comboBox_overlayHost.setToolTip(QCoreApplication.translate("MainWindow", u"The network address for software on other computers, localhost for software on this one", None))
+#endif // QT_CONFIG(tooltip)
+#if QT_CONFIG(tooltip)
+        self.lineEdit_overlayUrl.setToolTip(QCoreApplication.translate("MainWindow", u"Paste this address in a browser source", None))
+#endif // QT_CONFIG(tooltip)
+#if QT_CONFIG(accessibility)
+        self.lineEdit_overlayUrl.setAccessibleName(QCoreApplication.translate("MainWindow", u"Overlay address", None))
+#endif // QT_CONFIG(accessibility)
+#if QT_CONFIG(tooltip)
+        self.pushButton_copyOverlayUrl.setToolTip(QCoreApplication.translate("MainWindow", u"Copy the overlay's address", None))
+#endif // QT_CONFIG(tooltip)
+        self.pushButton_copyOverlayUrl.setText(QCoreApplication.translate("MainWindow", u"Copy", None))
+#if QT_CONFIG(tooltip)
+        self.pushButton_openOverlayUrl.setToolTip(QCoreApplication.translate("MainWindow", u"Open the overlay in your web browser", None))
+#endif // QT_CONFIG(tooltip)
+        self.pushButton_openOverlayUrl.setText(QCoreApplication.translate("MainWindow", u"Open in browser", None))
 #if QT_CONFIG(tooltip)
         self.pushButton_connectObs.setToolTip(QCoreApplication.translate("MainWindow", u"Connect to the WebSocket server of OBS Studio", None))
 #endif // QT_CONFIG(tooltip)
@@ -2691,20 +3080,18 @@ class Ui_MainWindow(object):
         self.checkBox_enableOutAPI.setToolTip(QCoreApplication.translate("MainWindow", u"Send the readings to the URL below on every detection cycle", None))
 #endif // QT_CONFIG(tooltip)
         self.checkBox_enableOutAPI.setText(QCoreApplication.translate("MainWindow", u"Send out API requests to external services.", None))
-        self.label_21.setText(QCoreApplication.translate("MainWindow", u"Encode", None))
-        self.comboBox_api_encode.setItemText(0, QCoreApplication.translate("MainWindow", u"JSON (Full)", None))
-        self.comboBox_api_encode.setItemText(1, QCoreApplication.translate("MainWindow", u"JSON (Simple key-value)", None))
-        self.comboBox_api_encode.setItemText(2, QCoreApplication.translate("MainWindow", u"XML", None))
-        self.comboBox_api_encode.setItemText(3, QCoreApplication.translate("MainWindow", u"CSV", None))
+        self.label_outApiPreset.setText(QCoreApplication.translate("MainWindow", u"Preset", None))
+        self.comboBox_outApiPreset.setItemText(0, QCoreApplication.translate("MainWindow", u"Custom", None))
 
 #if QT_CONFIG(tooltip)
-        self.comboBox_api_encode.setToolTip(QCoreApplication.translate("MainWindow", u"The format of the readings in the requests", None))
+        self.comboBox_outApiPreset.setToolTip(QCoreApplication.translate("MainWindow", u"Fill in the settings for a product. You can still change every setting afterwards.", None))
 #endif // QT_CONFIG(tooltip)
+        self.label_20.setText(QCoreApplication.translate("MainWindow", u"URL", None))
 #if QT_CONFIG(accessibility)
         self.lineEdit_api_url.setAccessibleName(QCoreApplication.translate("MainWindow", u"API URL", None))
 #endif // QT_CONFIG(accessibility)
 #if QT_CONFIG(tooltip)
-        self.lineEdit_api_url.setToolTip(QCoreApplication.translate("MainWindow", u"The URL the readings are sent to", None))
+        self.lineEdit_api_url.setToolTip(QCoreApplication.translate("MainWindow", u"The URL the readings are sent to. With {field} and {value} in it, each field is sent in its own request, for example http://host/set?key={field}&value={value}. For a login, put it in the URL: http://user:password@host/...", None))
 #endif // QT_CONFIG(tooltip)
         self.lineEdit_api_url.setPlaceholderText(QCoreApplication.translate("MainWindow", u"http://", None))
         self.comboBox_outApiMethod.setItemText(0, QCoreApplication.translate("MainWindow", u"POST", None))
@@ -2714,7 +3101,53 @@ class Ui_MainWindow(object):
 #if QT_CONFIG(tooltip)
         self.comboBox_outApiMethod.setToolTip(QCoreApplication.translate("MainWindow", u"The HTTP method of the requests", None))
 #endif // QT_CONFIG(tooltip)
-        self.label_20.setText(QCoreApplication.translate("MainWindow", u"URL", None))
+        self.label_21.setText(QCoreApplication.translate("MainWindow", u"Encode", None))
+        self.comboBox_api_encode.setItemText(0, QCoreApplication.translate("MainWindow", u"JSON (Full)", None))
+        self.comboBox_api_encode.setItemText(1, QCoreApplication.translate("MainWindow", u"JSON (Simple key-value)", None))
+        self.comboBox_api_encode.setItemText(2, QCoreApplication.translate("MainWindow", u"XML", None))
+        self.comboBox_api_encode.setItemText(3, QCoreApplication.translate("MainWindow", u"CSV", None))
+
+#if QT_CONFIG(tooltip)
+        self.comboBox_api_encode.setToolTip(QCoreApplication.translate("MainWindow", u"The format of the readings in the requests", None))
+#endif // QT_CONFIG(tooltip)
+        self.label_outApiSend.setText(QCoreApplication.translate("MainWindow", u"Send", None))
+#if QT_CONFIG(tooltip)
+        self.checkBox_outApiOnlyChanges.setToolTip(QCoreApplication.translate("MainWindow", u"Send a reading only when its value changed (off: every reading on every detection cycle)", None))
+#endif // QT_CONFIG(tooltip)
+        self.checkBox_outApiOnlyChanges.setText(QCoreApplication.translate("MainWindow", u"Only changes", None))
+        self.label_outApiRefresh.setText(QCoreApplication.translate("MainWindow", u"Resend all", None))
+#if QT_CONFIG(tooltip)
+        self.spinBox_outApiRefresh.setToolTip(QCoreApplication.translate("MainWindow", u"With Only changes: also send every value again this often, for a receiver that forgets them when it restarts", None))
+#endif // QT_CONFIG(tooltip)
+        self.spinBox_outApiRefresh.setSpecialValueText(QCoreApplication.translate("MainWindow", u"Never", None))
+        self.spinBox_outApiRefresh.setPrefix(QCoreApplication.translate("MainWindow", u"every ", None))
+        self.label_outApiFields.setText(QCoreApplication.translate("MainWindow", u"Fields", None))
+#if QT_CONFIG(tooltip)
+        self.spinBox_outApiFieldsPerRequest.setToolTip(QCoreApplication.translate("MainWindow", u"How many fields one request carries: all of them (one request per detection cycle), or at most this many (a request per batch of changed fields). A URL with {field} or {value} always sends one field per request.", None))
+#endif // QT_CONFIG(tooltip)
+        self.spinBox_outApiFieldsPerRequest.setSpecialValueText(QCoreApplication.translate("MainWindow", u"All in one request", None))
+        self.spinBox_outApiFieldsPerRequest.setSuffix(QCoreApplication.translate("MainWindow", u" per request", None))
+        self.label_outApiRate.setText(QCoreApplication.translate("MainWindow", u"Rate", None))
+#if QT_CONFIG(tooltip)
+        self.spinBox_outApiMaxRate.setToolTip(QCoreApplication.translate("MainWindow", u"At most this many requests per second (the latest values wait for their turn)", None))
+#endif // QT_CONFIG(tooltip)
+        self.spinBox_outApiMaxRate.setSpecialValueText(QCoreApplication.translate("MainWindow", u"No limit", None))
+        self.spinBox_outApiMaxRate.setSuffix(QCoreApplication.translate("MainWindow", u" requests/s", None))
+        self.label_outApiNames.setText(QCoreApplication.translate("MainWindow", u"Names", None))
+#if QT_CONFIG(tooltip)
+        self.checkBox_outApiSafeNames.setToolTip(QCoreApplication.translate("MainWindow", u"Send the field names in lower case with letters, digits and _ only (\"Home Score\" as home_score), for receivers that allow no other names", None))
+#endif // QT_CONFIG(tooltip)
+        self.checkBox_outApiSafeNames.setText(QCoreApplication.translate("MainWindow", u"Letters, digits and _ only", None))
+#if QT_CONFIG(tooltip)
+        self.label_outApiNamesSent.setToolTip(QCoreApplication.translate("MainWindow", u"The names the fields are sent with", None))
+#endif // QT_CONFIG(tooltip)
+        self.label_outApiHeaders.setText(QCoreApplication.translate("MainWindow", u"Headers", None))
+#if QT_CONFIG(accessibility)
+        self.plainTextEdit_outApiHeaders.setAccessibleName(QCoreApplication.translate("MainWindow", u"Request headers", None))
+#endif // QT_CONFIG(accessibility)
+#if QT_CONFIG(tooltip)
+        self.plainTextEdit_outApiHeaders.setToolTip(QCoreApplication.translate("MainWindow", u"Extra request headers, one \"Name: value\" per line, for example an Authorization token", None))
+#endif // QT_CONFIG(tooltip)
         self.tabWidget_inspector.setTabText(self.tabWidget_inspector.indexOf(self.widget_outputs), QCoreApplication.translate("MainWindow", u"Outputs", None))
         self.menuFile.setTitle(QCoreApplication.translate("MainWindow", u"File", None))
         self.menuView.setTitle(QCoreApplication.translate("MainWindow", u"View", None))

@@ -1,5 +1,10 @@
-"""File outputs: a .txt file per box, results.csv and results.xml in the output
-folder.
+"""File outputs: a .txt file per box, results.csv, results.xml, results.json and
+results.txt in the output folder.
+
+results.json is one flat object {box name: last good value} and results.txt
+has a "Box Name=value" line per box: the shapes that programs reading one
+file of all the fields expect (SuiteCG's Data Automation JSON and TXT, the
+TriCaster DataLink watch folder's TXT, Vizrt Datacenter's text provider).
 
 Writes are state-based rather than edge-based. FileOutput keeps the last good
 reading of every box (record) and, whenever the files are flushed, (re)writes a
@@ -19,6 +24,7 @@ well-formed.
 import csv
 import datetime
 import io
+import json
 import os
 import re
 import tempfile
@@ -43,6 +49,8 @@ APPEND_NONE = 3
 
 CSV_FILE_NAME = "results.csv"
 XML_FILE_NAME = "results.xml"
+JSON_FILE_NAME = "results.json"
+KEY_VALUE_FILE_NAME = "results.txt"
 CSV_TIMESTAMP_COLUMN = "Timestamp"
 
 # characters that are not allowed in file names on Windows (and "/" anywhere)
@@ -197,6 +205,8 @@ class FileOutput:
         self._csv_header: dict[str, list[str]] = {}
         self._csv_written: dict[str, tuple] = {}
         self._xml_written: dict[str, tuple] = {}
+        # results.json and results.txt: the values last written to each
+        self._snapshot_written: dict[str, tuple] = {}
         # files whose last write failed (logged once until they succeed again)
         self._failing: set[str] = set()
         # for status(): the folder of the last flush and the files written to it
@@ -250,6 +260,8 @@ class FileOutput:
         append_method: int = APPEND_NONE,
         save_csv: bool = False,
         save_xml: bool = False,
+        save_json: bool = False,
+        save_key_value: bool = False,
     ):
         """Write every file whose content differs from what was last written, or
         that is missing."""
@@ -266,6 +278,10 @@ class FileOutput:
             self._write_csv(out_folder, append_method in (APPEND_CSV, APPEND_BOTH))
         if save_xml:
             self._write_xml(out_folder)
+        if save_json:
+            self._write_json(out_folder)
+        if save_key_value:
+            self._write_key_value(out_folder)
 
     # --- error reporting -------------------------------------------------------
 
@@ -418,3 +434,69 @@ class FileOutput:
         self._write_succeeded(path)
         self._wrote(path)
         self._xml_written[path] = snapshot
+
+    # --- results.json and results.txt -------------------------------------------
+
+    def _all_values(self) -> tuple[tuple[str, str], ...]:
+        """Every box with its last good value ("" before its first)."""
+        return tuple(
+            (box.name, self.latest_text(box.name) or "") for box in self._boxes
+        )
+
+    def _write_snapshot(self, path: str, snapshot, render) -> None:
+        """Write render(snapshot) to path atomically, unless that is what the
+        file already holds."""
+        if os.path.exists(path) and self._snapshot_written.get(path) == snapshot:
+            return
+        try:
+            write_text_atomic(path, render(snapshot))
+        except OSError as e:
+            self._write_failed(path, e)
+            return
+        self._write_succeeded(path)
+        self._wrote(path)
+        self._snapshot_written[path] = snapshot
+
+    def _write_json(self, out_folder: str):
+        def render(values):
+            return json.dumps(dict(values), ensure_ascii=False, indent=2) + "\n"
+
+        path = os.path.join(out_folder, JSON_FILE_NAME)
+        self._write_snapshot(path, self._all_values(), render)
+
+    def _write_key_value(self, out_folder: str):
+        path = os.path.join(out_folder, KEY_VALUE_FILE_NAME)
+        clash = next(
+            (
+                box.name
+                for box in self._boxes
+                if text_file_name(box.name).lower() == KEY_VALUE_FILE_NAME
+            ),
+            None,
+        )
+        if clash is not None:
+            # the box's own .txt file has this name: it keeps it
+            self._write_failed(
+                path,
+                OSError(
+                    f"the box {clash!r} writes its value to this file; rename the "
+                    "box to also get the key=value file"
+                ),
+            )
+            return
+
+        def render(values):
+            return "".join(
+                f"{_key_value_key(name)}={_one_line(text)}\n" for name, text in values
+            )
+
+        self._write_snapshot(path, self._all_values(), render)
+
+
+def _one_line(text: str) -> str:
+    return " ".join(str(text).splitlines())
+
+
+def _key_value_key(name: str) -> str:
+    # the first "=" ends the key
+    return _one_line(name).replace("=", "_")

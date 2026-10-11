@@ -31,7 +31,7 @@ from PySide6.QtCore import QCoreApplication
 from file_output import FileOutputStatus
 from http_server import HttpServerStats
 from obs_websocket import OBSConnectionLost
-from output_worker import ErrorInfo, OutputError, WorkerStatus
+from output_worker import ErrorInfo, OutputError, RetryLater, WorkerStatus
 from tcp_output import CASPARCG, UDP, ConnectionStatus, TcpConfig
 from vmix_output import DEFAULT_VMIX_PORT, VMixTCPPortError
 
@@ -203,6 +203,24 @@ def age_text(seconds: float) -> str:
         )
     return QCoreApplication.translate("OutputStatus", "{hours} h ago").format(
         hours=seconds // 3600
+    )
+
+
+def wait_text(seconds: float) -> str:
+    """A wait: "a few seconds", "40 s", "3 min", "2 h"."""
+    seconds = max(0, int(round(seconds)))
+    if seconds < 5:
+        return QCoreApplication.translate("OutputStatus", "a few seconds")
+    if seconds < 60:
+        return QCoreApplication.translate("OutputStatus", "{seconds} s").format(
+            seconds=seconds
+        )
+    if seconds < 3600:
+        return QCoreApplication.translate("OutputStatus", "{minutes} min").format(
+            minutes=-(-seconds // 60)
+        )
+    return QCoreApplication.translate("OutputStatus", "{hours} h").format(
+        hours=-(-seconds // 3600)
     )
 
 
@@ -677,8 +695,9 @@ def _describe_http_status(key: str, error: ErrorInfo, secrets) -> Problem:
             ).format(code=code),
             QCoreApplication.translate(
                 "OutputStatus",
-                "The endpoint refused the request. If it needs a key, put it in "
-                "the URL.",
+                "The endpoint refused the request. If it needs a login, put it in "
+                "the URL (http://user:password@host/...); a key or token goes in "
+                "the URL or in Headers.",
             ),
         )
     if code == 404:
@@ -716,22 +735,41 @@ def _describe_http_status(key: str, error: ErrorInfo, secrets) -> Problem:
         )
     if code == 429:
         if key == UNO:
+            detail = QCoreApplication.translate(
+                "OutputStatus", "HTTP 429: overlays.uno's call limit reached"
+            )
             hint = QCoreApplication.translate(
                 "OutputStatus",
-                "overlays.uno limits how many updates it accepts, and drops the "
-                "others. Keep “Also resend unchanged values” off and “Update on "
-                "change” on.",
+                "overlays.uno limits the calls of your plan (the Free plan: about "
+                "10,000 a day). ScoreSight keeps the latest value of each field "
+                "and sends it when the limit resets. To use fewer calls, keep "
+                "“Also resend unchanged values” off and clear the command of "
+                "fields the overlay doesn't use.",
             )
         else:
+            detail = QCoreApplication.translate(
+                "OutputStatus", "HTTP 429: too many requests"
+            )
             hint = QCoreApplication.translate(
                 "OutputStatus",
-                "The endpoint limits the requests, and drops the others: lower "
+                "The endpoint limits the requests. ScoreSight keeps the latest "
+                "readings and sends them when it accepts requests again. To send "
+                "fewer, turn on “Send only changes”, set a rate limit, or lower "
                 "Detections / s.",
             )
+        return Problem(WARNING, _retrying(detail, error.unreachable), hint)
+    if code == 400 and key == UNO:
         return Problem(
-            WARNING,
-            QCoreApplication.translate("OutputStatus", "HTTP 429: too many requests"),
-            hint,
+            ERROR,
+            QCoreApplication.translate(
+                "OutputStatus", "HTTP 400: overlays.uno doesn't know a command"
+            ),
+            QCoreApplication.translate(
+                "OutputStatus",
+                "Check the commands in the table against your overlay's API "
+                "description, and clear the command of fields the overlay doesn't "
+                "use: every call counts against your daily limit.",
+            ),
         )
     if code >= 500:
         if key == VMIX:
@@ -786,7 +824,22 @@ def worker_problem(
     if worker.retrying:
         if problem.state == ERROR:  # e.g. vMix's TCP API port: needs action
             return problem
-        return Problem(RETRYING, problem.detail, problem.hint)
+        hint = problem.hint
+        # the time left until the next try (or the whole wait, if unknown)
+        wait = worker.retry_in if worker.retry_in is not None else worker.retry_delay
+        if _is_a(worker.last_error, RetryLater) and wait is not None:
+            # the endpoint said how long to wait (e.g. until a quota resets)
+            hint = " ".join(
+                part
+                for part in (
+                    hint,
+                    QCoreApplication.translate(
+                        "OutputStatus", "Next try in {wait}."
+                    ).format(wait=wait_text(wait)),
+                )
+                if part
+            )
+        return Problem(RETRYING, problem.detail, hint)
     if worker.ok_keys:
         # some fields arrive, others don't
         total = worker.ok_keys + worker.failing_keys
@@ -1133,14 +1186,26 @@ def vmix_status(
     )
 
 
+def _daily_calls_text(quota) -> str:
+    """ "9,512 calls left today", from overlays.uno's headers, or ""."""
+    daily = getattr(quota, "daily", None)
+    if daily is None or daily.remaining is None:
+        return ""
+    return QCoreApplication.translate(
+        "OutputStatus", "{calls} calls left today"
+    ).format(calls=f"{daily.remaining:,}")
+
+
 def uno_status(
     running: bool,
     endpoint: str | None,
     mapping: Mapping[str, str] | None,
     worker: WorkerStatus | None,
+    quota=None,
 ) -> DestinationStatus:
     """UNO: on while started (Start sending). The URL is a secret: only its
-    host is shown."""
+    host is shown. quota (uno_output.UnoQuota) holds the limits overlays.uno
+    reported: the daily calls left are shown, with a warning when few are."""
     secrets = url_secrets(endpoint, path_is_secret=True)
     host = url_target(endpoint)
     if not running:
@@ -1176,6 +1241,17 @@ def uno_status(
                 "Place fields on the picture and enter the UNO commands in the table.",
             ),
         )
+    # fields without a command (since custom fields get none by default)
+    unmapped = sum(1 for command in (mapping or {}).values() if not command)
+    hint = (
+        QCoreApplication.translate(
+            "OutputStatus",
+            "{count} field(s) have no UNO command and aren't sent: enter one in "
+            "the table if the overlay has a command for them.",
+        ).format(count=unmapped)
+        if unmapped
+        else ""
+    )
     last_sent = worker.last_success_at if worker is not None else None
     if last_sent is None:
         status = DestinationStatus(
@@ -1185,22 +1261,34 @@ def uno_status(
                 "OutputStatus", "Waiting for a new value for {host}"
             ).format(host=host),
             enabled=True,
+            hint=hint,
         )
     else:
-        status = DestinationStatus(
-            UNO,
-            OK,
-            QCoreApplication.translate("OutputStatus", "Sending to {host}").format(
-                host=host
-            ),
-            enabled=True,
-            last_activity_at=last_sent,
+        detail = QCoreApplication.translate("OutputStatus", "Sending to {host}").format(
+            host=host
         )
-    return _with_problem(
-        status,
-        worker_problem(UNO, worker, host, secrets),
-        _technical(worker, secrets),
-    )
+        calls_left = _daily_calls_text(quota)
+        if calls_left:
+            detail = f"{detail} · {calls_left}"
+        status = DestinationStatus(
+            UNO, OK, detail, enabled=True, hint=hint, last_activity_at=last_sent
+        )
+    problem = worker_problem(UNO, worker, host, secrets)
+    if problem is None and getattr(quota, "daily_low", False):
+        problem = Problem(
+            WARNING,
+            QCoreApplication.translate(
+                "OutputStatus", "Only {calls} overlays.uno calls left today"
+            ).format(calls=f"{quota.daily.remaining:,}"),
+            QCoreApplication.translate(
+                "OutputStatus",
+                "Every update is a call. When none are left, overlays.uno refuses "
+                "updates until the limit resets; ScoreSight then sends the latest "
+                "values. To use fewer calls, keep “Also resend unchanged values” "
+                "off and clear the command of fields the overlay doesn't use.",
+            ),
+        )
+    return _with_problem(status, problem, _technical(worker, secrets))
 
 
 def api_status(
@@ -1209,8 +1297,10 @@ def api_status(
     method: str,
     encoding: str,
     worker: WorkerStatus | None,
+    mode=None,
 ) -> DestinationStatus:
-    """The outbound HTTP API: on while its checkbox is ticked."""
+    """The outbound HTTP API: on while its checkbox is ticked. mode
+    (api_output.SendMode) tells how the readings are sent."""
     url = (url or "").strip()
     secrets = url_secrets(url)
     target = url_target(url)
@@ -1249,6 +1339,21 @@ def api_status(
                 "http://192.168.1.10:8091/scores.",
             ),
         )
+    if getattr(mode, "needs_address", False):
+        return DestinationStatus(
+            API,
+            WARNING,
+            QCoreApplication.translate(
+                "OutputStatus", "Enter your device's address in the URL"
+            ),
+            enabled=True,
+            hint=QCoreApplication.translate(
+                "OutputStatus",
+                "Replace the capitalized placeholder in the URL (for example "
+                "TRICASTER-IP) with the device's IP address, and the login with "
+                "its user name and password.",
+            ),
+        )
     if method == "GET":
         what = QCoreApplication.translate("OutputStatus", "GET to {target}").format(
             target=target
@@ -1257,6 +1362,23 @@ def api_status(
         what = QCoreApplication.translate(
             "OutputStatus", "{method} {encoding} to {target}"
         ).format(method=method, encoding=encoding, target=target)
+    how = []
+    if getattr(mode, "per_field", False):
+        fields = mode.fields_per_request
+        if fields == 1:
+            how.append(
+                QCoreApplication.translate("OutputStatus", "a request per field")
+            )
+        elif fields:
+            how.append(
+                QCoreApplication.translate(
+                    "OutputStatus", "up to {fields} fields a request"
+                ).format(fields=fields)
+            )
+    if getattr(mode, "only_changes", False):
+        how.append(QCoreApplication.translate("OutputStatus", "only changes"))
+    if how:
+        what = " · ".join([what, *how])
     last_sent = worker.last_success_at if worker is not None else None
     if last_sent is None:
         status = DestinationStatus(

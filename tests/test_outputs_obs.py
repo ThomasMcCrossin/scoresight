@@ -322,6 +322,9 @@ def test_create_obs_scene_points_image_sources_at_the_bundled_images(caplog):
         def get_scene_list(self):
             return SimpleNamespace(scenes=[])
 
+        def get_input_list(self):
+            return SimpleNamespace(inputs=[])
+
         def create_scene(self, name):
             pass
 
@@ -372,6 +375,12 @@ class ExistingSceneClient:
     def get_scene_item_list(self, scene):
         return SimpleNamespace(scene_items=[{"sceneItemId": 1, "sourceName": "Clock"}])
 
+    def get_group_list(self):
+        return SimpleNamespace(groups=[])
+
+    def get_input_list(self):
+        return SimpleNamespace(inputs=[])
+
     def __getattr__(self, name):
         # create_scene, create_input, remove_input...: recorded
         if name.startswith(("create_", "remove_", "set_", "get_scene_item_id")):
@@ -393,7 +402,9 @@ def test_create_obs_scene_keeps_an_existing_scene_without_recreate():
 
     outcome = obs_websocket.create_obs_scene_from_export(client, "ScoreSight")
     assert outcome == obs_websocket.SCENE_RECREATED
-    assert client.calls[:2] == ["remove_scene_item", "remove_input"]
+    # "Clock" is in the scene "Main" too: only its scene item goes
+    assert client.calls[0] == "remove_scene_item"
+    assert "remove_input" not in client.calls
     assert "create_input" in client.calls
 
     client.calls.clear()
@@ -411,3 +422,217 @@ def test_create_obs_scene_says_when_obs_cannot_be_asked(caplog):
     assert outcome == obs_websocket.SCENE_FAILED
     assert client.calls == []
     assert "scene list" in caplog.text
+
+
+class FakeOBS:
+    """An OBS with scenes, groups and inputs, enough for Create OBS Scene.
+
+    Inputs are global, as in OBS: RemoveInput deletes an input and its items in
+    every scene. With orphans_destroyed, removing the last scene item of an
+    input deletes the input too (what OBS does with an unreferenced source).
+    """
+
+    def __init__(self, scenes, inputs, groups=None, orphans_destroyed=False):
+        self.scenes = {name: list(items) for name, items in scenes.items()}
+        self.groups = {name: list(items) for name, items in (groups or {}).items()}
+        self.inputs = dict(inputs)  # {name: kind}
+        self.settings = {name: {"user": True} for name in inputs}
+        self.orphans_destroyed = orphans_destroyed
+        self.calls = []
+        self.fail_on = set()  # (method, name) pairs that raise
+        self._next_id = 100
+
+    def item(self, name):
+        self._next_id += 1
+        return {
+            "sceneItemId": self._next_id,
+            "sourceName": name,
+            "inputKind": self.inputs.get(name),
+        }
+
+    def _check(self, method, name):
+        self.calls.append((method, name))
+        if (method, name) in self.fail_on:
+            raise OBSSDKRequestError(method, 600, f"cannot {method} {name}")
+
+    def _used(self, name):
+        return any(
+            item["sourceName"] == name
+            for items in [*self.scenes.values(), *self.groups.values()]
+            for item in items
+        )
+
+    def get_scene_list(self):
+        return SimpleNamespace(scenes=[{"sceneName": name} for name in self.scenes])
+
+    def get_group_list(self):
+        return SimpleNamespace(groups=list(self.groups))
+
+    def get_group_scene_item_list(self, name):
+        return SimpleNamespace(scene_items=list(self.groups[name]))
+
+    def get_scene_item_list(self, scene):
+        return SimpleNamespace(scene_items=list(self.scenes[scene]))
+
+    def get_current_program_scene(self):
+        return SimpleNamespace(current_program_scene_name="Main")
+
+    def get_current_preview_scene(self):
+        return SimpleNamespace(current_preview_scene_name="Main")
+
+    def get_input_list(self):
+        return SimpleNamespace(
+            inputs=[
+                {"inputName": name, "inputKind": kind}
+                for name, kind in self.inputs.items()
+            ]
+        )
+
+    def remove_scene_item(self, scene, item_id):
+        item = next(i for i in self.scenes[scene] if i["sceneItemId"] == item_id)
+        self._check("remove_scene_item", item["sourceName"])
+        self.scenes[scene].remove(item)
+        name = item["sourceName"]
+        if self.orphans_destroyed and name in self.inputs and not self._used(name):
+            del self.inputs[name]
+
+    def remove_input(self, name):
+        self._check("remove_input", name)
+        del self.inputs[name]
+        for items in [*self.scenes.values(), *self.groups.values()]:
+            items[:] = [item for item in items if item["sourceName"] != name]
+
+    def create_scene(self, name):
+        self.scenes[name] = []
+
+    def create_input(self, sceneName, inputName, inputKind, inputSettings, **kw):
+        self._check("create_input", inputName)
+        if inputName in self.inputs:
+            raise OBSSDKRequestError("CreateInput", 601, "name already in use")
+        self.inputs[inputName] = inputKind
+        self.settings[inputName] = inputSettings
+        self.scenes[sceneName].append(self.item(inputName))
+
+    def create_scene_item(self, scene_name, source_name, enabled=None):
+        self._check("create_scene_item", source_name)
+        if source_name not in self.inputs:
+            raise OBSSDKRequestError("CreateSceneItem", 600, "no such source")
+        self.scenes[scene_name].append(self.item(source_name))
+
+    def get_scene_item_id(self, scene, name):
+        item = next(i for i in self.scenes[scene] if i["sourceName"] == name)
+        return SimpleNamespace(scene_item_id=item["sceneItemId"])
+
+    def set_scene_item_transform(self, scene, item_id, transform):
+        pass
+
+    def create_source_filter(self, source, name, kind, settings):
+        self.calls.append(("create_source_filter", source))
+
+
+def names_in(items):
+    return [item["sourceName"] for item in items]
+
+
+def test_recreate_never_deletes_a_shared_or_user_source():
+    # Recreate called RemoveInput on every item of the scene: an input that
+    # another scene used too was deleted from the whole scene collection
+    obs = FakeOBS(
+        scenes={"Main": []},
+        inputs={
+            "Clock": "text_ft2_source_v2",  # ScoreSight's, also in "Main"
+            "Home score": "text_ft2_source_v2",  # ScoreSight's, only here
+            "My Logo": "image_source",  # the user's, only here
+            "Webcam": "dshow_input",  # the user's, also in "Main"
+        },
+    )
+    obs.scenes["Main"] = [obs.item("Clock"), obs.item("Webcam")]
+    obs.scenes["ScoreSight"] = [
+        obs.item(name) for name in ("Clock", "Home score", "My Logo", "Webcam")
+    ]
+    clock_settings = obs.settings["Clock"]
+
+    outcome = obs_websocket.create_obs_scene_from_export(obs, "ScoreSight")
+    assert outcome == obs_websocket.SCENE_RECREATED
+
+    removed = [name for method, name in obs.calls if method == "remove_input"]
+    assert removed == ["Home score"]  # made by ScoreSight, used nowhere else
+    # the shared and the user's sources still exist; "Main" is untouched
+    assert {"Clock", "Webcam", "My Logo"} <= obs.inputs.keys()
+    assert names_in(obs.scenes["Main"]) == ["Clock", "Webcam"]
+    # the user's sources are no longer in the recreated scene
+    names = names_in(obs.scenes["ScoreSight"])
+    assert "Webcam" not in names and "My Logo" not in names
+    # the kept "Clock" is added again, with its own settings and filters
+    assert ("create_scene_item", "Clock") in obs.calls
+    assert ("create_input", "Clock") not in obs.calls
+    assert obs.settings["Clock"] is clock_settings
+    assert ("create_source_filter", "Clock") not in obs.calls
+    # every input of the template is in the scene, once
+    assert sorted(names) == sorted(obs_websocket.scoresight_input_kinds())
+    assert ("create_input", "Home score") in obs.calls
+
+
+def test_recreate_works_when_obs_deletes_orphaned_inputs():
+    obs = FakeOBS(
+        scenes={"Main": []},
+        inputs={"Clock": "text_ft2_source_v2", "Period": "text_ft2_source_v2"},
+        orphans_destroyed=True,
+    )
+    obs.scenes["Main"] = [obs.item("Clock")]
+    obs.scenes["ScoreSight"] = [obs.item("Clock"), obs.item("Period")]
+    outcome = obs_websocket.create_obs_scene_from_export(obs, "ScoreSight")
+    assert outcome == obs_websocket.SCENE_RECREATED
+    assert "Clock" in obs.inputs
+    names = names_in(obs.scenes["ScoreSight"])
+    assert names.count("Clock") == 1 and names.count("Period") == 1
+
+
+def test_an_input_in_a_group_counts_as_used():
+    obs = FakeOBS(
+        scenes={"Main": []},
+        inputs={"Period": "text_ft2_source_v2"},
+        groups={"Bug": []},
+    )
+    obs.groups["Bug"] = [obs.item("Period")]
+    obs.scenes["ScoreSight"] = [obs.item("Period")]
+    obs_websocket.create_obs_scene_from_export(obs, "ScoreSight")
+    assert ("remove_input", "Period") not in obs.calls
+    assert names_in(obs.groups["Bug"]) == ["Period"]
+
+
+def test_no_input_is_deleted_when_obs_cannot_tell_where_it_is_used():
+    obs = FakeOBS(scenes={"Main": []}, inputs={"Period": "text_ft2_source_v2"})
+    obs.scenes["ScoreSight"] = [obs.item("Period")]
+
+    def broken():
+        raise OBSSDKRequestError("GetGroupList", 500, "broken")
+
+    obs.get_group_list = broken
+    obs_websocket.create_obs_scene_from_export(obs, "ScoreSight")
+    assert ("remove_input", "Period") not in obs.calls
+    assert ("remove_scene_item", "Period") in obs.calls
+
+
+def test_one_item_that_cannot_be_removed_does_not_stop_the_others(caplog):
+    obs = FakeOBS(
+        scenes={"Main": []},
+        inputs={"Clock": "text_ft2_source_v2", "My Text": "text_gdiplus_v3"},
+    )
+    obs.scenes["ScoreSight"] = [obs.item("My Text"), obs.item("Clock")]
+    obs.fail_on.add(("remove_scene_item", "My Text"))
+    with caplog.at_level(logging.ERROR, logger=obs_websocket.logger.name):
+        obs_websocket.create_obs_scene_from_export(obs, "ScoreSight")
+    assert ("remove_input", "Clock") in obs.calls
+    assert "My Text" in caplog.text
+
+
+def test_an_input_of_another_kind_with_a_template_name_is_left_alone(caplog):
+    obs = FakeOBS(scenes={"Main": []}, inputs={"Clock": "image_source"})
+    obs.scenes["Main"] = [obs.item("Clock")]
+    obs.scenes["ScoreSight"] = []
+    with caplog.at_level(logging.WARNING, logger=obs_websocket.logger.name):
+        obs_websocket.create_obs_scene_from_export(obs, "ScoreSight")
+    assert obs.inputs["Clock"] == "image_source"
+    assert ("create_scene_item", "Clock") not in obs.calls
+    assert "another kind" in caplog.text

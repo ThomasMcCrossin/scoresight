@@ -40,20 +40,31 @@ The OBS name is the text source each field updates in OBS (see [OBS Studio](obs.
 Use custom fields for anything else: downs, yards to go, balls/strikes/outs, sets and games, a second shot clock, team names, and so on.
 
 - **Add**: click **+** at the top of the field list (or press **Ctrl+N**). A new field named *Custom 1* (*Custom 2*, ...) appears, selected.
-- **Rename**: double-click the field name, press **F2**, or right-click it and choose **Rename...**, then type a new name. Names must be unique, and names that differ only in upper and lower case count as the same (their text files would be the same file): ScoreSight says so and asks again. Choose names carefully, because they become file names, JSON keys and template placeholders.
-- **Delete**: select the field and click **Delete field** under the list (or press **Del**, **Backspace** on a Mac, or right-click it). ScoreSight asks first. **Delete field** only shows for custom fields.
+- **Rename**: press **F2**, right-click it and choose **Rename...**, or (once it is on the picture) double-click it, then type a new name. Names must be unique, and names that differ only in upper and lower case count as the same (their text files would be the same file): ScoreSight says so and asks again. Choose names carefully, because they become file names, JSON keys and template placeholders.
+- **Delete**: select the field and click **Delete field** under the list (or right-click it). ScoreSight asks first. **Delete field** only shows for custom fields. **Del** (**Backspace** on a Mac) deletes a custom field that isn't on the picture; for one on the picture, the first **Del** takes its box off the picture.
 
 Custom fields start as a Number field with the *Any number* format. Change the **Type** and **Format** in the Box tab.
 
 ## Placing a box
 
 1. Open a source first: until the picture shows, the field list is greyed out and says *Open a source to place fields on the picture*.
-2. Select a field in the list. Its icon is a red ✗ while it has no box.
-3. Click **Place on picture** under the list (in ScoreSight 0.1.x: **Add to Scene**). The icon turns into a green ✓, a box appears in the top-left corner of the picture, and the Box tab shows its settings.
-4. Drag the box over the value and resize it with the edge and corner handles. For the last pixel, click the box and use the arrow keys (1 pixel; with Shift, 10). The label under the box shows its name and reading (see [Box display style](view-tools.md#box-display-style)).
-5. To take a box off the picture, select its field and click **Remove from picture** (in 0.1.x: **Remove Selected**), which replaces **Place on picture** while the field has a box. Its settings go back to the defaults; if you changed any of them, ScoreSight asks first.
+2. Select a field in the list. Its icon is a red ✗ while it has no box. Over the picture, the pointer becomes a crosshair and a hint says *Drag over the numbers to place Home Fouls*.
+3. Drag over the field's numbers on the picture. The box is drawn where you dragged (at any zoom, and on the rotated, cropped and corrected picture the boxes are read from). The icon turns into a green ✓, the box is selected, and the Box tab shows its settings. A drag of a few pixels counts as a click and draws nothing; **Esc** cancels a drag.
 
-Boxes and their settings are saved automatically, about half a second after each change. A box that reaches past the edge of the picture (for example after you changed the crop) is read from the part that is still inside the picture. Its saved position isn't changed, so it fits again when you undo the crop.
+   Instead of dragging, you can:
+   - double-click the field in the list: its box appears in the middle of the part of the picture you see, at its default size;
+   - double-click the picture: the box appears there, centred where you double-clicked;
+   - click **Place on picture** under the list (in ScoreSight 0.1.x: **Add to Scene**), which does the same as a double-click on the field, for the keyboard.
+
+   Clicking another box on the picture selects that box, as usual: the drag places a box only from the picture around the boxes.
+4. Drag the box to move it, and resize it with the edge and corner handles. To draw it again from scratch, hold **Alt** (**⌥ Option** on a Mac) and drag on the picture. For the last pixel, click the box and use the arrow keys (1 pixel; with Shift, 10). The label under the box shows its name and reading (see [Box display style](view-tools.md#box-display-style)).
+5. To take a box off the picture, select its field (or click the box) and press **Del** (**Backspace** on a Mac), right-click the box and choose **Remove from picture**, or click **Remove from picture** under the list (in 0.1.x: **Remove Selected**). Its settings go back to the defaults; if you changed any of them, ScoreSight asks first.
+
+The line above the button under the list says what to do with the selected field: *Drag on the picture to place it, or double-click the field* before it has a box, *Drag the box to move it · Del removes it* after.
+
+Right-click a box on the picture for **Remove from picture**, **Rename...** (custom fields), **Hold value...** (and **Release held value**) and **Zoom to box**.
+
+Boxes and their settings are saved automatically, about half a second after each change. A box that reaches past the edge of the picture is read from the part that is still inside the picture. When you change the crop, the boxes move with it, so they stay over the same digits (see [Crop](view-tools.md#crop)).
 
 Tips for good boxes:
 
@@ -83,23 +94,23 @@ Right-click a field for its actions:
 
 | Action | Key | |
 |---|---|---|
-| **Place on picture** / **Remove from picture** | | As the button under the list |
-| **Rename...** | **F2** or double-click | Custom fields |
-| **Delete field...** | **Del** (**Backspace** on a Mac) | Custom fields; asks first |
+| **Place on picture** / **Remove from picture** | Double-click (a field without a box) / **Del** (**Backspace** on a Mac) | As the button under the list |
+| **Rename...** | **F2**, or double-click a field on the picture | Custom fields |
+| **Delete field...** | **Del** (**Backspace** on a Mac) for a field that isn't on the picture | Custom fields; asks first |
 | **Reset settings to defaults** | | Its box's settings |
 | **Copy value** | **Ctrl+C** | The last good reading (or the held value), to paste elsewhere |
 | **Hold value...** | **Ctrl+H** (**⌃H** on a Mac) | Send a value you type instead of the readings; see [Hold value](#hold-value) |
 | **Release held value** | | Send the readings again |
 | **Zoom to box** | | Zooms the picture in on its box (**Ctrl+0** fits the whole picture again) |
 
-**F2**, **Del** and **Ctrl+C** work while the field list has the focus; **Ctrl+H** anywhere in the window.
+**F2**, **Del** and **Ctrl+C** work while the field list has the focus (**F2** and **Del** also while the picture has it, on the selected box); **Ctrl+H** anywhere in the window.
 
 ## Setup and Live layouts
 
 The window has two layouts of the same controls, in the **View** menu:
 
 - **Setup layout** (**Ctrl+1**): for placing and tuning the fields and setting up the outputs. The field list, the picture with the **Adjust picture** row, and the inspector.
-- **Live layout** (**Ctrl+2**): for the game. The inspector is hidden, the field list is wider (about 400 pixels) with the values in large type, and the fields that aren't on the picture are hidden (*Fields not on the picture: 3 hidden. Show them*, or **View > Show unused fields**). Under the readings, the **Outputs** list shows each output on one line with its state, for example *▲ vMix: Can't reach 192.168.1.40:8088 · retrying*; double-click one for its settings. The **Adjust picture** row and the buttons under the field list are hidden (the field's actions are in its right-click menu).
+- **Live layout** (**Ctrl+2**): for the game. The inspector is hidden, the field list is wider (about 400 pixels) with the values in large type, and the fields that aren't on the picture are hidden (*Fields not on the picture: 3 hidden. Show them*, or **View > Show unused fields**). Under the readings, the **Outputs** list shows each output on one line with its state, for example *▲ vMix: Can't reach 192.168.1.40:8088 · retrying*; double-click one for its settings. The **Adjust picture** row and the buttons under the field list are hidden (the field's actions are in its right-click menu). Drawing a box on the picture, the double-clicks and the box's right-click menu work as in the Setup layout.
 
 The reading and the outputs work exactly the same in both layouts. ScoreSight remembers the layout. Coming back to the Setup layout restores its widths. To adjust the picture during a game (a bumped camera), press **Ctrl+1**, then **Stabilize** or **4-corner**, then **Ctrl+2**.
 

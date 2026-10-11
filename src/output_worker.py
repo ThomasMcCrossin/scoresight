@@ -21,6 +21,8 @@ the GUI can read it at any time (output_status.py turns it into what the
 window shows).
 """
 
+import datetime
+import email.utils
 import threading
 import time
 import weakref
@@ -88,16 +90,61 @@ class OutputError(Exception):
         self.status_code = status_code
 
 
+# the longest wait a RetryLater may ask for: a wrong Retry-After never stops an
+# output for long (an endpoint that still refuses answers 429 again)
+MAX_RETRY_AFTER = 3600.0
+
+
+class RetryLater(OutputError):
+    """The endpoint asked to send again later (HTTP 429 Too Many Requests), or
+    a known rate limit is used up. The item and the rest of the batch are kept
+    for a retry (a newer item for the same key replaces its older one) and the
+    worker waits delay seconds (its backoff if None) before sending again."""
+
+    def __init__(
+        self, message: str, delay: float | None = None, status_code: int | None = 429
+    ):
+        super().__init__(message, status_code)
+        self.delay = delay
+
+
+def retry_after_seconds(value, now: float | None = None) -> float | None:
+    """The wait an HTTP Retry-After header asks for (seconds, or an HTTP date),
+    or None if it is missing or can't be read."""
+    if value is None:
+        return None
+    value = str(value).strip()
+    try:
+        seconds = float(value)
+    except ValueError:
+        try:
+            when = email.utils.parsedate_to_datetime(value)
+        except (TypeError, ValueError, IndexError):
+            return None
+        if when is None:
+            return None
+        if when.tzinfo is None:
+            when = when.replace(tzinfo=datetime.timezone.utc)
+        now = time.time() if now is None else now
+        seconds = when.timestamp() - now
+    if seconds != seconds:  # NaN
+        return None
+    return min(max(0.0, seconds), MAX_RETRY_AFTER)
+
+
 def check_http_response(response, request_description: str) -> None:
-    """Raise OutputError unless response (a requests.Response) has a 2xx status."""
+    """Raise OutputError unless response (a requests.Response) has a 2xx status;
+    RetryLater for HTTP 429 (Too Many Requests), with its Retry-After."""
     if 200 <= response.status_code < 300:
         return
     body = " ".join((response.text or "").split())[:200]
-    raise OutputError(
-        f"{request_description} returned HTTP {response.status_code}"
-        + (f": {body}" if body else ""),
-        status_code=response.status_code,
+    message = f"{request_description} returned HTTP {response.status_code}" + (
+        f": {body}" if body else ""
     )
+    if response.status_code == 429:
+        headers = getattr(response, "headers", None) or {}
+        raise RetryLater(message, delay=retry_after_seconds(headers.get("Retry-After")))
+    raise OutputError(message, status_code=response.status_code)
 
 
 @dataclass(frozen=True)
@@ -137,10 +184,13 @@ class WorkerStatus:
     sent: int = 0  # items sent successfully
     failed: int = 0  # items that failed
     consecutive_failures: int = 0  # failures since the last success
-    # the endpoint couldn't be reached and nothing was sent since: the unsent
-    # items are retried every retry_delay seconds
+    # the endpoint couldn't be reached, or asked to wait (RetryLater, e.g.
+    # HTTP 429), and nothing was sent since: the unsent items are retried
+    # every retry_delay seconds (last_error tells which)
     retrying: bool = False
     retry_delay: float | None = None
+    # while retrying: the seconds left until the next try (None if unknown)
+    retry_in: float | None = None
     # keys (e.g. fields) whose latest item was sent, or failed and was dropped
     ok_keys: int = 0
     failing_keys: int = 0
@@ -164,25 +214,48 @@ class OutputWorker:
     raising. Exceptions of a type in retry_on mean the endpoint is unreachable
     (connection refused, timeout): the item and the rest of the batch are kept
     for a retry (unless a newer item for the same key arrives first) and the
-    worker waits with exponential backoff before trying again. Any other
-    exception drops that one item. Failures are logged through a
+    worker waits with exponential backoff before trying again. RetryLater
+    (e.g. HTTP 429) keeps them the same way, and waits as long as it asks. Any
+    other exception drops that one item. Failures are logged through a
     ThrottledErrorLog; recovery from an unreachable endpoint is logged once.
     status() tells how the sending goes.
+
+    With send_many instead of send, the worker hands it up to max_batch
+    pending items at a time, as a list of (key, item) pairs (None: all of
+    them), e.g. to send several fields in one request; a failure applies to
+    every item of that call. min_interval (seconds, settable at any time)
+    spaces out the calls, e.g. for an endpoint that accepts 5 requests/s.
     """
 
     def __init__(
         self,
         name: str,
-        send: Callable[[Hashable, object], None],
+        send: Callable[[Hashable, object], None] | None = None,
         *,
+        send_many: Callable[[list[tuple[Hashable, object]]], None] | None = None,
+        max_batch: int | None = 1,
+        min_interval: float = 0.0,
         retry_on: tuple[type[BaseException], ...] = (),
         initial_backoff: float = 0.5,
         max_backoff: float = 5.0,
         error_log: ThrottledErrorLog | None = None,
         clock: Callable[[], float] = time.monotonic,
     ):
+        if (send is None) == (send_many is None):
+            raise TypeError("OutputWorker needs either send or send_many")
         self.name = name
-        self._send = send
+        if send_many is None:
+
+            def send_many(chunk, send=send):
+                ((key, item),) = chunk
+                send(key, item)
+
+            max_batch = 1
+        self._send_many = send_many
+        # read by the worker thread before each call; may be changed any time
+        self.max_batch = max_batch
+        self.min_interval = min_interval
+        self._last_call_at: float | None = None  # time.monotonic()
         self._retry_on = retry_on
         self._initial_backoff = initial_backoff
         self._max_backoff = max_backoff
@@ -196,6 +269,11 @@ class OutputWorker:
         # incremented by clear(): the rest of a batch being sent is dropped too
         self._generation = 0
         self._retry_failures = 0  # consecutive "unreachable" failures
+        # the wait the last RetryLater asked for (None: the backoff applies)
+        self._retry_after: float | None = None
+        self._throttled = False  # the retries are because of a RetryLater
+        # when the retry being waited for happens (time.monotonic())
+        self._retry_at: float | None = None
         # for status(), written with the lock held. reset_status() increments
         # the epoch: the result of a request that was in flight then (e.g. to
         # the previous vMix host) doesn't count.
@@ -265,6 +343,9 @@ class OutputWorker:
                 _, error = max(self._key_errors.values(), key=lambda entry: entry[0])
             else:
                 error = None
+            retry_in = None
+            if retrying and self._retry_at is not None:
+                retry_in = max(0.0, self._retry_at - time.monotonic())
             return WorkerStatus(
                 name=self.name,
                 pending=len(self._pending),
@@ -274,6 +355,7 @@ class OutputWorker:
                 consecutive_failures=self._consecutive_failures,
                 retrying=retrying,
                 retry_delay=self._backoff_delay() if retrying else None,
+                retry_in=retry_in,
                 ok_keys=sum(1 for ok in self._key_ok.values() if ok),
                 failing_keys=sum(1 for ok in self._key_ok.values() if not ok),
                 last_success_at=self._last_success_at,
@@ -289,6 +371,8 @@ class OutputWorker:
             self._status_epoch += 1
             self._sent = self._failed = self._consecutive_failures = 0
             self._retry_failures = 0
+            self._retry_after = None
+            self._throttled = False
             self._key_ok.clear()
             self._key_errors.clear()
             self._unreachable_error = self._unreachable_key = None
@@ -342,16 +426,18 @@ class OutputWorker:
                 epoch = self._status_epoch
                 self._busy = True
             try:
-                unreachable = self._send_batch(list(batch.items()), generation)
+                retry = self._send_batch(list(batch.items()), generation)
             except Exception:  # never let the thread die
                 logger.exception("%s: unexpected error in output thread", self.name)
-                unreachable = False
+                retry = False
             finally:
                 with self._cond:
                     self._busy = False
                     self._cond.notify_all()
-            if unreachable:
+            if retry:
                 with self._cond:
+                    delay = self._backoff_delay()
+                    self._retry_at = time.monotonic() + delay
                     # cleared, or sending somewhere else (reset_status): don't
                     # wait out the backoff of the old items or target
                     self._cond.wait_for(
@@ -360,50 +446,107 @@ class OutputWorker:
                             or self._generation != generation
                             or self._status_epoch != epoch
                         ),
-                        self._backoff_delay(),
+                        delay,
                     )
+                    self._retry_at = None
 
     def _backoff_delay(self) -> float:
-        """The wait before retrying after self._retry_failures consecutive
+        """The wait before retrying: what the last RetryLater asked for, else
+        an exponential backoff after self._retry_failures consecutive
         "unreachable" failures."""
         # cap the exponent: the failures go on for as long as the endpoint is
         # down, and 2 ** 1024 doesn't fit in a float (OverflowError would end
         # the thread, and with it the output, for the rest of the session)
         exponent = min(self._retry_failures - 1, 32)
-        return min(self._initial_backoff * 2**exponent, self._max_backoff)
+        backoff = min(self._initial_backoff * 2**exponent, self._max_backoff)
+        if self._retry_after is not None:
+            # never less than the backoff: "Retry-After: 0", or a date that is
+            # past by this computer's clock, mustn't make a busy loop
+            return max(self._retry_after, backoff)
+        return backoff
+
+    def _chunks(self, items: list[tuple[Hashable, object]]):
+        """items split into the lists handed to one send_many call each."""
+        index = 0
+        while index < len(items):
+            size = self.max_batch or len(items)
+            yield index, items[index : index + max(1, size)]
+            index += max(1, size)
+
+    def _pace(self, generation: int) -> bool:
+        """Wait until min_interval has passed since the last call. Returns False
+        if the worker was cleared or stopped meanwhile."""
+        interval = self.min_interval
+        if interval and interval > 0 and self._last_call_at is not None:
+            wait = self._last_call_at + interval - time.monotonic()
+            if wait > 0:
+                with self._cond:
+                    epoch = self._status_epoch
+                    # (reset_status: sending somewhere else, without the old
+                    # target's pacing)
+                    self._cond.wait_for(
+                        lambda: (
+                            self._stopped
+                            or self._generation != generation
+                            or self._status_epoch != epoch
+                        ),
+                        wait,
+                    )
+        if self._stopped or self._generation != generation:
+            return False
+        self._last_call_at = time.monotonic()
+        return True
 
     def _send_batch(
         self, items: list[tuple[Hashable, object]], generation: int
     ) -> bool:
-        """Send items in order. Returns True if the endpoint was unreachable (the
-        unsent items were put back for a retry)."""
-        for index, (key, item) in enumerate(items):
+        """Send items in order. Returns True if they must be retried later (the
+        endpoint was unreachable or asked to wait: the unsent items were put
+        back)."""
+        for index, chunk in self._chunks(items):
             if self._generation != generation:  # cleared or stopped meanwhile
                 return False
+            if not self._pace(generation):
+                return False
             epoch = self._status_epoch
+            keys = [key for key, _ in chunk]
             try:
-                self._send(key, item)
+                self._send_many(chunk)
             except SendSkipped:
                 continue
-            except self._retry_on as e:
-                self._record_failure(key, e, generation, epoch, unreachable=True)
+            except RetryLater as e:
+                self._record_failure(
+                    keys, e, generation, epoch, unreachable=True, retry_after=e.delay
+                )
                 self.error_log.error(_describe(e))
-                with self._cond:
-                    if self._generation == generation:
-                        # retry the unsent items first; a newer item submitted
-                        # meanwhile for the same key replaces the old one
-                        retry = dict(items[index:])
-                        retry.update(self._pending)
-                        self._pending = retry
+                self._put_back(items[index:], generation)
+                return True
+            except self._retry_on as e:
+                self._record_failure(keys, e, generation, epoch, unreachable=True)
+                self.error_log.error(_describe(e))
+                self._put_back(items[index:], generation)
                 return True
             except Exception as e:
-                self._record_failure(key, e, generation, epoch, unreachable=False)
+                self._record_failure(keys, e, generation, epoch, unreachable=False)
                 self.error_log.error(_describe(e))
             else:
-                if self._record_success(key, generation, epoch):
+                restored = self._record_success(keys, generation, epoch)
+                if restored == "unreachable":
                     logger.info("%s: connection restored", self.name)
                     self.error_log.reset()
+                elif restored == "throttled":
+                    logger.info("%s: sending again after the rate limit", self.name)
+                    self.error_log.reset()
         return False
+
+    def _put_back(self, items: list[tuple[Hashable, object]], generation: int):
+        with self._cond:
+            if self._generation == generation:
+                # retry the unsent items first; a newer item submitted
+                # meanwhile for the same key replaces the old one
+                retry = dict(items)
+                retry.update(self._pending)
+                self._pending = retry
 
     def _counts(self, generation: int, epoch: int) -> bool:
         """Whether the result of a request started at (generation, epoch) is
@@ -414,40 +557,56 @@ class OutputWorker:
 
     def _record_failure(
         self,
-        key: Hashable,
+        keys: list[Hashable],
         error: Exception,
         generation: int,
         epoch: int,
         unreachable: bool,
+        retry_after: float | None = None,
     ) -> None:
         with self._cond:
+            if unreachable:
+                # (also when it doesn't count: the wait is interrupted then)
+                self._retry_after = (
+                    None if retry_after is None else min(retry_after, MAX_RETRY_AFTER)
+                )
             if not self._counts(generation, epoch):
                 return
             now = self._clock()
             info = ErrorInfo.of(error, unreachable)
-            self._failed += 1
-            self._consecutive_failures += 1
+            self._failed += len(keys)
+            self._consecutive_failures += len(keys)
             self._last_failure_at = now
             if unreachable:
-                # kept for a retry: the key's result isn't known yet
+                # kept for a retry: the keys' results aren't known yet
                 self._retry_failures += 1
-                self._unreachable_error, self._unreachable_key = info, key
+                self._throttled = isinstance(error, RetryLater)
+                self._unreachable_error, self._unreachable_key = info, keys[0]
             else:
-                # dropped: the key's latest value didn't arrive
-                self._key_ok[key] = False
-                self._key_errors[key] = (now, info)
+                # dropped: the keys' latest values didn't arrive
+                for key in keys:
+                    self._key_ok[key] = False
+                    self._key_errors[key] = (now, info)
 
-    def _record_success(self, key: Hashable, generation: int, epoch: int) -> bool:
-        """Returns True if the endpoint was unreachable until now."""
+    def _record_success(
+        self, keys: list[Hashable], generation: int, epoch: int
+    ) -> str | None:
+        """Returns "unreachable" or "throttled" if the items were being retried
+        until now (the endpoint was unreachable, or asked to wait)."""
         with self._cond:
-            restored = self._retry_failures > 0
+            restored = None
+            if self._retry_failures > 0:
+                restored = "throttled" if self._throttled else "unreachable"
             self._retry_failures = 0
+            self._retry_after = None
+            self._throttled = False
             if self._counts(generation, epoch):
                 self._unreachable_error = self._unreachable_key = None
-                self._sent += 1
+                self._sent += len(keys)
                 self._consecutive_failures = 0
-                self._key_ok[key] = True
-                self._key_errors.pop(key, None)
+                for key in keys:
+                    self._key_ok[key] = True
+                    self._key_errors.pop(key, None)
                 self._last_success_at = self._clock()
             return restored
 

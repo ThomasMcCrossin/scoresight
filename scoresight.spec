@@ -99,6 +99,10 @@ DATA_GLOBS = [
     ("obs_data/Scoresight_OBS_scene_collection.json", "obs_data"),
     ("obs_data/Scoreboard parts/*.png", "obs_data/Scoreboard parts"),
     ("casparcg/*.html", "casparcg"),
+    # the browser overlays' client, styles and example (overlays.py)
+    ("overlays/*.js", "overlays"),
+    ("overlays/*.css", "overlays"),
+    ("overlays/*.html", "overlays"),
 ]
 
 datas = []
