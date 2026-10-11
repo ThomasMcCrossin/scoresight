@@ -1,6 +1,14 @@
 """The built-in HTTP server: serves the latest OCR results as JSON, XML, CSV and a
 demo HTML scoreboard.
 
+/json, /xml and /csv give every box with its state; "?pivot" gives
+{name: text} of the latest cycle's good readings. For programs that poll and
+bind by column or row, "?pivot&all" gives every box with its last good
+reading ("" before the first), and /json?array (also /json?pivot&array) the
+same object in a list, the shape vMix Data Sources read. Responses are never
+cached, and pages anywhere (also public ones, for the local network) may read
+them.
+
 It runs uvicorn in a daemon thread, bound to 0.0.0.0 (LAN access is a feature)
 on the port given to start_http_server(). It is stopped in-process by
 stop_http_server(); there is no HTTP endpoint that stops or kills the app.
@@ -69,6 +77,19 @@ class Reading(NamedTuple):
 # The latest results. update_http_server() (GUI thread) replaces the whole tuple,
 # the request handlers (server thread) only read it.
 _readings: tuple[Reading, ...] = ()
+# Every box with its last good reading ("" before its first), in the boxes'
+# order, for "?pivot&all" and "?array": replaced as a whole like _readings.
+_last_good_values: tuple[tuple[str, str], ...] = ()
+# the last good text of each box (GUI thread only)
+_last_good: dict[str, str] = {}
+
+# Programs that poll the data (browser sources, vMix, XPression, Windows
+# components with their own HTTP cache) must always get the latest values.
+NO_CACHE_HEADERS = {
+    "Cache-Control": "no-cache, no-store, must-revalidate",
+    "Pragma": "no-cache",
+    "Expires": "0",
+}
 
 app = FastAPI(title="ScoreSight")
 
@@ -77,6 +98,9 @@ app.add_middleware(
     allow_origins=["*"],  # browser sources and pages from anywhere may read
     allow_methods=["GET"],
     allow_headers=["*"],
+    # a page on a public site may read a ScoreSight on the local network
+    # (Chromium's Private Network Access preflight)
+    allow_private_network=True,
 )
 
 # --- request statistics (for the window's output status) -----------------------
@@ -260,24 +284,47 @@ def _good_values() -> dict[str, str]:
     return {r.name: r.text for r in _readings if r.is_good}
 
 
+def _pivot_values(all_boxes: str | None) -> dict[str, str]:
+    """{name: text} for a ?pivot variant: the good readings of the latest
+    cycle, or with "&all" every box with its last good reading ("" before its
+    first), so columns never come and go for readers that bind by column."""
+    if all_boxes is not None:
+        return dict(_last_good_values)
+    return _good_values()
+
+
+# "&all": every box, each with its last good value
+_ALL_QUERY = Query(None, alias="all")
+
+
 @app.get("/scoresight", response_class=HTMLResponse)
 async def get_html():
-    return HTMLResponse(content=HTML_PAGE)
+    return HTMLResponse(content=HTML_PAGE, headers=NO_CACHE_HEADERS)
 
 
 @app.get("/json")
-async def get_json(pivot: str | None = Query(None)):
+async def get_json(
+    pivot: str | None = Query(None),
+    all_boxes: str | None = _ALL_QUERY,
+    array: str | None = Query(None),
+):
+    # "?array" (for vMix Data Sources and other readers of rows): the
+    # "?pivot&all" object in a list, [{name: last good text, ...}]
+    if array is not None:
+        return JSONResponse(content=[dict(_last_good_values)], headers=NO_CACHE_HEADERS)
     # "?pivot": {name: text} of the good readings only
     if pivot is not None:
-        return JSONResponse(content=_good_values())
-    return JSONResponse(content=[r.to_dict() for r in _readings])
+        return JSONResponse(content=_pivot_values(all_boxes), headers=NO_CACHE_HEADERS)
+    return JSONResponse(
+        content=[r.to_dict() for r in _readings], headers=NO_CACHE_HEADERS
+    )
 
 
 @app.get("/xml")
-async def get_xml(pivot: str | None = Query(None)):
+async def get_xml(pivot: str | None = Query(None), all_boxes: str | None = _ALL_QUERY):
     root = ET.Element("data")
     if pivot is not None:
-        for name, text in _good_values().items():
+        for name, text in _pivot_values(all_boxes).items():
             ET.SubElement(root, xml_element_name(name)).text = xml_text(text)
     else:
         for r in _readings:
@@ -293,31 +340,35 @@ async def get_xml(pivot: str | None = Query(None)):
     # sent as UTF-8 ("text/xml; charset=utf-8"): character references can't
     # represent non-ASCII letters in element names
     return Response(
-        content=ET.tostring(root, encoding="unicode"), media_type="text/xml"
+        content=ET.tostring(root, encoding="unicode"),
+        media_type="text/xml",
+        headers=NO_CACHE_HEADERS,
     )
 
 
 @app.get("/csv")
-async def get_csv(pivot: str | None = Query(None)):
+async def get_csv(pivot: str | None = Query(None), all_boxes: str | None = _ALL_QUERY):
     output = StringIO()
     csv_writer = csv.writer(output)
     if pivot is not None:
         # one header row with the box names, one row with their good values
-        values = _good_values()
+        values = _pivot_values(all_boxes)
         csv_writer.writerow(values.keys())
         csv_writer.writerow(values.values())
     else:
         csv_writer.writerow(["Name", "Text", "X", "Y", "Width", "Height"])
         for r in _readings:
             csv_writer.writerow([r.name, r.text, r.x, r.y, r.width, r.height])
-    return Response(content=output.getvalue(), media_type="text/csv")
+    return Response(
+        content=output.getvalue(), media_type="text/csv", headers=NO_CACHE_HEADERS
+    )
 
 
 def update_http_server(results: list[TextDetectionTargetWithResult]):
     """Publish the latest OCR results. Takes a snapshot, so the caller may keep
     modifying the result objects afterwards."""
-    global _readings
-    _readings = tuple(
+    global _readings, _last_good_values
+    readings = tuple(
         Reading(
             name=str(r.name),
             text="" if r.result is None else str(r.result),
@@ -329,6 +380,15 @@ def update_http_server(results: list[TextDetectionTargetWithResult]):
         )
         for r in results
     )
+    # the last good reading of each box; a box that is gone is forgotten
+    names = {r.name for r in readings}
+    for name in [name for name in _last_good if name not in names]:
+        del _last_good[name]
+    for r in readings:
+        if r.is_good:
+            _last_good[r.name] = r.text
+    _readings = readings
+    _last_good_values = tuple((r.name, _last_good.get(r.name, "")) for r in readings)
 
 
 # --- server lifecycle -----------------------------------------------------

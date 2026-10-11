@@ -20,7 +20,7 @@
     </message>
     <message>
         <location filename="../src/box_settings_ui_handler.py" line="427"/>
-        <location filename="../src/mainwindow.py" line="2660"/>
+        <location filename="../src/mainwindow.py" line="2667"/>
         <source>This field is built from other fields (see Template): it has no box on the picture and no reading settings.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -658,8 +658,8 @@ Resolution: {width}×{height}</source>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="94"/>
-        <location filename="../src/mainwindow.ui" line="4349"/>
-        <location filename="../src/mainwindow.py" line="2362"/>
+        <location filename="../src/mainwindow.ui" line="4588"/>
+        <location filename="../src/mainwindow.py" line="2368"/>
         <source>Pause outputs</source>
         <translation type="unfinished"></translation>
     </message>
@@ -799,57 +799,57 @@ Resolution: {width}×{height}</source>
         <translation>Save .xml file</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3264"/>
+        <location filename="../src/mainwindow.ui" line="3284"/>
         <source>Add each new value to a log, or keep only the latest values</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3267"/>
+        <location filename="../src/mainwindow.ui" line="3287"/>
         <source>Append</source>
         <translation>Append</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3274"/>
+        <location filename="../src/mainwindow.ui" line="3294"/>
         <source>Add each new value to a log (results.csv, the .txt files or both), or keep only the latest values</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3284"/>
+        <location filename="../src/mainwindow.ui" line="3304"/>
         <source>Results in .csv file</source>
         <translation>Results in .csv file</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3289"/>
+        <location filename="../src/mainwindow.ui" line="3309"/>
         <source>Results in .txt files</source>
         <translation>Results in .txt files</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3294"/>
+        <location filename="../src/mainwindow.ui" line="3314"/>
         <source>Results in both</source>
         <translation>Results in both</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3299"/>
+        <location filename="../src/mainwindow.ui" line="3319"/>
         <source>Don&apos;t append results</source>
         <translation>Don&apos;t append results</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3307"/>
+        <location filename="../src/mainwindow.ui" line="3327"/>
         <source>How many times per second to save the results to files</source>
         <translation>How many times per second to save the results to files</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3310"/>
+        <location filename="../src/mainwindow.ui" line="3330"/>
         <source>Save / s</source>
         <translation>Save / s</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3332"/>
+        <location filename="../src/mainwindow.ui" line="3352"/>
         <source>File saves per second</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3335"/>
+        <location filename="../src/mainwindow.ui" line="3355"/>
         <source>How many times per second the files are written (1-10). Affects only the files.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -863,7 +863,7 @@ Resolution: {width}×{height}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3387"/>
+        <location filename="../src/mainwindow.ui" line="3407"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Use these endpoints in external software to get live data updates&lt;/p&gt;&lt;p&gt;HTML Scoreboard: &lt;a href=&quot;http://localhost:18099/scoresight&quot;&gt;http://localhost:18099/scoresight&lt;/a&gt;&lt;br/&gt;JSON: &lt;a href=&quot;http://localhost:18099/json&quot;&gt;http://localhost:18099/json&lt;/a&gt; (optional: ?pivot)&lt;br/&gt;XML: &lt;a href=&quot;http://localhost:18099/xml&quot;&gt;http://localhost:18099/xml&lt;/a&gt; (optional: ?pivot)&lt;br/&gt;CSV: &lt;a href=&quot;http://localhost:18099/csv&quot;&gt;http://localhost:18099/csv&lt;/a&gt; (optional: ?pivot)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -873,18 +873,18 @@ Resolution: {width}×{height}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3428"/>
-        <location filename="../src/mainwindow.py" line="3334"/>
+        <location filename="../src/mainwindow.ui" line="3448"/>
+        <location filename="../src/mainwindow.py" line="3341"/>
         <source>Connect to the WebSocket server of OBS Studio</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3487"/>
+        <location filename="../src/mainwindow.ui" line="3507"/>
         <source>The name of the scene Create OBS Scene makes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3503"/>
+        <location filename="../src/mainwindow.ui" line="3523"/>
         <source>Create a scene in OBS with a text source for each standard field</source>
         <translation type="unfinished"></translation>
     </message>
@@ -894,47 +894,47 @@ Resolution: {width}×{height}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3593"/>
+        <location filename="../src/mainwindow.ui" line="3613"/>
         <source>Each field and the vMix title field it updates. Edit the right column.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3645"/>
+        <location filename="../src/mainwindow.ui" line="3665"/>
         <source>vMix host</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3648"/>
+        <location filename="../src/mainwindow.ui" line="3668"/>
         <source>The address of the vMix computer (localhost if vMix runs on this computer)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3665"/>
+        <location filename="../src/mainwindow.ui" line="3685"/>
         <source>vMix port</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3668"/>
+        <location filename="../src/mainwindow.ui" line="3688"/>
         <source>The port of the vMix Web API (8088 by default; not 8099)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3690"/>
+        <location filename="../src/mainwindow.ui" line="3710"/>
         <source>Start or stop vMix</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3693"/>
+        <location filename="../src/mainwindow.ui" line="3713"/>
         <source>Start or stop sending the readings to vMix</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3746"/>
+        <location filename="../src/mainwindow.ui" line="3766"/>
         <source>vMix input</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3749"/>
+        <location filename="../src/mainwindow.ui" line="3769"/>
         <source>The vMix input (number or name) of the title to update</source>
         <translation type="unfinished"></translation>
     </message>
@@ -944,110 +944,110 @@ Resolution: {width}×{height}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3814"/>
-        <location filename="../src/mainwindow.ui" line="4104"/>
+        <location filename="../src/mainwindow.ui" line="3834"/>
+        <location filename="../src/mainwindow.ui" line="4085"/>
         <source>URL</source>
         <translation type="unfinished">URL</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3821"/>
+        <location filename="../src/mainwindow.ui" line="3841"/>
         <source>UNO URL</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3824"/>
+        <location filename="../src/mainwindow.ui" line="3844"/>
         <source>The API URL of the overlays.uno control app. Treat it like a password.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3834"/>
+        <location filename="../src/mainwindow.ui" line="3854"/>
         <source>Start or stop UNO</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3837"/>
+        <location filename="../src/mainwindow.ui" line="3857"/>
         <source>Start or stop sending the readings to UNO</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3840"/>
+        <location filename="../src/mainwindow.ui" line="3860"/>
         <location filename="../src/uno_ui_handler.py" line="127"/>
         <source>Start sending</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3890"/>
+        <location filename="../src/mainwindow.ui" line="3910"/>
         <source>The overlay uses UNO Essentials content fields</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4126"/>
+        <location filename="../src/mainwindow.ui" line="4365"/>
         <source>File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4141"/>
+        <location filename="../src/mainwindow.ui" line="4380"/>
         <source>Language</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4146"/>
+        <location filename="../src/mainwindow.ui" line="4385"/>
         <source>Appearance</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4137"/>
+        <location filename="../src/mainwindow.ui" line="4376"/>
         <source>View</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4164"/>
+        <location filename="../src/mainwindow.ui" line="4403"/>
         <source>Tools</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4210"/>
+        <location filename="../src/mainwindow.ui" line="4449"/>
         <source>Rename...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4218"/>
+        <location filename="../src/mainwindow.ui" line="4457"/>
         <source>Delete field...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4226"/>
+        <location filename="../src/mainwindow.ui" line="4465"/>
         <source>Reset settings to defaults</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4231"/>
+        <location filename="../src/mainwindow.ui" line="4470"/>
         <source>Copy value</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4239"/>
+        <location filename="../src/mainwindow.ui" line="4478"/>
         <source>Zoom to box</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4277"/>
+        <location filename="../src/mainwindow.ui" line="4516"/>
         <source>About</source>
         <translation type="unfinished">About</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4368"/>
+        <location filename="../src/mainwindow.ui" line="4607"/>
         <source>Fit picture to window</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="569"/>
-        <location filename="../src/mainwindow.ui" line="4376"/>
+        <location filename="../src/mainwindow.ui" line="4615"/>
         <source>Reload sources</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3899"/>
+        <location filename="../src/mainwindow.ui" line="3919"/>
         <source>Essentials</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1179,7 +1179,7 @@ Resolution: {width}×{height}</source>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="791"/>
-        <location filename="../src/mainwindow.py" line="4338"/>
+        <location filename="../src/mainwindow.py" line="4345"/>
         <source>Correct the perspective: click the 4 corners of the scoreboard</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1259,7 +1259,7 @@ Resolution: {width}×{height}</source>
     <message>
         <location filename="../src/mainwindow.ui" line="1208"/>
         <location filename="../src/mainwindow.ui" line="1264"/>
-        <location filename="../src/mainwindow.py" line="4284"/>
+        <location filename="../src/mainwindow.py" line="4291"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1360,6 +1360,7 @@ Resolution: {width}×{height}</source>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2032"/>
+        <location filename="../src/mainwindow.ui" line="4060"/>
         <source>Custom</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1645,52 +1646,187 @@ Resolution: {width}×{height}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4422"/>
+        <location filename="../src/mainwindow.ui" line="3261"/>
+        <source>Also write results.json: one object with every field&apos;s latest value, {&quot;Home Score&quot;: &quot;21&quot;, ...} (for example for SuiteCG)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="3264"/>
+        <source>Save .json file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="3271"/>
+        <source>Also write results.txt: a &quot;Field Name=value&quot; line per field (for example for SuiteCG or a TriCaster DataLink watch folder)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="3274"/>
+        <source>Save key=value .txt file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="4049"/>
+        <source>Preset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="4056"/>
+        <source>Fill in the settings for a product. You can still change every setting afterwards.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="4113"/>
+        <source>The URL the readings are sent to. With {field} and {value} in it, each field is sent in its own request, for example http://host/set?key={field}&amp;value={value}. For a login, put it in the URL: http://user:password@host/...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="4182"/>
+        <source>Send</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="4189"/>
+        <source>Send a reading only when its value changed (off: every reading on every detection cycle)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="4192"/>
+        <source>Only changes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="4199"/>
+        <source>Resend all</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="4206"/>
+        <source>With Only changes: also send every value again this often, for a receiver that forgets them when it restarts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="4209"/>
+        <source>Never</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="4212"/>
+        <source>every </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="4232"/>
+        <source>How many fields one request carries: all of them (one request per detection cycle), or at most this many (a request per batch of changed fields). A URL with {field} or {value} always sends one field per request.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="4235"/>
+        <source>All in one request</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="4238"/>
+        <source> per request</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="4248"/>
+        <source>Rate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="4255"/>
+        <source>At most this many requests per second (the latest values wait for their turn)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="4258"/>
+        <source>No limit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="4261"/>
+        <source> requests/s</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="4278"/>
+        <source>Send the field names in lower case with letters, digits and _ only (&quot;Home Score&quot; as home_score), for receivers that allow no other names</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="4281"/>
+        <source>Letters, digits and _ only</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="4288"/>
+        <source>The names the fields are sent with</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="4301"/>
+        <source>Headers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="4314"/>
+        <source>Request headers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="4317"/>
+        <source>Extra request headers, one &quot;Name: value&quot; per line, for example an Authorization token</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="4661"/>
         <source>Quit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4439"/>
+        <location filename="../src/mainwindow.ui" line="4678"/>
         <source>Setup layout</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4442"/>
+        <location filename="../src/mainwindow.ui" line="4681"/>
         <source>For placing and tuning the fields and setting up the outputs: the field list, the picture with its adjustments, and the inspector</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4456"/>
+        <location filename="../src/mainwindow.ui" line="4695"/>
         <source>Live layout</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4459"/>
+        <location filename="../src/mainwindow.ui" line="4698"/>
         <source>For the game: large readings and the state of every output next to the picture. The inspector and the picture adjustments are hidden; the reading and the outputs work the same.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4473"/>
+        <location filename="../src/mainwindow.ui" line="4712"/>
         <source>Show unused fields</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4476"/>
+        <location filename="../src/mainwindow.ui" line="4715"/>
         <source>Show the fields that aren&apos;t on the picture in the field list (remembered for each layout)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4484"/>
+        <location filename="../src/mainwindow.ui" line="4723"/>
         <source>User guide</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4487"/>
+        <location filename="../src/mainwindow.ui" line="4726"/>
         <source>Open the ScoreSight documentation in your web browser</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4498"/>
+        <location filename="../src/mainwindow.ui" line="4737"/>
         <source>Keyboard shortcuts</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1703,7 +1839,7 @@ Resolution: {width}×{height}</source>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1554"/>
-        <location filename="../src/mainwindow.py" line="2666"/>
+        <location filename="../src/mainwindow.py" line="2673"/>
         <source>Select a field, then drag over its numbers on the picture.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1725,7 +1861,7 @@ Resolution: {width}×{height}</source>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2933"/>
-        <location filename="../src/mainwindow.py" line="2130"/>
+        <location filename="../src/mainwindow.py" line="2136"/>
         <source>The OCR model that reads every box, not only the selected one. PP-OCR (automatic) reads with PP-OCR (accurate) while this computer keeps up, and with PP-OCR (fast), which needs about a fifth of the CPU, when it doesn&apos;t. The Tesseract models use the boxes&apos; Image cleanup settings; Load external Tesseract model... reads a .traineddata file.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1740,175 +1876,175 @@ Resolution: {width}×{height}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3453"/>
+        <location filename="../src/mainwindow.ui" line="3473"/>
         <source>Close the connection to OBS. ScoreSight connects to OBS again at its next start only after you connect again.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3462"/>
+        <location filename="../src/mainwindow.ui" line="3482"/>
         <source>Disconnect</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3490"/>
+        <location filename="../src/mainwindow.ui" line="3510"/>
         <source>OBS scene name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3519"/>
+        <location filename="../src/mainwindow.ui" line="3539"/>
         <source>If OBS already has a scene with this name, delete its sources and make it again. Off: an existing scene is kept as it is.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3542"/>
+        <location filename="../src/mainwindow.ui" line="3562"/>
         <source>&lt;b&gt;Text sources&lt;/b&gt;: the OBS text source each field updates. Double-click a name to change it; leave it empty to not send that field to OBS.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3558"/>
+        <location filename="../src/mainwindow.ui" line="3578"/>
         <source>Each field and the OBS text source it updates. Edit the right column; an empty name sends nothing to OBS.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3561"/>
+        <location filename="../src/mainwindow.ui" line="3581"/>
         <source>OBS text sources of the fields</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3762"/>
+        <location filename="../src/mainwindow.ui" line="3782"/>
         <source>Also send a field&apos;s value when it hasn&apos;t changed (marked “same”), at every detection, for example if someone may change the title in vMix by hand. Off: vMix gets a value only when it changes. Formerly “Send Same?”.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3765"/>
-        <location filename="../src/mainwindow.ui" line="3883"/>
+        <location filename="../src/mainwindow.ui" line="3785"/>
+        <location filename="../src/mainwindow.ui" line="3903"/>
         <source>Also resend unchanged values</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3880"/>
+        <location filename="../src/mainwindow.ui" line="3900"/>
         <source>Also send a field&apos;s value when it hasn&apos;t changed (marked “same”), at every detection. Off: the overlay gets a value only when it changes, which keeps within overlays.uno&apos;s request limits. Formerly “Send Same?”.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3930"/>
+        <location filename="../src/mainwindow.ui" line="3950"/>
         <source>Overlay ID</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3937"/>
+        <location filename="../src/mainwindow.ui" line="3957"/>
         <source>The ID (UUID) of the Essentials overlay</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3949"/>
+        <location filename="../src/mainwindow.ui" line="3969"/>
         <source>aaaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeeee</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3968"/>
+        <location filename="../src/mainwindow.ui" line="3988"/>
         <source>Each field and the UNO command (or Essentials field ID) it drives. Edit the right column.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4176"/>
+        <location filename="../src/mainwindow.ui" line="4415"/>
         <source>Help</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4244"/>
-        <location filename="../src/mainwindow.py" line="2702"/>
+        <location filename="../src/mainwindow.ui" line="4483"/>
+        <location filename="../src/mainwindow.py" line="2709"/>
         <source>Hold value...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4247"/>
-        <location filename="../src/mainwindow.py" line="2790"/>
+        <location filename="../src/mainwindow.ui" line="4486"/>
+        <location filename="../src/mainwindow.py" line="2797"/>
         <source>Send a value you type to every output instead of this field&apos;s readings, until you release it</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4258"/>
+        <location filename="../src/mainwindow.ui" line="4497"/>
         <source>Release held value</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4261"/>
+        <location filename="../src/mainwindow.ui" line="4500"/>
         <source>Send this field&apos;s readings to the outputs again</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4269"/>
+        <location filename="../src/mainwindow.ui" line="4508"/>
         <source>Check for updates...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4285"/>
+        <location filename="../src/mainwindow.ui" line="4524"/>
         <source>View log</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4288"/>
+        <location filename="../src/mainwindow.ui" line="4527"/>
         <source>Show the log of this session as it is written</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4299"/>
+        <location filename="../src/mainwindow.ui" line="4538"/>
         <source>Import field layout...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4302"/>
+        <location filename="../src/mainwindow.ui" line="4541"/>
         <source>Replace the fields on the picture (their boxes and settings) with the ones saved in a file. Formerly “Import Configuration”.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4313"/>
+        <location filename="../src/mainwindow.ui" line="4552"/>
         <source>Export field layout...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4316"/>
+        <location filename="../src/mainwindow.ui" line="4555"/>
         <source>Save the fields on the picture (their boxes and settings) to a file. Formerly “Export Configuration”.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4327"/>
+        <location filename="../src/mainwindow.ui" line="4566"/>
         <source>Open settings folder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4330"/>
+        <location filename="../src/mainwindow.ui" line="4569"/>
         <source>Open the folder with ScoreSight&apos;s settings file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4338"/>
+        <location filename="../src/mainwindow.ui" line="4577"/>
         <source>OCR training data setup...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4384"/>
+        <location filename="../src/mainwindow.ui" line="4623"/>
         <source>Zoom in</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4392"/>
+        <location filename="../src/mainwindow.ui" line="4631"/>
         <source>Zoom out</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4403"/>
+        <location filename="../src/mainwindow.ui" line="4642"/>
         <source>Statistics overlay</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4411"/>
+        <location filename="../src/mainwindow.ui" line="4650"/>
         <source>Collect OCR training data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4414"/>
+        <location filename="../src/mainwindow.ui" line="4653"/>
         <source>Save each box&apos;s picture and reading to the training data folder, for training an OCR model</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1918,77 +2054,72 @@ Resolution: {width}×{height}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3991"/>
+        <location filename="../src/mainwindow.ui" line="4039"/>
         <source>Send the readings to the URL below on every detection cycle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3994"/>
+        <location filename="../src/mainwindow.ui" line="4042"/>
         <source>Send out API requests to external services.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4001"/>
+        <location filename="../src/mainwindow.ui" line="4148"/>
         <source>Encode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4008"/>
+        <location filename="../src/mainwindow.ui" line="4155"/>
         <source>The format of the readings in the requests</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4012"/>
+        <location filename="../src/mainwindow.ui" line="4159"/>
         <source>JSON (Full)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4017"/>
+        <location filename="../src/mainwindow.ui" line="4164"/>
         <source>JSON (Simple key-value)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4022"/>
+        <location filename="../src/mainwindow.ui" line="4169"/>
         <source>XML</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4027"/>
+        <location filename="../src/mainwindow.ui" line="4174"/>
         <source>CSV</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4066"/>
+        <location filename="../src/mainwindow.ui" line="4110"/>
         <source>API URL</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4069"/>
-        <source>The URL the readings are sent to</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mainwindow.ui" line="4072"/>
+        <location filename="../src/mainwindow.ui" line="4116"/>
         <source>http://</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4079"/>
+        <location filename="../src/mainwindow.ui" line="4123"/>
         <source>The HTTP method of the requests</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4083"/>
+        <location filename="../src/mainwindow.ui" line="4127"/>
         <source>POST</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4088"/>
+        <location filename="../src/mainwindow.ui" line="4132"/>
         <source>PUT</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4093"/>
+        <location filename="../src/mainwindow.ui" line="4137"/>
         <source>GET</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2009,7 +2140,7 @@ Resolution: {width}×{height}</source>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="521"/>
-        <location filename="../src/mainwindow.py" line="4095"/>
+        <location filename="../src/mainwindow.py" line="4102"/>
         <source>The video source: a camera, capture card or NDI source, a video file, a stream URL or a screen capture</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2032,23 +2163,23 @@ Resolution: {width}×{height}</source>
         <translation type="vanished">OBS</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3443"/>
-        <location filename="../src/mainwindow.py" line="3332"/>
+        <location filename="../src/mainwindow.ui" line="3463"/>
+        <location filename="../src/mainwindow.py" line="3339"/>
         <source>Connect OBS</source>
         <translation>Connect OBS</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3496"/>
+        <location filename="../src/mainwindow.ui" line="3516"/>
         <source>ScoreSight Scene</source>
         <translation>ScoreSight Scene</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3509"/>
+        <location filename="../src/mainwindow.ui" line="3529"/>
         <source>Create OBS Scene</source>
         <translation>Create OBS Scene</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3522"/>
+        <location filename="../src/mainwindow.ui" line="3542"/>
         <source>Recreate</source>
         <translation>Recreate</translation>
     </message>
@@ -2057,7 +2188,7 @@ Resolution: {width}×{height}</source>
         <translation type="vanished">VMix</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3638"/>
+        <location filename="../src/mainwindow.ui" line="3658"/>
         <source>Connection</source>
         <translation>Connection</translation>
     </message>
@@ -2066,7 +2197,7 @@ Resolution: {width}×{height}</source>
         <translation type="vanished">localhost</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3658"/>
+        <location filename="../src/mainwindow.ui" line="3678"/>
         <source>:</source>
         <translation>:</translation>
     </message>
@@ -2079,7 +2210,7 @@ Resolution: {width}×{height}</source>
         <translation type="vanished">Start</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3739"/>
+        <location filename="../src/mainwindow.ui" line="3759"/>
         <source>Input</source>
         <translation>Input</translation>
     </message>
@@ -2092,12 +2223,12 @@ Resolution: {width}×{height}</source>
         <translation type="vanished">Stop Updates</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1298"/>
+        <location filename="../src/mainwindow.py" line="1302"/>
         <source>&lt;p&gt;The HTTP server is not running: port {port} is already in use or not available.&lt;/p&gt;&lt;p&gt;Close the other program, or start ScoreSight with &lt;b&gt;--port&lt;/b&gt; to use a different port. The log has the details.&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2314"/>
+        <location filename="../src/mainwindow.py" line="2320"/>
         <source>Version {version}</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2106,404 +2237,404 @@ Resolution: {width}×{height}</source>
         <translation type="vanished">Resume Updates</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="294"/>
+        <location filename="../src/mainwindow.py" line="290"/>
         <source>⌥ Option</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="295"/>
+        <location filename="../src/mainwindow.py" line="291"/>
         <source>Alt</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1073"/>
+        <location filename="../src/mainwindow.py" line="1077"/>
         <source>Readings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1153"/>
+        <location filename="../src/mainwindow.py" line="1157"/>
         <source>Fields not on the picture: {count} hidden. &lt;a href=&quot;#show&quot;&gt;Show them&lt;/a&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1188"/>
+        <location filename="../src/mainwindow.py" line="1192"/>
         <source>Drag to resize the fields list. Double-click to hide or show it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1194"/>
+        <location filename="../src/mainwindow.py" line="1198"/>
         <source>Drag to resize the Box and Outputs settings. Double-click to hide or show them.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1219"/>
+        <location filename="../src/mainwindow.py" line="1223"/>
         <source>System</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1220"/>
+        <location filename="../src/mainwindow.py" line="1224"/>
         <source>Light</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1221"/>
+        <location filename="../src/mainwindow.py" line="1225"/>
         <source>Dark</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1251"/>
+        <location filename="../src/mainwindow.py" line="1255"/>
         <source>Zoom with Ctrl+scroll or {zoom_in} and {zoom_out}; drag with the middle mouse button to move the picture.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1313"/>
+        <location filename="../src/mainwindow.py" line="1317"/>
         <source>&lt;p&gt;From other computers on your network, use {url} instead of http://localhost:{port}.&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1496"/>
+        <location filename="../src/mainwindow.py" line="1500"/>
         <source>Outside the cropped picture: {names}. They read nothing: widen the crop, or remove them from the picture and place them again.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1683"/>
-        <location filename="../src/mainwindow.py" line="1686"/>
+        <location filename="../src/mainwindow.py" line="1688"/>
+        <location filename="../src/mainwindow.py" line="1691"/>
         <source>{value} /s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2035"/>
+        <location filename="../src/mainwindow.py" line="2041"/>
         <source>Load external Tesseract model...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2043"/>
+        <location filename="../src/mainwindow.py" line="2049"/>
         <source>Read the boxes with a Tesseract .traineddata file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2053"/>
+        <location filename="../src/mainwindow.py" line="2059"/>
         <source>A Tesseract model: the boxes&apos; Image cleanup settings prepare their images for it</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2063"/>
+        <location filename="../src/mainwindow.py" line="2069"/>
         <source>PaddleOCR PP-OCRv6: accurate while it keeps up with Detections / s on this computer, fast when it doesn&apos;t. The status bar says which one reads and why.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2071"/>
+        <location filename="../src/mainwindow.py" line="2077"/>
         <source>PP-OCR (accurate)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2073"/>
+        <location filename="../src/mainwindow.py" line="2079"/>
         <source>PaddleOCR PP-OCRv6 small: reads the most values right, always. It needs about five times the CPU of PP-OCR (fast): on a laptop, 10 boxes read 5 times a second can need more than a core.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2081"/>
+        <location filename="../src/mainwindow.py" line="2087"/>
         <source>PP-OCR (fast)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2083"/>
+        <location filename="../src/mainwindow.py" line="2089"/>
         <source>PaddleOCR PP-OCRv6 tiny: about a fifth of PP-OCR (accurate)&apos;s CPU, for many boxes, a high Detections / s or a slow computer; it misreads more of the hard displays (clocks, bulbs, LCDs).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2091"/>
+        <location filename="../src/mainwindow.py" line="2097"/>
         <source>The PP-OCR models aren&apos;t installed. Download them with: {command}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2096"/>
+        <location filename="../src/mainwindow.py" line="2102"/>
         <source>PP-OCR needs onnxruntime, which isn&apos;t installed (pip install -r requirements.txt).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2111"/>
+        <location filename="../src/mainwindow.py" line="2117"/>
         <source>PP-OCR (automatic: accurate)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2115"/>
+        <location filename="../src/mainwindow.py" line="2121"/>
         <source>PP-OCR (automatic: fast)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2116"/>
+        <location filename="../src/mainwindow.py" line="2122"/>
         <source>PP-OCR (automatic)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2225"/>
+        <location filename="../src/mainwindow.py" line="2231"/>
         <source>The OCR can&apos;t keep up</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2228"/>
+        <location filename="../src/mainwindow.py" line="2234"/>
         <source>The boxes are read {rate} times per second instead of {target}.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2238"/>
+        <location filename="../src/mainwindow.py" line="2244"/>
         <source>Use PP-OCR (fast)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2242"/>
+        <location filename="../src/mainwindow.py" line="2248"/>
         <source>Keep PP-OCR (accurate)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2266"/>
+        <location filename="../src/mainwindow.py" line="2272"/>
         <source>Logs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2311"/>
+        <location filename="../src/mainwindow.py" line="2317"/>
         <source>About ScoreSight</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2389"/>
+        <location filename="../src/mainwindow.py" line="2395"/>
         <source>&lt;b&gt;Outputs paused&lt;/b&gt; since {time}. Your graphics show the last values sent; the readings here keep updating.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2608"/>
+        <location filename="../src/mainwindow.py" line="2615"/>
         <source>Not on the picture yet. Drag over its numbers on the picture, or double-click here to put its box in the middle of the picture.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2614"/>
+        <location filename="../src/mainwindow.py" line="2621"/>
         <source>Built from other fields: it has no box.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2618"/>
+        <location filename="../src/mainwindow.py" line="2625"/>
         <source>On the picture: drag its box to move it, or {alt}+drag on the picture to draw it again. Right-click for its actions.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2625"/>
+        <location filename="../src/mainwindow.py" line="2632"/>
         <source>F2 renames it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2627"/>
+        <location filename="../src/mainwindow.py" line="2634"/>
         <source>Double-click to rename it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2650"/>
+        <location filename="../src/mainwindow.py" line="2657"/>
         <source>Drag on the picture to place it, or double-click the field</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2655"/>
+        <location filename="../src/mainwindow.py" line="2662"/>
         <source>Drag the box to move it · {delete} removes it</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2700"/>
+        <location filename="../src/mainwindow.py" line="2707"/>
         <source>Change held value...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2784"/>
+        <location filename="../src/mainwindow.py" line="2791"/>
         <source>Only custom fields can be renamed or deleted</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2796"/>
+        <location filename="../src/mainwindow.py" line="2803"/>
         <source>Place the field on the picture first</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2901"/>
+        <location filename="../src/mainwindow.py" line="2908"/>
         <source>Remove “{name}” from the picture? Its settings go back to the defaults, so the settings you changed are lost.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2906"/>
+        <location filename="../src/mainwindow.py" line="2913"/>
         <source>Remove</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2918"/>
+        <location filename="../src/mainwindow.py" line="2925"/>
         <source>Delete the field “{name}”? Its box and its settings are deleted too.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2922"/>
+        <location filename="../src/mainwindow.py" line="2929"/>
         <source>Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3043"/>
+        <location filename="../src/mainwindow.py" line="3050"/>
         <source>Window</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3071"/>
+        <location filename="../src/mainwindow.py" line="3078"/>
         <source>Remove the selected field&apos;s box from the picture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3078"/>
+        <location filename="../src/mainwindow.py" line="3085"/>
         <source>Delete the selected custom field (not on the picture)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3085"/>
+        <location filename="../src/mainwindow.py" line="3092"/>
         <source>Put a field&apos;s box on the picture, or rename a custom field</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3090"/>
+        <location filename="../src/mainwindow.py" line="3097"/>
         <source>Double-click the field</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3097"/>
+        <location filename="../src/mainwindow.py" line="3104"/>
         <source>Picture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3137"/>
+        <location filename="../src/mainwindow.py" line="3144"/>
         <source>Connect to OBS</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3199"/>
-        <location filename="../src/mainwindow.py" line="3325"/>
+        <location filename="../src/mainwindow.py" line="3206"/>
+        <location filename="../src/mainwindow.py" line="3332"/>
         <source>Connecting...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3246"/>
+        <location filename="../src/mainwindow.py" line="3253"/>
         <source>Cannot connect to OBS</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3316"/>
+        <location filename="../src/mainwindow.py" line="3323"/>
         <source>Change connection...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3319"/>
+        <location filename="../src/mainwindow.py" line="3326"/>
         <source>Connected to OBS at {target}. Click to connect to another OBS.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3327"/>
+        <location filename="../src/mainwindow.py" line="3334"/>
         <source>Connecting to OBS at {target}...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3599"/>
+        <location filename="../src/mainwindow.py" line="3606"/>
         <source>URL Source</source>
         <translation type="unfinished">URL Source</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3619"/>
+        <location filename="../src/mainwindow.py" line="3626"/>
         <source>Screen Capture Selection</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3626"/>
+        <location filename="../src/mainwindow.py" line="3633"/>
         <source>Capture the entire screen</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4107"/>
+        <location filename="../src/mainwindow.py" line="4114"/>
         <source>Video settings: the resolution, frame rate and format of the camera or capture card</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4113"/>
+        <location filename="../src/mainwindow.py" line="4120"/>
         <source>Video settings: only for cameras and capture cards</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4279"/>
+        <location filename="../src/mainwindow.py" line="4286"/>
         <source>Redo corners…</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4281"/>
+        <location filename="../src/mainwindow.py" line="4288"/>
         <source>Remove correction…</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4297"/>
+        <location filename="../src/mainwindow.py" line="4304"/>
         <source>Remove the 4-corner correction?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4298"/>
+        <location filename="../src/mainwindow.py" line="4305"/>
         <source>The picture will no longer be corrected. The boxes were placed on the corrected picture, so they may have to be moved.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4326"/>
+        <location filename="../src/mainwindow.py" line="4333"/>
         <source>Picking the corners: click the 4 corners of the scoreboard. Click here or press Esc to cancel.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4332"/>
+        <location filename="../src/mainwindow.py" line="4339"/>
         <source>The perspective is corrected. Click to redo the corners or to remove the correction.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4434"/>
+        <location filename="../src/mainwindow.py" line="4441"/>
         <source>No camera found</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4484"/>
+        <location filename="../src/mainwindow.py" line="4491"/>
         <source>Step {number}: done</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4486"/>
+        <location filename="../src/mainwindow.py" line="4493"/>
         <source>Step {number}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4672"/>
+        <location filename="../src/mainwindow.py" line="4681"/>
         <source>Rename field</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4678"/>
+        <location filename="../src/mainwindow.py" line="4687"/>
         <source>New name:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4690"/>
+        <location filename="../src/mainwindow.py" line="4699"/>
         <source>There is already a field named “{name}”. Choose another name.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4818"/>
+        <location filename="../src/mainwindow.py" line="4827"/>
         <source>Created the scene “{name}” in OBS.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4821"/>
+        <location filename="../src/mainwindow.py" line="4830"/>
         <source>Made the scene “{name}” again: its sources were replaced.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4825"/>
+        <location filename="../src/mainwindow.py" line="4834"/>
         <source>OBS already has a scene “{name}”: it was kept as it is. Tick Recreate to make it again.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4830"/>
+        <location filename="../src/mainwindow.py" line="4839"/>
         <source>Couldn&apos;t create the scene “{name}”. Tools &gt; View log has the details.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2529,15 +2660,16 @@ Resolution: {width}×{height}</source>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="71"/>
-        <location filename="../src/mainwindow.py" line="1075"/>
-        <location filename="../src/mainwindow.py" line="3059"/>
+        <location filename="../src/mainwindow.ui" line="4225"/>
+        <location filename="../src/mainwindow.py" line="1079"/>
+        <location filename="../src/mainwindow.py" line="3066"/>
         <source>Fields</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="110"/>
         <location filename="../src/mainwindow.ui" line="113"/>
-        <location filename="../src/mainwindow.ui" line="4192"/>
+        <location filename="../src/mainwindow.ui" line="4431"/>
         <source>New custom field</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2553,7 +2685,7 @@ Resolution: {width}×{height}</source>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="279"/>
-        <location filename="../src/mainwindow.ui" line="4200"/>
+        <location filename="../src/mainwindow.ui" line="4439"/>
         <source>Place on picture</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2564,8 +2696,8 @@ Resolution: {width}×{height}</source>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="292"/>
-        <location filename="../src/mainwindow.ui" line="4205"/>
-        <location filename="../src/mainwindow.py" line="2900"/>
+        <location filename="../src/mainwindow.ui" line="4444"/>
+        <location filename="../src/mainwindow.py" line="2907"/>
         <source>Remove from picture</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2581,7 +2713,7 @@ Resolution: {width}×{height}</source>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="318"/>
-        <location filename="../src/mainwindow.py" line="2917"/>
+        <location filename="../src/mainwindow.py" line="2924"/>
         <source>Delete field</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2602,7 +2734,7 @@ Resolution: {width}×{height}</source>
         <translation type="vanished">Screen Capture</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1372"/>
+        <location filename="../src/mainwindow.py" line="1376"/>
         <source>Video Settings</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2617,7 +2749,7 @@ Resolution: {width}×{height}</source>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="651"/>
-        <location filename="../src/mainwindow.ui" line="4360"/>
+        <location filename="../src/mainwindow.ui" line="4599"/>
         <source>Binary View</source>
         <translation>Binary View</translation>
     </message>
@@ -2652,6 +2784,7 @@ Resolution: {width}×{height}</source>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="688"/>
+        <location filename="../src/mainwindow.ui" line="4271"/>
         <source>Names</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2736,7 +2869,7 @@ Resolution: {width}×{height}</source>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1314"/>
-        <location filename="../src/mainwindow.py" line="2360"/>
+        <location filename="../src/mainwindow.py" line="2366"/>
         <source>Resume outputs</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2750,7 +2883,7 @@ Resolution: {width}×{height}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3702"/>
+        <location filename="../src/mainwindow.ui" line="3722"/>
         <location filename="../src/vmix_ui_handler.py" line="128"/>
         <source>Start vMix</source>
         <translation type="unfinished"></translation>
@@ -2773,6 +2906,31 @@ Resolution: {width}×{height}</source>
     <message>
         <location filename="../src/source_bar.py" line="238"/>
         <source>5-minute Quickstart</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/api_ui_handler.py" line="34"/>
+        <source>Replace TRICASTER-IP with the TriCaster&apos;s address (and admin:admin with its login). Each field is a DataLink key named like the field: put %Home Score% in a title to show the Home Score field.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/api_ui_handler.py" line="41"/>
+        <source>Replace PEARL-IP with the Pearl&apos;s address and PASSWORD with its admin password. Each field is a Pearl variable with the name shown below: put %(home_score) in a layout&apos;s text to show the Home Score field.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/api_ui_handler.py" line="57"/>
+        <source>DataLink keys: {names}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/api_ui_handler.py" line="62"/>
+        <source>Pearl variables: {names}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/api_ui_handler.py" line="70"/>
+        <source>Sent as: {names}</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2901,7 +3059,7 @@ Resolution: {width}×{height}</source>
     </message>
     <message>
         <location filename="../src/output_status.py" line="176"/>
-        <location filename="../src/output_status.py" line="242"/>
+        <location filename="../src/output_status.py" line="260"/>
         <source>off</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2926,502 +3084,587 @@ Resolution: {width}×{height}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/output_status.py" line="201"/>
+        <source>a few seconds</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../src/output_status.py" line="203"/>
-        <source>Last written {age}</source>
+        <source>{seconds} s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="207"/>
-        <source>Last request {age}</source>
+        <source>{minutes} min</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="210"/>
+        <source>{hours} h</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="221"/>
+        <source>Last written {age}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="225"/>
+        <source>Last request {age}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="228"/>
         <source>Last sent {age}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="227"/>
+        <location filename="../src/output_status.py" line="245"/>
         <source>Details: {error}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="240"/>
+        <location filename="../src/output_status.py" line="258"/>
         <source>on</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="393"/>
+        <location filename="../src/output_status.py" line="411"/>
         <source>{problem} · retrying</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="414"/>
+        <location filename="../src/output_status.py" line="432"/>
         <source>Port {port} is vMix&apos;s TCP API: use {web_port}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="417"/>
+        <location filename="../src/output_status.py" line="435"/>
         <source>ScoreSight uses the vMix Web API. Set the port to the Web Controller port (vMix Settings › Web Controller, {web_port} by default).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="434"/>
+        <location filename="../src/output_status.py" line="452"/>
         <source>OBS needs a password</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="435"/>
+        <location filename="../src/output_status.py" line="453"/>
         <source>Enter the password of OBS&apos;s WebSocket server (in OBS: Tools › WebSocket Server Settings › Show Connect Info).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="444"/>
+        <location filename="../src/output_status.py" line="462"/>
         <source>OBS refused the connection: check the password</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="447"/>
+        <location filename="../src/output_status.py" line="465"/>
         <source>The password doesn&apos;t match the one of OBS&apos;s WebSocket server (in OBS: Tools › WebSocket Server Settings › Show Connect Info).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="461"/>
+        <location filename="../src/output_status.py" line="479"/>
         <source>OBS has no text source “{name}”</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="465"/>
+        <location filename="../src/output_status.py" line="483"/>
         <source>OBS has no text source with a field&apos;s name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="471"/>
+        <location filename="../src/output_status.py" line="489"/>
         <source>Create a text source with this name in OBS (names are case-sensitive), or use Create OBS Scene.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="479"/>
+        <location filename="../src/output_status.py" line="497"/>
         <source>OBS refused an update (code {code})</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="493"/>
+        <location filename="../src/output_status.py" line="511"/>
         <source>No secure connection to {target}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="496"/>
+        <location filename="../src/output_status.py" line="514"/>
         <source>The HTTPS connection failed (for example, the server&apos;s certificate isn&apos;t trusted). Check the URL; on your own network, http:// may be what the receiver expects.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="523"/>
+        <location filename="../src/output_status.py" line="541"/>
         <source>Can&apos;t find {host}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="528"/>
+        <location filename="../src/output_status.py" line="546"/>
         <source>The address {host} isn&apos;t known on this network: check it, or use the computer&apos;s IP address.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="539"/>
+        <location filename="../src/output_status.py" line="557"/>
         <source>Nothing answered within a few seconds.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="546"/>
+        <location filename="../src/output_status.py" line="564"/>
         <source>Nothing answered within a few seconds: the computer may be off, the address wrong, or a firewall may block port {port}.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="552"/>
+        <location filename="../src/output_status.py" line="570"/>
         <source>Nothing answered within a few seconds: check this computer&apos;s network connection.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="560"/>
+        <location filename="../src/output_status.py" line="578"/>
         <source>No answer from {target}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="572"/>
+        <location filename="../src/output_status.py" line="590"/>
         <source>Can&apos;t reach {target}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="584"/>
+        <location filename="../src/output_status.py" line="602"/>
         <source>Lost the connection to OBS at {target}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="589"/>
+        <location filename="../src/output_status.py" line="607"/>
         <source>ScoreSight reconnects by itself as soon as OBS is reachable again. Check that OBS is running.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="603"/>
+        <location filename="../src/output_status.py" line="621"/>
         <source>Check that vMix is running, that its Web Controller is enabled (vMix Settings › Web Controller) on port {port}, and that the firewall of the vMix computer allows it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="610"/>
+        <location filename="../src/output_status.py" line="628"/>
         <source>Check that OBS is running and that its WebSocket server is enabled (in OBS: Tools › WebSocket Server Settings) on port {port}.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="616"/>
+        <location filename="../src/output_status.py" line="634"/>
         <source>Check this computer&apos;s internet connection.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="619"/>
+        <location filename="../src/output_status.py" line="637"/>
         <source>Nothing answers at {target}: check the URL and that the receiving program is running.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="633"/>
+        <location filename="../src/output_status.py" line="651"/>
         <source>HTTP {code}: vMix asks for a login</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="636"/>
+        <location filename="../src/output_status.py" line="654"/>
         <source>In vMix Settings › Web Controller, tick “Allow access to following pages without login: API”. ScoreSight doesn&apos;t send a vMix login.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="646"/>
-        <location filename="../src/output_status.py" line="682"/>
+        <location filename="../src/output_status.py" line="664"/>
+        <location filename="../src/output_status.py" line="701"/>
         <source>HTTP {code}: check the UNO URL</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="649"/>
-        <location filename="../src/output_status.py" line="685"/>
+        <location filename="../src/output_status.py" line="667"/>
+        <location filename="../src/output_status.py" line="704"/>
         <source>overlays.uno refused the URL: it is wrong or no longer valid. Copy the API URL of your control app again.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="657"/>
+        <location filename="../src/output_status.py" line="675"/>
         <source>HTTP {code}: access denied</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="660"/>
-        <source>The endpoint refused the request. If it needs a key, put it in the URL.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/output_status.py" line="670"/>
-        <source>HTTP 404: this isn&apos;t the vMix Web API</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/output_status.py" line="673"/>
-        <source>Check the host and the port: vMix&apos;s Web Controller port ({port} by default).</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/output_status.py" line="693"/>
-        <source>HTTP 404: check the URL</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/output_status.py" line="694"/>
-        <source>The endpoint has nothing at this address: check the path.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/output_status.py" line="708"/>
-        <source>The endpoint limits the requests, and drops the others: lower Detections / s.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/output_status.py" line="715"/>
-        <source>HTTP 429: too many requests</source>
+        <location filename="../src/output_status.py" line="678"/>
+        <source>The endpoint refused the request. If it needs a login, put it in the URL (http://user:password@host/...); a key or token goes in the URL or in Headers.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="720"/>
+        <source>HTTP 429: overlays.uno&apos;s call limit reached</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="723"/>
+        <source>overlays.uno limits the calls of your plan (the Free plan: about 10,000 a day). ScoreSight keeps the latest value of each field and sends it when the limit resets. To use fewer calls, keep “Also resend unchanged values” off and clear the command of fields the overlay doesn&apos;t use.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="689"/>
+        <source>HTTP 404: this isn&apos;t the vMix Web API</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="692"/>
+        <source>Check the host and the port: vMix&apos;s Web Controller port ({port} by default).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="712"/>
+        <source>HTTP 404: check the URL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="713"/>
+        <source>The endpoint has nothing at this address: check the path.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="732"/>
+        <source>HTTP 429: too many requests</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="735"/>
+        <source>The endpoint limits the requests. ScoreSight keeps the latest readings and sends them when it accepts requests again. To send fewer, turn on “Send only changes”, set a rate limit, or lower Detections / s.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="746"/>
+        <source>HTTP 400: overlays.uno doesn&apos;t know a command</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="749"/>
+        <source>Check the commands in the table against your overlay&apos;s API description, and clear the command of fields the overlay doesn&apos;t use: every call counts against your daily limit.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="758"/>
         <source>Check the Input and the vMix field names in the table (for example Home Score.Text).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="731"/>
-        <location filename="../src/output_status.py" line="748"/>
+        <location filename="../src/output_status.py" line="769"/>
+        <location filename="../src/output_status.py" line="786"/>
         <source>It answered: {text}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="740"/>
+        <location filename="../src/output_status.py" line="778"/>
         <source>HTTP {code}: the receiver reported an error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="747"/>
+        <location filename="../src/output_status.py" line="785"/>
         <source>HTTP {code}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="777"/>
+        <location filename="../src/output_status.py" line="818"/>
+        <source>Next try in {wait}.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="830"/>
         <source>{failing} of {total} failing: {problem}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="824"/>
+        <location filename="../src/output_status.py" line="877"/>
         <source>Folder not found: {folder}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="827"/>
+        <location filename="../src/output_status.py" line="880"/>
         <source>The output folder {folder} doesn&apos;t exist any more, so no files are written. Choose a folder to write them again.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="836"/>
-        <location filename="../src/output_status.py" line="1066"/>
-        <location filename="../src/output_status.py" line="1132"/>
-        <location filename="../src/output_status.py" line="1203"/>
+        <location filename="../src/output_status.py" line="889"/>
+        <location filename="../src/output_status.py" line="1119"/>
+        <location filename="../src/output_status.py" line="1197"/>
+        <location filename="../src/output_status.py" line="1293"/>
         <source>Off</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="837"/>
+        <location filename="../src/output_status.py" line="890"/>
         <source>Choose a folder to write the readings to files.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="846"/>
+        <location filename="../src/output_status.py" line="899"/>
         <source>Waiting for readings to write to {folder}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="855"/>
+        <location filename="../src/output_status.py" line="908"/>
         <source>Can&apos;t write {file}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="859"/>
+        <location filename="../src/output_status.py" line="912"/>
         <source>Can&apos;t write {file} and {count} more</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="867"/>
+        <location filename="../src/output_status.py" line="920"/>
         <source>Check that the folder can be written to and that no other program locks the files. ScoreSight tries again at every save.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="879"/>
+        <location filename="../src/output_status.py" line="932"/>
         <source>Writing to {folder} · 1 file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="883"/>
+        <location filename="../src/output_status.py" line="936"/>
         <source>Writing to {folder} · {count} files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="891"/>
+        <location filename="../src/output_status.py" line="944"/>
         <source>The files are in {folder}. A file is written when its value changes.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="913"/>
+        <location filename="../src/output_status.py" line="966"/>
         <source>Not running: port {port} is in use</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="918"/>
+        <location filename="../src/output_status.py" line="971"/>
         <source>Another program (or another ScoreSight) uses port {port}. Close it, or start ScoreSight with --port to use another port.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="927"/>
+        <location filename="../src/output_status.py" line="980"/>
         <source>{url} · no requests yet</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="931"/>
+        <location filename="../src/output_status.py" line="984"/>
         <source>{url} · 1 client</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="935"/>
+        <location filename="../src/output_status.py" line="988"/>
         <source>{url} · {count} clients</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="939"/>
+        <location filename="../src/output_status.py" line="992"/>
         <source>{url} · no recent requests</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="948"/>
+        <location filename="../src/output_status.py" line="1001"/>
         <source>Always on. Open {url}/scoresight in a browser, or read {url}/json, /xml or /csv from other software.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="975"/>
+        <location filename="../src/output_status.py" line="1028"/>
         <source>Connecting to {target}…</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="985"/>
+        <location filename="../src/output_status.py" line="1038"/>
         <source>Not connected: {problem}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="992"/>
+        <location filename="../src/output_status.py" line="1045"/>
         <source>Then click Connect OBS.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1003"/>
+        <location filename="../src/output_status.py" line="1056"/>
         <source>Not connected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1004"/>
+        <location filename="../src/output_status.py" line="1057"/>
         <source>Click Connect OBS to update text sources in OBS Studio.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1015"/>
+        <location filename="../src/output_status.py" line="1068"/>
         <source>Connected to {target}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1019"/>
+        <location filename="../src/output_status.py" line="1072"/>
         <source>A text source is updated when its field&apos;s value changes.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1028"/>
+        <location filename="../src/output_status.py" line="1081"/>
         <source>Reconnecting to OBS at {target}…</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1031"/>
+        <location filename="../src/output_status.py" line="1084"/>
         <source>The connection to OBS was lost. ScoreSight reconnects by itself as soon as OBS is reachable again.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1040"/>
+        <location filename="../src/output_status.py" line="1093"/>
         <source>Connected, but no field has an OBS text source</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1043"/>
+        <location filename="../src/output_status.py" line="1096"/>
         <source>The standard fields update OBS text sources with their names (Home score, Clock...). Place them on the picture.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1067"/>
+        <location filename="../src/output_status.py" line="1120"/>
         <source>Click Start vMix to update input {input} at {target}.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1075"/>
-        <location filename="../src/output_status.py" line="1154"/>
+        <location filename="../src/output_status.py" line="1128"/>
+        <location filename="../src/output_status.py" line="1219"/>
         <source>No fields to send</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1077"/>
+        <location filename="../src/output_status.py" line="1130"/>
         <source>Place fields on the picture and enter their vMix field names (for example Home Score.Text) in the table.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1088"/>
+        <location filename="../src/output_status.py" line="1141"/>
         <source>Waiting for a new value for {target}, input {input}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1102"/>
+        <location filename="../src/output_status.py" line="1155"/>
         <source>Sending to {target}, input {input}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1133"/>
+        <location filename="../src/output_status.py" line="1176"/>
+        <source>{calls} calls left today</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1198"/>
         <source>Click Start sending to drive your overlays.uno overlay.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1142"/>
+        <location filename="../src/output_status.py" line="1207"/>
         <source>Enter your UNO API URL</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1144"/>
+        <location filename="../src/output_status.py" line="1209"/>
         <source>Copy the API URL of your overlay&apos;s control app in overlays.uno into URL.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1156"/>
+        <location filename="../src/output_status.py" line="1221"/>
         <source>Place fields on the picture and enter the UNO commands in the table.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1166"/>
+        <location filename="../src/output_status.py" line="1229"/>
+        <source>{count} field(s) have no UNO command and aren&apos;t sent: enter one in the table if the overlay has a command for them.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1242"/>
         <source>Waiting for a new value for {host}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1175"/>
+        <location filename="../src/output_status.py" line="1249"/>
         <source>Sending to {host}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1204"/>
+        <location filename="../src/output_status.py" line="1262"/>
+        <source>Only {calls} overlays.uno calls left today</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1265"/>
+        <source>Every update is a call. When none are left, overlays.uno refuses updates until the limit resets; ScoreSight then sends the latest values. To use fewer calls, keep “Also resend unchanged values” off and clear the command of fields the overlay doesn&apos;t use.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1294"/>
         <source>Tick the checkbox to send the readings to a URL on every detection cycle.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1214"/>
+        <location filename="../src/output_status.py" line="1304"/>
         <source>Enter a URL</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1216"/>
+        <location filename="../src/output_status.py" line="1306"/>
         <source>Enter the URL to send the readings to, for example http://192.168.1.10:8091/scores.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="511"/>
-        <location filename="../src/output_status.py" line="1226"/>
+        <location filename="../src/output_status.py" line="529"/>
+        <location filename="../src/output_status.py" line="1316"/>
         <source>The URL isn&apos;t valid</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="512"/>
-        <location filename="../src/output_status.py" line="1228"/>
+        <location filename="../src/output_status.py" line="530"/>
+        <location filename="../src/output_status.py" line="1318"/>
         <source>The URL needs a scheme and a host, for example http://192.168.1.10:8091/scores.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="701"/>
-        <source>overlays.uno limits how many updates it accepts, and drops the others. Keep “Also resend unchanged values” off and “Update on change” on.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/output_status.py" line="1092"/>
-        <location filename="../src/output_status.py" line="1106"/>
+        <location filename="../src/output_status.py" line="1145"/>
+        <location filename="../src/output_status.py" line="1159"/>
         <source>vMix gets a field&apos;s value when it changes (or every time, with “Also resend unchanged values”).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1235"/>
+        <location filename="../src/output_status.py" line="1328"/>
+        <source>Enter your device&apos;s address in the URL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1332"/>
+        <source>Replace the capitalized placeholder in the URL (for example TRICASTER-IP) with the device&apos;s IP address, and the login with its user name and password.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1340"/>
         <source>GET to {target}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1239"/>
+        <location filename="../src/output_status.py" line="1344"/>
         <source>{method} {encoding} to {target}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1247"/>
+        <location filename="../src/output_status.py" line="1352"/>
+        <source>a request per field</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1356"/>
+        <source>up to {fields} fields a request</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1361"/>
+        <source>only changes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1369"/>
         <source>Waiting for readings: {request}</source>
         <translation type="unfinished"></translation>
     </message>

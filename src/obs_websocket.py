@@ -316,16 +316,111 @@ def clear_or_create_new_scene(obs_client: obs.ReqClient, scene_name) -> bool:
     except Exception:
         logger.exception("Cannot change OBS preview scene")
 
-    # remove all scene items
-    try:
-        resp = obs_client.get_scene_item_list(scene_name)
-        for scene_item in resp.scene_items:
-            obs_client.remove_scene_item(scene_name, scene_item["sceneItemId"])
-            obs_client.remove_input(scene_item["sourceName"])
-    except Exception:
-        logger.exception("Error: unable to remove scene item")
-
+    _empty_scene(obs_client, scene_name)
     return True
+
+
+# the scene of the bundled scene collection whose items Create OBS Scene makes
+_TEMPLATE_SCENE_UUID = "6656641a-06b4-41e5-8a06-0de8a25e38be"
+
+
+def _load_scene_template() -> tuple[list[dict], list[dict]]:
+    """The items of the bundled scoreboard scene and the collection's sources."""
+    obs_data_path = resource_path("obs_data", "Scoresight_OBS_scene_collection.json")
+    logger.debug(f"loading scene from '{obs_data_path}'")
+    with open(obs_data_path, "r") as f:
+        collection = json.load(f)
+    scene_source = [
+        source
+        for source in collection["sources"]
+        if source["uuid"] == _TEMPLATE_SCENE_UUID
+    ][0]
+    return scene_source["settings"]["items"], collection["sources"]
+
+
+def scoresight_input_kinds() -> dict[str, set[str]]:
+    """{input name: its input kinds (versioned and not)} of the inputs Create
+    OBS Scene makes. An input in OBS with one of these names and kinds is
+    taken to be one ScoreSight made."""
+    items, sources = _load_scene_template()
+    by_uuid = {source["uuid"]: source for source in sources}
+    kinds: dict[str, set[str]] = {}
+    for item in items:
+        source = by_uuid.get(item["source_uuid"])
+        if source is None or source.get("id") == "scene":
+            continue  # a group or a nested scene: not an input it creates
+        kinds[item["name"]] = {
+            kind for kind in (source.get("id"), source.get("versioned_id")) if kind
+        }
+    return kinds
+
+
+def _sources_used_outside(obs_client, scene_name) -> set[str] | None:
+    """The names of the sources that a scene or group other than scene_name
+    uses, or None if OBS can't tell."""
+    try:
+        used: set[str] = set()
+        for scene in obs_client.get_scene_list().scenes:
+            if scene["sceneName"] == scene_name:
+                continue
+            for item in obs_client.get_scene_item_list(scene["sceneName"]).scene_items:
+                used.add(item["sourceName"])
+        for group in obs_client.get_group_list().groups:
+            group_name = group if isinstance(group, str) else group.get("sceneName")
+            for item in obs_client.get_group_scene_item_list(group_name).scene_items:
+                used.add(item["sourceName"])
+        return used
+    except Exception:
+        logger.exception("OBS: unable to tell which sources other scenes use")
+        return None
+
+
+def _empty_scene(obs_client, scene_name) -> None:
+    """Remove the items of scene_name, for Create OBS Scene's Recreate.
+
+    Inputs are global in OBS: RemoveInput deletes an input from every scene.
+    So only the scene's items are removed (RemoveSceneItem), and an input
+    itself only if ScoreSight made it (its name and kind are those of an input
+    Create OBS Scene makes) and no other scene or group uses it. A user's
+    source, or one shared with another scene, is never deleted.
+    """
+    try:
+        items = obs_client.get_scene_item_list(scene_name).scene_items
+    except Exception:
+        logger.exception("Error: unable to list the items of scene '%s'", scene_name)
+        return
+    ours = scoresight_input_kinds()
+    used_elsewhere = _sources_used_outside(obs_client, scene_name)
+    removed_inputs: set[str] = set()
+    for item in items:
+        name = item.get("sourceName")
+        if name in removed_inputs:
+            continue  # another item of an input that was removed already
+        removable = (
+            used_elsewhere is not None
+            and name in ours
+            and name not in used_elsewhere
+            and item.get("inputKind") in ours[name]
+        )
+        try:
+            if removable:
+                obs_client.remove_input(name)
+                removed_inputs.add(name)
+            else:
+                obs_client.remove_scene_item(scene_name, item["sceneItemId"])
+        except Exception:
+            # an item that can't be removed doesn't stop the others
+            logger.exception("Error: unable to remove '%s' from '%s'", name, scene_name)
+
+
+def _existing_inputs(obs_client) -> dict[str, str | None]:
+    """{name: input kind} of the inputs OBS has ({} if it can't tell)."""
+    try:
+        inputs = obs_client.get_input_list().inputs
+    except Exception:
+        logger.exception("OBS: unable to list the inputs")
+        return {}
+    return {entry["inputName"]: entry.get("inputKind") for entry in inputs}
 
 
 @_locked
@@ -348,21 +443,12 @@ def create_obs_scene_from_export(obs_client, scene_name, recreate: bool = True) 
     if not clear_or_create_new_scene(obs_client, scene_name):
         return SCENE_FAILED
 
-    # load the scene from obs_data/test.json
-    obs_data_path = resource_path("obs_data", "Scoresight_OBS_scene_collection.json")
-    logger.debug(f"loading scene from '{obs_data_path}'")
-    with open(obs_data_path, "r") as f:
-        scene = json.load(f)
+    template_items, sources_settings = _load_scene_template()
+    # inputs that are still there (shared with another scene, or a user's):
+    # they get a scene item in this scene instead of a new input
+    existing = _existing_inputs(obs_client)
 
-    # find scene source with items
-    scene_source = [
-        source
-        for source in scene["sources"]
-        if source["uuid"] == "6656641a-06b4-41e5-8a06-0de8a25e38be"
-    ][0]
-    sources_settings = scene["sources"]
-
-    for source in scene_source["settings"]["items"]:
+    for source in template_items:
         # if the source is a scene, skip it
         logger.debug(f"creating source {source['name']}")
         # find source settings in sources_settings by the uuid
@@ -384,15 +470,32 @@ def create_obs_scene_from_export(obs_client, scene_name, recreate: bool = True) 
             abs_path = resource_path("obs_data", "Scoreboard parts", base_name)
             source_settings_to_set["file"] = abs_path
 
-        try:
-            # create a new source in OBS
-            obs_client.create_input(
-                sceneName=scene_name,
-                inputName=source["name"],
-                inputKind=source_settings["versioned_id"],
-                inputSettings=source_settings_to_set,
-                sceneItemEnabled=source_settings_to_set["visible"],
+        kinds = {source_settings.get("id"), source_settings["versioned_id"]}
+        reuse = source["name"] in existing
+        if reuse and existing[source["name"]] not in kinds:
+            logger.warning(
+                "OBS already has an input named '%s' of another kind (%s): it "
+                "is not added to the scene",
+                source["name"],
+                existing[source["name"]],
             )
+            continue
+        try:
+            if reuse:
+                # keep the existing input with its settings and filters (other
+                # scenes may use it): only add it to this scene
+                obs_client.create_scene_item(
+                    scene_name, source["name"], source_settings_to_set["visible"]
+                )
+            else:
+                # create a new source in OBS
+                obs_client.create_input(
+                    sceneName=scene_name,
+                    inputName=source["name"],
+                    inputKind=source_settings["versioned_id"],
+                    inputSettings=source_settings_to_set,
+                    sceneItemEnabled=source_settings_to_set["visible"],
+                )
             # set the SetSceneItemTransform
             if "pos" in source_settings_to_set:
                 # get the scene item id with GetSceneItemId
@@ -415,8 +518,8 @@ def create_obs_scene_from_export(obs_client, scene_name, recreate: bool = True) 
                 obs_client.set_scene_item_transform(
                     scene_name, scene_item_id, transform_to_set
                 )
-            # set the filters
-            if "filters" in source_settings:
+            # set the filters (an input that was kept has its own)
+            if "filters" in source_settings and not reuse:
                 for filter in source_settings["filters"]:
                     logger.debug(
                         f"creating filter {filter['name']} for source {source_settings['name']}"

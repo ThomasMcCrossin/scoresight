@@ -67,6 +67,27 @@ default settings, and are the default for new setups.
   scoreboard sets the four crop values. **Esc** keeps the current crop. The
   values stay for fine-tuning, and now go up to 9999 pixels for large
   pictures.
+- **Works with…**: a docs page listing 21 broadcast products (Wirecast,
+  NewBlue Captivate, Ross XPression, SuiteCG, TriCaster, Epiphan Pearl,
+  CasparCG, Singular.live, Chyron PRIME and more), how well each works, and
+  setup guides.
+- **Outbound HTTP API**: **Only changes** (and **Resend all** every N s),
+  **Fields per request**, one request per field with `{field}` and `{value}`
+  in the URL, a **Rate** limit, names with letters, digits and `_` only,
+  custom **Headers** (for example an `Authorization` token), and Digest
+  logins. The defaults send as before.
+- **Presets** for the outbound API: **TriCaster DataLink** (a DataLink key
+  per field) and **Epiphan Pearl** (custom variables, 6 per request, at most
+  5 requests a second). Both untested on the hardware so far.
+- **HTTP server**: `?pivot&all` on `/json`, `/xml` and `/csv` gives every
+  field with its last good value, so columns never come and go, and
+  `/json?array` gives it as an array of one row, the shape vMix JSON Data
+  Sources expect (untested with vMix). Responses are never cached, and a page on a public site may
+  read a ScoreSight on the local network. The existing URLs answer as before.
+- **Text files**: optional `results.json` (one object) and `results.txt`
+  (`key=value` lines), for SuiteCG and similar.
+- **overlays.uno**: the calls left today are shown, and calls are spaced out
+  to stay under the per-minute limit overlays.uno reports.
 
 ### Changed
 
@@ -107,6 +128,25 @@ default settings, and are the default for new setups.
 - With the **All** box display style, the area read and the characters found
   were drawn in the wrong place on a box moved with the arrow keys (and now
   with the crop or drawn again).
+
+### Fixed
+
+- **Create OBS Scene** with **Recreate** deleted every source of the scene
+  from the whole OBS scene collection, including sources other scenes
+  shared. It now removes only the scene's items, and deletes a source only
+  if ScoreSight made it and nothing else uses it.
+- **overlays.uno** dropped a value refused with HTTP 429 (too many
+  requests), so a score could stay wrong on air until it changed again. The
+  latest value of each field is now kept and sent when the limit resets
+  (the outbound API does the same). Custom fields no longer get a command
+  named after themselves by default, which overlays answered with HTTP 400
+  while it still counted against the daily limit.
+- **vMix** and the outbound API's `GET` sent spaces as `+`, which vMix and
+  other receivers may show literally. They are now sent as `%20`.
+- The vMix docs recommended `/json?pivot` as a vMix JSON Data Source, which
+  vMix can't read: they now recommend `/json?array`, `/xml?pivot&all` or
+  `/csv?pivot&all`.
+- The outbound API no longer writes the password of a URL login to the log.
 
 ## [0.2.0] - 2026-10-10
 

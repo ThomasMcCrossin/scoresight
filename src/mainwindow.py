@@ -51,7 +51,8 @@ from PySide6.QtCore import (
 )
 from os import path
 
-from api_output import out_api_status, update_out_api
+from api_output import out_api_status, send_mode, update_out_api
+from api_ui_handler import APIUIHandler, OUT_API_ENCODINGS, OUT_API_METHODS
 from box_settings_ui_handler import (
     NOT_PLACED,
     PLACED,
@@ -185,11 +186,6 @@ COLOR_SCHEMES = {
     "Dark": Qt.ColorScheme.Dark,
 }
 DEFAULT_COLOR_SCHEME = "System"
-
-# The values api_output understands, in the order of comboBox_api_encode and
-# comboBox_outApiMethod. The settings store these, not the (translated) item text.
-OUT_API_ENCODINGS = ("JSON (Full)", "JSON (Simple key-value)", "XML", "CSV")
-OUT_API_METHODS = ("POST", "PUT", "GET")
 
 # comboBox_camera_source items before the discovered cameras
 SOURCE_INDEX_NONE = 0
@@ -463,6 +459,8 @@ class MainWindow(QMainWindow):
         self.setupChoiceSetting(
             self.ui.comboBox_outApiMethod, "out_api_method", OUT_API_METHODS
         )
+        # the API page's other options and its presets
+        self.apiUiHandler = APIUIHandler(self.ui)
 
         self.obs_websocket_client = None
         # the text last sent to each OBS text source
@@ -587,6 +585,12 @@ class MainWindow(QMainWindow):
         self.ui.checkBox_saveXML.setChecked(
             fetch_data("scoresight.json", "save_xml", False)
         )
+        for checkbox, setting in (
+            (self.ui.checkBox_saveJson, "save_json"),
+            (self.ui.checkBox_saveKeyValue, "save_key_value"),
+        ):
+            checkbox.toggled.connect(partial(self.globalSettingsChanged, setting))
+            checkbox.setChecked(fetch_data("scoresight.json", setting, False))
         self.ui.comboBox_appendMethod.currentIndexChanged.connect(
             partial(self.globalSettingsChanged, "append_method")
         )
@@ -1610,6 +1614,7 @@ class MainWindow(QMainWindow):
             self.ui.toolButton_speed.setText(speed)
             self.vmixUiHandler.restoreUiState()
             self.unoUiHandler.restoreUiState()
+            self.apiUiHandler.restoreUiState()
             self.applyRuntimeTexts()
 
     def toggleUpdateOnChange(self, value):
@@ -1910,7 +1915,7 @@ class MainWindow(QMainWindow):
                 vmix.status(),
             ),
             output_status.uno_status(
-                uno.running, uno.endpoint, uno.field_mapping, uno.status()
+                uno.running, uno.endpoint, uno.field_mapping, uno.status(), uno.quota()
             ),
             output_status.api_status(
                 self.ui.checkBox_enableOutAPI.isChecked(),
@@ -1922,6 +1927,7 @@ class MainWindow(QMainWindow):
                 if 0 <= encoding_index < len(OUT_API_ENCODINGS)
                 else OUT_API_ENCODINGS[0],
                 out_api_status(),
+                send_mode(),
             ),
         ]
 
@@ -2515,6 +2521,7 @@ class MainWindow(QMainWindow):
 
         self.vmixUiHandler.updatevMixTable(detectionTargets)
         self.unoUiHandler.updateUNOTable(detectionTargets)
+        self.apiUiHandler.setBoxNames(box.name for box in detectionTargets)
         self.obsSourcesTable.refresh(detectionTargets)
         # Note: results.csv is not touched here. data_changed fires on every box
         # click and settings tweak; file_output starts a new CSV file by itself
@@ -4604,6 +4611,8 @@ class MainWindow(QMainWindow):
             self.ui.comboBox_appendMethod.currentIndex(),
             self.ui.checkBox_saveCsv.isChecked(),
             self.ui.checkBox_saveXML.isChecked(),
+            self.ui.checkBox_saveJson.isChecked(),
+            self.ui.checkBox_saveKeyValue.isChecked(),
         )
 
     def addBox(self):

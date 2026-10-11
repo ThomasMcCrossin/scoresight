@@ -94,16 +94,25 @@ For every field with a new value (and a mapping), ScoreSight sends an HTTP `GET`
 http://<host>:<port>/api/?Function=SetText&Input=<input>&SelectedName=<field name>&Value=<value>
 ```
 
-For example `http://localhost:8088/api/?Function=SetText&Input=1&SelectedName=CLOCK.Text&Value=4%3A27`. You can paste such a URL into a browser to test vMix without ScoreSight. See the vMix [Developer API documentation](https://www.vmix.com/help28/DeveloperAPI.html) for details.
+For example `http://localhost:8088/api/?Function=SetText&Input=1&SelectedName=CLOCK.Text&Value=4%3A27`. The field name and the value are percent-encoded, with spaces as `%20` (`SelectedName=Home%20Score.Text`); ScoreSight 0.2.0 and earlier sent spaces as `+`, which vMix may show as a literal `+`. You can paste such a URL into a browser to test vMix without ScoreSight. See the vMix [Developer API documentation](https://www.vmix.com/help28/DeveloperAPI.html) for details.
 
 Requests are sent in the background with a 2-second timeout. If vMix is busy or unreachable, ScoreSight keeps reading, keeps only the latest value of each field, retries with an increasing delay, and sends the latest values when vMix responds again. Any 2xx response counts as success. Errors are logged at most once every 30 seconds.
 
 ## Alternative: vMix Data Sources
 
-Instead of the direct integration, you can feed vMix titles from ScoreSight's files or HTTP server with vMix **Data Sources** (Settings > Data Sources):
+Instead of the direct integration, you can feed vMix titles from ScoreSight's HTTP server or files with vMix **Data Sources** (**Settings** > **Data Sources**, then bind title fields in the Data Source's mapping). vMix reads one row per poll and binds each column to a title field.
 
-- **Text/CSV/XML file**: use `results.csv` or `results.xml` from the [Text Files](text-files.md) output.
-- **JSON, XML or CSV URL**: point vMix at `http://<scoresight-ip>:18099/json?pivot`, `/xml?pivot` or `/csv?pivot` from the [HTTP server](http_server.md).
+| Data Source type | URL or file | Notes |
+|---|---|---|
+| **XML** | `http://<scoresight-ip>:18099/xml?pivot&all`, XPath `/data` | One element per field: the names have no spaces (`HomeScore`, `AwayScore`) |
+| **Excel/CSV** (from a URL or file) | `http://<scoresight-ip>:18099/csv?pivot&all`, with **first row as column names** | The columns are the field names (`Home Score`) |
+| **JSON** | `http://<scoresight-ip>:18099/json?pivot&array` | vMix JSON Data Sources need an array of rows. `/json?pivot` returns a single object, which vMix doesn't read as a row; `?array` wraps it: `[{"Home Score": "21", ...}]` |
+| **Text/CSV/XML file** | `results.csv` (or `results.xml`) from the [Text Files](text-files.md) output | `results.csv` has a `Timestamp` column first |
+
+- Use `&all` (or the JSON `?array`, which includes it): every field is then always there with its last good value. Without it, a field whose reading is rejected for a moment is missing from that poll, and vMix may blank its title field.
+- Set the Data Source's refresh interval to 250–500 ms.
+
+These setups are **untested**: they follow vMix's documentation (and, for JSON, a vMix forum answer saying it needs an array). The direct integration above sends each change as it happens, and is the one we recommend.
 
 ## Troubleshooting
 

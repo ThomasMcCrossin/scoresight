@@ -554,3 +554,254 @@ def test_status_follows_a_real_endpoint_that_goes_down_and_comes_back(make_worke
         server.shutdown()
         server.server_close()
         session.close()
+
+
+# --- RetryLater (HTTP 429), batches and pacing -------------------------------
+
+
+class FakeHttpResponse:
+    def __init__(self, status_code, headers=None, text=""):
+        self.status_code = status_code
+        self.headers = headers or {}
+        self.text = text
+
+
+def test_http_429_raises_retry_later_with_its_retry_after():
+    with pytest.raises(output_worker.RetryLater) as raised:
+        check_http_response(FakeHttpResponse(429, {"Retry-After": "7"}), "PUT x")
+    assert raised.value.status_code == 429
+    assert raised.value.delay == 7.0
+    assert "returned HTTP 429" in str(raised.value)
+    # still an OutputError (an HTTP status) for the status texts
+    assert isinstance(raised.value, OutputError)
+    with pytest.raises(output_worker.RetryLater) as raised:
+        check_http_response(FakeHttpResponse(429), "PUT x")
+    assert raised.value.delay is None
+
+
+@pytest.mark.parametrize(
+    "value, expected",
+    [
+        (None, None),
+        ("", None),
+        ("soon", None),
+        ("12", 12.0),
+        ("1.5", 1.5),
+        ("-3", 0.0),
+        ("999999", output_worker.MAX_RETRY_AFTER),
+        ("nan", None),
+        # an HTTP date, 30 s after "now"
+        ("Wed, 21 Oct 2015 07:28:30 GMT", 30.0),
+    ],
+)
+def test_retry_after_seconds(value, expected):
+    now = 1445412480.0  # Wed, 21 Oct 2015 07:28:00 GMT
+    assert output_worker.retry_after_seconds(value, now=now) == expected
+
+
+def test_retry_later_keeps_the_latest_value_and_resends_it(make_worker):
+    # a 429 used to drop the value: with "update on change" a score that hit
+    # the limit stayed wrong until it changed again
+    gate = threading.Event()
+    calls = []
+
+    def send(key, item):
+        calls.append((key, item))
+        if len(calls) == 1:
+            raise output_worker.RetryLater("HTTP 429", delay=0.3)
+        assert gate.wait(5)
+
+    worker = make_worker(send, initial_backoff=0.05)
+    worker.submit("Home Score", "3")
+    wait_for(lambda: worker.status().retrying)
+    status = worker.status()
+    assert status.retry_delay == 0.3  # as asked (more than the backoff)
+    assert status.last_error.code == 429 and status.last_error.unreachable
+    assert status.failing_keys == 0  # kept, not dropped
+    # a newer value for the key replaces the kept one; another key waits too
+    worker.submit("Home Score", "4")
+    worker.submit("Away Score", "1")
+    started = time.monotonic()
+    gate.set()
+    assert worker.wait_idle(10)
+    assert time.monotonic() - started >= 0.2  # waited as asked
+    assert calls == [
+        ("Home Score", "3"),
+        ("Home Score", "4"),
+        ("Away Score", "1"),
+    ]
+    status = worker.status()
+    assert not status.retrying and status.retry_delay is None
+    assert (status.ok_keys, status.failing_keys) == (2, 0)
+
+
+@pytest.mark.parametrize("delay", [0.0, None])
+def test_retry_later_never_retries_in_a_busy_loop(make_worker, delay):
+    # "Retry-After: 0", or an HTTP date already past by this computer's clock:
+    # the worker still waits its backoff
+    calls = []
+
+    def send(key, item):
+        calls.append(time.monotonic())
+        raise output_worker.RetryLater("HTTP 429", delay=delay)
+
+    worker = make_worker(send, initial_backoff=0.1, max_backoff=0.2)
+    worker.submit("k", 1)
+    time.sleep(0.5)
+    assert 2 <= len(calls) <= 6
+    assert worker.status().retry_delay >= 0.1
+
+
+def test_the_status_counts_down_to_the_next_try(make_worker):
+    worker = make_worker(
+        Recorder(errors={0: output_worker.RetryLater("HTTP 429", delay=60)})
+    )
+    worker.submit("k", 1)
+    wait_for(lambda: worker.status().retry_in is not None)
+    first = worker.status().retry_in
+    assert 59 < first <= 60
+    time.sleep(0.2)
+    status = worker.status()
+    assert status.retry_delay == 60  # the whole wait
+    assert status.retry_in < first  # the time left
+
+
+def test_recovery_from_a_rate_limit_is_logged(make_worker, caplog):
+    errors = {0: output_worker.RetryLater("HTTP 429", delay=0.05)}
+    worker = make_worker(Recorder(errors=errors))
+    with caplog.at_level(logging.INFO, logger=output_worker.logger.name):
+        worker.submit("k", 1)
+        wait_for(lambda: "after the rate limit" in caplog.text)
+    messages = [r.getMessage() for r in caplog.records]
+    assert not any("connection restored" in m for m in messages)
+
+
+def test_stop_ends_a_long_retry_later_wait(make_worker):
+    worker = make_worker(
+        Recorder(errors={0: output_worker.RetryLater("HTTP 429", delay=3000)})
+    )
+    worker.submit("k", 1)
+    wait_for(lambda: worker.status().retrying)
+    assert worker.status().retry_delay == 3000
+    started = time.monotonic()
+    assert worker.stop(5)
+    assert time.monotonic() - started < 2
+
+
+def test_send_many_gets_up_to_max_batch_items_per_call(make_worker):
+    calls = []
+    gate = threading.Event()
+
+    def send_many(chunk):
+        calls.append(list(chunk))
+        assert gate.wait(5)
+
+    worker = OutputWorker("batch", send_many=send_many, max_batch=2)
+    try:
+        worker.submit("hold", 0)  # in flight while the others queue up
+        wait_for(lambda: calls)
+        for key in ("a", "b", "c", "d", "e"):
+            worker.submit(key, key.upper())
+        worker.submit("c", "C2")  # coalesced per key
+        gate.set()
+        assert worker.wait_idle(10)
+        assert calls == [
+            [("hold", 0)],
+            [("a", "A"), ("b", "B")],
+            [("c", "C2"), ("d", "D")],
+            [("e", "E")],
+        ]
+        assert worker.status().sent == 6 and worker.status().ok_keys == 6
+
+        # None: everything pending in one call
+        calls.clear()
+        gate.clear()
+        worker.max_batch = None
+        worker.submit("hold", 1)
+        wait_for(lambda: calls)
+        for key in ("x", "y", "z"):
+            worker.submit(key, 1)
+        gate.set()
+        assert worker.wait_idle(10)
+        assert [len(chunk) for chunk in calls] == [1, 3]
+    finally:
+        worker.stop(2)
+
+
+def test_a_failed_batch_fails_or_retries_all_of_its_items(make_worker):
+    attempts = []
+
+    def send_many(chunk):
+        attempts.append([key for key, _ in chunk])
+        if len(attempts) == 1:
+            raise OutputError("HTTP 400", status_code=400)
+        if len(attempts) == 2:
+            raise requests.ConnectionError("refused")
+
+    worker = OutputWorker(
+        "batch",
+        send_many=send_many,
+        max_batch=3,
+        retry_on=(requests.ConnectionError,),
+        initial_backoff=0.01,
+    )
+    try:
+        worker.submit("a", 1)
+        worker.submit("b", 2)
+        assert worker.wait_idle(5)
+        status = worker.status()
+        assert (status.failing_keys, status.failed) == (2, 2)  # dropped
+
+        worker.submit("a", 3)
+        worker.submit("b", 4)
+        wait_for(lambda: len(attempts) == 3)  # refused, then retried
+        assert worker.wait_idle(5)
+        assert attempts == [["a", "b"], ["a", "b"], ["a", "b"]]
+        status = worker.status()
+        assert (status.ok_keys, status.failing_keys) == (2, 0)
+    finally:
+        worker.stop(2)
+
+
+def test_min_interval_spaces_out_the_calls(make_worker):
+    times = []
+
+    def send(key, item):
+        times.append(time.monotonic())
+
+    worker = make_worker(send, min_interval=0.1)
+    for i in range(4):
+        worker.submit(f"field {i}", i)
+    assert worker.wait_idle(10)
+    assert len(times) == 4
+    gaps = [later - earlier for earlier, later in zip(times, times[1:])]
+    assert min(gaps) >= 0.09  # at most 10 calls per second
+
+    # 0 turns the pacing off
+    worker.min_interval = 0
+    times.clear()
+    for i in range(4):
+        worker.submit(f"field {i}", i)
+    assert worker.wait_idle(10)
+    assert times[-1] - times[0] < 0.1
+
+
+def test_clear_ends_a_pacing_wait(make_worker):
+    calls = []
+    worker = make_worker(lambda key, item: calls.append(key), min_interval=5)
+    worker.submit("a", 1)
+    wait_for(lambda: calls == ["a"])
+    worker.submit("b", 2)
+    time.sleep(0.05)  # waiting out the 5 s interval
+    started = time.monotonic()
+    worker.clear()
+    assert worker.wait_idle(2)
+    assert time.monotonic() - started < 1
+    assert calls == ["a"]
+
+
+def test_worker_needs_one_send_function():
+    with pytest.raises(TypeError):
+        OutputWorker("x")
+    with pytest.raises(TypeError):
+        OutputWorker("x", lambda k, i: None, send_many=lambda chunk: None)
