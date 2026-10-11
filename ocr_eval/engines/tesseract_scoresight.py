@@ -149,14 +149,16 @@ class ScoreSightTesseract(Engine):
         from tesseract import TextDetector
         from text_detection_target import TextDetectionTarget
 
-        detector = TextDetector()
         index = {
             "daktronics": TextDetector.OcrModelIndex.DAKTRONICS,
             "scoreboard_general": TextDetector.OcrModelIndex.SCOREBOARD_GENERAL,
             "eng": TextDetector.OcrModelIndex.GENERAL_ENGLISH,
             "scoreboard_general_large": TextDetector.OcrModelIndex.SCOREBOARD_GENERAL_LARGE,
         }[self.model]
-        if not detector.setOcrModel(index):
+        # the model given, not the app's default for a new setup (PP-OCR); a
+        # model that doesn't load falls back to General Scoreboard
+        detector = TextDetector(index)
+        if detector.model != index:
             raise EngineUnavailable(f"Tesseract can't load {model_path}")
         self._detector = detector
         self._target_class = TextDetectionTarget
