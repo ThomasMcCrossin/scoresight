@@ -32,7 +32,7 @@ The **API** tab sends the readings to a URL of your choice on every detection cy
 - One request per **detection cycle** (see **Detections / s**).
 - With *JSON (Full)*, *XML* and *CSV*, each request contains **all** boxes, whatever their state. This differs from the vMix/UNO/OBS outputs, which send only new values.
 - *JSON (Simple key-value)* and the `GET` method can't carry a state, so they contain only **good** readings (`Success` or `SameNoChange`). A box whose latest reading was rejected or empty is left out, and no request is sent in a cycle where no box has a good reading.
-- **Stop Updates** pauses the requests.
+- **Pause outputs** pauses the requests.
 - Requests are sent in the background, with a 2-second timeout to connect and another 2 seconds to answer. If your endpoint is slower than the detection rate, ScoreSight skips intermediate cycles and sends only the most recent readings, so requests never pile up. If the endpoint can't be reached, ScoreSight retries with an increasing delay (up to 5 seconds) and sends the latest readings once it is back.
 - Any **2xx** status (for example `200 OK` or `204 No Content`) counts as success. Other status codes, connection errors and timeouts are written to the ScoreSight log (see [Troubleshooting](#troubleshooting)).
 

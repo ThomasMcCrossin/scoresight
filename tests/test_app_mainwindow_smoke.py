@@ -21,6 +21,7 @@ from PySide6.QtCore import (  # noqa: E402
     QTranslator,
     Signal,
 )
+from PySide6.QtGui import QKeySequence  # noqa: E402
 from PySide6.QtWidgets import QApplication, QWidget  # noqa: E402
 
 from camera_info import CameraInfo  # noqa: E402
@@ -402,6 +403,43 @@ def test_language_change_keeps_settings_and_texts(main_window, qapp, caplog):
         qapp.removeTranslator(main_window.translator)
 
 
+def test_language_change_keeps_the_runtime_texts(main_window, qapp, qtbot, make_result):
+    # retranslateUi resets every text to the .ui's: the paused banner, the
+    # slider readouts and the window title are set again
+    ui = main_window.ui
+    main_window.show()
+    ui.horizontalSlider_conf_thresh.setValue(45)
+    main_window.ocrResult([make_result("Home Score", "21")])
+    ui.pushButton_stopUpdates.setChecked(True)
+    main_window.changeLanguage("de_DE")
+    try:
+        assert ui.pushButton_stopUpdates.isChecked()
+        assert ui.pushButton_stopUpdates.text() == "Resume outputs"
+        assert ui.frame_pausedBanner.isVisibleTo(main_window)
+        assert ui.label_pausedBanner.text() != ""
+        assert main_window.windowTitle().startswith("⏸ ")
+        assert ui.label_confThreshValue.text() == "45 %"
+        assert ui.label_detectionCadenceValue.text() == "5 /s"
+        shortcut = QKeySequence("Ctrl+Shift+P").toString(
+            QKeySequence.SequenceFormat.NativeText
+        )
+        assert f"({shortcut})" in ui.pushButton_stopUpdates.toolTip()
+        assert box_value(main_window, "Home Score") == "21"
+        assert main_window.statusBarWidgets.label_http.text() != ""
+        checked = [
+            a.data() for a in main_window.language_actions.actions() if a.isChecked()
+        ]
+        assert checked == ["de_DE"]
+        # the left column becomes as wide as its (German) content
+        qtbot.waitUntil(
+            lambda: (
+                ui.scrollArea_left.minimumWidth() >= ui.frame.minimumSizeHint().width()
+            )
+        )
+    finally:
+        qapp.removeTranslator(main_window.translator)
+
+
 def test_language_change_keeps_the_output_controls(main_window, qapp, monkeypatch):
     # retranslateUi reset the vMix/UNO start buttons to their .ui texts
     # ("Start"), the OBS scene name and the playback speed.
@@ -423,17 +461,22 @@ def test_language_change_keeps_the_output_controls(main_window, qapp, monkeypatc
         qapp.removeTranslator(main_window.translator)
 
 
-def test_stop_updates_button_text_with_a_translation(main_window, qapp):
+def test_pause_outputs_button_text_with_a_translation(main_window, qapp):
     # stop-updates-button-blank-i18n: QTranslator.translate returns "" for a
     # missing translation, which blanked the button in every non-English UI.
+    assert main_window.ui.pushButton_stopUpdates.text() == "Pause outputs"
     main_window.changeLanguage("de_DE")
     try:
-        main_window.ui.pushButton_stopUpdates.setChecked(True)
-        assert main_window.ui.pushButton_stopUpdates.text() == "Resume Updates"
-        main_window.ui.pushButton_stopUpdates.setChecked(False)
-        assert main_window.ui.pushButton_stopUpdates.text() not in ("", "Stop Updates")
+        button = main_window.ui.pushButton_stopUpdates
+        button.setChecked(True)
+        paused_text = button.text()
+        button.setChecked(False)
+        assert paused_text not in ("", button.text())
+        assert button.text() != ""
     finally:
         qapp.removeTranslator(main_window.translator)
+    main_window.ui.pushButton_stopUpdates.setChecked(True)
+    assert main_window.ui.pushButton_stopUpdates.text() == "Resume outputs"
 
 
 def test_browser_tab_shows_the_http_port(make_window, patched):
@@ -465,17 +508,30 @@ def box_rows(window):
     return [table.item(row, 0).text() for row in range(table.rowCount())]
 
 
+def box_name_item(window, name):
+    """A box's item in the boxes list's Field column."""
+    table = window.ui.tableWidget_boxes
+    [item] = [
+        item
+        for item in table.findItems(name, QtCore.Qt.MatchFlag.MatchExactly)
+        if item.column() == 0
+    ]
+    return item
+
+
+def box_value_item(window, name):
+    """A box's item in the boxes list's Value column."""
+    return window.ui.tableWidget_boxes.item(box_name_item(window, name).row(), 1)
+
+
 def box_value(window, name):
     """The text in the boxes list's Value column for a box."""
-    table = window.ui.tableWidget_boxes
-    [item] = table.findItems(name, QtCore.Qt.MatchFlag.MatchExactly)
-    return table.item(item.row(), 1).text()
+    return box_value_item(window, name).text()
 
 
 def select_box_row(window, name):
-    table = window.ui.tableWidget_boxes
-    [item] = table.findItems(name, QtCore.Qt.MatchFlag.MatchExactly)
-    table.setCurrentItem(item)
+    item = box_name_item(window, name)
+    window.ui.tableWidget_boxes.setCurrentItem(item)
     return item
 
 
@@ -629,6 +685,443 @@ def test_the_boxes_list_shows_the_last_good_reading(main_window, make_result):
     main_window.ocrResult([make_result("Home Score", "2l", state="FailedFilter")])
     main_window.ocrResult([make_result("Home Score", "", state="Empty")])
     assert box_value(main_window, "Home Score") == "21"
+
+
+def test_the_boxes_list_shows_every_reading_state(main_window, make_result):
+    # The Value column was greyed out (NoItemFlags) and showed only new
+    # (Success) readings: now it shows the state of every reading, and a
+    # rejected or empty one keeps the last good value
+    from readings_view import REJECTED_TEXT_ROLE, STATE_ROLE, reading_at
+
+    item = box_value_item(main_window, "Home Score")
+    assert item.flags() & QtCore.Qt.ItemFlag.ItemIsEnabled
+    assert not item.flags() & QtCore.Qt.ItemFlag.ItemIsSelectable
+    table = main_window.ui.tableWidget_boxes
+    for state, text in (
+        ("Success", "21"),
+        ("SameNoChange", "21"),
+        ("FailedFilter", "2l"),
+        ("Empty", ""),
+    ):
+        main_window.ocrResult([make_result("Home Score", text, state=state)])
+        assert item.data(STATE_ROLE) == state
+        reading = reading_at(table.indexFromItem(item))
+        assert (reading.value, reading.age is not None) == ("21", True)
+    assert item.data(REJECTED_TEXT_ROLE) == "2l"
+    assert table.itemDelegateForColumn(1) is main_window.readingDelegate
+    main_window.show()
+    table.grab()  # paints every row
+
+
+def test_a_click_on_a_reading_selects_its_box(main_window, make_result):
+    ui = main_window.ui
+    select_box_row(main_window, "Home Score")
+    main_window.makeBox()
+    main_window.ocrResult([make_result("Home Score", "21")])
+    value = box_value_item(main_window, "Home Score")
+    ui.tableWidget_boxes.setCurrentItem(value)
+    main_window.listItemClicked(value)
+    # the name stays the current item: the settings, rename and remove use it
+    assert ui.tableWidget_boxes.currentItem().text() == "Home Score"
+    assert ui.label_selectedInfo.text() == "Home Score"
+    # (the list is disabled until a source opens)
+    assert ui.pushButton_removeBox.isEnabledTo(ui.groupBox_sb_info)
+
+    # taken off the picture: its last reading isn't shown as current
+    main_window.removeBox()
+    assert box_value(main_window, "Home Score") == ""
+
+
+def test_the_boxes_list_matches_names_not_values(main_window, make_result):
+    # a reading that equals another box's name doesn't confuse the list
+    main_window.ocrResult([make_result("Home Score", "Period", state="Success")])
+    main_window.ocrResult([make_result("Period", "2")])
+    assert box_value(main_window, "Home Score") == "Period"
+    assert box_value(main_window, "Period") == "2"
+
+
+def test_pausing_the_outputs_shows_everywhere(main_window, patched, make_result):
+    ui = main_window.ui
+    main_window.show()
+    assert ui.pushButton_stopUpdates.text() == "Pause outputs"
+    assert not ui.frame_pausedBanner.isVisibleTo(main_window)
+    assert main_window.statusBarWidgets.label_paused.isHidden()
+
+    main_window.ui.actionPauseOutputs.trigger()  # Ctrl+Shift+P
+    assert ui.pushButton_stopUpdates.isChecked()
+    assert ui.pushButton_stopUpdates.text() == "Resume outputs"
+    assert ":checked" in ui.pushButton_stopUpdates.styleSheet()
+    assert ui.frame_pausedBanner.isVisibleTo(main_window)
+    assert "Outputs paused" in ui.label_pausedBanner.text()
+    assert main_window.windowTitle() == f"⏸ ScoreSight - v{__version__}"
+    chip = main_window.statusBarWidgets.label_paused
+    assert not chip.isHidden() and chip.text().startswith("PAUSED 00:0")
+    assert main_window.readingDelegate.paused
+    # the readings keep updating, the outputs don't get them
+    main_window.obs_websocket_client = FakeObsClient()
+    main_window.ocrResult([make_result("Home Score", "12")])
+    assert box_value(main_window, "Home Score") == "12"
+    assert patched["obs"] == []
+
+    ui.pushButton_resumeOutputs.click()  # the banner's Resume
+    assert not ui.pushButton_stopUpdates.isChecked()
+    assert not ui.frame_pausedBanner.isVisibleTo(main_window)
+    assert main_window.windowTitle() == f"ScoreSight - v{__version__}"
+    assert chip.isHidden()
+    assert not main_window.readingDelegate.paused
+
+
+def test_the_keyboard_shortcuts(main_window, qtbot):
+    ui = main_window.ui
+    shortcuts = {
+        action.objectName(): action.shortcut().toString()
+        for action in main_window.actions()
+    }
+    assert shortcuts == {
+        "actionPauseOutputs": "Ctrl+Shift+P",
+        "actionBinaryView": "Ctrl+B",
+        "actionFitPicture": "Ctrl+0",
+        "actionReloadSources": "F5",
+    }
+    from PySide6.QtTest import QTest
+
+    with qtbot.waitActive(main_window):
+        main_window.show()
+        main_window.activateWindow()
+    # through the window, as a real key press (shortcuts are matched there)
+    QTest.keyClick(
+        main_window.windowHandle(),
+        QtCore.Qt.Key.Key_P,
+        QtCore.Qt.KeyboardModifier.ControlModifier
+        | QtCore.Qt.KeyboardModifier.ShiftModifier,
+    )
+    assert ui.pushButton_stopUpdates.isChecked()
+    # the tooltip shows the shortcut as the platform writes it (⌘B on macOS)
+    native = QKeySequence.SequenceFormat.NativeText
+    assert QKeySequence("Ctrl+B").toString(native) in ui.pushButton_binary.toolTip()
+    # the buttons do nothing while they are disabled (no source yet)
+    assert not ui.widget_viewTools.isEnabled()
+    ui.actionBinaryView.trigger()
+    assert not ui.pushButton_binary.isChecked()
+
+
+def test_resuming_sends_unchanged_values_to_vmix_and_uno(
+    main_window, make_result, make_target
+):
+    # A value that changed while the outputs were paused is an unchanged
+    # (SameNoChange) reading after resuming, which vMix and UNO don't send.
+    # Each box's first good reading after resuming is sent anyway.
+    calls = []
+    vmix = main_window.vmixUiHandler.vmixUpdater
+    uno = main_window.unoUiHandler.unoUpdater
+    vmix.update_vmix = lambda results, resend_unchanged=(): calls.append(
+        ("vmix", set(resend_unchanged))
+    )
+    uno.update_uno = lambda results, resend_unchanged=(): calls.append(
+        ("uno", set(resend_unchanged))
+    )
+    storage = main_window.detectionTargetsStorage
+    storage.add_item(make_target("Home Score"))
+    storage.add_item(make_target("Time"))
+
+    def cycle(home, time):
+        calls.clear()
+        main_window.ocrResult(
+            [make_result("Home Score", *home), make_result("Time", *time)]
+        )
+        return calls[:]
+
+    assert cycle(("12", "Success"), ("1:00", "Success")) == [
+        ("vmix", set()),
+        ("uno", set()),
+    ]
+    main_window.ui.pushButton_stopUpdates.setChecked(True)
+    assert cycle(("13", "Success"), ("0:45", "Success")) == []  # paused
+    main_window.ui.pushButton_stopUpdates.setChecked(False)
+    # the clock's first reading after resuming is rejected: it stays pending
+    both = {"Home Score", "Time"}
+    assert cycle(("13", "SameNoChange"), ("0:4S", "FailedFilter")) == [
+        ("vmix", both),
+        ("uno", both),
+    ]
+    assert cycle(("13", "SameNoChange"), ("0:45", "SameNoChange")) == [
+        ("vmix", {"Time"}),
+        ("uno", {"Time"}),
+    ]
+    assert cycle(("13", "SameNoChange"), ("0:45", "SameNoChange")) == [
+        ("vmix", set()),
+        ("uno", set()),
+    ]
+
+
+class FakeCaptureThread(FakeTimerThread):
+    def __init__(self):
+        super().__init__()
+        import time
+
+        self.frame_size = (1280, 720)
+        self.fps = 29.97
+        self.ups = 4.8
+        self.update_frame_interval = 200
+        self.last_frame_timestamp = time.monotonic()
+        self.textDetector = None
+
+
+def test_the_status_bar(make_window, monkeypatch, patched):
+    import mainwindow
+
+    class RunningViewer(FakeViewer):
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.timerThread = FakeCaptureThread()
+            self.firstFrameReceived = True
+
+    monkeypatch.setattr(mainwindow, "ImageViewer", RunningViewer)
+    monkeypatch.setattr(mainwindow, "primary_lan_address", lambda: "192.168.1.20")
+    store_data("scoresight.json", "source_selected", "rtsp://user:pw@10.0.1.200:554/11")
+    window = make_window(http_port=18100)
+    window.refreshLiveStatus()
+    bar = window.statusBarWidgets
+    assert "rtsp://10.0.1.200:554/11 · 1280×720 · 30.0 fps" in bar.label_source.text()
+    assert "pw" not in bar.label_source.text()
+    assert bar.label_ocr.text() == "Reading 4.8/s of 5"
+    assert bar.label_http.text() == "http://192.168.1.20:18100"
+    assert "http://localhost:18100" in bar.label_http.toolTip()
+
+    window.updateError("Unable to play the stream")
+    window.refreshLiveStatus()
+    assert "can't be read" in bar.label_source.text()
+    window.reset_playing_source()
+    window.refreshLiveStatus()
+    assert "No source" in bar.label_source.text()
+
+
+def test_the_status_bar_when_the_http_port_is_busy(make_window, patched):
+    patched["http_port_busy"] = True
+    window = make_window(http_port=18100)
+    bar = window.statusBarWidgets
+    assert "not running (port 18100 busy)" in bar.label_http.text()
+    assert bar.button_copy.isHidden()
+
+
+@pytest.fixture
+def reference_font(qapp):
+    """Segoe UI 9 pt (the Windows UI font) where it's installed; the offscreen
+    platform doesn't find the system fonts by itself."""
+    import os
+    import sys
+
+    from PySide6.QtGui import QFont, QFontDatabase
+
+    previous = qapp.font()
+    path = os.path.join(os.environ.get("WINDIR", r"C:\Windows"), "Fonts", "segoeui.ttf")
+    loaded = sys.platform == "win32" and QFontDatabase.addApplicationFont(path) >= 0
+    if loaded:
+        qapp.setFont(QFont("Segoe UI", 9))
+    yield loaded
+    qapp.setFont(previous)
+
+
+# the reference text for scaling the size limit with another font
+SIZE_REFERENCE_TEXT = "Detections / s Update on change Binary View 4-corner Correction"
+
+
+def test_the_window_fits_a_small_screen(make_window, qapp, qtbot, reference_font):
+    # The window needed 1016x750 (1158 wide in German): more than a 1366x768
+    # laptop shows. The left column now scrolls, and a splitter divides the
+    # space. The limit is for Segoe UI 9 pt; a wider font (Linux, the
+    # offscreen fallback font) widens it in proportion.
+    from PySide6.QtGui import QFontMetricsF
+
+    window = make_window()
+    width_ratio = 1.0
+    if not reference_font:
+        # Segoe UI 9 pt draws the reference text 342 px wide
+        width_ratio = max(
+            1.0, QFontMetricsF(qapp.font()).horizontalAdvance(SIZE_REFERENCE_TEXT) / 342
+        )
+    ui = window.ui
+    window.show()
+    for language in ("en_US", "de_DE"):
+        window.changeLanguage(language)
+        # the left column doesn't scroll sideways: it becomes as wide as its
+        # content
+        qtbot.waitUntil(
+            lambda: (
+                ui.scrollArea_left.minimumWidth() >= ui.frame.minimumSizeHint().width()
+            )
+        )
+        qapp.processEvents()
+        hint = window.minimumSizeHint()
+        assert hint.width() <= 1024 * width_ratio, (language, hint)
+        assert hint.height() <= 640, (language, hint)
+    qapp.removeTranslator(window.translator)
+
+
+def test_the_splitter_sizes_are_kept(make_window, qtbot):
+    def settled(window):
+        # wide enough for any font, laid out
+        window.resize(max(2000, window.minimumSizeHint().width() + 400), 800)
+        window.show()
+        ui = window.ui
+        qtbot.waitUntil(
+            lambda: (
+                ui.scrollArea_left.minimumWidth() >= ui.frame.minimumSizeHint().width()
+            )
+        )
+        return window.ui.splitter_main
+
+    window = make_window()
+    splitter = settled(window)
+    left = window.ui.widget_leftPane.minimumSizeHint().width() + 60
+    splitter.setSizes([left, splitter.width() - left])
+    assert splitter.sizes()[0] == left
+    window.close()
+    assert fetch_data("scoresight.json", "main_splitter_state")
+
+    restored = settled(make_window())
+    qtbot.waitUntil(lambda: restored.sizes()[0] == left)
+
+
+def test_slider_readouts(main_window, make_target):
+    ui = main_window.ui
+    storage = main_window.detectionTargetsStorage
+    storage.add_item(make_target("Home Score", conf_thresh=0, skew=-3, vscale=8))
+    main_window.itemSelected("Home Score")
+    assert ui.label_confThreshValue.text() == "Off"
+    assert ui.label_skewValue.text() == "\u22123"
+    assert ui.label_vscaleValue.text() == "80 %"
+    assert ui.label_dilateValue.text() == "1"
+    assert ui.label_cleanupValue.text() == "Off"
+    ui.horizontalSlider_conf_thresh.setValue(45)
+    assert ui.label_confThreshValue.text() == "45 %"
+    assert ui.horizontalSlider_conf_thresh.accessibleDescription() == "45 %"
+    ui.horizontalSlider_detectionCadence.setValue(12)
+    assert ui.label_detectionCadenceValue.text() == "12 /s"
+    ui.horizontalSlider_aggsPerSecond.setValue(3)
+    assert ui.label_aggsPerSecondValue.text() == "3 /s"
+
+
+def test_controls_have_tooltips(main_window):
+    # the controls the design critique found without one
+    for name in (
+        "checkBox_smoothing",
+        "horizontalSlider_vscale",
+        "horizontalSlider_skew",
+        "horizontalSlider_dilate",
+        "horizontalSlider_cleanup",
+        "checkBox_compositeBox",
+        "comboBox_binarizationMethod",
+        "checkBox_autocrop",
+        "checkBox_skip_similar_image",
+        "pushButton_stopUpdates",
+        "horizontalSlider_detectionCadence",
+        "comboBox_ocrModel",
+        "pushButton_saveOCRTrainingData",
+        "toolButton_videoSettings",
+        "toolButton_addBox",
+        "toolButton_removeBox",
+    ):
+        assert getattr(main_window.ui, name).toolTip(), name
+
+
+def test_output_buttons_have_text_and_no_emoji(main_window):
+    for button in (
+        main_window.ui.pushButton_startvmix,
+        main_window.ui.toolButton_toggleUno,
+    ):
+        text = button.text()
+        assert text in ("Start vMix", "Start sending")
+        assert not button.icon().isNull()
+        assert not any(ord(c) > 0x2000 for c in text)
+
+
+def test_the_obs_dialog(main_window, qapp):
+    from PySide6.QtWidgets import QLineEdit
+
+    store_data(
+        "scoresight.json", "obs", {"ip": "localhost", "port": "4455", "password": "x"}
+    )
+    main_window.show()
+    main_window.openOBSConnectModal()
+    dialog = main_window.obs_connect_modal
+    ui = main_window.obs_modal_ui
+    # a child of the main window: it stays in front of it
+    assert dialog.parent() is main_window
+    assert ui.lineEdit_password.echoMode() == QLineEdit.EchoMode.Password
+    ui.checkBox_showPassword.setChecked(True)
+    assert ui.lineEdit_password.echoMode() == QLineEdit.EchoMode.Normal
+    assert not main_window.ui.pushButton_createOBSScene.isEnabled()
+
+    # connected meanwhile, then Cancel: the scene controls work again
+    main_window.obs_websocket_client = FakeObsClient()
+    ui.pushButton_cancel.click()
+    assert not dialog.isVisible()
+    assert main_window.ui.pushButton_createOBSScene.isEnabled()
+    main_window.obs_websocket_client = None
+
+    # opening it again while it's open doesn't make a second one
+    main_window.openOBSConnectModal()
+    second = main_window.obs_connect_modal
+    main_window.openOBSConnectModal()
+    assert main_window.obs_connect_modal is second
+
+
+def test_cancel_while_connecting_to_obs(main_window, monkeypatch, qtbot):
+    # Cancel didn't stop the connection attempt: when it succeeded later, it
+    # replaced the current connection and stored the cancelled settings
+    import mainwindow
+
+    release = threading.Event()
+    finished = threading.Event()
+    client = FakeObsClient()
+
+    def slow_open(info):
+        release.wait(5)
+        finished.set()
+        return client
+
+    monkeypatch.setattr(mainwindow, "open_obs_websocket", slow_open)
+    main_window.show()
+    main_window.openOBSConnectModal()
+    ui = main_window.obs_modal_ui
+    ui.lineEdit_ip.setText("other-pc")
+    ui.pushButton_connect.click()
+    assert not ui.pushButton_connect.isEnabled()  # connecting
+    ui.pushButton_cancel.click()
+    release.set()
+    assert finished.wait(5)
+    # the (ignored) client is closed off the GUI thread
+    qtbot.waitUntil(lambda: client.disconnected)
+    assert main_window.obs_websocket_client is None
+    assert fetch_data("scoresight.json", "obs") is None
+
+
+def test_the_file_menu_is_translatable(main_window, qapp):
+    # The File menu was made in code without tr(): never translated
+    from PySide6.QtCore import QTranslator
+
+    class Marking(QTranslator):
+        def translate(self, context, source, disambiguation=None, n=-1):
+            return f"«{source}»" if context == "MainWindow" else ""
+
+    translator = Marking()
+    qapp.installTranslator(translator)
+    try:
+        main_window.ui.retranslateUi(main_window)
+        main_window.applyRuntimeTexts()
+        assert main_window.ui.menuFile.title() == "«File»"
+        assert "«Check for Updates»" in menu_titles(main_window)
+        assert "«Appearance»" in menu_titles(main_window)
+        appearance = [a.text() for a in main_window.appearance_actions.actions()]
+        assert appearance == ["«System»", "«Light»", "«Dark»"]
+    finally:
+        qapp.removeTranslator(translator)
+        main_window.ui.retranslateUi(main_window)
+    # the languages in their own language, not translated
+    languages = [a.text() for a in main_window.language_actions.actions()]
+    assert "Deutsch" in languages and "日本語" in languages and "Français" in languages
+    assert len(languages) == 13
 
 
 def test_replaced_viewers_are_deleted(make_window, qapp):

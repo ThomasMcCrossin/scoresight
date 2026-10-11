@@ -1,5 +1,8 @@
 from functools import partial
 
+from PySide6.QtCore import QCoreApplication
+from PySide6.QtGui import QFontMetrics
+
 from defaults import (
     default_info_for_box_name,
     normalize_settings_dict,
@@ -10,11 +13,64 @@ from ui_mainwindow import Ui_MainWindow
 from sc_logging import logger
 
 
+def _off():
+    return QCoreApplication.translate("BoxSettings", "Off")
+
+
+def _percent(value) -> str:
+    return QCoreApplication.translate("BoxSettings", "{value} %").format(value=value)
+
+
+def slider_readout(name: str, value: int) -> str:
+    """The text shown next to a box settings slider for its value."""
+    if name == "cleanup":
+        return _off() if value == 0 else _percent(value)
+    if name == "conf_thresh":
+        # Tesseract's confidence in %
+        return _off() if value == 0 else _percent(value)
+    if name == "vscale":
+        # value/10 of the height
+        return _percent(value * 10)
+    if name == "dilate":
+        # passes of a 3x3 dilation
+        return _off() if value == 0 else str(value)
+    if name == "skew":
+        if value == 0:
+            return "0"
+        return f"+{value}" if value > 0 else f"−{-value}"
+    return str(value)
+
+
 class BoxSettingsUIHandler:
     def __init__(self, ui: Ui_MainWindow):
         self.ui = ui
         self.boxSettingsUiSetup()
         self.detectionTargetsStorage = TextDetectionTargetMemoryStorage()
+
+    def readoutSliders(self):
+        """(setting name, slider, value label) of the sliders with a readout."""
+        ui = self.ui
+        return (
+            ("cleanup", ui.horizontalSlider_cleanup, ui.label_cleanupValue),
+            ("conf_thresh", ui.horizontalSlider_conf_thresh, ui.label_confThreshValue),
+            ("vscale", ui.horizontalSlider_vscale, ui.label_vscaleValue),
+            ("dilate", ui.horizontalSlider_dilate, ui.label_dilateValue),
+            ("skew", ui.horizontalSlider_skew, ui.label_skewValue),
+        )
+
+    def updateReadouts(self, *_):
+        """Show each slider's value next to it ("Off" when the setting is off),
+        also to screen readers."""
+        for name, slider, label in self.readoutSliders():
+            text = slider_readout(name, slider.value())
+            label.setText(text)
+            metrics = QFontMetrics(label.font())
+            widest = max(
+                metrics.horizontalAdvance(slider_readout(name, value))
+                for value in (slider.minimum(), slider.maximum(), 0, 1)
+            )
+            label.setMinimumWidth(widest + 2)
+            slider.setAccessibleDescription(text)
 
     def editSettings(self, settingsMutatorCallback):
         # update the selected item's settings in the detectionTargetsStorage
@@ -127,6 +183,9 @@ class BoxSettingsUIHandler:
         self.ui.comboBox_formatPrefix.currentIndexChanged.connect(
             self.formatPrefixChanged
         )
+        for _, slider, _ in self.readoutSliders():
+            slider.valueChanged.connect(self.updateReadouts)
+        self.updateReadouts()
 
     def populateSettings(self, name):
         self.ui.lineEdit_format.blockSignals(True)
@@ -249,3 +308,5 @@ class BoxSettingsUIHandler:
         self.ui.checkBox_templatefield.blockSignals(False)
         self.ui.lineEdit_templatefield.blockSignals(False)
         self.ui.checkBox_compositeBox.blockSignals(False)
+        # the values were set with the signals blocked
+        self.updateReadouts()

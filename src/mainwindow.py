@@ -1,24 +1,35 @@
+from datetime import datetime
 from functools import partial
 import math
 import os
 import platform
 import threading
+import time
 from typing import Callable
 from PySide6.QtWidgets import (
     QApplication,
     QDialog,
     QFileDialog,
+    QHeaderView,
     QInputDialog,
+    QLineEdit,
     QMainWindow,
-    QMenu,
     QMessageBox,
     QTableWidgetItem,
 )
-from PySide6.QtGui import QActionGroup, QGuiApplication, QIcon, QDesktopServices
+from PySide6.QtGui import (
+    QActionGroup,
+    QDesktopServices,
+    QFontMetrics,
+    QGuiApplication,
+    QIcon,
+    QKeySequence,
+)
 from PySide6.QtCore import (
     Qt,
     Signal,
     Slot,
+    QByteArray,
     QTimer,
     QTranslator,
     QObject,
@@ -39,8 +50,22 @@ from http_server import (
     update_http_server,
 )
 from ocr_training_data import OCRTrainingDataDialog
+from readings_view import ReadingDelegate, clear_reading, record_reading
 from resource_path import resource_path
 from source_view import ImageViewer
+from status_bar import (
+    SOURCE_ERROR,
+    SOURCE_NONE,
+    SOURCE_OPENING,
+    SOURCE_RUNNING,
+    SOURCE_STALLED,
+    MainStatusBar,
+    StatusSnapshot,
+    http_server_urls,
+    primary_lan_address,
+    source_display_name,
+)
+import theme
 from defaults import (
     default_boxes,
     default_info_for_box_name,
@@ -112,6 +137,34 @@ FIRST_CAMERA_SOURCE_INDEX = 4
 
 # Box edits are written to the settings this long after the last change.
 BOXES_SAVE_DELAY_MS = 500
+
+# File > Language: (locale, the language's name in that language)
+LANGUAGES = (
+    ("en_US", "English (US)"),
+    ("fr_FR", "Français"),
+    ("es_ES", "Español"),
+    ("de_DE", "Deutsch"),
+    ("it_IT", "Italiano"),
+    ("ja_JP", "日本語"),
+    ("ko_KR", "한국어"),
+    ("nl_NL", "Nederlands"),
+    ("pl_PL", "Polski"),
+    ("pt_BR", "Português (Brasil)"),
+    ("pt_PT", "Português (Portugal)"),
+    ("ru_RU", "Русский"),
+    ("zh_CN", "简体中文"),
+)
+
+# The sizes of the boxes list | viewer splitter (QSplitter.saveState, base64).
+SPLITTER_STATE_SETTING = "main_splitter_state"
+# The status bar, the readings' ages and the paused time are refreshed this often.
+STATUS_INTERVAL_MS = 1000
+# A source that delivered no frame for this long is shown as stalled.
+SOURCE_STALL_S = 3.0
+# The boxes list shows at most this many rows without scrolling.
+BOXES_LIST_MAX_VISIBLE_ROWS = 8
+# The window's default size, made smaller on smaller screens.
+DEFAULT_WINDOW_SIZE = (1280, 800)
 
 
 def apply_color_scheme(name: str | None) -> str:
@@ -189,61 +242,24 @@ class MainWindow(QMainWindow):
         logger.info("Starting ScoreSight %s", __version__)
         self.ui.setupUi(self)
         self.translator = translator
+        # when the outputs were paused (Pause outputs), None while they run
+        self.outputsPausedAt: datetime | None = None
+        self.outputsPausedMonotonic: float | None = None
+        # After the outputs are resumed, vMix and UNO get each of these boxes'
+        # next good reading, even an unchanged one (they normally send only
+        # changed values)
+        self.resendAfterPause: set[str] = set()
         self.updateWindowTitle()
         if platform.system() == "Windows":
             # set the icon
             self.setWindowIcon(QIcon(resource_path("icons", "Windows-icon-open.ico")))
-
-        self.menubar = self.menuBar()
-        file_menu = self.menubar.addMenu("File")
 
         self.update_check_running = False
         # a manual check was asked for while another check was running
         self.update_check_manual_pending = False
         self.update_dialog = None
         self.update_check_finished.connect(self.updateCheckFinished)
-        file_menu.addAction("Check for Updates", lambda: self.checkForUpdates(True))
-        file_menu.addAction("About", self.openAboutDialog)
-        file_menu.addAction("View Current Log", self.openLogsDialog)
-        file_menu.addAction("Import Configuration", self.importConfiguration)
-        file_menu.addAction("Export Configuration", self.exportConfiguration)
-        file_menu.addAction("Open Configuration Folder", self.openConfigurationFolder)
-        file_menu.addAction("OCR Training Data Setup", self.openOCRTrainingDataDialog)
-
-        # Add "Language" menu
-        languageMenu = file_menu.addMenu("Language")
-
-        # Add language options
-        self.addLanguageOption(languageMenu, "English (US)", "en_US")
-        self.addLanguageOption(languageMenu, "French (France)", "fr_FR")
-        self.addLanguageOption(languageMenu, "Spanish (Spain)", "es_ES")
-        self.addLanguageOption(languageMenu, "German", "de_DE")
-        self.addLanguageOption(languageMenu, "Italian", "it_IT")
-        self.addLanguageOption(languageMenu, "Japanese", "ja_JP")
-        self.addLanguageOption(languageMenu, "Korean", "ko_KR")
-        self.addLanguageOption(languageMenu, "Dutch", "nl_NL")
-        self.addLanguageOption(languageMenu, "Polish", "pl_PL")
-        self.addLanguageOption(languageMenu, "Portuguese (Brazil)", "pt_BR")
-        self.addLanguageOption(languageMenu, "Portuguese (Portugal)", "pt_PT")
-        self.addLanguageOption(languageMenu, "Russian", "ru_RU")
-        self.addLanguageOption(languageMenu, "Chinese (Simplified)", "zh_CN")
-
-        # File > Appearance: System / Light / Dark color scheme (#50)
-        appearance_menu = file_menu.addMenu("Appearance")
-        self.appearance_actions = QActionGroup(self)
-        self.appearance_actions.setExclusive(True)
-        current_scheme = fetch_data("scoresight.json", "color_scheme")
-        if current_scheme not in COLOR_SCHEMES:
-            current_scheme = DEFAULT_COLOR_SCHEME
-        for scheme in COLOR_SCHEMES:
-            action = appearance_menu.addAction(scheme)
-            action.setCheckable(True)
-            action.setChecked(scheme == current_scheme)
-            action.setData(scheme)
-            action.triggered.connect(
-                lambda checked=False, scheme=scheme: self.setColorScheme(scheme)
-            )
-            self.appearance_actions.addAction(action)
+        self.setupMenus()
 
         # handle the Escape key (deselect the current box)
         self.installEventFilter(self)
@@ -357,6 +373,10 @@ class MainWindow(QMainWindow):
         self.ui.tableWidget_boxes.itemClicked.connect(self.listItemClicked)
         # connect the edit triggers
         self.ui.tableWidget_boxes.itemDoubleClicked.connect(self.editBoxName)
+        # the current item is always a box's name: the box settings, removing
+        # and renaming use its text
+        self.ui.tableWidget_boxes.currentCellChanged.connect(self.keepNameCellCurrent)
+        self.setupBoxesList()
         self.ui.pushButton_refresh_sources.clicked.connect(
             lambda: self.get_sources.emit()
         )
@@ -389,20 +409,9 @@ class MainWindow(QMainWindow):
         custom_boxes_names = fetch_custom_box_names()
 
         for box_name in [box["name"] for box in default_boxes] + custom_boxes_names:
-            item = QTableWidgetItem(
-                QIcon(resource_path("icons", "circle-x.svg")),
-                box_name,
-            )
+            item = self.appendBoxRow(box_name)
+            item.setIcon(QIcon(resource_path("icons", "circle-x.svg")))
             item.setData(Qt.ItemDataRole.UserRole, "unchecked")
-            self.ui.tableWidget_boxes.insertRow(self.ui.tableWidget_boxes.rowCount())
-            self.ui.tableWidget_boxes.setItem(
-                self.ui.tableWidget_boxes.rowCount() - 1, 0, item
-            )
-            disabledItem = QTableWidgetItem()
-            disabledItem.setFlags(Qt.ItemFlag.NoItemFlags)
-            self.ui.tableWidget_boxes.setItem(
-                self.ui.tableWidget_boxes.rowCount() - 1, 1, disabledItem
-            )
 
         # The boxes are app state (not per source): load them once at startup.
         # From now on the in-memory storage is the source of truth, and changes
@@ -479,17 +488,250 @@ class MainWindow(QMainWindow):
 
         self.ui.toolButton_speed.clicked.connect(self.toggleSpeed)
 
+        # Pause outputs: the banner over the viewer, the status bar chip
+        self.ui.frame_pausedBanner.hide()
+        self.ui.pushButton_resumeOutputs.clicked.connect(
+            lambda: self.ui.pushButton_stopUpdates.setChecked(False)
+        )
+        self.ui.horizontalSlider_detectionCadence.valueChanged.connect(
+            self.updateSliderReadouts
+        )
+        self.ui.horizontalSlider_aggsPerSecond.valueChanged.connect(
+            self.updateSliderReadouts
+        )
+
+        # the source, OCR rate and HTTP address, and the readings' ages
+        self.sourceError = None
+        self.lanAddress = primary_lan_address()
+        self.lanAddressCheckedAt = time.monotonic()
+        self.statusBarWidgets = MainStatusBar(self.ui.statusbar)
+        self.statusTimer = QTimer(self)
+        self.statusTimer.setInterval(STATUS_INTERVAL_MS)
+        self.statusTimer.timeout.connect(self.refreshLiveStatus)
+        self.statusTimer.start()
+
+        # the label hides when the view tools need its room
+        self.ui.widget_viewTools.installEventFilter(self)
+        # the left column is as wide as its content
+        self.ui.frame.installEventFilter(self)
+
+        self.setupLayout()
+        self.applyRuntimeTexts()
+
         self.update_sources.connect(self.updateSources)
         self.get_sources.connect(self.getSources)
         self.get_sources.emit()
 
         self.checkForUpdates(False)
 
+    # --- layout, menus and texts set at runtime ---------------------------------
+
+    def setupMenus(self):
+        """Connect the File menu's actions (defined in the .ui, so they are
+        translated), fill the Language and Appearance submenus, and add the
+        window's keyboard shortcuts."""
+        ui = self.ui
+        ui.actionCheckForUpdates.triggered.connect(lambda: self.checkForUpdates(True))
+        ui.actionAbout.triggered.connect(self.openAboutDialog)
+        ui.actionViewLog.triggered.connect(self.openLogsDialog)
+        ui.actionImportConfiguration.triggered.connect(self.importConfiguration)
+        ui.actionExportConfiguration.triggered.connect(self.exportConfiguration)
+        ui.actionOpenConfigurationFolder.triggered.connect(self.openConfigurationFolder)
+        ui.actionOCRTrainingDataSetup.triggered.connect(self.openOCRTrainingDataDialog)
+
+        # File > Language, each language in its own language
+        self.language_actions = QActionGroup(self)
+        self.language_actions.setExclusive(True)
+        current_locale = self.currentLocale()
+        for locale, name in LANGUAGES:
+            action = ui.menuLanguage.addAction(name)
+            action.setCheckable(True)
+            action.setChecked(locale == current_locale)
+            action.setData(locale)
+            action.triggered.connect(
+                lambda checked=False, locale=locale: self.changeLanguage(locale)
+            )
+            self.language_actions.addAction(action)
+
+        # File > Appearance: System / Light / Dark color scheme (#50)
+        self.appearance_actions = QActionGroup(self)
+        self.appearance_actions.setExclusive(True)
+        current_scheme = fetch_data("scoresight.json", "color_scheme")
+        if current_scheme not in COLOR_SCHEMES:
+            current_scheme = DEFAULT_COLOR_SCHEME
+        for scheme in COLOR_SCHEMES:
+            action = ui.menuAppearance.addAction(scheme)
+            action.setCheckable(True)
+            action.setChecked(scheme == current_scheme)
+            action.setData(scheme)
+            action.triggered.connect(
+                lambda checked=False, scheme=scheme: self.setColorScheme(scheme)
+            )
+            self.appearance_actions.addAction(action)
+
+        # shortcuts of the window (the actions aren't in a menu)
+        for action in (
+            ui.actionPauseOutputs,
+            ui.actionBinaryView,
+            ui.actionFitPicture,
+            ui.actionReloadSources,
+        ):
+            action.setShortcutContext(Qt.ShortcutContext.WindowShortcut)
+            self.addAction(action)
+        ui.actionPauseOutputs.triggered.connect(ui.pushButton_stopUpdates.toggle)
+        # through the buttons: they do nothing while disabled (no source yet, a
+        # reload running)
+        ui.actionBinaryView.triggered.connect(ui.pushButton_binary.click)
+        ui.actionFitPicture.triggered.connect(ui.toolButton_zoomReset.click)
+        ui.actionReloadSources.triggered.connect(ui.pushButton_refresh_sources.click)
+
+    def currentLocale(self) -> str | None:
+        """The locale of the loaded translation (e.g. "de_DE"), if any."""
+        loaded = path.basename(self.translator.filePath() or "")
+        if loaded.startswith("scoresight_") and loaded.endswith(".qm"):
+            return loaded[len("scoresight_") : -len(".qm")]
+        return None
+
+    def setupBoxesList(self):
+        """The boxes list: names, and the readings drawn by ReadingDelegate."""
+        table = self.ui.tableWidget_boxes
+        self.readingDelegate = ReadingDelegate(table)
+        table.setItemDelegateForColumn(1, self.readingDelegate)
+        header = table.verticalHeader()
+        header.setSectionResizeMode(QHeaderView.ResizeMode.Fixed)
+        model = table.model()
+        model.rowsInserted.connect(self.updateBoxesListHeight)
+        model.rowsRemoved.connect(self.updateBoxesListHeight)
+        self.updateBoxesListHeight()
+
+    def updateBoxesListHeight(self, *_):
+        """Size the rows for the readings, and make the list tall enough to show
+        every box (up to BOXES_LIST_MAX_VISIBLE_ROWS) without scrolling: the
+        readings are the window's main live information."""
+        table = self.ui.tableWidget_boxes
+        row_height = self.readingDelegate.rowHeight(table.font())
+        table.verticalHeader().setDefaultSectionSize(row_height)
+        rows = max(3, min(table.rowCount(), BOXES_LIST_MAX_VISIBLE_ROWS))
+        header_height = table.horizontalHeader().sizeHint().height()
+        table.setMinimumHeight(
+            header_height + rows * row_height + 2 * table.frameWidth()
+        )
+
+    def setupLayout(self):
+        """Fit the window to the screen and restore the splitter's sizes."""
+        splitter = self.ui.splitter_main
+        splitter.setStretchFactor(0, 0)
+        splitter.setStretchFactor(1, 1)
+        self.fitLeftPaneWidth()
+
+        screen = self.screen()
+        width, height = DEFAULT_WINDOW_SIZE
+        if screen is not None:
+            available = screen.availableGeometry()
+            # leave room for the title bar and the window frame
+            width = min(width, available.width() - 16)
+            height = min(height, available.height() - 48)
+        self.resize(width, height)
+
+        stored = fetch_data("scoresight.json", SPLITTER_STATE_SETTING)
+        restored = isinstance(stored, str) and splitter.restoreState(
+            QByteArray.fromBase64(stored.encode("ascii", "ignore"))
+        )
+        if not restored:
+            left = self.ui.widget_leftPane.minimumSizeHint().width()
+            splitter.setSizes([left, max(1, self.width() - left)])
+        self.splitterSaveTimer = QTimer(self)
+        self.splitterSaveTimer.setSingleShot(True)
+        self.splitterSaveTimer.setInterval(BOXES_SAVE_DELAY_MS)
+        self.splitterSaveTimer.timeout.connect(self.saveSplitterState)
+        splitter.splitterMoved.connect(lambda *_: self.splitterSaveTimer.start())
+
+    def saveSplitterState(self):
+        self.splitterSaveTimer.stop()
+        state = bytes(self.ui.splitter_main.saveState().toBase64()).decode("ascii")
+        if fetch_data("scoresight.json", SPLITTER_STATE_SETTING) != state:
+            self.globalSettingsChanged(SPLITTER_STATE_SETTING, state)
+
+    def fitLeftPaneWidth(self):
+        """The left column scrolls vertically, never horizontally: it is at least
+        as wide as its content (which depends on the language)."""
+        scroll_area = self.ui.scrollArea_left
+        content = self.ui.frame.minimumSizeHint().width()
+        scrollbar = scroll_area.verticalScrollBar().sizeHint().width()
+        width = content + scrollbar + 2 * scroll_area.frameWidth()
+        if scroll_area.minimumWidth() != width:
+            scroll_area.setMinimumWidth(width)
+
+    def applyRuntimeTexts(self):
+        """Set the texts that are made at runtime: at startup and again after a
+        language change (retranslateUi resets them to the .ui texts)."""
+        self.updateWindowTitle()
+        self.updateBrowserEndpoints()
+        self.updatePauseUi()
+        self.updateSliderReadouts()
+        self.boxSettingsUiHandler.updateReadouts()
+        self.retranslateMenus()
+        self.applyShortcutHints()
+        self.statusBarWidgets.retranslate()
+        self.refreshLiveStatus()
+        self.fitLeftPaneWidth()
+        self.updateZoomHintVisibility()
+
+    def retranslateMenus(self):
+        names = {
+            "System": QCoreApplication.translate("MainWindow", "System"),
+            "Light": QCoreApplication.translate("MainWindow", "Light"),
+            "Dark": QCoreApplication.translate("MainWindow", "Dark"),
+        }
+        for action in self.appearance_actions.actions():
+            action.setText(names.get(action.data(), action.data()))
+
+    def applyShortcutHints(self):
+        """Add the keyboard shortcut to the tooltips of the buttons that have
+        one ("... (Ctrl+B)"); ⌘ on macOS."""
+        for button, action in (
+            (self.ui.pushButton_stopUpdates, self.ui.actionPauseOutputs),
+            (self.ui.pushButton_binary, self.ui.actionBinaryView),
+            (self.ui.toolButton_zoomReset, self.ui.actionFitPicture),
+            (self.ui.pushButton_refresh_sources, self.ui.actionReloadSources),
+        ):
+            shortcut = action.shortcut().toString(
+                QKeySequence.SequenceFormat.NativeText
+            )
+            tooltip = button.toolTip()
+            if shortcut and f"({shortcut})" not in tooltip:
+                button.setToolTip(f"{tooltip} ({shortcut})".strip())
+        # the zoom hint, also when the label is hidden for lack of room
+        zoom_tip = self.ui.toolButton_zoomReset.toolTip()
+        hint = self.ui.label_11.text()
+        if hint and hint not in zoom_tip:
+            self.ui.toolButton_zoomReset.setToolTip(f"{zoom_tip}\n{hint}")
+
+    def updateZoomHintVisibility(self):
+        """Show the "Ctrl-scroll to zoom" hint only when the view tools row has
+        room for it: it never makes the window wider."""
+        row = self.ui.widget_viewTools
+        hint = self.ui.label_11
+        layout = row.layout()
+        needed = layout.contentsMargins().left() + layout.contentsMargins().right()
+        visible = 0
+        for index in range(layout.count()):
+            widget = layout.itemAt(index).widget()
+            if widget is None or widget is hint or widget.isHidden():
+                continue
+            needed += widget.sizeHint().width()
+            visible += 1
+        needed += layout.spacing() * visible + hint.sizeHint().width()
+        hint.setVisible(row.width() >= needed)
+
     def updateWindowTitle(self):
         title = f"ScoreSight - v{__version__}"
         profile = get_profile()
         if profile:
             title += f" [{profile}]"
+        if self.outputsPausedAt is not None:
+            # visible in the taskbar too
+            title = f"⏸ {title}"
         self.setWindowTitle(title)
 
     def updateBrowserEndpoints(self):
@@ -617,7 +859,23 @@ class MainWindow(QMainWindow):
                 self.itemSelected(None)
                 if self.image_viewer is not None:
                     self.image_viewer.selectBox(None)
+        elif event.type() == QEvent.Type.Resize and obj is self.ui.widget_viewTools:
+            self.updateZoomHintVisibility()
+        elif event.type() == QEvent.Type.LayoutRequest and obj is self.ui.frame:
+            # its minimum width changed (fonts, language, a label's text)
+            self.fitLeftPaneWidth()
         return super().eventFilter(obj, event)
+
+    def changeEvent(self, event):
+        # File > Appearance or the system switched between light and dark: the
+        # state colours follow the palette
+        if event.type() in (
+            QEvent.Type.PaletteChange,
+            QEvent.Type.ApplicationPaletteChange,
+        ) and hasattr(self, "statusBarWidgets"):
+            self.updatePauseUi()
+            self.refreshLiveStatus()
+        super().changeEvent(event)
 
     def changeLanguage(self, locale):
         locale_file = resource_path("translations", f"scoresight_{locale}.qm")
@@ -627,6 +885,8 @@ class MainWindow(QMainWindow):
             return
         # used at the next start instead of the system language
         self.globalSettingsChanged("language", locale)
+        for action in self.language_actions.actions():
+            action.setChecked(action.data() == locale)
         appInstance = QApplication.instance()
         if appInstance:
             logger.info(f"installing translator for {locale}")
@@ -638,16 +898,11 @@ class MainWindow(QMainWindow):
             except Exception as e:
                 logger.error(f"Error retranslating UI: {e}")
             # retranslateUi resets these texts to their .ui defaults
-            self.updateWindowTitle()
-            self.updateBrowserEndpoints()
-            self.updateStopUpdatesButtonText()
             self.ui.lineEdit_sceneName.setText(scene_name)
             self.ui.toolButton_speed.setText(speed)
             self.vmixUiHandler.restoreUiState()
             self.unoUiHandler.restoreUiState()
-
-    def addLanguageOption(self, menu: QMenu, language_name: str, locale: str):
-        menu.addAction(language_name, lambda: self.changeLanguage(locale))
+            self.applyRuntimeTexts()
 
     def toggleUpdateOnChange(self, value):
         self.globalSettingsChanged("update_on_change", value)
@@ -706,6 +961,82 @@ class MainWindow(QMainWindow):
     def detectionCadenceChanged(self, detections_per_second):
         # the capture thread follows the detection_cadence setting
         self.globalSettingsChanged("detection_cadence", detections_per_second)
+
+    def updateSliderReadouts(self, *_):
+        """Show the values of the Detections / s and Save / s sliders."""
+        for slider, label in (
+            (
+                self.ui.horizontalSlider_detectionCadence,
+                self.ui.label_detectionCadenceValue,
+            ),
+            (self.ui.horizontalSlider_aggsPerSecond, self.ui.label_aggsPerSecondValue),
+        ):
+            text = QCoreApplication.translate("MainWindow", "{value} /s").format(
+                value=slider.value()
+            )
+            widest = QCoreApplication.translate("MainWindow", "{value} /s").format(
+                value=slider.maximum()
+            )
+            label.setText(text)
+            label.setMinimumWidth(
+                QFontMetrics(label.font()).horizontalAdvance(widest) + 2
+            )
+            slider.setAccessibleDescription(text)
+
+    def refreshLiveStatus(self):
+        """Once a second: the status bar, and the boxes list (the readings'
+        ages)."""
+        now = time.monotonic()
+        if now - self.lanAddressCheckedAt > 30:
+            # the network may have changed (no traffic: a route lookup)
+            self.lanAddress = primary_lan_address()
+            self.lanAddressCheckedAt = now
+        self.statusBarWidgets.update(self.statusSnapshot(now))
+        cadence = self.ui.horizontalSlider_detectionCadence.value()
+        # stale after 20 detection cycles (at least 10 s)
+        self.readingDelegate.setStaleAfter(20.0 / max(cadence, 0.1))
+        self.ui.tableWidget_boxes.viewport().update()
+
+    def statusSnapshot(self, now: float | None = None) -> StatusSnapshot:
+        """What the status bar shows, from what the window already knows."""
+        now = time.monotonic() if now is None else now
+        values = {}
+        viewer = self.image_viewer
+        if viewer is not None:
+            values["source_name"] = source_display_name(viewer.getCameraInfo())
+            thread = getattr(viewer, "timerThread", None)
+            last_frame = getattr(thread, "last_frame_timestamp", None)
+            if self.sourceError:
+                state = SOURCE_ERROR
+            elif not getattr(viewer, "firstFrameReceived", False):
+                state = SOURCE_OPENING
+            elif last_frame is None or now - last_frame > SOURCE_STALL_S:
+                state = SOURCE_STALLED
+            else:
+                state = SOURCE_RUNNING
+            values["source_state"] = state
+            # the capture thread's counters (written by it, read here)
+            frame_size = getattr(thread, "frame_size", None)
+            if frame_size:
+                values["resolution"] = tuple(frame_size)
+            values["fps"] = getattr(thread, "fps", None)
+            values["ocr_rate"] = getattr(thread, "ups", None)
+            interval = getattr(thread, "update_frame_interval", None)
+            if interval:
+                values["ocr_target"] = round(1000.0 / max(interval, 1), 2)
+        else:
+            values["source_state"] = SOURCE_NONE
+        if self.outputsPausedMonotonic is not None:
+            values["paused_seconds"] = now - self.outputsPausedMonotonic
+        port = get_http_server_port()
+        if port is None:
+            values["http_port"] = self.http_port
+        else:
+            urls = http_server_urls(port, self.lanAddress)
+            values["http_url"] = urls[0]
+            values["http_urls"] = urls
+            values["http_port"] = port
+        return StatusSnapshot(**values)
 
     def ocrModelChanged(self, index: int | str):
         ocrModel = None
@@ -804,17 +1135,76 @@ class MainWindow(QMainWindow):
         self.image_viewer.toggleStabilization(self.ui.pushButton_stabilize.isChecked())
 
     def toggleStopUpdates(self, value):
+        """Pause outputs (checked) or resume them. The readings keep updating in
+        the window; only the outputs freeze."""
         self.updateOCRResults = not value
-        self.updateStopUpdatesButtonText()
+        if value:
+            self.outputsPausedAt = datetime.now()
+            self.outputsPausedMonotonic = time.monotonic()
+            self.resendAfterPause = set()
+            logger.info("Outputs paused")
+        else:
+            if self.outputsPausedAt is not None:
+                logger.info("Outputs resumed")
+                # values that changed while paused are unchanged readings now
+                self.resendAfterPause = {
+                    box.name for box in self.detectionTargetsStorage.get_data()
+                }
+            self.outputsPausedAt = None
+            self.outputsPausedMonotonic = None
+        self.updatePauseUi()
+        self.refreshLiveStatus()
 
-    def updateStopUpdatesButtonText(self):
+    def updatePauseUi(self):
+        """Show whether the outputs are paused: the button (amber while paused),
+        the banner over the viewer, the window title and the boxes list."""
+        paused = self.ui.pushButton_stopUpdates.isChecked()
+        button = self.ui.pushButton_stopUpdates
         # QCoreApplication.translate falls back to the source text when a
         # translation is missing (QTranslator.translate returns "")
-        self.ui.pushButton_stopUpdates.setText(
-            QCoreApplication.translate("MainWindow", "Resume Updates")
-            if self.ui.pushButton_stopUpdates.isChecked()
-            else QCoreApplication.translate("MainWindow", "Stop Updates")
+        button.setText(
+            QCoreApplication.translate("MainWindow", "Resume outputs")
+            if paused
+            else QCoreApplication.translate("MainWindow", "Pause outputs")
         )
+        palette = self.palette()
+        amber = theme.color("paused", palette).name()
+        on_amber = theme.on_color(palette).name()
+        button.setIcon(
+            theme.media_icon("play", theme.on_color(palette))
+            if paused
+            else theme.media_icon("pause", theme.button_text_color(palette))
+        )
+        button.setStyleSheet(
+            "QPushButton#pushButton_stopUpdates:checked {"
+            f" background-color: {amber}; color: {on_amber};"
+            f" border: 1px solid {amber}; border-radius: 3px;"
+            " padding: 4px 8px; font-weight: bold; }"
+        )
+
+        banner = self.ui.frame_pausedBanner
+        banner.setVisible(paused)
+        if paused and self.outputsPausedAt is not None:
+            self.ui.label_pausedBanner.setText(
+                QCoreApplication.translate(
+                    "MainWindow",
+                    "<b>Outputs paused</b> since {time}. Your graphics show the "
+                    "last values sent; the readings here keep updating.",
+                ).format(time=self.outputsPausedAt.strftime("%H:%M:%S"))
+            )
+        banner.setStyleSheet(
+            "QFrame#frame_pausedBanner {"
+            f" background-color: {theme.paused_tint(palette).name()};"
+            f" border: 1px solid {amber}; border-left: 4px solid {amber}; }}"
+        )
+        self.ui.pushButton_resumeOutputs.setIcon(
+            theme.media_icon("play", theme.button_text_color(palette))
+        )
+        self.vmixUiHandler.refreshToggleButton()
+        self.unoUiHandler.refreshToggleButton()
+        self.updateWindowTitle()
+        self.readingDelegate.setPaused(paused)
+        self.ui.tableWidget_boxes.viewport().update()
 
     def selectOutputFolder(self):
         # open a Qt dialog to select the output folder
@@ -840,30 +1230,59 @@ class MainWindow(QMainWindow):
         self.out_folder = None
         remove_data("scoresight.json", "output_folder")
 
+    # --- the boxes list -------------------------------------------------------------
+
+    def appendBoxRow(self, name: str) -> QTableWidgetItem:
+        """Add a row for a box to the boxes list; returns its name item."""
+        table = self.ui.tableWidget_boxes
+        row = table.rowCount()
+        table.insertRow(row)
+        item = QTableWidgetItem(name)
+        table.setItem(row, 0, item)
+        # the reading: enabled (so it isn't drawn greyed out), not selectable
+        # or editable (the name item stays the current item)
+        valueItem = QTableWidgetItem()
+        valueItem.setFlags(Qt.ItemFlag.ItemIsEnabled)
+        table.setItem(row, 1, valueItem)
+        return item
+
+    def boxNameItem(self, name: str) -> QTableWidgetItem | None:
+        """The name item (column 0) of a box in the boxes list. findItems also
+        matches the Value column, which may hold the same text."""
+        for item in self.ui.tableWidget_boxes.findItems(
+            name, Qt.MatchFlag.MatchExactly
+        ):
+            if item.column() == 0:
+                return item
+        return None
+
+    def boxValueItem(self, name: str) -> QTableWidgetItem | None:
+        """The Value item (column 1) of a box in the boxes list."""
+        item = self.boxNameItem(name)
+        if item is None:
+            return None
+        return self.ui.tableWidget_boxes.item(item.row(), 1)
+
+    def nameItemOfRow(self, item: QTableWidgetItem | None) -> QTableWidgetItem | None:
+        if item is None or item.column() == 0:
+            return item
+        return self.ui.tableWidget_boxes.item(item.row(), 0)
+
+    def keepNameCellCurrent(self, row, column, previous_row, previous_column):
+        # e.g. a click on a reading or the arrow keys: the row's name becomes
+        # the current item
+        if column != 0 and row >= 0:
+            self.ui.tableWidget_boxes.setCurrentCell(row, 0)
+
     def detectionTargetsChanged(self, detectionTargets: list[TextDetectionTarget]):
         for box in detectionTargets:
             logger.debug(f"Change: Detection target: {box.name}")
             # change the list icon to green checkmark
-            items = self.ui.tableWidget_boxes.findItems(
-                box.name, Qt.MatchFlag.MatchExactly
-            )
-            if len(items) == 0:
+            item = self.boxNameItem(box.name)
+            if item is None:
                 logger.warning(f"Item not found: {box.name}. Adding it to the list.")
                 # add the item to the list
-                self.ui.tableWidget_boxes.insertRow(
-                    self.ui.tableWidget_boxes.rowCount()
-                )
-                item = QTableWidgetItem(box.name)
-                self.ui.tableWidget_boxes.setItem(
-                    self.ui.tableWidget_boxes.rowCount() - 1, 0, item
-                )
-                disabledItem = QTableWidgetItem()
-                disabledItem.setFlags(Qt.ItemFlag.NoItemFlags)
-                self.ui.tableWidget_boxes.setItem(
-                    self.ui.tableWidget_boxes.rowCount() - 1, 1, disabledItem
-                )
-            else:
-                item = items[0]
+                item = self.appendBoxRow(box.name)
 
             if box.settings is None or not box.settings["templatefield"]:
                 # this is a detection target
@@ -890,6 +1309,12 @@ class MainWindow(QMainWindow):
         self.detectionTargetsStorage.saveBoxesToStorage()
 
     def listItemClicked(self, item):
+        # a click on a reading selects its box
+        if item.column() != 0:
+            item = self.nameItemOfRow(item)
+            if item is None:
+                return
+            self.ui.tableWidget_boxes.setCurrentItem(item)
         user_role = item.data(Qt.ItemDataRole.UserRole)
         if user_role in ["checked", "templatefield"] and item.column() == 0:
             # enable the remove box button and disable the make box button
@@ -918,21 +1343,41 @@ class MainWindow(QMainWindow):
             self.image_viewer.selectBox(item.text())
 
     def openOBSConnectModal(self):
+        if self.obs_connect_modal is not None and self.obs_connect_modal.isVisible():
+            self.obs_connect_modal.raise_()
+            self.obs_connect_modal.activateWindow()
+            return
+        if self.obs_connect_modal is not None:
+            # a new dialog, in the current language
+            self.obs_connect_modal.deleteLater()
+
         # disable OBS options
         self.ui.lineEdit_sceneName.setEnabled(False)
         self.ui.checkBox_recreate.setEnabled(False)
         self.ui.pushButton_createOBSScene.setEnabled(False)
 
-        # load the ui from "connect_obs.ui"
+        # load the ui from "connect_obs.ui"; a child of the main window, so it
+        # stays in front of it
         self.obs_modal_ui = Ui_ConnectObs()
-        self.obs_connect_modal = QDialog()
+        self.obs_connect_modal = QDialog(self)
         self.obs_modal_ui.setupUi(self.obs_connect_modal)
-        self.obs_connect_modal.setWindowTitle("Connect to OBS")
+        self.obs_connect_modal.setWindowTitle(
+            QCoreApplication.translate("MainWindow", "Connect to OBS")
+        )
 
         # connect the "connect" button to a function
         self.obs_modal_ui.pushButton_connect.clicked.connect(
             lambda: self.connectObs(from_dialog=True)
         )
+        password = self.obs_modal_ui.lineEdit_password
+        self.obs_modal_ui.checkBox_showPassword.toggled.connect(
+            lambda show: password.setEchoMode(
+                QLineEdit.EchoMode.Normal if show else QLineEdit.EchoMode.Password
+            )
+        )
+        # closed without connecting (Cancel): the scene controls are usable
+        # again with the current connection
+        self.obs_connect_modal.rejected.connect(self.obsConnectDialogClosed)
 
         # load the saved data from scoresight.json
         obs_data = fetch_data("scoresight.json", "obs")
@@ -944,6 +1389,16 @@ class MainWindow(QMainWindow):
         self.obs_connect_modal.show()
         # focus the connect button
         self.obs_modal_ui.pushButton_connect.setFocus()
+
+    def obsConnectDialogClosed(self):
+        if not self.obs_modal_ui.pushButton_connect.isEnabled():
+            # Cancel while connecting: ignore that attempt's result (it would
+            # replace the current connection and store the cancelled settings)
+            self.obs_connect_attempt += 1
+        connected = self.obs_websocket_client is not None
+        self.ui.lineEdit_sceneName.setEnabled(connected)
+        self.ui.checkBox_recreate.setEnabled(connected)
+        self.ui.pushButton_createOBSScene.setEnabled(connected)
 
     def connectObs(self, from_dialog: bool = False):
         """Open a websocket connection to OBS, with the connect dialog's fields or
@@ -1055,6 +1510,12 @@ class MainWindow(QMainWindow):
         for source in camera_sources:
             combo.addItem(source.description, source)
         combo.blockSignals(False)
+        # the combo box is kept narrow (long camera names don't widen the
+        # window); its list shows the whole names
+        view = combo.view()
+        view.setMinimumWidth(
+            view.sizeHintForColumn(0) + view.verticalScrollBar().sizeHint().width()
+        )
 
         self.ui.comboBox_camera_source.setEnabled(True)
         currentIndexChangedSignal = QMetaMethod.fromSignal(
@@ -1177,6 +1638,7 @@ class MainWindow(QMainWindow):
         if viewer is None:
             return
         self.image_viewer = None
+        self.sourceError = None
         self.disconnectViewer()
         # remove the image viewer from the layout frame_for_source_view_label
         self.ui.frame_for_source_view_label.layout().removeWidget(viewer)
@@ -1274,12 +1736,9 @@ class MainWindow(QMainWindow):
             self.boxSettingsUiHandler.populateSettings("")
             return
         # select the item in the tableWidget_boxes
-        items = self.ui.tableWidget_boxes.findItems(
-            item_name, Qt.MatchFlag.MatchExactly
-        )
-        if len(items) == 0:
+        item = self.boxNameItem(item_name)
+        if item is None:
             return
-        item = items[0]
         item.setSelected(True)
         self.ui.tableWidget_boxes.setCurrentItem(item)
         self.listItemClicked(item)
@@ -1402,12 +1861,14 @@ class MainWindow(QMainWindow):
 
         # The boxes are not reloaded from scoresight.json here: they were loaded
         # at startup and the in-memory boxes may have newer, unsaved edits.
-        self.updateError(None)
+        self.sourceError = None
+        self.refreshLiveStatus()
 
     def updateError(self, error):
         if not error:
             return
         logger.error(error)
+        self.sourceError = error
         self.ui.frame_source_view.setEnabled(True)
         self.ui.widget_viewTools.setEnabled(False)
         self.ui.widget_cropPanel.setEnabled(False)
@@ -1417,24 +1878,19 @@ class MainWindow(QMainWindow):
         # template is Success when its text changed, SameNoChange otherwise
         apply_template_fields(results)
 
-        # show each box's good reading (a SameNoChange is its last good reading)
+        # The boxes list: each box's last good reading (a SameNoChange is its
+        # last good reading), and the state of its latest one (a rejected or
+        # empty reading is shown, but doesn't replace the value)
+        now = time.monotonic()
         for targetWithResult in results:
-            if targetWithResult.result_state in (
-                TextDetectionTargetWithResult.ResultState.Success,
-                TextDetectionTargetWithResult.ResultState.SameNoChange,
-            ):
-                items = self.ui.tableWidget_boxes.findItems(
-                    targetWithResult.name, Qt.MatchFlag.MatchExactly
+            item = self.boxValueItem(targetWithResult.name)
+            if item is not None:
+                record_reading(
+                    item, targetWithResult.result_state, targetWithResult.result, now
                 )
-                if len(items) == 0:
-                    continue
-                item = items[0]
-                # get the value (1 column) of the item
-                item = self.ui.tableWidget_boxes.item(item.row(), 1)
-                item.setText(targetWithResult.result)
 
         if not self.updateOCRResults:
-            # don't update the results, the user has disabled updates
+            # the outputs are paused (the readings above keep updating)
             return
 
         update_http_server(results)
@@ -1442,11 +1898,24 @@ class MainWindow(QMainWindow):
         if self.ui.checkBox_enableOutAPI.isChecked():
             update_out_api(results)
 
-        # update vmix and uno
+        # update vmix and uno. After a pause they also get the boxes' unchanged
+        # values (which may have changed while the outputs were paused), once
+        # per box: until the box's first good reading since
+        resend = frozenset(self.resendAfterPause)
+        if resend:
+            self.resendAfterPause -= {
+                result.name
+                for result in results
+                if result.result_state
+                in (
+                    TextDetectionTargetWithResult.ResultState.Success,
+                    TextDetectionTargetWithResult.ResultState.SameNoChange,
+                )
+            }
         if self.vmixUiHandler.vmixUpdater is not None:
-            self.vmixUiHandler.vmixUpdater.update_vmix(results)
+            self.vmixUiHandler.vmixUpdater.update_vmix(results, resend_unchanged=resend)
         if self.unoUiHandler.unoUpdater is not None:
-            self.unoUiHandler.unoUpdater.update_uno(results)
+            self.unoUiHandler.unoUpdater.update_uno(results, resend_unchanged=resend)
 
         # OBS text sources don't depend on the output folder (#30)
         self.updateObsTextSources(results)
@@ -1521,20 +1990,9 @@ class MainWindow(QMainWindow):
             new_box_name = f"Custom {i + 1}"
 
         store_custom_box_name(new_box_name)
-        item = QTableWidgetItem(
-            QIcon(resource_path("icons", "circle-x.svg")),
-            new_box_name,
-        )
+        item = self.appendBoxRow(new_box_name)
+        item.setIcon(QIcon(resource_path("icons", "circle-x.svg")))
         item.setData(Qt.ItemDataRole.UserRole, "unchecked")
-        self.ui.tableWidget_boxes.insertRow(self.ui.tableWidget_boxes.rowCount())
-        self.ui.tableWidget_boxes.setItem(
-            self.ui.tableWidget_boxes.rowCount() - 1, 0, item
-        )
-        disabledItem = QTableWidgetItem()
-        disabledItem.setFlags(Qt.ItemFlag.NoItemFlags)
-        self.ui.tableWidget_boxes.setItem(
-            self.ui.tableWidget_boxes.rowCount() - 1, 1, disabledItem
-        )
 
     def removeCustomBox(self):
         item = self.ui.tableWidget_boxes.currentItem()
@@ -1554,6 +2012,10 @@ class MainWindow(QMainWindow):
         self.ui.tableWidget_boxes.removeRow(item.row())
 
     def editBoxName(self, item):
+        # a double-click on a reading renames its box
+        item = self.nameItemOfRow(item)
+        if item is None:
+            return
         if item.text() in [o["name"] for o in default_boxes]:
             # dont allow editing default boxes
             return
@@ -1604,9 +2066,12 @@ class MainWindow(QMainWindow):
         item = self.ui.tableWidget_boxes.currentItem()
         if not item:
             return
+        item = self.nameItemOfRow(item)
         # change the list icon to red x
         item.setIcon(QIcon(resource_path("icons", "circle-x.svg")))
         item.setData(Qt.ItemDataRole.UserRole, "unchecked")
+        # it isn't read any more: don't show its last reading as current
+        clear_reading(self.ui.tableWidget_boxes.item(item.row(), 1))
         self.listItemClicked(item)
         self.detectionTargetsStorage.remove_item(item.text())
 
@@ -1650,6 +2115,8 @@ class MainWindow(QMainWindow):
     def closeEvent(self, event):
         logger.info("Closing")
         self.closing = True
+        self.statusTimer.stop()
+        self.saveSplitterState()
         self.closeImageViewer()
 
         if self.log_dialog:

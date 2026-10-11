@@ -29,7 +29,7 @@ ScoreSight can update [overlays.uno](https://overlays.uno/) graphics directly th
 
 2. In ScoreSight, open the **UNO** tab and paste the URL into **URL**. The URL takes effect when you press **Enter** or leave the field (spaces around it are ignored). Changing it while sending keeps the mapping and the running state.
 3. Check the **mapping table**: for each ScoreSight field, the right column holds the UNO command (or, in Essentials mode, the field ID) it should drive.
-4. Click **▶️** to start sending. The button turns into **🛑**; click it again to stop.
+4. Click **Start sending**. The button changes to **Stop sending**; click it again to stop.
 
 ## Mapping
 

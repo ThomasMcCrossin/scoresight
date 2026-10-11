@@ -44,7 +44,7 @@ Each output treats states differently:
 
 ## Global controls that affect outputs
 
-- **Stop Updates** freezes all outputs at their current values until you click **Resume Updates**. The field list in ScoreSight keeps updating, so you can watch the readings without sending them.
+- **Pause outputs** (at the top of the field list, or **Ctrl+Shift+P**) freezes all outputs at their current values until you click **Resume outputs**. The field list in ScoreSight keeps updating, so you can watch the readings without sending them. While the outputs are paused, the button is orange, a banner over the picture says since when (with its own **Resume outputs** button), the values in the field list are marked *not sent*, the window title starts with ⏸ and the status bar shows **PAUSED** with the time. When you resume, vMix and UNO get each box's next good value even if it is unchanged, so values that changed while paused reach them. (In ScoreSight 0.1.x this button was called **Stop Updates**.)
 - **Update on change** (on by default) marks unchanged values as `SameNoChange` so that most outputs don't resend them.
 - **Detections / s** sets how often new readings are produced (see [Performance Tuning](performance.md)).
 - **Save / s** (in the **Text Files** tab) limits only how often the files are written. It doesn't slow down the other outputs.

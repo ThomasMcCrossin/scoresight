@@ -77,10 +77,10 @@ Connection values in the `.ui` files (the vMix host, port and input, the UNO URL
 
    lupdate sets `<TS language="sv_SE">` from the file name. From then on, `python scripts/update_translations.py` keeps the file up to date with the others, because it picks up every `translations/*.ts`.
 2. Translate it and compile the `.qm` file (steps 2–3 above).
-3. Add a menu entry in `MainWindow.__init__` in `src/mainwindow.py`, next to the other `addLanguageOption(...)` lines:
+3. Add the language to the `LANGUAGES` tuple at the top of `src/mainwindow.py`, with its name in its own language (the **File > Language** menu lists the languages that way, untranslated):
 
    ```python
-   self.addLanguageOption(languageMenu, "Swedish", "sv_SE")
+   ("sv_SE", "Svenska"),
    ```
 
 4. The packaged app bundles every `translations/*.qm` file through the `DATA_GLOBS` list in `scoresight.spec`, so nothing needs to change there. `tests/test_packaging.py` checks it.

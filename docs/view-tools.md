@@ -37,7 +37,7 @@ Boxes are positioned on the **result** of steps 1–4. Change rotation, crop or 
 | Zoom in / out | **Ctrl + mouse wheel** (**⌘ Cmd + mouse wheel** on macOS), from 0.33x to 3x, in 5% steps |
 | Scroll | Mouse wheel (vertical). Use the scroll bars when zoomed in |
 | Pan | Drag with the **middle mouse button** |
-| Fit the picture to the window | **1:1** button |
+| Fit the picture to the window | **1:1** button, or **Ctrl+0** |
 | Select a box | Click it (the field list selects it too) |
 | Move a box | Drag it |
 | Resize a box | Drag an edge or a corner handle. Handles appear on the selected box |
@@ -47,7 +47,7 @@ See [Keyboard & Mouse](keyboard-mouse.md) for the full reference.
 
 ## Binary View
 
-**Binary View** switches the preview between the camera picture and the black-and-white image the OCR engine reads. Inside each box you see the result of that box's own settings (binarization method, cleanup, vertical scale, skew and dilation), exactly as the OCR receives it.
+**Binary View** (**Ctrl+B**) switches the preview between the camera picture and the black-and-white image the OCR engine reads. Inside each box you see the result of that box's own settings (binarization method, cleanup, vertical scale, skew and dilation), exactly as the OCR receives it.
 
 This is the most useful tuning tool: the OCR can only read what you see here. Digits should be solid and clearly separated from the background, with no stray specks touching them. See [Recognition Tuning](recognition-tuning.md).
 

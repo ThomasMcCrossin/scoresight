@@ -35,7 +35,7 @@ ScoreSight can update text sources in OBS Studio directly over the OBS WebSocket
 ## 2. Connect ScoreSight
 
 1. In ScoreSight, open the **OBS** tab and click **Connect OBS**.
-2. Enter the OBS computer's address (`localhost` if OBS runs on the same computer), port `4455`, and the password.
+2. Enter the OBS computer's address (`localhost` if OBS runs on the same computer), port `4455`, and the password. The password is hidden; tick **Show password** to check it. **Cancel** closes the dialog without connecting.
 3. Click **Connect**. If the connection works within 3 seconds, the dialog closes and the scene controls in the tab become available. If not, it shows "Cannot connect to OBS".
 
 ScoreSight remembers the connection and connects again in the background the next time it starts, so the window appears right away even if OBS isn't running yet.
@@ -72,7 +72,7 @@ In ScoreSight 0.1.x, OBS updates only ran when an output folder was set in the *
 - Updates are sent as soon as the value changes, in the background. They are **not** limited by the **Save / s** setting of the Text Files tab, and they don't need an output folder.
 - If OBS is slow, only the latest text of each source is kept and sent.
 - Boxes without an OBS source name are skipped (see [Custom fields](#custom-fields)).
-- **Stop Updates** freezes the OBS text.
+- **Pause outputs** freezes the OBS text.
 
 ## Custom fields
 
@@ -89,7 +89,7 @@ OBS messages in the log start with `OBS:`.
 | Problem | Check |
 |---|---|
 | "Cannot connect to OBS" | OBS is running, the WebSocket server is enabled, the port and password match, and the firewall on the OBS computer allows the port |
-| Connected, but text doesn't change | The OBS source names match the table exactly (including case, spaces and `#`). The reading is green in ScoreSight. **Stop Updates** is off |
+| Connected, but text doesn't change | The OBS source names match the table exactly (including case, spaces and `#`). The reading is green in ScoreSight. **Pause outputs** is off |
 | Log shows `OBS: OBSSDKRequestError: Request SetInputSettings returned code 600...` | OBS has no input with that name (code 600 means "resource not found"). Check the source names |
 | Updates stop after a while | While OBS can't be reached, the log shows `OBS: OBSConnectionLost: ...` (at most every 30 seconds). ScoreSight reconnects by itself when OBS is back. If it doesn't, click **Connect OBS** again |
 | One field never updates | It is a custom field (see [Custom fields](#custom-fields)) |

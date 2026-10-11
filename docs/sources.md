@@ -131,5 +131,5 @@ The **Speed** button (x1, x2, x4, x8, x16, x32) skips frames to fast-forward thr
 ## Switching and reloading sources
 
 - Selecting a different source closes the current one and opens the new one. Your boxes and their settings stay as they are. If the old source is stalled, ScoreSight waits at most 3 seconds for it and lets it finish in the background.
-- **Reload** re-scans cameras and NDI sources.
+- **Reload** (**F5**) re-scans cameras and NDI sources.
 - Rotation, crop and 4-corner correction are global settings, not per-source settings. If you switch to a source with a different framing, adjust them again.

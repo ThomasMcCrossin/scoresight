@@ -22,7 +22,7 @@ ScoreSight includes a small web server that always serves the latest readings. B
 | | |
 |---|---|
 | Base URL (same computer) | `http://localhost:18099` or `http://127.0.0.1:18099` |
-| Base URL (other computers) | `http://<ip-of-the-scoresight-computer>:18099` |
+| Base URL (other computers) | `http://<ip-of-the-scoresight-computer>:18099`. The status bar at the bottom of the ScoreSight window shows this address, with a **Copy** button |
 | Port | **18099** by default. Change it with the [`--port`](profiles.md#command-line-options) command-line option |
 | Network interfaces | All IPv4 interfaces (the server binds `0.0.0.0`), so devices on your network can reach it |
 | Authentication | None. The API is read-only |
@@ -233,5 +233,5 @@ sensor:
 - **Nothing at `localhost:18099`**: check the log for `HTTP server: port 18099 is already in use or not available`. Another ScoreSight instance or another program is using the port, and this instance runs without its HTTP server. Start ScoreSight with a different [`--port`](profiles.md#command-line-options).
 - **Works in the browser but not in a script or PowerShell**: use `127.0.0.1` instead of `localhost` (see the note under [Basics](#basics)).
 - **Works locally but not from another computer**: allow ScoreSight (or the port) in the firewall of the ScoreSight computer, and use its IP address rather than `localhost`.
-- **Values stop changing**: check whether **Stop Updates** is active, and whether the readings are yellow or red in the viewer.
+- **Values stop changing**: check whether the outputs are paused (an orange banner over the picture and **PAUSED** in the status bar), and whether the readings are yellow or red in the viewer.
 - **Seeing each request in the log**: requests are logged only when ScoreSight runs with `SCORESIGHT_DEBUG` set (see [Environment variables](configuration.md#environment-variables)).

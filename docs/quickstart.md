@@ -96,8 +96,9 @@ ScoreSight saves your boxes and settings automatically and reopens the last sour
 |---|---|
 | **Detections / s** | How many times per second the boxes are read (1–15, default 5). |
 | **Update on change** | When on (default), a value that hasn't changed is marked "unchanged" and most outputs don't resend it. |
-| **Stop Updates** | Freezes all outputs at their current values, for example during a timeout or replay. The field list keeps updating. Click **Resume Updates** to continue. |
+| **Pause outputs** | Freezes all outputs at their current values, for example during a timeout or replay (**Ctrl+Shift+P**). The field list keeps updating; an orange banner and the status bar show that the outputs are paused. Click **Resume outputs** to continue. |
 | **OCR Model** | The recognition model used for all boxes. See [OCR Models](ocr-models.md). |
+| **Status bar** | At the bottom of the window: the source with its resolution and frame rate, how many times per second the boxes are read, **PAUSED** while the outputs are paused, and the HTTP server's address with a **Copy** button. |
 | **File > Appearance** | Switch between the System, Light and Dark colour schemes. |
 
 ## Where to next

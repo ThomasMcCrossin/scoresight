@@ -75,6 +75,22 @@ def test_sends_put_with_timeout(make_uno, make_result):
     ]
 
 
+def test_unchanged_values_are_sent_on_request(make_uno, make_result):
+    # after the outputs were paused (see MainWindow.ocrResult)
+    api = make_uno(mapping={"Time": "SetMatchTime", "Home Score": "SetGoalsHome"})
+    api.start()
+    results = [
+        make_result("Time", "12:00", "SameNoChange"),
+        make_result("Home Score", "3", "SameNoChange"),  # not asked for
+    ]
+    api.update_uno(results, resend_unchanged={"Time"})
+    api.update_uno(results)
+    flush(api)
+    assert [call["json"] for call in api._session.calls] == [
+        {"command": "SetMatchTime", "value": "12:00"}
+    ]
+
+
 def test_essentials_payload(make_uno, make_result):
     store_data(SETTINGS, "uno_essentials", True)
     store_data(SETTINGS, "uno_essentials_id", "overlay-1")
@@ -229,5 +245,9 @@ def test_restore_ui_state(handler, uno_ui):
 
     handler.restoreUiState()
     assert uno_ui.lineEdit_unoUrl.text() == URL
-    assert uno_ui.toolButton_toggleUno.text() == "🛑"
+    # a text and an icon, no emoji (#M4)
+    assert uno_ui.toolButton_toggleUno.text() == "Stop sending"
+    assert not uno_ui.toolButton_toggleUno.icon().isNull()
     assert handler.unoUpdater.running
+    uno_ui.toolButton_toggleUno.setChecked(False)
+    assert uno_ui.toolButton_toggleUno.text() == "Start sending"
