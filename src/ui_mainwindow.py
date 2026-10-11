@@ -1596,6 +1596,16 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_14.addWidget(self.checkBox_saveXML)
 
+        self.checkBox_saveJson = QCheckBox(self.widget_12)
+        self.checkBox_saveJson.setObjectName(u"checkBox_saveJson")
+
+        self.horizontalLayout_14.addWidget(self.checkBox_saveJson)
+
+        self.checkBox_saveKeyValue = QCheckBox(self.widget_12)
+        self.checkBox_saveKeyValue.setObjectName(u"checkBox_saveKeyValue")
+
+        self.horizontalLayout_14.addWidget(self.checkBox_saveKeyValue)
+
 
         self.formLayout_2.setWidget(1, QFormLayout.ItemRole.FieldRole, self.widget_12)
 
@@ -2561,6 +2571,14 @@ class Ui_MainWindow(object):
         self.checkBox_saveXML.setToolTip(QCoreApplication.translate("MainWindow", u"Also write results.xml: every field with its name, text, state and position", None))
 #endif // QT_CONFIG(tooltip)
         self.checkBox_saveXML.setText(QCoreApplication.translate("MainWindow", u"Save .xml file", None))
+#if QT_CONFIG(tooltip)
+        self.checkBox_saveJson.setToolTip(QCoreApplication.translate("MainWindow", u"Also write results.json: one object with every field's latest value, {\"Home Score\": \"21\", ...} (for example for SuiteCG)", None))
+#endif // QT_CONFIG(tooltip)
+        self.checkBox_saveJson.setText(QCoreApplication.translate("MainWindow", u"Save .json file", None))
+#if QT_CONFIG(tooltip)
+        self.checkBox_saveKeyValue.setToolTip(QCoreApplication.translate("MainWindow", u"Also write results.txt: a \"Field Name=value\" line per field (for example for SuiteCG or a TriCaster DataLink watch folder)", None))
+#endif // QT_CONFIG(tooltip)
+        self.checkBox_saveKeyValue.setText(QCoreApplication.translate("MainWindow", u"Save key=value .txt file", None))
 #if QT_CONFIG(tooltip)
         self.label_append.setToolTip(QCoreApplication.translate("MainWindow", u"Add each new value to a log, or keep only the latest values", None))
 #endif // QT_CONFIG(tooltip)

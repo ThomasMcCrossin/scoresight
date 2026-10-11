@@ -3131,6 +3131,26 @@
                      </property>
                     </widget>
                    </item>
+                   <item>
+                    <widget class="QCheckBox" name="checkBox_saveJson">
+                     <property name="toolTip">
+                      <string>Also write results.json: one object with every field's latest value, {"Home Score": "21", ...} (for example for SuiteCG)</string>
+                     </property>
+                     <property name="text">
+                      <string>Save .json file</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QCheckBox" name="checkBox_saveKeyValue">
+                     <property name="toolTip">
+                      <string>Also write results.txt: a "Field Name=value" line per field (for example for SuiteCG or a TriCaster DataLink watch folder)</string>
+                     </property>
+                     <property name="text">
+                      <string>Save key=value .txt file</string>
+                     </property>
+                    </widget>
+                   </item>
                   </layout>
                  </widget>
                 </item>

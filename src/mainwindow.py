@@ -575,6 +575,12 @@ class MainWindow(QMainWindow):
         self.ui.checkBox_saveXML.setChecked(
             fetch_data("scoresight.json", "save_xml", False)
         )
+        for checkbox, setting in (
+            (self.ui.checkBox_saveJson, "save_json"),
+            (self.ui.checkBox_saveKeyValue, "save_key_value"),
+        ):
+            checkbox.toggled.connect(partial(self.globalSettingsChanged, setting))
+            checkbox.setChecked(fetch_data("scoresight.json", setting, False))
         self.ui.comboBox_appendMethod.currentIndexChanged.connect(
             partial(self.globalSettingsChanged, "append_method")
         )
@@ -3879,6 +3885,8 @@ class MainWindow(QMainWindow):
             self.ui.comboBox_appendMethod.currentIndex(),
             self.ui.checkBox_saveCsv.isChecked(),
             self.ui.checkBox_saveXML.isChecked(),
+            self.ui.checkBox_saveJson.isChecked(),
+            self.ui.checkBox_saveKeyValue.isChecked(),
         )
 
     def addBox(self):
