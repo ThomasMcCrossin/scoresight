@@ -87,7 +87,11 @@
 Updates/s: {ups}
 Previews/s: {pps}
 Resolution: {width}×{height}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Fotogrammi/s: {fps}
+Letture/s: {ups}
+Anteprime/s: {pps}
+Risoluzione: {width}×{height}</translation>
     </message>
 </context>
 <context>
@@ -275,7 +279,8 @@ Resolution: {width}×{height}</source>
     <message>
         <location filename="../src/source_view.py" line="270"/>
         <source>Invalid four-corner selection: click the four corners of the scoreboard</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Selezione dei quattro angoli non valida: fai clic sui quattro angoli del tabellone</translation>
     </message>
 </context>
 <context>
@@ -941,12 +946,14 @@ Resolution: {width}×{height}</source>
     <message>
         <location filename="../src/mainwindow.ui" line="3887"/>
         <source>View</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Visualizza</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3898"/>
         <source>Tools</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Strumenti</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3931"/>
@@ -1056,105 +1063,125 @@ Resolution: {width}×{height}</source>
         <location filename="../src/mainwindow.ui" line="1275"/>
         <location filename="../src/source_bar.py" line="94"/>
         <source>Video file…</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">File video…</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="442"/>
         <location filename="../src/source_bar.py" line="95"/>
         <source>Stream URL (RTSP, HTTP)…</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">URL stream (RTSP, HTTP)…</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="447"/>
         <location filename="../src/source_bar.py" line="96"/>
         <source>Screen capture…</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Cattura schermo…</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="455"/>
         <source>Reload sources: look for cameras, capture cards and NDI sources again</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Ricarica sorgenti: cerca di nuovo telecamere, schede di acquisizione e sorgenti NDI</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="474"/>
         <source>Video settings</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Impostazioni video</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="477"/>
         <source>Video settings…</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Impostazioni video…</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="490"/>
         <source>Playback speed</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Velocità di riproduzione</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="550"/>
         <source>Boxes:</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Riquadri:</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="563"/>
         <source>What the viewer draws for each box: nothing, the outline, the outline with its name and reading, or also the area the OCR reads and each character it found</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Cosa disegna la vista per ogni riquadro: niente, il contorno, il contorno con nome e lettura, o anche l&apos;area letta dall&apos;OCR e ogni carattere trovato</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="590"/>
         <source>Statistics overlay: frames, readings and previews per second and the resolution, over the picture</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Overlay statistiche: fotogrammi, letture e anteprime al secondo e la risoluzione, sopra l&apos;immagine</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="593"/>
         <source>Stats</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Statistiche</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="603"/>
         <source>Fit the whole picture in the viewer</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Adatta l&apos;intera immagine alla vista</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="606"/>
         <source>Fit</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Adatta</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="613"/>
         <source>The zoom level. Ctrl+scroll (⌘+scroll on macOS) zooms, scrolling moves the picture and dragging with the middle mouse button pans it.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Il livello di zoom. Ctrl+rotellina (⌘+rotellina su macOS) cambia lo zoom; la rotellina o il trascinamento con il tasto centrale del mouse spostano l&apos;immagine.</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="650"/>
         <source>Adjust picture:</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Regola immagine:</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="657"/>
         <source>Rotate the picture by 90 degrees clockwise</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Ruota l&apos;immagine di 90 gradi in senso orario</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="667"/>
         <source>Cut the edges off the picture. Turning it off keeps the values for the next time.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Taglia i bordi dell&apos;immagine. Se disattivi il ritaglio, i valori restano per la prossima volta.</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="680"/>
         <location filename="../src/mainwindow.py" line="3192"/>
         <source>Correct the perspective: click the 4 corners of the scoreboard</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Correggi la prospettiva: fai clic sui 4 angoli del tabellone</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="683"/>
         <source>4-corner</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">4 angoli</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="715"/>
         <source>Set these first: the boxes sit on the adjusted picture.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Imposta prima questi: i riquadri stanno sull&apos;immagine regolata.</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="786"/>
@@ -1162,52 +1189,62 @@ Resolution: {width}×{height}</source>
         <location filename="../src/mainwindow.ui" line="844"/>
         <location filename="../src/mainwindow.ui" line="873"/>
         <source> px</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished"> px</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="973"/>
         <source>Open the source again</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Riapri la sorgente</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="976"/>
         <source>Retry</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Riprova</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="983"/>
         <source>Pick another camera, file, stream or screen</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Scegli un&apos;altra telecamera, file, stream o schermo</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="986"/>
         <source>Choose another source</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Scegli un&apos;altra sorgente</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="993"/>
         <source>Open the troubleshooting guide for sources in the browser</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Apri nel browser la guida alla risoluzione dei problemi delle sorgenti</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="996"/>
         <source>Troubleshooting</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Risoluzione problemi</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1003"/>
         <source>Open Privacy &amp; Security › Screen Recording in System Settings</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Apri Privacy e sicurezza › Registrazione schermo in Impostazioni di Sistema</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1006"/>
         <source>Open System Settings</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Apri Impostazioni di Sistema</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1062"/>
         <source>Stop picking corners and keep the current correction (Esc)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Smetti di scegliere gli angoli e mantieni la correzione attuale (Esc)</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1065"/>
@@ -1218,52 +1255,62 @@ Resolution: {width}×{height}</source>
     <message>
         <location filename="../src/mainwindow.ui" line="1194"/>
         <source>Open a source to begin</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Apri una sorgente per iniziare</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1237"/>
         <source>Choose a source</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Scegli una sorgente</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1265"/>
         <source>A camera, capture card or NDI source found on this computer or network</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Una telecamera, una scheda di acquisizione o una sorgente NDI trovata su questo computer o in rete</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1268"/>
         <source>Camera</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Telecamera</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1282"/>
         <source>Stream URL…</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">URL stream…</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1289"/>
         <source>Screen…</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Schermo…</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1348"/>
         <source>Place fields over the numbers</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Posiziona i campi sui numeri</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1355"/>
         <source>Select a field in the list, put it on the picture and drag its box over the numbers.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Seleziona un campo nell&apos;elenco, posizionalo sull&apos;immagine e trascina il suo riquadro sui numeri.</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1401"/>
         <source>Send them</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Inviali</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1408"/>
         <source>To OBS, vMix, UNO, text files or a browser overlay: turn one on in the Outputs list.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">A OBS, vMix, UNO, file di testo o un overlay nel browser: attivane una nell&apos;elenco Uscite.</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1448"/>
@@ -1731,27 +1778,32 @@ Resolution: {width}×{height}</source>
     <message>
         <location filename="../src/mainwindow.ui" line="4059"/>
         <source>Zoom in</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Aumenta zoom</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4067"/>
         <source>Zoom out</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Riduci zoom</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4078"/>
         <source>Statistics overlay</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Overlay statistiche</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4086"/>
         <source>Collect OCR training data</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Raccogli dati di addestramento OCR</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4089"/>
         <source>Save each box&apos;s picture and reading to the training data folder, for training an OCR model</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Salva l&apos;immagine e la lettura di ogni riquadro nella cartella dei dati di addestramento, per addestrare un modello OCR</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="157"/>
@@ -2332,7 +2384,8 @@ Resolution: {width}×{height}</source>
     <message>
         <location filename="../src/mainwindow.py" line="930"/>
         <source>Zoom with Ctrl+scroll or {zoom_in} and {zoom_out}; drag with the middle mouse button to move the picture.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Usa Ctrl+rotellina o {zoom_in} e {zoom_out} per lo zoom; trascina con il tasto centrale del mouse per spostare l&apos;immagine.</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="992"/>
@@ -2453,57 +2506,68 @@ Resolution: {width}×{height}</source>
     <message>
         <location filename="../src/mainwindow.py" line="2961"/>
         <source>Video settings: the resolution, frame rate and format of the camera or capture card</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Impostazioni video: risoluzione, frequenza dei fotogrammi e formato della telecamera o della scheda di acquisizione</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="2967"/>
         <source>Video settings: only for cameras and capture cards</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Impostazioni video: solo per telecamere e schede di acquisizione</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="3133"/>
         <source>Redo corners…</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Rifai gli angoli…</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="3135"/>
         <source>Remove correction…</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Rimuovi correzione…</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="3151"/>
         <source>Remove the 4-corner correction?</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Rimuovere la correzione 4 angoli?</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="3152"/>
         <source>The picture will no longer be corrected. The boxes were placed on the corrected picture, so they may have to be moved.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">L&apos;immagine non sarà più corretta. I riquadri sono stati posizionati sull&apos;immagine corretta, quindi potrebbe essere necessario spostarli.</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="3180"/>
         <source>Picking the corners: click the 4 corners of the scoreboard. Click here or press Esc to cancel.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Scelta degli angoli: fai clic sui 4 angoli del tabellone. Fai clic qui o premi Esc per annullare.</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="3186"/>
         <source>The perspective is corrected. Click to redo the corners or to remove the correction.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">La prospettiva è corretta. Fai clic per rifare gli angoli o rimuovere la correzione.</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="3229"/>
         <source>No camera found</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Nessuna telecamera trovata</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="3276"/>
         <source>Step {number}: done</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Passo {number}: completato</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="3278"/>
         <source>Step {number}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Passo {number}</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="3456"/>
@@ -2545,17 +2609,20 @@ Resolution: {width}×{height}</source>
     <message>
         <location filename="../src/source_bar.py" line="223"/>
         <source>{zoom}%</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">{zoom}%</translation>
     </message>
     <message>
         <location filename="../src/source_bar.py" line="230"/>
         <source>Rotate 90° · {angle}°</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Ruota di 90° · {angle}°</translation>
     </message>
     <message>
         <location filename="../src/source_bar.py" line="238"/>
         <source>5-minute Quickstart</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Guida rapida in 5 minuti</translation>
     </message>
 </context>
 <context>
@@ -3399,107 +3466,128 @@ Resolution: {width}×{height}</source>
     <message>
         <location filename="../src/source_bar.py" line="44"/>
         <source>Entire screen</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Intero schermo</translation>
     </message>
     <message>
         <location filename="../src/source_bar.py" line="45"/>
         <source>Window {id}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Finestra {id}</translation>
     </message>
     <message>
         <location filename="../src/source_bar.py" line="59"/>
         <source>Video file: {name}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">File video: {name}</translation>
     </message>
     <message>
         <location filename="../src/source_bar.py" line="63"/>
         <source>Stream: {url}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Stream: {url}</translation>
     </message>
     <message>
         <location filename="../src/source_bar.py" line="67"/>
         <source>Screen: {window}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Schermo: {window}</translation>
     </message>
     <message>
         <location filename="../src/source_bar.py" line="105"/>
         <source>The source can&apos;t be read.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Impossibile leggere la sorgente.</translation>
     </message>
     <message>
         <location filename="../src/source_bar.py" line="110"/>
         <source>Can&apos;t play the video file {name}.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Impossibile riprodurre il file video {name}.</translation>
     </message>
     <message>
         <location filename="../src/source_bar.py" line="113"/>
         <source>It may have been moved, be damaged or use a format that can&apos;t be read (MP4 and AVI work best).</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Il file potrebbe essere stato spostato, essere danneggiato o avere un formato illeggibile (MP4 e AVI funzionano meglio).</translation>
     </message>
     <message>
         <location filename="../src/source_bar.py" line="121"/>
         <source>Can&apos;t open the stream {url}.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Impossibile aprire lo stream {url}.</translation>
     </message>
     <message>
         <location filename="../src/source_bar.py" line="124"/>
         <source>Check the address, the user name and password, and that the camera or server is on and reachable from this computer. A stream gets 5 seconds to answer.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Controlla l&apos;indirizzo, il nome utente e la password, e che la telecamera o il server sia acceso e raggiungibile da questo computer. Uno stream ha 5 secondi per rispondere.</translation>
     </message>
     <message>
         <location filename="../src/source_bar.py" line="133"/>
         <source>Can&apos;t capture {window}.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Impossibile catturare {window}.</translation>
     </message>
     <message>
         <location filename="../src/source_bar.py" line="136"/>
         <source>The window may have been closed or minimized.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">La finestra potrebbe essere stata chiusa o ridotta a icona.</translation>
     </message>
     <message>
         <location filename="../src/source_bar.py" line="142"/>
         <source>Can&apos;t receive the NDI source {name}.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Impossibile ricevere la sorgente NDI {name}.</translation>
     </message>
     <message>
         <location filename="../src/source_bar.py" line="145"/>
         <source>Check that it is still on the network, then Retry or reload the sources.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Controlla che sia ancora in rete, poi fai clic su Riprova o ricarica le sorgenti.</translation>
     </message>
     <message>
         <location filename="../src/source_bar.py" line="152"/>
         <source>Can&apos;t open {name}.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Impossibile aprire {name}.</translation>
     </message>
     <message>
         <location filename="../src/source_bar.py" line="153"/>
         <source>It may be unplugged or used by another program: close that program, then Retry.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Il dispositivo potrebbe essere scollegato o usato da un altro programma: chiudi quel programma, poi fai clic su Riprova.</translation>
     </message>
     <message>
         <location filename="../src/source_bar.py" line="165"/>
         <source>ScoreSight isn&apos;t allowed to record the screen.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">ScoreSight non ha il permesso di registrare lo schermo.</translation>
     </message>
     <message>
         <location filename="../src/source_bar.py" line="168"/>
         <source>macOS shows only the desktop to apps without the Screen Recording permission. Allow ScoreSight in System Settings, then restart it.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">macOS mostra solo la scrivania alle app senza il permesso Registrazione schermo. Consenti ScoreSight in Impostazioni di Sistema, poi riavvialo.</translation>
     </message>
     <message>
         <location filename="../src/source_bar.py" line="196"/>
         <source>&lt;b&gt;Click the 4 corners of the scoreboard:&lt;/b&gt; {picked} of 4.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">&lt;b&gt;Fai clic sui 4 angoli del tabellone:&lt;/b&gt; {picked} di 4.</translation>
     </message>
     <message>
         <location filename="../src/source_bar.py" line="200"/>
         <source>Esc cancels and keeps the previous correction.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Esc annulla e mantiene la correzione precedente.</translation>
     </message>
     <message>
         <location filename="../src/source_bar.py" line="204"/>
         <source>Esc cancels.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Esc annulla.</translation>
     </message>
 </context>
 <context>
@@ -3537,12 +3625,14 @@ Resolution: {width}×{height}</source>
     <message>
         <location filename="../src/status_bar.py" line="236"/>
         <source>{source}: reconnecting…</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">{source}: riconnessione…</translation>
     </message>
     <message>
         <location filename="../src/status_bar.py" line="246"/>
         <source>slow: {fps} of {nominal} fps</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">lento: {fps} su {nominal} fps</translation>
     </message>
     <message>
         <location filename="../src/status_bar.py" line="254"/>
@@ -3553,62 +3643,74 @@ Resolution: {width}×{height}</source>
     <message>
         <location filename="../src/status_bar.py" line="267"/>
         <source>rotated {angle}°</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">ruotata di {angle}°</translation>
     </message>
     <message>
         <location filename="../src/status_bar.py" line="272"/>
         <source>cropped</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">ritagliata</translation>
     </message>
     <message>
         <location filename="../src/status_bar.py" line="274"/>
         <source>4-corner corrected</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">corretta (4 angoli)</translation>
     </message>
     <message>
         <location filename="../src/status_bar.py" line="276"/>
         <source>stabilized</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">stabilizzata</translation>
     </message>
     <message>
         <location filename="../src/status_bar.py" line="279"/>
         <source>Adjust picture: {list}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Regola immagine: {list}</translation>
     </message>
     <message>
         <location filename="../src/status_bar.py" line="287"/>
         <source>Opening the source…</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Apertura della sorgente…</translation>
     </message>
     <message>
         <location filename="../src/status_bar.py" line="289"/>
         <source>Frames are arriving.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">I fotogrammi arrivano.</translation>
     </message>
     <message>
         <location filename="../src/status_bar.py" line="291"/>
         <source>Frames arrive at less than half the source&apos;s frame rate: the computer or the network can&apos;t keep up.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">I fotogrammi arrivano a meno della metà della frequenza della sorgente: il computer o la rete non riesce a stare al passo.</translation>
     </message>
     <message>
         <location filename="../src/status_bar.py" line="297"/>
         <source>No frames: reconnecting to the source…</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Nessun fotogramma: riconnessione alla sorgente…</translation>
     </message>
     <message>
         <location filename="../src/status_bar.py" line="301"/>
         <source>No new frames for a few seconds.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Nessun nuovo fotogramma da alcuni secondi.</translation>
     </message>
     <message>
         <location filename="../src/status_bar.py" line="305"/>
         <source>The source can&apos;t be read.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Impossibile leggere la sorgente.</translation>
     </message>
     <message>
         <location filename="../src/status_bar.py" line="306"/>
         <source>No source is open.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Nessuna sorgente aperta.</translation>
     </message>
     <message>
         <location filename="../src/status_bar.py" line="314"/>
@@ -3643,7 +3745,8 @@ Resolution: {width}×{height}</source>
     <message>
         <location filename="../src/status_bar.py" line="445"/>
         <source>Collecting training data</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Raccolta dati di addestramento</translation>
     </message>
     <message>
         <location filename="../src/status_bar.py" line="448"/>
@@ -3705,7 +3808,9 @@ Resolution: {width}×{height}</source>
         <location filename="../src/status_bar.py" line="556"/>
         <source>The boxes&apos; pictures and readings are saved for training an OCR model, to {folder}.
 Click to change the folder or its size limit; Tools &gt; Collect OCR training data turns it off.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Le immagini e le letture dei riquadri vengono salvate in {folder}, per addestrare un modello OCR.
+Fai clic per cambiare la cartella o il suo limite di dimensione; Strumenti &gt; Raccogli dati di addestramento OCR interrompe la raccolta.</translation>
     </message>
     <message>
         <location filename="../src/status_bar.py" line="588"/>

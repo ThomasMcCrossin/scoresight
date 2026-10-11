@@ -1920,7 +1920,14 @@ def test_the_window_fits_a_small_screen(make_window, qapp, qtbot, reference_font
 def cut_off_texts(root: QWidget) -> list[tuple]:
     """The labels and buttons under root (visible) whose text doesn't fit:
     narrower than their text, or reaching past root's right edge."""
-    from PySide6.QtWidgets import QAbstractButton, QCheckBox, QLabel, QRadioButton
+    from PySide6.QtCore import Qt
+    from PySide6.QtWidgets import (
+        QAbstractButton,
+        QCheckBox,
+        QLabel,
+        QRadioButton,
+        QToolButton,
+    )
 
     found = []
     for widget in root.findChildren(QWidget):
@@ -1932,6 +1939,11 @@ def cut_off_texts(root: QWidget) -> list[tuple]:
             continue
         if isinstance(widget, (QLabel, QCheckBox, QRadioButton)):
             needed = widget.sizeHint().width() - 1
+        elif (
+            isinstance(widget, QToolButton)
+            and widget.toolButtonStyle() == Qt.ToolButtonStyle.ToolButtonIconOnly
+        ):
+            needed = widget.iconSize().width()
         else:
             # a push or tool button's size hint has room to spare: its text
             # (and icon) must fit
@@ -1983,7 +1995,12 @@ def test_every_language_fits(language, make_window, make_target, qapp, reference
         content = ui.scrollAreaWidgetContents_boxSettings
         viewport = ui.scrollArea_boxSettings.viewport()
         assert content.minimumSizeHint().width() <= viewport.width()
-        for pane in (viewport, ui.groupBox_allBoxes, ui.widget_leftPane):
+        for pane in (
+            viewport,
+            ui.groupBox_allBoxes,
+            ui.widget_leftPane,
+            ui.frame_source_view,
+        ):
             assert cut_off_texts(pane) == [], pane.objectName()
         assert cut_off_texts(window.statusBar()) == []
         ui.tabWidget_inspector.setCurrentWidget(ui.widget_outputs)
