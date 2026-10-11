@@ -13,6 +13,7 @@ from pathlib import Path
 import pytest
 
 import version
+from conftest import REQUIRE_PPOCR
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SRC_DIR = REPO_ROOT / "src"
@@ -439,9 +440,74 @@ def _bundled_files():
     return bundled
 
 
+# The PP-OCR models are downloaded rather than committed
+# (scripts/fetch_models.py): checked only once they are there (CI fetches them
+# and sets SCORESIGHT_REQUIRE_PPOCR). Their LICENSE and NOTICE are committed.
+FETCHED_FOLDER = "ocr_models/ppocr/"
+COMMITTED_IN_FETCHED_FOLDER = ("LICENSE", "NOTICE")
+
+
+def _is_fetched(pattern):
+    return (
+        pattern.startswith(FETCHED_FOLDER)
+        and pattern[len(FETCHED_FOLDER) :] not in COMMITTED_IN_FETCHED_FOLDER
+    )
+
+
+def _skip_unless_fetched(pattern):
+    if (
+        _is_fetched(pattern)
+        and not any(p.is_file() for p in REPO_ROOT.glob(pattern))
+        and not REQUIRE_PPOCR
+    ):
+        pytest.skip(f"{pattern}: run python scripts/fetch_models.py")
+
+
 def test_every_spec_data_glob_matches_files():
+    missing = []
     for pattern, _ in _spec_data_globs():
-        assert [p for p in REPO_ROOT.glob(pattern) if p.is_file()], pattern
+        if _is_fetched(pattern) and not REQUIRE_PPOCR:
+            continue
+        if not [p for p in REPO_ROOT.glob(pattern) if p.is_file()]:
+            missing.append(pattern)
+    assert missing == []
+
+
+def test_spec_bundles_the_ppocr_models_and_onnxruntime():
+    """Every file of every PP-OCR model the engine loads (and fetch_models.py
+    downloads) is in DATA_GLOBS, with the license, and onnxruntime is
+    collected."""
+    import ppocr_engine
+
+    fetch_models = _load_script(
+        "fetch_models", REPO_ROOT / "scripts" / "fetch_models.py"
+    )
+    globs = dict(_spec_data_globs())
+    folders = {info.folder for info in ppocr_engine.MODELS.values()}
+    assert folders == {model.folder for model in fetch_models.MODELS}
+    for folder in folders:
+        for name in (
+            ppocr_engine.ONNX_FILE,
+            ppocr_engine.CHARACTERS_FILE,
+            ppocr_engine.CONFIG_FILE,
+        ):
+            assert globs.get(f"ocr_models/ppocr/{folder}/{name}") == (
+                f"ocr_models/ppocr/{folder}"
+            ), (folder, name)
+    for name in ("LICENSE", "NOTICE"):
+        assert (REPO_ROOT / "ocr_models" / "ppocr" / name).is_file()
+        assert globs.get(f"ocr_models/ppocr/{name}") == "ocr_models/ppocr"
+    assert (
+        fetch_models.ONNX_FILE,
+        fetch_models.CHARACTERS_FILE,
+        fetch_models.CONFIG_FILE,
+    ) == (
+        ppocr_engine.ONNX_FILE,
+        ppocr_engine.CHARACTERS_FILE,
+        ppocr_engine.CONFIG_FILE,
+    )
+    spec = SPEC_FILE.read_text(encoding="utf-8")
+    assert 'hiddenimports += ["onnxruntime"]' in spec
 
 
 def test_spec_has_a_single_entry_script():
@@ -552,6 +618,7 @@ def test_resource_references_were_found():
 @pytest.mark.parametrize("pattern", _reference_params())
 def test_resources_loaded_by_the_code_are_bundled(pattern):
     """What works from source must also work in the frozen app."""
+    _skip_unless_fetched(pattern)
     bundled = _bundled_files()
     if pattern in NOT_BUNDLED:
         assert not any(fnmatch.fnmatch(f, pattern) for f in bundled), (
@@ -900,3 +967,46 @@ def test_pre_commit_ruff_matches_requirements_dev():
         "update the ruff-pre-commit rev in .pre-commit-config.yaml to match "
         "ruff in requirements-dev.txt"
     )
+
+
+def _step_index(steps, predicate):
+    return next(i for i, step in enumerate(steps) if predicate(step))
+
+
+@pytest.mark.parametrize(
+    ("workflow", "job", "consumer"),
+    [
+        ("ci.yml", "test", "python -m pytest"),
+        ("build.yml", "build", "PyInstaller"),
+    ],
+)
+def test_workflows_fetch_the_ppocr_models_first(workflow, job, consumer):
+    steps = _workflow(workflow)["jobs"][job]["steps"]
+    cache = _step_index(steps, lambda s: "actions/cache" in s.get("uses", ""))
+    fetch = _step_index(
+        steps, lambda s: s.get("run", "").strip() == "python scripts/fetch_models.py"
+    )
+    uses = _step_index(steps, lambda s: consumer in s.get("run", ""))
+    assert cache < fetch < uses
+    # cached per pinned set of models; the fetch verifies whatever was restored
+    assert "hashFiles('scripts/fetch_models.py')" in steps[cache]["with"]["key"]
+    assert "PP-OCRv6_small_rec" in steps[cache]["with"]["path"]
+    assert not steps[fetch].get("continue-on-error")
+
+
+def test_ci_tests_require_ppocr_and_run_both_engines_end_to_end():
+    steps = _workflow("ci.yml")["jobs"]["test"]["steps"]
+    [tests] = [s for s in steps if s.get("name") == "Run tests"]
+    assert tests["env"]["SCORESIGHT_REQUIRE_PPOCR"] == "1"
+    [e2e] = [s for s in steps if "scripts/ci/e2e_test.py" in s.get("run", "")]
+    runs = e2e["run"].splitlines()
+    assert len(runs) == 2 and "--engine tesseract" in runs[0]
+    assert "--engine" not in runs[1]  # a new setup's default: PP-OCR
+    build = [
+        s
+        for s in _workflow("build.yml")["jobs"]["build"]["steps"]
+        if "scripts/ci/e2e_test.py" in s.get("run", "")
+    ]
+    assert ["--engine tesseract" in s["run"] for s in build] == [False, True]
+    paths = _workflow("build.yml")[True]["pull_request"]["paths"]
+    assert "scripts/fetch_models.py" in paths

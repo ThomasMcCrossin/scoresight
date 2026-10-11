@@ -4,8 +4,9 @@
     pyinstaller --clean --noconfirm scoresight.spec              # release build
     pyinstaller --clean --noconfirm scoresight.spec -- --debug   # console build
 
-Builds a onedir app for the platform it runs on (PyInstaller can't
-cross-compile):
+Download the PP-OCR models first (python scripts/fetch_models.py): the build
+bundles them and fails without them. Builds a onedir app for the platform it
+runs on (PyInstaller can't cross-compile):
   Windows  dist/scoresight/scoresight.exe, with a splash screen. Build the
            camera enumerator first: cd src/win32DeviceEnum &&
            python setup.py build_ext --inplace
@@ -66,6 +67,34 @@ DATA_GLOBS = [
     ("icons/*.svg", "icons"),
     ("icons/*.ico", "icons"),
     ("tesseract/tessdata/*.traineddata", "tesseract/tessdata"),
+    # the PP-OCR models (not in git: scripts/fetch_models.py downloads them)
+    # and their license
+    ("ocr_models/ppocr/LICENSE", "ocr_models/ppocr"),
+    ("ocr_models/ppocr/NOTICE", "ocr_models/ppocr"),
+    (
+        "ocr_models/ppocr/PP-OCRv6_small_rec/inference.onnx",
+        "ocr_models/ppocr/PP-OCRv6_small_rec",
+    ),
+    (
+        "ocr_models/ppocr/PP-OCRv6_small_rec/characters.txt",
+        "ocr_models/ppocr/PP-OCRv6_small_rec",
+    ),
+    (
+        "ocr_models/ppocr/PP-OCRv6_small_rec/config.json",
+        "ocr_models/ppocr/PP-OCRv6_small_rec",
+    ),
+    (
+        "ocr_models/ppocr/PP-OCRv6_tiny_rec/inference.onnx",
+        "ocr_models/ppocr/PP-OCRv6_tiny_rec",
+    ),
+    (
+        "ocr_models/ppocr/PP-OCRv6_tiny_rec/characters.txt",
+        "ocr_models/ppocr/PP-OCRv6_tiny_rec",
+    ),
+    (
+        "ocr_models/ppocr/PP-OCRv6_tiny_rec/config.json",
+        "ocr_models/ppocr/PP-OCRv6_tiny_rec",
+    ),
     ("translations/*.qm", "translations"),
     ("obs_data/Scoresight_OBS_scene_collection.json", "obs_data"),
     ("obs_data/Scoreboard parts/*.png", "obs_data/Scoreboard parts"),
@@ -75,7 +104,12 @@ datas = []
 for pattern, destination in DATA_GLOBS:
     matches = sorted(glob.glob(os.path.join(ROOT, pattern)))
     if not matches:
-        raise SystemExit(f"scoresight.spec: no files match {pattern!r}")
+        hint = (
+            " (download the PP-OCR models: python scripts/fetch_models.py)"
+            if pattern.startswith("ocr_models/")
+            else ""
+        )
+        raise SystemExit(f"scoresight.spec: no files match {pattern!r}{hint}")
     datas += [(match, destination) for match in matches]
 
 
@@ -94,6 +128,14 @@ for package in ("tesserocr", "cyndilib", "pugixml_cython"):
     hiddenimports += collect_submodules(package, filter=_is_module_name)
 if not IS_WINDOWS:
     hiddenimports += ["cysignals", "cysignals.signals"]
+# The PP-OCR engine imports onnxruntime when a PP-OCR model is first chosen
+# (src/ppocr_engine.py), not at startup. pyinstaller-hooks-contrib's hook
+# collects its native libraries (onnxruntime and its pybind11 module, about
+# 40 MB on Windows); its license and third-party notices ship next to them.
+hiddenimports += ["onnxruntime"]
+datas += collect_data_files(
+    "onnxruntime", includes=["LICENSE", "ThirdPartyNotices.txt"]
+)
 
 pathex = [SRC]
 binaries = []
