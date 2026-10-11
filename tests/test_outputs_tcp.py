@@ -64,6 +64,17 @@ class Connection:
         self.closed = False
 
 
+def stop_listening(sock: socket.socket):
+    """Close a listening socket so that it accepts nothing more. On Linux,
+    closing it doesn't wake an accept() blocked in another thread, which goes
+    on accepting connections: shutting it down first does."""
+    try:
+        sock.shutdown(socket.SHUT_RDWR)
+    except OSError:
+        pass  # Windows: not connected
+    sock.close()
+
+
 class TcpServer:
     """Listens on 127.0.0.1, records what each connection sends, and answers
     each received line with reply(line) (bytes, or None for no answer)."""
@@ -86,6 +97,9 @@ class TcpServer:
             try:
                 client, _ = self.sock.accept()
             except OSError:
+                return
+            if self._stopped:
+                client.close()
                 return
             connection = Connection(client)
             with self._cond:
@@ -156,7 +170,7 @@ class TcpServer:
 
     def close(self):
         self._stopped = True
-        self.sock.close()
+        stop_listening(self.sock)
         self.drop_all()
 
 
@@ -799,7 +813,7 @@ class HangUpServer:
             client.close()
 
     def close(self):
-        self.sock.close()
+        stop_listening(self.sock)
 
 
 def test_a_receiver_that_hangs_up_at_once_is_not_flooded(make_output, make_result):
