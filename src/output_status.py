@@ -43,7 +43,7 @@ VMIX = "vmix"
 UNO = "uno"
 API = "api"
 TCP = "tcp"
-DESTINATIONS = (FILES, HTTP, OBS, VMIX, UNO, API)
+DESTINATIONS = (FILES, HTTP, OBS, VMIX, UNO, API, TCP)
 
 # states
 OFF = "off"  # turned off (or not connected)
