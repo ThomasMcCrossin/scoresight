@@ -66,6 +66,7 @@ SELF_TEST_MODULES = (
     "startup_timing",
     "status_bar",
     "storage",
+    "tcp_output",
     "template_fields",
     "tesseract",
     "text_detection_target",

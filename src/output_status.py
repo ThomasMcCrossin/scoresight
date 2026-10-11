@@ -1,5 +1,5 @@
-"""The output destinations (text files, HTTP server, OBS, vMix, UNO and the
-outbound HTTP API) and how each one is doing.
+"""The output destinations (text files, HTTP server, OBS, vMix, UNO, the
+outbound HTTP API and the TCP / UDP output) and how each one is doing.
 
 For every destination a DestinationStatus says whether it is on, its state, a
 short line about what is happening ("Connected to localhost:4455", "Can't reach
@@ -7,8 +7,8 @@ short line about what is happening ("Connected to localhost:4455", "Can't reach
 about a problem, and when it last sent something.
 
 The functions here only read snapshots that are cheap to take and never wait
-for the network: OutputWorker.status() (vMix, UNO, OBS, the outbound API),
-http_server_stats() and FileOutput.status(). MainWindow builds the statuses
+for the network: OutputWorker.status() (vMix, UNO, OBS, the outbound API, TCP),
+TcpOutput.connection_status(), http_server_stats() and FileOutput.status(). MainWindow builds the statuses
 about once a second on the GUI thread; destinations_view.py (the destinations
 list) and status_bar.py (the outputs summary) show them.
 
@@ -32,6 +32,7 @@ from file_output import FileOutputStatus
 from http_server import HttpServerStats
 from obs_websocket import OBSConnectionLost
 from output_worker import ErrorInfo, OutputError, WorkerStatus
+from tcp_output import CASPARCG, UDP, ConnectionStatus, TcpConfig
 from vmix_output import DEFAULT_VMIX_PORT, VMixTCPPortError
 
 # the destinations, in the order of the list and of the output pages
@@ -41,6 +42,7 @@ OBS = "obs"
 VMIX = "vmix"
 UNO = "uno"
 API = "api"
+TCP = "tcp"
 DESTINATIONS = (FILES, HTTP, OBS, VMIX, UNO, API)
 
 # states
@@ -125,16 +127,21 @@ def destination_name(key: str) -> str:
         return QCoreApplication.translate("OutputStatus", "HTTP server")
     if key == API:
         return QCoreApplication.translate("OutputStatus", "HTTP API")
-    return {OBS: "OBS", VMIX: "vMix", UNO: "UNO"}.get(key, key)
+    return {OBS: "OBS", VMIX: "vMix", UNO: "UNO", TCP: "TCP / UDP"}.get(key, key)
 
 
 def short_name(key: str) -> str:
     """The destination's name in the status bar ("Files", "HTTP"...)."""
     if key == FILES:
         return QCoreApplication.translate("OutputStatus", "Files")
-    return {HTTP: "HTTP", OBS: "OBS", VMIX: "vMix", UNO: "UNO", API: "API"}.get(
-        key, key
-    )
+    return {
+        HTTP: "HTTP",
+        OBS: "OBS",
+        VMIX: "vMix",
+        UNO: "UNO",
+        API: "API",
+        TCP: "TCP",
+    }.get(key, key)
 
 
 def destination_description(key: str) -> str:
@@ -156,6 +163,11 @@ def destination_description(key: str) -> str:
         ),
         API: QCoreApplication.translate(
             "MainWindow", "Send the readings to a URL (outbound HTTP API)"
+        ),
+        TCP: QCoreApplication.translate(
+            "OutputStatus",
+            "Send the readings over TCP or UDP: CasparCG, Chyron PRIME, Live Score, "
+            "MagicSoft CG, Vizrt and other graphics systems",
         ),
     }
     return texts.get(key, "")
@@ -616,6 +628,12 @@ def _unreachable_hint(key: str, target: str, port: str) -> str:
         return QCoreApplication.translate(
             "OutputStatus", "Check this computer's internet connection."
         )
+    if key == TCP:
+        return QCoreApplication.translate(
+            "OutputStatus",
+            "Check that the receiving program is running and accepts connections "
+            "on port {port}, and that the firewall of its computer allows it.",
+        ).format(port=port or "?")
     return QCoreApplication.translate(
         "OutputStatus",
         "Nothing answers at {target}: check the URL and that the receiving "
@@ -1257,4 +1275,163 @@ def api_status(
         status,
         worker_problem(API, worker, target, secrets),
         _technical(worker, secrets),
+    )
+
+
+def tcp_status(
+    running: bool,
+    config: TcpConfig,
+    product: str,
+    has_fields: bool,
+    worker: WorkerStatus | None,
+    connection: ConnectionStatus | None,
+) -> DestinationStatus:
+    """The TCP / UDP output: on while started (Start sending). product is the
+    preset's product ("CasparCG"...), "" for a custom protocol."""
+    connection = connection or ConnectionStatus()
+    target = config.target
+    transport = "UDP" if config.transport == UDP else "TCP"
+    if not running:
+        return DestinationStatus(
+            TCP,
+            OFF,
+            QCoreApplication.translate("OutputStatus", "Off"),
+            hint=QCoreApplication.translate(
+                "OutputStatus",
+                "Click Start sending to send the readings over {transport} to "
+                "{target}.",
+            ).format(transport=transport, target=target),
+        )
+    if not config.is_complete:
+        return DestinationStatus(
+            TCP,
+            WARNING,
+            QCoreApplication.translate("OutputStatus", "Enter the host and port"),
+            enabled=True,
+            hint=QCoreApplication.translate(
+                "OutputStatus",
+                "Enter the address of the receiving program's computer and the "
+                "port it listens on (set in that program).",
+            ),
+        )
+    if not has_fields:
+        return DestinationStatus(
+            TCP,
+            WARNING,
+            QCoreApplication.translate("OutputStatus", "No fields to send"),
+            enabled=True,
+            hint=QCoreApplication.translate(
+                "OutputStatus",
+                "Place fields on the picture and give them names in the table (an "
+                "empty name leaves a field out).",
+            ),
+        )
+    last_sent = worker.last_success_at if worker is not None else None
+    if config.transport == UDP:
+        if last_sent is None:
+            status = DestinationStatus(
+                TCP,
+                SENDING,
+                QCoreApplication.translate(
+                    "OutputStatus", "Waiting for readings to send to {target} (UDP)"
+                ).format(target=target),
+                enabled=True,
+            )
+        else:
+            status = DestinationStatus(
+                TCP,
+                OK,
+                _with_product(
+                    product,
+                    QCoreApplication.translate(
+                        "OutputStatus", "Sending to {target} (UDP)"
+                    ).format(target=target),
+                ),
+                enabled=True,
+                hint=QCoreApplication.translate(
+                    "OutputStatus",
+                    "UDP has no connection: ScoreSight can't tell whether the "
+                    "values arrive.",
+                ),
+                last_activity_at=last_sent,
+            )
+        return _with_problem(
+            status, worker_problem(TCP, worker, target), _technical(worker)
+        )
+
+    if not connection.connected:
+        status = DestinationStatus(
+            TCP,
+            SENDING,
+            QCoreApplication.translate(
+                "OutputStatus", "Connecting to {target}…"
+            ).format(target=target),
+            enabled=True,
+        )
+        return _with_problem(
+            status, worker_problem(TCP, worker, target), _technical(worker)
+        )
+    if (
+        last_sent is not None
+        and connection.connected_at is not None
+        and last_sent < connection.connected_at
+    ):
+        last_sent = None  # sent over an earlier connection
+    if connection.last_reply:
+        hint = QCoreApplication.translate(
+            "OutputStatus", "Last answer: {reply}"
+        ).format(reply=elide_middle(connection.last_reply, 120))
+    else:
+        hint = QCoreApplication.translate(
+            "OutputStatus",
+            "A field's value is sent when it changes (or every time, with “Also "
+            "resend unchanged values”).",
+        )
+    status = DestinationStatus(
+        TCP,
+        OK,
+        _with_product(
+            product,
+            QCoreApplication.translate("OutputStatus", "Connected to {target}").format(
+                target=target
+            ),
+        ),
+        enabled=True,
+        hint=hint,
+        last_activity_at=last_sent,
+    )
+    problem = worker_problem(TCP, worker, target)
+    if problem is None and connection.reply_error:
+        if product and config.preset == CASPARCG:
+            reply_hint = QCoreApplication.translate(
+                "OutputStatus",
+                "Check the template's name (it must be in CasparCG's templates "
+                "folder), the channel and the layer.",
+            )
+        else:
+            reply_hint = QCoreApplication.translate(
+                "OutputStatus",
+                "The receiving program reported an error: check the template and "
+                "the names in the table.",
+            )
+        return _with_problem(
+            status,
+            Problem(
+                WARNING,
+                QCoreApplication.translate(
+                    "OutputStatus", "{target} answered “{reply}”"
+                ).format(target=target, reply=elide_middle(connection.reply_error, 60)),
+                reply_hint,
+            ),
+            connection.reply_error,
+        )
+    return _with_problem(status, problem, _technical(worker))
+
+
+def _with_product(product: str, detail: str) -> str:
+    """ "CasparCG: Connected to localhost:5250" (detail alone without one)."""
+    if not product:
+        return detail
+    return QCoreApplication.translate("OutputStatus", "{product}: {detail}").format(
+        product=product, detail=detail
     )

@@ -1,0 +1,1085 @@
+"""TCP / UDP output: sends the readings as text messages over a socket, to
+graphics systems with a simple line protocol (CasparCG's AMCP, Chyron PRIME's
+Intelligent Interface, Live Score, MagicSoft CG, Vizrt Viz Engine's Shared
+Memory input) or to any program that reads lines from a TCP connection or UDP
+datagrams.
+
+What is sent comes from a template: one message per changed field
+("[{field}]={value}") or one message with every field ('{"values":{json}}').
+Placeholders are replaced by escaped text (see render_text); everything else in
+the template is sent as it is. Presets (PRESETS) fill in the template and the
+options for each product, and everything stays editable.
+
+update() is called on the GUI thread: it works out which values changed and
+wakes a background OutputWorker, so a slow or unreachable receiver never blocks
+the UI. The worker thread keeps one TCP connection open (connecting, and
+reconnecting with backoff when it fails or the receiver closes it), sends the
+optional "on connect" message and every current value after each connection,
+and respects the minimum interval between sends. A reader thread reads the
+receiver's replies (CasparCG answers every command, e.g. "202 CG OK"), so the
+receiver never blocks on a full buffer, and an error reply shows in the status.
+"""
+
+import json
+import re
+import socket
+import threading
+import time
+from collections.abc import Container, Iterable, Mapping
+from dataclasses import asdict, dataclass, field, fields, replace
+
+from output_worker import OutputWorker, SendSkipped, ThrottledErrorLog
+from sc_logging import logger
+from text_detection_target import TextDetectionTargetWithResult
+
+# transports
+TCP = "tcp"
+UDP = "udp"
+TRANSPORTS = (TCP, UDP)
+
+# what a message holds
+PER_FIELD = "field"  # one message per changed field
+PER_FRAME = "frame"  # one message with every field
+MODES = (PER_FIELD, PER_FRAME)
+
+# what ends every line of a message (each line of the template is a line)
+LINE_ENDINGS = {"crlf": "\r\n", "lf": "\n", "cr": "\r", "nul": "\0", "none": ""}
+
+# Python codec names; characters a codec can't encode are sent as "?"
+ENCODINGS = ("utf-8", "iso-8859-1", "cp1252", "utf-16-le", "ascii")
+
+# how the text of a placeholder is escaped before it goes into the message
+ESCAPE_NONE = "none"
+ESCAPE_LINE = "line"  # line breaks (and NUL) become spaces
+ESCAPE_JSON = "json"  # the inside of a JSON string
+ESCAPE_XML = "xml"  # XML text or attribute value
+ESCAPE_AMCP = "amcp"  # the inside of a quoted AMCP parameter (CasparCG)
+ESCAPE_CHYRON = "chyron"  # a field of an Intelligent Interface command
+ESCAPE_NUL = "nul"  # NUL characters are left out (NUL-framed protocols)
+ESCAPES = (
+    ESCAPE_NONE,
+    ESCAPE_LINE,
+    ESCAPE_JSON,
+    ESCAPE_XML,
+    ESCAPE_AMCP,
+    ESCAPE_CHYRON,
+    ESCAPE_NUL,
+)
+
+# the placeholders a template can use
+PLACEHOLDERS = (
+    "field",  # the field's name (per field)
+    "value",  # the field's value (per field)
+    "json",  # every field as a JSON object
+    "xml",  # every field as CasparCG templateData XML
+    "channel",  # CasparCG video channel
+    "layer",  # CasparCG layer
+    "cg_layer",  # CasparCG CG layer
+    "template",  # CasparCG template name
+)
+CASPARCG_PLACEHOLDERS = ("channel", "layer", "cg_layer", "template")
+
+# seconds to open a TCP connection: more than the 2 s Windows takes to report
+# a refused connection (it retries first), so a refusal isn't taken for a
+# timeout
+CONNECT_TIMEOUT = 3.0
+SEND_TIMEOUT = 2.0  # seconds a send may block (the receiver doesn't read)
+MAX_MIN_INTERVAL = 10.0
+MAX_REFRESH_INTERVAL = 3600.0
+# replies longer than this without a line break are dropped
+MAX_REPLY_LENGTH = 65536
+
+LOG_LABEL = "TCP output"
+
+_GOOD_STATES = (
+    TextDetectionTargetWithResult.ResultState.Success,
+    TextDetectionTargetWithResult.ResultState.SameNoChange,
+)
+
+# --- escaping ----------------------------------------------------------------
+
+_LINE_BREAKS = re.compile(r"[\r\n\0]+")
+_NEW_LINES = re.compile(r"\r\n|\r|\n")
+# characters XML 1.0 can't represent
+_NOT_XML_CHAR = re.compile("[^\t\n\r\x20-퟿-�\U00010000-\U0010ffff]")
+
+
+def escape_line(text: str) -> str:
+    """Line breaks and NUL become a space, so a value can't end a line early."""
+    return _LINE_BREAKS.sub(" ", text)
+
+
+def escape_json(text: str) -> str:
+    """The inside of a JSON string (without the quotes)."""
+    return json.dumps(text, ensure_ascii=False)[1:-1]
+
+
+def escape_xml(text: str) -> str:
+    """XML text or attribute value (in either kind of quotes)."""
+    text = _NOT_XML_CHAR.sub("", text)
+    return (
+        text.replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+        .replace('"', "&quot;")
+        .replace("'", "&apos;")
+        .replace("\t", "&#9;")
+        .replace("\n", "&#10;")
+        .replace("\r", "&#13;")
+    )
+
+
+def escape_amcp(text: str) -> str:
+    """The inside of a quoted AMCP parameter. AMCP's escape sequences are \\"
+    (quote), \\\\ (backslash) and \\n (new line); NUL is left out."""
+    text = text.replace("\0", "").replace("\\", "\\\\").replace('"', '\\"')
+    return _NEW_LINES.sub(r"\\n", text)
+
+
+def escape_chyron(text: str) -> str:
+    """A field of an Intelligent Interface command. Backslashes separate the
+    fields, and Chyron documents no way to send one inside a field, so they
+    become "/" (as PRIME does with file paths); line breaks become spaces."""
+    return escape_line(text).replace("\\", "/")
+
+
+def escape_nul(text: str) -> str:
+    return text.replace("\0", "")
+
+
+ESCAPE_FUNCTIONS = {
+    ESCAPE_NONE: lambda text: text,
+    ESCAPE_LINE: escape_line,
+    ESCAPE_JSON: escape_json,
+    ESCAPE_XML: escape_xml,
+    ESCAPE_AMCP: escape_amcp,
+    ESCAPE_CHYRON: escape_chyron,
+    ESCAPE_NUL: escape_nul,
+}
+
+# --- field names -----------------------------------------------------------------
+
+NAMES_AS_IS = "box"  # the field's name in ScoreSight
+NAMES_IDENTIFIER = "identifier"  # "Home Score" -> "HomeScore"
+NAMES_SNAKE = "snake"  # "Home Score" -> "home_score"
+
+
+def identifier_name(name: str) -> str:
+    """An ASCII identifier: each word starting with a capital, the spaces and
+    other characters left out, "_" in front if it doesn't start with a letter
+    ("Home Score" -> "HomeScore", "ShotClock" stays, "1st Half" ->
+    "_1stHalf")."""
+    words = re.findall(r"[0-9A-Za-z_]+", name)
+    result = "".join(word[:1].upper() + word[1:] for word in words)
+    if not result or not (result[0].isalpha() or result[0] == "_"):
+        result = "_" + result
+    return result
+
+
+def snake_name(name: str) -> str:
+    """Lower case words joined by "_" ("Home Score" -> "home_score")."""
+    words = re.findall(r"[0-9A-Za-z]+", name.lower())
+    return "_".join(words) or "field"
+
+
+# --- presets -----------------------------------------------------------------------
+
+CUSTOM = "custom"
+LIVE_SCORE = "livescore"
+CASPARCG = "casparcg"
+MAGICSOFT = "magicsoft"
+CHYRON = "chyron"
+VIZRT = "vizrt"
+
+
+@dataclass(frozen=True)
+class Preset:
+    key: str
+    name: str  # the product's name (not translated); "Custom" is translated
+    # the TcpConfig fields the preset sets (the host is kept)
+    settings: Mapping[str, object]
+    name_style: str = NAMES_AS_IS
+    # names for some of the standard fields (others follow name_style)
+    names: Mapping[str, str] = field(default_factory=dict)
+    # the protocol is known only from another vendor's public pages
+    second_hand: bool = False
+
+
+PRESETS: dict[str, Preset] = {
+    preset.key: preset
+    for preset in (
+        Preset(
+            CUSTOM,
+            "Custom",
+            {
+                "port": None,
+                "transport": TCP,
+                "mode": PER_FIELD,
+                "template": "{field}={value}",
+                "init": "",
+                "line_ending": "lf",
+                "encoding": "utf-8",
+                "escape": ESCAPE_LINE,
+                "min_interval": 0.0,
+                "refresh_interval": 0.0,
+            },
+        ),
+        # Live Score's "Scoreboard OCR Input" (Input > Scoreboard OCR > OCR
+        # Setup): Live Score listens on the port set there. The format comes
+        # from scoreboard-ocr.com/live-score-app: one JSON object per message,
+        # ended by LF; the field names are those of Live Score's OCR Setup
+        # (GameClock, ShotClock, ScoreAway... ScoreHome is inferred). It
+        # "does not support displaying data 10x a second".
+        Preset(
+            LIVE_SCORE,
+            "Live Score",
+            {
+                "port": None,
+                "transport": TCP,
+                "mode": PER_FRAME,
+                "template": '{"type":"ocr", "values":{json}}',
+                "init": "",
+                "line_ending": "lf",
+                "encoding": "utf-8",
+                "escape": ESCAPE_NONE,
+                "min_interval": 0.25,
+                "refresh_interval": 0.0,
+            },
+            names={
+                "Time": "GameClock",
+                "Shot Clock": "ShotClock",
+                "Away Score": "ScoreAway",
+                "Home Score": "ScoreHome",
+            },
+            second_hand=True,
+        ),
+        # CasparCG's AMCP (casparcg.com/docs/wiki/protocols/amcp-protocol): CR LF
+        # after every command, UTF-8, quoted parameters with \" \\ \n escapes.
+        # CG ADD loads the template (and plays it: play-on-load 1), CG UPDATE
+        # sends the data, as templateData XML (any server) or JSON (2.1+).
+        Preset(
+            CASPARCG,
+            "CasparCG",
+            {
+                "port": 5250,
+                "transport": TCP,
+                "mode": PER_FRAME,
+                "template": 'CG {channel}-{layer} UPDATE {cg_layer} "{xml}"',
+                "init": 'CG {channel}-{layer} ADD {cg_layer} "{template}" 1 "{xml}"',
+                "line_ending": "crlf",
+                "encoding": "utf-8",
+                "escape": ESCAPE_AMCP,
+                "min_interval": 0.0,
+                "refresh_interval": 0.0,
+                "channel": 1,
+                "layer": 20,
+                "cg_layer": 1,
+                "template_name": "scoresight_scorebug",
+            },
+            name_style=NAMES_IDENTIFIER,
+        ),
+        # MagicSoft CG's socket server (Tools > Options > Socket Communication),
+        # per scoreboard-ocr.com/magicsoft: "[clock]=2:45" and CR LF, example
+        # address tcp://localhost:2034. "[time]" is reserved, so Time is sent
+        # as "clock" (the page's example).
+        Preset(
+            MAGICSOFT,
+            "MagicSoft CG",
+            {
+                "port": 2034,
+                "transport": TCP,
+                "mode": PER_FIELD,
+                "template": "[{field}]={value}",
+                "init": "",
+                "line_ending": "crlf",
+                "encoding": "utf-8",
+                "escape": ESCAPE_LINE,
+                "min_interval": 0.0,
+                "refresh_interval": 0.0,
+            },
+            name_style=NAMES_SNAKE,
+            names={"Time": "clock"},
+            second_hand=True,
+        ),
+        # Chyron PRIME's Intelligent Interface ("PRIME Automation: Intelligent
+        # Interface P Commands" 4.10 and the PRIME 5.1 Automation User Guide):
+        # P\UPDATE[:<Buffer>]\<Channel>[:<Layer>]\<SceneName>\<NameValuePairs>\\
+        # then CR LF; TCP and ISO-8859-1 by default; the port is set in PRIME.
+        # Scene "*" updates every scene on the channel (Preview and Program).
+        Preset(
+            CHYRON,
+            "Chyron PRIME",
+            {
+                "port": None,
+                "transport": TCP,
+                "mode": PER_FIELD,
+                "template": "P\\UPDATE\\1\\*\\{field}\\{value}\\\\",
+                "init": "",
+                "line_ending": "crlf",
+                "encoding": "iso-8859-1",
+                "escape": ESCAPE_CHYRON,
+                "min_interval": 0.0,
+                "refresh_interval": 0.0,
+            },
+        ),
+        # Viz Engine's Shared Memory input (Viz Engine Guide, External Data
+        # Input): "key|value\0", several pairs per packet allowed, over TCP (a
+        # connection kept open is recommended) or UDP; the port is set in Viz
+        # Configuration (no default).
+        Preset(
+            VIZRT,
+            "Vizrt (Shared Memory)",
+            {
+                "port": None,
+                "transport": TCP,
+                "mode": PER_FIELD,
+                "template": "{field}|{value}",
+                "init": "",
+                "line_ending": "nul",
+                "encoding": "utf-8",
+                "escape": ESCAPE_NUL,
+                "min_interval": 0.0,
+                "refresh_interval": 0.0,
+            },
+            name_style=NAMES_IDENTIFIER,
+        ),
+    )
+}
+
+
+def default_field_name(preset_key: str, box_name: str) -> str:
+    """The name a field is sent as unless the user set another one."""
+    preset = PRESETS.get(preset_key, PRESETS[CUSTOM])
+    if box_name in preset.names:
+        return preset.names[box_name]
+    if preset.name_style == NAMES_IDENTIFIER:
+        return identifier_name(box_name)
+    if preset.name_style == NAMES_SNAKE:
+        return snake_name(box_name)
+    return box_name
+
+
+# --- settings ------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class TcpConfig:
+    """The output's settings (stored as the "tcp_output" document)."""
+
+    preset: str = CUSTOM
+    host: str = "localhost"
+    port: int | None = None
+    transport: str = TCP
+    mode: str = PER_FIELD
+    template: str = "{field}={value}"
+    init: str = ""  # sent after each connection ("on connect")
+    line_ending: str = "lf"
+    encoding: str = "utf-8"
+    escape: str = ESCAPE_LINE
+    send_same: bool = False  # also resend unchanged values
+    min_interval: float = 0.0  # seconds between two sends at least
+    refresh_interval: float = 0.0  # resend every value this often (0: never)
+    channel: int = 1
+    layer: int = 20
+    cg_layer: int = 1
+    template_name: str = "scoresight_scorebug"
+
+    @property
+    def target(self) -> str:
+        """ "host:port" ("[::1]:5250" for an IPv6 address)."""
+        host = self.host or "?"
+        if ":" in host and not host.startswith("["):
+            host = f"[{host}]"
+        return f"{host}:{self.port if self.port is not None else '?'}"
+
+    @property
+    def endpoint(self) -> tuple[str, str, int | None]:
+        return (self.transport, self.host, self.port)
+
+    @property
+    def is_complete(self) -> bool:
+        """A host and a port are set."""
+        return bool(self.host) and self.port is not None
+
+    def uses_casparcg_parameters(self) -> bool:
+        text = self.template + "\n" + self.init
+        return any(f"{{{name}}}" in text for name in CASPARCG_PLACEHOLDERS)
+
+    def with_preset(self, key: str) -> "TcpConfig":
+        """These settings with a preset's template and options (the host is
+        kept, the port is the preset's)."""
+        preset = PRESETS.get(key, PRESETS[CUSTOM])
+        return replace(self, preset=preset.key, **preset.settings)
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, data: Mapping | None) -> "TcpConfig":
+        """Settings from a stored document; a missing or invalid value gets its
+        default."""
+        if not isinstance(data, Mapping):
+            return cls()
+        defaults = cls()
+        values = {}
+        for item in fields(cls):
+            if item.name in data:
+                values[item.name] = data[item.name]
+        config = replace(defaults, **values)
+
+        def choice(value, allowed, default):
+            return value if value in allowed else default
+
+        return replace(
+            config,
+            preset=choice(config.preset, PRESETS, CUSTOM),
+            host=str(config.host or "").strip(),
+            port=parse_port(config.port),
+            transport=choice(config.transport, TRANSPORTS, TCP),
+            mode=choice(config.mode, MODES, PER_FIELD),
+            template=_text(config.template, defaults.template),
+            init=_text(config.init, ""),
+            line_ending=choice(config.line_ending, LINE_ENDINGS, "lf"),
+            encoding=choice(config.encoding, ENCODINGS, "utf-8"),
+            escape=choice(config.escape, ESCAPES, ESCAPE_LINE),
+            send_same=bool(config.send_same),
+            min_interval=_number(config.min_interval, 0.0, MAX_MIN_INTERVAL),
+            refresh_interval=_number(
+                config.refresh_interval, 0.0, MAX_REFRESH_INTERVAL
+            ),
+            channel=int(_number(config.channel, 1, 9999, default=1)),
+            layer=int(_number(config.layer, -9999, 9999, default=20)),
+            cg_layer=int(_number(config.cg_layer, 0, 9999, default=1)),
+            template_name=_text(config.template_name, defaults.template_name),
+        )
+
+
+def _init_settings(config: TcpConfig) -> tuple:
+    """What the "on connect" message is made of."""
+    return (
+        config.init,
+        config.channel,
+        config.layer,
+        config.cg_layer,
+        config.template_name,
+    )
+
+
+def _format_settings(config: TcpConfig) -> tuple:
+    """What the messages look like (and which names the fields have)."""
+    return (
+        config.preset,
+        config.mode,
+        config.template,
+        config.line_ending,
+        config.encoding,
+        config.escape,
+    ) + _init_settings(config)
+
+
+def parse_port(value) -> int | None:
+    """A port number (1-65535), or None."""
+    try:
+        port = int(str(value).strip())
+    except (TypeError, ValueError):
+        return None
+    return port if 1 <= port <= 65535 else None
+
+
+def _text(value, default: str) -> str:
+    return value if isinstance(value, str) else default
+
+
+def _number(value, low: float, high: float, default: float = 0.0) -> float:
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return default
+    if number != number:  # NaN
+        return default
+    return min(max(number, low), high)
+
+
+# --- messages --------------------------------------------------------------------
+
+_PLACEHOLDER = re.compile(r"\{(" + "|".join(PLACEHOLDERS) + r")\}")
+
+Values = tuple[tuple[str, str], ...]
+
+
+def values_json(values: Iterable[tuple[str, str]]) -> str:
+    """{"name": "value", ...} (a later field with the same name wins)."""
+    return json.dumps(dict(values), ensure_ascii=False)
+
+
+def values_xml(values: Iterable[tuple[str, str]]) -> str:
+    """CasparCG templateData: a componentData per field, its id the name, its
+    "text" data the value."""
+    items = "".join(
+        f'<componentData id="{escape_xml(name)}">'
+        f'<data id="text" value="{escape_xml(value)}"/></componentData>'
+        for name, value in values
+    )
+    return f"<templateData>{items}</templateData>"
+
+
+def render_text(
+    template: str,
+    config: TcpConfig,
+    field_name: str = "",
+    value: str = "",
+    values: Values = (),
+) -> str:
+    """template with its placeholders replaced. The text of every placeholder
+    is escaped with config.escape; the rest of the template is left as it
+    is. A word in braces that isn't a placeholder stays as it is, so JSON
+    templates need no escaping."""
+    escape = ESCAPE_FUNCTIONS.get(config.escape, ESCAPE_FUNCTIONS[ESCAPE_NONE])
+
+    def substitute(match: re.Match) -> str:
+        name = match.group(1)
+        if name == "field":
+            text = field_name
+        elif name == "value":
+            text = value
+        elif name == "json":
+            text = values_json(values)
+        elif name == "xml":
+            text = values_xml(values)
+        elif name == "template":
+            text = config.template_name
+        else:
+            text = str(getattr(config, name))
+        return escape(text)
+
+    return _PLACEHOLDER.sub(substitute, template)
+
+
+def render_message(
+    template: str,
+    config: TcpConfig,
+    field_name: str = "",
+    value: str = "",
+    values: Values = (),
+) -> str:
+    """The message a template makes: each non-empty line of the template,
+    rendered, followed by the line ending."""
+    ending = LINE_ENDINGS.get(config.line_ending, "\n")
+    lines = [line.rstrip("\r") for line in template.split("\n")]
+    return "".join(
+        render_text(line, config, field_name, value, values) + ending
+        for line in lines
+        if line.strip()
+    )
+
+
+def encode_message(message: str, config: TcpConfig) -> bytes:
+    return message.encode(config.encoding, errors="replace")
+
+
+def visible_text(message: str) -> str:
+    """message with its control characters shown (␍ ␊ ␀) and a line break
+    after each LF, for a preview."""
+    return (
+        message.replace("\r", "␍")
+        .replace("\n", "␊\n")
+        .replace("\0", "␀")
+        .replace("\t", "␉")
+    )
+
+
+@dataclass(frozen=True)
+class Preview:
+    on_connect: str  # "" without an "on connect" message
+    message: str  # a message for the first field, or with every field
+    more_fields: int = 0  # (per field) messages for these many other fields
+
+
+def preview(config: TcpConfig, values: Values) -> Preview:
+    """What would be sent for these values."""
+    on_connect = render_message(config.init, config, values=values)
+    if config.mode == PER_FIELD:
+        if values:
+            name, value = values[0]
+        else:
+            name, value = "", ""
+        message = render_message(config.template, config, name, value, values)
+        return Preview(on_connect, message, max(0, len(values) - 1))
+    return Preview(on_connect, render_message(config.template, config, values=values))
+
+
+# --- the output ------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class ConnectionStatus:
+    """A snapshot of the connection (see TcpOutput.connection_status())."""
+
+    connected: bool = False  # a TCP connection is open (UDP: a socket)
+    connecting: bool = False  # opening one
+    connected_at: float | None = None
+    last_reply: str | None = None  # the receiver's last answer
+    last_reply_at: float | None = None
+    reply_error: str | None = None  # the last error answer, until an OK
+
+
+# an AMCP-style reply: a 3-digit code first ("202 CG OK", "404 CG ERROR"),
+# maybe after a request id ("RES abc 202 COMMIT OK")
+_REPLY_CODE = re.compile(r"^(?:RES\s+\S+\s+)?([1-5]\d\d)(?:\s|$)")
+
+
+@dataclass
+class _Batch:
+    init: bool = False
+    commands: list[str] = field(default_factory=list)
+    changed: dict[str, str] = field(default_factory=dict)
+    frame: bool = False
+    full: bool = False
+    values: Values = ()
+
+
+class TcpOutput:
+    """Sends the readings to config's host and port (see the module's
+    docstring). update(), start(), stop(), set_config() and
+    set_field_mapping() are called on the GUI thread."""
+
+    def __init__(
+        self,
+        config: TcpConfig | None = None,
+        field_mapping: Mapping[str, str] | None = None,
+        clock=time.monotonic,
+    ):
+        self.config = config or TcpConfig()
+        # {box name: name sent}; "" leaves the field out; a box that isn't in
+        # it is sent as default_field_name()
+        self.field_mapping: dict[str, str] = dict(field_mapping or {})
+        self.running = False
+        self._clock = clock
+        # GUI thread only
+        self._readings: dict[str, str] = {}  # box name: last good value
+        self._last_queued: dict[str, str] = {}  # box name: last value queued
+        self._last_full_at: float | None = None
+        # shared with the worker and reader threads
+        self._lock = threading.Lock()
+        self._batch = _Batch()
+        self._sock: socket.socket | None = None
+        self._sock_endpoint: tuple | None = None
+        self._conn_id = 0
+        self._connected_at: float | None = None
+        self._connecting = False
+        self._peer_closed = False
+        self._last_send_at: float | None = None
+        self._last_reply: str | None = None
+        self._last_reply_at: float | None = None
+        self._reply_error: str | None = None
+        self._reply_codes_seen = False
+        # interrupts the wait for the minimum interval when stopping
+        self._wake = threading.Event()
+        self._reply_log = ThrottledErrorLog(LOG_LABEL)
+        self._worker = OutputWorker(
+            LOG_LABEL,
+            self._send,
+            retry_on=(OSError,),
+            error_log=ThrottledErrorLog(LOG_LABEL),
+            clock=clock,
+        )
+
+    # --- GUI thread ---------------------------------------------------------
+
+    def field_name(self, box_name: str) -> str:
+        """The name box_name is sent as ("" if it is left out)."""
+        name = self.field_mapping.get(box_name)
+        if name is None:
+            name = default_field_name(self.config.preset, box_name)
+        return name.strip()
+
+    def current_values(self) -> Values:
+        """(name, value) of every field's last good reading, in reading order."""
+        values = []
+        for box_name, value in self._readings.items():
+            name = self.field_name(box_name)
+            if name:
+                values.append((name, value))
+        return tuple(values)
+
+    def start(self):
+        if self.running:
+            return
+        self.running = True
+        self._wake.clear()
+        self._last_queued.clear()
+        self._last_full_at = None
+        with self._lock:
+            self._batch = _Batch(full=True, values=self.current_values())
+        # connect right away, so the status tells whether the receiver is there
+        self._worker.submit("send", None)
+
+    def stop(self):
+        self.running = False
+        self._wake.set()
+        self._worker.clear()
+        self._worker.reset_status()
+        with self._lock:
+            self._batch = _Batch()
+            self._last_send_at = None
+        self._disconnect()
+
+    def close(self):
+        """Stop sending and end the worker thread."""
+        self.stop()
+        self._worker.stop()
+
+    def status(self):
+        """The sending's WorkerStatus (see output_worker)."""
+        return self._worker.status()
+
+    def connection_status(self) -> ConnectionStatus:
+        with self._lock:
+            return ConnectionStatus(
+                connected=self._sock is not None,
+                connecting=self._connecting,
+                connected_at=self._connected_at,
+                last_reply=self._last_reply,
+                last_reply_at=self._last_reply_at,
+                reply_error=self._reply_error,
+            )
+
+    def set_config(self, config: TcpConfig):
+        """Use new settings. Another host, port or transport closes the
+        connection (the next one goes to the new receiver); another format
+        resends every value; another "on connect" message (or CasparCG
+        template, channel or layer) is sent again."""
+        old, self.config = self.config, config
+        if old == config:
+            return
+        if old.endpoint != config.endpoint:
+            self._disconnect()
+            # the status (and the errors logged) are about the new receiver
+            self._worker.reset_status()
+            with self._lock:
+                self._last_send_at = None
+        else:
+            resend_init = _init_settings(old) != _init_settings(config)
+            if resend_init or _format_settings(old) != _format_settings(config):
+                with self._lock:
+                    self._batch.full = True
+                    self._batch.values = self.current_values()
+                    if resend_init:
+                        self._batch.init = True
+        if old.preset != config.preset:
+            # the default names changed
+            self._last_queued.clear()
+        if self.running:
+            self._worker.submit("send", None)
+
+    def set_field_mapping(self, mapping: Mapping[str, str]):
+        mapping = dict(mapping)
+        if mapping == self.field_mapping:
+            return
+        self.field_mapping = mapping
+        # the receiver gets every value under its (new) name
+        self._last_queued.clear()
+
+    def forget_boxes(self, box_names: Container[str]):
+        """Forget the readings of the boxes that aren't in box_names any more."""
+        for name in [name for name in self._readings if name not in box_names]:
+            del self._readings[name]
+            self._last_queued.pop(name, None)
+
+    def send_command(self, template: str):
+        """Send a command (a template, e.g. CasparCG's CG PLAY) once."""
+        if not self.running:
+            return
+        with self._lock:
+            self._batch.commands.append(template)
+            self._batch.values = self.current_values()
+        self._worker.submit("send", None)
+
+    def resend_init(self):
+        """Send the "on connect" message again (e.g. CasparCG's CG ADD)."""
+        if not self.running:
+            return
+        with self._lock:
+            self._batch.init = True
+            self._batch.values = self.current_values()
+        self._worker.submit("send", None)
+
+    def update(
+        self,
+        results: list[TextDetectionTargetWithResult],
+        resend_unchanged: Container[str] = (),
+    ):
+        """Queue this cycle's changed values (every good one with "Also resend
+        unchanged values", and those of the boxes in resend_unchanged). Never
+        blocks."""
+        if not self.running:
+            return
+        config = self.config
+        changed: dict[str, str] = {}
+        for result in results:
+            if result.result_state not in _GOOD_STATES:
+                continue
+            value = "" if result.result is None else str(result.result)
+            self._readings[result.name] = value
+            name = self.field_name(result.name)
+            if not name:
+                continue
+            if (
+                config.send_same
+                or result.name in resend_unchanged
+                or self._last_queued.get(result.name) != value
+            ):
+                changed[name] = value
+                self._last_queued[result.name] = value
+        now = self._clock()
+        refresh = (
+            config.refresh_interval > 0
+            and bool(self._readings)
+            and (
+                self._last_full_at is None
+                or now - self._last_full_at >= config.refresh_interval
+            )
+        )
+        if refresh:
+            self._last_full_at = now
+        if not changed and not refresh:
+            return
+        values = self.current_values()
+        with self._lock:
+            batch = self._batch
+            batch.values = values
+            batch.changed.update(changed)
+            batch.frame = batch.frame or bool(changed)
+            batch.full = batch.full or refresh
+        self._worker.submit("send", None)
+
+    # --- worker thread ------------------------------------------------------
+
+    def _send(self, _key, _item):
+        config = self.config
+        if not self.running or not config.is_complete:
+            raise SendSkipped()
+        self._ensure_connected(config)
+        self._wait_min_interval(config)
+        if not self.running:
+            raise SendSkipped()
+        with self._lock:
+            batch, self._batch = self._batch, _Batch(values=self._batch.values)
+        messages = self._messages(config, batch)
+        if not messages:
+            raise SendSkipped()
+        payloads = [encode_message(message, config) for message in messages]
+        try:
+            self._transmit(config, payloads)
+        except OSError:
+            self._put_back(batch)
+            self._disconnect()
+            raise
+        with self._lock:
+            self._last_send_at = self._clock()
+        logger.debug(
+            "%s: sent %d message(s) to %s", LOG_LABEL, len(payloads), config.target
+        )
+
+    @staticmethod
+    def _messages(config: TcpConfig, batch: _Batch) -> list[str]:
+        messages = []
+        if batch.init and config.init.strip():
+            messages.append(render_message(config.init, config, values=batch.values))
+        for command in batch.commands:
+            messages.append(render_message(command, config, values=batch.values))
+        if config.mode == PER_FIELD:
+            items = batch.values if batch.full else tuple(batch.changed.items())
+            messages.extend(
+                render_message(config.template, config, name, value, batch.values)
+                for name, value in items
+            )
+        elif (batch.frame or batch.full) and batch.values:
+            messages.append(
+                render_message(config.template, config, values=batch.values)
+            )
+        return [message for message in messages if message]
+
+    def _put_back(self, batch: _Batch):
+        """A batch that couldn't be sent goes back, under what was queued
+        meanwhile (newer values win)."""
+        with self._lock:
+            queued = self._batch
+            changed = dict(batch.changed)
+            changed.update(queued.changed)
+            self._batch = _Batch(
+                init=batch.init or queued.init,
+                commands=batch.commands + queued.commands,
+                changed=changed,
+                frame=batch.frame or queued.frame,
+                full=batch.full or queued.full,
+                values=queued.values,
+            )
+
+    def _wait_min_interval(self, config: TcpConfig):
+        with self._lock:
+            last = self._last_send_at
+        if config.min_interval <= 0 or last is None:
+            return
+        delay = last + config.min_interval - self._clock()
+        if delay > 0:
+            # newer values queued meanwhile are taken after the wait
+            self._wake.wait(delay)
+
+    def _ensure_connected(self, config: TcpConfig):
+        """Open the connection unless it's open to config's receiver. A new
+        connection sends the "on connect" message and every value."""
+        endpoint = config.endpoint
+        with self._lock:
+            stale = self._sock is not None and (
+                self._sock_endpoint != endpoint or self._peer_closed
+            )
+        if stale:
+            self._disconnect()
+        with self._lock:
+            if self._sock is not None:
+                return
+            self._connecting = True
+        try:
+            sock = _open_socket(config)
+        finally:
+            with self._lock:
+                self._connecting = False
+        if not self.running or self.config.endpoint != endpoint:
+            # stopped, or another receiver, while connecting
+            _close_socket(sock)
+            raise SendSkipped()
+        with self._lock:
+            self._conn_id += 1
+            conn_id = self._conn_id
+            self._sock = sock
+            self._sock_endpoint = endpoint
+            self._connected_at = self._clock()
+            self._peer_closed = False
+            self._last_reply = self._last_reply_at = self._reply_error = None
+            self._reply_codes_seen = False
+            self._batch.init = True
+            self._batch.full = True
+        if config.transport == TCP:
+            threading.Thread(
+                target=self._read_replies,
+                args=(sock, conn_id, config.encoding, config.target),
+                name="tcp-output-replies",
+                daemon=True,
+            ).start()
+            logger.info("%s: connected to %s", LOG_LABEL, config.target)
+
+    def _transmit(self, config: TcpConfig, payloads: list[bytes]):
+        with self._lock:
+            sock = self._sock
+        if sock is None:
+            raise ConnectionError("not connected")
+        if config.transport == UDP:
+            # a datagram per message
+            for payload in payloads:
+                sock.send(payload)
+        else:
+            sock.sendall(b"".join(payloads))
+
+    def _disconnect(self):
+        with self._lock:
+            sock, self._sock = self._sock, None
+            self._sock_endpoint = None
+            self._connected_at = None
+            self._peer_closed = False
+            # the reader thread of the old connection stops counting
+            self._conn_id += 1
+        if sock is not None:
+            _close_socket(sock)
+
+    # --- reader thread ------------------------------------------------------
+
+    def _read_replies(self, sock: socket.socket, conn_id: int, encoding: str, target):
+        separator = "\n".encode(encoding) if encoding.startswith("utf-16") else b"\n"
+        buffer = b""
+        while True:
+            try:
+                data = sock.recv(4096)
+            except TimeoutError:  # nothing to read for a while
+                with self._lock:
+                    if self._conn_id != conn_id:
+                        return
+                continue
+            except OSError:
+                data = b""
+            if not data:
+                break
+            buffer += data
+            *lines, buffer = buffer.split(separator)
+            if len(buffer) > MAX_REPLY_LENGTH:
+                buffer = b""
+            for line in lines:
+                self._record_reply(
+                    conn_id, line.decode(encoding, errors="replace"), target
+                )
+        with self._lock:
+            current = self._conn_id == conn_id
+            if current:
+                self._peer_closed = True
+        if current and self.running:
+            logger.info("%s: %s closed the connection; reconnecting", LOG_LABEL, target)
+            # reconnect (with backoff while it can't)
+            self._worker.submit("send", None)
+
+    def _record_reply(self, conn_id: int, text: str, target: str):
+        line = text.strip(" \t\r\n\0")
+        if not line:
+            return
+        match = _REPLY_CODE.match(line)
+        code = int(match.group(1)) if match else None
+        error = code is not None and code >= 400
+        with self._lock:
+            if conn_id != self._conn_id:
+                return
+            if code is not None:
+                self._reply_codes_seen = True
+            # with status codes (AMCP), the status line, not the data after it
+            if code is not None or not self._reply_codes_seen:
+                self._last_reply = line[:200]
+                self._last_reply_at = self._clock()
+            if error:
+                self._reply_error = line[:200]
+            elif code is not None and 200 <= code < 300:
+                self._reply_error = None
+        if error:
+            self._reply_log.error(f"{target} answered {line[:200]!r}")
+        else:
+            logger.debug("%s: %s answered %r", LOG_LABEL, target, line[:200])
+
+
+def _open_socket(config: TcpConfig) -> socket.socket:
+    if config.transport == UDP:
+        family, kind, proto, _, address = socket.getaddrinfo(
+            config.host, config.port, 0, socket.SOCK_DGRAM
+        )[0]
+        sock = socket.socket(family, kind, proto)
+        try:
+            # the default destination of send()
+            sock.connect(address)
+        except OSError:
+            sock.close()
+            raise
+        return sock
+    sock = socket.create_connection((config.host, config.port), timeout=CONNECT_TIMEOUT)
+    sock.settimeout(SEND_TIMEOUT)
+    try:
+        sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+    except OSError:
+        pass
+    return sock
+
+
+def _close_socket(sock: socket.socket):
+    try:
+        sock.shutdown(socket.SHUT_RDWR)
+    except OSError:
+        pass
+    try:
+        sock.close()
+    except OSError:
+        pass
