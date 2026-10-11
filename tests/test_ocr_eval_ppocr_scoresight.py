@@ -36,16 +36,21 @@ def _runs(results: dict) -> dict:
 
 
 def _same_predictions(app_run: dict, eval_run: dict) -> list[str]:
-    """The crops the two runs read differently (the app strips its text)."""
+    """The crops the two runs read differently (the app strips its text), each
+    with both readings, so a failure on another machine says what it read."""
     app = {p["id"]: p for p in app_run["predictions"]}
     other = {p["id"]: p for p in eval_run["predictions"]}
     differences = sorted(set(app) ^ set(other))
-    for crop_id in set(app) & set(other):
+    for crop_id in sorted(set(app) & set(other)):
         a, b = app[crop_id], other[crop_id]
         if (a["text"] or "") != (b["text"] or "").strip() or (
             a["text"] and a["conf"] != b["conf"]
         ):
-            differences.append(crop_id)
+            differences.append(
+                f"{crop_id}: app {a['text']!r} ({a['conf']}, "
+                f"{(a.get('info') or {}).get('state')}), "
+                f"eval {b['text']!r} ({b['conf']})"
+            )
     return differences
 
 
