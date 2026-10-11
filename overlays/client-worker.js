@@ -8,7 +8,9 @@
  * /events stream for all the overlay pages of this browser and passes its
  * messages on to each of them:
  *
- *   {type: "snapshot", data}  the current values (also to each new page)
+ *   {type: "snapshot", data, connected}  the current values (also to each
+ *                             new page; connected false: kept from a stream
+ *                             that is down now)
  *   {type: "change", data}    a change, as /events sends it
  *   {type: "heartbeat"}       the stream is alive
  *   {type: "status", connected}
@@ -88,8 +90,8 @@ function open() {
     var data = parse(event.data);
     if (data) {
       snapshot = data;
-      broadcast({ type: "snapshot", data: data });
-      setConnected(true);
+      connected = true; // the snapshot says so itself
+      broadcast({ type: "snapshot", data: data, connected: true });
     }
   });
   source.addEventListener("change", function (event) {
@@ -153,7 +155,8 @@ self.onconnect = function (event) {
   port.start();
   port.postMessage({ type: "status", connected: connected });
   if (snapshot) {
-    port.postMessage({ type: "snapshot", data: snapshot });
+    // the latest values, also while the stream is down (then connected false)
+    port.postMessage({ type: "snapshot", data: snapshot, connected: connected });
   }
   if (!source) {
     open();

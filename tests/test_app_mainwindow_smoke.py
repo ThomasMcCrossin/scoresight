@@ -2011,32 +2011,53 @@ def test_the_http_page_builds_overlay_urls(make_window, make_target, monkeypatch
     assert url.text() == (
         "http://192.168.1.20:18100/overlay/scorebug?theme=light&scale=1.5"
     )
-    # the fields, from the fields menu (made when it opens), in the list's order
+    # the fields, from the fields menu (made when it opens): the standard ones
+    # are ticked, and the fields are shown in the order they were ticked (the
+    # scorebug's are positional)
     builder = window.overlayBuilder
     builder.fillFieldsMenu()
     actions = {a.text(): a for a in builder.fieldsMenu.actions() if a.text()}
-    assert actions["Standard fields"].isChecked()
-    actions["Time"].trigger()
-    actions["Home Score"].trigger()
+    assert [name for name, a in actions.items() if a.isChecked()] == [
+        "Standard fields",
+        "Home Score",
+        "Away Score",
+        "Time",
+        "Period",
+    ]
+    actions["Shot Clock"].trigger()
+    actions["Period"].trigger()
     assert url.text() == (
         "http://192.168.1.20:18100/overlay/scorebug"
-        "?fields=Home%20Score,Time&theme=light&scale=1.5"
+        "?fields=Home%20Score,Away%20Score,Time,Shot%20Clock&theme=light&scale=1.5"
     )
-    assert ui.toolButton_overlayFields.text() == "Home Score, Time"
+    # (elided to fit)
+    assert ui.toolButton_overlayFields.text().startswith("Home Score, ")
+    assert (
+        "Home Score, Away Score, Time, Shot Clock"
+        in ui.toolButton_overlayFields.toolTip()
+    )
     assert not actions["Standard fields"].isChecked()
+    actions["Period"].trigger()  # ticked again: last
+    assert "fields=Home%20Score,Away%20Score,Time,Shot%20Clock,Period&" in url.text()
     actions["Standard fields"].trigger()
     assert "fields=" not in url.text()
 
-    # the single field picks one field
+    # the single field picks one field, and has its own theme (Minimal)
     ui.comboBox_overlayKind.setCurrentIndex(
         ui.comboBox_overlayKind.findText("Single field")
     )
+    assert ui.comboBox_overlayTheme.currentIndex() == 2  # Minimal
     builder.fillFieldsMenu()
     [shot_clock] = [a for a in builder.fieldsMenu.actions() if a.text() == "Shot Clock"]
     shot_clock.trigger()
     assert url.text() == (
-        "http://192.168.1.20:18100/overlay/field?name=Shot%20Clock&theme=light"
-        "&scale=1.5"
+        "http://192.168.1.20:18100/overlay/field?name=Shot%20Clock&scale=1.5"
+    )
+    # the scorebug kept its theme
+    ui.comboBox_overlayKind.setCurrentIndex(0)
+    assert ui.comboBox_overlayTheme.currentIndex() == 1  # Light
+    ui.comboBox_overlayKind.setCurrentIndex(
+        ui.comboBox_overlayKind.findText("Single field")
     )
     # for software on this computer
     ui.comboBox_overlayHost.setCurrentIndex(1)

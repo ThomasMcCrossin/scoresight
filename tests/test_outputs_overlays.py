@@ -427,10 +427,12 @@ def test_client_js_is_served(base_url):
     assert "innerHTML" not in text and "insertAdjacentHTML" not in text
 
 
-def test_client_js_is_plain_es5():
-    """client.js runs in old embedded browsers (CasparCG 2.3's Chromium 71):
-    no arrow functions, let/const, template strings, classes, ?. or ??."""
-    with open(resource_path("overlays", "client.js"), encoding="utf-8") as f:
+@pytest.mark.parametrize("name", ["client.js", "client-worker.js"])
+def test_client_js_is_plain_es5(name):
+    """The client runs in old embedded browsers (CasparCG 2.3's Chromium 71):
+    no arrow functions, let/const, template strings, classes, ?., ??,
+    async/await, spread or default parameters."""
+    with open(resource_path("overlays", name), encoding="utf-8") as f:
         code = f.read()
     # without comments and strings
     code = re.sub(r"/\*.*?\*/", "", code, flags=re.S)
@@ -445,8 +447,13 @@ def test_client_js_is_plain_es5():
         r"\bclass\b",
         r"\?\.",
         r"\?\?",
+        r"\basync\b",
+        r"\bawait\b",
+        r"\.\.\.",
+        r"function\s*\w*\s*\([^)]*=",
+        r"\bfor\s*\(\s*var\s+\w+\s+of\b",
     ):
-        assert not re.search(pattern, code), pattern
+        assert not re.search(pattern, code), (name, pattern)
 
 
 def test_overlay_css_is_served(base_url):
@@ -602,6 +609,7 @@ def test_parse_options_defaults_and_limits():
     # the single field: "name" first, else the first of "fields"
     assert parse(overlays.FIELD, "name=X&fields=Y,Z").fields == ("X",)
     assert parse(overlays.FIELD, "fields=Y,Z").fields == ("Y",)
+    assert parse(overlays.FIELD, "fields=,Y").fields == ("Y",)
     assert parse(overlays.FIELD, "").fields == ("Time",)
     # numbers are clamped; nonsense falls back to the default
     assert parse(overlays.FIELD, "scale=100").scale == 4.0
@@ -786,6 +794,31 @@ def test_custom_overlay_file_checks(overlay_files):
     )
     for path in ("..\\scoresight.json", "sub\\..\\page.html", "x/../page.html"):
         assert overlays.custom_overlay_file(path) is None
+
+
+def test_the_overlays_list_stays_small_and_shallow(data_dir, monkeypatch):
+    folder = data_dir / "overlays"
+    deep = folder / "a" / "b" / "c" / "d"
+    deep.mkdir(parents=True)
+    for path in (folder, folder / "a", folder / "a" / "b", folder / "a" / "b" / "c"):
+        (path / "x.html").write_text("x", encoding="utf-8")
+    (deep / "too-deep.html").write_text("x", encoding="utf-8")
+    assert overlays.custom_overlays() == [
+        "x.html",
+        "a/x.html",
+        "a/b/x.html",
+        "a/b/c/x.html",
+    ]
+    # a big folder (say node_modules) stops the walk
+    big = folder / "node_modules"
+    big.mkdir()
+    for i in range(50):
+        (big / f"{i}.js").write_text("", encoding="utf-8")
+    (folder / "zz").mkdir()
+    (folder / "zz" / "late.html").write_text("x", encoding="utf-8")
+    assert "zz/late.html" in overlays.custom_overlays()
+    monkeypatch.setattr(overlays, "MAX_VISITED", 20)
+    assert "zz/late.html" not in overlays.custom_overlays()
 
 
 def test_the_overlays_folder_is_made_with_the_example(data_dir):

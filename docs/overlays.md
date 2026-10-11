@@ -20,7 +20,7 @@ ScoreSight's [HTTP server](http_server.md) serves ready-made **overlay pages**: 
 ## Quick start
 
 1. In ScoreSight, open the **Outputs** tab and select **HTTP server**.
-2. Under **Browser overlays**, choose an **Overlay**, its **Fields**, **Theme** and **Scale**, and the **Address**: the network address when the production software runs on another computer, `localhost` when it runs on this one.
+2. Under **Browser overlays**, choose an **Overlay**, its **Fields**, **Theme** and **Scale**, and the **Address**: the network address when the production software runs on another computer, `localhost` when it runs on this one. The overlay shows the fields in the order you tick them (untick and tick a field to move it last): on the scorebug the first two are the home and away scores and the third is the clock. Each overlay keeps its own theme.
 3. Click **Copy** and paste the address into your software's browser source. Set the source to your video size, for example **1920×1080** or **1280×720**. **Open in browser** shows the overlay in your web browser first.
 
 ![The built-in scorebug over video](overlay-scorebug.png)

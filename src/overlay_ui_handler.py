@@ -73,6 +73,14 @@ class OverlayBuilder(QObject):
         )
         self.singleField = str(stored.get("field") or "")
         self.host = str(stored.get("host") or "")
+        # each overlay's theme (each has its own default: the single field's
+        # is Minimal)
+        themes = stored.get("themes")
+        self.themes: dict[str, str] = {
+            kind: theme
+            for kind, theme in (themes.items() if isinstance(themes, dict) else ())
+            if kind in overlays.OVERLAY_KINDS and theme in overlays.THEMES
+        }
         self.loading = True
 
         ui.toolButton_overlaysFolder.setIcon(
@@ -80,9 +88,6 @@ class OverlayBuilder(QObject):
                 QStyle.StandardPixmap.SP_DirOpenIcon
             )
         )
-        theme = stored.get("theme")
-        if theme in overlays.THEMES:
-            ui.comboBox_overlayTheme.setCurrentIndex(overlays.THEMES.index(theme))
         scale = stored.get("scale")
         if isinstance(scale, (int, float)):
             ui.doubleSpinBox_overlayScale.setValue(float(scale))
@@ -92,9 +97,10 @@ class OverlayBuilder(QObject):
         ui.toolButton_overlayFields.setMenu(self.fieldsMenu)
 
         self.fillKinds()
+        self.showTheme()
         self.loading = False
         ui.comboBox_overlayKind.currentIndexChanged.connect(self.kindChanged)
-        ui.comboBox_overlayTheme.currentIndexChanged.connect(self.optionsChanged)
+        ui.comboBox_overlayTheme.currentIndexChanged.connect(self.themeChanged)
         ui.doubleSpinBox_overlayScale.valueChanged.connect(self.optionsChanged)
         ui.comboBox_overlayHost.currentIndexChanged.connect(self.hostChanged)
         ui.toolButton_overlaysFolder.clicked.connect(self.openFolder)
@@ -129,8 +135,26 @@ class OverlayBuilder(QObject):
             return [self.singleField] if self.singleField else []
         return list(self.fields) if self.fields is not None else []
 
+    def checkedFields(self) -> list[str]:
+        """The multi-field overlays' fields, in order: the chosen ones, or the
+        overlay's standard fields."""
+        if self.fields is not None:
+            return list(self.fields)
+        kind, _ = self.currentKind()
+        return list(overlays.DEFAULT_FIELDS.get(kind, ()))
+
     def theme(self) -> str:
         return overlays.THEMES[max(0, self.ui.comboBox_overlayTheme.currentIndex())]
+
+    def showTheme(self):
+        """Show the current overlay's theme (its default until one is
+        chosen)."""
+        kind, _ = self.currentKind()
+        theme = self.themes.get(kind, overlays.DEFAULT_THEME.get(kind, "dark"))
+        combo = self.ui.comboBox_overlayTheme
+        combo.blockSignals(True)
+        combo.setCurrentIndex(overlays.THEMES.index(theme))
+        combo.blockSignals(False)
 
     def url(self) -> str:
         """The overlay's URL on the chosen address, or "" when the server isn't
@@ -161,7 +185,7 @@ class OverlayBuilder(QObject):
                 "custom": custom,
                 "fields": self.fields,
                 "field": self.singleField,
-                "theme": self.theme(),
+                "themes": self.themes,
                 "scale": self.ui.doubleSpinBox_overlayScale.value(),
                 "host": self.host,
             },
@@ -238,7 +262,8 @@ class OverlayBuilder(QObject):
         default.setToolTip(", ".join(overlays.DEFAULT_FIELDS[kind]))
         default.triggered.connect(self.useDefaultFields)
         menu.addSeparator()
-        chosen = self.fields if self.fields is not None else []
+        # (the standard fields are ticked while they are used)
+        chosen = self.checkedFields()
         for name in self.withMissing(names, chosen):
             action = menu.addAction(name.replace("&", "&&"))
             action.setCheckable(True)
@@ -275,12 +300,17 @@ class OverlayBuilder(QObject):
             metrics.averageCharWidth() * FIELDS_TEXT_CHARS,
         )
         button.setText(text.replace("&", "&&"))
-        button.setToolTip(
-            QCoreApplication.translate(
+        tooltip = QCoreApplication.translate(
+            "OverlayBuilder",
+            "The fields the overlay shows, in the order they were ticked: {fields}",
+        ).format(fields=", ".join(names))
+        if kind == overlays.SCOREBUG:
+            tooltip += "\n" + QCoreApplication.translate(
                 "OverlayBuilder",
-                "The fields the overlay shows, in this order: {fields}",
-            ).format(fields=", ".join(names))
-        )
+                "Scorebug: the home score, the away score, the clock, then small "
+                "cells for the others.",
+            )
+        button.setToolTip(tooltip)
 
     def refresh(self):
         """Update the widgets and the URL (after any change, the server's
@@ -326,8 +356,15 @@ class OverlayBuilder(QObject):
 
     def kindChanged(self):
         self.kind, self.customName = self.currentKind()
+        self.showTheme()
         self.refresh()
         self.save()
+
+    def themeChanged(self):
+        kind, _ = self.currentKind()
+        if kind in overlays.OVERLAY_KINDS:
+            self.themes[kind] = self.theme()
+        self.optionsChanged()
 
     def optionsChanged(self):
         self.refresh()
@@ -345,14 +382,15 @@ class OverlayBuilder(QObject):
         self.optionsChanged()
 
     def toggleField(self, name: str, on: bool):
-        chosen = set(self.fields or [])
-        if on:
-            chosen.add(name)
-        else:
-            chosen.discard(name)
-        # in the fields list's order (then names that are no box any more)
-        order = self.withMissing(self.fieldNames(), list(self.fields or []) + [name])
-        self.fields = [n for n in order if n in chosen] or None
+        """Tick or untick a field. The overlay shows the fields in the order
+        they were ticked (the scorebug's are positional: home score, away
+        score, clock...), starting from the standard fields."""
+        fields = self.checkedFields()
+        if on and name not in fields:
+            fields.append(name)
+        elif not on and name in fields:
+            fields.remove(name)
+        self.fields = fields or None
         # the "Standard fields" item follows
         actions = self.fieldsMenu.actions()
         if actions:

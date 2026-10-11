@@ -245,13 +245,14 @@ def parse_options(kind: str, params) -> OverlayOptions:
     """Validate a built-in overlay's query parameters (a Starlette
     QueryParams or any mapping with getlist()). Unknown parameters are ignored
     and invalid values fall back to the defaults: an overlay URL never fails."""
-    fields = [name for name in _list_param(params, "fields", "field", MAX_NAME_LENGTH)]
+    fields = [
+        name for name in _list_param(params, "fields", "field", MAX_NAME_LENGTH) if name
+    ]
     if kind == FIELD:
         name = clean_text(params.get("name"), MAX_NAME_LENGTH)
         if name:
             fields.insert(0, name)
         fields = fields[:1]
-    fields = [name for name in fields if name]
     if not fields:
         fields = list(DEFAULT_FIELDS[kind])
     labels = _list_param(params, "labels", "label", MAX_TEXT_LENGTH)
@@ -492,6 +493,9 @@ CUSTOM_TYPES = {
     ".wav": "audio/wav",
 }
 MAX_LISTED = 200
+# custom_overlays() looks this many folders deep, at this many entries at most
+MAX_DEPTH = 3
+MAX_VISITED = 5000
 # Windows device names (also with an extension: "nul.html")
 _DEVICE_NAMES = frozenset(
     ["CON", "PRN", "AUX", "NUL"]
@@ -551,11 +555,19 @@ def custom_overlay_file(relative: str) -> str | None:
 
 def custom_overlays() -> list[str]:
     """The HTML files in the overlays folder (paths relative to it, with "/"),
-    sorted; at most MAX_LISTED, without hidden files and folders."""
+    sorted; at most MAX_LISTED, without hidden files and folders. Looks at most
+    MAX_DEPTH folders deep and at MAX_VISITED entries, so a big folder (say a
+    node_modules) can't make it slow."""
     root = overlays_dir()
     found = []
+    visited = 0
     for folder, subfolders, files in os.walk(root):
-        subfolders[:] = sorted(d for d in subfolders if not d.startswith("."))
+        depth = os.path.relpath(folder, root).count(os.sep) + (folder != root)
+        visited += len(subfolders) + len(files)
+        if depth >= MAX_DEPTH or visited > MAX_VISITED:
+            subfolders[:] = []
+        else:
+            subfolders[:] = sorted(d for d in subfolders if not d.startswith("."))
         for name in sorted(files):
             if name.startswith(".") or not name.lower().endswith((".html", ".htm")):
                 continue
@@ -563,6 +575,8 @@ def custom_overlays() -> list[str]:
             found.append(relative.replace(os.sep, "/"))
             if len(found) >= MAX_LISTED:
                 return found
+        if visited > MAX_VISITED:
+            break
     return found
 
 
@@ -671,7 +685,9 @@ async def get_field(request: Request):
 
 
 @router.get("/overlay/custom/{path:path}")
-async def get_custom(path: str):
+def get_custom(path: str):
+    # (not async: FastAPI runs it on a worker thread, so the file system calls
+    # never hold up the event loop that serves the live streams)
     file = custom_overlay_file(path)
     if file is None:
         return Response("Not found", status_code=404, media_type="text/plain")
@@ -738,7 +754,8 @@ Options go in the URL, for example <code>?theme=light&amp;scale=1.5</code>.</p>
 
 @router.get("/overlay", response_class=HTMLResponse)
 @router.get("/overlay/", response_class=HTMLResponse, include_in_schema=False)
-async def get_index():
+def get_index():
+    # (not async: it lists the overlays folder on a worker thread)
     return HTMLResponse(
         content=render_index(),
         headers={"Content-Security-Policy": BUILTIN_CSP, **NO_CACHE},

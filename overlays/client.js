@@ -330,6 +330,7 @@
   var sharedPort = null; // or the shared worker's port
   var sseFailures = 0;
   var lastActivity = 0;
+  var lastDataAt = 0; // when the stream last brought values
   var gotMessage = false;
   var reconnectTimer = null;
 
@@ -364,9 +365,13 @@
 
   // the stream failed before it sent anything: is the server up?
   function streamFailed() {
+    var asked = now();
     fetchState(function (data) {
       if (!data || !data.fields || polling) {
         return; // ScoreSight isn't reachable: keep trying the stream
+      }
+      if (lastDataAt >= asked) {
+        return; // the stream works after all, and its values are newer
       }
       apply(data, true); // show the values meanwhile
       sseFailures += 1;
@@ -384,6 +389,14 @@
       gotMessage = true;
       sseFailures = 0;
     }
+  }
+
+  // values from the stream (live: not a copy kept while it was down)
+  function streamData(data, isSnapshot, live) {
+    if (live) {
+      lastDataAt = now();
+    }
+    apply(data, isSnapshot);
   }
 
   function onMessage(handler) {
@@ -411,11 +424,11 @@
     }
     var current = source;
     source.addEventListener("snapshot", onMessage(function (data) {
-      apply(data, true);
+      streamData(data, true, true);
       setConnected(true, "sse");
     }));
     source.addEventListener("change", onMessage(function (data) {
-      apply(data, false);
+      streamData(data, false, true);
     }));
     source.addEventListener("heartbeat", onMessage(function () {}));
     source.onerror = function () {
@@ -467,12 +480,16 @@
       heard = true;
       lastActivity = now();
       if (message.type === "snapshot") {
-        received();
-        apply(message.data, true);
-        setConnected(true, "sse");
+        // the worker's copy, also while its stream is down (connected false)
+        var live = message.connected !== false;
+        if (live) {
+          received();
+        }
+        streamData(message.data, true, live);
+        setConnected(live, "sse");
       } else if (message.type === "change") {
         received();
-        apply(message.data, false);
+        streamData(message.data, false, true);
       } else if (message.type === "heartbeat") {
         received();
       } else if (message.type === "status") {
