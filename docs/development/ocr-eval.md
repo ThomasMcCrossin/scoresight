@@ -183,6 +183,16 @@ Variants are `<model>[-bin|-gray][-wl]`: `-gray` reads the crop in gray, as Scor
 
 Results: the [report](https://github.com/royshil/scoresight/blob/main/ocr_eval/results/2026-10-11/REPORT.md) (all three datasets), `ocr_eval/baselines/ppocr-ci.json` (the variants CI checks) and `ocr_eval/baselines/ppocr.json.gz` with `ppocr.md` (every variant, including `-bin` and PP-OCRv5, on `textocr_scoreboards` and `synthetic_7seg`). PaddleOCR doesn't publish its training data, and the model card names "digital displays" and "dot-matrix characters" among its scenarios. TextOCR is part of the standard real-data training mixes for text recognizers, so the models may have been trained on `textocr_scoreboards`' very words (that its train and val photos read alike proves nothing); the check is `commons_scoreboards`, whose photos aren't in those mixes and whose boxes and labels were made for this evaluation (`v6-small-wl` 94.8%, as on TextOCR), with `synthetic_7seg` (100% for every PP-OCRv6 `-wl` model) and new footage (Training Dojo data).
 
+### The app's PP-OCR engine (`ppocr-app`)
+
+`ocr_eval/engines/ppocr_scoresight.py` measures the app itself: ScoreSight's PP-OCR engine (`src/ppocr_engine.py`) through its pipeline (`tesseract.TextDetector`), as `tesseract` does for Tesseract. A batch of up to 16 crops is laid out side by side in one colour frame and read as that frame's boxes with one `detect_multi_text` call, so the app's batching (one onnxruntime run per padded width) is measured too. Each box has its field type's (or role's) settings, which for PP-OCR decide only its character whitelist and its format. Variants: `accurate` (PP-OCRv6 small) and `fast` (tiny), the app's "PP-OCR (accurate)" and "PP-OCR (fast)" ("PP-OCR (automatic)" picks one of them from the computer's speed, so it isn't a variant). The models are the app's: `python scripts/fetch_models.py` downloads them into `ocr_models/ppocr/` at the same pinned revisions as `ppocr`'s `v6-small` and `v6-tiny`; the engine needs nothing beyond the app's `requirements.txt`.
+
+Its predictions equal `ppocr:v6-small-wl`'s and `ppocr:v6-tiny-wl`'s on every crop of the three datasets, texts and confidences, on Linux and Windows and with onnxruntime 1.31.0 and 1.23.2 (the macOS x86_64 pin): 94.7% and 90.8% on `textocr_scoreboards`, 94.8% and 88.1% on `commons_scoreboards`, 100% on `synthetic_7seg`. `ocr_eval/baselines/ppocr-app-ci.json` (made on Linux) is CI's baseline for it, and `tests/test_ocr_eval_ppocr_scoresight.py` checks that it has `ppocr-ci.json`'s predictions crop for crop, and (with the models) that the app reads a sample of crops exactly as `ppocr-ci.json` says.
+
+```bash
+python -m ocr_eval run --dataset textocr_scoreboards --dataset commons_scoreboards     --dataset synthetic_7seg --engine ppocr-app --out results/ppocr-app
+```
+
 ### OnnxTR (`onnxtr`)
 
 `ocr_eval/engines/onnxtr.py` runs docTR's word recognizers through [OnnxTR](https://github.com/felixdittrich92/OnnxTR) (its ONNX exports, Apache-2.0): `parseq` (23.8M parameters, 97 MB), `vitstr_small` (21.4M, 86 MB), `crnn_mobilenet_v3_small` (2.1M, 8 MB) and `viptr_tiny` (3.3M, 20 MB), and OnnxTR's 8-bit exports `parseq-int8`, `vitstr_small-int8` (dynamic quantization) and `crnn_mobilenet_v3_small-int8` (static). Models are downloaded from OnnxTR's GitHub releases into `~/.cache/onnxtr` (`$ONNXTR_CACHE_DIR`). Without `-wl` the adapter gives exactly what OnnxTR's `RecognitionPredictor` gives; `-wl` restricts the CTC models and ViTSTR exactly, but PARSeq decodes autoregressively inside its graph, so for it only each position's final choice is restricted. `OCR_EVAL_ONNX_THREADS` sets onnxruntime's threads (default 0 = all cores). Windows and Linux gave identical predictions.
@@ -277,7 +287,7 @@ Every command reads results gzipped too (`.json.gz`, recognized by content), and
 
 | Path | What | Format |
 |---|---|---|
-| `ocr_eval/baselines/tesseract.json`, `tesseract-commons.json`, `ppocr-ci.json` | The baselines CI compares with (made on Linux) | Plain JSON, so that a pull request that updates one shows which crops changed |
+| `ocr_eval/baselines/tesseract.json`, `tesseract-commons.json`, `ppocr-ci.json`, `ppocr-app-ci.json` | The baselines CI compares with (made on Linux) | Plain JSON, so that a pull request that updates one shows which crops changed |
 | `ocr_eval/baselines/ppocr`, `onnxtr`, `windows-ocr`, `vlm/*` | Reference runs of every variant of an engine (Windows), CI doesn't compare them | `.json.gz`, with a `.md` report |
 | `ocr_eval/results/2026-10-11/` | The evaluation report: `REPORT.md`, `results.json.gz` (every non-VLM engine on the three datasets), `latency.json.gz` (the timing runs), `pinned.json.gz` (a timing spot check pinned to one performance or efficiency core), `gray.json.gz` (PP-OCR on gray crops), `startup.json`, `results.md` (the harness's report of the accuracy run), `tune_tesseract.py` and its output `tesseract_tuning.md` (the choice of `tesseract:tuned`'s settings), and `tables.py`, which recomputes the report's tables from them | `.json.gz` |
 
@@ -285,19 +295,20 @@ Every prediction in these files carries its crop's ground truth (`truth`): for `
 
 ## Continuous integration
 
-`.github/workflows/ocr-eval.yml` runs on pull requests and pushes to `main` that change recognition (`src/tesseract.py`, `src/defaults.py`, `src/text_detection_target.py`, `tesseract/`, `ocr_eval/`, `requirements.txt`, `requirements-eval.txt`, the workflow) and manually, on Ubuntu 24.04, in two jobs:
+`.github/workflows/ocr-eval.yml` runs on pull requests and pushes to `main` that change recognition (`src/tesseract.py`, `src/ppocr_engine.py`, `src/defaults.py`, `src/text_detection_target.py`, `tesseract/`, `scripts/fetch_models.py`, `ocr_eval/`, `requirements.txt`, `requirements-eval.txt`, the workflow) and manually, on Ubuntu 24.04, in three jobs:
 
 - **Tesseract vs. baseline** validates the datasets (`--strict-licenses`), runs every Tesseract variant on the three datasets, and compares with `ocr_eval/baselines/tesseract.json` and, in a second step, `tesseract-commons.json`.
 - **PP-OCR vs. baseline** installs `python -m ocr_eval requirements ppocr`, runs `ppocr:v6-small-wl,v6-tiny-wl` on the three datasets and compares with `ocr_eval/baselines/ppocr-ci.json`. The models are downloaded by `python -m ocr_eval.fetch_models` and cached (`actions/cache`, keyed by the pinned revisions that `fetch_models --pins` lists, with older caches as restore keys). It retries network errors (connection errors, timeouts, HTTP 429 and 5xx) and fails at once on a revision or file that doesn't exist, a renamed, removed or gated repository, or an import error. Only on a pull request, and only when the Hub is still unreachable after the retries (exit status 75), is the comparison skipped with a warning; on pushes to `main` and manual runs that fails the job too.
+- **PP-OCR in the app vs. baseline** installs `requirements-dev.txt`, restores the app's models from `actions/cache` (keyed by `scripts/fetch_models.py`, which pins them) and runs `python scripts/fetch_models.py`, which checks every file's SHA-256 and fails after its retries; then runs `ppocr-app` on the three datasets and compares with `ocr_eval/baselines/ppocr-app-ci.json`.
 
 ```bash
 python -m ocr_eval compare ocr_eval/baselines/tesseract.json ocr-eval-results/results.json \
     --max-drop 0.02 --require-all
 ```
 
-A comparison fails when a variant's exact-match accuracy (raw or post-filter) drops by more than 2 points on a dataset, or a variant didn't run. Add `--alpha 0.05` to also require the drop to be significant (McNemar). The comparisons and the reports go to the job summary, and the results are uploaded as artifacts (`ocr-eval-results`, `ocr-eval-ppocr`).
+A comparison fails when a variant's exact-match accuracy (raw or post-filter) drops by more than 2 points on a dataset, or a variant didn't run. Add `--alpha 0.05` to also require the drop to be significant (McNemar). The comparisons and the reports go to the job summary, and the results are uploaded as artifacts (`ocr-eval-results`, `ocr-eval-ppocr`, `ocr-eval-ppocr-app`).
 
-When a change improves recognition, or changes a dataset, update the baselines in the same pull request: run the command the workflow runs, on Linux (or check that your platform gives the same predictions: Windows did for Tesseract, OnnxTR and PP-OCR), and copy `results.json` and `report.md` over the baseline and its `.md`: `tesseract.json`/`.md` for the run on `textocr_scoreboards` and `synthetic_7seg`, `tesseract-commons.json`/`.md` for `commons_scoreboards` alone, and `ppocr-ci.json`/`.md` for the PP-OCR run on all three. A changed dataset is flagged by `compare` (the manifest hash differs), which then compares the crops both runs have.
+When a change improves recognition, or changes a dataset, update the baselines in the same pull request: run the command the workflow runs, on Linux (or check that your platform gives the same predictions: Windows did for Tesseract, OnnxTR and PP-OCR), and copy `results.json` and `report.md` over the baseline and its `.md`: `tesseract.json`/`.md` for the run on `textocr_scoreboards` and `synthetic_7seg`, `tesseract-commons.json`/`.md` for `commons_scoreboards` alone, `ppocr-ci.json`/`.md` for the PP-OCR run on all three, and `ppocr-app-ci.json`/`.md` for the `ppocr-app` run on all three (it must keep `ppocr-ci.json`'s predictions). A changed dataset is flagged by `compare` (the manifest hash differs), which then compares the crops both runs have.
 
 ## Adding an engine
 

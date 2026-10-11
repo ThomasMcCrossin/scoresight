@@ -30,7 +30,9 @@ A low **Previews/s** is **not** a problem. The preview is refreshed about once p
 
 When a source opens, its first frame is shown and read right away, whatever the detection rate.
 
-The status bar at the bottom of the window shows the same numbers without the overlay: the source with its resolution and **frames per second**, and **Reading 4.7/s of 5**, the detection rate against your **Detections / s** setting. The reading rate turns orange when it falls below 70% of the setting: the computer can't keep up, so lower **Detections / s**, use fewer boxes or a lower source resolution.
+The status bar at the bottom of the window shows the same numbers without the overlay: the source with its resolution and **frames per second**, and **Reading 4.7/s of 5**, the detection rate against your **Detections / s** setting. The reading rate turns orange when it falls below 70% of the setting: the computer can't keep up, so lower **Detections / s**, use fewer boxes, a lower source resolution or a cheaper [OCR model](ocr-models.md#fast-or-accurate-the-cpu-cost). Its tooltip says which model **PP-OCR (automatic)** is reading with, and why.
+
+The boxes are read on a thread of their own, so a slow OCR model never holds up the video: frames keep arriving at the source's rate (the picture of a live camera or stream stays current, and a video file plays at normal speed), and each reading is made from the latest frame. When the OCR can't keep up, it reads less often instead.
 
 ## How fast do you need to be?
 
@@ -42,7 +44,7 @@ The status bar at the bottom of the window shows the same numbers without the ov
 | Game clock showing seconds | 5 (the default). Higher values don't make a once-per-second change appear sooner in a meaningful way |
 | Clock with tenths (`9.5`), shot clock in the final seconds | 10–15 |
 
-Every reading costs CPU for **every** box, so the total cost is roughly *number of boxes × detections per second*. If you need a fast shot clock but slow scores, consider running the shot clock in a [second instance](profiles.md).
+Every reading costs CPU for **every** box, so the total cost is roughly *number of boxes × detections per second* × the model's cost per box. **PP-OCR (accurate)** costs about five times as much as **PP-OCR (fast)** or Tesseract: at 10 boxes and 5 detections per second, most of a fast desktop core, and more than a laptop core can give; **PP-OCR (automatic)**, the default, switches to fast when that happens (see [OCR Models](ocr-models.md#fast-or-accurate-the-cpu-cost)). If you need a fast shot clock but slow scores, consider running the shot clock in a [second instance](profiles.md).
 
 The slider goes from 1 to 15. For values that change very rarely, you can set `detection_cadence` in the [settings file](configuration.md#recognition) to a value below 1, down to `0.1` (one reading every 10 seconds), while ScoreSight is closed. The slider then shows 1 until you move it, which replaces the value.
 
@@ -54,7 +56,7 @@ The slider goes from 1 to 15. For values that change very rarely, you can set `d
 4. Turn on **Skip OCR while image is unchanged** (in the Box tab's **Filtering**) for values that rarely change (scores, periods). When a box's image hasn't changed, OCR is skipped for that box and its last good value is repeated.
 5. Turn **Stabilize** off when the camera is fixed or you use screen capture.
 6. Use a lower source resolution. In [Video Settings](sources.md#cameras-and-capture-cards), 1280x720 with the `MJPG` format is a good choice for USB cameras. For IP cameras, use a sub stream.
-7. Prefer **General Scoreboard** over **General Scoreboard Large** if both read your board correctly. The large model is slower.
+7. Choose a cheaper [OCR model](ocr-models.md): **PP-OCR (fast)** costs about a fifth of **PP-OCR (accurate)** (PP-OCR (automatic) switches to it by itself when accurate can't keep up). With Tesseract, prefer **General Scoreboard** over **General Scoreboard Large** if both read your board correctly.
 8. Close the [log viewer](troubleshooting.md#collect-logs-first) window when you don't need it.
 
 ## Output latency

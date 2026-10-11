@@ -16,3 +16,8 @@ pillow==12.3.0
 platformdirs==4.12.4
 python-dotenv==1.2.4
 requests==2.34.2
+# The PP-OCR engine (src/ppocr_engine.py). onnxruntime has shipped no macOS
+# x86_64 wheels since 1.24.0: Intel Macs get 1.23.2, the last release with them
+# (CPython 3.10-3.13; without it the app reads with Tesseract only).
+onnxruntime==1.31.0 ; sys_platform != "darwin" or platform_machine != "x86_64"
+onnxruntime==1.23.2 ; sys_platform == "darwin" and platform_machine == "x86_64" and python_version < "3.14"

@@ -114,7 +114,7 @@ def fake_api(monkeypatch):
 
 @pytest.fixture
 def detector(fake_api):
-    detector = TextDetector()
+    detector = TextDetector(TextDetector.OcrModelIndex.SCOREBOARD_GENERAL)
     detector.api.lock = detector.api_lock
     return detector
 
@@ -332,7 +332,7 @@ def test_dot_counter_with_skip_similar_image_reads_dots_after_a_blank_box(
 )
 def test_scoreboard_models_read_a_blank_box_as_empty(make_target, model):
     # these models hallucinate digits (e.g. "34") on an all-background patch
-    detector = TextDetector()
+    detector = TextDetector(TextDetector.OcrModelIndex.SCOREBOARD_GENERAL)
     try:
         assert detector.setOcrModel(getattr(TextDetector.OcrModelIndex, model))
         blank = np.zeros((60, 120), np.uint8)
@@ -383,7 +383,7 @@ def test_zero_mean_conf_falls_back_to_the_character_confidences(
 
 @pytest.mark.ocr
 def test_real_confidence_threshold_extremes(make_target):
-    detector = TextDetector()
+    detector = TextDetector(TextDetector.OcrModelIndex.SCOREBOARD_GENERAL)
     try:
         gray, rect = digits_frame("45")
         lenient = make_target("Home Score", rect=rect, conf_thresh=0.0)
@@ -621,7 +621,7 @@ def test_no_model_loaded_reads_empty(detector, make_target):
 
 @pytest.mark.ocr
 def test_invalid_custom_model_keeps_the_real_model(tmp_path, make_target):
-    detector = TextDetector()
+    detector = TextDetector(TextDetector.OcrModelIndex.SCOREBOARD_GENERAL)
     try:
         bad = tmp_path / "broken.traineddata"
         bad.write_bytes(b"not a model")

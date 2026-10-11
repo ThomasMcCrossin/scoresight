@@ -59,9 +59,19 @@ def test_video_round_trip(tmp_path):
 
 
 @pytest.mark.ocr
-def test_the_app_reads_every_frame_of_the_video(tmp_path):
+@pytest.mark.parametrize(
+    "model",
+    [
+        e2e_test.OCR_MODEL_GENERAL_SCOREBOARD,
+        pytest.param(e2e_test.OCR_MODEL_PPOCR_ACCURATE, marks=pytest.mark.ppocr),
+        # PP-OCR (automatic) reads with it on a computer too slow for accurate
+        pytest.param("ppocr:tiny", marks=pytest.mark.ppocr),
+    ],
+)
+def test_the_app_reads_every_frame_of_the_video(tmp_path, model):
     # What makes the end-to-end test deterministic: with the e2e boxes and
-    # model, the OCR reads each scoreboard state of the video correctly.
+    # either engine's models, the OCR reads each scoreboard state of the video
+    # correctly (PP-OCR from the colour frame, as the capture thread gives it).
     import cv2
 
     from defaults import default_info_for_box_name, normalize_settings_dict
@@ -85,15 +95,16 @@ def test_the_app_reads_every_frame_of_the_video(tmp_path):
         )
         for name, rect in e2e_test.BOXES.items()
     ]
-    detector = TextDetector()
+    detector = TextDetector(model)
     try:
-        assert detector.setOcrModel(e2e_test.OCR_MODEL_GENERAL_SCOREBOARD)
+        assert detector.model == model
+        assert detector.wait_for_engine(60)
         wrong = []
         for state in states:
             ok, frame = capture.read()
             assert ok
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            results = detector.detect_multi_text(None, gray, targets)
+            results = detector.detect_multi_text(None, gray, targets, color=frame)
             read = {t.name: (r.text, r.state.name) for t, r in zip(targets, results)}
             expected = {name: (v, "Success") for name, v in state.values().items()}
             if read != expected:
@@ -123,6 +134,8 @@ def test_every_setting_is_one_the_app_reads():
 def test_settings_values_match_the_app():
     import api_output
     import file_output
+    import ocr_models
+    import ppocr_engine
     import storage
     import update_check
     from camera_info import CameraInfo
@@ -131,11 +144,39 @@ def test_settings_values_match_the_app():
     values = settings()
     assert values["source_selected"]["type"] == CameraInfo.CameraType.FILE
     assert values["boxes_schema_version"] == storage.BOXES_SCHEMA_VERSION
+    # PP-OCR: a new setup, without an OCR model, whose default is PP-OCR
+    # (accurate); Tesseract: General Scoreboard
+    assert "ocr_model" not in values
+    assert e2e_test.OCR_MODEL_PPOCR_DEFAULT == ocr_models.DEFAULT_MODEL
+    assert e2e_test.OCR_MODEL_PPOCR_ACCURATE == ocr_models.PPOCR_ACCURATE
+    tesseract_values = e2e_test.app_settings(
+        Path("/videos/scoreboard.avi"),
+        Path("/out"),
+        "http://127.0.0.1:1/x",
+        "tesseract",
+    )
     assert (
-        values["ocr_model"]
+        tesseract_values["ocr_model"]
         == e2e_test.OCR_MODEL_GENERAL_SCOREBOARD
         == TextDetector.OcrModelIndex.SCOREBOARD_GENERAL
     )
+    assert {k: v for k, v in tesseract_values.items() if k != "ocr_model"} == values
+    with pytest.raises(ValueError):
+        e2e_test.app_settings(Path("/v.avi"), Path("/out"), "http://x", "paddle")
+    # the log lines the engine checks look for
+    sources = "\n".join(p.read_text(encoding="utf-8") for p in SRC_DIR.glob("*.py"))
+    assert "PP-OCR: loaded %s" in sources
+    # automatic loads accurate (and fast)
+    assert ppocr_engine.models_of(ocr_models.DEFAULT_MODEL)[0] == (
+        ocr_models.PPOCR_ACCURATE
+    )
+    assert (
+        ppocr_engine.MODELS[ocr_models.PPOCR_ACCURATE].folder
+        in (e2e_test.ENGINE_LOG_LINES["ppocr"])
+    )
+    assert "Setting OCR model to {ocr_model}" in sources
+    assert e2e_test.PPOCR_FALLBACK_LOG_LINE in sources
+    assert e2e_test.PPOCR_AUTO_FAST_LOG_LINE in sources
     assert values["append_method"] == file_output.APPEND_CSV
     assert values["out_api_encoding"] in api_output.ENCODINGS
     assert values["out_api_method"] in api_output.METHODS
@@ -427,10 +468,18 @@ def test_resolve_command(tmp_path, monkeypatch):
     program.write_bytes(b"")
     monkeypatch.chdir(tmp_path)
     # a relative path, as the workflows give it (CreateProcess can't use it)
-    assert app_harness.resolve_command(["dist/app.exe", "-x"]) == [
-        str(program.resolve()),
-        "-x",
-    ]
+    [absolute, option] = app_harness.resolve_command(["dist/app.exe", "-x"])
+    assert Path(absolute).is_absolute() and Path(absolute).samefile(program)
+    assert option == "-x"
+    # a symbolic link (a venv's bin/python) is kept, not resolved
+    link = tmp_path / "venv-python"
+    try:
+        link.symlink_to(program)
+    except OSError:
+        pass  # Windows without the symlink privilege
+    else:
+        [kept] = app_harness.resolve_command(["venv-python"])
+        assert Path(kept).name == "venv-python"
     # a program on PATH
     python = Path(sys.executable)
     monkeypatch.setenv("PATH", str(python.parent))
@@ -542,3 +591,65 @@ def test_benchmark_comparison(tmp_path, capsys, monkeypatch):
     table = summary_path.read_text(encoding="utf-8")
     assert "| 0.2.0 | 3.00 s | 1.00 s | 1.00-1.00 s | 2 (0) |" in table
     assert "| x.json | no result | | | |" in table
+
+
+# --- the e2e test's engine checks ---------------------------------------------------
+
+
+def write_log(log_dir, *lines):
+    log_dir.mkdir(parents=True, exist_ok=True)
+    (log_dir / "scoresight_2026-10-11_00-00-00.log").write_text(
+        "\n".join(lines), encoding="utf-8"
+    )
+
+
+def checks(result):
+    return {check.name: check.passed for check in result.checks}
+
+
+def test_the_e2e_test_needs_the_engine_in_the_log(tmp_path):
+    result = e2e_test.Result()
+    write_log(tmp_path / "a", "INFO - PP-OCR: loaded PP-OCRv6_small_rec (onnx...)")
+    e2e_test.check_engine(result, tmp_path / "a", "ppocr")
+    assert all(checks(result).values())
+    assert result.details["ppocr_auto_switched_to_fast"] is False
+
+    # PP-OCR fell back to Tesseract: a failure, even though Tesseract read
+    result = e2e_test.Result()
+    write_log(
+        tmp_path / "b",
+        "INFO - Setting OCR model to scoreboard_general from tesseract",
+        "ERROR - PP-OCR (ppocr:small) couldn't load (x); reading the boxes with "
+        "Tesseract",
+    )
+    e2e_test.check_engine(result, tmp_path / "b", "ppocr")
+    assert not all(checks(result).values())
+
+    result = e2e_test.Result()
+    e2e_test.check_engine(result, tmp_path / "b", "tesseract")
+    assert all(checks(result).values())
+
+    result = e2e_test.Result()
+    e2e_test.check_engine(result, tmp_path / "missing", "tesseract")
+    assert not all(checks(result).values())
+
+
+@pytest.mark.parametrize(
+    ("engine", "stored", "passed"),
+    [
+        ("ppocr", "ppocr:auto", True),
+        ("ppocr", 1, False),
+        ("tesseract", 1, True),
+        ("tesseract", "ppocr:auto", False),
+    ],
+)
+def test_the_e2e_test_checks_the_stored_model(tmp_path, engine, stored, passed):
+    settings = e2e_test.app_settings(Path("/v.avi"), Path("/out"), "http://x", engine)
+    settings["ocr_model"] = stored
+    e2e_test.settings_path(tmp_path).write_text(json.dumps(settings), encoding="utf-8")
+    result = e2e_test.Result()
+    e2e_test.check_settings(result, tmp_path, engine)
+    name = f"the settings file has the OCR model {e2e_test.OCR_MODEL_PPOCR_DEFAULT!r}"
+    if engine == "tesseract":
+        name = f"the settings file has the OCR model {e2e_test.OCR_MODEL_GENERAL_SCOREBOARD!r}"
+    assert checks(result)[name] is passed
