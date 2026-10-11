@@ -102,6 +102,7 @@ SELF_TEST_RESOURCES = (
     ("icons", "circle-x.svg"),
     ("icons", "template-field.svg"),
     ("obs_data", "Scoresight_OBS_scene_collection.json"),
+    ("casparcg", "scoresight_scorebug.html"),
 )
 
 SELF_TEST_TEXT = "45"
