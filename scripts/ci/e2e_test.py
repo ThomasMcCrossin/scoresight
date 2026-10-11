@@ -21,7 +21,9 @@ What it does:
    state is read. Every reading on the way must be one of the video's values
    (a rejected or empty reading is allowed, a wrong value isn't), and the home
    score must be seen going 0 -> 1 -> 2. It checks /csv and /xml, the files and
-   what the mock API received the same way.
+   what the mock API received the same way, and the browser overlays' live
+   values: GET /overlay/state, and the Server-Sent Events of /events followed
+   over one connection for the whole run.
 4. Stops the app like a user would (SIGTERM; Ctrl+Break on Windows), requires
    exit code 0, and checks that the settings file still has the boxes.
 
@@ -412,6 +414,100 @@ def parse_xml_readings(body: bytes) -> dict[str, tuple[str, str]]:
     }
 
 
+def overlay_readings(fields: dict) -> dict[str, tuple[str, str]]:
+    """The overlays' fields ({box: {value, state}}): the value is the box's last
+    good reading, or null before its first one."""
+    return {
+        box: (field["value"], "Success")
+        if field.get("value") is not None
+        else ("", "Empty")
+        for box, field in fields.items()
+    }
+
+
+def parse_overlay_state(body: bytes) -> dict[str, tuple[str, str]]:
+    """GET /overlay/state: {"version": n, "fields": {box: {value, state}}}."""
+    return overlay_readings(json.loads(body)["fields"])
+
+
+class EventStreamHistory(OutputHistory):
+    """The browser overlays' push: one /events connection (Server-Sent Events)
+    read on a thread for the whole run. Each snapshot or change updates the
+    fields, and every update is recorded."""
+
+    def __init__(self, allowed, final):
+        super().__init__("/events (push)", allowed, final)
+        # reentrant: checks() calls sequence_seen()
+        self._lock = threading.RLock()
+        self._connection: http.client.HTTPConnection | None = None
+        self._thread: threading.Thread | None = None
+        self.events = 0
+        self.error: str | None = None
+
+    def start(self, port: int):
+        self._connection = http.client.HTTPConnection(
+            app_harness.LOCALHOST, port, timeout=15
+        )
+        self._thread = threading.Thread(
+            target=self._read, name="e2e-events", daemon=True
+        )
+        self._thread.start()
+
+    def _read(self):
+        fields: dict = {}
+        try:
+            self._connection.request("GET", "/events")
+            response = self._connection.getresponse()
+            event, data = "message", ""
+            while True:
+                line = response.readline()
+                if not line:
+                    return  # the server stopped
+                line = line.decode("utf-8").rstrip("\r\n")
+                if line.startswith("event:"):
+                    event = line[6:].strip()
+                elif line.startswith("data:"):
+                    data = line[5:].strip()
+                elif not line and data:
+                    message = json.loads(data)
+                    if event == "snapshot":
+                        fields = dict(message["fields"])
+                    elif event == "change":
+                        fields.update(message["fields"])
+                        for box in message.get("removed", []):
+                            fields.pop(box, None)
+                    if event in ("snapshot", "change"):
+                        with self._lock:
+                            self.events += 1
+                            self.add(overlay_readings(fields))
+                    event, data = "message", ""
+        except (OSError, http.client.HTTPException, ValueError, KeyError) as e:
+            self.error = f"{type(e).__name__}: {e}"
+
+    def stop(self):
+        if self._connection is not None:
+            self._connection.close()
+        if self._thread is not None:
+            self._thread.join(5)
+
+    def sequence_seen(self, box: str, expected: list[str]) -> bool:
+        with self._lock:
+            return super().sequence_seen(box, expected)
+
+    def checks(self, home_sequence: list[str]) -> list[Check]:
+        with self._lock:
+            checks = super().checks(home_sequence)
+        checks.insert(
+            0,
+            Check(
+                "/events (push): the stream sent the snapshot and the changes",
+                self.events > 1,
+                f"{self.events} events" + (f"; {self.error}" if self.error else ""),
+            ),
+        )
+        return checks
+
+
 def read_file_readings(output_dir: Path) -> dict[str, tuple[str, str]]:
     """The .txt files (one per box; only good readings are written)."""
     readings = {}
@@ -522,10 +618,13 @@ class Outputs:
                 "GET /xml",
                 ".txt files",
                 "results.xml",
+                "GET /overlay/state",
             )
         }
         self.api = ApiHistory(receiver, self.allowed, self.final)
         self.histories["outbound API"] = self.api
+        self.events = EventStreamHistory(self.allowed, self.final)
+        self.histories["/events (push)"] = self.events
 
     def sample(self) -> dict[str, tuple[str, str]] | None:
         """Read every output once. Returns GET /json's readings."""
@@ -538,6 +637,7 @@ class Outputs:
         for path, name, parse in (
             ("/csv?pivot", "GET /csv?pivot", parse_csv_pivot_readings),
             ("/xml", "GET /xml", parse_xml_readings),
+            ("/overlay/state", "GET /overlay/state", parse_overlay_state),
         ):
             body = _get(self.port, path)
             if body is not None:
@@ -565,6 +665,8 @@ def drive(app, outputs: Outputs, result: Result, timeout: float) -> bool:
     result.timings["http_ready"] = ready
     if not result.check("the HTTP server answers GET /json", ready is not None):
         return False
+    # the overlays' push, followed over one connection until the app stops
+    outputs.events.start(outputs.port)
 
     deadline = app.started + timeout
     first_reading = None
@@ -674,11 +776,13 @@ def run_e2e(command: list[str], timeout: float, work_dir: Path) -> Result:
     full_command = [*command, "--profile", PROFILE, "--port", str(port)]
     print(f"$ {subprocess.list2cmdline(full_command)}", flush=True)
     app = app_harness.AppProcess(full_command, env, work_dir / "app-output.txt")
+    outputs = Outputs(port, output_dir, receiver, timeline)
     try:
-        outputs = Outputs(port, output_dir, receiver, timeline)
         answered = drive(app, outputs, result, timeout)
         stop_started = time.perf_counter()
         result.exit_code = app.stop(timeout=30)
+        # the server ended the stream when it stopped
+        outputs.events.stop()
         result.timings["shutdown"] = time.perf_counter() - stop_started
         result.check(
             "the app quits with exit code 0 when asked to",
@@ -696,6 +800,7 @@ def run_e2e(command: list[str], timeout: float, work_dir: Path) -> Result:
             "the startup report was written", result.startup_report is not None
         )
     finally:
+        outputs.events.stop()
         app.close()
         receiver.stop()
     result.passed = all(check.passed for check in result.checks)
