@@ -722,7 +722,12 @@ def test_real_batch_reads_like_single_crops(real_detectors):
     whitelists = [NUMBER, NUMBER, NUMBER, TIME, GENERAL_CHAR_WHITELIST]
     batched = recognizer.recognize(crops, whitelists)
     alone = [recognizer.recognize([c], [w])[0] for c, w in zip(crops, whitelists)]
-    assert batched == alone
+    # the same texts; the confidences may differ in the last float digits
+    # (onnxruntime's kernels sum in another order for another batch size)
+    assert [text for text, _ in batched] == [text for text, _ in alone]
+    assert [conf for _, conf in batched] == pytest.approx(
+        [conf for _, conf in alone], abs=1e-4
+    )
     assert [text for text, _ in batched[:4]] == ["1", "23", "456", "12:00"]
 
 

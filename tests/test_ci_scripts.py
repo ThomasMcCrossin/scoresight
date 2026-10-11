@@ -60,12 +60,17 @@ def test_video_round_trip(tmp_path):
 
 @pytest.mark.ocr
 @pytest.mark.parametrize(
-    "engine",
-    ["tesseract", pytest.param("ppocr", marks=pytest.mark.ppocr)],
+    "model",
+    [
+        e2e_test.OCR_MODEL_GENERAL_SCOREBOARD,
+        pytest.param(e2e_test.OCR_MODEL_PPOCR_ACCURATE, marks=pytest.mark.ppocr),
+        # PP-OCR (automatic) reads with it on a computer too slow for accurate
+        pytest.param("ppocr:tiny", marks=pytest.mark.ppocr),
+    ],
 )
-def test_the_app_reads_every_frame_of_the_video(tmp_path, engine):
+def test_the_app_reads_every_frame_of_the_video(tmp_path, model):
     # What makes the end-to-end test deterministic: with the e2e boxes and
-    # either engine's model, the OCR reads each scoreboard state of the video
+    # either engine's models, the OCR reads each scoreboard state of the video
     # correctly (PP-OCR from the colour frame, as the capture thread gives it).
     import cv2
 
@@ -73,11 +78,6 @@ def test_the_app_reads_every_frame_of_the_video(tmp_path, engine):
     from tesseract import TextDetector
     from text_detection_target import TextDetectionTarget
 
-    model = (
-        e2e_test.OCR_MODEL_PPOCR_ACCURATE
-        if engine == "ppocr"
-        else e2e_test.OCR_MODEL_GENERAL_SCOREBOARD
-    )
     timeline = e2e_test.build_timeline()
     # one frame per state, through the same MJPG encoding as the video
     states = [state for state, _ in timeline]
@@ -468,10 +468,18 @@ def test_resolve_command(tmp_path, monkeypatch):
     program.write_bytes(b"")
     monkeypatch.chdir(tmp_path)
     # a relative path, as the workflows give it (CreateProcess can't use it)
-    assert app_harness.resolve_command(["dist/app.exe", "-x"]) == [
-        str(program.resolve()),
-        "-x",
-    ]
+    [absolute, option] = app_harness.resolve_command(["dist/app.exe", "-x"])
+    assert Path(absolute).is_absolute() and Path(absolute).samefile(program)
+    assert option == "-x"
+    # a symbolic link (a venv's bin/python) is kept, not resolved
+    link = tmp_path / "venv-python"
+    try:
+        link.symlink_to(program)
+    except OSError:
+        pass  # Windows without the symlink privilege
+    else:
+        [kept] = app_harness.resolve_command(["venv-python"])
+        assert Path(kept).name == "venv-python"
     # a program on PATH
     python = Path(sys.executable)
     monkeypatch.setenv("PATH", str(python.parent))
