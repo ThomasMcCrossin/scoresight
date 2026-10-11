@@ -1,6 +1,6 @@
 # OCR evaluation: PP-OCR CI baseline (Linux)
 
-Created 2026-10-11T02:14:25+00:00 with harness v1 on Linux 5.15.167.4-microsoft-standard-WSL2 x86_64, Python 3.13.2.
+Created 2026-10-11T03:27:43+00:00 with harness v1 on Linux 5.15.167.4-microsoft-standard-WSL2 x86_64, Python 3.13.2.
 
 Exact = normalized exact match; Digits = same digits ignoring separators; CER = character error rate; Empty = no output; Post-filter = exact match after ScoreSight's whitelist and format regex for the field type. Percentages with 95% confidence intervals (Wilson; CER: bootstrap). Latency per crop in ms, p50 / p95.
 
@@ -10,8 +10,8 @@ Real scoreboard and clock crops cut from Open Images photos (CC BY), with TextOC
 
 | Engine:variant | Exact % | Digits % | CER % | Empty % | Post-filter exact % | ms single | ms batch | Load s |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| ppocr:v6-small-wl | 94.7 (93.4–95.8) | 95.7 | 3.0 (2.2–3.9) | 0.1 | 94.4 (93.0–95.5) | 17.0 / 18.3 | 17.8 / 29.6 | 4.261 |
-| ppocr:v6-tiny-wl | 90.8 (89.0–92.2) | 91.8 | 5.8 (4.7–7.0) | 2.0 | 90.4 (88.7–91.9) | 3.3 / 3.6 | 3.5 / 3.7 | 0.143 |
+| ppocr:v6-small-wl | 94.7 (93.4–95.8) | 95.7 | 3.0 (2.2–3.9) | 0.1 | 94.4 (93.0–95.5) | 17.7 / 21.2 | 18.5 / 25.3 | 1.58 |
+| ppocr:v6-tiny-wl | 90.8 (89.0–92.2) | 91.8 | 5.8 (4.7–7.0) | 2.0 | 90.4 (88.7–91.9) | 3.2 / 4.4 | 3.5 / 4.1 | 0.117 |
 
 ### By field type (exact %, 95% CI)
 
@@ -72,31 +72,31 @@ Real scoreboard fields (scores, clocks, shot clocks, periods, fouls ...) cut fro
 
 | Engine:variant | Exact % | Digits % | CER % | Empty % | Post-filter exact % | ms single | ms batch | Load s |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| ppocr:v6-small-wl | 94.7 (93.2–95.9) | 95.0 | 2.6 (1.8–3.3) | 0.5 | 93.2 (91.5–94.6) | 17.5 / 19.5 | 17.9 / 18.6 | 0.419 |
-| ppocr:v6-tiny-wl | 88.0 (85.9–89.9) | 89.2 | 7.2 (5.9–8.5) | 1.9 | 86.6 (84.4–88.5) | 3.3 / 3.6 | 3.7 / 5.6 | 0.145 |
+| ppocr:v6-small-wl | 94.8 (93.3–96.0) | 95.1 | 2.5 (1.8–3.3) | 0.5 | 93.2 (91.5–94.6) | 21.7 / 36.2 | 17.9 / 21.7 | 0.33 |
+| ppocr:v6-tiny-wl | 88.1 (86.0–90.0) | 89.3 | 7.1 (5.9–8.5) | 1.9 | 86.6 (84.4–88.5) | 6.2 / 10.6 | 6.3 / 7.9 | 0.168 |
 
 ### By field type (exact %, 95% CI)
 
 | Engine:variant | clock (n=156) | number (n=359) | other (n=8) | period (n=78) | score (n=309) | text (n=134) |
 |---|---:|---:|---:|---:|---:|---:|
-| ppocr:v6-small-wl | 94.2 (89.4–96.9) | 96.1 (93.6–97.7) | 100.0 (67.6–100.0) | 97.4 (91.1–99.3) | 94.5 (91.4–96.5) | 90.3 (84.1–94.2) |
-| ppocr:v6-tiny-wl | 79.5 (72.5–85.1) | 91.9 (88.6–94.3) | 87.5 (52.9–97.8) | 91.0 (82.6–95.6) | 91.6 (88.0–94.2) | 77.6 (69.8–83.8) |
+| ppocr:v6-small-wl | 94.2 (89.4–96.9) | 96.1 (93.6–97.7) | 100.0 (67.6–100.0) | 97.4 (91.1–99.3) | 94.8 (91.8–96.8) | 90.3 (84.1–94.2) |
+| ppocr:v6-tiny-wl | 79.5 (72.5–85.1) | 91.9 (88.6–94.3) | 87.5 (52.9–97.8) | 91.0 (82.6–95.6) | 91.9 (88.3–94.5) | 77.6 (69.8–83.8) |
 
 ### By display technology (exact %, 95% CI)
 
 | Engine:variant | broadcast (n=216) | bulb (n=54) | dotmatrix (n=304) | flip (n=51) | led7 (n=411) | printed (n=8) |
 |---|---:|---:|---:|---:|---:|---:|
-| ppocr:v6-small-wl | 99.5 (97.4–99.9) | 85.2 (73.4–92.3) | 91.8 (88.1–94.4) | 96.1 (86.8–98.9) | 95.4 (92.9–97.0) | 100.0 (67.6–100.0) |
-| ppocr:v6-tiny-wl | 92.1 (87.8–95.0) | 64.8 (51.5–76.2) | 85.2 (80.8–88.8) | 92.2 (81.5–96.9) | 90.3 (87.0–92.8) | 100.0 (67.6–100.0) |
+| ppocr:v6-small-wl | 99.5 (97.4–99.9) | 85.2 (73.4–92.3) | 92.1 (88.5–94.6) | 96.1 (86.8–98.9) | 95.4 (92.9–97.0) | 100.0 (67.6–100.0) |
+| ppocr:v6-tiny-wl | 92.1 (87.8–95.0) | 64.8 (51.5–76.2) | 85.5 (81.1–89.0) | 92.2 (81.5–96.9) | 90.3 (87.0–92.8) | 100.0 (67.6–100.0) |
 
 ### By split (exact %, 95% CI)
 
 | Engine:variant | dev (n=142) | test (n=902) |
 |---|---:|---:|
-| ppocr:v6-small-wl | 99.3 (96.1–99.9) | 94.0 (92.3–95.4) |
-| ppocr:v6-tiny-wl | 93.0 (87.5–96.1) | 87.3 (84.9–89.3) |
+| ppocr:v6-small-wl | 99.3 (96.1–99.9) | 94.1 (92.4–95.5) |
+| ppocr:v6-tiny-wl | 93.0 (87.5–96.1) | 87.4 (85.0–89.4) |
 
-<details><summary>Errors of ppocr:v6-small-wl (first 25 of 55)</summary>
+<details><summary>Errors of ppocr:v6-small-wl (first 25 of 54)</summary>
 
 | id | truth | read | post-filter |
 |---|---|---|---|
@@ -107,7 +107,6 @@ Real scoreboard fields (scores, clocks, shot clocks, periods, fouls ...) cut fro
 | cm121646772_runs | 251 | 257 | 257 |
 | cm12276495_home_name | MICHIGAN | MCIW | MCIW |
 | cm12354372_home_name | MICHIGAN | MICHIOAN | MICHIOAN |
-| cm1368756_away_score | 18 | 19 | 19 |
 | cm13726005_away_score | 0 | ∅ | ∅ |
 | cm13726005_home_score | 0 | ∅ | ∅ |
 | cm13726005_penalty_player | Špirko | Spirko | Spirko |
@@ -125,6 +124,7 @@ Real scoreboard fields (scores, clocks, shot clocks, periods, fouls ...) cut fro
 | cm17264001_home_name | HARVARD | HARUARD | HARUARD |
 | cm177793186_away_name | GÄSTE | GASTE | GASTE |
 | cm18346109_penalty_time | 1:11 | 111 | ∅ |
+| cm1885036_away_score | 18 | 8 | 8 |
 
 </details>
 
@@ -134,8 +134,8 @@ Rendered 7-segment LED and LCD digits (scores, clocks, periods): a synthetic con
 
 | Engine:variant | Exact % | Digits % | CER % | Empty % | Post-filter exact % | ms single | ms batch | Load s |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| ppocr:v6-small-wl | 100.0 (93.6–100.0) | 100.0 | 0.0 (0.0–0.0) | 0.0 | 100.0 (93.6–100.0) | 17.2 / 18.0 | 19.1 / 19.8 | 0.431 |
-| ppocr:v6-tiny-wl | 100.0 (93.6–100.0) | 100.0 | 0.0 (0.0–0.0) | 0.0 | 100.0 (93.6–100.0) | 3.4 / 3.7 | 3.6 / 3.8 | 0.145 |
+| ppocr:v6-small-wl | 100.0 (93.6–100.0) | 100.0 | 0.0 (0.0–0.0) | 0.0 | 100.0 (93.6–100.0) | 31.4 / 41.1 | 26.4 / 34.3 | 0.587 |
+| ppocr:v6-tiny-wl | 100.0 (93.6–100.0) | 100.0 | 0.0 (0.0–0.0) | 0.0 | 100.0 (93.6–100.0) | 7.2 / 12.1 | 7.9 / 8.5 | 0.202 |
 
 ### By field type (exact %, 95% CI)
 
