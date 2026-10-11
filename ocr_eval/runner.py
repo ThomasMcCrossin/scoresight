@@ -53,8 +53,11 @@ def _as_recognition(value) -> Recognition:
     return Recognition(text, confidence, recognition.info)
 
 
-def _recognize(engine: Engine, crops, field_types) -> list[Recognition]:
-    output = engine.recognize(list(crops), list(field_types))
+def _recognize(engine: Engine, crops, field_types, roles) -> list[Recognition]:
+    if engine.reads_roles:
+        output = engine.recognize(list(crops), list(field_types), roles=list(roles))
+    else:
+        output = engine.recognize(list(crops), list(field_types))
     if output is None or len(output) != len(crops):
         raise RuntimeError(
             f"{engine.key} returned {0 if output is None else len(output)} results "
@@ -116,8 +119,9 @@ def run_engine(
 
         samples = dataset.samples
         field_types = [s.field_type for s in samples]
+        roles = [s.extra.get("role") for s in samples]
         for i in range(min(options.warmup, len(samples))):
-            _recognize(engine, [images[i]], [field_types[i]])
+            _recognize(engine, [images[i]], [field_types[i]], [roles[i]])
 
         batch_size = max(1, int(engine.batch_size))
         recognitions: list[Recognition] = []
@@ -130,7 +134,12 @@ def run_engine(
             crops = images[start : start + batch_size]
             started = time.perf_counter()
             recognitions.extend(
-                _recognize(engine, crops, field_types[start : start + batch_size])
+                _recognize(
+                    engine,
+                    crops,
+                    field_types[start : start + batch_size],
+                    roles[start : start + batch_size],
+                )
             )
             elapsed_ms = (time.perf_counter() - started) * 1000.0
             per_crop_ms.extend([elapsed_ms / len(crops)] * len(crops))
@@ -147,7 +156,7 @@ def run_engine(
             cpu_started = time.process_time()
             for i in range(min(options.single_latency_samples, len(samples))):
                 started = time.perf_counter()
-                _recognize(engine, [images[i]], [field_types[i]])
+                _recognize(engine, [images[i]], [field_types[i]], [roles[i]])
                 single_ms.append((time.perf_counter() - started) * 1000.0)
             single_cpu_ms = (
                 (time.process_time() - cpu_started) * 1000.0 / len(single_ms)
@@ -170,7 +179,9 @@ def run_engine(
         scored = {scoring: [] for scoring in SCORINGS}
         for sample, recognition, ms in zip(samples, recognitions, per_crop_ms):
             raw = score_item(recognition.text, sample.text, sample.field_type)
-            filtered_text = scoresight_postfilter(recognition.text, sample.field_type)
+            filtered_text = scoresight_postfilter(
+                recognition.text, sample.field_type, sample.extra.get("role")
+            )
             filtered = score_item(filtered_text, sample.text, sample.field_type)
             scored["raw"].append((sample, raw))
             scored["postfilter"].append((sample, filtered))

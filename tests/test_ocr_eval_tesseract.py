@@ -6,7 +6,12 @@ pytestmark = pytest.mark.ocr
 pytest.importorskip("tesserocr")
 
 from ocr_eval.dataset import load_dataset  # noqa: E402
-from ocr_eval.engines.tesseract_scoresight import ScoreSightTesseract  # noqa: E402
+from ocr_eval.engines.tesseract_scoresight import (  # noqa: E402
+    TUNED,
+    ScoreSightTesseract,
+    dark_on_light,
+    scale_to_height,
+)
 from ocr_eval.fields import scoresight_postfilter  # noqa: E402
 from ocr_eval.runner import RunOptions, load_images, run_engine  # noqa: E402
 
@@ -21,11 +26,39 @@ def test_variants_cover_every_bundled_model_with_and_without_binarization():
             "eng",
         )
         for suffix in ("", "-nobin")
-    }
+    } | {"tuned"}
     engine = ScoreSightTesseract("eng-nobin")
     assert engine.model == "eng"
     assert engine.overrides == {"binarization_method": 1}
+    assert (engine.height, engine.polarity) == (None, False)
     assert ScoreSightTesseract.unavailable_reason() is None
+
+
+def test_tuned_variant_uses_the_settings_chosen_on_dev():
+    engine = ScoreSightTesseract("tuned")
+    assert engine.model == TUNED["model"]
+    assert engine.overrides == TUNED["overrides"]
+    assert (engine.height, engine.polarity) == (TUNED["height"], TUNED["polarity"])
+    # what tune_tesseract.py chose (ocr_eval/results/2026-10-11/tesseract_tuning.md)
+    assert TUNED == {
+        "model": "eng",
+        "height": 24,
+        "polarity": True,
+        "overrides": {"binarization_method": 1, "dilate": 0, "rescale_patch": False},
+    }
+
+
+def test_dark_on_light_and_scale_to_height():
+    import numpy as np
+
+    light_text = np.zeros((10, 30), np.uint8)
+    light_text[3:7, 5:25:4] = 255  # a few bright strokes on a dark board
+    assert (dark_on_light(light_text) == 255 - light_text).all()
+    dark_text = 255 - light_text
+    assert dark_on_light(dark_text) is dark_text
+    assert scale_to_height(dark_text, 24).shape == (24, 72)
+    assert scale_to_height(dark_text, 5).shape == (5, 15)
+    assert scale_to_height(dark_text, 10) is dark_text
 
 
 @pytest.fixture(scope="module")

@@ -62,6 +62,10 @@ class Engine:
     imports: ClassVar[tuple[str, ...]] = ()
     # the largest batch recognize() is given (1: one crop per call)
     batch_size: ClassVar[int] = 1
+    # True: recognize() also gets roles=[...], each crop's role when its
+    # dataset has one (e.g. "home_score", "shot_clock"; else None), for
+    # engines that read a crop with the role's box (fields.box_settings)
+    reads_roles: ClassVar[bool] = False
     # set by discover() from the module's REQUIREMENTS
     requirements: ClassVar[list[str]] = []
 

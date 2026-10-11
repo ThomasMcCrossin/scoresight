@@ -25,8 +25,10 @@ from ocr_eval.engines import (  # noqa: E402
     parse_engine_spec,
 )
 from ocr_eval.fields import (  # noqa: E402
+    box_name,
     box_settings,
     guess_field_type,
+    role_box,
     scoresight_postfilter,
     whitelist,
 )
@@ -362,6 +364,58 @@ def test_field_type_box_settings_follow_scoresight_defaults():
 )
 def test_scoresight_postfilter(text, field_type, published):
     assert scoresight_postfilter(text, field_type) == published
+
+
+def test_a_role_with_a_preset_is_read_with_it():
+    from ocr_eval._src import import_defaults
+
+    defaults = import_defaults()
+    assert role_box("number", "shot_clock") == "Shot Clock"
+    assert role_box("score", "away_score_2") == "Away Score"
+    assert role_box("number", "home_fouls") == "Home Fouls"
+    # no preset for the role, no role, or a preset for another kind of value
+    assert role_box("number", "home_timeouts") is None
+    assert role_box("number", None) is None
+    assert role_box("text", "period") is None  # a period that shows "4TH"
+    assert role_box("clock", "shot_clock") is None  # a shot clock with tenths
+    assert box_name("number", "shot_clock") == "Shot Clock"
+    assert box_name("number", "down") == "Eval number"
+    shot_clock = box_settings("number", "shot_clock", dilate=0)
+    assert shot_clock["format_regex"] == defaults.format_prefixes[4]
+    assert shot_clock["dilate"] == 0
+    # the Shot Clock preset's format takes two digits, 00-39
+    assert scoresight_postfilter("07", "number", "shot_clock") == "07"
+    assert scoresight_postfilter("7", "number", "shot_clock") == ""
+    assert scoresight_postfilter("7", "number", "home_timeouts") == "7"
+
+
+class RoleEngine(Engine):
+    """Echoes each crop's role, when the runner passes them."""
+
+    name = "roles"
+    reads_roles = True
+    batch_size = 2
+    seen: list = []
+
+    def recognize(self, crops, field_types, roles=None):
+        self.seen.extend(roles)
+        return [(role or "", 1.0) for role in roles]
+
+
+def test_engines_that_read_roles_get_each_crops_role(tmp_path):
+    rows = [
+        _row(id="a", image="images/a.png", text="5", role="shot_clock"),
+        _row(id="b", image="images/b.png", text="7"),
+    ]
+    folder = make_dataset(tmp_path / "ds", rows)
+    RoleEngine.seen = []
+    results = run_all(
+        [load_dataset(folder)], [(RoleEngine, "default")], RunOptions(), log=None
+    )
+    [run] = results["runs"]
+    assert run["status"] == "ok", run.get("traceback")
+    assert RoleEngine.seen[-2:] == ["shot_clock", None]
+    assert [p["text"] for p in run["predictions"]] == ["shot_clock", ""]
 
 
 def test_guess_field_type():

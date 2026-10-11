@@ -210,7 +210,7 @@ def run_frames(
                 field_ms.append(per_field)
                 raw = score_item(recognition.text, sample.text, sample.field_type)
                 filtered_text = scoresight_postfilter(
-                    recognition.text, sample.field_type
+                    recognition.text, sample.field_type, sample.extra.get("role")
                 )
                 filtered = score_item(filtered_text, sample.text, sample.field_type)
                 scored["raw"].append((sample, raw))

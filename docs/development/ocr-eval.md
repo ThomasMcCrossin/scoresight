@@ -96,6 +96,8 @@ Each field type is read with the box settings ScoreSight gives that kind of box 
 | `number` | custom box | digits | any number |
 | `text`, `other` | custom box of type Text | letters, digits, punctuation | any text |
 
+Where a dataset gives each crop a role (`commons_scoreboards` does), a crop whose role has one of ScoreSight's preset boxes is read with that preset, as a user would box it: `home_score` and `away_score` with Home Score and Away Score, `clock` with Time, `period` with Period, `home_fouls` and `away_fouls` with Home Fouls and Away Fouls, and `shot_clock` with Shot Clock, whose format takes two digits (`00` to `39`, so a shot clock showing `7` is rejected). That applies only when the preset reads the same kind of value as the field type (a period that shows `4TH` is a `text` field, read as text); other roles (timeouts, downs, cricket counts, names) are read with their field type's box. An engine that reads with box settings (Tesseract) gets the roles too (`Engine.reads_roles`).
+
 Settings that only matter across frames or format the output (smoothing, "skip similar image", ordinal indicator, leading zeros) are off: every crop is read once, as a fresh box.
 
 ### The committed datasets
@@ -136,7 +138,7 @@ Every engine reads the raw crop and returns its own reading (and a confidence in
 
 | Engine | What | Variants | Size | License | Runs on |
 |---|---|---|---|---|---|
-| `tesseract` | ScoreSight's own pipeline (`src/tesseract.py`) with each bundled model | `<model>[-nobin]` | 3–23 MB per model | Apache-2.0 | everywhere |
+| `tesseract` | ScoreSight's own pipeline (`src/tesseract.py`) with each bundled model | `<model>[-nobin]`, `tuned` | 3–23 MB per model | Apache-2.0 | everywhere |
 | `ppocr` | PaddleOCR PP-OCRv6 and PP-OCRv5 recognizers on onnxruntime | `<model>[-bin][-wl]` | 4.5–85 MB | Apache-2.0 | Windows, Linux, macOS (onnxruntime) |
 | `onnxtr` | docTR's PARSeq, ViTSTR, CRNN and VIPTR recognizers (OnnxTR) | `<model>[-int8][-bin][-wl]` | 6–97 MB | Apache-2.0 | Windows, Linux, macOS (onnxruntime) |
 | `windows-ocr` | `Windows.Media.Ocr` through pywinrt | `raw`, `upscale`, `tile`, `[-digits]` | built in | Windows | Windows 10/11 |
@@ -147,7 +149,9 @@ Common variant suffixes: **`-wl`** limits decoding to the field type's character
 
 ### Tesseract (`tesseract`)
 
-`ocr_eval/engines/tesseract_scoresight.py` drives ScoreSight's real `tesseract.TextDetector` with the box settings of each field type (above), so it measures exactly what the app does with default settings. Variants: the bundled model (`scoreboard_general`, the app's default; `scoreboard_general_large`, `daktronics`, `eng`) and `-nobin` (binarization off). The crop plays the role of the frame: ScoreSight's default global binarization is an Otsu threshold of the padded crop here, of the whole frame in the app.
+`ocr_eval/engines/tesseract_scoresight.py` drives ScoreSight's real `tesseract.TextDetector` with the box settings of each field type (above), so it measures exactly what the app does with default settings. Variants: the bundled model (`scoreboard_general`, the app's default; `scoreboard_general_large`, `daktronics`, `eng`) and `-nobin` (binarization off): ScoreSight's presets as they are, untuned (dilation is always on, as in the app, and nothing evens out light text on a dark board). The crop plays the role of the frame: ScoreSight's default global binarization is an Otsu threshold of the padded crop here, of the whole frame in the app.
+
+`tuned` is Tesseract with settings chosen on the `dev` split of the two real datasets only: `ocr_eval/results/2026-10-11/tune_tesseract.py` runs the pipeline with every combination of model (`eng`, `scoreboard_general`), binarization (none or Otsu), dilation (0 or 1), polarity (as it is, or inverted to dark text on a light background when Otsu's bright side is the minority) and the crop's height (the app's 35 px rescale, or scaled to 16–80 px first) on the 410 `dev` crops, and its output, `tesseract_tuning.md` next to it, ranks them. The best, and `tuned`: the `eng` model, no binarization, no dilation, dark text on light, the crop scaled to 24 px high (heights from 20 to 35 px are within about 3 points of it), PSM 8 as always. The polarity and the height are applied before the pipeline (ScoreSight can invert a box's patch but doesn't choose that itself, and its rescale target is fixed at 35 px); everything else is a box setting the app has.
 
 `ocr_eval/baselines/tesseract.json` (`textocr_scoreboards` and `synthetic_7seg`) and `tesseract-commons.json` (`commons_scoreboards`) hold every variant with every prediction, and are what CI compares with; their `.md` files are the reports. They were made on Linux (tesserocr 2.11.0 with Tesseract 5.5.1, as in CI); Windows (tesserocr 2.10.0, Tesseract 5.5.2) gave identical predictions on `textocr_scoreboards` and all but one (wrong on both) on `commons_scoreboards`.
 
