@@ -1754,7 +1754,7 @@ class MainWindow(QMainWindow):
                 vmix.status(),
             ),
             output_status.uno_status(
-                uno.running, uno.endpoint, uno.field_mapping, uno.status()
+                uno.running, uno.endpoint, uno.field_mapping, uno.status(), uno.quota()
             ),
             output_status.api_status(
                 self.ui.checkBox_enableOutAPI.isChecked(),

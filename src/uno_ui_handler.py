@@ -162,14 +162,14 @@ class UNOUIHandler:
                 item = items[0]
                 row = item.row()
 
-            new_item_value = None
             if mapping_storage and box.name in mapping_storage:
                 new_item_value = mapping_storage[box.name]
             else:
-                if box.name in standard_uno_mapping:
-                    new_item_value = standard_uno_mapping[box.name]
-                else:
-                    new_item_value = box.name
+                # only the boxes of the standard UNO templates have a command
+                # by default. Others used to get a command named after the box,
+                # which templates answer with HTTP 400 while it still counts
+                # against overlays.uno's daily limit.
+                new_item_value = standard_uno_mapping.get(box.name, "")
             model.setItem(row, 1, QStandardItem(new_item_value))
 
         for i in range(model.rowCount() - 1, -1, -1):
