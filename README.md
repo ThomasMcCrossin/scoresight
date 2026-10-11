@@ -1,8 +1,11 @@
 <div align="center">
 
-<img src="docs/logo.png" alt="ScoreSight logo" width="140"/>
-
-# ScoreSight
+<h1>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/logo-dark.png"/>
+  <img src="docs/logo.png" alt="ScoreSight" width="420"/>
+</picture>
+</h1>
 
 **Real-time scoreboard OCR for live production. Free, open source, cross-platform.**
 

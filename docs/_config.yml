@@ -30,6 +30,7 @@ relative_links:
   collections: false
 
 logo: "/logo.png"
+favicon_ico: "/favicon.ico"
 color_scheme: dark
 
 search_enabled: true

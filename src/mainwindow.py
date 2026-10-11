@@ -373,9 +373,9 @@ class MainWindow(QMainWindow):
         # View > Setup layout or Live layout (applied by setupLayout)
         self.layoutMode = LAYOUT_SETUP
         self.updateWindowTitle()
-        if platform.system() == "Windows":
-            # set the icon
-            self.setWindowIcon(QIcon(resource_path("icons", "Windows-icon-open.ico")))
+        if platform.system() != "Darwin":
+            # the window's icon (a Mac app shows its bundle's)
+            self.setWindowIcon(QIcon(resource_path("icons", "scoresight.ico")))
 
         self.update_check_running = False
         # a manual check was asked for while another check was running

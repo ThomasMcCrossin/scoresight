@@ -8,6 +8,15 @@ Release tags are the bare version number (for example `0.1.0`).
 
 ## [Unreleased]
 
+### Changed
+
+- **A new logo and app icon.** An amber seven-segment "S" inside the corner
+  brackets of a viewfinder, the box ScoreSight draws around the digits it
+  reads. It is used for the app icon on Windows and macOS, the window icon
+  (now on Linux too), the installer, the Windows splash screen, the README
+  and the documentation site (with a favicon). `brand/` has the masters and
+  makes every file (`brand/make_assets.py`).
+
 ## [0.3.0] - 2026-10-11
 
 A new OCR engine, live overlays, and many more broadcast products. Highlights:
