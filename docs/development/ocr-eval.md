@@ -107,6 +107,55 @@ On `synthetic_7seg`, `scoreboard_general` reads 58.9% (45.9–70.8), the best va
 
 What this says: with its default settings, ScoreSight's pipeline reads fewer than one in five real crops exactly; the general English model without binarization does twice as well but is still far from usable; the scoreboard models never output a letter, so they read no words, and clocks are the weakest field. Part of the gap is the eval's single-crop, default-settings setup (users tune boxes, invert patches and pick a model per board), but the size of the gap is why other engines are worth measuring. Note also that the Time format rejects soccer clocks past 59 minutes (`89:41`).
 
+### PaddleOCR (`ppocr`)
+
+`ocr_eval/engines/ppocr.py` runs PaddleOCR's text recognition models (Apache-2.0) with onnxruntime: PP-OCRv6 `v6-tiny` (1.1M parameters, 4.5 MB), `v6-small` (5.2M, 21 MB) and `v6-medium` (19M, 77 MB), and PP-OCRv5 `v5-mobile`, `v5-en-mobile` (English dictionary) and `v5-server`. The official ONNX exports are downloaded from the Hugging Face Hub at pinned revisions. Only the recognizer runs, since a box already is the text line, with the models' own preprocessing (48 px high, padded to at least 320 px). The CTC output is decoded by the adapter (its texts match RapidOCR's on every crop). Variants:
+
+- `<model>`: the raw crop, unconstrained.
+- `<model>-wl`: the decoder may only emit the field type's ScoreSight whitelist (digits for a score, digits, `:` and `.` for a clock).
+- `<model>-bin`, `<model>-bin-wl`: the crop after ScoreSight's own binarization (`preprocess_patch`).
+
+`--engine ppocr` runs every model but `v5-server` (about 0.6 s per crop even on all cores) raw and `-wl`; `ppocr:*` runs everything. `OCR_EVAL_ORT_THREADS` sets onnxruntime's threads (default 1; 0 = all cores).
+
+```bash
+uv venv --python 3.13 .venv-eval
+uv pip install --python .venv-eval/Scripts/python.exe -r requirements.txt -r requirements-win.txt $(python -m ocr_eval requirements ppocr)
+.venv-eval/Scripts/python.exe -m ocr_eval run --dataset textocr_scoreboards --dataset synthetic_7seg --engine ppocr --out results/ppocr
+```
+
+`ocr_eval/baselines/ppocr.json` and `ppocr.md` hold the run of every variant (Windows 11, onnxruntime 1.31.0). `textocr_scoreboards` exact match (95% CI), next to Tesseract's best variant and the app's default:
+
+| Variant | Exact % | Clock % | Number % | Text % | Post-filter % | `synthetic_7seg` % |
+|---|---:|---:|---:|---:|---:|---:|
+| `ppocr:v6-medium-wl` | 96.2 (95.0–97.1) | 89.2 | 97.0 | 97.8 | 95.7 | 100.0 |
+| `ppocr:v6-small-wl` | 94.7 (93.4–95.8) | 84.2 | 96.1 | 96.8 | 94.4 | 100.0 |
+| `ppocr:v6-medium` | 94.1 (92.7–95.3) | 89.2 | 94.3 | 97.8 | 94.0 | 98.2 |
+| `ppocr:v5-en-mobile-wl` | 92.9 (91.3–94.2) | 79.9 | 94.7 | 95.1 | 92.5 | 98.2 |
+| `ppocr:v6-small` | 92.0 (90.4–93.4) | 83.5 | 92.6 | 96.2 | 91.8 | 100.0 |
+| `ppocr:v6-tiny-wl` | 90.8 (89.0–92.2) | 79.1 | 92.4 | 92.4 | 90.4 | 100.0 |
+| `ppocr:v5-server-wl` | 90.4 (88.6–91.9) | 77.0 | 91.5 | 95.7 | 90.0 | 85.7 |
+| `ppocr:v6-tiny` | 87.8 (85.9–89.5) | 75.5 | 88.9 | 92.4 | 87.5 | 100.0 |
+| `ppocr:v5-mobile-wl` | 84.8 (82.7–86.7) | 63.3 | 87.3 | 89.7 | 84.4 | 82.1 |
+| `ppocr:v6-medium-bin-wl` | 62.1 (59.4–64.7) | 46.0 | 67.0 | 49.7 | 61.9 | 100.0 |
+| `ppocr:v6-small-bin` | 55.0 (52.3–57.7) | 43.2 | 59.2 | 43.8 | 55.3 | 98.2 |
+| `tesseract:eng-nobin` | 35.9 (33.3–38.6) | 12.2 | 40.6 | 30.3 | 35.9 | 42.9 |
+| `tesseract:scoreboard_general` (the app's default) | 17.6 (15.6–19.7) | 4.3 | 23.0 | 0.0 | 17.6 | 58.9 |
+
+Paired crop by crop, `ppocr:v6-small-wl` reads 993 crops that the app's default misses and misses 8 that it reads (McNemar p < 1e-280); against `tesseract:eng-nobin` the counts are 756 and 5. The whitelist never cost a crop: it gained 26 to 68 crops per model, mostly digits that the multilingual dictionaries read as letters or CJK look-alikes (`口` for 0, `日` for 8). ScoreSight's binarization costs these models 35 to 37 points (`-bin`), so a recognizer like this should read the colour crop. Most of the remaining errors are clocks whose colon dots aren't read (`1206` for `12:06`) and look-alike digits. The post-filter column is lower only because the Time format rejects clocks past 59 minutes (`69:49`, `90:00`).
+
+Single-crop latency, p50 / p95 ms, on the first 300 crops in one run with Tesseract. This was measured on an Intel Core i9-14900K desktop (24 cores) that was busy with other jobs, so treat it as an upper bound: Tesseract took 2.1 / 5.0 ms here, against 1.5 / 3.7 ms in the Linux baseline.
+
+| Variant | 1 thread | all cores | all cores, batches of 16 |
+|---|---:|---:|---:|
+| `tesseract:scoreboard_general` | 2.1 / 5.0 | | |
+| `tesseract:eng-nobin` | 2.8 / 7.6 | | |
+| `ppocr:v6-tiny` | 5.3 / 7.3 | 1.8 / 5.0 | 1.1 / 4.6 |
+| `ppocr:v6-small` | 17.1 / 35.6 | 4.7 / 7.3 | 3.8 / 5.0 |
+| `ppocr:v5-en-mobile` | 19.8 / 31.6 | 5.4 / 7.3 | 2.9 / 4.2 |
+| `ppocr:v6-medium` | 103 / 145 | 17.1 / 32.2 | 12.1 / 17.4 |
+
+Caveat: PaddleOCR's training data is in-house and not published, so these models may have seen Open Images photos or TextOCR crops like the ones in `textocr_scoreboards`. There is no sign of it: no model reads the crops from TextOCR's train photos clearly better than those from its val photos, and the differences are well within the intervals (`v6-small-wl`: 94.6% on 1,110 train crops, 95.8% on 166 val crops). Still, the uncontaminated checks are `synthetic_7seg` and Training Dojo data.
+
 ## Continuous integration
 
 `.github/workflows/ocr-eval.yml` runs on pull requests that change recognition (`src/tesseract.py`, `src/defaults.py`, `src/text_detection_target.py`, `tesseract/`, `ocr_eval/`, `requirements.txt`, the workflow) and manually. On Ubuntu 24.04 it validates the datasets, runs every Tesseract variant on both datasets, and compares with the baseline:
