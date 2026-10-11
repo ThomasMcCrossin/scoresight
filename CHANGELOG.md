@@ -105,6 +105,17 @@ your outputs and sources do, and adds profiles for running several instances.
 - The HTTP server's page shows its address for other computers on your
   network, and its row in the Outputs list shows how many computers or
   programs read it.
+- The field list has a context menu: **Place on picture** or **Remove from
+  picture**, **Rename...** (**F2** or a double-click), **Delete field...**
+  (**Del**), **Reset settings to defaults**, **Copy value** (**Ctrl+C**, the
+  last good reading) and **Zoom to box**. **Ctrl+N** adds a custom field.
+- **Insert field** next to a template adds another field to it, spelled
+  exactly as the template needs it.
+- The **Format** list always shows the preset the expression matches (or
+  *Custom*), instead of going back to *Select Preset*. An expression that
+  isn't a valid regular expression is shown in red with *Not a valid
+  expression, so it is ignored* (the OCR accepted every reading without a
+  word), and its tooltip says what is wrong.
 
 ### Changed
 
@@ -197,12 +208,43 @@ your outputs and sources do, and adds profiles for running several instances.
   Windows camera enumerator builds with pybind11 from `requirements-build.txt`
   from any directory, and the PyInstaller spec builds every platform with the
   same command.
-- The window fits small screens and long languages. The left column scrolls
-  (with **Pause outputs** at its top and **Detections / s** at its bottom
-  always in view), a divider between it and the picture can be dragged (its
-  position is remembered), and the window opens at a size that fits the
-  screen. Its minimum size is about 870×200 pixels in English and 960×200 in
+- The window has three parts: the **Fields** list on the left, the picture
+  in the middle and the **inspector** on the right, with a **Box** tab (the
+  selected field's settings) and an **Outputs** tab. The dividers between them
+  can be dragged, a double-click on one hides or shows the field list or the
+  inspector, and ScoreSight remembers the widths and the hidden panes. The
+  window opens at a size that fits the screen. It fits small screens and long
+  languages: its minimum size is about 910×410 pixels, in English and in
   German (it was 1016×750 and 1158×750), so it fits a 1366×768 laptop.
+- The box settings are in the inspector's **Box** tab, under the field's name
+  and *Settings for this field only*, in three sections: **Reading**,
+  **Filtering** and **Image cleanup**. Image cleanup is collapsed until you
+  open it (ScoreSight remembers it), and its header says how many of its
+  settings you changed and has a **Binary view** button. The settings have
+  plain names, with the 0.1.x names in their tooltips: *Remove leading zeros*
+  (Remove leading 0s), *Add ordinal suffix* (Ordinal), *Count lights* (Dot
+  Counter), *Minimum confidence* (Conf. Th), *Smooth over last 5 readings*
+  (Average Output), *Skip OCR while image is unchanged* (Skip Similar Image),
+  *Black & white* with *Whole picture*, *None*, *This box* and *Adaptive*
+  (Binarize: Global, No Binarization, Local, Adaptive), *Remove specks*
+  (Cleanup), *Squash height* (V.Scale), *Straighten slant* (Skew), *Thicken
+  strokes* (Dilate), *Invert colours* (Invert Input), *Crop to text* (Auto
+  Crop), *Resize to 35 px* (Rescale Input), *Normalize digit width* (Normalize
+  W-H Ratio), *Build from other fields* (Template Field) and **Reset to
+  defaults** (Defaults). *Per-character sub-boxes* (Composite) and *Skip empty
+  values* (which has no effect since 0.2.0) are under *Experimental / legacy*.
+  With no field selected, the tab explains how to select one; for a field
+  that isn't on the picture, how to place it; a template field shows only its
+  template.
+- The settings for every box are together under **All boxes**, at the bottom
+  of the Box tab and always available: the **OCR model** (*Load external
+  model...*), **Detections / s** and **Update on change**, whose tooltip now
+  says what it does.
+- **Add to Scene** and **Remove Selected** are **Place on picture** and
+  **Remove from picture**: one button under the field list, the one that
+  applies to the selected field. **-** is **Delete field**, shown only for
+  custom fields (on a standard field it did nothing). Removing a box whose
+  settings you changed, and deleting a field, ask first.
 - The boxes list shows the readings: each box's last good value in large type,
   a symbol and a word for the state of its latest reading (✓ new, = same,
   ! rejected, with the rejected text, ∅ no reading) and how long ago the last
@@ -210,7 +252,7 @@ your outputs and sources do, and adds profiles for running several instances.
   reading no longer greys out or hides the value, the list is tall enough for
   every standard box, and a click on a value selects its box.
 - **Stop Updates** is now **Pause outputs** / **Resume outputs**, at the top
-  of the left column. While the outputs are paused, the button is orange, a
+  of the field list. While the outputs are paused, the button is orange, a
   banner over the picture shows since when (with a **Resume outputs**
   button), the values in the boxes list are marked *not sent*, the window
   title starts with ⏸ and the status bar shows how long they have been paused.
@@ -224,12 +266,30 @@ your outputs and sources do, and adds profiles for running several instances.
 - Long camera names no longer make the window wider: the source list is kept
   narrow, and its drop-down shows the whole names.
 - The output tabs (**Text Files**, **Browser**, **OBS**, **VMix**, **UNO**,
-  **API**) are replaced by the **Outputs** list: select an output to show its
-  settings under the list. The settings are the same as on the tabs, and the
-  vMix and UNO mapping tables are taller.
+  **API**) are replaced by the **Outputs** list, in the inspector's **Outputs**
+  tab: select an output to show its settings under the list. The settings are
+  the same as on the tabs, and a divider between the list and the settings
+  gives the vMix and UNO mapping tables as much room as you need.
 
 ### Fixed
 
+- Renaming a field to a name that was taken did nothing, without a message.
+  ScoreSight now says so and asks again. Names that differ only in upper and
+  lower case count as the same, because their text files are the same file on
+  Windows and macOS.
+- A custom field on the picture could also be made a template field, which
+  left two boxes with the same name. Only a field that isn't on the picture
+  can become a template.
+- Right after **Add to Scene** (now **Place on picture**), the settings panel
+  showed values that weren't the new box's (for example **Average Output**
+  on), until another box was selected.
+- After a language change, the settings panel showed *Select an item above*
+  instead of the selected box's name.
+- Moving through the field list with the arrow keys didn't update the
+  settings shown, so a change was saved to another box than the one shown,
+  and **Add to Scene** could add a second box with the same name.
+- After **File > Import Configuration**, fields that weren't in the file were
+  still marked as being on the picture.
 - Setting **Detections / s** to 1 froze the video and could leave the controls
   disabled. The preview and the first reading now start on the first frame,
   and the preview refreshes about once a second at any detection rate

@@ -169,7 +169,7 @@ Readings come from the picture, so start there ([#30](https://github.com/royshil
 3. Set **Binarize** to **Local** or **Adaptive** for low-contrast boards or dark surroundings.
 4. Set the **Type** and a strict **Format** so impossible values are rejected.
 5. Use **Remove leading 0s** for zero-padded scores, and consider one box per digit for very poor boards.
-6. Try another **OCR Model**.
+6. Try another **OCR model** (under **All boxes**, in the Box tab).
 
 The full method is in [Recognition Tuning](recognition-tuning.md).
 

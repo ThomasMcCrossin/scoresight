@@ -2,7 +2,7 @@
 title: Keyboard & Mouse
 parent: Reference
 nav_order: 3
-description: "All mouse and keyboard controls in ScoreSight's viewer, field list and Training Dojo."
+description: "All mouse and keyboard controls in ScoreSight's viewer, field list, panes and Training Dojo."
 ---
 
 # Keyboard & Mouse
@@ -20,7 +20,7 @@ description: "All mouse and keyboard controls in ScoreSight's viewer, field list
 | Resize a box | **Left-drag** an edge or a corner handle of the selected box |
 | Deselect | **Left-click** empty space, or press **Esc** |
 | Set 4-corner points | With **4-corner Correction** active, **left-click** four corners |
-| Add a per-character sub-box | With **Composite (Per-Character)** on, click the green **+** in the box (experimental) |
+| Add a per-character sub-box | With **Per-character sub-boxes** on (in the Box tab's **Image cleanup**), click the green **+** in the box (experimental) |
 
 Box positions and sizes are saved automatically.
 
@@ -29,12 +29,25 @@ Box positions and sizes are saved automatically.
 | Action | Control |
 |---|---|
 | Select a field (and its box) | Click its name or its value |
-| Rename a custom field | Double-click its name |
-| Add a custom field | **+** |
-| Remove the selected custom field | **-** |
-| Put the selected field on the picture | **Add to Scene ->** |
-| Take the selected field off the picture | **Remove Selected** |
+| The selected field's actions | **Right-click** it: Place on picture or Remove from picture, Rename..., Delete field..., Reset settings to defaults, Copy value, Zoom to box |
+| Rename a custom field | Double-click its name, or **F2** |
+| Add a custom field | **+** at the top of the list, or **Ctrl+N** |
+| Delete the selected custom field | **Delete field** under the list, or **Del** (**Backspace** on a Mac; asks first) |
+| Copy the selected field's value | **Ctrl+C** |
+| Put the selected field on the picture | **Place on picture** under the list (in ScoreSight 0.1.x: **Add to Scene**) |
+| Take the selected field off the picture | **Remove from picture** under the list (in 0.1.x: **Remove Selected**) |
 | Deselect | **Esc** |
+
+**F2**, **Del** and **Ctrl+C** work while the field list has the focus (click a field first).
+
+## Panes
+
+| Action | Control |
+|---|---|
+| Make the field list, the picture or the inspector wider | Drag the dividers between them |
+| Hide or show the field list or the inspector | Double-click the divider next to it, or drag it to the window's edge |
+
+ScoreSight remembers the widths and which panes are hidden. A click on an output in the status bar shows the inspector's **Outputs** tab, also when the inspector was hidden.
 
 ## Main window shortcuts
 
@@ -46,6 +59,7 @@ On macOS, use **⌘ Cmd** wherever this table says **Ctrl**. The tooltips of the
 | **Ctrl + B** | Binary View on or off (once a source is open) |
 | **Ctrl + 0** | Fit the picture to the window (the **1:1** button) |
 | **F5** | Reload the sources (cameras and NDI) |
+| **Ctrl + N** | New custom field |
 | **Esc** | Deselect the box |
 
 ## Training Dojo

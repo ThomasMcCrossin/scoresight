@@ -21,7 +21,7 @@ The **HTTP API** output sends the readings to a URL of your choice on every dete
 
 ![The outbound API settings (ScoreSight 0.1.x showed them on an API tab)](image-29.png)
 
-1. Select **HTTP API** in the **Outputs** list at the bottom left (or click **API** in the status bar).
+1. Select **HTTP API** in the **Outputs** tab on the right (or click **API** in the status bar).
 2. Enter the **URL** of your endpoint, including the scheme and host, for example `http://192.168.1.10:8091/scores`.
 3. Choose the **method**: `POST` (the default), `PUT` or `GET`.
 4. Choose the **Encode** format (used for `POST` and `PUT`): *JSON (Full)* (the default), *JSON (Simple key-value)*, *XML* or *CSV*.

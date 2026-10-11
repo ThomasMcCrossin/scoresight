@@ -19,7 +19,7 @@ The **Text files** output writes the readings to files in a folder. Almost any b
 
 ## Setup
 
-1. Select **Text files** in the **Outputs** list at the bottom left (or click **Files** in the status bar). (In ScoreSight 0.1.x this was the **Text Files** tab.)
+1. Select **Text files** in the **Outputs** tab on the right (or click **Files** in the status bar). (In ScoreSight 0.1.x this was the **Text Files** tab.)
 2. Click **Open** next to **Folder** and choose an output folder. **Clear** stops file output. The switch of the Text files row does the same: turning it on asks for a folder, turning it off clears it.
 3. Optionally tick **Save .csv file** and/or **Save .xml file**.
 4. Choose an **Append** mode and a **Save / s** rate (see below).
