@@ -12,7 +12,7 @@ Each box has its own settings. Select its field in the field list (or its box on
 
 - **Reading**: what the box contains (**Type**, **Format**) and how the value is written.
 - **Filtering**: which readings are accepted.
-- **Image cleanup**: how the box's picture is prepared for the OCR. It is collapsed until you open it (ScoreSight remembers whether it's open), and its header says how many of its settings you changed (*all default*, *2 changed*...) and has a **Binary view** button that shows the result.
+- **Image cleanup**: how the box's picture is prepared for a Tesseract model. It is collapsed until you open it (ScoreSight remembers whether it's open), and its header says how many of its settings you changed (*all default*, *2 changed*...) and has a **Binary view** button that shows the result. While a [PP-OCR model](ocr-models.md) reads the boxes, its settings are disabled (and kept) with the note *Image cleanup is for the Tesseract models; PP-OCR reads the picture as it is*: PP-OCR reads each box's picture untouched, which works much better for it. They stay available for a box that counts lights.
 
 **Reset to defaults** puts every setting of the field back to its default. Every slider shows its value next to it (*Off* when the setting is off), and every setting has a tooltip, which also gives its name in ScoreSight 0.1.x. Settings are saved with your layout and included in **File > Export field layout...**. In exported files and `scoresight.json`, they appear under each box's `settings` object, using the JSON keys listed here.
 
@@ -38,10 +38,10 @@ For a task-oriented guide, see [Recognition Tuning](recognition-tuning.md).
 | [Add ordinal suffix](#ordinal) (Ordinal) | `ordinal_indicator` | on/off | Period: on. Others: off |
 | [Count lights](#dot-counter) (Dot Counter) | `dot_detector` | on/off | off |
 | **Filtering** | | | |
-| [Minimum confidence](#conf-th-confidence-threshold) (Conf. Th) | `conf_thresh` | 0.00–0.99 (slider 0–99 = Tesseract confidence in %) | 0 (off) |
+| [Minimum confidence](#conf-th-confidence-threshold) (Conf. Th) | `conf_thresh` | 0.00–0.99 (slider 0–99 = the OCR model's confidence in %) | 0 (off) |
 | [Smooth over last 5 readings](#average-output) (Average Output) | `smoothing` | on/off | off |
 | [Skip OCR while image is unchanged](#skip-similar-image) (Skip Similar Image) | `skip_similar_image` | on/off | off |
-| **Image cleanup** | | | |
+| **Image cleanup** (Tesseract models and the dot counter) | | | |
 | [Black & white](#binarize) (Binarize) | `binarization_method` | `0` Whole picture, `1` None, `2` This box, `3` Adaptive | `0` Whole picture |
 | [Remove specks](#cleanup) (Cleanup) | `cleanup_thresh` | 0.00–0.99 (slider 0–99) | 0 (off) |
 | [Squash height](#vscale) (V.Scale) | `vscale` | 1–10 | 10 (no scaling) |
@@ -60,7 +60,7 @@ For a task-oriented guide, see [Recognition Tuning](recognition-tuning.md).
 
 ## Processing order
 
-For each box, on every detection cycle, ScoreSight:
+With a **Tesseract** model, for each box, on every detection cycle, ScoreSight:
 
 1. takes the part of the box that is inside the processed picture (a box that reaches past the edge is read from its visible part; its saved position isn't changed),
 2. turns it into **black and white** (*Black & white*),
@@ -78,6 +78,16 @@ For each box, on every detection cycle, ScoreSight:
 14. marks the reading `Empty` if no text is left, or `SameNoChange` if it equals the box's last good reading and **Update on change** is on.
 
 Each box is processed on its own copy of the picture, so overlapping boxes never affect each other. **Binary View** shows the result of steps 1–5 for every box: exactly the image the OCR receives, before *Invert colours*.
+
+With a **PP-OCR** model, ScoreSight skips the Image cleanup steps (2–6, 9 and 10) for every box but a *Count lights* box, which is processed as above. For the others it:
+
+1. takes the part of the box that is inside the processed picture, **in colour**,
+2. reports the box as `Empty` if the picture is blank (every pixel the same),
+3. skips OCR if the picture (compared in gray) hasn't changed (*Skip OCR while image is unchanged*),
+4. reads every box of the frame together with the character set of each box's *Type*,
+5. continues with steps 12–14 above: *Format*, *Minimum confidence* (PP-OCR's confidence), smoothing, leading zeros, ordinal suffix.
+
+**Binary View** shows a PP-OCR box's picture in gray: what PP-OCR reads, without its colour.
 
 ## Reading
 
@@ -154,12 +164,13 @@ A brace that doesn't form a repeat count, as in `^\d{1,2$`, is read as a plain c
 ### Minimum confidence
 {: #conf-th-confidence-threshold }
 
-`conf_thresh`: the minimum confidence, in percent, that the Tesseract OCR engine must report for a reading. The slider goes from 0 to 99, and the setting is stored as a fraction (slider ÷ 100, so 60 % is stored as `0.6`). A reading below the threshold is marked `FailedFilter` (yellow). **0 turns the check off, and is the default.** In ScoreSight 0.1.x: **Conf. Th**.
+`conf_thresh`: the minimum confidence, in percent, that the OCR model must report for a reading. The slider goes from 0 to 99, and the setting is stored as a fraction (slider ÷ 100, so 60 % is stored as `0.6`). A reading below the threshold is marked `FailedFilter` (yellow). **0 turns the check off, and is the default.** In ScoreSight 0.1.x: **Conf. Th**.
 
-- ScoreSight uses Tesseract's mean confidence for the recognized text. Tesseract sometimes reports 0 for a correct, non-empty reading; in that case the average of the per-character confidences is used instead.
+- With a **PP-OCR** model, the confidence is the mean probability of the characters read (0–100 %). It is reliable: in the OCR evaluation, with a threshold of 90 % PP-OCR (accurate) still published 85 % of its readings, and only 1 % of the boxes got a wrong value, against 4 % with no threshold.
+- With a **Tesseract** model, ScoreSight uses Tesseract's mean confidence for the recognized text. Tesseract sometimes reports 0 for a correct, non-empty reading; in that case the average of the per-character confidences is used instead.
 - A value above 1 in a hand-edited settings file is taken as a percentage (`60` means 60 %).
 
-**Use**: leave it off unless wrong values get through a strict **Format**. Then try 30–50 and raise it slowly while watching for correct readings that turn yellow. Correct readings of real scoreboard footage often score only 30–50 %, so high thresholds reject good values.
+**Use**: with PP-OCR, 80–90 rejects most wrong readings; the box keeps its last good value meanwhile. With Tesseract, leave it off unless wrong values get through a strict **Format**, then try 30–50 and raise it slowly while watching for correct readings that turn yellow: Tesseract's correct readings of real scoreboard footage often score only 30–50 %, so high thresholds reject good values. With either engine, a box whose readings never reach the threshold never updates, so set it while watching your scoreboard.
 
 {: .new }
 In ScoreSight 0.1.x this setting had no effect, because a confidence of 0–100 was compared with a threshold of 0–1. ScoreSight 0.2.0 compares them correctly. Since the old default (50) never did anything, boxes saved by an older version get their threshold set to 0 (off) once, the first time 0.2.0 loads them, so they read exactly as before. The settings file records this with `"boxes_schema_version": 2`, and the log mentions it.
@@ -177,7 +188,7 @@ ScoreSight 0.1.x voted character by character, so a change from `12` to `9` coul
 ### Skip OCR while image is unchanged
 {: #skip-similar-image }
 
-`skip_similar_image`: compares the processed box image with the image of the box's last accepted (`Success`) reading. If fewer than 2% of the text pixels (the digits, not the background) changed, OCR is skipped and the box repeats its last good value as an unchanged reading (`SameNoChange`). The comparison image isn't refreshed on skipped cycles, so slow changes add up until they are read. It isn't refreshed by a rejected or empty reading either, so when the first reading of a new value fails, the box is read again on the next cycle. Resizing the box starts over. In ScoreSight 0.1.x: **Skip Similar Image**.
+`skip_similar_image`: compares the processed box image (with PP-OCR: the box's picture in gray) with the image of the box's last accepted (`Success`) reading. If fewer than 2% of the text pixels (the digits, not the background) changed, OCR is skipped and the box repeats its last good value as an unchanged reading (`SameNoChange`). The comparison image isn't refreshed on skipped cycles, so slow changes add up until they are read. It isn't refreshed by a rejected or empty reading either, so when the first reading of a new value fails, the box is read again on the next cycle. Resizing the box starts over. In ScoreSight 0.1.x: **Skip Similar Image**.
 
 **Use**: to save CPU on values that change rarely (scores, periods). Because the change is measured against the digits, a one-digit change (for example `18` to `19`) is read. Turn it off if a very small change (a single segment of a large display) is ever missed.
 
@@ -185,6 +196,8 @@ ScoreSight 0.1.x voted character by character, so a change from `12` to `9` coul
 ScoreSight 0.1.x measured the change against the whole box, so a one-digit change could be skipped, and it reported skipped cycles as a yellow `SIM` reading. It also compared with the image of the last reading, even a rejected or empty one, so a new value whose first reading failed wasn't read again until the image changed once more.
 
 ## Image cleanup
+
+These settings prepare the box's picture for a **Tesseract** model, and for the dot counter (*Count lights*) with any model. While a PP-OCR model reads the boxes they are disabled, and kept for when you go back to Tesseract.
 
 ### Black & white
 {: #binarize }
