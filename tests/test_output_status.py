@@ -104,7 +104,7 @@ def test_uno_url_refused_and_rate_limit():
     assert problem.detail == "HTTP 429: overlays.uno's call limit reached · retrying"
     problem = describe_error(API, retried, "h")
     assert problem.detail == "HTTP 429: too many requests · retrying"
-    assert "Send only changes" in problem.hint
+    assert "Only changes" in problem.hint
 
     problem = describe_error(UNO, http_error(400, "UNO Shot Clock"), "uno")
     assert problem.detail == "HTTP 400: overlays.uno doesn't know a command"

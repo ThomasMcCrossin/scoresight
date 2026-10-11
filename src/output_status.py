@@ -754,7 +754,7 @@ def _describe_http_status(key: str, error: ErrorInfo, secrets) -> Problem:
                 "OutputStatus",
                 "The endpoint limits the requests. ScoreSight keeps the latest "
                 "readings and sends them when it accepts requests again. To send "
-                "fewer, turn on “Send only changes”, set a rate limit, or lower "
+                "fewer, turn on “Only changes”, set a “Rate”, or lower "
                 "Detections / s.",
             )
         return Problem(WARNING, _retrying(detail, error.unreachable), hint)
@@ -1187,13 +1187,14 @@ def vmix_status(
 
 
 def _daily_calls_text(quota) -> str:
-    """ "9,512 calls left today", from overlays.uno's headers, or ""."""
+    """ "9512 calls left today", from overlays.uno's headers, or "". (No
+    thousands separator: "9,512" reads as a decimal in many languages.)"""
     daily = getattr(quota, "daily", None)
     if daily is None or daily.remaining is None:
         return ""
     return QCoreApplication.translate(
         "OutputStatus", "{calls} calls left today"
-    ).format(calls=f"{daily.remaining:,}")
+    ).format(calls=str(daily.remaining))
 
 
 def uno_status(
@@ -1279,7 +1280,7 @@ def uno_status(
             WARNING,
             QCoreApplication.translate(
                 "OutputStatus", "Only {calls} overlays.uno calls left today"
-            ).format(calls=f"{quota.daily.remaining:,}"),
+            ).format(calls=str(quota.daily.remaining)),
             QCoreApplication.translate(
                 "OutputStatus",
                 "Every update is a call. When none are left, overlays.uno refuses "

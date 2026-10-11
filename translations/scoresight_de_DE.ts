@@ -18,7 +18,8 @@
     <message>
         <location filename="../src/box_settings_ui_handler.py" line="116"/>
         <source>Image cleanup is for the Tesseract models; PP-OCR reads the picture as it is.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">„Bildbereinigung“ gilt für die Tesseract-Modelle; PP-OCR liest das Bild, wie es ist.</translation>
     </message>
     <message>
         <location filename="../src/box_settings_ui_handler.py" line="427"/>
@@ -35,7 +36,8 @@
     <message>
         <location filename="../src/box_settings_ui_handler.py" line="433"/>
         <source>This field isn&apos;t on the picture yet. Drag over its numbers on the picture, or double-click the field in the list.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Dieses Feld ist noch nicht im Bild. Ziehen Sie im Bild über seine Zahlen oder doppelklicken Sie in der Liste auf das Feld.</translation>
     </message>
     <message>
         <location filename="../src/box_settings_ui_handler.py" line="443"/>
@@ -328,7 +330,8 @@ Auflösung: {width}×{height}</translation>
     <message>
         <location filename="../src/source_view.py" line="718"/>
         <source>Drag over the numbers to place {name}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Ziehen Sie über die Zahlen, um {name} zu platzieren</translation>
     </message>
 </context>
 <context>
@@ -336,42 +339,50 @@ Auflösung: {width}×{height}</translation>
     <message>
         <location filename="../src/keyboard_shortcuts.py" line="59"/>
         <source>Place the selected field&apos;s box</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Rahmen des ausgewählten Felds platzieren</translation>
     </message>
     <message>
         <location filename="../src/keyboard_shortcuts.py" line="62"/>
         <source>Drag over its numbers on the picture</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Im Bild über seine Zahlen ziehen</translation>
     </message>
     <message>
         <location filename="../src/keyboard_shortcuts.py" line="67"/>
         <source>Place the selected field&apos;s box at a point</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Rahmen des ausgewählten Felds an einer Stelle platzieren</translation>
     </message>
     <message>
         <location filename="../src/keyboard_shortcuts.py" line="70"/>
         <source>Double-click the picture</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Doppelklick ins Bild</translation>
     </message>
     <message>
         <location filename="../src/keyboard_shortcuts.py" line="73"/>
         <source>Draw the selected box again</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Ausgewählten Rahmen neu zeichnen</translation>
     </message>
     <message>
         <location filename="../src/keyboard_shortcuts.py" line="76"/>
         <source>{alt} + drag on the picture</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">{alt} + im Bild ziehen</translation>
     </message>
     <message>
         <location filename="../src/keyboard_shortcuts.py" line="81"/>
         <source>The selected box&apos;s actions</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Aktionen des ausgewählten Rahmens</translation>
     </message>
     <message>
         <location filename="../src/keyboard_shortcuts.py" line="84"/>
         <source>Right-click the box</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Rechtsklick auf den Rahmen</translation>
     </message>
     <message>
         <location filename="../src/keyboard_shortcuts.py" line="87"/>
@@ -424,7 +435,8 @@ Auflösung: {width}×{height}</translation>
     <message>
         <location filename="../src/keyboard_shortcuts.py" line="111"/>
         <source>Cancel a drag, stop picking the 4 corners or the crop, or deselect</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Ziehen abbrechen, Auswahl der 4 Ecken oder des Zuschnitts beenden oder Auswahl aufheben</translation>
     </message>
     <message>
         <source>Deselect, or stop picking the 4 corners</source>
@@ -1218,7 +1230,8 @@ Auflösung: {width}×{height}</translation>
     <message>
         <location filename="../src/mainwindow.ui" line="276"/>
         <source>Put a box for the selected field in the middle of the picture, then drag it over the value. You can also drag over the value on the picture, or double-click the field. Formerly “Add to Scene”.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Setzt einen Rahmen für das ausgewählte Feld in die Mitte des Bilds; ziehen Sie ihn dann über den Wert. Sie können auch im Bild über den Wert ziehen oder auf das Feld doppelklicken. Früher „Zur Szene hinzufügen“.</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="369"/>
@@ -1288,7 +1301,8 @@ Auflösung: {width}×{height}</translation>
         <location filename="../src/mainwindow.ui" line="648"/>
         <location filename="../src/mainwindow.ui" line="2363"/>
         <source>Show what the OCR reads of every box: its black-and-white image (Tesseract) or its picture in gray (PP-OCR)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Zeigt, was die OCR von jedem Rahmen liest: sein Schwarzweißbild (Tesseract) oder sein Bild in Graustufen (PP-OCR)</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="661"/>
@@ -1372,12 +1386,14 @@ Auflösung: {width}×{height}</translation>
     <message>
         <location filename="../src/mainwindow.ui" line="884"/>
         <source>Drag around the part of the picture to keep, on the whole picture. The values next to it fine-tune the crop.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Ziehen Sie auf dem ganzen Bild um den Bereich, den Sie behalten möchten. Die Werte daneben verfeinern den Zuschnitt.</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="887"/>
         <source>Drag to crop</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Zuschnitt aufziehen</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="916"/>
@@ -1452,12 +1468,14 @@ Auflösung: {width}×{height}</translation>
     <message>
         <location filename="../src/mainwindow.ui" line="1251"/>
         <source>Drag around the part of the picture to keep. Esc cancels and keeps the current crop.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Ziehen Sie um den Bereich des Bilds, den Sie behalten möchten. Esc bricht ab und behält den aktuellen Zuschnitt.</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1261"/>
         <source>Stop and keep the current crop (Esc)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Beendet die Auswahl und behält den aktuellen Zuschnitt (Esc)</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1393"/>
@@ -2001,29 +2019,34 @@ Auflösung: {width}×{height}</translation>
         <location filename="../src/mainwindow.ui" line="1554"/>
         <location filename="../src/mainwindow.py" line="2706"/>
         <source>Select a field, then drag over its numbers on the picture.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Wählen Sie ein Feld aus und ziehen Sie dann im Bild über seine Zahlen.</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2198"/>
         <source>Minimum OCR confidence in % (0-99): how sure the OCR model is of the reading. A reading below it is rejected. 0 turns the check off. Formerly “Conf. Th”.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Mindestkonfidenz der OCR in % (0-99): wie sicher sich das OCR-Modell bei der Ablesung ist. Eine Ablesung darunter wird verworfen. 0 schaltet die Prüfung aus. Früher „Konf. Schwellenwert“.</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2216"/>
         <source>Minimum OCR confidence in % (0-99): how sure the OCR model is of the reading. A reading below it is rejected (yellow, FailedFilter). 0 turns the check off. With PP-OCR, 80-90 rejects most wrong readings.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Mindestkonfidenz der OCR in % (0-99): wie sicher sich das OCR-Modell bei der Ablesung ist. Eine Ablesung darunter wird verworfen (gelb, FailedFilter). 0 schaltet die Prüfung aus. Mit PP-OCR verwirft 80-90 die meisten falschen Ablesungen.</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2310"/>
         <location filename="../src/box_settings_ui_handler.py" line="488"/>
         <source>Show or hide the settings that clean up the box&apos;s image before a Tesseract model reads it. Binary view shows the result.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Zeigt oder verbirgt die Einstellungen, die das Bild des Rahmens bereinigen, bevor ein Tesseract-Modell es liest. „Binäre Ansicht“ zeigt das Ergebnis.</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2933"/>
         <location filename="../src/mainwindow.py" line="2167"/>
         <source>The OCR model that reads every box, not only the selected one. PP-OCR (automatic) reads with PP-OCR (accurate) while this computer keeps up, and with PP-OCR (fast), which needs about a fifth of the CPU, when it doesn&apos;t. The Tesseract models use the boxes&apos; Image cleanup settings; Load external Tesseract model... reads a .traineddata file.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Das OCR-Modell, das alle Rahmen abliest, nicht nur den ausgewählten. PP-OCR (automatisch) liest mit PP-OCR (genau), solange dieser Computer mithält, und sonst mit PP-OCR (schnell), das etwa ein Fünftel der CPU braucht. Die Tesseract-Modelle verwenden die Einstellungen „Bildbereinigung“ der Rahmen; „Externes Tesseract-Modell laden...“ liest eine .traineddata-Datei.</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2995"/>
@@ -2040,92 +2063,110 @@ Auflösung: {width}×{height}</translation>
     <message>
         <location filename="../src/mainwindow.ui" line="3261"/>
         <source>Also write results.json: one object with every field&apos;s latest value, {&quot;Home Score&quot;: &quot;21&quot;, ...} (for example for SuiteCG)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Zusätzlich results.json schreiben: ein Objekt mit dem neuesten Wert jedes Felds, {&quot;Home Score&quot;: &quot;21&quot;, ...} (z. B. für SuiteCG)</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3264"/>
         <source>Save .json file</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Speichern Sie die .json-Datei</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3271"/>
         <source>Also write results.txt: a &quot;Field Name=value&quot; line per field (for example for SuiteCG or a TriCaster DataLink watch folder)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Zusätzlich results.txt schreiben: eine Zeile „Feldname=Wert“ pro Feld (z. B. für SuiteCG oder einen von TriCaster DataLink überwachten Ordner)</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3274"/>
         <source>Save key=value .txt file</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">.txt speichern (key=value)</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3426"/>
         <source>Transparent pages with live values, for a browser source in OBS, vMix, Wirecast, CasparCG and other production software</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Transparente Seiten mit Live-Werten für eine Browserquelle in OBS, vMix, Wirecast, CasparCG und anderer Produktionssoftware</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3429"/>
         <source>Browser overlays</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Browser-Overlays</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3456"/>
         <source>Overlay</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Overlay</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3490"/>
         <source>A built-in overlay, or one of yours from the overlays folder</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Ein integriertes Overlay oder eines Ihrer eigenen aus dem Overlay-Ordner</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3503"/>
         <source>Open the overlays folder: put your own HTML overlays there</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Öffnet den Overlay-Ordner: Legen Sie Ihre eigenen HTML-Overlays dort ab</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3506"/>
         <source>Open the overlays folder</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Overlay-Ordner öffnen</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3535"/>
         <source>The fields the overlay shows</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Die Felder, die das Overlay zeigt</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3538"/>
         <source>Overlay fields</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Overlay-Felder</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3551"/>
         <source>Theme</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Design</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3585"/>
         <source>The overlay&apos;s colors. Minimal has no panels: white text with a shadow</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Die Farben des Overlays. „Minimal“ hat keine Flächen: weißer Text mit Schatten</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3605"/>
         <source>Minimal</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Minimal</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3610"/>
         <source>Bold</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Kräftig</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3618"/>
         <source>Scale</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Skalierung</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3628"/>
         <source>The overlays fit the page&apos;s width (1920x1080, 1280x720...); this makes them bigger or smaller</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Die Overlays passen sich der Breite der Seite an (1920x1080, 1280x720...); dies macht sie größer oder kleiner</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3656"/>
@@ -2135,22 +2176,26 @@ Auflösung: {width}×{height}</translation>
     <message>
         <location filename="../src/mainwindow.ui" line="3666"/>
         <source>The network address for software on other computers, localhost for software on this one</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Die Netzwerkadresse für Software auf anderen Computern, localhost für Software auf diesem</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3679"/>
         <source>Paste this address in a browser source</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Fügen Sie diese Adresse in eine Browserquelle ein</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3682"/>
         <source>Overlay address</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Overlay-Adresse</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3710"/>
         <source>Copy the overlay&apos;s address</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Adresse des Overlays kopieren</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3713"/>
@@ -2160,12 +2205,14 @@ Auflösung: {width}×{height}</translation>
     <message>
         <location filename="../src/mainwindow.ui" line="3720"/>
         <source>Open the overlay in your web browser</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Öffnet das Overlay in Ihrem Webbrowser</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3723"/>
         <source>Open in browser</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Im Browser öffnen</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3809"/>
@@ -2261,12 +2308,14 @@ Auflösung: {width}×{height}</translation>
     <message>
         <location filename="../src/mainwindow.ui" line="4392"/>
         <source>Fill in the settings for a product. You can still change every setting afterwards.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Füllt die Einstellungen für ein Produkt aus. Sie können danach jede Einstellung noch ändern.</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4449"/>
         <source>The URL the readings are sent to. With {field} and {value} in it, each field is sent in its own request, for example http://host/set?key={field}&amp;value={value}. For a login, put it in the URL: http://user:password@host/...</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Die URL, an die die Ablesungen gesendet werden. Enthält sie {field} und {value}, wird jedes Feld in einer eigenen Anfrage gesendet, z. B. http://host/set?key={field}&amp;value={value}. Eine Anmeldung geben Sie in der URL an: http://user:password@host/...</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4518"/>
@@ -2276,22 +2325,26 @@ Auflösung: {width}×{height}</translation>
     <message>
         <location filename="../src/mainwindow.ui" line="4525"/>
         <source>Send a reading only when its value changed (off: every reading on every detection cycle)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Sendet eine Ablesung nur, wenn sich ihr Wert geändert hat (aus: jede Ablesung bei jedem Erkennungszyklus)</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4528"/>
         <source>Only changes</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Nur Änderungen</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4535"/>
         <source>Resend all</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Alles erneut senden</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4542"/>
         <source>With Only changes: also send every value again this often, for a receiver that forgets them when it restarts</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Mit „Nur Änderungen“: Sendet zusätzlich alle Werte in diesem Abstand erneut, für einen Empfänger, der sie bei einem Neustart vergisst</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4545"/>
@@ -2301,32 +2354,38 @@ Auflösung: {width}×{height}</translation>
     <message>
         <location filename="../src/mainwindow.ui" line="4548"/>
         <source>every </source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">alle </translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4568"/>
         <source>How many fields one request carries: all of them (one request per detection cycle), or at most this many (a request per batch of changed fields). A URL with {field} or {value} always sends one field per request.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Wie viele Felder eine Anfrage enthält: alle (eine Anfrage pro Erkennungszyklus) oder höchstens so viele (eine Anfrage pro Gruppe geänderter Felder). Eine URL mit {field} oder {value} sendet immer ein Feld pro Anfrage.</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4571"/>
         <source>All in one request</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Alle in einer Anfrage</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4574"/>
         <source> per request</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished"> pro Anfrage</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4584"/>
         <source>Rate</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Rate</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4591"/>
         <source>At most this many requests per second (the latest values wait for their turn)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Höchstens so viele Anfragen pro Sekunde (die neuesten Werte warten, bis sie an der Reihe sind)</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4594"/>
@@ -2336,37 +2395,44 @@ Auflösung: {width}×{height}</translation>
     <message>
         <location filename="../src/mainwindow.ui" line="4597"/>
         <source> requests/s</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished"> Anfragen/s</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4614"/>
         <source>Send the field names in lower case with letters, digits and _ only (&quot;Home Score&quot; as home_score), for receivers that allow no other names</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Sendet die Feldnamen in Kleinbuchstaben und nur mit Buchstaben, Ziffern und _ („Home Score“ als home_score), für Empfänger, die keine anderen Namen zulassen</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4617"/>
         <source>Letters, digits and _ only</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Nur Buchstaben, Ziffern und _</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4624"/>
         <source>The names the fields are sent with</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Die Namen, unter denen die Felder gesendet werden</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4637"/>
         <source>Headers</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Header</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4650"/>
         <source>Request headers</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Anfrage-Header</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4653"/>
         <source>Extra request headers, one &quot;Name: value&quot; per line, for example an Authorization token</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Zusätzliche Anfrage-Header, ein „Name: Wert“ pro Zeile, z. B. ein Authorization-Token</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4751"/>
@@ -3040,12 +3106,14 @@ Auflösung: {width}×{height}</translation>
     <message>
         <location filename="../src/mainwindow.py" line="292"/>
         <source>⌥ Option</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">⌥ Wahltaste</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="293"/>
         <source>Alt</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Alt</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="1085"/>
@@ -3105,7 +3173,8 @@ Auflösung: {width}×{height}</translation>
     <message>
         <location filename="../src/mainwindow.py" line="1525"/>
         <source>Outside the cropped picture: {names}. They read nothing: widen the crop, or remove them from the picture and place them again.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Außerhalb des zugeschnittenen Bilds: {names}. Sie werden nicht abgelesen: Vergrößern Sie den Zuschnitt oder entfernen Sie sie aus dem Bild und platzieren Sie sie neu.</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="1714"/>
@@ -3117,87 +3186,104 @@ Auflösung: {width}×{height}</translation>
     <message>
         <location filename="../src/mainwindow.py" line="2072"/>
         <source>Load external Tesseract model...</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Externes Tesseract-Modell laden...</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="2080"/>
         <source>Read the boxes with a Tesseract .traineddata file</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Liest die Rahmen mit einer Tesseract-Datei (.traineddata) ab</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="2090"/>
         <source>A Tesseract model: the boxes&apos; Image cleanup settings prepare their images for it</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Ein Tesseract-Modell: Die Einstellungen „Bildbereinigung“ der Rahmen bereiten deren Bilder dafür vor</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="2100"/>
         <source>PaddleOCR PP-OCRv6: accurate while it keeps up with Detections / s on this computer, fast when it doesn&apos;t. The status bar says which one reads and why.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">PaddleOCR PP-OCRv6: „genau“, solange es auf diesem Computer mit „Erkennungen / s“ mithält, sonst „schnell“. Die Statusleiste zeigt, welches Modell liest und warum.</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="2108"/>
         <source>PP-OCR (accurate)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">PP-OCR (genau)</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="2110"/>
         <source>PaddleOCR PP-OCRv6 small: reads the most values right, always. It needs about five times the CPU of PP-OCR (fast): on a laptop, 10 boxes read 5 times a second can need more than a core.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">PaddleOCR PP-OCRv6 small: liest die meisten Werte richtig, immer. Braucht etwa fünfmal so viel CPU wie PP-OCR (schnell): Auf einem Laptop können 10 Rahmen, 5-mal pro Sekunde abgelesen, mehr als einen Kern brauchen.</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="2118"/>
         <source>PP-OCR (fast)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">PP-OCR (schnell)</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="2120"/>
         <source>PaddleOCR PP-OCRv6 tiny: about a fifth of PP-OCR (accurate)&apos;s CPU, for many boxes, a high Detections / s or a slow computer; it misreads more of the hard displays (clocks, bulbs, LCDs).</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">PaddleOCR PP-OCRv6 tiny: etwa ein Fünftel der CPU von PP-OCR (genau), für viele Rahmen, hohe „Erkennungen / s“ oder einen langsamen Computer; liest schwierige Anzeigen (Uhren, Lampen, LCDs) häufiger falsch.</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="2128"/>
         <source>The PP-OCR models aren&apos;t installed. Download them with: {command}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Die PP-OCR-Modelle sind nicht installiert. Laden Sie sie herunter mit: {command}</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="2133"/>
         <source>PP-OCR needs onnxruntime, which isn&apos;t installed (pip install -r requirements.txt).</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">PP-OCR benötigt onnxruntime, das nicht installiert ist (pip install -r requirements.txt).</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="2148"/>
         <source>PP-OCR (automatic: accurate)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">PP-OCR (automatisch: genau)</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="2152"/>
         <source>PP-OCR (automatic: fast)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">PP-OCR (automatisch: schnell)</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="2153"/>
         <source>PP-OCR (automatic)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">PP-OCR (automatisch)</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="2262"/>
         <source>The OCR can&apos;t keep up</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Die OCR kommt nicht mit</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="2265"/>
         <source>The boxes are read {rate} times per second instead of {target}.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Die Rahmen werden {rate}-mal statt {target}-mal pro Sekunde abgelesen.</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="2275"/>
         <source>Use PP-OCR (fast)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">PP-OCR (schnell) verwenden</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="2279"/>
         <source>Keep PP-OCR (accurate)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">PP-OCR (genau) behalten</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="2303"/>
@@ -3220,37 +3306,44 @@ Auflösung: {width}×{height}</translation>
     <message>
         <location filename="../src/mainwindow.py" line="2648"/>
         <source>Not on the picture yet. Drag over its numbers on the picture, or double-click here to put its box in the middle of the picture.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Noch nicht im Bild. Ziehen Sie im Bild über seine Zahlen oder doppelklicken Sie hier, um seinen Rahmen in die Mitte des Bilds zu setzen.</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="2654"/>
         <source>Built from other fields: it has no box.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Aus anderen Feldern gebildet: Es hat keinen Rahmen.</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="2658"/>
         <source>On the picture: drag its box to move it, or {alt}+drag on the picture to draw it again. Right-click for its actions.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Im Bild: Ziehen Sie seinen Rahmen, um ihn zu verschieben, oder zeichnen Sie ihn mit {alt}+Ziehen im Bild neu. Rechtsklick für seine Aktionen.</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="2665"/>
         <source>F2 renames it.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">F2 benennt es um.</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="2667"/>
         <source>Double-click to rename it.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Doppelklicken, um es umzubenennen.</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="2690"/>
         <source>Drag on the picture to place it, or double-click the field</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Ziehen Sie im Bild, um es zu platzieren, oder doppelklicken Sie auf das Feld</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="2695"/>
         <source>Drag the box to move it · {delete} removes it</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Rahmen ziehen, um ihn zu verschieben · {delete} entfernt ihn</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="2740"/>
@@ -3303,22 +3396,26 @@ Auflösung: {width}×{height}</translation>
     <message>
         <location filename="../src/mainwindow.py" line="3111"/>
         <source>Remove the selected field&apos;s box from the picture</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Rahmen des ausgewählten Felds aus dem Bild entfernen</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="3118"/>
         <source>Delete the selected custom field (not on the picture)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Ausgewähltes eigenes Feld löschen (nicht im Bild)</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="3125"/>
         <source>Put a field&apos;s box on the picture, or rename a custom field</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Rahmen eines Felds ins Bild setzen oder eigenes Feld umbenennen</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="3130"/>
         <source>Double-click the field</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Doppelklick auf das Feld</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="3137"/>
@@ -3530,27 +3627,32 @@ Auflösung: {width}×{height}</translation>
     <message>
         <location filename="../src/api_ui_handler.py" line="34"/>
         <source>Replace TRICASTER-IP with the TriCaster&apos;s address (and admin:admin with its login). Each field is a DataLink key named like the field: put %Home Score% in a title to show the Home Score field.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Ersetzen Sie TRICASTER-IP durch die Adresse des TriCaster (und admin:admin durch seine Anmeldedaten). Jedes Feld ist ein DataLink-Schlüssel mit dem Namen des Felds: Schreiben Sie %Home Score% in einen Titel, um das Feld Home Score anzuzeigen.</translation>
     </message>
     <message>
         <location filename="../src/api_ui_handler.py" line="41"/>
         <source>Replace PEARL-IP with the Pearl&apos;s address and PASSWORD with its admin password. Each field is a Pearl variable with the name shown below: put %(home_score) in a layout&apos;s text to show the Home Score field.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Ersetzen Sie PEARL-IP durch die Adresse des Pearl und PASSWORD durch sein Admin-Passwort. Jedes Feld ist eine Pearl-Variable mit dem unten angezeigten Namen: Schreiben Sie %(home_score) in den Text eines Layouts, um das Feld Home Score anzuzeigen.</translation>
     </message>
     <message>
         <location filename="../src/api_ui_handler.py" line="57"/>
         <source>DataLink keys: {names}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">DataLink-Schlüssel: {names}</translation>
     </message>
     <message>
         <location filename="../src/api_ui_handler.py" line="62"/>
         <source>Pearl variables: {names}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Pearl-Variablen: {names}</translation>
     </message>
     <message>
         <location filename="../src/api_ui_handler.py" line="70"/>
         <source>Sent as: {names}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Gesendet als: {names}</translation>
     </message>
 </context>
 <context>
@@ -3743,7 +3845,8 @@ Auflösung: {width}×{height}</translation>
     <message>
         <location filename="../src/output_status.py" line="213"/>
         <source>a few seconds</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">wenigen Sekunden</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="215"/>
@@ -3987,7 +4090,8 @@ Auflösung: {width}×{height}</translation>
     <message>
         <location filename="../src/output_status.py" line="696"/>
         <source>The endpoint refused the request. If it needs a login, put it in the URL (http://user:password@host/...); a key or token goes in the URL or in Headers.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Der Endpunkt hat die Anfrage abgelehnt. Wenn er eine Anmeldung braucht, geben Sie diese in der URL an (http://user:password@host/...); ein Schlüssel oder Token gehört in die URL oder unter „Header“.</translation>
     </message>
     <message>
         <source>The endpoint refused the request. If it needs a key, put it in the URL.</source>
@@ -4021,144 +4125,161 @@ Auflösung: {width}×{height}</translation>
     <message>
         <location filename="../src/output_status.py" line="738"/>
         <source>HTTP 429: overlays.uno&apos;s call limit reached</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">HTTP 429: Aufruflimit von overlays.uno erreicht</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="741"/>
         <source>overlays.uno limits the calls of your plan (the Free plan: about 10,000 a day). ScoreSight keeps the latest value of each field and sends it when the limit resets. To use fewer calls, keep “Also resend unchanged values” off and clear the command of fields the overlay doesn&apos;t use.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">overlays.uno begrenzt die Aufrufe Ihres Tarifs (Free-Tarif: etwa 10.000 pro Tag). ScoreSight behält den neuesten Wert jedes Felds und sendet ihn, sobald das Limit zurückgesetzt wird. Um weniger Aufrufe zu verbrauchen, lassen Sie „Auch unveränderte Werte senden“ ausgeschaltet und löschen Sie den Befehl von Feldern, die das Overlay nicht verwendet.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1194"/>
+        <location filename="../src/output_status.py" line="753"/>
+        <source>The endpoint limits the requests. ScoreSight keeps the latest readings and sends them when it accepts requests again. To send fewer, turn on “Only changes”, set a “Rate”, or lower Detections / s.</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Der Endpunkt begrenzt die Anfragen. ScoreSight behält die neuesten Ablesungen und sendet sie, sobald er wieder Anfragen annimmt. Um weniger zu senden, aktivieren Sie „Nur Änderungen“, begrenzen Sie die „Rate“ oder senken Sie „Erkennungen / s“.</translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1195"/>
         <source>{calls} calls left today</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">heute noch {calls} Aufrufe</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1247"/>
+        <location filename="../src/output_status.py" line="1248"/>
         <source>{count} field(s) have no UNO command and aren&apos;t sent: enter one in the table if the overlay has a command for them.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Ohne UNO-Befehl und daher nicht gesendet: {count} Feld(er). Tragen Sie in der Tabelle einen Befehl ein, wenn das Overlay einen dafür hat.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1280"/>
+        <location filename="../src/output_status.py" line="1281"/>
         <source>Only {calls} overlays.uno calls left today</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Heute nur noch {calls} Aufrufe bei overlays.uno</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1283"/>
+        <location filename="../src/output_status.py" line="1284"/>
         <source>Every update is a call. When none are left, overlays.uno refuses updates until the limit resets; ScoreSight then sends the latest values. To use fewer calls, keep “Also resend unchanged values” off and clear the command of fields the overlay doesn&apos;t use.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Jede Aktualisierung ist ein Aufruf. Wenn keine mehr übrig sind, lehnt overlays.uno Aktualisierungen ab, bis das Limit zurückgesetzt wird; ScoreSight sendet dann die neuesten Werte. Um weniger Aufrufe zu verbrauchen, lassen Sie „Auch unveränderte Werte senden“ ausgeschaltet und löschen Sie den Befehl von Feldern, die das Overlay nicht verwendet.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1346"/>
+        <location filename="../src/output_status.py" line="1347"/>
         <source>Enter your device&apos;s address in the URL</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Adresse Ihres Geräts in die URL eingeben</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1350"/>
+        <location filename="../src/output_status.py" line="1351"/>
         <source>Replace the capitalized placeholder in the URL (for example TRICASTER-IP) with the device&apos;s IP address, and the login with its user name and password.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Ersetzen Sie den großgeschriebenen Platzhalter in der URL (z. B. TRICASTER-IP) durch die IP-Adresse des Geräts und die Anmeldedaten durch seinen Benutzernamen und sein Passwort.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1370"/>
+        <location filename="../src/output_status.py" line="1371"/>
         <source>a request per field</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">eine Anfrage pro Feld</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1374"/>
+        <location filename="../src/output_status.py" line="1375"/>
         <source>up to {fields} fields a request</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">bis zu {fields} Felder pro Anfrage</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1379"/>
+        <location filename="../src/output_status.py" line="1380"/>
         <source>only changes</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">nur Änderungen</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1421"/>
+        <location filename="../src/output_status.py" line="1422"/>
         <source>Click Start sending to send the readings over {transport} to {target}.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Klicken Sie auf „Senden starten“, um die Ablesungen über {transport} an {target} zu senden.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1431"/>
+        <location filename="../src/output_status.py" line="1432"/>
         <source>Enter the host and port</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Host und Port eingeben</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1433"/>
+        <location filename="../src/output_status.py" line="1434"/>
         <source>Enter the address of the receiving program&apos;s computer and the port it listens on (set in that program).</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Geben Sie die Adresse des Computers mit dem empfangenden Programm und den Port ein, auf dem es lauscht (in diesem Programm eingestellt).</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1445"/>
+        <location filename="../src/output_status.py" line="1446"/>
         <source>Place fields on the picture and give them names in the table (an empty name leaves a field out).</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Platzieren Sie Felder im Bild und geben Sie ihnen in der Tabelle Namen (ein leerer Name lässt ein Feld aus).</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1457"/>
+        <location filename="../src/output_status.py" line="1458"/>
         <source>Waiting for readings to send to {target} (UDP)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Warten auf Ablesungen zum Senden an {target} (UDP)</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1468"/>
+        <location filename="../src/output_status.py" line="1469"/>
         <source>Sending to {target} (UDP)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Senden an {target} (UDP)</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1473"/>
+        <location filename="../src/output_status.py" line="1474"/>
         <source>UDP has no connection: ScoreSight can&apos;t tell whether the values arrive.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">UDP hat keine Verbindung: ScoreSight kann nicht erkennen, ob die Werte ankommen.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1488"/>
+        <location filename="../src/output_status.py" line="1489"/>
         <source>{target} closes the connection right away</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{target} schließt die Verbindung sofort</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1491"/>
+        <location filename="../src/output_status.py" line="1492"/>
         <source>Check the port: it must be the receiving program&apos;s input for this protocol (not, for example, a web server&apos;s port). ScoreSight connects again, waiting a little longer each time.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Prüfen Sie den Port: Er muss der Eingang des empfangenden Programms für dieses Protokoll sein (nicht zum Beispiel der Port eines Webservers). ScoreSight verbindet sich erneut und wartet jedes Mal etwas länger.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1515"/>
+        <location filename="../src/output_status.py" line="1516"/>
         <source>Last answer: {reply}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Letzte Antwort: {reply}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1519"/>
+        <location filename="../src/output_status.py" line="1520"/>
         <source>A field&apos;s value is sent when it changes (or every time, with “Also resend unchanged values”).</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Der Wert eines Felds wird gesendet, wenn er sich ändert (oder jedes Mal, mit „Auch unveränderte Werte senden“).</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1539"/>
+        <location filename="../src/output_status.py" line="1540"/>
         <source>Check the template&apos;s name (it must be in CasparCG&apos;s templates folder), the channel and the layer.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Prüfen Sie den Namen der Vorlage (sie muss im Vorlagenordner von CasparCG liegen), den Kanal und die Ebene.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1545"/>
+        <location filename="../src/output_status.py" line="1546"/>
         <source>The receiving program reported an error: check the template and the names in the table.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Das empfangende Programm hat einen Fehler gemeldet: Prüfen Sie die Vorlage und die Namen in der Tabelle.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1554"/>
+        <location filename="../src/output_status.py" line="1555"/>
         <source>{target} answered “{reply}”</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{target} antwortete „{reply}“</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1568"/>
+        <location filename="../src/output_status.py" line="1569"/>
         <source>{product}: {detail}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{product}: {detail}</translation>
@@ -4180,19 +4301,16 @@ Auflösung: {width}×{height}</translation>
         <translation type="unfinished">HTTP 429: zu viele Anfragen</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="753"/>
-        <source>The endpoint limits the requests. ScoreSight keeps the latest readings and sends them when it accepts requests again. To send fewer, turn on “Send only changes”, set a rate limit, or lower Detections / s.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../src/output_status.py" line="764"/>
         <source>HTTP 400: overlays.uno doesn&apos;t know a command</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">HTTP 400: overlays.uno kennt einen Befehl nicht</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="767"/>
         <source>Check the commands in the table against your overlay&apos;s API description, and clear the command of fields the overlay doesn&apos;t use: every call counts against your daily limit.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Vergleichen Sie die Befehle in der Tabelle mit der API-Beschreibung Ihres Overlays und löschen Sie den Befehl von Feldern, die das Overlay nicht verwendet: Jeder Aufruf zählt für Ihr Tageslimit.</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="776"/>
@@ -4222,7 +4340,8 @@ Auflösung: {width}×{height}</translation>
     <message>
         <location filename="../src/output_status.py" line="836"/>
         <source>Next try in {wait}.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Nächster Versuch in {wait}.</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="848"/>
@@ -4245,9 +4364,9 @@ Auflösung: {width}×{height}</translation>
     <message>
         <location filename="../src/output_status.py" line="907"/>
         <location filename="../src/output_status.py" line="1137"/>
-        <location filename="../src/output_status.py" line="1215"/>
-        <location filename="../src/output_status.py" line="1311"/>
-        <location filename="../src/output_status.py" line="1420"/>
+        <location filename="../src/output_status.py" line="1216"/>
+        <location filename="../src/output_status.py" line="1312"/>
+        <location filename="../src/output_status.py" line="1421"/>
         <source>Off</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Aus</translation>
@@ -4344,7 +4463,7 @@ Auflösung: {width}×{height}</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1046"/>
-        <location filename="../src/output_status.py" line="1502"/>
+        <location filename="../src/output_status.py" line="1503"/>
         <source>Connecting to {target}…</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Verbinden mit {target}…</translation>
@@ -4375,7 +4494,7 @@ Auflösung: {width}×{height}</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1086"/>
-        <location filename="../src/output_status.py" line="1529"/>
+        <location filename="../src/output_status.py" line="1530"/>
         <source>Connected to {target}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Verbunden mit {target}</translation>
@@ -4418,8 +4537,8 @@ Auflösung: {width}×{height}</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1146"/>
-        <location filename="../src/output_status.py" line="1237"/>
-        <location filename="../src/output_status.py" line="1443"/>
+        <location filename="../src/output_status.py" line="1238"/>
+        <location filename="../src/output_status.py" line="1444"/>
         <source>No fields to send</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Keine Felder zum Senden</translation>
@@ -4448,69 +4567,69 @@ Auflösung: {width}×{height}</translation>
         <translation type="unfinished">Senden an {target}, Eingabe {input}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1216"/>
+        <location filename="../src/output_status.py" line="1217"/>
         <source>Click Start sending to drive your overlays.uno overlay.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Klicken Sie auf „Senden starten“, um Ihr overlays.uno-Overlay zu steuern.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1225"/>
+        <location filename="../src/output_status.py" line="1226"/>
         <source>Enter your UNO API URL</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">UNO-API-URL eingeben</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1227"/>
+        <location filename="../src/output_status.py" line="1228"/>
         <source>Copy the API URL of your overlay&apos;s control app in overlays.uno into URL.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Kopieren Sie die API-URL der Steuer-App Ihres Overlays aus overlays.uno in „URL“.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1239"/>
+        <location filename="../src/output_status.py" line="1240"/>
         <source>Place fields on the picture and enter the UNO commands in the table.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Platzieren Sie Felder im Bild und tragen Sie die UNO-Befehle in die Tabelle ein.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1260"/>
+        <location filename="../src/output_status.py" line="1261"/>
         <source>Waiting for a new value for {host}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Warten auf neuen Wert für {host}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1267"/>
+        <location filename="../src/output_status.py" line="1268"/>
         <source>Sending to {host}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Senden an {host}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1312"/>
+        <location filename="../src/output_status.py" line="1313"/>
         <source>Tick the checkbox to send the readings to a URL on every detection cycle.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Aktivieren Sie das Kontrollkästchen, um die Ablesungen bei jedem Erkennungszyklus an eine URL zu senden.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1322"/>
+        <location filename="../src/output_status.py" line="1323"/>
         <source>Enter a URL</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">URL eingeben</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1324"/>
+        <location filename="../src/output_status.py" line="1325"/>
         <source>Enter the URL to send the readings to, for example http://192.168.1.10:8091/scores.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Geben Sie die URL ein, an die die Ablesungen gesendet werden, z. B. http://192.168.1.10:8091/scores.</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="541"/>
-        <location filename="../src/output_status.py" line="1334"/>
+        <location filename="../src/output_status.py" line="1335"/>
         <source>The URL isn&apos;t valid</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Die URL ist ungültig</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="542"/>
-        <location filename="../src/output_status.py" line="1336"/>
+        <location filename="../src/output_status.py" line="1337"/>
         <source>The URL needs a scheme and a host, for example http://192.168.1.10:8091/scores.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Die URL braucht ein Schema und einen Host, z. B. http://192.168.1.10:8091/scores.</translation>
@@ -4528,19 +4647,19 @@ Auflösung: {width}×{height}</translation>
         <translation type="unfinished">vMix erhält den Wert eines Felds, wenn er sich ändert (oder jedes Mal, mit „Auch unveränderte Werte senden“).</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1358"/>
+        <location filename="../src/output_status.py" line="1359"/>
         <source>GET to {target}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">GET an {target}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1362"/>
+        <location filename="../src/output_status.py" line="1363"/>
         <source>{method} {encoding} to {target}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{method} {encoding} an {target}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1387"/>
+        <location filename="../src/output_status.py" line="1388"/>
         <source>Waiting for readings: {request}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Warten auf Ablesungen: {request}</translation>
@@ -4551,48 +4670,57 @@ Auflösung: {width}×{height}</translation>
     <message>
         <location filename="../src/overlay_ui_handler.py" line="25"/>
         <source>Scorebug</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Scorebug</translation>
     </message>
     <message>
         <location filename="../src/overlay_ui_handler.py" line="26"/>
         <source>Lower third</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Bauchbinde</translation>
     </message>
     <message>
         <location filename="../src/overlay_ui_handler.py" line="29"/>
         <source>Clock</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Uhr</translation>
     </message>
     <message>
         <location filename="../src/overlay_ui_handler.py" line="30"/>
         <source>Single field</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Einzelnes Feld</translation>
     </message>
     <message>
         <location filename="../src/overlay_ui_handler.py" line="258"/>
         <location filename="../src/overlay_ui_handler.py" line="281"/>
         <source>Standard fields</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Standardfelder</translation>
     </message>
     <message>
         <location filename="../src/overlay_ui_handler.py" line="303"/>
         <source>The fields the overlay shows, in the order they were ticked: {fields}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Die Felder, die das Overlay zeigt, in der Reihenfolge, in der sie angehakt wurden: {fields}</translation>
     </message>
     <message>
         <location filename="../src/overlay_ui_handler.py" line="308"/>
         <source>Scorebug: the home score, the away score, the clock, then small cells for the others.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Scorebug: der Spielstand Heim, der Spielstand Gast, die Uhr, dann kleine Zellen für die übrigen.</translation>
     </message>
     <message>
         <location filename="../src/overlay_ui_handler.py" line="340"/>
         <source>The HTTP server is not running</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Der HTTP-Server läuft nicht</translation>
     </message>
     <message>
         <location filename="../src/overlay_ui_handler.py" line="412"/>
         <source>Copied</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Kopiert</translation>
     </message>
 </context>
 <context>
@@ -4967,7 +5095,8 @@ Auflösung: {width}×{height}</translation>
     <message>
         <location filename="../src/status_bar.py" line="338"/>
         <source>Loading PP-OCR…</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">PP-OCR wird geladen…</translation>
     </message>
     <message>
         <location filename="../src/status_bar.py" line="340"/>
@@ -4984,42 +5113,50 @@ Auflösung: {width}×{height}</translation>
     <message>
         <location filename="../src/status_bar.py" line="348"/>
         <source>with Tesseract: PP-OCR didn&apos;t load</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">mit Tesseract: PP-OCR nicht geladen</translation>
     </message>
     <message>
         <location filename="../src/status_bar.py" line="389"/>
         <source>PP-OCR automatic: fast (accurate didn&apos;t load)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">PP-OCR automatisch: schnell („genau“ wurde nicht geladen)</translation>
     </message>
     <message>
         <location filename="../src/status_bar.py" line="392"/>
         <source>PP-OCR automatic: fast (accurate needs {ms} ms per reading here, more than {share}% of the {interval} ms between readings)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">PP-OCR automatisch: schnell („genau“ braucht hier {ms} ms pro Ablesung, mehr als {share}&#xa0;% der {interval} ms zwischen den Ablesungen)</translation>
     </message>
     <message>
         <location filename="../src/status_bar.py" line="402"/>
         <source>PP-OCR automatic: accurate (it needs {ms} ms per reading here, of the {interval} ms between readings)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">PP-OCR automatisch: genau (braucht hier {ms} ms pro Ablesung, von {interval} ms zwischen den Ablesungen)</translation>
     </message>
     <message>
         <location filename="../src/status_bar.py" line="407"/>
         <source>PP-OCR automatic: accurate (measuring how long it needs here)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">PP-OCR automatisch: genau (misst, wie lange es hier braucht)</translation>
     </message>
     <message>
         <location filename="../src/status_bar.py" line="426"/>
         <source>PP-OCR (accurate) needs more CPU than this computer has for these boxes at this rate. Choose PP-OCR (fast) as the OCR model (it needs about a fifth of the CPU), or lower Detections / s.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">PP-OCR (genau) braucht für diese Rahmen in diesem Tempo mehr CPU, als dieser Computer hat. Wählen Sie PP-OCR (schnell) als OCR-Modell (es braucht etwa ein Fünftel der CPU) oder senken Sie „Erkennungen / s“.</translation>
     </message>
     <message>
         <location filename="../src/status_bar.py" line="443"/>
         <source>The PP-OCR model is loading; the boxes are read as soon as it is ready.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Das PP-OCR-Modell wird geladen; die Rahmen werden abgelesen, sobald es bereit ist.</translation>
     </message>
     <message>
         <location filename="../src/status_bar.py" line="459"/>
         <source>PP-OCR couldn&apos;t load ({error}), so the boxes are read with Tesseract (General Scoreboard). The log has the details.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">PP-OCR konnte nicht geladen werden ({error}), daher werden die Rahmen mit Tesseract (General Scoreboard) abgelesen. Details stehen im Log.</translation>
     </message>
     <message>
         <location filename="../src/status_bar.py" line="470"/>
