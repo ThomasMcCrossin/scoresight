@@ -156,6 +156,47 @@ Single-crop latency, p50 / p95 ms, on the first 300 crops in one run with Tesser
 
 Caveat: PaddleOCR's training data is in-house and not published, so these models may have seen Open Images photos or TextOCR crops like the ones in `textocr_scoreboards`. There is no sign of it: no model reads the crops from TextOCR's train photos clearly better than those from its val photos, and the differences are well within the intervals (`v6-small-wl`: 94.6% on 1,110 train crops, 95.8% on 166 val crops). Still, the uncontaminated checks are `synthetic_7seg` and Training Dojo data.
 
+## Operating-system OCR
+
+`windows-ocr` (`Windows.Media.Ocr`, built into Windows 10 and 11) and `apple-vision` (Apple's Vision framework and Live Text, through [ocrmac](https://github.com/straussmaximilian/ocrmac)) read crops with the OCR that comes with the operating system: nothing to download or bundle, but each runs on one platform only, and both are document OCR, with a text detector, a language model, and no character whitelist or single-word mode. Their adapters share `ocr_eval/engines/_os_ocr.py`, and their variants combine one preprocessing with an optional `-digits` suffix:
+
+| Variant part | What the engine is given |
+|---|---|
+| `raw` | The crop as it is |
+| `upscale` | A crop shorter than 64 px scaled up to 64 px (bicubic), with a margin of half its height on every side in the crop's border colour: the detectors miss small text and text that touches the image edge |
+| `tile` | `upscale`, then three copies of the crop side by side, half a height apart. Words are assigned to the copy under them (a word spanning several copies that reads as equal parts, like `333`, is split) and the copies' readings are majority-voted. Windows OCR never returns a lone character, and half of the real crops are one digit |
+| `-digits` | For numeric field types, letters these engines read for digits are mapped to them (`O`→`0`, `l`→`1`, `S`→`5`, `B`→`8`, ...) before voting: the stand-in for Tesseract's digit whitelist |
+
+`apple-vision` variants also name a recognition level: `accurate-...`, `fast-...` or `livetext-...` (macOS 14 or later), for example `accurate-tile-digits`. The geometry (64 px, half-height margins and gaps, three copies) was chosen on the `dev` split with Windows OCR; values around it gave the same accuracy within about a point.
+
+**Windows.** Install the extras in the evaluation environment (`$(python -m ocr_eval requirements windows-ocr)` lists the pinned `winrt-*` packages winocr uses) and check that `python -m ocr_eval list` shows `windows-ocr` as available. It also needs the OCR language pack for English (United States), which comes with that Windows language; if it is missing, `list` says so, and an administrator PowerShell installs it with `Add-WindowsCapability -Online -Name "Language.OCR~~~en-US~0.0.1.0"`. The adapter keeps one `OcrEngine` (winocr's helpers create one per call, which costs about 2.5 ms per crop). pywinrt ships an old `msvcp140.dll` that crashes Tesseract if it is loaded first, so the adapter loads the system's copy before importing pywinrt, and `--engine windows-ocr --engine tesseract` can share a run.
+
+**macOS.** `apple-vision` needs `ocrmac==1.0.1` and `pyobjc-framework-Vision==12.2.2` (`python -m ocr_eval requirements apple-vision`). It hasn't been run on a Mac yet: it was written against ocrmac's API and tested with ocrmac faked, and its results record `"verified": false`. Run `python -m ocr_eval run --dataset textocr_scoreboards --dataset synthetic_7seg --engine apple-vision --out results/apple-vision` on a Mac to measure it (and to verify it: no run should end in `error`).
+
+### Windows OCR results
+
+`ocr_eval/baselines/windows-ocr.json` and `windows-ocr.md` hold every `windows-ocr` variant on both datasets (Windows 11 build 26200, Intel Core i9-14900K). CI doesn't run them (it runs on Linux); compare a change to the adapter with `python -m ocr_eval compare ocr_eval/baselines/windows-ocr.json NEW.json`. On `textocr_scoreboards`, next to Tesseract (same machine, same run), exact match:
+
+| Engine:variant | Exact % (95% CI) | Clock % | Number % | Text % | 1 char % | 2 chars % | 3+ chars % | ms p50 / p95 |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| `tesseract:eng-nobin` | 35.9 (33.3–38.6) | 12.2 | 40.6 | 30.3 | 47.7 | 28.4 | 21.7 | 3.5 / 10.9 |
+| `windows-ocr:tile-digits` | 25.5 (23.2–28.0) | 22.3 | 21.8 | 47.6 | 18.4 | 28.8 | 35.3 | 2.4 / 8.6 |
+| `windows-ocr:tile` | 21.7 (19.5–24.1) | 21.6 | 16.8 | 47.6 | 11.0 | 28.1 | 35.0 | 2.2 / 12.5 |
+| `tesseract:scoreboard_general` (the app's default) | 17.6 (15.6–19.7) | 4.3 | 23.0 | 0.0 | 28.9 | 11.1 | 3.1 | 3.0 / 7.4 |
+| `windows-ocr:upscale-digits` | 15.4 (13.5–17.4) | 21.6 | 9.8 | 39.5 | 0.3 | 24.5 | 33.9 | 0.6 / 4.6 |
+| `windows-ocr:upscale` | 15.1 (13.3–17.2) | 20.9 | 9.6 | 39.5 | 0.2 | 24.2 | 33.6 | 0.6 / 4.3 |
+| `windows-ocr:raw-digits` | 6.6 (5.3–8.1) | 9.4 | 3.2 | 22.2 | 0.0 | 8.2 | 16.8 | 0.1 / 1.2 |
+| `windows-ocr:raw` | 6.3 (5.1–7.8) | 7.9 | 3.1 | 22.2 | 0.0 | 7.8 | 16.2 | 0.1 / 1.3 |
+
+(n: clock 139, number 948, text 185; 619 crops of 1 character, 306 of 2, 351 of 3 or more. Latencies vary by about a millisecond between runs.) On the `test` split alone: `tile-digits` 28.3%, `eng-nobin` 36.9%, `scoreboard_general` 17.7%. On `synthetic_7seg` Windows OCR reads at most 10.7% (`tile`), against 58.9% for `scoreboard_general`.
+
+What this says:
+
+- As it is (`raw`), Windows OCR is unusable on scoreboard crops: it returns nothing for 91% of them and reads none of the 619 single characters.
+- Each step helps significantly (paired McNemar tests): upscaling (+8.8 points over `raw`, p = 4×10⁻²⁶), tiling (+6.6 over `upscale`, p = 2×10⁻¹³) and, on tiled images, the digit mapping (+3.8 over `tile`, p = 4×10⁻¹⁵; without tiling it changes 3 crops). `tile-digits` beats the app's default Tesseract setup by 7.9 points (293 crops gained, 191 lost, p = 4×10⁻⁶) and reads multi-character values (clocks, words, numbers of 3 or more digits) better than any Tesseract variant, but loses to `eng-nobin` overall by 10.4 points (176 gained, 308 lost, p = 2×10⁻⁹), mostly on single digits and 7-segment and LCD displays (led7 13.6%, lcd 4.1%).
+- The two are complementary: 49.7% of the crops are read by `eng-nobin` or `tile-digits` (an upper bound, with a perfect chooser).
+- Being Windows-only, it can't be ScoreSight's cross-platform engine; it is at most a candidate for text and clock boxes on Windows.
+
 ## Continuous integration
 
 `.github/workflows/ocr-eval.yml` runs on pull requests that change recognition (`src/tesseract.py`, `src/defaults.py`, `src/text_detection_target.py`, `tesseract/`, `ocr_eval/`, `requirements.txt`, the workflow) and manually. On Ubuntu 24.04 it validates the datasets, runs every Tesseract variant on both datasets, and compares with the baseline:
