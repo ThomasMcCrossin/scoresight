@@ -29,7 +29,10 @@ Tests are grouped with markers:
 |---|---|---|
 | (none) | Only the Python dependencies | storage, defaults, file and HTTP output formats, packaging (`tests/test_packaging.py`) |
 | `ocr` | `tesserocr` and the bundled models in `tesseract/tessdata` | recognition of synthetic digit images |
+| `ppocr` | onnxruntime and the PP-OCR models (`python scripts/fetch_models.py`) | the PP-OCR engine reading synthetic digits, clocks and text; the app reading like the OCR evaluation |
 | `qt` | Qt, running offscreen | widgets and dialogs |
+
+Without the PP-OCR models the `ppocr` tests are skipped, and the packaging tests skip the model files they would check. With `SCORESIGHT_REQUIRE_PPOCR` set (CI sets it after fetching the models) a missing model or onnxruntime stops the run with an error instead, so they can't be skipped unnoticed. The other PP-OCR tests (decoding with whitelists, batching, the result states, the lazy load, the fallback, the model list, Image cleanup, PP-OCR (automatic), the hint) use a fake onnxruntime session or a fake engine and always run.
 
 `tests/test_packaging.py` checks the release machinery without building: version parsing and the tag check, CHANGELOG section extraction and `scripts/bump_version.py`, the smoke-test runner, that `DATA_GLOBS` in `scoresight.spec` covers every resource the code loads, the installer's invariants, and that the workflows agree on the package names.
 
@@ -53,7 +56,7 @@ The tests use temporary folders for settings and logs (see `tests/conftest.py`),
 2. imports every app module (the list in `SELF_TEST_MODULES` in `src/main.py`; a test checks that it covers every module in `src/`),
 3. checks that the bundled files exist,
 4. builds the main window UI off-screen and loads a translation,
-5. loads all four bundled OCR models and requires the English model to read a rendered "45",
+5. loads all four bundled Tesseract models and every PP-OCR choice (accurate, fast and automatic), and requires the English model and every PP-OCR choice to read a rendered "45". The PP-OCR models must be there in a packaged build; from source, without them, it only warns,
 6. resolves uvicorn's dynamic imports,
 7. enumerates the video sources. A failure here (for example the Windows camera enumerator wasn't built) is only a warning when running from source, but fails a packaged build.
 
@@ -71,6 +74,7 @@ CI runs the same check against the frozen (PyInstaller) app on every platform wi
 
 ```bash
 python scripts/ci/e2e_test.py -- python src/main.py
+python scripts/ci/e2e_test.py --engine tesseract -- python src/main.py
 python scripts/ci/e2e_test.py -- dist/scoresight/scoresight.exe                 # Windows build
 python scripts/ci/e2e_test.py -- dist/ScoreSight.app/Contents/MacOS/scoresight  # macOS build
 ```
@@ -80,11 +84,12 @@ It:
 1. renders a short video with the 7-segment digits of `tests/synthetic_images.py`: the home score goes 0, 1, 2 while the away score stays 3 and the clock counts down from 12:00, then the final state (2, 3, 11:51) holds for 8 seconds;
 2. writes the settings of a profile `e2e` in a temporary settings folder: the video as the source, Home Score, Away Score and Time boxes, the `.txt`, `results.csv` and `results.xml` file outputs, and the outbound API pointed at a mock server that the script runs;
 3. starts the app with `--profile e2e --port <free port>` and follows `GET /json`, `/csv?pivot` and `/xml`, the files and the mock server until each has shown the home score going 0, 1, 2 and the final state. A good reading that isn't one of the video's values fails the test (a rejected or empty reading doesn't);
-4. stops the app the way a user would (`SIGTERM`, or Ctrl+Break on Windows), requires exit code 0 and checks that the settings file still has the boxes.
+4. stops the app the way a user would (`SIGTERM`, or Ctrl+Break on Windows), requires exit code 0 and checks that the settings file still has the boxes;
+5. checks the OCR engine: `--engine ppocr` (the default) leaves the OCR model out of the settings, as in a new setup, and requires the log to show PP-OCR loaded (without falling back to Tesseract) and the settings file to have PP-OCR (automatic) stored afterwards; `--engine tesseract` chooses General Scoreboard. Whether automatic switched to its fast model is in the `--json` details.
 
 A run takes about 10 seconds. `--work-dir DIR` keeps the video, settings, logs and outputs, `--json FILE` writes the timings and the checks, and a failure prints the app's output and log files. A video file source plays in a loop (the capture thread starts it again at the end), which is why each output is checked over the whole run. vMix isn't covered: it sends only after **Start vMix**, which isn't saved.
 
-The boxes use the General Scoreboard model with autocrop on and no dilation. `tests/test_ci_scripts.py` checks with the real OCR that this reads every state of the video, so a change in the models or in Tesseract shows up in the test suite first.
+The boxes have autocrop on and no dilation, for Tesseract's General Scoreboard model (PP-OCR ignores those Image cleanup settings). `tests/test_ci_scripts.py` checks with the real OCR that both engines read every state of the video, so a change in the models, in Tesseract or in the PP-OCR engine shows up in the test suite first. CI runs both engines from source, and `build.yml` both on the frozen app.
 
 ## Boot time
 
@@ -143,16 +148,17 @@ Four workflows in `.github/workflows/` run on GitHub Actions:
 
 | Workflow | Runs on | What it does |
 |---|---|---|
-| `ci.yml` | Every pull request, every push to `main`, manual runs | **Lint**: `ruff check`, `ruff format --check`, `scripts/compile_ui.py --check`, `scripts/update_translations.py --check`, and a check that no file links to the lapsed `scoresight[.]live` domain. **Test**: `pytest` with Python 3.13 on Ubuntu 24.04 and Windows, then the [end-to-end test](#the-end-to-end-test) from source (its files are uploaded if the job fails). macOS runs the tests only on pushes to `main`, to save scarce macOS runners. An extra Python 3.14 leg on Ubuntu is allowed to fail |
-| `build.yml` | Pull requests that change packaging files (`scoresight.spec`, `scoresight.iss`, `entitlements.plist`, the `requirements*.txt` files except dev/tools, `scripts/ci/`, `src/main.py`, `src/resource_path.py`, `src/version.py`, `src/win32DeviceEnum/`, the workflow itself), manual runs (**Actions > Build > Run workflow**), and release tags through `release.yml` | Builds Windows x64, macOS arm64, macOS x86_64 and Linux x86_64 with PyInstaller, runs the frozen app's `--self-test`, the [end-to-end test](#the-end-to-end-test) and the [boot benchmark](#boot-time) (5 runs; it fails above 60 s cold or a 20 s warm median, generous limits for GitHub-hosted runners that only catch a gross regression), and packages the installer, portable zip, disk images and archive. For comparison it also downloads the 0.1.0 release for the platform and benchmarks it (3 runs; these steps never fail the build). The job summary shows the end-to-end test and both boot times side by side, and the `ci-results-<target>` artifact has the JSON results. On Windows it also installs the installer silently, self-tests the installed app and uninstalls it. The packages are uploaded as workflow artifacts |
+| `ci.yml` | Every pull request, every push to `main`, manual runs | **Lint**: `ruff check`, `ruff format --check`, `scripts/compile_ui.py --check`, `scripts/update_translations.py --check`, and a check that no file links to the lapsed `scoresight[.]live` domain. **Test**: fetches the PP-OCR models (`scripts/fetch_models.py`, cached with `actions/cache`; it fails after its retries), then `pytest` with Python 3.13 on Ubuntu 24.04 and Windows (with `SCORESIGHT_REQUIRE_PPOCR`), then the [end-to-end test](#the-end-to-end-test) from source with Tesseract and with PP-OCR (its files are uploaded if the job fails). macOS runs the tests only on pushes to `main`, to save scarce macOS runners. An extra Python 3.14 leg on Ubuntu is allowed to fail |
+| `build.yml` | Pull requests that change packaging files (`scoresight.spec`, `scoresight.iss`, `entitlements.plist`, the `requirements*.txt` files except dev/tools, `scripts/ci/`, `scripts/fetch_models.py`, `ocr_models/`, `src/main.py`, `src/resource_path.py`, `src/version.py`, `src/win32DeviceEnum/`, the workflow itself), manual runs (**Actions > Build > Run workflow**), and release tags through `release.yml` | Fetches the PP-OCR models (cached; fails after its retries), builds Windows x64, macOS arm64, macOS x86_64 and Linux x86_64 with PyInstaller, runs the frozen app's `--self-test`, the [end-to-end test](#the-end-to-end-test) with PP-OCR and with Tesseract and the [boot benchmark](#boot-time) (5 runs; it fails above 60 s cold or a 20 s warm median, generous limits for GitHub-hosted runners that only catch a gross regression), and packages the installer, portable zip, disk images and archive. For comparison it also downloads the 0.1.0 release for the platform and benchmarks it (3 runs; these steps never fail the build). The job summary shows the end-to-end test and both boot times side by side, and the `ci-results-<target>` artifact has the JSON results. On Windows it also installs the installer silently, self-tests the installed app and uninstalls it. The packages are uploaded as workflow artifacts |
 | `release.yml` | Version tags only | See [Releasing](releasing.md) |
-| `ocr-eval.yml` | Pull requests and pushes to `main` that change recognition (`src/tesseract.py`, `src/defaults.py`, `src/text_detection_target.py`, `tesseract/`, `ocr_eval/`, `requirements.txt`, `requirements-eval.txt`, the workflow itself), and manual runs | Runs ScoreSight's Tesseract pipeline with every bundled model, and the PP-OCRv6 `small` and `tiny` recognizers, on the committed evaluation datasets, and fails if exact-match accuracy drops by more than 2 points against the baselines in `ocr_eval/baselines/` (`tesseract.json`, `tesseract-commons.json`, `ppocr-ci.json`). The PP-OCR models are cached; a download that fails fails the job, except that a pull request skips the PP-OCR comparison with a warning when the Hugging Face Hub stays unreachable after retries. The reports are in the job summary and the results are uploaded as artifacts. See [OCR Evaluation](ocr-eval.md) |
+| `ocr-eval.yml` | Pull requests and pushes to `main` that change recognition (`src/tesseract.py`, `src/ppocr_engine.py`, `src/defaults.py`, `src/text_detection_target.py`, `tesseract/`, `scripts/fetch_models.py`, `ocr_eval/`, `requirements.txt`, `requirements-eval.txt`, the workflow itself), and manual runs | Runs ScoreSight's Tesseract pipeline with every bundled model, the PP-OCRv6 `small` and `tiny` recognizers, and the app's own PP-OCR engine (`ppocr-app`), on the committed evaluation datasets, and fails if exact-match accuracy drops by more than 2 points against the baselines in `ocr_eval/baselines/` (`tesseract.json`, `tesseract-commons.json`, `ppocr-ci.json`, `ppocr-app-ci.json`). The PP-OCR models are cached; a download that fails fails the job, except that a pull request skips the PP-OCR comparison with a warning when the Hugging Face Hub stays unreachable after retries. The reports are in the job summary and the results are uploaded as artifacts. See [OCR Evaluation](ocr-eval.md) |
 
 Pull request builds, including those from forks, are unsigned. A pull request should be green before review. Test packages from a pull request or a manual run are named `scoresight-<version>-<short commit>-<platform>...`.
 
 ## Writing tests
 
 - Put tests in `tests/test_<area>_*.py` and use the fixtures from `tests/conftest.py`.
-- Mark tests that need Tesseract with `@pytest.mark.ocr`, and tests that create Qt widgets with `@pytest.mark.qt`.
+- Mark tests that need Tesseract with `@pytest.mark.ocr`, tests that need the PP-OCR models with `@pytest.mark.ppocr`, and tests that create Qt widgets with `@pytest.mark.qt`.
+- A test that constructs `TextDetector` for Tesseract passes the model (`TextDetector(TextDetector.OcrModelIndex.SCOREBOARD_GENERAL)`): with nothing stored it reads with a new setup's default, PP-OCR (automatic).
 - Don't open real cameras, network ports or user folders. Use temporary paths, synthetic images (`numpy`/`cv2`) and local test servers.
 - For a bug fix, add a test that fails without the fix.

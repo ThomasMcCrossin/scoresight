@@ -33,6 +33,29 @@ os.environ["QT_QPA_PLATFORM"] = "offscreen"
 HAS_TESSEROCR = importlib.util.find_spec("tesserocr") is not None
 HAS_OCR_MODELS = TESSDATA_DIR.is_dir() and any(TESSDATA_DIR.glob("*.traineddata"))
 
+# The PP-OCR models aren't in git (scripts/fetch_models.py downloads them):
+# without them (or onnxruntime) the `ppocr` tests are skipped, unless
+# SCORESIGHT_REQUIRE_PPOCR is set (CI fetches them), which makes them fail.
+PPOCR_MODELS_DIR = REPO_ROOT / "ocr_models" / "ppocr"
+PPOCR_FILES = ("inference.onnx", "characters.txt", "config.json")
+PPOCR_FOLDERS = ("PP-OCRv6_small_rec", "PP-OCRv6_tiny_rec")
+HAS_ONNXRUNTIME = importlib.util.find_spec("onnxruntime") is not None
+HAS_PPOCR_MODELS = all(
+    (PPOCR_MODELS_DIR / folder / name).is_file()
+    for folder in PPOCR_FOLDERS
+    for name in PPOCR_FILES
+)
+REQUIRE_PPOCR = bool(os.environ.get("SCORESIGHT_REQUIRE_PPOCR"))
+PPOCR_MISSING = (
+    None
+    if HAS_ONNXRUNTIME and HAS_PPOCR_MODELS
+    else (
+        "onnxruntime is not installed"
+        if not HAS_ONNXRUNTIME
+        else "the PP-OCR models aren't downloaded (python scripts/fetch_models.py)"
+    )
+)
+
 
 def _remove_session_dir():
     # close the log files sc_logging opened so they can be deleted on Windows
@@ -48,6 +71,15 @@ def pytest_report_header(config):
 
 
 def pytest_collection_modifyitems(config, items):
+    if PPOCR_MISSING is not None:
+        if REQUIRE_PPOCR:
+            raise pytest.UsageError(
+                f"SCORESIGHT_REQUIRE_PPOCR is set but {PPOCR_MISSING}"
+            )
+        skip_ppocr = pytest.mark.skip(reason=PPOCR_MISSING)
+        for item in items:
+            if "ppocr" in item.keywords:
+                item.add_marker(skip_ppocr)
     if HAS_TESSEROCR and HAS_OCR_MODELS:
         return
     reason = (
@@ -145,4 +177,4 @@ def text_detector():
     must be marked `ocr`; tests that switch models should restore the default."""
     from tesseract import TextDetector
 
-    return TextDetector()
+    return TextDetector(TextDetector.OcrModelIndex.SCOREBOARD_GENERAL)

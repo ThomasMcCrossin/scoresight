@@ -18,7 +18,7 @@ Real-time scoreboard OCR for live production. Free, open source, and available f
 
 ---
 
-ScoreSight reads text and numbers from a live video feed (a stadium scoreboard filmed by a camera, a capture card, an NDI feed, an RTSP stream, a window on your screen or a video file). It sends the values to your production tools many times per second. You draw a box around each value you care about, such as the home score, the clock or the period. ScoreSight then runs [Tesseract OCR](https://github.com/tesseract-ocr/tesseract) on every box and publishes the results to text files, a built-in HTTP server, OBS, vMix, overlays.uno, or any HTTP endpoint you choose.
+ScoreSight reads text and numbers from a live video feed (a stadium scoreboard filmed by a camera, a capture card, an NDI feed, an RTSP stream, a window on your screen or a video file). It sends the values to your production tools many times per second. You draw a box around each value you care about, such as the home score, the clock or the period. ScoreSight then reads every box with [PaddleOCR's PP-OCRv6](https://github.com/PaddlePaddle/PaddleOCR) text recognition models (or [Tesseract OCR](https://github.com/tesseract-ocr/tesseract)) and publishes the results to text files, a built-in HTTP server, OBS, vMix, overlays.uno, or any HTTP endpoint you choose.
 
 <div align="center">
 <a href="https://youtu.be/MtctQZ2DIjU" target="_blank" rel="noopener"><img src="scoresight_getting_started.png" width="60%" alt="Video: getting started with ScoreSight"/></a>
@@ -41,7 +41,7 @@ ScoreSight reads text and numbers from a live video feed (a stadium scoreboard f
 
 1. **Capture**: ScoreSight grabs frames from your [source](sources.md).
 2. **Correct**: Optional rotation, cropping, stabilization and 4-corner perspective correction make the scoreboard flat and steady ([Viewer & Image Tools](view-tools.md)).
-3. **Read**: Every [detection box](boxes.md) is cleaned up according to its [per-box settings](box-settings.md) and read by an [OCR model](ocr-models.md) tuned for scoreboard digits.
+3. **Read**: Every [detection box](boxes.md) is read by an [OCR model](ocr-models.md) (PP-OCR by default, or Tesseract, which first cleans the box up according to its [per-box settings](box-settings.md)), then checked against the box's format.
 4. **Validate**: Format rules (for example "a clock looks like `mm:ss`") reject impossible readings before they reach your graphics.
 5. **Publish**: Results go to every [output](outputs.md) you enabled. Outputs run in the background, so a slow or offline target never freezes the app.
 

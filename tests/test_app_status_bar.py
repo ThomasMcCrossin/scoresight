@@ -197,3 +197,114 @@ def test_the_outputs_summary(qapp):
         assert clicked == ["vmix", "files"]
     finally:
         statusbar.deleteLater()
+
+
+# --- the OCR engine --------------------------------------------------------------------
+
+
+def engine(**values):
+    from dataclasses import replace
+
+    return replace(RUNNING, **values)
+
+
+def test_while_ppocr_loads():
+    import ppocr_engine
+    from status_bar import ocr_tooltip
+
+    snapshot = engine(ocr_model="ppocr:auto", ocr_engine_state=ppocr_engine.LOADING)
+    assert ocr_text(snapshot) == "Loading PP-OCR…"
+    assert not ocr_is_slow(engine(**{**snapshot.__dict__, "ocr_rate": 0.1}))
+    assert "loading" in ocr_tooltip(snapshot)
+
+
+def test_a_ppocr_that_didnt_load():
+    import ppocr_engine
+    from status_bar import ocr_fallback, ocr_tooltip
+
+    snapshot = engine(
+        ocr_model="ppocr:small",
+        ocr_engine_state=ppocr_engine.FAILED,
+        ocr_engine_error="ImportError: DLL load failed",
+    )
+    assert ocr_fallback(snapshot)
+    assert (
+        ocr_text(snapshot) == "Reading 4.7/s of 5 · with Tesseract: PP-OCR didn't load"
+    )
+    assert "DLL load failed" in ocr_tooltip(snapshot)
+    assert "Tesseract (General Scoreboard)" in ocr_tooltip(snapshot)
+
+
+@pytest.mark.parametrize(
+    ("model", "state", "accurate_slow"),
+    [
+        ("ppocr:small", "ready", True),
+        ("ppocr:auto", "ready", False),
+        ("ppocr:tiny", "ready", False),
+        (1, None, False),
+    ],
+)
+def test_the_cpu_advice_is_for_ppocr_accurate(model, state, accurate_slow):
+    from status_bar import ocr_tooltip, ppocr_accurate_is_slow
+
+    snapshot = engine(ocr_model=model, ocr_engine_state=state, ocr_rate=2.0)
+    assert ocr_is_slow(snapshot)
+    assert ppocr_accurate_is_slow(snapshot) is accurate_slow
+    tooltip = ocr_tooltip(snapshot)
+    assert ("Choose PP-OCR (fast)" in tooltip) is accurate_slow
+    assert ("lower Detections / s, use fewer boxes" in tooltip) is not accurate_slow
+
+
+@pytest.mark.parametrize(
+    ("model", "reason", "accurate_ms", "interval_ms", "text"),
+    [
+        (None, None, None, None, ""),
+        (
+            "ppocr:small",
+            "starting",
+            None,
+            200.0,
+            "PP-OCR automatic: accurate (measuring how long it needs here)",
+        ),
+        (
+            "ppocr:small",
+            "keeps up",
+            41.6,
+            200.0,
+            "PP-OCR automatic: accurate (it needs 42 ms per reading here, of the "
+            "200 ms between readings)",
+        ),
+        (
+            "ppocr:tiny",
+            "too slow",
+            110.0,
+            100.0,
+            "PP-OCR automatic: fast (accurate needs 110 ms per reading here, more "
+            "than 70% of the 100 ms between readings)",
+        ),
+        (
+            "ppocr:tiny",
+            "unavailable",
+            None,
+            None,
+            "PP-OCR automatic: fast (accurate didn't load)",
+        ),
+    ],
+)
+def test_what_automatic_reads_with(model, reason, accurate_ms, interval_ms, text):
+    from status_bar import ocr_tooltip, ppocr_auto_text, snapshot_auto_text
+
+    assert ppocr_auto_text(model, reason, accurate_ms, interval_ms) == text
+    snapshot = engine(
+        ocr_model="ppocr:auto",
+        ocr_engine_state="ready",
+        ocr_auto_model=model,
+        ocr_auto_reason=reason,
+        ocr_auto_accurate_ms=accurate_ms,
+        ocr_auto_interval_ms=interval_ms,
+    )
+    assert snapshot_auto_text(snapshot) == text
+    if text:
+        assert text in ocr_tooltip(snapshot)
+    # only for automatic
+    assert snapshot_auto_text(engine(**{**snapshot.__dict__, "ocr_model": 1})) == ""

@@ -2,8 +2,18 @@
 scoreboard video and check that the readings reach the outputs.
 
     python scripts/ci/e2e_test.py -- python src/main.py
+    python scripts/ci/e2e_test.py --engine tesseract -- python src/main.py
     python scripts/ci/e2e_test.py --json e2e.json -- dist/scoresight/scoresight.exe
     python scripts/ci/e2e_test.py -- dist/ScoreSight.app/Contents/MacOS/scoresight
+
+--engine chooses the OCR engine: ppocr (the default) leaves the OCR model out
+of the settings, as in a new setup, whose default is PP-OCR (automatic: the
+accurate model while it keeps up, the fast one when it doesn't); tesseract
+chooses the General Scoreboard model. Either way the app's log must show that
+engine reading (a PP-OCR that couldn't load falls back to Tesseract, which
+would otherwise pass unnoticed), and with ppocr the settings file must then
+have PP-OCR (automatic) stored as the OCR model. Whether automatic switched to
+the fast model is in the results' details.
 
 What it does:
 1. Renders a scoreboard video with the 7-segment digits of
@@ -41,10 +51,11 @@ What the design accounts for:
   than only at the end.
 - vMix isn't tested: the vMix output sends only after "Start vMix" is clicked,
   and that isn't saved (VMixAPI.running is False at every start).
-- The boxes use the General Scoreboard model with autocrop on and no dilation,
-  which reads every frame of this video correctly; tests/test_ci_scripts.py
-  checks that with the real OCR, so a model or Tesseract change shows up there
-  first.
+- With Tesseract the boxes use the General Scoreboard model with autocrop on
+  and no dilation, which reads every frame of this video correctly; PP-OCR
+  ignores those Image cleanup settings and reads every frame correctly too.
+  tests/test_ci_scripts.py checks both with the real OCR, so a model, engine or
+  Tesseract change shows up there first.
 """
 
 import argparse
@@ -87,6 +98,20 @@ BOXES = {
 # defaults of these predefined boxes.
 BOX_SETTINGS = {"autocrop": True, "dilate": 0}
 OCR_MODEL_GENERAL_SCOREBOARD = 1  # TextDetector.OcrModelIndex.SCOREBOARD_GENERAL
+# a new setup's OCR model (ocr_models.DEFAULT_MODEL), stored when its source opens
+OCR_MODEL_PPOCR_DEFAULT = "ppocr:auto"
+# the model PP-OCR (automatic) reads with first, and with which it is tested
+OCR_MODEL_PPOCR_ACCURATE = "ppocr:small"
+# logged when PP-OCR (automatic) switches to its fast model
+PPOCR_AUTO_FAST_LOG_LINE = "PP-OCR automatic: reading with fast"
+ENGINES = ("ppocr", "tesseract")
+# what the app logs once the engine reads (src/ppocr_engine.py, src/tesseract.py)
+ENGINE_LOG_LINES = {
+    "ppocr": "PP-OCR: loaded PP-OCRv6_small_rec",
+    "tesseract": "Setting OCR model to scoreboard_general",
+}
+# logged when PP-OCR couldn't load and Tesseract reads instead
+PPOCR_FALLBACK_LOG_LINE = "reading the boxes with Tesseract"
 BOXES_SCHEMA_VERSION = 2  # storage.BOXES_SCHEMA_VERSION
 FINAL_HOLD_SECONDS = 8
 
@@ -204,10 +229,15 @@ def count_video_frames(path: Path) -> int:
 # --- the app's settings ---------------------------------------------------------
 
 
-def app_settings(video_path: Path, output_dir: Path, api_url: str) -> dict:
+def app_settings(
+    video_path: Path, output_dir: Path, api_url: str, engine: str = "ppocr"
+) -> dict:
     """The profile's settings file (keys as read by src/mainwindow.py and the
-    output modules)."""
-    return {
+    output modules). engine "ppocr" leaves the OCR model out (a new setup's
+    default); "tesseract" chooses General Scoreboard."""
+    if engine not in ENGINES:
+        raise ValueError(f"unknown engine {engine!r}")
+    settings = {
         # opened by MainWindow.restoreSelectedSource after source discovery
         "source_selected": {"type": "File", "value": str(video_path)},
         "boxes": [
@@ -220,7 +250,6 @@ def app_settings(video_path: Path, output_dir: Path, api_url: str) -> dict:
             for name, (x, y, width, height) in BOXES.items()
         ],
         "boxes_schema_version": BOXES_SCHEMA_VERSION,
-        "ocr_model": OCR_MODEL_GENERAL_SCOREBOARD,
         "detection_cadence": 10,  # detections per second
         "update_on_change": True,
         # files: a .txt per box (overwritten), results.csv (a row appended per
@@ -238,6 +267,9 @@ def app_settings(video_path: Path, output_dir: Path, api_url: str) -> dict:
         # no requests to GitHub
         "disable_update_checks": True,
     }
+    if engine == "tesseract":
+        settings["ocr_model"] = OCR_MODEL_GENERAL_SCOREBOARD
+    return settings
 
 
 def settings_path(data_dir: Path) -> Path:
@@ -736,7 +768,7 @@ def check_outputs(result: Result, outputs: Outputs) -> None:
     }
 
 
-def check_settings(result: Result, data_dir: Path) -> None:
+def check_settings(result: Result, data_dir: Path, engine: str = "ppocr") -> None:
     path = settings_path(data_dir)
     try:
         settings = json.loads(path.read_text(encoding="utf-8"))
@@ -748,9 +780,43 @@ def check_settings(result: Result, data_dir: Path) -> None:
     result.check(
         "the settings file still has the boxes", names == list(BOXES), f"{names}"
     )
+    expected_model = (
+        OCR_MODEL_PPOCR_DEFAULT if engine == "ppocr" else OCR_MODEL_GENERAL_SCOREBOARD
+    )
+    result.check(
+        f"the settings file has the OCR model {expected_model!r}",
+        settings.get("ocr_model") == expected_model,
+        f"ocr_model: {settings.get('ocr_model')!r}",
+    )
 
 
-def run_e2e(command: list[str], timeout: float, work_dir: Path) -> Result:
+def read_logs(log_dir: Path) -> str:
+    """The text of the app's log files."""
+    if not Path(log_dir).is_dir():
+        return ""
+    return "\n".join(
+        path.read_text(encoding="utf-8", errors="replace")
+        for path in sorted(Path(log_dir).glob("*.log"))
+    )
+
+
+def check_engine(result: Result, log_dir: Path, engine: str) -> None:
+    """The log shows the chosen engine reading (not a fallback)."""
+    logs = read_logs(log_dir)
+    line = ENGINE_LOG_LINES[engine]
+    result.check(f"the app read with {engine} (log: {line!r})", line in logs)
+    if engine == "ppocr":
+        result.check(
+            "PP-OCR didn't fall back to Tesseract",
+            PPOCR_FALLBACK_LOG_LINE not in logs,
+        )
+        # not a failure: a slow runner may need the fast model
+        result.details["ppocr_auto_switched_to_fast"] = PPOCR_AUTO_FAST_LOG_LINE in logs
+
+
+def run_e2e(
+    command: list[str], timeout: float, work_dir: Path, engine: str = "ppocr"
+) -> Result:
     result = Result()
     data_dir, log_dir = work_dir / "data", work_dir / "logs"
     output_dir = work_dir / "output"
@@ -760,12 +826,13 @@ def run_e2e(command: list[str], timeout: float, work_dir: Path) -> Result:
     video = work_dir / "scoreboard.avi"
     frames = write_video(video, timeline)
     result.details["video"] = {"frames": frames, "fps": FPS}
-    print(f"video: {video} ({frames} frames)", flush=True)
+    result.details["engine"] = engine
+    print(f"video: {video} ({frames} frames), OCR engine: {engine}", flush=True)
 
     receiver = MockReceiver()
     receiver.start()
     settings_path(data_dir).write_text(
-        json.dumps(app_settings(video, output_dir, receiver.url), indent=2),
+        json.dumps(app_settings(video, output_dir, receiver.url, engine), indent=2),
         encoding="utf-8",
     )
     port = app_harness.free_port()
@@ -791,7 +858,8 @@ def run_e2e(command: list[str], timeout: float, work_dir: Path) -> Result:
         )
         if answered:
             check_outputs(result, outputs)
-        check_settings(result, data_dir)
+        check_settings(result, data_dir, engine)
+        check_engine(result, log_dir, engine)
         try:
             result.startup_report = json.loads(report_path.read_text("utf-8"))
         except (OSError, ValueError):
@@ -864,6 +932,13 @@ def main(argv: list[str] | None = None) -> int:
         help="seconds from the start of the app to the end of the checks "
         "(default: %(default)s)",
     )
+    parser.add_argument(
+        "--engine",
+        choices=ENGINES,
+        default="ppocr",
+        help="the OCR engine: ppocr (a new setup's default, PP-OCR accurate) or "
+        "tesseract (General Scoreboard) (default: %(default)s)",
+    )
     parser.add_argument("--json", type=Path, help="write the results to this file")
     parser.add_argument("--label", default="", help="name of the run in the summary")
     parser.add_argument(
@@ -877,7 +952,7 @@ def main(argv: list[str] | None = None) -> int:
     command = args.command[1:] if args.command[:1] == ["--"] else args.command
     if not command:
         parser.error("give the app command after --")
-    label = args.label or Path(command[-1]).name
+    label = f"{args.label or Path(command[-1]).name}, {args.engine}"
     try:
         command = app_harness.resolve_command(command)
     except FileNotFoundError as e:
@@ -886,16 +961,21 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.work_dir:
         args.work_dir.mkdir(parents=True, exist_ok=True)
-        result = run_e2e(command, args.timeout, args.work_dir.resolve())
+        result = run_e2e(command, args.timeout, args.work_dir.resolve(), args.engine)
     else:
         with tempfile.TemporaryDirectory(
             prefix="scoresight-e2e-", ignore_cleanup_errors=True
         ) as tmp:
-            result = run_e2e(command, args.timeout, Path(tmp))
+            result = run_e2e(command, args.timeout, Path(tmp), args.engine)
     print_result(result)
     if args.json:
         args.json.parent.mkdir(parents=True, exist_ok=True)
-        data = {"label": label, "command": command, **result.to_json()}
+        data = {
+            "label": label,
+            "engine": args.engine,
+            "command": command,
+            **result.to_json(),
+        }
         args.json.write_text(json.dumps(data, indent=2), encoding="utf-8")
     app_harness.append_step_summary(format_summary(result, label))
     return 0 if result.passed else 1

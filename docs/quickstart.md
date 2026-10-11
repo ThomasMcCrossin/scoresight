@@ -67,7 +67,7 @@ If readings are wrong or unstable:
 
 - Click **Binary View** to see the black-and-white image the OCR engine reads. Digits should be solid and clearly separated from the background.
 - Select the box and, in the **Box** tab on the right, set its **Type** (Number, Time or Text) and a **Format** preset, such as *Time mm:ss* or *Score ddd*.
-- Try another **OCR model** (under **All boxes**, at the bottom of the Box tab): *Daktronics* for segment/LED digits, or *General Scoreboard Large* for big digits.
+- Try another **OCR model** (under **All boxes**, at the bottom of the Box tab): *PP-OCR (accurate)* if *PP-OCR (automatic)* reads with fast (the list says so) and your computer can afford it, or one of the Tesseract models (*Daktronics* for segment/LED digits, *General Scoreboard Large* for big digits) with their Image cleanup settings. See [OCR Models](ocr-models.md).
 
 The [Recognition Tuning](recognition-tuning.md) guide walks through this step by step.
 

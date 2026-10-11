@@ -56,6 +56,9 @@ STOP_TIMEOUT_MS = 3000
 # A frame processing error that repeats on every frame is reported at most this often.
 ERROR_REPORT_INTERVAL_S = 5.0
 
+# How long stopping the capture waits for the OCR cycle in progress.
+OCR_STOP_TIMEOUT_S = 2.0
+
 
 def set_process_env(name: str, value: str | None):
     """Set (or with None, remove) an environment variable for this process,
@@ -439,6 +442,65 @@ def _stop_active_threads_at_exit():
 atexit.register(_stop_active_threads_at_exit)
 
 
+class OcrWorker:
+    """Reads the boxes of a TimerThread's frames on a thread of its own, so
+    that the capture loop keeps reading frames while the OCR runs. It holds
+    at most one frame: the capture loop hands it a frame only when it is
+    idle (see TimerThread.process_frame), so the OCR always reads the latest
+    frame and never a queue of stale ones."""
+
+    def __init__(self, owner: "TimerThread"):
+        self.owner = owner
+        self._condition = threading.Condition()
+        self._pending = None
+        self._busy = False
+        self._stopping = False
+        self._thread = threading.Thread(target=self._run, name="ocr", daemon=True)
+
+    def start(self):
+        self._thread.start()
+
+    def idle(self) -> bool:
+        """Whether it can take a frame now (no frame waiting or being read)."""
+        with self._condition:
+            return self._pending is None and not self._busy and not self._stopping
+
+    def submit(self, frame, frame_time: float):
+        with self._condition:
+            self._pending = (frame, frame_time)
+            self._condition.notify()
+
+    def stop(self, timeout: float | None = None) -> bool:
+        """Stop after the cycle in progress (up to timeout seconds); returns
+        whether the thread ended."""
+        with self._condition:
+            self._stopping = True
+            self._pending = None
+            self._condition.notify()
+        if self._thread.is_alive() and self._thread is not threading.current_thread():
+            self._thread.join(timeout)
+        return not self._thread.is_alive()
+
+    def _run(self):
+        while True:
+            with self._condition:
+                while self._pending is None and not self._stopping:
+                    self._condition.wait()
+                if self._stopping:
+                    return
+                frame, frame_time = self._pending
+                self._pending = None
+                self._busy = True
+            try:
+                self.owner.run_ocr_cycle(frame, frame_time)
+            except Exception:
+                # run_ocr_cycle reports its own errors; this is a last resort
+                logger.exception("OCR cycle failed")
+            finally:
+                with self._condition:
+                    self._busy = False
+
+
 class TimerThread(QThread):
     update_signal = Signal(object)
     # the source failed (can't be opened or read): it is stopping
@@ -495,6 +557,12 @@ class TimerThread(QThread):
         self.last_frame_timestamp = None
         self.last_update_timestamp = None
         self.last_emit_time = None
+        # the OCR's thread while the capture runs (None: OCR on the caller's)
+        self._ocr_worker: OcrWorker | None = None
+        # seconds from reading a frame to publishing its boxes' readings: the
+        # last one, and smoothed
+        self.last_reading_latency: float | None = None
+        self.reading_latency: float | None = None
         self._iteration_start = None
         self._last_error_report = None
         self.finished.connect(self._on_finished)
@@ -642,12 +710,17 @@ class TimerThread(QThread):
             if not self.connect_video_capture():
                 self.should_stop = True
                 return
+            self._ocr_worker = OcrWorker(self)
+            self._ocr_worker.start()
             while not self.should_stop:
                 self.run_once()
         except Exception:
             logger.exception("Camera thread failed")
             self.update_error.emit("Error: Unable to play video stream")
         finally:
+            worker, self._ocr_worker = self._ocr_worker, None
+            if worker is not None and not worker.stop(OCR_STOP_TIMEOUT_S):
+                logger.warning("The OCR cycle in progress did not finish in time")
             self._release_capture()
             self.cleanup()
             logger.info("Camera thread stopped")
@@ -733,10 +806,18 @@ class TimerThread(QThread):
         self.processing_error.emit(f"Error: unable to process the video frame: {error}")
 
     def process_frame(self, frame_rgb):
-        """Process a frame read from the source: on the detection cadence run
-        OCR on it, and about once a second emit it as the preview. The two are
-        independent, so the preview (and with it the first-frame signal that
-        enables the UI) comes at any detection cadence."""
+        """Process a frame read from the source: on the detection cadence read
+        its boxes (OCR), and about once a second emit it as the preview. The
+        two are independent, so the preview (and with it the first-frame signal
+        that enables the UI) comes at any detection cadence.
+
+        While the capture runs (run()), the OCR runs on its own thread
+        (OcrWorker), so a slow OCR cycle never holds up reading frames: a live
+        source's frames don't go stale in its buffer and a video file plays at
+        the loop's rate. A frame is handed to the OCR only when it is idle, so
+        it always reads the latest frame and the frames read meanwhile are
+        dropped (they may still be previewed). Without a running capture (the
+        tests) the OCR runs here, on the calling thread."""
         now = self._clock()
         self.frame_size = (frame_rgb.shape[1], frame_rgb.shape[0])
 
@@ -750,11 +831,13 @@ class TimerThread(QThread):
                 )
         self.last_frame_timestamp = now
 
-        # check that enough time has passed since the last update and preview
+        # check that enough time has passed since the last update and preview,
+        # and that the OCR is free to take this frame
+        worker = self._ocr_worker
         update_due = (
             self.last_update_timestamp is None
             or (now - self.last_update_timestamp) * 1000.0 >= self.update_frame_interval
-        )
+        ) and (worker is None or worker.idle())
         preview_due = (
             self.last_emit_time is None
             or (now - self.last_emit_time) * 1000.0 >= self.preview_frame_interval
@@ -766,7 +849,6 @@ class TimerThread(QThread):
         adjusted = self.adjust_frame(frame_rgb)
         frame_rgb = self.correct_frame(adjusted)
         show_binary = self.show_binary
-        save_training_data = ocr_training_data_options.save_ocr_training_data
         targets = None
         gray = None
         display = None
@@ -780,26 +862,12 @@ class TimerThread(QThread):
                         + (1.0 - self.fps_alpha) * self.ups
                     )
             self.last_update_timestamp = now
-
-            # One snapshot of the boxes per frame: the GUI thread may add or
-            # remove boxes while the OCR runs.
-            targets = self._snapshot_targets()
-            if targets:
-                gray = to_gray(frame_rgb)
-                binary = None
-                if (show_binary and preview_due) or save_training_data:
-                    binary = global_binarization(gray)
-                    display = binary.copy()
-                try:
-                    # binary=None: the OCR computes the global binarization
-                    # only if a box uses it
-                    texts = self.textDetector.detect_multi_text(
-                        binary, gray, targets, display=display
-                    )
-                    self._publish_results(targets, texts, display, gray)
-                except Exception as e:
-                    # still emit the preview below
-                    self._report_processing_error(e)
+            if worker is not None:
+                worker.submit(frame_rgb, now)
+            else:
+                targets, gray, display = self.run_ocr_cycle(
+                    frame_rgb, now, want_display=show_binary and preview_due
+                )
 
         if preview_due:
             if self.last_emit_time is not None:
@@ -819,12 +887,46 @@ class TimerThread(QThread):
                         gray = to_gray(frame_rgb)
                     if targets is None:
                         targets = self._snapshot_targets()
+                    uses_ppocr = getattr(self.textDetector, "uses_ppocr", None)
                     display = render_binary_view(
-                        global_binarization(gray), gray, targets
+                        global_binarization(gray),
+                        gray,
+                        targets,
+                        ppocr=bool(uses_ppocr and uses_ppocr()),
                     )
                 self.update_signal.emit(display)
             else:
                 self.update_signal.emit(frame_rgb)
+
+    def run_ocr_cycle(self, frame_rgb, frame_time, want_display=False):
+        """Read the boxes of a (transformed) frame read at frame_time and
+        publish the results. Returns (the boxes, the gray frame, the binary
+        view with what the OCR read drawn in, if want_display or OCR training
+        data is collected; else None)."""
+        # One snapshot of the boxes per frame: the GUI thread may add or
+        # remove boxes while the OCR runs.
+        targets = self._snapshot_targets()
+        if not targets:
+            return targets, None, None
+        gray = to_gray(frame_rgb)
+        binary = None
+        display = None
+        if want_display or ocr_training_data_options.save_ocr_training_data:
+            binary = global_binarization(gray)
+            display = binary.copy()
+        try:
+            # what PP-OCR (automatic) keeps its reading time under
+            self.textDetector.cycle_interval_ms = self.update_frame_interval
+            # binary=None: the OCR computes the global binarization only if a
+            # box uses it; PP-OCR reads the colour frame
+            texts = self.textDetector.detect_multi_text(
+                binary, gray, targets, display=display, color=frame_rgb
+            )
+            self._publish_results(targets, texts, display, gray, frame_time)
+        except Exception as e:
+            # the preview is still emitted
+            self._report_processing_error(e)
+        return targets, gray, display
 
     def _snapshot_targets(self):
         if self.detectionTargetsStorage is None:
@@ -854,7 +956,7 @@ class TimerThread(QThread):
         target.last_text = result.text
         return result.text, ResultState.Success
 
-    def _publish_results(self, targets, texts, display, gray):
+    def _publish_results(self, targets, texts, display, gray, frame_time=None):
         if len(texts) == 0 or len(targets) != len(texts):
             return
         # augment the text detection targets with the results
@@ -873,6 +975,15 @@ class TimerThread(QThread):
         if ocr_training_data_options.save_ocr_training_data and display is not None:
             samples = snapshot_training_samples(results)
 
+        if frame_time is not None:
+            latency = max(0.0, self._clock() - frame_time)
+            self.last_reading_latency = latency
+            self.reading_latency = (
+                latency
+                if self.reading_latency is None
+                else self.fps_alpha * latency
+                + (1.0 - self.fps_alpha) * self.reading_latency
+            )
         self.ocr_result_signal.emit(results)
 
         if samples:
