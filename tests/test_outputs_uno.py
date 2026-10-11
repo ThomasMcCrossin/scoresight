@@ -302,7 +302,7 @@ def test_calls_are_spaced_out_to_the_burst_limit(make_uno, make_result):
     assert (quota.daily.limit, quota.daily.remaining) == (10000, 9512)
     status = uno_destination(api)
     assert status.state == "ok"
-    assert status.detail == "Sending to app.overlays.uno · 9,512 calls left today"
+    assert status.detail == "Sending to app.overlays.uno · 9512 calls left today"
 
 
 def test_few_daily_calls_left_is_a_warning(make_uno, make_result):
