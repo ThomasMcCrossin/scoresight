@@ -2133,6 +2133,67 @@ def test_every_language_fits(language, make_window, make_target, qapp, reference
         qapp.removeTranslator(window.translator)
 
 
+@pytest.mark.parametrize("language", TRANSLATIONS)
+def test_every_language_fits_the_live_layout(
+    language, make_window, make_target, make_result, qapp, reference_font
+):
+    # The Live layout's field list (large readings, a held value's HELD chip
+    # and the outputs' lines) must show whole at 1366x768 in every language
+    from PySide6.QtGui import QFontMetrics, QFontMetricsF
+    from PySide6.QtWidgets import QStyleOptionViewItem
+
+    width_ratio = 1.0
+    if not reference_font:
+        width_ratio = max(
+            1.0, QFontMetricsF(qapp.font()).horizontalAdvance(SIZE_REFERENCE_TEXT) / 342
+        )
+    window = make_window()
+    ui = window.ui
+    window.resize(int(1366 * width_ratio), 768)
+    window.show()
+    storage = window.detectionTargetsStorage
+    for name in ("Home Score", "Away Score", "Time", "Period"):
+        storage.add_item(make_target(name))
+    window.changeLanguage(language)
+    try:
+        window.setLayoutMode("live")
+        window.ocrResult(
+            [
+                make_result("Home Score", "21"),
+                make_result("Away Score", "17"),
+                make_result("Time", "03:59"),
+                make_result("Period", "Z", "FailedFilter"),
+            ]
+        )
+        window.heldValues.hold("Period", "2nd")
+        window.updateHeldUi()
+        qapp.processEvents()
+        qapp.processEvents()
+        assert window.minimumSizeHint().height() <= 640
+        assert cut_off_texts(ui.widget_leftPane) == []
+        # the held value, its chip and its Release button fit the row
+        table = ui.tableWidget_boxes
+        delegate = window.readingDelegate
+        item = box_value_item(window, "Period")
+        option = QStyleOptionViewItem()
+        option.rect = table.visualItemRect(item)
+        option.font = table.font()
+        from readings_view import reading_at
+
+        reading = reading_at(table.indexFromItem(item))
+        assert delegate.releaseShown(option.rect, option.font, reading)
+        value_width = QFontMetrics(delegate.valueFont(table.font())).horizontalAdvance(
+            "03:59"
+        )
+        assert value_width + delegate.discSize(table.font()) < table.columnWidth(1)
+        # the OBS page's text sources table and scene controls
+        window.showDestination("obs")
+        qapp.processEvents()
+        assert cut_off_texts(ui.widget_outputs) == []
+    finally:
+        qapp.removeTranslator(window.translator)
+
+
 def test_the_panes_widths_and_hidden_panes_are_kept(make_window, qtbot):
     from PySide6.QtTest import QTest
 
