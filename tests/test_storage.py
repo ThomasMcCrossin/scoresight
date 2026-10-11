@@ -656,3 +656,72 @@ def test_invalid_configuration_file_keeps_the_boxes(tmp_path, memory_storage, co
     assert memory_storage.loadBoxesFromFile(str(bad)) is False
     assert memory_storage.loadBoxesFromFile(str(tmp_path / "missing.json")) is False
     assert [box.name for box in memory_storage.get_data()] == ["Home Score"]
+
+
+# --- the stored OCR model (ocr_models): no migration, its values keep meaning ----------
+
+
+def test_a_new_setup_gets_ppocr_automatic(data_dir):
+    import ocr_models
+
+    assert not ocr_models.is_stored()
+    assert ocr_models.stored_model() == ocr_models.PPOCR_AUTO == "ppocr:auto"
+
+
+@pytest.mark.parametrize("stored", [0, 1, 2, 3])
+def test_the_tesseract_model_indexes_of_0_1_and_0_2_keep_their_meaning(
+    data_dir, stored
+):
+    # 0.1 and 0.2 stored the index of the model list, which had the Tesseract
+    # models in this order; they are stored as they were, never rewritten
+    import ocr_models
+    from tesseract import TextDetector
+
+    names = {
+        TextDetector.OcrModelIndex.DAKTRONICS: "Tesseract: Daktronics",
+        TextDetector.OcrModelIndex.SCOREBOARD_GENERAL: "Tesseract: General Scoreboard",
+        TextDetector.OcrModelIndex.GENERAL_ENGLISH: "Tesseract: General Fonts (English)",
+        TextDetector.OcrModelIndex.SCOREBOARD_GENERAL_LARGE: (
+            "Tesseract: General Scoreboard Large"
+        ),
+    }
+    storage.store_data("scoresight.json", "ocr_model", stored)
+    assert ocr_models.stored_model() == stored
+    assert ocr_models.is_builtin_tesseract(stored)
+    assert ocr_models.choice_name(stored) == names[stored]
+    # a stored Tesseract model is used whatever PP-OCR's availability
+    assert ocr_models.effective_model(stored) == stored
+
+
+def test_a_stored_traineddata_path_stays_external(data_dir, tmp_path):
+    import ocr_models
+
+    path = str(tmp_path / "my.traineddata")
+    storage.store_data("scoresight.json", "ocr_model", path)
+    assert ocr_models.stored_model() == path
+    assert ocr_models.is_external(path)
+    assert not ocr_models.is_external("ppocr:small")
+    assert not ocr_models.is_ppocr(path)
+    assert ocr_models.choice_name(path) is None
+
+
+def test_a_stored_ppocr_model_that_cant_be_used_reads_with_tesseract(
+    data_dir, monkeypatch
+):
+    import ocr_models
+    import ppocr_engine
+
+    storage.store_data("scoresight.json", "ocr_model", "ppocr:small")
+    monkeypatch.setattr(ppocr_engine, "unavailable_reason", lambda model: "missing")
+    assert ocr_models.effective_model("ppocr:small") == ocr_models.FALLBACK_MODEL == 1
+    # the choice stays stored
+    assert ocr_models.stored_model() == "ppocr:small"
+    monkeypatch.setattr(ppocr_engine, "unavailable_reason", lambda model: None)
+    assert ocr_models.effective_model("ppocr:small") == "ppocr:small"
+
+
+def test_true_is_not_a_tesseract_index():
+    import ocr_models
+
+    assert not ocr_models.is_builtin_tesseract(True)
+    assert ocr_models.choice_name(True) is None

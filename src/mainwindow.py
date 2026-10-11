@@ -72,8 +72,10 @@ from http_server import (
     start_http_server,
     update_http_server,
 )
+import ocr_models
 from ocr_training_data import OCRTrainingDataDialog, ocr_training_data_options
 import output_status
+import ppocr_engine
 from output_status import (
     STATE_COLORS,
     STATE_GLYPHS,
@@ -101,7 +103,10 @@ from status_bar import (
     MainStatusBar,
     StatusSnapshot,
     http_server_urls,
+    ppocr_accurate_is_slow,
+    ppocr_cpu_advice,
     primary_lan_address,
+    snapshot_auto_text,
     source_display_name,
     source_look,
     source_state,
@@ -192,6 +197,14 @@ CHOOSER_SOURCE_INDEXES = (
 
 # Box edits are written to the settings this long after the last change.
 BOXES_SAVE_DELAY_MS = 500
+
+# The data of the OCR model list's "Load external Tesseract model..." item
+LOAD_EXTERNAL_MODEL = "load-external-model"
+# PP-OCR (accurate) can't keep up for this many status updates (seconds) in a
+# row: the hint suggesting PP-OCR (fast) or fewer detections is shown, once
+PPOCR_CPU_HINT_AFTER_UPDATES = 5
+# whether that hint was shown (it is shown only once, ever)
+PPOCR_CPU_HINT_SETTING = "ppocr_cpu_hint_shown"
 
 # File > Language: (locale, the language's name in that language)
 LANGUAGES = (
@@ -455,21 +468,14 @@ class MainWindow(QMainWindow):
         self.obsConnectError: ErrorInfo | None = None
         self.obsConnectTarget: str | None = None
 
-        # the models' names (not translated), by the index stored as ocr_model,
-        # then "Load external model..." (text set in applyRuntimeTexts)
-        ocr_models = [
-            "Daktronics",
-            "General Scoreboard",
-            "General Fonts (English)",
-            "General Scoreboard Large",
-            "",
-        ]
-        self.ui.comboBox_ocrModel.addItems(ocr_models)
-        # default to General Scoreboard
-        ocr_model_from_storage = fetch_data("scoresight.json", "ocr_model", 1)
-        if isinstance(ocr_model_from_storage, str):
-            ocr_model_from_storage = 4
-        self.ui.comboBox_ocrModel.setCurrentIndex(ocr_model_from_storage)
+        # PP-OCR (accurate) can't keep up: consecutive slow status updates, and
+        # the hint about it (shown once, ever)
+        self.ppocrSlowUpdates = 0
+        self.ppocrCpuHint: QMessageBox | None = None
+        self.ppocrCpuHintShown = False
+        # the model PP-OCR (automatic) reads with, as the list shows it
+        self.ocrAutoModel: str | None = None
+        self.setupOcrModelChoices()
 
         self.ui.frame_source_view.setEnabled(False)
         self.ui.pushButton_makeBox.clicked.connect(self.placeOnPicture)
@@ -502,7 +508,6 @@ class MainWindow(QMainWindow):
         self.ui.pushButton_selectFolder.clicked.connect(self.selectOutputFolder)
         self.ui.toolButton_trashFolder.clicked.connect(self.clearOutputFolder)
         self.ui.pushButton_stopUpdates.toggled.connect(self.toggleStopUpdates)
-        self.ui.comboBox_ocrModel.currentIndexChanged.connect(self.ocrModelChanged)
         self.ui.comboBox_boxDisplayStyle.currentIndexChanged.connect(
             partial(self.globalSettingsChanged, "box_display_style")
         )
@@ -1147,9 +1152,7 @@ class MainWindow(QMainWindow):
         self.applyViewerTexts()
         self.refreshLiveStatus()
         self.updateAdjustHintVisibility()
-        self.ui.comboBox_ocrModel.setItemText(
-            4, QCoreApplication.translate("MainWindow", "Load external model...")
-        )
+        self.applyOcrModelTexts()
         self.updateFieldsHint()
         self.updateFieldActions()
         # "Readings" in the Live layout, the hidden fields' line
@@ -1565,6 +1568,9 @@ class MainWindow(QMainWindow):
         outputs = self.refreshDestinations(now)
         snapshot = self.statusSnapshot(now, outputs)
         self.statusBarWidgets.update(snapshot)
+        self.updateOcrModelAutoText(snapshot)
+        self.updateImageCleanupEngine(snapshot)
+        self.updatePpocrCpuHint(snapshot)
         self.updateSourceHealth(snapshot.source_state)
         self.updateFirstRunCard(outputs)
         cadence = self.ui.horizontalSlider_detectionCadence.value()
@@ -1612,6 +1618,17 @@ class MainWindow(QMainWindow):
             interval = getattr(thread, "update_frame_interval", None)
             if interval:
                 values["ocr_target"] = round(1000.0 / max(interval, 1), 2)
+            detector = getattr(thread, "textDetector", None)
+            engine_status = getattr(detector, "engine_status", None)
+            if engine_status is not None:
+                status = engine_status()
+                values["ocr_model"] = status.model
+                values["ocr_engine_state"] = status.ppocr_state
+                values["ocr_engine_error"] = status.ppocr_error
+                values["ocr_auto_model"] = status.auto_model
+                values["ocr_auto_reason"] = status.auto_reason
+                values["ocr_auto_accurate_ms"] = status.auto_accurate_ms
+                values["ocr_auto_interval_ms"] = status.auto_interval_ms
         else:
             values["source_state"] = SOURCE_NONE
         if self.outputsPausedMonotonic is not None:
@@ -1834,35 +1851,273 @@ class MainWindow(QMainWindow):
             frame.setStyleSheet(style_sheet)
         frame.show()
 
-    def ocrModelChanged(self, index: int | str):
-        ocrModel = None
-        if index == 4:
-            # load a custom OCR model
+    # --- the OCR model ------------------------------------------------------------
+
+    def setupOcrModelChoices(self):
+        """The OCR model list: PP-OCR (accurate) and (fast), the bundled
+        Tesseract models, then Load external model.... Each item's data is the
+        value stored as ocr_model (see ocr_models); the texts are set in
+        applyOcrModelTexts."""
+        combo = self.ui.comboBox_ocrModel
+        combo.blockSignals(True)
+        combo.clear()
+        for choice in ocr_models.CHOICES:
+            combo.addItem(choice.name, choice.value)
+        combo.addItem("", LOAD_EXTERNAL_MODEL)
+        combo.blockSignals(False)
+        self.applyOcrModelTexts()
+        model = ocr_models.effective_model(ocr_models.stored_model())
+        self.showOcrModel(model)
+        self.boxSettingsUiHandler.setPpocr(ocr_models.is_ppocr(model))
+        combo.currentIndexChanged.connect(self.ocrModelChanged)
+
+    def ocrModelItem(self, model) -> int:
+        """The index of a model's item in the list (an external model's is Load
+        external model...), or -1."""
+        combo = self.ui.comboBox_ocrModel
+        if ocr_models.is_external(model):
+            model = LOAD_EXTERNAL_MODEL
+        for index in range(combo.count()):
+            data = combo.itemData(index)
+            if type(data) is type(model) and data == model:
+                return index
+        return -1
+
+    def applyOcrModelTexts(self):
+        """The OCR model list's texts and tooltips (again after a language
+        change), and whether the PP-OCR models can be chosen."""
+        combo = self.ui.comboBox_ocrModel
+        model = combo.model()
+        for index in range(combo.count()):
+            value = combo.itemData(index)
+            if value == LOAD_EXTERNAL_MODEL:
+                combo.setItemText(
+                    index,
+                    QCoreApplication.translate(
+                        "MainWindow", "Load external Tesseract model..."
+                    ),
+                )
+                stored = fetch_data("scoresight.json", ocr_models.SETTING)
+                tooltip = (
+                    stored
+                    if ocr_models.is_external(stored)
+                    else QCoreApplication.translate(
+                        "MainWindow",
+                        "Read the boxes with a Tesseract .traineddata file",
+                    )
+                )
+                combo.setItemData(index, tooltip, Qt.ItemDataRole.ToolTipRole)
+                continue
+            if not ocr_models.is_ppocr(value):
+                combo.setItemData(
+                    index,
+                    QCoreApplication.translate(
+                        "MainWindow",
+                        "A Tesseract model: the boxes' Image cleanup settings prepare "
+                        "their images for it",
+                    ),
+                    Qt.ItemDataRole.ToolTipRole,
+                )
+                continue
+            if value == ocr_models.PPOCR_AUTO:
+                combo.setItemText(index, self.autoOcrModelName())
+                tooltip = QCoreApplication.translate(
+                    "MainWindow",
+                    "PaddleOCR PP-OCRv6: accurate while it keeps up with Detections / "
+                    "s on this computer, fast when it doesn't. The status bar says "
+                    "which one reads and why.",
+                )
+            elif value == ocr_models.PPOCR_ACCURATE:
+                combo.setItemText(
+                    index, QCoreApplication.translate("MainWindow", "PP-OCR (accurate)")
+                )
+                tooltip = QCoreApplication.translate(
+                    "MainWindow",
+                    "PaddleOCR PP-OCRv6 small: reads the most values right, always. "
+                    "It needs about five times the CPU of PP-OCR (fast): on a laptop, "
+                    "10 boxes read 5 times a second can need more than a core.",
+                )
+            else:
+                combo.setItemText(
+                    index, QCoreApplication.translate("MainWindow", "PP-OCR (fast)")
+                )
+                tooltip = QCoreApplication.translate(
+                    "MainWindow",
+                    "PaddleOCR PP-OCRv6 tiny: about a fifth of PP-OCR (accurate)'s "
+                    "CPU, for many boxes, a high Detections / s or a slow computer; "
+                    "it misreads more of the hard displays (clocks, bulbs, LCDs).",
+                )
+            missing = ppocr_engine.missing(value)
+            if missing == ppocr_engine.MISSING_MODELS:
+                tooltip = QCoreApplication.translate(
+                    "MainWindow",
+                    "The PP-OCR models aren't installed. Download them with: {command}",
+                ).format(command=ppocr_engine.FETCH_COMMAND)
+            elif missing == ppocr_engine.MISSING_RUNTIME:
+                tooltip = QCoreApplication.translate(
+                    "MainWindow",
+                    "PP-OCR needs onnxruntime, which isn't installed (pip install -r "
+                    "requirements.txt).",
+                )
+            combo.setItemData(index, tooltip, Qt.ItemDataRole.ToolTipRole)
+            item = model.item(index) if hasattr(model, "item") else None
+            if item is not None:
+                item.setEnabled(missing is None)
+
+    def autoOcrModelName(self) -> str:
+        """PP-OCR (automatic)'s item text: with the model it reads with while a
+        source is read."""
+        model = getattr(self, "ocrAutoModel", None)
+        if model == ocr_models.PPOCR_ACCURATE:
+            return QCoreApplication.translate(
+                "MainWindow", "PP-OCR (automatic: accurate)"
+            )
+        if model == ocr_models.PPOCR_FAST:
+            return QCoreApplication.translate("MainWindow", "PP-OCR (automatic: fast)")
+        return QCoreApplication.translate("MainWindow", "PP-OCR (automatic)")
+
+    def updateOcrModelAutoText(self, snapshot: StatusSnapshot):
+        """Show which model PP-OCR (automatic) reads with, and why, in the OCR
+        model list (its item and tooltip), as in the status bar."""
+        auto = snapshot_auto_text(snapshot)
+        model = snapshot.ocr_auto_model if auto else None
+        combo = self.ui.comboBox_ocrModel
+        if model != getattr(self, "ocrAutoModel", None):
+            self.ocrAutoModel = model
+            index = self.ocrModelItem(ocr_models.PPOCR_AUTO)
+            if index >= 0:
+                combo.setItemText(index, self.autoOcrModelName())
+        # the .ui's tooltip, plus what automatic reads with
+        tooltip = QCoreApplication.translate(
+            "MainWindow",
+            "The OCR model that reads every box, not only the selected one. PP-OCR "
+            "(automatic) reads with PP-OCR (accurate) while this computer keeps up, "
+            "and with PP-OCR (fast), which needs about a fifth of the CPU, when it "
+            "doesn't. The Tesseract models use the boxes' Image cleanup settings; "
+            "Load external Tesseract model... reads a .traineddata file.",
+        )
+        if auto:
+            tooltip += "\n" + auto
+        if combo.toolTip() != tooltip:
+            combo.setToolTip(tooltip)
+
+    def showOcrModel(self, model):
+        """Select a model's item in the list (without choosing it again)."""
+        combo = self.ui.comboBox_ocrModel
+        index = self.ocrModelItem(model)
+        if index >= 0 and combo.currentIndex() != index:
+            combo.blockSignals(True)
+            combo.setCurrentIndex(index)
+            combo.blockSignals(False)
+
+    def currentTextDetector(self):
+        viewer = self.image_viewer
+        thread = getattr(viewer, "timerThread", None) if viewer else None
+        return getattr(thread, "textDetector", None) if thread else None
+
+    def ocrModelChanged(self, index: int):
+        """The user chose an OCR model in the list."""
+        value = self.ui.comboBox_ocrModel.itemData(index)
+        if value == LOAD_EXTERNAL_MODEL:
             file, _ = QFileDialog.getOpenFileName(
                 self, "Open OCR Model File", "", "OCR Model Files (*.traineddata)"
             )
             if not file:
+                # back to the model in use
+                self.showOcrModel(ocr_models.effective_model(ocr_models.stored_model()))
                 return
-            # get absolute file path
-            file = path.abspath(file)
-            self.globalSettingsChanged("ocr_model", file)
-            ocrModel = file
-        elif isinstance(index, int):
-            self.globalSettingsChanged("ocr_model", index)
-            ocrModel = index
-        elif isinstance(index, str):
-            # check if the index is a valid existing file
-            if path.exists(index):
-                self.globalSettingsChanged("ocr_model", index)
-                ocrModel = index
+            value = path.abspath(file)
+        if value is None:
+            return
+        self.globalSettingsChanged(ocr_models.SETTING, value)
+        self.ppocrSlowUpdates = 0
+        self.applyOcrModel()
+        self.applyOcrModelTexts()
 
-        # update the ocr model in the text detector
+    def applyOcrModel(self, opening_source: bool = False):
+        """Read the boxes with the chosen OCR model: the stored one, the default
+        for a new setup, or Tesseract's General Scoreboard while PP-OCR can't be
+        used (not stored, so PP-OCR takes over once it is installed). A new
+        setup's default is stored when its first source opens, so that the
+        setup keeps it whatever later versions default to."""
+        stored = ocr_models.stored_model()
+        model = ocr_models.effective_model(stored)
+        if opening_source and model == stored and not ocr_models.is_stored():
+            self.globalSettingsChanged(ocr_models.SETTING, model)
+        self.showOcrModel(model)
+        detector = self.currentTextDetector()
+        if detector is not None and getattr(detector, "model", None) != model:
+            detector.setOcrModel(model)
+        self.boxSettingsUiHandler.setPpocr(ocr_models.is_ppocr(model))
+
+    def updateImageCleanupEngine(self, snapshot: StatusSnapshot):
+        """Image cleanup follows the engine that reads: Tesseract, with its
+        settings, after a PP-OCR model failed to load."""
+        if snapshot.ocr_model is None:
+            # no capture: as the chosen model (applyOcrModel)
+            return
+        ppocr = snapshot.ocr_engine_state not in (None, ppocr_engine.FAILED)
+        if ppocr != self.boxSettingsUiHandler.ppocr:
+            self.boxSettingsUiHandler.setPpocr(ppocr)
+
+    def updatePpocrCpuHint(self, snapshot: StatusSnapshot):
+        """Once PP-OCR (accurate) has been unable to keep up with Detections / s
+        for a few seconds, suggest PP-OCR (fast) or fewer detections, once
+        (the status bar's tooltip keeps saying it). The model is never changed
+        without the user."""
+        if ppocr_accurate_is_slow(snapshot):
+            self.ppocrSlowUpdates += 1
+        else:
+            self.ppocrSlowUpdates = 0
         if (
-            self.image_viewer
-            and self.image_viewer.timerThread
-            and self.image_viewer.timerThread.textDetector
+            self.ppocrSlowUpdates >= PPOCR_CPU_HINT_AFTER_UPDATES
+            and not self.ppocrCpuHintShown
+            and fetch_data("scoresight.json", PPOCR_CPU_HINT_SETTING) is not True
         ):
-            self.image_viewer.timerThread.textDetector.setOcrModel(ocrModel)
+            self.showPpocrCpuHint(snapshot)
+
+    def showPpocrCpuHint(self, snapshot: StatusSnapshot):
+        """A non-modal message: PP-OCR (accurate) can't keep up. Its button
+        chooses PP-OCR (fast); closing it changes nothing."""
+        self.globalSettingsChanged(PPOCR_CPU_HINT_SETTING, True)
+        box = QMessageBox(self)
+        box.setIcon(QMessageBox.Icon.Information)
+        box.setWindowTitle(
+            QCoreApplication.translate("MainWindow", "The OCR can't keep up")
+        )
+        box.setText(
+            QCoreApplication.translate(
+                "MainWindow",
+                "The boxes are read {rate} times per second instead of {target}.",
+            ).format(
+                rate=f"{snapshot.ocr_rate or 0:.1f}",
+                target=f"{snapshot.ocr_target or 0:g}",
+            )
+        )
+        box.setInformativeText(ppocr_cpu_advice())
+        use_fast = box.addButton(
+            QCoreApplication.translate("MainWindow", "Use PP-OCR (fast)"),
+            QMessageBox.ButtonRole.AcceptRole,
+        )
+        box.addButton(
+            QCoreApplication.translate("MainWindow", "Keep PP-OCR (accurate)"),
+            QMessageBox.ButtonRole.RejectRole,
+        )
+        use_fast.setEnabled(ppocr_engine.missing(ocr_models.PPOCR_FAST) is None)
+        box.setWindowModality(Qt.WindowModality.NonModal)
+        box.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
+
+        def clicked(button):
+            if button is use_fast:
+                index = self.ocrModelItem(ocr_models.PPOCR_FAST)
+                if index >= 0:
+                    # as if chosen in the list: stored and applied
+                    self.ui.comboBox_ocrModel.setCurrentIndex(index)
+
+        box.buttonClicked.connect(clicked)
+        self.ppocrCpuHint = box
+        self.ppocrCpuHintShown = True
+        box.show()
 
     def openLogsDialog(self):
         if self.log_dialog is None:
@@ -3124,7 +3379,7 @@ class MainWindow(QMainWindow):
         # only Success of a box whose value doesn't change (later ones are
         # SameNoChange), and vMix and UNO only send Success unless "Also resend unchanged values"
         self.connectViewer()
-        self.ocrModelChanged(fetch_data("scoresight.json", "ocr_model", 1))
+        self.applyOcrModel(opening_source=True)
 
         # in the first-run card's place (frame_for_source_view_label's grid)
         self.ui.frame_for_source_view_label.layout().addWidget(self.image_viewer, 0, 0)

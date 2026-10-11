@@ -2,6 +2,8 @@
 frame transforms, capture settings and teardown."""
 
 import os
+import time
+import threading
 import sys
 
 import cv2
@@ -45,7 +47,7 @@ class FakeDetector:
         self.calls = []
         self.on_call = None
 
-    def detect_multi_text(self, binary, gray, rects, display=None):
+    def detect_multi_text(self, binary, gray, rects, display=None, color=None):
         self.calls.append((binary, gray, list(rects), display))
         if self.on_call is not None:
             self.on_call()
@@ -257,7 +259,7 @@ class ScriptedDetector:
     def __init__(self, script):
         self.script = list(script)
 
-    def detect_multi_text(self, binary, gray, rects, display=None):
+    def detect_multi_text(self, binary, gray, rects, display=None, color=None):
         step = self.script.pop(0)
         if step == "unchanged":
             return [
@@ -769,3 +771,102 @@ def test_video_file_at_one_detection_per_second(
     assert previews[0].shape == (240, 320, 3)
     assert thread not in camera_thread._active_threads
     assert storage.data_subscribers == {}
+
+
+# --- the OCR worker: a slow OCR doesn't hold up the capture ----------------------------
+
+
+class NumberedCapture(FakeCapture):
+    """Frames numbered in their first pixel's channels; remembers the last."""
+
+    def __init__(self):
+        super().__init__()
+        self.last = -1
+
+    def read(self):
+        self.reads += 1
+        self.last += 1
+        frame = color_frame()
+        frame[0, 0] = (self.last & 255, (self.last >> 8) & 255, 0)
+        return True, frame
+
+
+def frame_number(frame):
+    return int(frame[0, 0, 0]) + (int(frame[0, 0, 1]) << 8)
+
+
+class SlowDetector:
+    """Takes `seconds` per OCR cycle; records the thread, the frame number
+    read and the capture's latest frame number at the start of the cycle."""
+
+    def __init__(self, capture, seconds):
+        self.capture = capture
+        self.seconds = seconds
+        self.cycles = []
+
+    def detect_multi_text(self, binary, gray, rects, display=None, color=None):
+        self.cycles.append(
+            (threading.current_thread(), frame_number(color), self.capture.last)
+        )
+        time.sleep(self.seconds)
+        return [TextDetectionResult(rect.name, SUCCESS) for rect in rects]
+
+
+@pytest.mark.qt
+def test_a_slow_ocr_does_not_hold_up_reading_frames(qtbot, make_thread, make_target):
+    thread = make_thread(cadence=15)
+    thread._clock = time.monotonic
+    thread.detectionTargetsStorage.add_item(make_target("Home Score"))
+    capture = NumberedCapture()
+    thread._create_video_capture = lambda: capture
+    detector = SlowDetector(capture, 0.25)
+    thread.textDetector = detector
+    thread.start()
+    try:
+        qtbot.waitUntil(lambda: len(thread.results) >= 3, timeout=5000)
+        reads_before = capture.reads
+        time.sleep(0.5)
+        # about 30 frames a second while every OCR cycle takes 250 ms
+        assert capture.reads - reads_before >= 8
+    finally:
+        assert thread.stop(5000)
+    cycles = list(detector.cycles)
+    assert len(cycles) >= 3
+    # the OCR runs on its own thread, never the capture thread
+    assert all(t.name == "ocr" for t, _, _ in cycles)
+    # each cycle reads the newest frame (the frames read meanwhile are dropped)
+    numbers = [number for _, number, _ in cycles]
+    assert all(b - a >= 5 for a, b in zip(numbers, numbers[1:]))
+    assert all(latest - number <= 1 for _, number, latest in cycles)
+    # from reading a frame to publishing its readings: about the OCR's time
+    assert 0.2 <= thread.last_reading_latency < 1.0
+    # stopping stopped the worker: no cycle after it
+    count = len(detector.cycles)
+    time.sleep(0.3)
+    assert len(detector.cycles) == count
+    assert thread._ocr_worker is None
+
+
+def test_without_a_running_capture_the_ocr_runs_on_the_caller(make_thread, make_target):
+    thread = make_thread(cadence=5)
+    thread.detectionTargetsStorage.add_item(make_target("Home Score"))
+    thread.process_frame(color_frame())
+    assert len(thread.results) == 1
+    assert thread.last_reading_latency == 0.0  # the fake clock didn't move
+
+
+def test_the_worker_takes_a_frame_only_when_idle(make_thread):
+    thread = make_thread()
+    worker = camera_thread.OcrWorker(thread)
+    assert worker.idle()
+    worker.submit(color_frame(), 1.0)
+    assert not worker.idle()
+    assert worker.stop(1)  # never started: nothing to wait for
+    assert not worker.idle()
+
+
+def test_the_ocr_gets_the_detection_interval(make_thread, make_target):
+    thread = make_thread(cadence=4)
+    thread.detectionTargetsStorage.add_item(make_target("Home Score"))
+    thread.process_frame(color_frame())
+    assert thread.textDetector.cycle_interval_ms == 250.0

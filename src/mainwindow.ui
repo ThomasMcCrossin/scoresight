@@ -622,7 +622,7 @@
              <item>
               <widget class="QToolButton" name="pushButton_binary">
                <property name="toolTip">
-                <string>Show what the OCR reads: the black-and-white image of every box</string>
+                <string>Show what the OCR reads of every box: its black-and-white image (Tesseract) or its picture in gray (PP-OCR)</string>
                </property>
                <property name="text">
                 <string>Binary View</string>
@@ -2084,7 +2084,7 @@
                      <item row="1" column="0">
                       <widget class="QLabel" name="label_3">
                        <property name="toolTip">
-                        <string>Minimum OCR confidence in % (0-99): Tesseract's confidence in the reading. A reading below it is rejected. 0 turns the check off. Formerly “Conf. Th”.</string>
+                        <string>Minimum OCR confidence in % (0-99): how sure the OCR model is of the reading. A reading below it is rejected. 0 turns the check off. Formerly “Conf. Th”.</string>
                        </property>
                        <property name="text">
                         <string>Minimum confidence</string>
@@ -2102,7 +2102,7 @@
                           <string>Minimum confidence</string>
                          </property>
                          <property name="toolTip">
-                          <string>Minimum OCR confidence in % (0-99): Tesseract's confidence in the reading. A reading below it is rejected (yellow, FailedFilter). 0 turns the check off.</string>
+                          <string>Minimum OCR confidence in % (0-99): how sure the OCR model is of the reading. A reading below it is rejected (yellow, FailedFilter). 0 turns the check off. With PP-OCR, 80-90 rejects most wrong readings.</string>
                          </property>
                          <property name="maximum">
                           <number>99</number>
@@ -2196,7 +2196,7 @@
                      <item>
                       <widget class="QToolButton" name="toolButton_imageCleanup">
                        <property name="toolTip">
-                        <string>Show or hide the settings that clean up the box's image before it is read. Binary view shows the result.</string>
+                        <string>Show or hide the settings that clean up the box's image before a Tesseract model reads it. Binary view shows the result.</string>
                        </property>
                        <property name="accessibleName">
                         <string>Image cleanup</string>
@@ -2249,7 +2249,7 @@
                      <item>
                       <widget class="QToolButton" name="toolButton_cleanupBinary">
                        <property name="toolTip">
-                        <string>Show what the OCR reads: the black-and-white image of every box</string>
+                        <string>Show what the OCR reads of every box: its black-and-white image (Tesseract) or its picture in gray (PP-OCR)</string>
                        </property>
                        <property name="text">
                         <string>Binary view</string>
@@ -2260,6 +2260,19 @@
                       </widget>
                      </item>
                     </layout>
+                   </item>
+                   <item>
+                    <widget class="QLabel" name="label_imageCleanupEngineNote">
+                     <property name="text">
+                      <string notr="true"/>
+                     </property>
+                     <property name="wordWrap">
+                      <bool>true</bool>
+                     </property>
+                     <property name="hint" stdset="0">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
                    </item>
                    <item>
                     <widget class="QFrame" name="frame_imageCleanup">
@@ -2806,7 +2819,7 @@
               <string>OCR model</string>
              </property>
              <property name="toolTip">
-              <string>The OCR model that reads every box, not only the selected one. Load external model... reads a Tesseract .traineddata file.</string>
+              <string>The OCR model that reads every box, not only the selected one. PP-OCR (automatic) reads with PP-OCR (accurate) while this computer keeps up, and with PP-OCR (fast), which needs about a fifth of the CPU, when it doesn't. The Tesseract models use the boxes' Image cleanup settings; Load external Tesseract model... reads a .traineddata file.</string>
              </property>
             </widget>
            </item>

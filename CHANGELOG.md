@@ -8,6 +8,64 @@ Release tags are the bare version number (for example `0.1.0`).
 
 ## [Unreleased]
 
+A new OCR engine: PaddleOCR's PP-OCRv6 text recognition models read about
+three times as many real scoreboard values right as Tesseract did with its
+default settings, and are the default for new setups.
+
+### Added
+
+- **PP-OCR**, a second OCR engine next to Tesseract: PaddleOCR's PP-OCRv6
+  text recognition models, run with ONNX Runtime and bundled with the app
+  (Apache-2.0). On 2,040 real scoreboard crops (the
+  [OCR evaluation](docs/development/ocr-eval.md)) PP-OCR (accurate) reads 95%
+  of the values exactly and PP-OCR (fast) 90%, against 31% for Tesseract's
+  General Scoreboard and 46% for the best Tesseract setup. Three choices lead
+  the **OCR model** list:
+  - **PP-OCR (automatic)**, the default for new setups: reads with accurate
+    while the computer keeps up with **Detections / s**, and switches to fast
+    when accurate needs more than 70% of the time between detections for 3
+    seconds (and back when it would need less than half for 10 seconds). The
+    list shows which one it uses, and its tooltip and the status bar's
+    reading rate say why ("accurate needs 160 ms per reading here...").
+  - **PP-OCR (accurate)** (PP-OCRv6 small): the most accurate, about five
+    times the CPU of fast: most of a fast desktop core at 10 boxes read 5
+    times a second, more than a laptop core can give.
+  - **PP-OCR (fast)** (PP-OCRv6 tiny): for many boxes, high Detections / s or
+    slower computers.
+  PP-OCR reads each box's colour picture as it is, all the boxes of a frame
+  at once, with only the characters of the box's **Type**; its confidence is
+  reliable (80–90% as **Minimum confidence** rejects most wrong readings).
+  The format, confidence, smoothing, leading-zero and ordinal settings work
+  as before, and so does every output.
+- When an explicitly chosen PP-OCR (accurate) can't keep up with Detections /
+  s, the reading rate's tooltip and a one-time message suggest PP-OCR (fast)
+  or fewer detections, with a button to switch. The model never changes on
+  its own (except with PP-OCR (automatic)).
+- The status bar says *Loading PP-OCR…* while the model loads (in the
+  background, a fraction of a second; startup isn't slower), and says so if
+  PP-OCR can't load, in which case Tesseract's General Scoreboard reads.
+- `scripts/fetch_models.py` downloads the PP-OCR models for running from
+  source and for builds (pinned revisions, checked against SHA-256s).
+- The OCR evaluation measures the app's own PP-OCR engine (`ppocr-app`), and
+  CI fails if its accuracy drops.
+
+### Changed
+
+- **Existing setups keep their Tesseract model**; the Tesseract models are now
+  listed as "Tesseract: General Scoreboard" etc., after the PP-OCR ones, and
+  **Load external model...** is **Load external Tesseract model...**.
+- While a PP-OCR model reads, the Box tab's **Image cleanup** settings are
+  disabled (and kept): they prepare the picture for Tesseract, and PP-OCR
+  reads it better as it is. They stay available for a box that counts lights.
+- The OCR runs on a thread of its own: a slow OCR model no longer holds up the
+  video. Live camera and stream pictures stay current (before, with an OCR
+  taking 170 ms per reading, a stream's readings fell seconds behind the
+  picture), a video file plays at normal speed, and each reading is made from
+  the latest frame.
+- **Binary view** shows a PP-OCR box's picture in gray: what PP-OCR reads.
+- `--self-test` also reads its test image with every PP-OCR choice.
+- The Windows app is 66 MB larger (onnxruntime and the two models).
+
 ## [0.2.0] - 2026-10-10
 
 ScoreSight is actively maintained again. This release modernizes the whole

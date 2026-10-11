@@ -25,6 +25,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+import ocr_models
+import ppocr_engine
 import theme
 from camera_info import CameraInfo
 from output_status import (
@@ -120,6 +122,18 @@ class StatusSnapshot:
     # detection passes per second, and the Detections / s setting
     ocr_rate: float | None = None
     ocr_target: float | None = None
+    # the OCR model chosen (an ocr_models value), the PP-OCR model's state
+    # (ppocr_engine.LOADING, ...; None for Tesseract) and why it couldn't load
+    # (the boxes are then read with Tesseract)
+    ocr_model: int | str | None = None
+    ocr_engine_state: str | None = None
+    ocr_engine_error: str | None = None
+    # PP-OCR (automatic): the model it reads with, why (ppocr_engine.AUTO_*),
+    # accurate's time per reading (ms) and the time between readings (ms)
+    ocr_auto_model: str | None = None
+    ocr_auto_reason: str | None = None
+    ocr_auto_accurate_ms: float | None = None
+    ocr_auto_interval_ms: float | None = None
     # seconds since the outputs were paused, None while they aren't
     paused_seconds: float | None = None
     # OCR training data is being collected (Tools > Collect OCR training
@@ -306,26 +320,148 @@ def source_state_description(state: str) -> str:
     return QCoreApplication.translate("StatusBar", "No source is open.")
 
 
+def ocr_loading(snapshot: StatusSnapshot) -> bool:
+    """A PP-OCR model is loading: the boxes have no reading yet."""
+    return snapshot.ocr_engine_state in (ppocr_engine.NOT_LOADED, ppocr_engine.LOADING)
+
+
+def ocr_fallback(snapshot: StatusSnapshot) -> bool:
+    """PP-OCR couldn't load: Tesseract reads the boxes."""
+    return snapshot.ocr_engine_state == ppocr_engine.FAILED
+
+
 def ocr_text(snapshot: StatusSnapshot) -> str:
     """The OCR rate part ("" when no source is running)."""
     if snapshot.source_state != SOURCE_RUNNING or snapshot.ocr_rate is None:
         return ""
+    if ocr_loading(snapshot):
+        return QCoreApplication.translate("StatusBar", "Loading PP-OCR…")
     if snapshot.ocr_target:
-        return QCoreApplication.translate(
+        text = QCoreApplication.translate(
             "StatusBar", "Reading {rate}/s of {target}"
         ).format(rate=f"{snapshot.ocr_rate:.1f}", target=f"{snapshot.ocr_target:g}")
-    return QCoreApplication.translate("StatusBar", "Reading {rate}/s").format(
-        rate=f"{snapshot.ocr_rate:.1f}"
-    )
+    else:
+        text = QCoreApplication.translate("StatusBar", "Reading {rate}/s").format(
+            rate=f"{snapshot.ocr_rate:.1f}"
+        )
+    if ocr_fallback(snapshot):
+        text += " · " + QCoreApplication.translate(
+            "StatusBar", "with Tesseract: PP-OCR didn't load"
+        )
+    return text
 
 
 def ocr_is_slow(snapshot: StatusSnapshot) -> bool:
     return bool(
         snapshot.source_state == SOURCE_RUNNING
+        and not ocr_loading(snapshot)
         and snapshot.ocr_rate is not None
         and snapshot.ocr_target
         and snapshot.ocr_rate < SLOW_OCR_SHARE * snapshot.ocr_target
     )
+
+
+def ppocr_accurate_is_slow(snapshot: StatusSnapshot) -> bool:
+    """PP-OCR (accurate) reads the boxes and can't keep up with Detections / s:
+    PP-OCR (fast) or fewer detections would."""
+    return (
+        ocr_is_slow(snapshot)
+        and snapshot.ocr_model == ocr_models.PPOCR_ACCURATE
+        and snapshot.ocr_engine_state == ppocr_engine.READY
+    )
+
+
+def ppocr_auto_text(
+    model: str | None,
+    reason: str | None,
+    accurate_ms: float | None,
+    interval_ms: float | None,
+) -> str:
+    """Which model PP-OCR (automatic) reads with and why, e.g. "PP-OCR
+    automatic: fast (accurate needs 110 ms per reading here, more than 70% of
+    the 100 ms between readings)"; "" before it has read."""
+    if model is None:
+        return ""
+    ms = "?" if accurate_ms is None else f"{accurate_ms:.0f}"
+    interval = "?" if interval_ms is None else f"{interval_ms:.0f}"
+    if model == ppocr_engine.TINY:
+        if reason == ppocr_engine.AUTO_UNAVAILABLE:
+            return QCoreApplication.translate(
+                "StatusBar", "PP-OCR automatic: fast (accurate didn't load)"
+            )
+        return QCoreApplication.translate(
+            "StatusBar",
+            "PP-OCR automatic: fast (accurate needs {ms} ms per reading here, more "
+            "than {share}% of the {interval} ms between readings)",
+        ).format(
+            ms=ms,
+            share=f"{ppocr_engine.AUTO_SLOW_SHARE * 100:.0f}",
+            interval=interval,
+        )
+    if reason == ppocr_engine.AUTO_KEEPS_UP and accurate_ms is not None:
+        return QCoreApplication.translate(
+            "StatusBar",
+            "PP-OCR automatic: accurate (it needs {ms} ms per reading here, of the "
+            "{interval} ms between readings)",
+        ).format(ms=ms, interval=interval)
+    return QCoreApplication.translate(
+        "StatusBar", "PP-OCR automatic: accurate (measuring how long it needs here)"
+    )
+
+
+def snapshot_auto_text(snapshot: StatusSnapshot) -> str:
+    if snapshot.ocr_model != ocr_models.PPOCR_AUTO or ocr_loading(snapshot):
+        return ""
+    if ocr_fallback(snapshot):
+        return ""
+    return ppocr_auto_text(
+        snapshot.ocr_auto_model,
+        snapshot.ocr_auto_reason,
+        snapshot.ocr_auto_accurate_ms,
+        snapshot.ocr_auto_interval_ms,
+    )
+
+
+def ppocr_cpu_advice() -> str:
+    return QCoreApplication.translate(
+        "StatusBar",
+        "PP-OCR (accurate) needs more CPU than this computer has for these boxes "
+        "at this rate. Choose PP-OCR (fast) as the OCR model (it needs about a "
+        "fifth of the CPU), or lower Detections / s.",
+    )
+
+
+def ocr_tooltip(snapshot: StatusSnapshot) -> str:
+    """The OCR rate part's tooltip: what it means, and what to do about a
+    computer that can't keep up or a PP-OCR that couldn't load."""
+    tooltip = QCoreApplication.translate(
+        "StatusBar",
+        "How many times per second the boxes are read, and the Detections / s "
+        "setting. The preview picture refreshes about once per second on purpose.",
+    )
+    if ocr_loading(snapshot):
+        tooltip += "\n" + QCoreApplication.translate(
+            "StatusBar",
+            "The PP-OCR model is loading; the boxes are read as soon as it is ready.",
+        )
+    auto = snapshot_auto_text(snapshot)
+    if auto:
+        tooltip += "\n" + auto
+    if ppocr_accurate_is_slow(snapshot):
+        tooltip += "\n" + ppocr_cpu_advice()
+    elif ocr_is_slow(snapshot):
+        tooltip += "\n" + QCoreApplication.translate(
+            "StatusBar",
+            "The computer can't keep up: lower Detections / s, use fewer boxes or "
+            "a lower source resolution.",
+        )
+    if ocr_fallback(snapshot):
+        tooltip += "\n" + QCoreApplication.translate(
+            "StatusBar",
+            "PP-OCR couldn't load ({error}), so the boxes are read with Tesseract "
+            "(General Scoreboard). The log has the details.",
+        ).format(error=snapshot.ocr_engine_error or "?")
+    return tooltip
 
 
 def paused_text(snapshot: StatusSnapshot) -> str:
@@ -478,23 +614,12 @@ class MainStatusBar(QObject):
         text = ocr_text(snapshot)
         self.label_ocr.setVisible(bool(text))
         self.label_ocr.setText(text)
-        slow = ocr_is_slow(snapshot)
+        warn = ocr_is_slow(snapshot) or ocr_fallback(snapshot)
         _set_style_sheet(
             self.label_ocr,
-            f"color: {theme.color('rejected', palette).name()};" if slow else "",
+            f"color: {theme.color('rejected', palette).name()};" if warn else "",
         )
-        tooltip = QCoreApplication.translate(
-            "StatusBar",
-            "How many times per second the boxes are read, and the Detections / s "
-            "setting. The preview picture refreshes about once per second on purpose.",
-        )
-        if slow:
-            tooltip += "\n" + QCoreApplication.translate(
-                "StatusBar",
-                "The computer can't keep up: lower Detections / s, use fewer boxes or "
-                "a lower source resolution.",
-            )
-        self.label_ocr.setToolTip(tooltip)
+        self.label_ocr.setToolTip(ocr_tooltip(snapshot))
 
         paused = paused_text(snapshot)
         self.label_paused.setVisible(bool(paused))
