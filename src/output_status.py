@@ -677,8 +677,9 @@ def _describe_http_status(key: str, error: ErrorInfo, secrets) -> Problem:
             ).format(code=code),
             QCoreApplication.translate(
                 "OutputStatus",
-                "The endpoint refused the request. If it needs a key, put it in "
-                "the URL.",
+                "The endpoint refused the request. If it needs a login, put it in "
+                "the URL (http://user:password@host/...); a key or token goes in "
+                "the URL or in Headers.",
             ),
         )
     if code == 404:
@@ -1264,8 +1265,10 @@ def api_status(
     method: str,
     encoding: str,
     worker: WorkerStatus | None,
+    mode=None,
 ) -> DestinationStatus:
-    """The outbound HTTP API: on while its checkbox is ticked."""
+    """The outbound HTTP API: on while its checkbox is ticked. mode
+    (api_output.SendMode) tells how the readings are sent."""
     url = (url or "").strip()
     secrets = url_secrets(url)
     target = url_target(url)
@@ -1304,6 +1307,21 @@ def api_status(
                 "http://192.168.1.10:8091/scores.",
             ),
         )
+    if getattr(mode, "needs_address", False):
+        return DestinationStatus(
+            API,
+            WARNING,
+            QCoreApplication.translate(
+                "OutputStatus", "Enter your device's address in the URL"
+            ),
+            enabled=True,
+            hint=QCoreApplication.translate(
+                "OutputStatus",
+                "Replace the capitalized placeholder in the URL (for example "
+                "TRICASTER-IP) with the device's IP address, and the login with "
+                "its user name and password.",
+            ),
+        )
     if method == "GET":
         what = QCoreApplication.translate("OutputStatus", "GET to {target}").format(
             target=target
@@ -1312,6 +1330,23 @@ def api_status(
         what = QCoreApplication.translate(
             "OutputStatus", "{method} {encoding} to {target}"
         ).format(method=method, encoding=encoding, target=target)
+    how = []
+    if getattr(mode, "per_field", False):
+        fields = mode.fields_per_request
+        if fields == 1:
+            how.append(
+                QCoreApplication.translate("OutputStatus", "a request per field")
+            )
+        elif fields:
+            how.append(
+                QCoreApplication.translate(
+                    "OutputStatus", "up to {fields} fields a request"
+                ).format(fields=fields)
+            )
+    if getattr(mode, "only_changes", False):
+        how.append(QCoreApplication.translate("OutputStatus", "only changes"))
+    if how:
+        what = " · ".join([what, *how])
     last_sent = worker.last_success_at if worker is not None else None
     if last_sent is None:
         status = DestinationStatus(
