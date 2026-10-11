@@ -64,7 +64,7 @@ Each run creates two log files: `scoresight_<date>_<time>.log` (ScoreSight's own
 |---|---|
 | `--profile NAME` | Use the settings file `scoresight-NAME.json` instead of `scoresight.json`. See [Multiple Instances & Profiles](profiles.md). |
 | `--port N` | Run the [HTTP server](http_server.md) on port `N` (1–65535, default `18099`). |
-| `--self-test` | Check the installation without showing a window, then exit. It prints the settings file and log file paths, loads all modules, checks the bundled files, builds the main window off-screen, loads every bundled OCR model and reads a test image. It prints `SELF-TEST OK` and exits with code 0 on success, or prints the error and exits with code 1. Useful to check an installation or a build. |
+| `--self-test` | Check the installation without showing a window, then exit. It prints the settings file and log file paths, loads all modules, checks the bundled files, builds the main window off-screen, loads every bundled OCR model (the Tesseract models and every PP-OCR choice) and reads a test image with each. It prints `SELF-TEST OK` and exits with code 0 on success, or prints the error and exits with code 1. Useful to check an installation or a build. |
 
 Qt's own options, such as `-style fusion`, are passed on to Qt.
 
@@ -128,7 +128,7 @@ You normally never edit this file: everything is set through the UI. This list h
 | `boxes` | The list of boxes: `name`, `rect` (`x`, `y`, `width`, `height`), `settings` (see [Per-Box Settings](box-settings.md)) and `mini_rects` |
 | `boxes_schema_version` | `2`: the box settings have been upgraded for 0.2.0 (see [One-time upgrades](#one-time-upgrades-of-older-settings)). Don't change it |
 | `custom_boxes_names` | Names of your custom fields |
-| `ocr_model` | `0` Daktronics, `1` General Scoreboard, `2` General Fonts (English), `3` General Scoreboard Large, or the path of an external `.traineddata` file |
+| `ocr_model` | `"ppocr:auto"` PP-OCR (automatic), `"ppocr:small"` PP-OCR (accurate), `"ppocr:tiny"` PP-OCR (fast), `0` Tesseract: Daktronics, `1` Tesseract: General Scoreboard, `2` Tesseract: General Fonts (English), `3` Tesseract: General Scoreboard Large, or the path of an external `.traineddata` file. Absent in a new setup: PP-OCR (automatic), stored when the first source opens (the Tesseract values are those of earlier versions, so an older setup keeps its model) |
 | `detection_cadence` | Detections / s: 1–15 from the slider. Values down to `0.1` are accepted when set in the file (see [Performance Tuning](performance.md#how-fast-do-you-need-to-be)) |
 | `update_on_change` | Update on change on/off |
 

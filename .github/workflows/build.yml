@@ -65,6 +65,8 @@ on:
       - requirements-mac.txt
       - requirements-build.txt
       - scripts/ci/**
+      - scripts/fetch_models.py
+      - ocr_models/**
       - src/main.py
       - src/resource_path.py
       - src/version.py
@@ -150,6 +152,21 @@ jobs:
           esac
           python -m pip install "${requirements[@]}"
 
+      - name: Cache the PP-OCR models
+        uses: actions/cache@v5
+        with:
+          path: |
+            ocr_models/ppocr/PP-OCRv6_small_rec
+            ocr_models/ppocr/PP-OCRv6_tiny_rec
+          # the script pins every file's revision and SHA-256
+          key: ppocr-models-${{ hashFiles('scripts/fetch_models.py') }}
+
+      - name: Fetch the PP-OCR models
+        # the build bundles them (scoresight.spec fails without them); this
+        # downloads what the cache didn't restore, checks every file's SHA-256
+        # and fails after its retries
+        run: python scripts/fetch_models.py
+
       - name: Version
         id: version
         shell: bash
@@ -216,6 +233,19 @@ jobs:
         run: >
           python scripts/ci/e2e_test.py --label "$TARGET"
           --json "$RUNNER_TEMP/results/e2e-$TARGET.json" --work-dir "$RUNNER_TEMP/e2e"
+          -- "$EXECUTABLE"
+
+      - name: End-to-end test (Tesseract)
+        # the same with a Tesseract model, which new setups no longer default to
+        timeout-minutes: 10
+        shell: bash
+        env:
+          EXECUTABLE: ${{ matrix.executable }}
+          TARGET: ${{ matrix.target }}
+        run: >
+          python scripts/ci/e2e_test.py --engine tesseract --label "$TARGET"
+          --json "$RUNNER_TEMP/results/e2e-$TARGET-tesseract.json"
+          --work-dir "$RUNNER_TEMP/e2e-tesseract"
           -- "$EXECUTABLE"
 
       - name: Boot time

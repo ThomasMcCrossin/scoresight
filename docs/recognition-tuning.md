@@ -39,13 +39,15 @@ The **OCR model** list, under **All boxes** at the bottom of the **Box** tab, ap
 
 | Model | Best for |
 |---|---|
-| **General Scoreboard** (default) | Most LED, LCD and 7-segment scoreboards |
-| **General Scoreboard Large** | Large, bold segment digits filling most of the box |
-| **Daktronics** | Daktronics-style dot-matrix/LED fonts |
-| **General Fonts (English)** | TV score bugs, apps, games and printed or on-screen text in regular fonts |
-| **Load external model...** | Your own trained Tesseract `.traineddata` model |
+| **PP-OCR (automatic)** (default) | Almost every scoreboard, display and font: accurate while your computer keeps up, fast when it doesn't |
+| **PP-OCR (accurate)** / **PP-OCR (fast)** | The same models, without switching (fast for many boxes or a slow computer) |
+| **Tesseract: General Scoreboard** | LED, LCD and 7-segment digits (the default before 0.3.0) |
+| **Tesseract: General Scoreboard Large** | Large, bold segment digits filling most of the box |
+| **Tesseract: Daktronics** | Daktronics-style dot-matrix/LED fonts |
+| **Tesseract: General Fonts (English)** | TV score bugs, apps, games and printed or on-screen text in regular fonts |
+| **Load external Tesseract model...** | Your own trained Tesseract `.traineddata` model |
 
-Try each model for a few seconds with Binary View on, and keep the one that reads most consistently.
+Start with PP-OCR: on real scoreboards it reads about three times as many values right as Tesseract with its default settings. With PP-OCR, skip step 5 (Image cleanup is for the Tesseract models). If you use Tesseract, try each of its models for a few seconds with Binary View on, and keep the one that reads most consistently.
 
 ## 4. Place the boxes well
 
@@ -53,7 +55,9 @@ Try each model for a few seconds with Binary View on, and keep the one that read
 - Set the display style to **All** to see the green "area read" rectangle (with **Crop to text**) and the blue per-character rectangles. If a character has no blue rectangle, the OCR didn't see it.
 - If the box sometimes catches the edge of the scoreboard frame, turn up [Remove specks](box-settings.md#cleanup) or make the box a little smaller.
 
-## 5. Make the binary image clean
+## 5. Make the binary image clean (Tesseract)
+
+This step is for the Tesseract models and the dot counter: PP-OCR reads each box's picture as it is, and its Image cleanup settings are disabled while it reads.
 
 Select the box and look at it in **Binary View** (also the **Binary view** button in the header of **Image cleanup**, in the Box tab). You want solid, unbroken digits on a plain background. The settings below are in the **Image cleanup** section of the Box tab: click its header to open it.
 
@@ -99,7 +103,7 @@ Even a good picture produces an occasional wrong reading, for example while digi
   *Time 0-59* and *Shotclock 0-39* require **two** digits. If your shot clock shows `9` rather than `09`, type the format `^[0-3]?\d$` instead.
 - **Remove leading zeros**: turns `07` into `7`. Use it for boards that zero-pad scores.
 - **Smooth over last 5 readings**: shows the most common of the last 5 accepted readings to smooth out flicker. It compares whole values, so a change from `12` to `9` never shows a mix such as `92`. It adds a little delay when the value changes.
-- **Minimum confidence**: the minimum Tesseract confidence, in percent. Readings the OCR engine is less confident about are marked *failed filter*. It is **off (0) by default**. If random wrong values still get through a strict Format, try 30–50. Lower it if good values turn yellow: correct readings of real scoreboards often score only 30–50 %. See [Minimum confidence](box-settings.md#conf-th-confidence-threshold).
+- **Minimum confidence**: the minimum confidence of the OCR model, in percent. Readings it is less confident about are marked *failed filter*, and the box keeps its last good value. It is **off (0) by default**. With PP-OCR, 80–90 rejects most wrong readings. With Tesseract, if random wrong values still get through a strict Format, try 30–50, and lower it if good values turn yellow: Tesseract's correct readings of real scoreboards often score only 30–50 %. See [Minimum confidence](box-settings.md#conf-th-confidence-threshold).
 - **Add ordinal suffix**: adds st/nd/rd/th (`1st`, `2nd`...). It is on by default for Period.
 
 ## 7. Indicator lights and dots
@@ -110,7 +114,7 @@ For possession arrows, bonus lights, timeout dots or balls/strikes/outs, don't r
 
 - Try the other [OCR models](ocr-models.md).
 - Make sure **Detections / s** isn't higher than you need (see [Performance Tuning](performance.md)). Fewer, cleaner readings plus **Smooth over last 5 readings** often beat many noisy ones.
-- [Collect training data](data_annotation.md) for your scoreboard and train a custom Tesseract model, then load it with **Load external model...**.
+- [Collect training data](data_annotation.md) for your scoreboard and train a custom Tesseract model, then load it with **Load external Tesseract model...**.
 - [Open an issue](https://github.com/royshil/scoresight/issues/new/choose) with a short clip or screenshots (camera view and Binary View) and your exported configuration.
 
 ## Symptom quick reference

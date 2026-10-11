@@ -115,19 +115,39 @@ jobs:
       - name: Show versions
         run: python -c "import sys, PySide6, tesserocr; print(sys.version); print('PySide6', PySide6.__version__); print('Tesseract', tesserocr.tesseract_version().splitlines()[0])"
 
+      - name: Cache the PP-OCR models
+        uses: actions/cache@v5
+        with:
+          path: |
+            ocr_models/ppocr/PP-OCRv6_small_rec
+            ocr_models/ppocr/PP-OCRv6_tiny_rec
+          # the script pins every file's revision and SHA-256
+          key: ppocr-models-${{ hashFiles('scripts/fetch_models.py') }}
+
+      - name: Fetch the PP-OCR models
+        # downloads what the cache didn't restore and checks every file's
+        # SHA-256; after its retries it fails rather than letting the tests
+        # and the end-to-end test run without PP-OCR
+        run: python scripts/fetch_models.py
+
       - name: Run tests
         env:
           QT_QPA_PLATFORM: offscreen
+          # the PP-OCR tests fail instead of being skipped without the models
+          SCORESIGHT_REQUIRE_PPOCR: "1"
         run: python -m pytest -ra
 
       - name: End-to-end test (from source)
         # the real app, headless, reading a synthetic scoreboard video: the
-        # readings must reach the HTTP server, the files and the outbound API
+        # readings must reach the HTTP server, the files and the outbound API.
+        # Once with Tesseract, then with a new setup's PP-OCR (automatic).
         timeout-minutes: 10
         shell: bash
         env:
           LABEL: ${{ matrix.os }}, Python ${{ matrix.python }}, from source
-        run: python scripts/ci/e2e_test.py --label "$LABEL" --work-dir "$RUNNER_TEMP/e2e" -- python src/main.py
+        run: |-
+          python scripts/ci/e2e_test.py --engine tesseract --label "$LABEL" --work-dir "$RUNNER_TEMP/e2e/tesseract" -- python src/main.py
+          python scripts/ci/e2e_test.py --label "$LABEL" --work-dir "$RUNNER_TEMP/e2e/ppocr" -- python src/main.py
 
       - name: Upload the end-to-end test's files
         if: failure()

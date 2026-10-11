@@ -43,7 +43,7 @@ Our goal is simple: to be the best scoreboard-reading software on the planet, an
 - **Per-box tuning**: field type (number/time/text), format presets and custom regular expressions, confidence threshold, global/local/adaptive binarization, cleanup, dilate, skew, vertical scale, auto-crop, rescale, invert, output averaging, leading-zero removal, ordinals (1st, 2nd...) and more.
 - **Dot counter**: count indicator lights such as balls/strikes/outs, possession arrows or bonus lights.
 - **Template fields**: combine fields and text, for example `{{Home Score}} - {{Away Score}}` or `Q{{Period}}`.
-- **OCR models**: four bundled Tesseract models (General Scoreboard, General Scoreboard Large, Daktronics, General Fonts) or your own `.traineddata`.
+- **OCR models**: PaddleOCR's PP-OCRv6 recognition models (automatic, accurate and fast: about 95% of real scoreboard values read right), four bundled Tesseract models (General Scoreboard, General Scoreboard Large, Daktronics, General Fonts) or your own `.traineddata`.
 - **Training tools**: collect OCR samples from your own scoreboard and annotate them in the built-in Training Dojo.
 - **Multiple instances**: run several ScoreSight windows side by side with `--profile` and `--port`, for example one per camera.
 - **13 languages**: English, French, Spanish, German, Italian, Japanese, Korean, Dutch, Polish, Portuguese (Brazil and Portugal), Russian and Chinese (Simplified), with System/Light/Dark appearance.
@@ -118,7 +118,7 @@ What's new: see the [CHANGELOG](CHANGELOG.md).
 
 ## Build from source
 
-ScoreSight is a Python 3.13 app built with PySide6 (Qt 6), OpenCV and Tesseract. In short:
+ScoreSight is a Python 3.13 app built with PySide6 (Qt 6), OpenCV, onnxruntime (PP-OCR) and Tesseract. In short:
 
 ```bash
 git clone https://github.com/royshil/scoresight.git
@@ -126,6 +126,7 @@ cd scoresight
 uv venv --python 3.13 && source .venv/bin/activate   # Windows: .venv\Scripts\activate
 uv pip install -r requirements-dev.txt -r requirements-mac.txt   # or -r requirements-win.txt on Windows; nothing extra on Linux
 python scripts/compile_ui.py
+python scripts/fetch_models.py   # the PP-OCR models (not in git)
 python src/main.py
 ```
 
@@ -144,6 +145,6 @@ If ScoreSight helps your productions, you can support its development through [G
 
 ScoreSight is released under the [MIT License](LICENSE).
 
-It builds on great open-source projects, each under its own license, including [Qt for Python (PySide6)](https://www.qt.io/qt-for-python) (LGPLv3), [OpenCV](https://opencv.org/) (Apache 2.0), [Tesseract OCR](https://github.com/tesseract-ocr/tesseract) and [tesserocr](https://github.com/sirfz/tesserocr), [cyndilib](https://github.com/cyndilib/cyndilib), [FastAPI](https://fastapi.tiangolo.com/) and [obsws-python](https://github.com/aatikturk/obsws-python).
+It builds on great open-source projects, each under its own license, including [Qt for Python (PySide6)](https://www.qt.io/qt-for-python) (LGPLv3), [OpenCV](https://opencv.org/) (Apache 2.0), [PaddleOCR's PP-OCRv6 models](https://github.com/PaddlePaddle/PaddleOCR) (Apache 2.0) and [ONNX Runtime](https://onnxruntime.ai/) (MIT), [Tesseract OCR](https://github.com/tesseract-ocr/tesseract) and [tesserocr](https://github.com/sirfz/tesserocr), [cyndilib](https://github.com/cyndilib/cyndilib), [FastAPI](https://fastapi.tiangolo.com/) and [obsws-python](https://github.com/aatikturk/obsws-python).
 
 NDI® is a registered trademark of Vizrt NDI AB. vMix, OBS Studio, overlays.uno, NewBlue and other product names are trademarks of their respective owners. ScoreSight is not affiliated with or endorsed by them.

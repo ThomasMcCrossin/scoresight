@@ -54,9 +54,11 @@ SELF_TEST_MODULES = (
     "ndi",
     "obs_ui_handler",
     "obs_websocket",
+    "ocr_models",
     "ocr_training_data",
     "output_status",
     "output_worker",
+    "ppocr_engine",
     "readings_view",
     "resizable_rect",
     "resource_path",
@@ -97,6 +99,9 @@ SELF_TEST_RESOURCES = (
     ("tesseract", "tessdata", "scoreboard_general.traineddata"),
     ("tesseract", "tessdata", "eng.traineddata"),
     ("tesseract", "tessdata", "scoreboard_general_large.traineddata"),
+    # the PP-OCR models' license (the models themselves: see _self_test_ocr)
+    ("ocr_models", "ppocr", "LICENSE"),
+    ("ocr_models", "ppocr", "NOTICE"),
     ("translations", f"scoresight_{DEFAULT_LOCALE}.qm"),
     ("icons", "circle-check.svg"),
     ("icons", "circle-x.svg"),
@@ -416,14 +421,26 @@ def _render_text_image(text: str):
     return image
 
 
-def _self_test_ocr() -> str:
+# How long the self-test waits for a PP-OCR model to load (it takes well under
+# a second; a cold start of a frozen app on a slow disk takes longer).
+SELF_TEST_PPOCR_LOAD_TIMEOUT_S = 60
+# the PP-OCR choices the self-test reads with (ppocr_engine.SMALL, TINY, AUTO)
+PPOCR_SELF_TEST_MODELS = ("ppocr:small", "ppocr:tiny", "ppocr:auto")
+
+
+def _self_test_ocr(frozen: bool = False) -> str:
+    """OCR SELF_TEST_TEXT with every bundled model: the Tesseract ones and,
+    where they are installed, the PP-OCR ones (a frozen build must have them;
+    from source they need scripts/fetch_models.py)."""
     import cv2
 
+    import ppocr_engine
     from defaults import default_info_for_box_name, normalize_settings_dict
     from tesseract import TextDetector
     from text_detection_target import TextDetectionTarget
 
     gray = _render_text_image(SELF_TEST_TEXT)
+    color = cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
     _, binary = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
     box_name = "Home Score"
     target = TextDetectionTarget(
@@ -441,8 +458,9 @@ def _self_test_ocr() -> str:
         "scoreboard_general_large": TextDetector.OcrModelIndex.SCOREBOARD_GENERAL_LARGE,
         "eng": TextDetector.OcrModelIndex.GENERAL_ENGLISH,
     }
-    detector = TextDetector()
+    detector = TextDetector(TextDetector.OcrModelIndex.SCOREBOARD_GENERAL)
     reads = {}
+    skipped = []
     try:
         for name, index in models.items():
             # setOcrModel keeps the previous model when one fails to load
@@ -452,15 +470,39 @@ def _self_test_ocr() -> str:
             if len(results) != 1:
                 raise RuntimeError(f"OCR with {name!r} returned {len(results)} results")
             reads[name] = results[0].text
+        for model_id in PPOCR_SELF_TEST_MODELS:
+            reason = ppocr_engine.unavailable_reason(model_id)
+            if reason is not None:
+                if frozen:
+                    raise RuntimeError(f"PP-OCR model {model_id}: {reason}")
+                skipped.append(f"{model_id} ({reason})")
+                continue
+            if not detector.setOcrModel(model_id) or not detector.wait_for_engine(
+                SELF_TEST_PPOCR_LOAD_TIMEOUT_S
+            ):
+                error = detector.engine_status().ppocr_error
+                raise RuntimeError(f"the OCR model {model_id!r} did not load: {error}")
+            results = detector.detect_multi_text(binary, gray, [target], color=color)
+            if len(results) != 1:
+                raise RuntimeError(
+                    f"OCR with {model_id!r} returned {len(results)} results"
+                )
+            reads[model_id] = results[0].text
     finally:
         if detector.api is not None:
             detector.api.End()
             detector.api = None
     # The scoreboard models are trained on LED/LCD digits; the general English
-    # model must read the rendered font exactly.
-    if reads["eng"] != SELF_TEST_TEXT:
-        raise RuntimeError(f"OCR read {reads['eng']!r} instead of {SELF_TEST_TEXT!r}")
-    return ", ".join(f"{name}={text!r}" for name, text in reads.items())
+    # model and PP-OCR must read the rendered font exactly.
+    for name in ("eng", *PPOCR_SELF_TEST_MODELS):
+        if name in reads and reads[name] != SELF_TEST_TEXT:
+            raise RuntimeError(
+                f"OCR with {name!r} read {reads[name]!r} instead of {SELF_TEST_TEXT!r}"
+            )
+    text = ", ".join(f"{name}={text!r}" for name, text in reads.items())
+    if skipped:
+        text += f"; WARNING: not installed: {', '.join(skipped)}"
+    return text
 
 
 def _self_test_steps():
@@ -515,7 +557,7 @@ def _self_test_steps():
         f"{app.platformName()}): main window UI and translations load"
     )
 
-    yield f"OCR with every bundled model: {_self_test_ocr()}"
+    yield f"OCR with every bundled model: {_self_test_ocr(frozen)}"
 
     import uvicorn
 

@@ -39,12 +39,14 @@ POLL_INTERVAL = 0.02
 def resolve_command(command: list[str]) -> list[str]:
     """The command with its program as an absolute path when it is a file (on
     Windows, CreateProcess doesn't find e.g. "dist/scoresight/scoresight.exe"),
-    else as found on PATH. Raises FileNotFoundError if it is neither."""
+    else as found on PATH. Raises FileNotFoundError if it is neither. Symbolic
+    links are kept: a virtual environment's bin/python is one, and resolving
+    it would run the base interpreter without the environment's packages."""
     if not command:
         raise FileNotFoundError("no command given")
     program = Path(command[0])
     if program.is_file():
-        return [str(program.resolve()), *command[1:]]
+        return [str(program.absolute()), *command[1:]]
     found = shutil.which(command[0])
     if found is None:
         raise FileNotFoundError(f"{command[0]} does not exist")
