@@ -57,8 +57,8 @@ class VMixAPI:
             return
         self.host, self.port, self.input_number = host, port, input_number
         self._target = (host, port, input_number)
-        # report problems with the new target right away
-        self._worker.error_log.reset()
+        # the status (and the errors logged) are about the new target
+        self._worker.reset_status()
 
     def start(self):
         self.running = True
@@ -66,6 +66,11 @@ class VMixAPI:
     def stop(self):
         self.running = False
         self._worker.clear()
+        self._worker.reset_status()
+
+    def status(self):
+        """The sending's WorkerStatus (see output_worker)."""
+        return self._worker.status()
 
     def close(self):
         """Stop sending and unsubscribe from settings changes."""

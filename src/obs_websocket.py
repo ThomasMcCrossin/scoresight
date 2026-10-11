@@ -9,7 +9,7 @@ import obsws_python as obs
 import websocket
 from obsws_python.error import OBSSDKTimeoutError
 
-from output_worker import OutputWorker
+from output_worker import ErrorInfo, OutputWorker, SendSkipped
 from resource_path import resource_path
 from sc_logging import logger
 
@@ -69,8 +69,14 @@ def _locked(func):
     return wrapper
 
 
+# why the last open_obs_websocket() call of a thread failed
+_connect_errors = threading.local()
+
+
 def open_obs_websocket(server_info):
-    # Open a websocket connection to OBS
+    """Connect to OBS. Returns the client, or None if it failed: then
+    last_connect_error() (on the same thread) tells why."""
+    _connect_errors.last = None
     try:
         cl = obs.ReqClient(
             host=server_info["ip"],
@@ -82,8 +88,23 @@ def open_obs_websocket(server_info):
         logger.info(f"OBS Version: {resp.obs_version}")
         return cl
     except Exception as e:
+        _connect_errors.last = ErrorInfo.of(e)
         logger.warning(f"Cannot connect to OBS: {type(e).__name__}: {e}")
         return None
+
+
+def last_connect_error() -> ErrorInfo | None:
+    """Why the last open_obs_websocket() call on this thread failed."""
+    return getattr(_connect_errors, "last", None)
+
+
+def obs_client_address(obs_client) -> str | None:
+    """The "host:port" of an OBS client's connection."""
+    base = getattr(obs_client, "base_client", None)
+    host, port = getattr(base, "host", None), getattr(base, "port", None)
+    if host is None:
+        return None
+    return f"{host}:{port}" if port is not None else str(host)
 
 
 def close_obs_websocket(obs_client) -> None:
@@ -92,6 +113,9 @@ def close_obs_websocket(obs_client) -> None:
     if obs_client is None:
         return
     _closed_clients.add(obs_client)
+    # its text sources are no longer this output's concern
+    client_id = id(obs_client)
+    _text_worker.forget_keys(lambda key: key[0] == client_id)
     with client_lock(obs_client):
         try:
             obs_client.disconnect()
@@ -129,12 +153,12 @@ def _set_text(_key, item) -> None:
     # runs on the OBS output worker thread
     obs_client, source_name, text = item
     if obs_client in _closed_clients:
-        return
+        raise SendSkipped()
     with client_lock(obs_client):
         # close_obs_websocket marks the client closed before it takes the lock:
         # if that happened while this waited for the lock, don't reconnect it
         if obs_client in _closed_clients:
-            return
+            raise SendSkipped()
         try:
             obs_client.set_input_settings(source_name, {"text": text}, True)
         except _CONNECTION_ERRORS:
@@ -148,6 +172,11 @@ _text_worker = OutputWorker(
     retry_on=(OBSConnectionLost,) + _CONNECTION_ERRORS,
     max_backoff=10.0,
 )
+
+
+def obs_output_status():
+    """The text updates' WorkerStatus (see output_worker), for every client."""
+    return _text_worker.status()
 
 
 @_locked

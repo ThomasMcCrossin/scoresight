@@ -1,10 +1,12 @@
 """The main window's status bar: the source with its resolution and frame rate,
 the OCR rate against the Detections / s setting, a chip while the outputs are
-paused, and the HTTP server's address with a Copy button.
+paused, the state of every output (a click shows its settings), and the HTTP
+server's address with a Copy button.
 
 MainWindow builds a StatusSnapshot from what it already knows (the capture
-thread's counters, the pause state, the HTTP server's port) about once a second,
-and MainStatusBar shows it. Nothing here waits for the network.
+thread's counters, the pause state, the HTTP server's port, the outputs'
+statuses) about once a second, and MainStatusBar shows it. Nothing here waits
+for the network.
 """
 
 import html
@@ -12,12 +14,28 @@ import socket
 from dataclasses import dataclass
 from urllib.parse import urlsplit, urlunsplit
 
-from PySide6.QtCore import QCoreApplication, QPoint, Qt
+from PySide6.QtCore import QCoreApplication, QObject, QPoint, QSize, Qt, Signal
 from PySide6.QtGui import QGuiApplication
-from PySide6.QtWidgets import QLabel, QStatusBar, QToolButton, QToolTip
+from PySide6.QtWidgets import (
+    QHBoxLayout,
+    QLabel,
+    QStatusBar,
+    QToolButton,
+    QToolTip,
+    QWidget,
+)
 
 import theme
 from camera_info import CameraInfo
+from output_status import (
+    DESTINATIONS,
+    STATE_COLORS,
+    STATE_SHAPES,
+    DestinationStatus,
+    short_name,
+    state_word,
+    status_tooltip,
+)
 
 # Source states
 SOURCE_NONE = "none"
@@ -57,6 +75,10 @@ class StatusSnapshot:
     http_urls: tuple[str, ...] = ()
     # the port the HTTP server was asked to use
     http_port: int | None = None
+    # the outputs' statuses (output_status.DestinationStatus), and the time
+    # (time.monotonic) they were taken
+    outputs: tuple[DestinationStatus, ...] = ()
+    now: float = 0.0
 
 
 def primary_lan_address() -> str | None:
@@ -211,12 +233,18 @@ def _colored(glyph: str, color) -> str:
     return f'<span style="color:{color.name()}">{glyph}</span>'
 
 
-class MainStatusBar:
+class MainStatusBar(QObject):
     """The permanent widgets of the main window's QStatusBar."""
 
+    # an output's button was clicked: show that destination (its key)
+    destination_clicked = Signal(str)
+
     def __init__(self, statusbar: QStatusBar):
+        super().__init__(statusbar)
         self.statusbar = statusbar
         self.snapshot = StatusSnapshot()
+        # what each output button shows: (state, colour)
+        self._output_looks: dict[str, tuple] = {}
 
         self.label_source = QLabel(statusbar)
         self.label_source.setObjectName("label_statusSource")
@@ -237,14 +265,44 @@ class MainStatusBar:
         self.button_copy.setAutoRaise(True)
         self.button_copy.clicked.connect(self.copyHttpUrl)
 
+        # "Outputs: ● Files ● HTTP ▲ vMix ...": a button per output
+        self.widget_outputs = QWidget(statusbar)
+        self.widget_outputs.setObjectName("widget_statusOutputs")
+        layout = QHBoxLayout(self.widget_outputs)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+        self.label_outputs = QLabel(self.widget_outputs)
+        self.label_outputs.setObjectName("label_statusOutputs")
+        layout.addWidget(self.label_outputs)
+        self.output_buttons: dict[str, QToolButton] = {}
+        for key in DESTINATIONS:
+            button = QToolButton(self.widget_outputs)
+            button.setObjectName(f"toolButton_statusOutput_{key}")
+            button.setAutoRaise(True)
+            button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
+            button.setIconSize(QSize(9, 9))
+            button.clicked.connect(
+                lambda checked=False, key=key: self.destination_clicked.emit(key)
+            )
+            layout.addWidget(button)
+            self.output_buttons[key] = button
+        self.widget_outputs.hide()
+
         statusbar.addWidget(self.label_source)
         statusbar.addWidget(self.label_ocr)
         statusbar.addWidget(self.label_paused)
+        statusbar.addPermanentWidget(self.widget_outputs)
         statusbar.addPermanentWidget(self.label_http)
         statusbar.addPermanentWidget(self.button_copy)
         self.retranslate()
 
     def retranslate(self):
+        self.label_outputs.setText(
+            QCoreApplication.translate("StatusBar", "Outputs:") + " "
+        )
+        for key, button in self.output_buttons.items():
+            button.setText(short_name(key))
+        self._output_looks.clear()
         self.button_copy.setText(QCoreApplication.translate("StatusBar", "Copy"))
         self.button_copy.setToolTip(
             QCoreApplication.translate(
@@ -335,6 +393,34 @@ class MainStatusBar:
                 )
             )
         self.button_copy.setVisible(bool(snapshot.http_url))
+        self.updateOutputs(snapshot.outputs, snapshot.now, palette)
+
+    def updateOutputs(self, outputs, now: float, palette):
+        """The outputs summary: a glyph (its shape and colour tell the state)
+        and the short name of every output."""
+        self.widget_outputs.setVisible(bool(outputs))
+        for status in outputs:
+            button = self.output_buttons.get(status.key)
+            if button is None:
+                continue
+            color_name = STATE_COLORS.get(status.state)
+            color = (
+                theme.color(color_name, palette)
+                if color_name
+                else theme.muted_color(palette)
+            )
+            look = (status.state, color.name())
+            if self._output_looks.get(status.key) != look:
+                self._output_looks[status.key] = look
+                button.setIcon(theme.state_icon(STATE_SHAPES[status.state], color, 9))
+                button.setAccessibleName(
+                    f"{short_name(status.key)}: {state_word(status.state)}"
+                )
+            button.setToolTip(
+                status_tooltip(status, now)
+                + "\n"
+                + QCoreApplication.translate("StatusBar", "Click to show its settings.")
+            )
 
     def copyHttpUrl(self):
         if not self.snapshot.http_url:

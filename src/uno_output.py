@@ -55,8 +55,8 @@ class UNOAPI:
         if endpoint == self.endpoint:
             return
         self.endpoint = endpoint
-        # report problems with the new URL right away
-        self._worker.error_log.reset()
+        # the status (and the errors logged) are about the new URL
+        self._worker.reset_status()
 
     def update_uno(
         self,
@@ -130,6 +130,11 @@ class UNOAPI:
     def stop(self):
         self.running = False
         self._worker.clear()
+        self._worker.reset_status()
+
+    def status(self):
+        """The sending's WorkerStatus (see output_worker)."""
+        return self._worker.status()
 
     def close(self):
         """Stop sending and unsubscribe from settings changes."""

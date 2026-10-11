@@ -163,6 +163,19 @@ class _Box:
     rect: tuple[float, float, float, float]
 
 
+@dataclass(frozen=True)
+class FileOutputStatus:
+    """What FileOutput.status() reports about the writing."""
+
+    folder: str | None = None  # the folder of the last flush
+    files: int = 0  # files written to that folder in this session
+    last_write_at: float | None = None  # (FileOutput's clock)
+    # the names of the files whose last write failed, and the latest error
+    failing: tuple[str, ...] = ()
+    last_error: str | None = None
+    last_error_at: float | None = None
+
+
 class FileOutput:
     """Writes the box readings to the output folder; see the module docstring.
 
@@ -186,6 +199,28 @@ class FileOutput:
         self._xml_written: dict[str, tuple] = {}
         # files whose last write failed (logged once until they succeed again)
         self._failing: set[str] = set()
+        # for status(): the folder of the last flush and the files written to it
+        self._folder: str | None = None
+        self._written: set[str] = set()
+        self._last_write_at: float | None = None
+        self._last_error: str | None = None
+        self._last_error_at: float | None = None
+
+    def status(self) -> FileOutputStatus:
+        """What was written, and what failed. FileOutput is used on one thread
+        (the GUI thread), which also reads this."""
+        return FileOutputStatus(
+            folder=self._folder,
+            files=len(self._written),
+            last_write_at=self._last_write_at,
+            failing=tuple(sorted(os.path.basename(path) for path in self._failing)),
+            last_error=self._last_error if self._failing else None,
+            last_error_at=self._last_error_at if self._failing else None,
+        )
+
+    def _wrote(self, path: str):
+        self._written.add(path)
+        self._last_write_at = self._clock()
 
     def record(self, results: list[TextDetectionTargetWithResult]):
         """Remember the boxes and the good readings of an OCR result list."""
@@ -221,6 +256,11 @@ class FileOutput:
         if not out_folder or not self._boxes:
             return
         self._last_flush = self._clock()
+        if out_folder != self._folder:
+            self._folder = out_folder
+            self._written.clear()
+            self._failing.clear()
+            self._last_write_at = None
         self._write_text_files(out_folder, append_method in (APPEND_TXT, APPEND_BOTH))
         if save_csv:
             self._write_csv(out_folder, append_method in (APPEND_CSV, APPEND_BOTH))
@@ -230,6 +270,8 @@ class FileOutput:
     # --- error reporting -------------------------------------------------------
 
     def _write_failed(self, path: str, error: Exception):
+        self._last_error = f"{os.path.basename(path)}: {error}"
+        self._last_error_at = self._clock()
         if path not in self._failing:
             self._failing.add(path)
             logger.error("Error writing to %s: %s", path, error)
@@ -270,6 +312,7 @@ class FileOutput:
                 self._write_failed(path, e)
                 continue
             self._write_succeeded(path)
+            self._wrote(path)
             self._txt_written[path] = reading.text
 
     # --- results.csv ----------------------------------------------------------------
@@ -300,6 +343,7 @@ class FileOutput:
         writer.writerow([CSV_TIMESTAMP_COLUMN, *names])
         writer.writerow([datetime.datetime.now().isoformat(), *values])
         write_text_atomic(path, output.getvalue(), newline="")
+        self._wrote(path)
         self._csv_written[path] = snapshot
         self._csv_header[path] = [CSV_TIMESTAMP_COLUMN, *names]
 
@@ -333,6 +377,7 @@ class FileOutput:
             if header is None:
                 writer.writerow([CSV_TIMESTAMP_COLUMN, *columns])
             writer.writerow([datetime.datetime.now().isoformat(), *values])
+        self._wrote(path)
         self._csv_header[path] = [CSV_TIMESTAMP_COLUMN, *columns]
         self._csv_written[path] = values
 
@@ -371,4 +416,5 @@ class FileOutput:
             self._write_failed(path, e)
             return
         self._write_succeeded(path)
+        self._wrote(path)
         self._xml_written[path] = snapshot

@@ -63,7 +63,18 @@ flowchart LR
    - Network outputs hand their payload to background workers (`output_worker.OutputWorker`, one daemon thread per output) that coalesce pending items per key (latest value wins), use request timeouts, back off while the target is unreachable and throttle their error logging, so the GUI thread never blocks on I/O.
    - File output is state-based and atomic: `FileOutput.record()` remembers every box's last good reading, and `flush()` (at most **Save / s** times per second, with a `QTimer` for the pending change) writes only files whose content changed or that are missing.
 
-`mainwindow.py` is the central hub. It wires the UI, sources, the OBS connection, import/export and language/appearance switching. While **Pause outputs** is on, `ocrResult` still updates the field table but returns before the outputs; on resume, vMix and UNO also get each box's next good reading when it is unchanged (`resend_unchanged`, the boxes in `resendAfterPause`). A 1-second timer refreshes the status bar (`status_bar.MainStatusBar`, from a `StatusSnapshot` of what the window already knows: the capture thread's counters, the pause, `get_http_server_port()`) and the readings' ages. Texts set at runtime (the pause button and banner, slider readouts, the status bar, the Appearance items, shortcut hints in tooltips) are set again by `applyRuntimeTexts()` after `retranslateUi` on a language change.
+`mainwindow.py` is the central hub. It wires the UI, sources, the OBS connection, import/export and language/appearance switching. While **Pause outputs** is on, `ocrResult` still updates the field table but returns before the outputs; on resume, vMix and UNO also get each box's next good reading when it is unchanged (`resend_unchanged`, the boxes in `resendAfterPause`). A 1-second timer refreshes the outputs' statuses, the status bar (`status_bar.MainStatusBar`, from a `StatusSnapshot` of what the window already knows: the capture thread's counters, the pause, `get_http_server_port()`, the outputs) and the readings' ages. Texts set at runtime (the pause button and banner, slider readouts, the status bar, the OBS buttons, the destinations' names, the Appearance items, shortcut hints in tooltips) are set again by `applyRuntimeTexts()` after `retranslateUi` on a language change.
+
+### Output status
+
+The **Outputs** list (`listView_destinations`, with `destinations_view.DestinationsModel` and `DestinationDelegate`) has a row per output over `stackedWidget_outputs`, whose pages are the output settings (the old tabs, with their objectNames). Once a second (and when an output is switched), `MainWindow.destinationStatuses()` builds a `output_status.DestinationStatus` for every output from cheap, thread-safe snapshots, never from the network:
+
+- `OutputWorker.status()`: a `WorkerStatus` taken under the worker's lock: items sent and failed, consecutive failures, whether the endpoint is being retried (and the backoff), the keys whose latest item was sent or dropped, the last success and failure times, and the last error as an `ErrorInfo` (the exception's type, message and HTTP status or OBS code, without the exception object). `reset_status()` starts over when an output is stopped or sends somewhere else; `forget_keys()` drops a closed OBS connection's text sources. A send function raises `SendSkipped` for an item it deliberately didn't send.
+- `http_server.http_server_stats()`: a request counter (an ASGI middleware), the time of the last request, the clients seen in the last 10 s, and why the server couldn't start.
+- `FileOutput.status()`: the folder, the files written, the last write, and the files whose last write failed (GUI thread only, like `FileOutput`).
+- the OBS client, the attempt running and why the last one failed (`obs_websocket.last_connect_error()`, recorded on the connecting thread).
+
+`output_status.describe_error()` turns a failure into a short line and what to do, for the documented cases (vMix's TCP API port, HTTP 401/403/404/429/5xx per output, refused, timed-out or unknown hosts, OBS password and missing-source errors). Secrets are redacted (`url_secrets`, `redact`). The switches never change an output themselves: `DestinationsModel.setData(CheckStateRole)` emits `toggleRequested`, and `MainWindow.destinationToggleRequested` operates the output's own control, which stays the source of truth.
 
 ## HTTP server
 
@@ -126,14 +137,16 @@ Logging goes through `from sc_logging import logger`. It writes to `platformdirs
 | `template_fields.py` | `{% raw %}{{Box Name}}{% endraw %}` template evaluation |
 | `box_settings_ui_handler.py` | Binds the per-box settings panel to the selected box, and the sliders' value readouts |
 | `readings_view.py` | The field table's Value column: the readings' data roles and `ReadingDelegate` |
-| `status_bar.py` | The main window's status bar (source, OCR rate, paused, HTTP address) |
-| `theme.py` | State and paused colours for light and dark palettes, media icons |
-| `http_server.py` | Built-in FastAPI/uvicorn HTTP server |
-| `output_worker.py` | Background, latest-value-wins sender used by the network outputs |
+| `status_bar.py` | The main window's status bar (source, OCR rate, paused, the outputs' states, HTTP address) |
+| `theme.py` | State and paused colours for light and dark palettes, state glyphs, media icons |
+| `output_status.py` | Every output's `DestinationStatus` (state, line, hint, last activity) and the plain error messages |
+| `destinations_view.py` | The Outputs list: `DestinationsModel` and `DestinationDelegate` (switch, glyph, status line) |
+| `http_server.py` | Built-in FastAPI/uvicorn HTTP server, and its request statistics |
+| `output_worker.py` | Background, latest-value-wins sender used by the network outputs, and its `status()` |
 | `api_output.py` | Outbound HTTP API (JSON/XML/CSV/GET) |
 | `obs_websocket.py` | OBS WebSocket client helpers and scene creation |
-| `vmix_output.py`, `vmix_ui_handler.py` | vMix Web API sender and tab |
-| `uno_output.py`, `uno_ui_handler.py` | overlays.uno sender and tab |
+| `vmix_output.py`, `vmix_ui_handler.py` | vMix Web API sender and its settings page |
+| `uno_output.py`, `uno_ui_handler.py` | overlays.uno sender and its settings page |
 | `file_output.py` | Text, CSV and XML file output |
 | `ocr_training_data.py`, `training_dojo.py` | Training data collection and the annotation tool |
 | `log_view.py` | Log viewer dialog |

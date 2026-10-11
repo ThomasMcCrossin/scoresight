@@ -30,7 +30,12 @@ ScoreSight includes a small web server that always serves the latest readings. B
 | Update rate | Follows **Detections / s**. Every request returns the most recent readings |
 | Text encoding | UTF-8 |
 
-The **Browser** tab in ScoreSight lists the endpoints as clickable links, using the port the server is running on.
+Select **HTTP server** in the **Outputs** list (or click **HTTP** in the status bar) to see the endpoints as clickable links, using the port the server is running on, and the address to use from other computers on your network. (In ScoreSight 0.1.x this was the **Browser** tab.)
+
+The HTTP server row of the **Outputs** list has no on/off switch (the server is always on). It shows whether the server is running and whether anything reads it:
+
+- ● *http://192.168.1.20:18099 · 3 clients*: the address on your network, and how many computers (or programs) requested something in the last 10 seconds. The time next to it is when the last request came. *no requests yet* means nothing has read it since ScoreSight started.
+- ■ *Not running: port 18099 is in use*: another program, or another ScoreSight, uses the port (see [Troubleshooting](#troubleshooting)).
 
 {: .note }
 The server listens on IPv4 only. Browsers and `curl` handle `localhost` fine, but a few tools try the IPv6 address `::1` first and then fail or stall, for example PowerShell's `Invoke-WebRequest`. Use `http://127.0.0.1:18099` with such tools.
@@ -230,7 +235,8 @@ sensor:
 
 ## Troubleshooting
 
-- **Nothing at `localhost:18099`**: check the log for `HTTP server: port 18099 is already in use or not available`. Another ScoreSight instance or another program is using the port, and this instance runs without its HTTP server. Start ScoreSight with a different [`--port`](profiles.md#command-line-options).
+- **Nothing at `localhost:18099`**: if the HTTP server row of the **Outputs** list (and **HTTP** in the status bar) shows ■ *Not running: port 18099 is in use*, another ScoreSight instance or another program is using the port, and this instance runs without its HTTP server (the log says `HTTP server: port 18099 is already in use or not available`). Start ScoreSight with a different [`--port`](profiles.md#command-line-options).
+- **Your page or software doesn't update**: if the HTTP server row says *no requests yet*, or its time keeps growing, your page isn't reaching this ScoreSight: check the address and port it uses.
 - **Works in the browser but not in a script or PowerShell**: use `127.0.0.1` instead of `localhost` (see the note under [Basics](#basics)).
 - **Works locally but not from another computer**: allow ScoreSight (or the port) in the firewall of the ScoreSight computer, and use its IP address rather than `localhost`.
 - **Values stop changing**: check whether the outputs are paused (an orange banner over the picture and **PAUSED** in the status bar), and whether the readings are yellow or red in the viewer.

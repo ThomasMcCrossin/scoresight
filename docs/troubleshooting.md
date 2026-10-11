@@ -114,14 +114,14 @@ Force-quitting doesn't damage your settings: they are saved as you work.
 
 ### vMix shows no data (#55, #25)
 
-**Symptom**: vMix titles don't change. ScoreSight 0.1.x logged `Failed to send data to http://localhost:8099/api/... BadStatusLine('VERSION OK ...')`. ScoreSight 0.2.0 logs `vMix: VMixTCPPortError: localhost:8099 answered like the vMix TCP API ('VERSION OK')` with a hint to use the Web Controller port ([#55](https://github.com/royshil/scoresight/issues/55), [#25](https://github.com/royshil/scoresight/issues/25)).
+**Symptom**: vMix titles don't change. ScoreSight 0.1.x logged `Failed to send data to http://localhost:8099/api/... BadStatusLine('VERSION OK ...')`. ScoreSight 0.2.0 shows ■ *Port 8099 is vMix's TCP API: use 8088* in the vMix row of the **Outputs** list and logs `vMix: VMixTCPPortError: localhost:8099 answered like the vMix TCP API ('VERSION OK')` ([#55](https://github.com/royshil/scoresight/issues/55), [#25](https://github.com/royshil/scoresight/issues/25)).
 
 **Cause**: port 8099 is vMix's TCP API. ScoreSight uses vMix's HTTP **Web API**, which listens on port **8088**.
 
 **Fix**:
 
 1. In vMix, enable **Settings** > **Web Controller** (port 8088).
-2. In ScoreSight's **VMix** tab, set the port to **8088** and press **Enter**. ScoreSight 0.2.0 changes a saved 8099 to 8088 automatically the first time it starts.
+2. In ScoreSight, select **vMix** in the **Outputs** list, set the port to **8088** and press **Enter**. ScoreSight 0.2.0 changes a saved 8099 to 8088 automatically the first time it starts.
 3. Use the exact field names from the vMix Title Editor, **including `.Text`** (for example `Home Score.Text`).
 4. Check the **Input** number, and click **Start**.
 
@@ -129,6 +129,7 @@ Full guide: [vMix](vmix.md).
 
 ### OBS text doesn't update (#30)
 
+- Look at the OBS row of the **Outputs** list: it says whether ScoreSight is connected, and why not (see [OBS: Troubleshooting](obs.md#troubleshooting)).
 - In ScoreSight 0.1.x, OBS updates only worked when an output folder was set in the **Text Files** tab. 0.2.0 removed that requirement. Update, or set a folder as a workaround.
 - The OBS text sources must be named exactly `Home score`, `Away score`, `Clock`, `Period`, `#Home Fouls`, `#Away Fouls` or `shotclock`, or use **Create OBS Scene**. Custom fields don't update OBS by default (see [OBS: Custom fields](obs.md#custom-fields)). A wrong name shows up in the log as `OBS: OBSSDKRequestError: Request SetInputSettings returned code 600`.
 - If updates stop after a few minutes ([#30](https://github.com/royshil/scoresight/issues/30)), check whether OBS restarted or the WebSocket dropped. ScoreSight 0.2.0 reconnects by itself (the log shows `OBS: OBSConnectionLost: ...` while OBS is unreachable, then `OBS: reconnected to <host>:<port>`). On 0.1.x, reconnect with **Connect OBS**. A [Browser Source](http_server.md) overlay is a robust alternative.

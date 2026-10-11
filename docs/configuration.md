@@ -135,12 +135,13 @@ You normally never edit this file: everything is set through the UI. This list h
 
 | Key | Meaning |
 |---|---|
-| `output_folder`, `save_csv`, `save_xml`, `append_method`, `aggs_per_second` | [Text Files](text-files.md) tab (`append_method`: `0` CSV, `1` TXT, `2` both, `3` don't append; `aggs_per_second`: Save / s) |
+| `output_folder`, `save_csv`, `save_xml`, `append_method`, `aggs_per_second` | [Text files](text-files.md) output (`append_method`: `0` CSV, `1` TXT, `2` both, `3` don't append; `aggs_per_second`: Save / s) |
 | `obs` | OBS connection: `ip`, `port`, `password` |
-| `vmix_host`, `vmix_port`, `vmix_input`, `vmix_mapping`, `vmix_send_same` | [vMix](vmix.md) tab |
+| `obs_auto_connect` | `false` after **Disconnect**: the saved OBS connection isn't opened at startup until you connect again. Missing or `true`: ScoreSight connects to OBS at startup |
+| `vmix_host`, `vmix_port`, `vmix_input`, `vmix_mapping`, `vmix_send_same` | [vMix](vmix.md) output |
 | `vmix_port_migrated` | `true` once the one-time change of a saved port 8099 to 8088 has run |
-| `uno_url`, `uno_mapping`, `uno_send_same`, `uno_essentials`, `uno_essentials_id` | [UNO](uno.md) tab |
-| `enable_out_api`, `out_api_url`, `out_api_method`, `out_api_encoding` | [API](out_api.md) tab. `out_api_method` is `POST`, `PUT` or `GET`; `out_api_encoding` is `JSON (Full)`, `JSON (Simple key-value)`, `XML` or `CSV`, in English whatever the interface language |
+| `uno_url`, `uno_mapping`, `uno_send_same`, `uno_essentials`, `uno_essentials_id` | [UNO](uno.md) output |
+| `enable_out_api`, `out_api_url`, `out_api_method`, `out_api_encoding` | [HTTP API](out_api.md) output. `out_api_method` is `POST`, `PUT` or `GET`; `out_api_encoding` is `JSON (Full)`, `JSON (Simple key-value)`, `XML` or `CSV`, in English whatever the interface language |
 
 ### Application
 

@@ -1,5 +1,6 @@
 from datetime import datetime
 from functools import partial
+import html
 import math
 import os
 import platform
@@ -40,16 +41,27 @@ from PySide6.QtCore import (
 )
 from os import path
 
-from api_output import update_out_api
+from api_output import out_api_status, update_out_api
 from box_settings_ui_handler import BoxSettingsUIHandler
 from camera_info import CameraInfo
+from destinations_view import STATUS_ROLE, DestinationDelegate, DestinationsModel
 from get_camera_info import get_camera_info
 from http_server import (
     get_http_server_port,
+    http_server_stats,
     start_http_server,
     update_http_server,
 )
 from ocr_training_data import OCRTrainingDataDialog
+import output_status
+from output_status import (
+    STATE_COLORS,
+    STATE_GLYPHS,
+    DestinationStatus,
+    describe_error,
+    status_tooltip,
+)
+from output_worker import ErrorInfo
 from readings_view import ReadingDelegate, clear_reading, record_reading
 from resource_path import resource_path
 from source_view import ImageViewer
@@ -87,6 +99,9 @@ from storage import (
 from obs_websocket import (
     close_obs_websocket,
     create_obs_scene_from_export,
+    last_connect_error,
+    obs_client_address,
+    obs_output_status,
     open_obs_websocket,
     update_text_source,
 )
@@ -165,6 +180,9 @@ SOURCE_STALL_S = 3.0
 BOXES_LIST_MAX_VISIBLE_ROWS = 8
 # The window's default size, made smaller on smaller screens.
 DEFAULT_WINDOW_SIZE = (1280, 800)
+# False after OBS was disconnected: the saved connection ("obs") isn't opened
+# at startup until the user connects again
+OBS_AUTO_CONNECT_SETTING = "obs_auto_connect"
 
 
 def apply_color_scheme(name: str | None) -> str:
@@ -241,6 +259,12 @@ class MainWindow(QMainWindow):
         self.ui = Ui_MainWindow()
         logger.info("Starting ScoreSight %s", __version__)
         self.ui.setupUi(self)
+        # the HTTP server page's text, before the real port and address are
+        # filled in
+        self.browserEndpointsTemplate = self.ui.label_8.text()
+        # this computer's address on the network (for the HTTP server's URLs)
+        self.lanAddress = primary_lan_address()
+        self.lanAddressCheckedAt = time.monotonic()
         self.translator = translator
         # when the outputs were paused (Pause outputs), None while they run
         self.outputsPausedAt: datetime | None = None
@@ -265,6 +289,7 @@ class MainWindow(QMainWindow):
         self.installEventFilter(self)
 
         self.ui.pushButton_connectObs.clicked.connect(self.openOBSConnectModal)
+        self.ui.pushButton_disconnectObs.clicked.connect(self.disconnectObs)
 
         self.vmixUiHandler = VMixUIHanlder(self.ui)
         self.unoUiHandler = UNOUIHandler(self.ui)
@@ -351,6 +376,13 @@ class MainWindow(QMainWindow):
         self.obs_last_sent: dict[str, str] = {}
         self.obs_connect_attempt = 0
         self.obs_connection_result.connect(self.obsConnectionResult)
+        # for the OBS status: "host:port" of the connection, of an attempt
+        # running, and why the last attempt failed
+        self.obsAddress: str | None = None
+        self.obsConnectedAt: float | None = None
+        self.obsConnecting: str | None = None
+        self.obsConnectError: ErrorInfo | None = None
+        self.obsConnectTarget: str | None = None
 
         ocr_models = [
             "Daktronics",
@@ -431,12 +463,18 @@ class MainWindow(QMainWindow):
             logger.info("Opening log dialog on startup")
             self.openLogsDialog()
 
-        if fetch_data("scoresight.json", "obs"):
+        if fetch_data("scoresight.json", "obs") and fetch_data(
+            "scoresight.json", OBS_AUTO_CONNECT_SETTING, True
+        ):
             self.connectObs()
 
+        # the output folder that was found missing (the files output stopped)
+        self.outputFolderLost: str | None = None
         self.out_folder = fetch_data("scoresight.json", "output_folder")
         if self.out_folder:
             if not path.exists(self.out_folder):
+                logger.warning("Output folder does not exist: %s", self.out_folder)
+                self.outputFolderLost = self.out_folder
                 self.out_folder = None
                 remove_data("scoresight.json", "output_folder")
             else:
@@ -500,11 +538,14 @@ class MainWindow(QMainWindow):
             self.updateSliderReadouts
         )
 
-        # the source, OCR rate and HTTP address, and the readings' ages
+        # the outputs' list (with their status) over their settings pages
+        self.setupDestinations()
+
+        # the source, OCR rate, the outputs and the HTTP address, and the
+        # readings' ages
         self.sourceError = None
-        self.lanAddress = primary_lan_address()
-        self.lanAddressCheckedAt = time.monotonic()
         self.statusBarWidgets = MainStatusBar(self.ui.statusbar)
+        self.statusBarWidgets.destination_clicked.connect(self.showDestination)
         self.statusTimer = QTimer(self)
         self.statusTimer.setInterval(STATUS_INTERVAL_MS)
         self.statusTimer.timeout.connect(self.refreshLiveStatus)
@@ -672,6 +713,9 @@ class MainWindow(QMainWindow):
         self.boxSettingsUiHandler.updateReadouts()
         self.retranslateMenus()
         self.applyShortcutHints()
+        self.updateObsUi()
+        self.destinationsModel.retranslate()
+        self.updateDestinationsListHeight()
         self.statusBarWidgets.retranslate()
         self.refreshLiveStatus()
         self.fitLeftPaneWidth()
@@ -735,8 +779,9 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(title)
 
     def updateBrowserEndpoints(self):
-        """Show the HTTP server's real port in the Browser tab, or that the
-        server isn't running (its port was busy)."""
+        """Show the HTTP server's real port on its page, and its address for
+        other computers, or that the server isn't running (its port was
+        busy)."""
         port = get_http_server_port()
         if port is None:
             self.ui.label_8.setText(
@@ -749,12 +794,22 @@ class MainWindow(QMainWindow):
                 ).format(port=self.http_port)
             )
             return
-        # the Browser tab's links are written for the default port
-        self.ui.label_8.setText(
-            self.ui.label_8.text().replace(
-                f"localhost:{DEFAULT_HTTP_PORT}", f"localhost:{port}"
-            )
+        # the page's links are written for the default port
+        text = self.browserEndpointsTemplate.replace(
+            f"localhost:{DEFAULT_HTTP_PORT}", f"localhost:{port}"
         )
+        if self.lanAddress:
+            url = f"http://{self.lanAddress}:{port}"
+            other_computers = QCoreApplication.translate(
+                "MainWindow",
+                "<p>From other computers on your network, use {url} instead of "
+                "http://localhost:{port}.</p>",
+            ).format(url=f'<a href="{url}/scoresight">{url}</a>', port=port)
+            if "</body>" in text:
+                text = text.replace("</body>", other_computers + "</body>", 1)
+            else:
+                text += other_computers
+        self.ui.label_8.setText(text)
 
     def setupChoiceSetting(self, combo_box, setting_name: str, values: tuple):
         """Bind a combo box whose items are values (their text may be translated)
@@ -898,6 +953,7 @@ class MainWindow(QMainWindow):
             except Exception as e:
                 logger.error(f"Error retranslating UI: {e}")
             # retranslateUi resets these texts to their .ui defaults
+            self.browserEndpointsTemplate = self.ui.label_8.text()
             self.ui.lineEdit_sceneName.setText(scene_name)
             self.ui.toolButton_speed.setText(speed)
             self.vmixUiHandler.restoreUiState()
@@ -984,23 +1040,34 @@ class MainWindow(QMainWindow):
             slider.setAccessibleDescription(text)
 
     def refreshLiveStatus(self):
-        """Once a second: the status bar, and the boxes list (the readings'
+        """Once a second (and when an output is turned on or off): the
+        outputs' statuses, the status bar, and the boxes list (the readings'
         ages)."""
         now = time.monotonic()
         if now - self.lanAddressCheckedAt > 30:
             # the network may have changed (no traffic: a route lookup)
-            self.lanAddress = primary_lan_address()
+            lan_address = primary_lan_address()
             self.lanAddressCheckedAt = now
-        self.statusBarWidgets.update(self.statusSnapshot(now))
+            if lan_address != self.lanAddress:
+                self.lanAddress = lan_address
+                self.updateBrowserEndpoints()
+        outputs = self.refreshDestinations(now)
+        self.statusBarWidgets.update(self.statusSnapshot(now, outputs))
         cadence = self.ui.horizontalSlider_detectionCadence.value()
         # stale after 20 detection cycles (at least 10 s)
         self.readingDelegate.setStaleAfter(20.0 / max(cadence, 0.1))
         self.ui.tableWidget_boxes.viewport().update()
 
-    def statusSnapshot(self, now: float | None = None) -> StatusSnapshot:
+    def statusSnapshot(
+        self,
+        now: float | None = None,
+        outputs: list[DestinationStatus] | None = None,
+    ) -> StatusSnapshot:
         """What the status bar shows, from what the window already knows."""
         now = time.monotonic() if now is None else now
-        values = {}
+        if outputs is None:
+            outputs = self.destinationStatuses(now)
+        values = {"outputs": tuple(outputs), "now": now}
         viewer = self.image_viewer
         if viewer is not None:
             values["source_name"] = source_display_name(viewer.getCameraInfo())
@@ -1037,6 +1104,179 @@ class MainWindow(QMainWindow):
             values["http_urls"] = urls
             values["http_port"] = port
         return StatusSnapshot(**values)
+
+    # --- the outputs: destinations and their status --------------------------------
+
+    def setupDestinations(self):
+        """The destinations list: a row per output (with its switch and status)
+        that shows the output's page below it."""
+        view = self.ui.listView_destinations
+        self.destinationsModel = DestinationsModel(self)
+        self.destinationDelegate = DestinationDelegate(view)
+        view.setModel(self.destinationsModel)
+        view.setItemDelegate(self.destinationDelegate)
+        view.selectionModel().currentRowChanged.connect(self.destinationSelected)
+        view.setCurrentIndex(self.destinationsModel.index(0, 0))
+        self.destinationsModel.toggleRequested.connect(self.destinationToggleRequested)
+        self.ui.frame_destinationStatus.hide()
+        self.updateDestinationsListHeight()
+        # the controls the switches mirror: show their changes right away
+        for signal in (
+            self.ui.pushButton_startvmix.toggled,
+            self.ui.toolButton_toggleUno.toggled,
+            self.ui.checkBox_enableOutAPI.toggled,
+        ):
+            signal.connect(lambda *_: self.refreshLiveStatus())
+
+    def updateDestinationsListHeight(self):
+        """The destinations list shows every destination without scrolling."""
+        view = self.ui.listView_destinations
+        row_height = self.destinationDelegate.rowHeight(view.font())
+        view.setFixedHeight(
+            self.destinationsModel.rowCount() * row_height + 2 * view.frameWidth()
+        )
+
+    def destinationSelected(self, current, previous=None):
+        if current.isValid():
+            self.ui.stackedWidget_outputs.setCurrentIndex(current.row())
+        self.updateDestinationDetails()
+
+    def showDestination(self, key: str):
+        """Select a destination (e.g. clicked in the status bar): its page shows,
+        and the left column scrolls to it."""
+        view = self.ui.listView_destinations
+        view.setCurrentIndex(
+            self.destinationsModel.index(self.destinationsModel.rowOf(key), 0)
+        )
+        self.ui.scrollArea_left.ensureWidgetVisible(self.ui.widget_outputs, 0, 0)
+        view.setFocus(Qt.FocusReason.OtherFocusReason)
+
+    def destinationToggleRequested(self, key: str, on: bool):
+        """A destination's switch was clicked: operate the output's own control,
+        which stays the source of truth (the switch shows its state)."""
+        if key == output_status.FILES:
+            if on:
+                # a modal dialog: not from inside the list's event handling
+                QTimer.singleShot(0, self.selectOutputFolder)
+            else:
+                self.clearOutputFolder()
+        elif key == output_status.OBS:
+            if on:
+                self.openOBSConnectModal()
+            else:
+                self.disconnectObs()
+        elif key == output_status.VMIX:
+            self.ui.pushButton_startvmix.setChecked(on)
+        elif key == output_status.UNO:
+            self.ui.toolButton_toggleUno.setChecked(on)
+        elif key == output_status.API:
+            self.ui.checkBox_enableOutAPI.setChecked(on)
+        self.refreshLiveStatus()
+
+    def destinationStatuses(self, now: float) -> list[DestinationStatus]:
+        """The status of every output, from snapshots (nothing here waits for
+        the network)."""
+        port = get_http_server_port()
+        urls = http_server_urls(port, self.lanAddress) if port is not None else ()
+        vmix = self.vmixUiHandler.vmixUpdater
+        uno = self.unoUiHandler.unoUpdater
+        method_index = self.ui.comboBox_outApiMethod.currentIndex()
+        encoding_index = self.ui.comboBox_api_encode.currentIndex()
+        return [
+            output_status.files_status(
+                self.out_folder, self.fileOutput.status(), self.outputFolderLost
+            ),
+            output_status.http_status(
+                port, self.http_port, urls, http_server_stats(now)
+            ),
+            self.obsDestinationStatus(),
+            output_status.vmix_status(
+                vmix.running,
+                vmix.host,
+                vmix.port,
+                vmix.input_number,
+                vmix.field_mapping,
+                vmix.status(),
+            ),
+            output_status.uno_status(
+                uno.running, uno.endpoint, uno.field_mapping, uno.status()
+            ),
+            output_status.api_status(
+                self.ui.checkBox_enableOutAPI.isChecked(),
+                self.ui.lineEdit_api_url.text(),
+                OUT_API_METHODS[method_index]
+                if 0 <= method_index < len(OUT_API_METHODS)
+                else "POST",
+                OUT_API_ENCODINGS[encoding_index]
+                if 0 <= encoding_index < len(OUT_API_ENCODINGS)
+                else OUT_API_ENCODINGS[0],
+                out_api_status(),
+            ),
+        ]
+
+    def obsDestinationStatus(self) -> DestinationStatus:
+        client = self.obs_websocket_client
+        address = None
+        if client is not None:
+            address = self.obsAddress or obs_client_address(client) or "OBS"
+        has_sources = any(
+            (box.settings or {}).get("obs_source_name")
+            for box in self.detectionTargetsStorage.get_data()
+        )
+        return output_status.obs_status(
+            address,
+            self.obsConnecting,
+            self.obsConnectError,
+            obs_output_status() if client is not None else None,
+            connected_at=self.obsConnectedAt,
+            has_sources=has_sources,
+            connect_target=self.obsConnectTarget,
+        )
+
+    def refreshDestinations(self, now: float | None = None) -> list[DestinationStatus]:
+        """Show every output's status in the destinations list."""
+        now = time.monotonic() if now is None else now
+        statuses = self.destinationStatuses(now)
+        self.destinationsModel.setStatuses(statuses)
+        # the times of the last activity
+        self.ui.listView_destinations.viewport().update()
+        self.updateDestinationDetails(now)
+        return statuses
+
+    def updateDestinationDetails(self, now: float | None = None):
+        """Over the selected destination's page: its problem, if it has one, and
+        what to do about it."""
+        now = time.monotonic() if now is None else now
+        frame = self.ui.frame_destinationStatus
+        label = self.ui.label_destinationStatus
+        index = self.ui.listView_destinations.currentIndex()
+        status = index.data(STATUS_ROLE) if index.isValid() else None
+        if status is None or not status.has_problem:
+            frame.hide()
+            return
+        palette = self.palette()
+        color = theme.color(STATE_COLORS[status.state], palette)
+        text = (
+            f'<b><span style="color:{color.name()}">{STATE_GLYPHS[status.state]}'
+            f"</span> {html.escape(status.detail, quote=False)}</b>"
+        )
+        if status.hint:
+            text += f"<br>{html.escape(status.hint, quote=False)}"
+        if label.text() != text:
+            label.setText(text)
+        label.setToolTip(status_tooltip(status, now))
+        label.setAccessibleName(
+            f"{output_status.destination_name(status.key)}: {status.detail}"
+        )
+        style_sheet = (
+            "QFrame#frame_destinationStatus {"
+            f" background-color: {theme.tint(STATE_COLORS[status.state], palette).name()};"
+            f" border: 1px solid {color.name()}; border-left: 4px solid {color.name()};"
+            " border-radius: 3px; }"
+        )
+        if frame.styleSheet() != style_sheet:
+            frame.setStyleSheet(style_sheet)
+        frame.show()
 
     def ocrModelChanged(self, index: int | str):
         ocrModel = None
@@ -1220,15 +1460,19 @@ class MainWindow(QMainWindow):
     def setOutputFolder(self, folder: str):
         self.ui.lineEdit_folder.setText(folder)
         self.out_folder = folder
+        self.outputFolderLost = None
         self.globalSettingsChanged("output_folder", folder)
         # write the current values to the new folder right away
         self.scheduleFileOutputFlush()
+        self.refreshLiveStatus()
 
     def clearOutputFolder(self):
         # clear the output folder
         self.ui.lineEdit_folder.setText("")
         self.out_folder = None
+        self.outputFolderLost = None
         remove_data("scoresight.json", "output_folder")
+        self.refreshLiveStatus()
 
     # --- the boxes list -------------------------------------------------------------
 
@@ -1395,10 +1639,22 @@ class MainWindow(QMainWindow):
             # Cancel while connecting: ignore that attempt's result (it would
             # replace the current connection and store the cancelled settings)
             self.obs_connect_attempt += 1
+            self.obsConnecting = None
         connected = self.obs_websocket_client is not None
         self.ui.lineEdit_sceneName.setEnabled(connected)
         self.ui.checkBox_recreate.setEnabled(connected)
         self.ui.pushButton_createOBSScene.setEnabled(connected)
+        self.updateObsUi()
+        self.refreshLiveStatus()
+
+    @staticmethod
+    def obsTarget(connection_info) -> str | None:
+        """The "host:port" of an OBS connection's settings."""
+        if not isinstance(connection_info, dict):
+            return None
+        host = str(connection_info.get("ip") or "").strip() or "localhost"
+        port = str(connection_info.get("port") or "").strip()
+        return f"{host}:{port}" if port else host
 
     def connectObs(self, from_dialog: bool = False):
         """Open a websocket connection to OBS, with the connect dialog's fields or
@@ -1414,6 +1670,7 @@ class MainWindow(QMainWindow):
             self.obs_modal_ui.label_error.setText(
                 QCoreApplication.translate("MainWindow", "Connecting...")
             )
+            self.obs_modal_ui.label_error.setToolTip("")
         else:
             connection_info = fetch_data("scoresight.json", "obs")
             if not connection_info:
@@ -1421,44 +1678,136 @@ class MainWindow(QMainWindow):
         # a newer attempt supersedes the ones still running
         self.obs_connect_attempt += 1
         attempt = self.obs_connect_attempt
+        self.obsConnecting = self.obsTarget(connection_info)
+
+        def attempt_connection():
+            client = open_obs_websocket(connection_info)
+            # why it failed (recorded on this thread)
+            return client, None if client else last_connect_error()
+
         run_in_background(
             "OBS connection",
-            partial(open_obs_websocket, connection_info),
-            lambda client: self.obs_connection_result.emit(
-                client, attempt, from_dialog, connection_info
+            attempt_connection,
+            lambda result: self.obs_connection_result.emit(
+                result, attempt, from_dialog, connection_info
             ),
         )
+        self.updateObsUi()
+        if hasattr(self, "statusBarWidgets"):
+            self.refreshLiveStatus()
 
     @Slot(object, int, bool, object)
-    def obsConnectionResult(self, client, attempt, from_dialog, connection_info):
+    def obsConnectionResult(self, result, attempt, from_dialog, connection_info):
+        client, error = result if isinstance(result, tuple) else (result, None)
         if attempt != self.obs_connect_attempt:
             self.closeObsClient(client)
             return
+        self.obsConnecting = None
         if from_dialog and self.obs_connect_modal is not None:
             self.obs_modal_ui.pushButton_connect.setEnabled(True)
         if not client:
+            target = self.obsTarget(connection_info)
+            self.obsConnectError = error or ErrorInfo(ConnectionError, "")
+            self.obsConnectTarget = target
             # show error in label_error
             if from_dialog and self.obs_connect_modal is not None:
+                problem = describe_error(
+                    output_status.OBS, self.obsConnectError, target
+                )
                 self.obs_modal_ui.label_error.setText(
                     QCoreApplication.translate("MainWindow", "Cannot connect to OBS")
+                    + "\n"
+                    + problem.detail
                 )
+                self.obs_modal_ui.label_error.setToolTip(problem.hint)
+            self.updateObsUi()
+            self.refreshLiveStatus()
             return
 
         # connection was successful
         self.closeObsClient(self.obs_websocket_client)
         self.obs_websocket_client = client
+        self.obsAddress = obs_client_address(client) or self.obsTarget(connection_info)
+        self.obsConnectedAt = time.monotonic()
+        self.obsConnectError = None
         # send every current value to the (new) connection
         self.obs_last_sent.clear()
         if from_dialog:
             store_data("scoresight.json", "obs", connection_info)
             if self.obs_connect_modal is not None:
                 self.obs_connect_modal.close()
+        if fetch_data("scoresight.json", OBS_AUTO_CONNECT_SETTING, True) is not True:
+            # connected again after a Disconnect: also at the next start
+            store_data("scoresight.json", OBS_AUTO_CONNECT_SETTING, True)
 
         self.ui.lineEdit_sceneName.setEnabled(True)
         self.ui.checkBox_recreate.setEnabled(True)
         self.ui.pushButton_createOBSScene.setEnabled(True)
 
         logger.info("OBS: Connected")
+        self.updateObsUi()
+        self.refreshLiveStatus()
+
+    def disconnectObs(self):
+        """Close the connection to OBS (or stop connecting). The saved connection
+        is kept for the connect dialog, but isn't opened at the next start until
+        the user connects again."""
+        # ignore connection attempts that are still running
+        self.obs_connect_attempt += 1
+        self.obsConnecting = None
+        self.obsConnectError = None
+        if self.obs_connect_modal is not None and self.obs_connect_modal.isVisible():
+            # the dialog's attempt (if any) was cancelled with it
+            self.obs_modal_ui.pushButton_connect.setEnabled(True)
+            self.obs_modal_ui.label_error.setText("")
+        client = self.obs_websocket_client
+        self.obs_websocket_client = None
+        self.obsAddress = None
+        self.obsConnectedAt = None
+        self.obs_last_sent.clear()
+        self.closeObsClient(client)
+        if fetch_data("scoresight.json", OBS_AUTO_CONNECT_SETTING, True) is not False:
+            store_data("scoresight.json", OBS_AUTO_CONNECT_SETTING, False)
+        if client is not None:
+            logger.info("OBS: Disconnected")
+        self.ui.lineEdit_sceneName.setEnabled(False)
+        self.ui.checkBox_recreate.setEnabled(False)
+        self.ui.pushButton_createOBSScene.setEnabled(False)
+        self.updateObsUi()
+        self.refreshLiveStatus()
+
+    def updateObsUi(self):
+        """The OBS page's buttons show the connection: Connect OBS, Connecting...
+        or Change connection..., and Disconnect while connected (or
+        connecting)."""
+        connected = self.obs_websocket_client is not None
+        connecting = self.obsConnecting is not None
+        button = self.ui.pushButton_connectObs
+        if connected:
+            button.setText(
+                QCoreApplication.translate("MainWindow", "Change connection...")
+            )
+            button.setToolTip(
+                QCoreApplication.translate(
+                    "MainWindow",
+                    "Connected to OBS at {target}. Click to connect to another OBS.",
+                ).format(target=self.obsAddress or "?")
+            )
+        elif connecting:
+            button.setText(QCoreApplication.translate("MainWindow", "Connecting..."))
+            button.setToolTip(
+                QCoreApplication.translate(
+                    "MainWindow", "Connecting to OBS at {target}..."
+                ).format(target=self.obsConnecting)
+            )
+        else:
+            button.setText(QCoreApplication.translate("MainWindow", "Connect OBS"))
+            button.setToolTip(
+                QCoreApplication.translate(
+                    "MainWindow", "Connect to the WebSocket server of OBS Studio"
+                )
+            )
+        self.ui.pushButton_disconnectObs.setEnabled(connected or connecting)
 
     @staticmethod
     def closeObsClient(client):
@@ -1961,6 +2310,8 @@ class MainWindow(QMainWindow):
             return
         if not path.isdir(path.abspath(self.out_folder)):
             logger.warning("Output folder does not exist: %s", self.out_folder)
+            # the Text files destination says so until a folder is chosen
+            self.outputFolderLost = self.out_folder
             self.out_folder = None
             self.ui.lineEdit_folder.setText("")
             remove_data("scoresight.json", "output_folder")

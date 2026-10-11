@@ -470,8 +470,8 @@
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="61"/>
-        <location filename="../src/mainwindow.ui" line="2881"/>
-        <location filename="../src/mainwindow.py" line="1164"/>
+        <location filename="../src/mainwindow.ui" line="2996"/>
+        <location filename="../src/mainwindow.py" line="1408"/>
         <source>Pause outputs</source>
         <translation type="unfinished"></translation>
     </message>
@@ -708,531 +708,540 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1180"/>
         <source>Text Files</source>
-        <translation>テキストファイル</translation>
+        <translation type="vanished">テキストファイル</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1183"/>
+        <location filename="../src/output_status.py" line="143"/>
         <source>Write the readings to .txt, .csv and .xml files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1198"/>
+        <location filename="../src/mainwindow.ui" line="1284"/>
         <source>Folder</source>
         <translation>フォルダ</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1226"/>
+        <location filename="../src/mainwindow.ui" line="1312"/>
         <source>The folder the text files are written to</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1236"/>
+        <location filename="../src/mainwindow.ui" line="1322"/>
         <source>Choose the output folder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1239"/>
+        <location filename="../src/mainwindow.ui" line="1325"/>
         <source>Open</source>
         <translation>開く</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1246"/>
+        <location filename="../src/mainwindow.ui" line="1332"/>
         <source>Stop writing files (forget the folder)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1249"/>
+        <location filename="../src/mainwindow.ui" line="1335"/>
         <source>Clear</source>
         <translation>クリア</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1280"/>
+        <location filename="../src/mainwindow.ui" line="1366"/>
         <source>Also write results.csv: a timestamp and a column per field</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1283"/>
+        <location filename="../src/mainwindow.ui" line="1369"/>
         <source>Save .csv file</source>
         <translation>.csvファイルを保存</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1290"/>
+        <location filename="../src/mainwindow.ui" line="1376"/>
         <source>Also write results.xml: every field with its name, text, state and position</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1293"/>
+        <location filename="../src/mainwindow.ui" line="1379"/>
         <source>Save .xml file</source>
         <translation>.xmlファイルを保存</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1303"/>
+        <location filename="../src/mainwindow.ui" line="1389"/>
         <source>Add each new value to a log, or keep only the latest values</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1306"/>
+        <location filename="../src/mainwindow.ui" line="1392"/>
         <source>Append</source>
         <translation>追加</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1313"/>
+        <location filename="../src/mainwindow.ui" line="1399"/>
         <source>Add each new value to a log (results.csv, the .txt files or both), or keep only the latest values</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1323"/>
+        <location filename="../src/mainwindow.ui" line="1409"/>
         <source>Results in .csv file</source>
         <translation>.csvファイルに結果を保存</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1328"/>
+        <location filename="../src/mainwindow.ui" line="1414"/>
         <source>Results in .txt files</source>
         <translation>.txtファイルに結果を保存</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1333"/>
+        <location filename="../src/mainwindow.ui" line="1419"/>
         <source>Results in both</source>
         <translation>両方に結果を保存</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1338"/>
+        <location filename="../src/mainwindow.ui" line="1424"/>
         <source>Don&apos;t append results</source>
         <translation>結果を追加しない</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1346"/>
+        <location filename="../src/mainwindow.ui" line="1432"/>
         <source>How many times per second to save the results to files</source>
         <translation>1秒あたりの結果をファイルに保存する回数</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1349"/>
+        <location filename="../src/mainwindow.ui" line="1435"/>
         <source>Save / s</source>
         <translation>保存 / 秒</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1371"/>
+        <location filename="../src/mainwindow.ui" line="1457"/>
         <source>File saves per second</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1374"/>
+        <location filename="../src/mainwindow.ui" line="1460"/>
         <source>How many times per second the files are written (1-10). Affects only the files.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1423"/>
         <source>Browser</source>
-        <translation>ブラウザ</translation>
+        <translation type="vanished">ブラウザ</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1426"/>
+        <location filename="../src/output_status.py" line="146"/>
         <source>The built-in HTTP server: a scoreboard page, JSON, XML and CSV</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1432"/>
+        <location filename="../src/mainwindow.ui" line="1512"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Use these endpoints in external software to get live data updates&lt;/p&gt;&lt;p&gt;HTML Scoreboard: &lt;a href=&quot;http://localhost:18099/scoresight&quot;&gt;http://localhost:18099/scoresight&lt;/a&gt;&lt;br/&gt;JSON: &lt;a href=&quot;http://localhost:18099/json&quot;&gt;http://localhost:18099/json&lt;/a&gt; (optional: ?pivot)&lt;br/&gt;XML: &lt;a href=&quot;http://localhost:18099/xml&quot;&gt;http://localhost:18099/xml&lt;/a&gt; (optional: ?pivot)&lt;br/&gt;CSV: &lt;a href=&quot;http://localhost:18099/csv&quot;&gt;http://localhost:18099/csv&lt;/a&gt; (optional: ?pivot)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1455"/>
+        <location filename="../src/output_status.py" line="150"/>
         <source>Update text sources in OBS Studio</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1464"/>
+        <location filename="../src/mainwindow.ui" line="1553"/>
+        <location filename="../src/mainwindow.py" line="1806"/>
         <source>Connect to the WebSocket server of OBS Studio</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1489"/>
+        <location filename="../src/mainwindow.ui" line="1600"/>
         <source>The name of the scene Create OBS Scene makes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1502"/>
+        <location filename="../src/mainwindow.ui" line="1613"/>
         <source>Create a scene in OBS with a text source for each standard field</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1535"/>
+        <location filename="../src/output_status.py" line="153"/>
         <source>Update a title in vMix</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1544"/>
+        <location filename="../src/mainwindow.ui" line="1668"/>
         <source>Each field and the vMix title field it updates. Edit the right column.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1596"/>
+        <location filename="../src/mainwindow.ui" line="1720"/>
         <source>vMix host</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1599"/>
+        <location filename="../src/mainwindow.ui" line="1723"/>
         <source>The address of the vMix computer (localhost if vMix runs on this computer)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1616"/>
+        <location filename="../src/mainwindow.ui" line="1740"/>
         <source>vMix port</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1619"/>
+        <location filename="../src/mainwindow.ui" line="1743"/>
         <source>The port of the vMix Web API (8088 by default; not 8099)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1641"/>
+        <location filename="../src/mainwindow.ui" line="1765"/>
         <source>Start or stop vMix</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1644"/>
+        <location filename="../src/mainwindow.ui" line="1768"/>
         <source>Start or stop sending the readings to vMix</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1697"/>
+        <location filename="../src/mainwindow.ui" line="1821"/>
         <source>vMix input</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1700"/>
+        <location filename="../src/mainwindow.ui" line="1824"/>
         <source>The vMix input (number or name) of the title to update</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1710"/>
-        <location filename="../src/mainwindow.ui" line="1837"/>
+        <location filename="../src/mainwindow.ui" line="1834"/>
+        <location filename="../src/mainwindow.ui" line="1955"/>
         <source>Send only new detections or also existing?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1713"/>
-        <location filename="../src/mainwindow.ui" line="1840"/>
+        <location filename="../src/mainwindow.ui" line="1837"/>
+        <location filename="../src/mainwindow.ui" line="1958"/>
         <source>Send Same?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1726"/>
-        <source>UNO</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mainwindow.ui" line="1729"/>
+        <location filename="../src/output_status.py" line="154"/>
         <source>Drive an overlays.uno control app</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1771"/>
-        <location filename="../src/mainwindow.ui" line="2067"/>
+        <location filename="../src/mainwindow.ui" line="1889"/>
+        <location filename="../src/mainwindow.ui" line="2179"/>
         <source>URL</source>
         <translation type="unfinished">URL</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1778"/>
+        <location filename="../src/mainwindow.ui" line="1896"/>
         <source>UNO URL</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1781"/>
+        <location filename="../src/mainwindow.ui" line="1899"/>
         <source>The API URL of the overlays.uno control app. Treat it like a password.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1791"/>
+        <location filename="../src/mainwindow.ui" line="1909"/>
         <source>Start or stop UNO</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1794"/>
+        <location filename="../src/mainwindow.ui" line="1912"/>
         <source>Start or stop sending the readings to UNO</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1797"/>
+        <location filename="../src/mainwindow.ui" line="1915"/>
         <location filename="../src/uno_ui_handler.py" line="127"/>
         <source>Start sending</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1847"/>
+        <location filename="../src/mainwindow.ui" line="1965"/>
         <source>The overlay uses UNO Essentials content fields</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2798"/>
+        <location filename="../src/mainwindow.ui" line="2913"/>
         <source>File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2802"/>
+        <location filename="../src/mainwindow.ui" line="2917"/>
         <source>Language</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2807"/>
+        <location filename="../src/mainwindow.ui" line="2922"/>
         <source>Appearance</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2825"/>
+        <location filename="../src/mainwindow.ui" line="2940"/>
         <source>Check for Updates</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2833"/>
+        <location filename="../src/mainwindow.ui" line="2948"/>
         <source>About</source>
         <translation type="unfinished">について</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2841"/>
+        <location filename="../src/mainwindow.ui" line="2956"/>
         <source>View Current Log</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2849"/>
+        <location filename="../src/mainwindow.ui" line="2964"/>
         <source>Import Configuration</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2857"/>
+        <location filename="../src/mainwindow.ui" line="2972"/>
         <source>Export Configuration</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2865"/>
+        <location filename="../src/mainwindow.ui" line="2980"/>
         <source>Open Configuration Folder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2873"/>
+        <location filename="../src/mainwindow.ui" line="2988"/>
         <source>OCR Training Data Setup</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2897"/>
+        <location filename="../src/mainwindow.ui" line="3012"/>
         <source>Fit picture to window</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2905"/>
+        <location filename="../src/mainwindow.ui" line="3020"/>
         <source>Reload sources</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1856"/>
+        <location filename="../src/mainwindow.ui" line="1974"/>
         <source>Essentials</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1887"/>
+        <location filename="../src/mainwindow.ui" line="1190"/>
+        <location filename="../src/mainwindow.ui" line="1203"/>
+        <source>Outputs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="1206"/>
+        <source>Select an output to show its settings below. Space turns it on or off.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="1578"/>
+        <source>Close the connection to OBS. ScoreSight connects to OBS again at its next start only after you connect again.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="1587"/>
+        <source>Disconnect</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="2005"/>
         <source>Overlay ID</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1894"/>
+        <location filename="../src/mainwindow.ui" line="2012"/>
         <source>The ID (UUID) of the Essentials overlay</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1906"/>
+        <location filename="../src/mainwindow.ui" line="2024"/>
         <source>aaaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeeee</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1919"/>
+        <location filename="../src/mainwindow.ui" line="2043"/>
         <source>Each field and the UNO command (or Essentials field ID) it drives. Edit the right column.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1933"/>
-        <source>API</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mainwindow.ui" line="1936"/>
+        <location filename="../src/output_status.py" line="157"/>
         <source>Send the readings to a URL (outbound HTTP API)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1948"/>
+        <location filename="../src/mainwindow.ui" line="2066"/>
         <source>Send the readings to the URL below on every detection cycle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1951"/>
+        <location filename="../src/mainwindow.ui" line="2069"/>
         <source>Send out API requests to external services.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1958"/>
+        <location filename="../src/mainwindow.ui" line="2076"/>
         <source>Encode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1965"/>
+        <location filename="../src/mainwindow.ui" line="2083"/>
         <source>The format of the readings in the requests</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1969"/>
+        <location filename="../src/mainwindow.ui" line="2087"/>
         <source>JSON (Full)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1974"/>
+        <location filename="../src/mainwindow.ui" line="2092"/>
         <source>JSON (Simple key-value)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1979"/>
+        <location filename="../src/mainwindow.ui" line="2097"/>
         <source>XML</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1984"/>
+        <location filename="../src/mainwindow.ui" line="2102"/>
         <source>CSV</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2023"/>
+        <location filename="../src/mainwindow.ui" line="2141"/>
         <source>API URL</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2026"/>
+        <location filename="../src/mainwindow.ui" line="2144"/>
         <source>The URL the readings are sent to</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2029"/>
+        <location filename="../src/mainwindow.ui" line="2147"/>
         <source>http://</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2036"/>
+        <location filename="../src/mainwindow.ui" line="2154"/>
         <source>The HTTP method of the requests</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2046"/>
+        <location filename="../src/mainwindow.ui" line="2158"/>
         <source>POST</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2051"/>
+        <location filename="../src/mainwindow.ui" line="2163"/>
         <source>PUT</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2056"/>
+        <location filename="../src/mainwindow.ui" line="2168"/>
         <source>GET</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2097"/>
+        <location filename="../src/mainwindow.ui" line="2212"/>
         <source>How many times per second the boxes are read</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2107"/>
+        <location filename="../src/mainwindow.ui" line="2222"/>
         <source>Detections per second</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2110"/>
+        <location filename="../src/mainwindow.ui" line="2225"/>
         <source>How many times per second the boxes are read (1-15). Higher values use more CPU; 5 suits most clocks.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2253"/>
+        <location filename="../src/mainwindow.ui" line="2368"/>
         <source>The video source: a camera, capture card or NDI source, a video file, a stream URL or a screen capture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2292"/>
+        <location filename="../src/mainwindow.ui" line="2407"/>
         <source>The resolution, frame rate and format of a camera or capture card. Only for cameras and capture cards.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2331"/>
+        <location filename="../src/mainwindow.ui" line="2446"/>
         <source>Save the box images and readings for training an OCR model (see File &gt; OCR Training Data Setup)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2368"/>
+        <location filename="../src/mainwindow.ui" line="2483"/>
         <source>Show what the OCR reads: the black-and-white image of every box</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2381"/>
+        <location filename="../src/mainwindow.ui" line="2496"/>
         <source>Correct the perspective: click the 4 corners of the scoreboard. Clicking it again removes the correction.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2407"/>
+        <location filename="../src/mainwindow.ui" line="2522"/>
         <source>Rotate the picture by 90 degrees</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2417"/>
+        <location filename="../src/mainwindow.ui" line="2532"/>
         <source>Compensate for a shaking camera</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2443"/>
+        <location filename="../src/mainwindow.ui" line="2558"/>
         <source>Box display style</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2446"/>
+        <location filename="../src/mainwindow.ui" line="2561"/>
         <source>What the viewer draws for each box: nothing, the outline, the outline and the name, or everything</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2489"/>
+        <location filename="../src/mainwindow.ui" line="2604"/>
         <source>Reset zoom</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1452"/>
         <source>OBS</source>
-        <translation>OBS</translation>
+        <translation type="vanished">OBS</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1479"/>
+        <location filename="../src/mainwindow.ui" line="1568"/>
+        <location filename="../src/mainwindow.py" line="1804"/>
         <source>Connect OBS</source>
         <translation>OBSに接続</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1495"/>
+        <location filename="../src/mainwindow.ui" line="1606"/>
         <source>ScoreSight Scene</source>
         <translation>ScoreSightシーン</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1508"/>
+        <location filename="../src/mainwindow.ui" line="1619"/>
         <source>Create OBS Scene</source>
         <translation>OBSシーンを作成</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1518"/>
+        <location filename="../src/mainwindow.ui" line="1629"/>
         <source>Recreate</source>
         <translation>再作成</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1532"/>
         <source>VMix</source>
-        <translation>VMix</translation>
+        <translation type="vanished">VMix</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1589"/>
+        <location filename="../src/mainwindow.ui" line="1713"/>
         <source>Connection</source>
         <translation>接続</translation>
     </message>
@@ -1241,7 +1250,7 @@
         <translation type="vanished">localhost</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1609"/>
+        <location filename="../src/mainwindow.ui" line="1733"/>
         <source>:</source>
         <translation>:</translation>
     </message>
@@ -1254,7 +1263,7 @@
         <translation type="vanished">開始</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1690"/>
+        <location filename="../src/mainwindow.ui" line="1814"/>
         <source>Input</source>
         <translation>入力</translation>
     </message>
@@ -1267,124 +1276,124 @@
         <translation type="vanished">更新を停止</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2100"/>
+        <location filename="../src/mainwindow.ui" line="2215"/>
         <source>Detections / s</source>
         <translation>検出数 / 秒</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2151"/>
+        <location filename="../src/mainwindow.ui" line="2266"/>
         <source>Only send an update if the field value has changed</source>
         <translation>フィールドの値が変更された場合にのみ更新を送信</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2154"/>
+        <location filename="../src/mainwindow.ui" line="2269"/>
         <source>Update on change</source>
         <translation>変更時に更新</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2243"/>
-        <location filename="../src/mainwindow.ui" line="2250"/>
+        <location filename="../src/mainwindow.ui" line="2358"/>
+        <location filename="../src/mainwindow.ui" line="2365"/>
         <source>Source</source>
         <translation>ソース</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2269"/>
+        <location filename="../src/mainwindow.ui" line="2384"/>
         <source>Select a source</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2274"/>
+        <location filename="../src/mainwindow.ui" line="2389"/>
         <source>Open a Video File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2279"/>
+        <location filename="../src/mainwindow.ui" line="2394"/>
         <source>URL Source (HTTP, RTSP)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2284"/>
+        <location filename="../src/mainwindow.ui" line="2399"/>
         <source>Screen Capture</source>
         <translation type="unfinished">画面キャプチャ</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2298"/>
+        <location filename="../src/mainwindow.ui" line="2413"/>
         <source>Video Settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2305"/>
+        <location filename="../src/mainwindow.ui" line="2420"/>
         <source>Refresh Sources</source>
         <translation>ソースを更新</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2308"/>
+        <location filename="../src/mainwindow.ui" line="2423"/>
         <source>Reload</source>
         <translation>リロード</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2334"/>
+        <location filename="../src/mainwindow.ui" line="2449"/>
         <source>Save OCR Training Data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2371"/>
-        <location filename="../src/mainwindow.ui" line="2889"/>
+        <location filename="../src/mainwindow.ui" line="2486"/>
+        <location filename="../src/mainwindow.ui" line="3004"/>
         <source>Binary View</source>
         <translation>バイナリビュー</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2384"/>
+        <location filename="../src/mainwindow.ui" line="2499"/>
         <source>4-corner Correction</source>
         <translation>4隅補正</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2394"/>
+        <location filename="../src/mainwindow.ui" line="2509"/>
         <source>Apply cropping to the entire image</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2397"/>
+        <location filename="../src/mainwindow.ui" line="2512"/>
         <source>Crop</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2410"/>
+        <location filename="../src/mainwindow.ui" line="2525"/>
         <source>Rotate</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2420"/>
+        <location filename="../src/mainwindow.ui" line="2535"/>
         <source>Stabilize</source>
         <translation>安定化</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2450"/>
+        <location filename="../src/mainwindow.ui" line="2565"/>
         <source>No Box</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2455"/>
+        <location filename="../src/mainwindow.ui" line="2570"/>
         <source>Outline</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2460"/>
+        <location filename="../src/mainwindow.ui" line="2575"/>
         <source>Names</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2465"/>
+        <location filename="../src/mainwindow.ui" line="2580"/>
         <source>All</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2473"/>
+        <location filename="../src/mainwindow.ui" line="2588"/>
         <source>Show Statistics</source>
         <translation>統計を表示</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2476"/>
+        <location filename="../src/mainwindow.ui" line="2591"/>
         <source>OSD</source>
         <translation>OSD</translation>
     </message>
@@ -1397,152 +1406,173 @@
         <translation type="vanished">OCR</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2492"/>
+        <location filename="../src/mainwindow.ui" line="2607"/>
         <source>1:1</source>
         <translation>1:1</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2508"/>
+        <location filename="../src/mainwindow.ui" line="2623"/>
         <source>Ctrl-scroll to zoom</source>
         <translation>Ctrl+スクロールでズーム</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2547"/>
+        <location filename="../src/mainwindow.ui" line="2662"/>
         <source>Left</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2554"/>
+        <location filename="../src/mainwindow.ui" line="2669"/>
         <source>Pixels to cut off the left edge</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2566"/>
-        <location filename="../src/mainwindow.ui" line="2595"/>
-        <location filename="../src/mainwindow.ui" line="2624"/>
-        <location filename="../src/mainwindow.ui" line="2653"/>
+        <location filename="../src/mainwindow.ui" line="2681"/>
+        <location filename="../src/mainwindow.ui" line="2710"/>
+        <location filename="../src/mainwindow.ui" line="2739"/>
+        <location filename="../src/mainwindow.ui" line="2768"/>
         <source>px</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2576"/>
+        <location filename="../src/mainwindow.ui" line="2691"/>
         <source>Top</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2583"/>
+        <location filename="../src/mainwindow.ui" line="2698"/>
         <source>Pixels to cut off the top edge</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2605"/>
+        <location filename="../src/mainwindow.ui" line="2720"/>
         <source>Right</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2612"/>
+        <location filename="../src/mainwindow.ui" line="2727"/>
         <source>Pixels to cut off the right edge</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2634"/>
+        <location filename="../src/mainwindow.ui" line="2749"/>
         <source>Bottom</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2641"/>
+        <location filename="../src/mainwindow.ui" line="2756"/>
         <source>Pixels to cut off the bottom edge</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2663"/>
+        <location filename="../src/mainwindow.ui" line="2778"/>
         <source>Speed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2670"/>
+        <location filename="../src/mainwindow.ui" line="2785"/>
         <source>The playback speed of a video file (skips frames). Doesn&apos;t change how often the boxes are read.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2673"/>
+        <location filename="../src/mainwindow.ui" line="2788"/>
         <source>x1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2733"/>
+        <location filename="../src/mainwindow.ui" line="2848"/>
         <source>Send the current values to every output again</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2736"/>
-        <location filename="../src/mainwindow.py" line="1162"/>
+        <location filename="../src/mainwindow.ui" line="2851"/>
+        <location filename="../src/mainwindow.py" line="1406"/>
         <source>Resume outputs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2776"/>
+        <location filename="../src/mainwindow.ui" line="2891"/>
         <source>### Open a Camera or Load a File</source>
         <translation>### カメラを開くかファイルを読み込む</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="742"/>
+        <location filename="../src/mainwindow.py" line="788"/>
         <source>&lt;p&gt;The HTTP server is not running: port {port} is already in use or not available.&lt;/p&gt;&lt;p&gt;Close the other program, or start ScoreSight with &lt;b&gt;--port&lt;/b&gt; to use a different port. The log has the details.&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1119"/>
+        <location filename="../src/mainwindow.py" line="1360"/>
         <source>Version {version}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="681"/>
+        <location filename="../src/mainwindow.py" line="726"/>
         <source>System</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="682"/>
+        <location filename="../src/mainwindow.py" line="727"/>
         <source>Light</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="683"/>
+        <location filename="../src/mainwindow.py" line="728"/>
         <source>Dark</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="973"/>
-        <location filename="../src/mainwindow.py" line="976"/>
+        <location filename="../src/mainwindow.py" line="803"/>
+        <source>&lt;p&gt;From other computers on your network, use {url} instead of http://localhost:{port}.&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.py" line="1030"/>
+        <location filename="../src/mainwindow.py" line="1033"/>
         <source>{value} /s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1185"/>
+        <location filename="../src/mainwindow.py" line="1429"/>
         <source>&lt;b&gt;Outputs paused&lt;/b&gt; since {time}. Your graphics show the last values sent; the readings here keep updating.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1361"/>
+        <location filename="../src/mainwindow.py" line="1609"/>
         <source>Connect to OBS</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1407"/>
+        <location filename="../src/mainwindow.py" line="1671"/>
+        <location filename="../src/mainwindow.py" line="1797"/>
         <source>Connecting...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1435"/>
+        <location filename="../src/mainwindow.py" line="1718"/>
         <source>Cannot connect to OBS</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1687"/>
+        <location filename="../src/mainwindow.py" line="1788"/>
+        <source>Change connection...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.py" line="1791"/>
+        <source>Connected to OBS at {target}. Click to connect to another OBS.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.py" line="1799"/>
+        <source>Connecting to OBS at {target}...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.py" line="2055"/>
         <source>Screen Capture Selection</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1694"/>
+        <location filename="../src/mainwindow.py" line="2062"/>
         <source>Capture the entire screen</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1552,7 +1582,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1653"/>
+        <location filename="../src/mainwindow.ui" line="1777"/>
         <location filename="../src/vmix_ui_handler.py" line="128"/>
         <source>Start vMix</source>
         <translation type="unfinished"></translation>
@@ -1618,6 +1648,580 @@
     <message>
         <location filename="../src/ocr_training_data.py" line="446"/>
         <source>Choose OCR training data save folder</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>OutputStatus</name>
+    <message>
+        <location filename="../src/output_status.py" line="123"/>
+        <source>Text files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="125"/>
+        <source>HTTP server</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="127"/>
+        <source>HTTP API</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="134"/>
+        <source>Files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="167"/>
+        <source>working</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="169"/>
+        <source>waiting</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="171"/>
+        <source>needs attention</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="173"/>
+        <source>retrying</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="175"/>
+        <source>not working</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="176"/>
+        <location filename="../src/output_status.py" line="242"/>
+        <source>off</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="183"/>
+        <source>just now</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="185"/>
+        <source>{seconds} s ago</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="189"/>
+        <source>{minutes} min ago</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="192"/>
+        <source>{hours} h ago</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="203"/>
+        <source>Last written {age}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="207"/>
+        <source>Last request {age}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="210"/>
+        <source>Last sent {age}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="227"/>
+        <source>Details: {error}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="240"/>
+        <source>on</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="393"/>
+        <source>{problem} · retrying</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="414"/>
+        <source>Port {port} is vMix&apos;s TCP API: use {web_port}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="417"/>
+        <source>ScoreSight uses the vMix Web API. Set the port to the Web Controller port (vMix Settings › Web Controller, {web_port} by default).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="434"/>
+        <source>OBS needs a password</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="435"/>
+        <source>Enter the password of OBS&apos;s WebSocket server (in OBS: Tools › WebSocket Server Settings › Show Connect Info).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="444"/>
+        <source>OBS refused the connection: check the password</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="447"/>
+        <source>The password doesn&apos;t match the one of OBS&apos;s WebSocket server (in OBS: Tools › WebSocket Server Settings › Show Connect Info).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="461"/>
+        <source>OBS has no text source “{name}”</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="465"/>
+        <source>OBS has no text source with a field&apos;s name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="471"/>
+        <source>Create a text source with this name in OBS (names are case-sensitive), or use Create OBS Scene.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="479"/>
+        <source>OBS refused an update (code {code})</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="493"/>
+        <source>No secure connection to {target}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="496"/>
+        <source>The HTTPS connection failed (for example, the server&apos;s certificate isn&apos;t trusted). Check the URL; on your own network, http:// may be what the receiver expects.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="523"/>
+        <source>Can&apos;t find {host}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="528"/>
+        <source>The address {host} isn&apos;t known on this network: check it, or use the computer&apos;s IP address.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="539"/>
+        <source>Nothing answered within a few seconds.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="546"/>
+        <source>Nothing answered within a few seconds: the computer may be off, the address wrong, or a firewall may block port {port}.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="552"/>
+        <source>Nothing answered within a few seconds: check this computer&apos;s network connection.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="560"/>
+        <source>No answer from {target}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="572"/>
+        <source>Can&apos;t reach {target}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="584"/>
+        <source>Lost the connection to OBS at {target}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="589"/>
+        <source>ScoreSight reconnects by itself as soon as OBS is reachable again. Check that OBS is running.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="603"/>
+        <source>Check that vMix is running, that its Web Controller is enabled (vMix Settings › Web Controller) on port {port}, and that the firewall of the vMix computer allows it.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="610"/>
+        <source>Check that OBS is running and that its WebSocket server is enabled (in OBS: Tools › WebSocket Server Settings) on port {port}.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="616"/>
+        <source>Check this computer&apos;s internet connection.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="619"/>
+        <source>Nothing answers at {target}: check the URL and that the receiving program is running.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="633"/>
+        <source>HTTP {code}: vMix asks for a login</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="636"/>
+        <source>In vMix Settings › Web Controller, tick “Allow access to following pages without login: API”. ScoreSight doesn&apos;t send a vMix login.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="646"/>
+        <location filename="../src/output_status.py" line="682"/>
+        <source>HTTP {code}: check the UNO URL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="649"/>
+        <location filename="../src/output_status.py" line="685"/>
+        <source>overlays.uno refused the URL: it is wrong or no longer valid. Copy the API URL of your control app again.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="657"/>
+        <source>HTTP {code}: access denied</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="660"/>
+        <source>The endpoint refused the request. If it needs a key, put it in the URL.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="670"/>
+        <source>HTTP 404: this isn&apos;t the vMix Web API</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="673"/>
+        <source>Check the host and the port: vMix&apos;s Web Controller port ({port} by default).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="693"/>
+        <source>HTTP 404: check the URL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="694"/>
+        <source>The endpoint has nothing at this address: check the path.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="701"/>
+        <source>overlays.uno limits how many updates it accepts, and drops the others. Keep Send Same? off and Update on change on.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="707"/>
+        <source>The endpoint limits the requests, and drops the others: lower Detections / s.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="714"/>
+        <source>HTTP 429: too many requests</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="719"/>
+        <source>Check the Input and the vMix field names in the table (for example Home Score.Text).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="730"/>
+        <location filename="../src/output_status.py" line="747"/>
+        <source>It answered: {text}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="739"/>
+        <source>HTTP {code}: the receiver reported an error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="746"/>
+        <source>HTTP {code}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="776"/>
+        <source>{failing} of {total} failing: {problem}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="823"/>
+        <source>Folder not found: {folder}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="826"/>
+        <source>The output folder {folder} doesn&apos;t exist any more, so no files are written. Choose a folder to write them again.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="835"/>
+        <location filename="../src/output_status.py" line="1065"/>
+        <location filename="../src/output_status.py" line="1131"/>
+        <location filename="../src/output_status.py" line="1202"/>
+        <source>Off</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="836"/>
+        <source>Choose a folder to write the readings to files.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="845"/>
+        <source>Waiting for readings to write to {folder}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="854"/>
+        <source>Can&apos;t write {file}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="858"/>
+        <source>Can&apos;t write {file} and {count} more</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="866"/>
+        <source>Check that the folder can be written to and that no other program locks the files. ScoreSight tries again at every save.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="878"/>
+        <source>Writing to {folder} · 1 file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="882"/>
+        <source>Writing to {folder} · {count} files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="890"/>
+        <source>The files are in {folder}. A file is written when its value changes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="912"/>
+        <source>Not running: port {port} is in use</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="917"/>
+        <source>Another program (or another ScoreSight) uses port {port}. Close it, or start ScoreSight with --port to use another port.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="926"/>
+        <source>{url} · no requests yet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="930"/>
+        <source>{url} · 1 client</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="934"/>
+        <source>{url} · {count} clients</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="938"/>
+        <source>{url} · no recent requests</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="947"/>
+        <source>Always on. Open {url}/scoresight in a browser, or read {url}/json, /xml or /csv from other software.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="974"/>
+        <source>Connecting to {target}…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="984"/>
+        <source>Not connected: {problem}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="991"/>
+        <source>Then click Connect OBS.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1002"/>
+        <source>Not connected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1003"/>
+        <source>Click Connect OBS to update text sources in OBS Studio.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1014"/>
+        <source>Connected to {target}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1018"/>
+        <source>A text source is updated when its field&apos;s value changes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1027"/>
+        <source>Reconnecting to OBS at {target}…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1030"/>
+        <source>The connection to OBS was lost. ScoreSight reconnects by itself as soon as OBS is reachable again.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1039"/>
+        <source>Connected, but no field has an OBS text source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1042"/>
+        <source>The standard fields update OBS text sources with their names (Home score, Clock...). Place them on the picture.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1066"/>
+        <source>Click Start vMix to update input {input} at {target}.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1074"/>
+        <location filename="../src/output_status.py" line="1153"/>
+        <source>No fields to send</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1076"/>
+        <source>Place fields on the picture and enter their vMix field names (for example Home Score.Text) in the table.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1087"/>
+        <source>Waiting for a new value for {target}, input {input}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1091"/>
+        <location filename="../src/output_status.py" line="1105"/>
+        <source>vMix gets a field&apos;s value when it changes (or every time, with Send Same?).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1101"/>
+        <source>Sending to {target}, input {input}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1132"/>
+        <source>Click Start sending to drive your overlays.uno overlay.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1141"/>
+        <source>Enter your UNO API URL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1143"/>
+        <source>Copy the API URL of your overlay&apos;s control app in overlays.uno into URL.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1155"/>
+        <source>Place fields on the picture and enter the UNO commands in the table.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1165"/>
+        <source>Waiting for a new value for {host}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1174"/>
+        <source>Sending to {host}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1203"/>
+        <source>Tick the checkbox to send the readings to a URL on every detection cycle.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1213"/>
+        <source>Enter a URL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1215"/>
+        <source>Enter the URL to send the readings to, for example http://192.168.1.10:8091/scores.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="511"/>
+        <location filename="../src/output_status.py" line="1225"/>
+        <source>The URL isn&apos;t valid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="512"/>
+        <location filename="../src/output_status.py" line="1227"/>
+        <source>The URL needs a scheme and a host, for example http://192.168.1.10:8091/scores.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1234"/>
+        <source>GET to {target}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1238"/>
+        <source>{method} {encoding} to {target}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1246"/>
+        <source>Waiting for readings: {request}</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1692,103 +2296,113 @@
 <context>
     <name>StatusBar</name>
     <message>
-        <location filename="../src/status_bar.py" line="112"/>
+        <location filename="../src/status_bar.py" line="134"/>
         <source>Screen capture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/status_bar.py" line="137"/>
+        <location filename="../src/status_bar.py" line="159"/>
         <source>No source</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/status_bar.py" line="140"/>
+        <location filename="../src/status_bar.py" line="162"/>
         <source>Opening {source}…</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/status_bar.py" line="144"/>
+        <location filename="../src/status_bar.py" line="166"/>
         <source>{source}: can&apos;t be read</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/status_bar.py" line="148"/>
+        <location filename="../src/status_bar.py" line="170"/>
         <source>{source}: no new frames</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/status_bar.py" line="157"/>
+        <location filename="../src/status_bar.py" line="179"/>
         <source>{fps} fps</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/status_bar.py" line="169"/>
+        <location filename="../src/status_bar.py" line="191"/>
         <source>Reading {rate}/s of {target}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/status_bar.py" line="172"/>
+        <location filename="../src/status_bar.py" line="194"/>
         <source>Reading {rate}/s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/status_bar.py" line="189"/>
+        <location filename="../src/status_bar.py" line="211"/>
         <source>PAUSED {elapsed}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/status_bar.py" line="197"/>
+        <location filename="../src/status_bar.py" line="219"/>
         <source>HTTP server not running (port {port} busy)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/status_bar.py" line="242"/>
+        <location filename="../src/status_bar.py" line="301"/>
+        <source>Outputs:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/status_bar.py" line="306"/>
         <source>Copy</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/status_bar.py" line="244"/>
+        <location filename="../src/status_bar.py" line="308"/>
         <source>Copy the HTTP server&apos;s address to the clipboard</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/status_bar.py" line="249"/>
+        <location filename="../src/status_bar.py" line="313"/>
         <source>Copy the HTTP server&apos;s address</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/status_bar.py" line="265"/>
+        <location filename="../src/status_bar.py" line="329"/>
         <source>The video source, its resolution and frame rate</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/status_bar.py" line="277"/>
+        <location filename="../src/status_bar.py" line="342"/>
         <source>How many times per second the boxes are read, and the Detections / s setting. The preview picture refreshes about once per second on purpose.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/status_bar.py" line="283"/>
+        <location filename="../src/status_bar.py" line="348"/>
         <source>The computer can&apos;t keep up: lower Detections / s, use fewer boxes or a lower source resolution.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/status_bar.py" line="302"/>
+        <location filename="../src/status_bar.py" line="368"/>
         <source>The outputs are paused: they keep their last values</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/status_bar.py" line="311"/>
+        <location filename="../src/status_bar.py" line="377"/>
         <source>The HTTP server (scoreboard page, JSON, XML, CSV). Open it in a browser or in other software on this computer or network:
 {urls}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/status_bar.py" line="323"/>
+        <location filename="../src/status_bar.py" line="389"/>
         <source>Another program uses the port. Close it, or start ScoreSight with --port to use a different port.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/status_bar.py" line="337"/>
+        <location filename="../src/status_bar.py" line="422"/>
+        <source>Click to show its settings.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/status_bar.py" line="431"/>
         <source>Copied {url}</source>
         <translation type="unfinished"></translation>
     </message>

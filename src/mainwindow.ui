@@ -1161,10 +1161,102 @@
          </property>
         </widget>
        </item>
-       <item alignment="Qt::AlignTop">
-        <widget class="QTabWidget" name="tabWidget_outputs">
-         <property name="tabShape">
-          <enum>QTabWidget::Rounded</enum>
+       <item>
+        <widget class="QWidget" name="widget_outputs" native="true">
+         <layout class="QVBoxLayout" name="verticalLayout_outputs">
+          <property name="spacing">
+           <number>3</number>
+          </property>
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="label_outputs">
+            <property name="font">
+             <font>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>Outputs</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QListView" name="listView_destinations">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="accessibleName">
+             <string>Outputs</string>
+            </property>
+            <property name="accessibleDescription">
+             <string>Select an output to show its settings below. Space turns it on or off.</string>
+            </property>
+            <property name="horizontalScrollBarPolicy">
+             <enum>Qt::ScrollBarAlwaysOff</enum>
+            </property>
+            <property name="editTriggers">
+             <set>QAbstractItemView::NoEditTriggers</set>
+            </property>
+            <property name="selectionMode">
+             <enum>QAbstractItemView::SingleSelection</enum>
+            </property>
+            <property name="uniformItemSizes">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QFrame" name="frame_destinationStatus">
+            <property name="frameShape">
+             <enum>QFrame::NoFrame</enum>
+            </property>
+            <layout class="QHBoxLayout" name="horizontalLayout_destinationStatus">
+             <property name="leftMargin">
+              <number>8</number>
+             </property>
+             <property name="topMargin">
+              <number>5</number>
+             </property>
+             <property name="rightMargin">
+              <number>8</number>
+             </property>
+             <property name="bottomMargin">
+              <number>5</number>
+             </property>
+             <item>
+              <widget class="QLabel" name="label_destinationStatus">
+               <property name="textFormat">
+                <enum>Qt::RichText</enum>
+               </property>
+               <property name="wordWrap">
+                <bool>true</bool>
+               </property>
+               <property name="textInteractionFlags">
+                <set>Qt::TextSelectableByMouse</set>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+        <widget class="QStackedWidget" name="stackedWidget_outputs">
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
          </property>
          <property name="currentIndex">
           <number>0</number>
@@ -1176,12 +1268,6 @@
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
-          <attribute name="title">
-           <string>Text Files</string>
-          </attribute>
-          <attribute name="toolTip">
-           <string>Write the readings to .txt, .csv and .xml files</string>
-          </attribute>
           <layout class="QFormLayout" name="formLayout_2">
            <property name="fieldGrowthPolicy">
             <enum>QFormLayout::ExpandingFieldsGrow</enum>
@@ -1419,12 +1505,6 @@
           </layout>
          </widget>
          <widget class="QWidget" name="tab_browser">
-          <attribute name="title">
-           <string>Browser</string>
-          </attribute>
-          <attribute name="toolTip">
-           <string>The built-in HTTP server: a scoreboard page, JSON, XML and CSV</string>
-          </attribute>
           <layout class="QVBoxLayout" name="verticalLayout_4">
            <item alignment="Qt::AlignTop">
             <widget class="QLabel" name="label_8">
@@ -1448,17 +1528,26 @@
           </layout>
          </widget>
          <widget class="QWidget" name="tab_obs">
-          <attribute name="title">
-           <string>OBS</string>
-          </attribute>
-          <attribute name="toolTip">
-           <string>Update text sources in OBS Studio</string>
-          </attribute>
           <layout class="QGridLayout" name="gridLayout_2">
            <property name="verticalSpacing">
             <number>2</number>
            </property>
            <item row="0" column="0">
+            <widget class="QWidget" name="widget_obsConnection" native="true">
+             <layout class="QHBoxLayout" name="horizontalLayout_obsConnection">
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
+              <item>
             <widget class="QPushButton" name="pushButton_connectObs">
              <property name="toolTip">
               <string>Connect to the WebSocket server of OBS Studio</string>
@@ -1478,6 +1567,28 @@
              <property name="text">
               <string>Connect OBS</string>
              </property>
+            </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButton_disconnectObs">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="toolTip">
+                 <string>Close the connection to OBS. ScoreSight connects to OBS again at its next start only after you connect again.</string>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>Disconnect</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </widget>
            </item>
            <item row="1" column="0" alignment="Qt::AlignTop">
@@ -1525,21 +1636,34 @@
              </layout>
             </widget>
            </item>
+           <item row="2" column="0">
+            <spacer name="verticalSpacer_obs">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>0</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
           </layout>
          </widget>
          <widget class="QWidget" name="tab_vmix">
-          <attribute name="title">
-           <string>VMix</string>
-          </attribute>
-          <attribute name="toolTip">
-           <string>Update a title in vMix</string>
-          </attribute>
           <layout class="QGridLayout" name="gridLayout_3">
            <property name="verticalSpacing">
             <number>2</number>
            </property>
            <item row="1" column="0">
             <widget class="QTableView" name="tableView_vmixMapping">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>120</height>
+              </size>
+             </property>
              <property name="toolTip">
               <string>Each field and the vMix title field it updates. Edit the right column.</string>
              </property>
@@ -1722,12 +1846,6 @@
           </layout>
          </widget>
          <widget class="QWidget" name="tab_uno">
-          <attribute name="title">
-           <string>UNO</string>
-          </attribute>
-          <attribute name="toolTip">
-           <string>Drive an overlays.uno control app</string>
-          </attribute>
           <layout class="QGridLayout" name="gridLayout_5">
            <item row="0" column="0">
             <widget class="QWidget" name="widget_uno_props" native="true">
@@ -1915,6 +2033,12 @@
            </item>
            <item row="2" column="0">
             <widget class="QTableView" name="tableView_unoMapping">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>120</height>
+              </size>
+             </property>
              <property name="toolTip">
               <string>Each field and the UNO command (or Essentials field ID) it drives. Edit the right column.</string>
              </property>
@@ -1929,12 +2053,6 @@
           </layout>
          </widget>
          <widget class="QWidget" name="tab_api">
-          <attribute name="title">
-           <string>API</string>
-          </attribute>
-          <attribute name="toolTip">
-           <string>Send the readings to a URL (outbound HTTP API)</string>
-          </attribute>
           <layout class="QFormLayout" name="formLayout_3">
            <property name="fieldGrowthPolicy">
             <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
@@ -2035,12 +2153,6 @@
                 <property name="toolTip">
                  <string>The HTTP method of the requests</string>
                 </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>50</width>
-                  <height>16777215</height>
-                 </size>
-                </property>
                 <item>
                  <property name="text">
                   <string>POST</string>
@@ -2070,6 +2182,9 @@
            </item>
           </layout>
          </widget>
+        </widget>
+          </item>
+         </layout>
         </widget>
        </item>
       </layout>

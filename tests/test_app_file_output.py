@@ -417,3 +417,68 @@ def test_flush_without_folder_or_results_writes_nothing(make_result, out):
     output.record([make_result("Home Score", "1")])
     output.flush("", save_csv=True, save_xml=True)
     assert os.listdir(out) == []
+
+
+# --- status() (the window's Text files destination) --------------------------------
+
+
+def test_status_tells_what_was_written_and_when(make_result, out, tmp_path):
+    clock = FakeClock()
+    output = FileOutput(clock=clock)
+    assert output.status().last_write_at is None
+
+    output.record([make_result("Home Score", "1"), make_result("Time", "1:00")])
+    output.flush(str(out), save_csv=True)
+    status = output.status()
+    assert (status.folder, status.files, status.last_write_at) == (str(out), 3, 1000.0)
+    assert status.failing == () and status.last_error is None
+
+    # unchanged values are not written: the time of the last write stays
+    clock.now = 1005.0
+    output.record(
+        [
+            make_result("Home Score", "1", "SameNoChange"),
+            make_result("Time", "1:00", "SameNoChange"),
+        ]
+    )
+    output.flush(str(out), save_csv=True)
+    assert output.status().last_write_at == 1000.0
+
+    # another folder starts over
+    other = tmp_path / "other"
+    other.mkdir()
+    output.flush(str(other))
+    status = output.status()
+    assert (status.folder, status.files, status.last_write_at) == (
+        str(other),
+        2,  # the two .txt files (no .csv this time)
+        1005.0,
+    )
+
+
+def test_status_reports_failing_files_until_they_work_again(
+    make_result, out, monkeypatch
+):
+    output = FileOutput()
+    output.record([make_result("Home Score", "12")])
+    real_replace = os.replace
+    locked = {"on": True}
+
+    def replace(src, dst):
+        if locked["on"]:
+            raise PermissionError("locked by a reader")
+        real_replace(src, dst)
+
+    monkeypatch.setattr(file_output.os, "replace", replace)
+    monkeypatch.setattr(file_output.time, "sleep", lambda s: None)
+    output.flush(str(out))
+    status = output.status()
+    assert status.failing == ("Home Score.txt",)
+    assert "locked by a reader" in status.last_error
+    assert status.last_write_at is None
+
+    locked["on"] = False
+    output.flush(str(out))
+    status = output.status()
+    assert status.failing == () and status.last_error is None
+    assert status.files == 1

@@ -14,12 +14,18 @@ while snapshot outputs (the outbound API) use a single key.
 
 Items must be plain, immutable snapshots (strings, tuples): the worker thread
 reads them after the caller has moved on.
+
+status() returns a WorkerStatus: what was sent, what failed and whether the
+endpoint is being retried. It is a snapshot taken under the worker's lock, so
+the GUI can read it at any time (output_status.py turns it into what the
+window shows).
 """
 
 import threading
 import time
 import weakref
 from collections.abc import Callable, Hashable
+from dataclasses import dataclass
 
 from sc_logging import logger
 
@@ -69,8 +75,17 @@ class ThrottledErrorLog:
             self._suppressed = 0
 
 
+class SendSkipped(Exception):
+    """Raised by a send function for an item it deliberately didn't send (e.g.
+    its connection was closed meanwhile): neither a success nor a failure."""
+
+
 class OutputError(Exception):
     """The endpoint answered, but with an error (e.g. an HTTP error status)."""
+
+    def __init__(self, message: str, status_code: int | None = None):
+        super().__init__(message)
+        self.status_code = status_code
 
 
 def check_http_response(response, request_description: str) -> None:
@@ -80,8 +95,62 @@ def check_http_response(response, request_description: str) -> None:
     body = " ".join((response.text or "").split())[:200]
     raise OutputError(
         f"{request_description} returned HTTP {response.status_code}"
-        + (f": {body}" if body else "")
+        + (f": {body}" if body else ""),
+        status_code=response.status_code,
     )
+
+
+@dataclass(frozen=True)
+class ErrorInfo:
+    """A failure, without the exception object (which would keep the frames of
+    its traceback alive)."""
+
+    type: type
+    message: str
+    # an HTTP status (OutputError) or another numeric code of the error (e.g.
+    # the code of an OBS request error)
+    code: int | None = None
+    # the endpoint couldn't be reached (the item is kept for a retry)
+    unreachable: bool = False
+
+    @classmethod
+    def of(cls, error: BaseException, unreachable: bool = False) -> "ErrorInfo":
+        code = getattr(error, "status_code", None)
+        if code is None:
+            code = getattr(error, "code", None)
+        if isinstance(code, bool) or not isinstance(code, int):
+            code = None
+        return cls(type(error), str(error), code, unreachable)
+
+    def __str__(self) -> str:
+        name = self.type.__name__
+        return f"{name}: {self.message}" if self.message else name
+
+
+@dataclass(frozen=True)
+class WorkerStatus:
+    """A snapshot of an OutputWorker (see OutputWorker.status())."""
+
+    name: str
+    pending: int = 0  # items waiting to be sent
+    busy: bool = False  # a batch is being sent
+    sent: int = 0  # items sent successfully
+    failed: int = 0  # items that failed
+    consecutive_failures: int = 0  # failures since the last success
+    # the endpoint couldn't be reached and nothing was sent since: the unsent
+    # items are retried every retry_delay seconds
+    retrying: bool = False
+    retry_delay: float | None = None
+    # keys (e.g. fields) whose latest item was sent, or failed and was dropped
+    ok_keys: int = 0
+    failing_keys: int = 0
+    # times (of the worker's clock, time.monotonic by default)
+    last_success_at: float | None = None
+    last_failure_at: float | None = None
+    # the error behind the current problem: what makes the endpoint unreachable
+    # while retrying, else the latest error of a failing key (None without a
+    # problem)
+    last_error: ErrorInfo | None = None
 
 
 _workers: "weakref.WeakSet[OutputWorker]" = weakref.WeakSet()
@@ -98,6 +167,7 @@ class OutputWorker:
     worker waits with exponential backoff before trying again. Any other
     exception drops that one item. Failures are logged through a
     ThrottledErrorLog; recovery from an unreachable endpoint is logged once.
+    status() tells how the sending goes.
     """
 
     def __init__(
@@ -109,6 +179,7 @@ class OutputWorker:
         initial_backoff: float = 0.5,
         max_backoff: float = 5.0,
         error_log: ThrottledErrorLog | None = None,
+        clock: Callable[[], float] = time.monotonic,
     ):
         self.name = name
         self._send = send
@@ -116,6 +187,7 @@ class OutputWorker:
         self._initial_backoff = initial_backoff
         self._max_backoff = max_backoff
         self.error_log = error_log or ThrottledErrorLog(name)
+        self._clock = clock
         self._cond = threading.Condition()
         self._pending: dict[Hashable, object] = {}
         self._thread: threading.Thread | None = None
@@ -124,6 +196,21 @@ class OutputWorker:
         # incremented by clear(): the rest of a batch being sent is dropped too
         self._generation = 0
         self._retry_failures = 0  # consecutive "unreachable" failures
+        # for status(), written with the lock held. reset_status() increments
+        # the epoch: the result of a request that was in flight then (e.g. to
+        # the previous vMix host) doesn't count.
+        self._status_epoch = 0
+        self._sent = 0
+        self._failed = 0
+        self._consecutive_failures = 0
+        self._key_ok: dict[Hashable, bool] = {}  # latest result per key
+        # the error of each key whose latest item was dropped, with its time
+        self._key_errors: dict[Hashable, tuple[float, ErrorInfo]] = {}
+        # the error that made the endpoint unreachable (until a success)
+        self._unreachable_error: ErrorInfo | None = None
+        self._unreachable_key: Hashable | None = None
+        self._last_success_at: float | None = None
+        self._last_failure_at: float | None = None
         with _workers_lock:
             _workers.add(self)
 
@@ -166,6 +253,61 @@ class OutputWorker:
     def is_running(self) -> bool:
         return self._thread is not None and self._thread.is_alive()
 
+    def status(self) -> WorkerStatus:
+        """A snapshot of what was sent and what failed (thread-safe, never
+        blocks on the network)."""
+        with self._cond:
+            retrying = bool(self._retry_failures and self._unreachable_error)
+            if retrying:
+                error = self._unreachable_error
+            elif self._key_errors:
+                # the most recent error of a key whose latest item was dropped
+                _, error = max(self._key_errors.values(), key=lambda entry: entry[0])
+            else:
+                error = None
+            return WorkerStatus(
+                name=self.name,
+                pending=len(self._pending),
+                busy=self._busy,
+                sent=self._sent,
+                failed=self._failed,
+                consecutive_failures=self._consecutive_failures,
+                retrying=retrying,
+                retry_delay=self._backoff_delay() if retrying else None,
+                ok_keys=sum(1 for ok in self._key_ok.values() if ok),
+                failing_keys=sum(1 for ok in self._key_ok.values() if not ok),
+                last_success_at=self._last_success_at,
+                last_failure_at=self._last_failure_at,
+                last_error=error,
+            )
+
+    def reset_status(self) -> None:
+        """Forget what was sent and what failed, e.g. when the output is turned
+        off or sends somewhere else. A retry waiting out its backoff is tried
+        right away, and the next error is logged right away."""
+        with self._cond:
+            self._status_epoch += 1
+            self._sent = self._failed = self._consecutive_failures = 0
+            self._retry_failures = 0
+            self._key_ok.clear()
+            self._key_errors.clear()
+            self._unreachable_error = self._unreachable_key = None
+            self._last_success_at = self._last_failure_at = None
+            self._cond.notify_all()
+        self.error_log.reset()
+
+    def forget_keys(self, predicate: Callable[[Hashable], bool]) -> None:
+        """Forget the results of the keys for which predicate(key) is true, e.g.
+        the text sources of an OBS connection that was closed."""
+        with self._cond:
+            for key in [key for key in self._key_ok if predicate(key)]:
+                del self._key_ok[key]
+                self._key_errors.pop(key, None)
+            if self._unreachable_key is not None and predicate(self._unreachable_key):
+                self._unreachable_error = self._unreachable_key = None
+                self._consecutive_failures = 0
+                self._retry_failures = 0
+
     def stop(self, timeout: float = 2.0) -> bool:
         """Drop pending items and stop the thread, waiting up to timeout seconds
         for a request in flight to finish. Returns True if the thread ended."""
@@ -197,6 +339,7 @@ class OutputWorker:
                     return
                 batch, self._pending = self._pending, {}
                 generation = self._generation
+                epoch = self._status_epoch
                 self._busy = True
             try:
                 unreachable = self._send_batch(list(batch.items()), generation)
@@ -209,7 +352,16 @@ class OutputWorker:
                     self._cond.notify_all()
             if unreachable:
                 with self._cond:
-                    self._cond.wait_for(lambda: self._stopped, self._backoff_delay())
+                    # cleared, or sending somewhere else (reset_status): don't
+                    # wait out the backoff of the old items or target
+                    self._cond.wait_for(
+                        lambda: (
+                            self._stopped
+                            or self._generation != generation
+                            or self._status_epoch != epoch
+                        ),
+                        self._backoff_delay(),
+                    )
 
     def _backoff_delay(self) -> float:
         """The wait before retrying after self._retry_failures consecutive
@@ -228,10 +380,13 @@ class OutputWorker:
         for index, (key, item) in enumerate(items):
             if self._generation != generation:  # cleared or stopped meanwhile
                 return False
+            epoch = self._status_epoch
             try:
                 self._send(key, item)
+            except SendSkipped:
+                continue
             except self._retry_on as e:
-                self._retry_failures += 1
+                self._record_failure(key, e, generation, epoch, unreachable=True)
                 self.error_log.error(_describe(e))
                 with self._cond:
                     if self._generation == generation:
@@ -242,13 +397,59 @@ class OutputWorker:
                         self._pending = retry
                 return True
             except Exception as e:
+                self._record_failure(key, e, generation, epoch, unreachable=False)
                 self.error_log.error(_describe(e))
             else:
-                if self._retry_failures:
+                if self._record_success(key, generation, epoch):
                     logger.info("%s: connection restored", self.name)
-                    self._retry_failures = 0
                     self.error_log.reset()
         return False
+
+    def _counts(self, generation: int, epoch: int) -> bool:
+        """Whether the result of a request started at (generation, epoch) is
+        about the current target. Call with the lock held."""
+        # cleared meanwhile (e.g. the output was turned off), or the status was
+        # reset (e.g. another host): a request that was in flight doesn't count
+        return self._generation == generation and self._status_epoch == epoch
+
+    def _record_failure(
+        self,
+        key: Hashable,
+        error: Exception,
+        generation: int,
+        epoch: int,
+        unreachable: bool,
+    ) -> None:
+        with self._cond:
+            if not self._counts(generation, epoch):
+                return
+            now = self._clock()
+            info = ErrorInfo.of(error, unreachable)
+            self._failed += 1
+            self._consecutive_failures += 1
+            self._last_failure_at = now
+            if unreachable:
+                # kept for a retry: the key's result isn't known yet
+                self._retry_failures += 1
+                self._unreachable_error, self._unreachable_key = info, key
+            else:
+                # dropped: the key's latest value didn't arrive
+                self._key_ok[key] = False
+                self._key_errors[key] = (now, info)
+
+    def _record_success(self, key: Hashable, generation: int, epoch: int) -> bool:
+        """Returns True if the endpoint was unreachable until now."""
+        with self._cond:
+            restored = self._retry_failures > 0
+            self._retry_failures = 0
+            if self._counts(generation, epoch):
+                self._unreachable_error = self._unreachable_key = None
+                self._sent += 1
+                self._consecutive_failures = 0
+                self._key_ok[key] = True
+                self._key_errors.pop(key, None)
+                self._last_success_at = self._clock()
+            return restored
 
 
 def _describe(e: BaseException) -> str:
