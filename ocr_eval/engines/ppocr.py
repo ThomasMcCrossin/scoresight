@@ -316,6 +316,14 @@ class PaddleOCRRec(Engine):
 
     # -- loading
 
+    def pinned_files(self) -> list[tuple[str, str, str]]:
+        """The model's files on the Hugging Face Hub: (repository, pinned
+        revision, file name). python -m ocr_eval.fetch_models downloads them."""
+        return [
+            (self.model.repo, self.model.revision, name)
+            for name in ("inference.onnx", "inference.yml")
+        ]
+
     def model_files(self) -> tuple[str, str]:
         """Download (or find in the Hugging Face cache) the model's ONNX file
         and its inference.yml at the pinned revision."""
@@ -323,8 +331,8 @@ class PaddleOCRRec(Engine):
 
         try:
             return tuple(
-                hf_hub_download(self.model.repo, name, revision=self.model.revision)
-                for name in ("inference.onnx", "inference.yml")
+                hf_hub_download(repo, name, revision=revision)
+                for repo, revision, name in self.pinned_files()
             )
         except Exception as e:
             raise EngineUnavailable(

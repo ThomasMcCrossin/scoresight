@@ -2,12 +2,23 @@
 # every bundled model) and the recommended PP-OCR recognizers on the committed
 # datasets of real and synthetic scoreboard crops, and fail if exact-match
 # accuracy drops by more than 2 points against the committed baselines. Runs
-# on pull requests that can change recognition, and manually. See
-# docs/development/ocr-eval.md.
+# on pull requests and pushes to main that can change recognition, and
+# manually. See docs/development/ocr-eval.md.
 name: OCR eval
 
 on:
   pull_request:
+    paths:
+      - src/tesseract.py
+      - src/defaults.py
+      - src/text_detection_target.py
+      - tesseract/**
+      - ocr_eval/**
+      - requirements.txt
+      - requirements-eval.txt
+      - .github/workflows/ocr-eval.yml
+  push:
+    branches: [main]
     paths:
       - src/tesseract.py
       - src/defaults.py
@@ -106,9 +117,12 @@ jobs:
     # PaddleOCR's PP-OCRv6 recognizers (ocr_eval/engines/ppocr.py, on
     # onnxruntime), the engines the evaluation recommends. The baseline
     # (ocr_eval/baselines/ppocr-ci.json) was made on Linux with the pinned
-    # onnxruntime. The models come from the Hugging Face Hub at pinned
-    # revisions and are cached; if they can't be downloaded, the comparison is
-    # skipped with a warning instead of failing the job.
+    # onnxruntime. The models come from the Hugging Face Hub at revisions
+    # pinned in ppocr.py, and are cached. Downloading fails the job, except
+    # that on a pull request a network outage that outlasts the retries skips
+    # the comparison with a warning (python -m ocr_eval.fetch_models exits
+    # with 75); a missing revision or file, a renamed or gated repository or
+    # an import error always fails.
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     env:
@@ -130,26 +144,36 @@ jobs:
           python -m ocr_eval requirements ppocr > ppocr-requirements.txt
           python -m pip install -r ppocr-requirements.txt
 
+      # the cache key changes only when a pinned revision does
+      - name: List the pinned model files
+        run: python -m ocr_eval.fetch_models --pins "ppocr:$VARIANTS" | tee ppocr-pins.txt
+
       - name: Cache the PP-OCR models
         uses: actions/cache@v5
         with:
           path: ~/.cache/huggingface/hub
-          # ppocr.py pins the models' revisions
-          key: ppocr-models-${{ hashFiles('ocr_eval/engines/ppocr.py') }}
+          key: ppocr-models-${{ hashFiles('ppocr-pins.txt') }}
+          restore-keys: ppocr-models-
 
       - name: Download the PP-OCR models
         id: models
+        env:
+          # a skip is a failure on pushes to main and manual runs
+          SKIP_ALLOWED: ${{ github.event_name == 'pull_request' }}
         run: |
-          if python -c "
-          import os
-          from ocr_eval.engines.ppocr import PaddleOCRRec
-          for variant in os.environ['VARIANTS'].split(','):
-              PaddleOCRRec(variant).model_files()
-          "; then
+          status=0
+          python -m ocr_eval.fetch_models "ppocr:$VARIANTS" || status=$?
+          if [ "$status" -eq 0 ]; then
             echo "available=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "::warning title=PP-OCR models unavailable::The PP-OCR models couldn't be downloaded from the Hugging Face Hub; the PP-OCR comparison is skipped."
+          elif [ "$status" -eq 75 ] && [ "$SKIP_ALLOWED" = "true" ]; then
+            echo "::warning title=PP-OCR models unavailable::The Hugging Face Hub couldn't be reached after several attempts; the PP-OCR comparison is skipped."
             echo "available=false" >> "$GITHUB_OUTPUT"
+          elif [ "$status" -eq 75 ]; then
+            echo "::error title=PP-OCR models unavailable::The Hugging Face Hub couldn't be reached after several attempts."
+            exit 1
+          else
+            echo "::error title=PP-OCR models unavailable::The pinned PP-OCR models couldn't be downloaded (see the log)."
+            exit "$status"
           fi
 
       - name: Run PP-OCR on the datasets
@@ -176,7 +200,7 @@ jobs:
           AVAILABLE: ${{ steps.models.outputs.available }}
         run: |
           if [ "$AVAILABLE" != "true" ]; then
-            echo "PP-OCR comparison skipped: the models couldn't be downloaded." >> "$GITHUB_STEP_SUMMARY"
+            echo "PP-OCR comparison skipped: the Hugging Face Hub couldn't be reached." >> "$GITHUB_STEP_SUMMARY"
           fi
           for file in ocr-eval-ppocr/comparison.md ocr-eval-ppocr/report.md; do
             if [ -f "$file" ]; then

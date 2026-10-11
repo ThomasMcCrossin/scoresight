@@ -275,10 +275,10 @@ Every command reads results gzipped too (`.json.gz`, recognized by content), and
 
 ## Continuous integration
 
-`.github/workflows/ocr-eval.yml` runs on pull requests that change recognition (`src/tesseract.py`, `src/defaults.py`, `src/text_detection_target.py`, `tesseract/`, `ocr_eval/`, `requirements.txt`, `requirements-eval.txt`, the workflow) and manually, on Ubuntu 24.04, in two jobs:
+`.github/workflows/ocr-eval.yml` runs on pull requests and pushes to `main` that change recognition (`src/tesseract.py`, `src/defaults.py`, `src/text_detection_target.py`, `tesseract/`, `ocr_eval/`, `requirements.txt`, `requirements-eval.txt`, the workflow) and manually, on Ubuntu 24.04, in two jobs:
 
 - **Tesseract vs. baseline** validates the datasets (`--strict-licenses`), runs every Tesseract variant on the three datasets, and compares with `ocr_eval/baselines/tesseract.json` and, in a second step, `tesseract-commons.json`.
-- **PP-OCR vs. baseline** installs `python -m ocr_eval requirements ppocr`, runs `ppocr:v6-small-wl,v6-tiny-wl` on the three datasets and compares with `ocr_eval/baselines/ppocr-ci.json`. The models are cached (`actions/cache`, keyed by `ppocr.py`, which pins their revisions); if they can't be downloaded, the comparison is skipped with a warning instead of failing the job.
+- **PP-OCR vs. baseline** installs `python -m ocr_eval requirements ppocr`, runs `ppocr:v6-small-wl,v6-tiny-wl` on the three datasets and compares with `ocr_eval/baselines/ppocr-ci.json`. The models are downloaded by `python -m ocr_eval.fetch_models` and cached (`actions/cache`, keyed by the pinned revisions that `fetch_models --pins` lists, with older caches as restore keys). It retries network errors (connection errors, timeouts, HTTP 429 and 5xx) and fails at once on a revision or file that doesn't exist, a renamed, removed or gated repository, or an import error. Only on a pull request, and only when the Hub is still unreachable after the retries (exit status 75), is the comparison skipped with a warning; on pushes to `main` and manual runs that fails the job too.
 
 ```bash
 python -m ocr_eval compare ocr_eval/baselines/tesseract.json ocr-eval-results/results.json \
