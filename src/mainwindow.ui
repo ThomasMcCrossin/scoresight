@@ -3388,7 +3388,7 @@
                       </sizepolicy>
                      </property>
                      <property name="toolTip">
-                      <string>The fields the overlay shows, in the order of the fields list</string>
+                      <string>The fields the overlay shows</string>
                      </property>
                      <property name="accessibleName">
                       <string>Overlay fields</string>

@@ -2747,7 +2747,7 @@ class Ui_MainWindow(object):
 #endif // QT_CONFIG(accessibility)
         self.label_overlayFields.setText(QCoreApplication.translate("MainWindow", u"Fields", None))
 #if QT_CONFIG(tooltip)
-        self.toolButton_overlayFields.setToolTip(QCoreApplication.translate("MainWindow", u"The fields the overlay shows, in the order of the fields list", None))
+        self.toolButton_overlayFields.setToolTip(QCoreApplication.translate("MainWindow", u"The fields the overlay shows", None))
 #endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(accessibility)
         self.toolButton_overlayFields.setAccessibleName(QCoreApplication.translate("MainWindow", u"Overlay fields", None))
