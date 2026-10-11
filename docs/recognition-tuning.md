@@ -88,8 +88,8 @@ Even a good picture produces an occasional wrong reading, for example while digi
   | Time mm:ss.d | `12:34` or `9.5` (clocks that switch to tenths in the last minute) |
   | Time mm:ss | `12:34`, `0:59` |
   | Time ss.d | `9.5`, `45.1` |
-  | Time 0-59 | `00` to `59`, two digits |
-  | Shotclock 0-39 | `00` to `39`, two digits |
+  | Time 0-59 | `0` to `59`, with or without a leading zero (`7` or `07`) |
+  | Shotclock 0-39 | `0` to `39`, with or without a leading zero (`7` or `07`) |
   | Score 1dd | 1–2 digits, or 3 digits starting with 1 (`0`–`199`) |
   | Score ddd | 1–3 digits |
   | Period 1-4 | a single `1`–`4` |
@@ -99,8 +99,8 @@ Even a good picture produces an occasional wrong reading, for example while digi
 
   You can also type your own regular expression. See [Format](box-settings.md#format).
 
-  {: .note }
-  *Time 0-59* and *Shotclock 0-39* require **two** digits. If your shot clock shows `9` rather than `09`, type the format `^[0-3]?\d$` instead.
+  {: .new }
+  Up to ScoreSight 0.3.0, *Time 0-59* and *Shotclock 0-39* required **two** digits, so a shot clock showing `9` rather than `09` was rejected and the outputs stayed at `10` for its last ten seconds. They now accept both, and boxes saved with the old presets are updated once (see [One-time upgrades](configuration.md#one-time-upgrades-of-older-settings)).
 - **Remove leading zeros**: turns `07` into `7`. Use it for boards that zero-pad scores.
 - **Smooth over last 5 readings**: shows the most common of the last 5 accepted readings to smooth out flicker. It compares whole values, so a change from `12` to `9` never shows a mix such as `92`. It adds a little delay when the value changes.
 - **Minimum confidence**: the minimum confidence of the OCR model, in percent. Readings it is less confident about are marked *failed filter*, and the box keeps its last good value. It is **off (0) by default**. With PP-OCR, 80–90 rejects most wrong readings. With Tesseract, if random wrong values still get through a strict Format, try 30–50, and lower it if good values turn yellow: Tesseract's correct readings of real scoreboards often score only 30–50 %. See [Minimum confidence](box-settings.md#conf-th-confidence-threshold).

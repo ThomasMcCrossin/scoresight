@@ -52,6 +52,8 @@ When ScoreSight 0.2.0 first opens a settings file from an older version, it adju
 - A vMix port of `8099` becomes `8088` (see [vMix](vmix.md)). The key `vmix_port_migrated` records that this was done.
 - The **Minimum confidence** (in 0.1.x: **Conf. Th**) of every box becomes 0 (off). It had no effect in older versions, so the boxes read exactly as before (see [Minimum confidence](box-settings.md#conf-th-confidence-threshold)). The key `boxes_schema_version` (set to `2`) records that this was done.
 
+When a version after 0.3.0 first opens boxes saved by 0.3.0 or older (in the settings file or an imported configuration file), a box whose **Format** is the old *Time 0-59* (`^[0-5]\d$`) or *Shotclock 0-39* (`^[0-3]\d$`) expression gets the preset's new one (`^[0-5]?\d$` or `^[0-3]?\d$`), which also accepts a single digit: a shot clock shows `9`, not `09`. Other formats are kept, and the log says how many boxes changed. `boxes_schema_version` `3` records that this was done.
+
 Settings you change afterwards are kept as you set them.
 
 ### Logs
@@ -126,7 +128,7 @@ You normally never edit this file: everything is set through the UI. This list h
 | Key | Meaning |
 |---|---|
 | `boxes` | The list of boxes: `name`, `rect` (`x`, `y`, `width`, `height`), `settings` (see [Per-Box Settings](box-settings.md)) and `mini_rects` |
-| `boxes_schema_version` | `2`: the box settings have been upgraded for 0.2.0 (see [One-time upgrades](#one-time-upgrades-of-older-settings)). Don't change it |
+| `boxes_schema_version` | The version of the box settings: `2` upgraded for 0.2.0, `3` with the one- or two-digit clock formats (see [One-time upgrades](#one-time-upgrades-of-older-settings)). Don't change it |
 | `custom_boxes_names` | Names of your custom fields |
 | `ocr_model` | `"ppocr:auto"` PP-OCR (automatic), `"ppocr:small"` PP-OCR (accurate), `"ppocr:tiny"` PP-OCR (fast), `0` Tesseract: Daktronics, `1` Tesseract: General Scoreboard, `2` Tesseract: General Fonts (English), `3` Tesseract: General Scoreboard Large, or the path of an external `.traineddata` file. Absent in a new setup: PP-OCR (automatic), stored when the first source opens (the Tesseract values are those of earlier versions, so an older setup keeps its model) |
 | `detection_cadence` | Detections / s: 1–15 from the slider. Values down to `0.1` are accepted when set in the file (see [Performance Tuning](performance.md#how-fast-do-you-need-to-be)) |

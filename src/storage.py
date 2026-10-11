@@ -10,7 +10,11 @@ from datetime import datetime
 
 from PySide6.QtCore import QObject, Signal, QRectF
 from platformdirs import user_data_dir
-from defaults import default_info_for_box_name, normalize_settings_dict
+from defaults import (
+    default_info_for_box_name,
+    format_prefixes,
+    normalize_settings_dict,
+)
 
 from text_detection_target import TextDetectionTarget
 from sc_logging import logger
@@ -36,10 +40,18 @@ _reported_corrupt_files: dict[tuple[str, int, int], bool] = {}
 _PROFILE_UNSAFE_CHARS = re.compile(r"[^A-Za-z0-9._-]")
 
 # Version of the stored box format, kept next to "boxes" in the settings file
-# and in exported configuration files. Boxes without it were saved by
-# ScoreSight 0.1.x and are migrated once (see migrate_boxes).
+# and in exported configuration files. Boxes without it (saved by ScoreSight
+# 0.1.x) or with an older version are migrated once (see migrate_boxes).
 BOXES_SCHEMA_KEY = "boxes_schema_version"
-BOXES_SCHEMA_VERSION = 2
+BOXES_SCHEMA_VERSION = 3
+
+# Schema 3: the expressions of the Time 0-59 and Shotclock 0-39 format presets
+# up to ScoreSight 0.3.0 (schema 2), which took exactly two digits -> the
+# presets' expressions now (one or two digits).
+TWO_DIGIT_FORMATS = {
+    "^[0-5]\\d$": format_prefixes[3],
+    "^[0-3]\\d$": format_prefixes[4],
+}
 
 
 def get_data_dir() -> str:
@@ -329,32 +341,61 @@ def boxes_need_migration(schema_version) -> bool:
     return not isinstance(schema_version, int) or schema_version < BOXES_SCHEMA_VERSION
 
 
-def migrate_boxes(boxes: list, origin: str) -> list:
-    """Bring boxes saved by ScoreSight 0.1.x up to BOXES_SCHEMA_VERSION.
+def migrate_boxes(boxes: list, origin: str, schema_version=None) -> list:
+    """Bring boxes stored with schema_version (None: no marker, ScoreSight
+    0.1.x) up to BOXES_SCHEMA_VERSION.
 
     Schema 2: the confidence threshold (conf_thresh) was never applied before
     0.2.0 (it was compared on the wrong scale), so every box carries the old
     0.5 default that did nothing. Applying it now would reject many correct
     readings, so it is reset to 0 (off), which keeps the old behavior.
+    Schema 3: the Time 0-59 and Shotclock 0-39 format presets took exactly two
+    digits up to 0.3.0, so a clock that shows 9 rather than 09 failed the
+    filter. A format that is one of those old expressions becomes the preset's
+    new one (TWO_DIGIT_FORMATS); any other format is kept.
     Returns migrated copies; origin names where the boxes came from, for the log.
     Malformed entries are left for loadBoxesFromDict to reject.
     """
+    if not isinstance(schema_version, int):
+        schema_version = 1
     migrated = []
+    formats_updated = 0
     for box in boxes:
         if isinstance(box, dict):
             settings = box.get("settings")
             settings = dict(settings) if isinstance(settings, dict) else {}
-            box = {**box, "settings": {**settings, "conf_thresh": 0.0}}
+            changed = False
+            if schema_version < 2:
+                settings["conf_thresh"] = 0.0
+                changed = True
+            old_format = settings.get("format_regex")
+            if (
+                schema_version < 3
+                and isinstance(old_format, str)
+                and old_format in TWO_DIGIT_FORMATS
+            ):
+                settings["format_regex"] = TWO_DIGIT_FORMATS[old_format]
+                formats_updated += 1
+                changed = True
+            if changed:
+                box = {**box, "settings": settings}
         migrated.append(box)
-    if not migrated:
-        return migrated
-    logger.info(
-        "Migrated %d box(es) from %s, saved by an older ScoreSight: their "
-        "confidence threshold had no effect before 0.2.0 and is now off (0); "
-        "set Conf. Th per box to use it",
-        len(migrated),
-        origin,
-    )
+    if schema_version < 2 and migrated:
+        logger.info(
+            "Migrated %d box(es) from %s, saved by an older ScoreSight: their "
+            "confidence threshold had no effect before 0.2.0 and is now off (0); "
+            "set Conf. Th per box to use it",
+            len(migrated),
+            origin,
+        )
+    if formats_updated:
+        logger.info(
+            "Migrated the format of %d box(es) from %s, saved by an older "
+            "ScoreSight: Time 0-59 and Shotclock 0-39 now also accept a single "
+            "digit (9 as well as 09)",
+            formats_updated,
+            origin,
+        )
     return migrated
 
 
@@ -442,10 +483,13 @@ class TextDetectionTargetMemoryStorage(QObject):
         boxes = fetch_data(SETTINGS_FILE, "boxes")
         if not boxes:
             return False
-        migrate = boxes_need_migration(fetch_data(SETTINGS_FILE, BOXES_SCHEMA_KEY))
+        schema_version = fetch_data(SETTINGS_FILE, BOXES_SCHEMA_KEY)
+        migrate = boxes_need_migration(schema_version)
         if migrate:
             boxes = migrate_boxes(
-                boxes, f"the settings file {resolve_file_name(SETTINGS_FILE)}"
+                boxes,
+                f"the settings file {resolve_file_name(SETTINGS_FILE)}",
+                schema_version,
             )
         if not self.loadBoxesFromDict(boxes):
             return False
@@ -456,7 +500,8 @@ class TextDetectionTargetMemoryStorage(QObject):
     def loadBoxesFromFile(self, file_path) -> bool:
         """Load the boxes from an exported configuration file: a
         {"boxes_schema_version": N, "boxes": [...]} object, or a plain list of
-        boxes (exported by ScoreSight 0.1.x, migrated)."""
+        boxes (exported by ScoreSight 0.1.x). Boxes of an older schema are
+        migrated."""
         try:
             with open(file_path, "r", encoding="utf-8") as f:
                 data = json.load(f)
@@ -471,7 +516,9 @@ class TextDetectionTargetMemoryStorage(QObject):
             logger.error("%s is not a ScoreSight configuration file", file_path)
             return False
         if boxes_need_migration(schema_version):
-            boxes = migrate_boxes(boxes, f"the configuration file {file_path}")
+            boxes = migrate_boxes(
+                boxes, f"the configuration file {file_path}", schema_version
+            )
         return self.loadBoxesFromDict(boxes)
 
     def loadBoxesFromDict(self, boxes) -> bool:

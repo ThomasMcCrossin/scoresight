@@ -19,8 +19,8 @@ GENERAL_CHAR_WHITELIST = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQR
 # 0 - Time MM:ss and ss.m
 # 1 - Time MM:ss
 # 2 - Time ss.m
-# 3 - Time 00-59
-# 4 - Shotclock 00-39
+# 3 - Time 0-59
+# 4 - Shotclock 0-39
 # 5 - Score 1dd
 # 6 - Score ddd
 # 7 - Period 1-4
@@ -33,8 +33,10 @@ format_prefixes = [
     "^(?:(?:[0-5]?\\d:[0-5]\\d)|(?:[0-5]?\\d\\.\\d))$",  # Time MM:ss and ss.m
     "^[0-5]?\\d:[0-5]\\d$",  # Time MM:ss
     "^[0-5]?\\d\\.\\d$",  # Time ss.m
-    "^[0-5]\\d$",  # Time 00-59
-    "^[0-3]\\d$",  # Shotclock 00-39
+    # one or two digits: clocks show 9, not 09 (up to 0.3.0 these took exactly
+    # two; storage.migrate_boxes updates the boxes that stored those)
+    "^[0-5]?\\d$",  # Time 0-59
+    "^[0-3]?\\d$",  # Shotclock 0-39
     "^1?\\d{1,2}$",  # Score 1dd
     "^\\d{1,3}$",  # Score ddd
     "^[1-4]{1}$",  # Period 1-4

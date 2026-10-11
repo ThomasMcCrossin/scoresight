@@ -5,7 +5,7 @@ import threading
 import pytest
 
 import storage
-from defaults import FieldType, normalize_settings_dict
+from defaults import FieldType, format_prefixes, normalize_settings_dict
 from storage import (
     fetch_custom_box_names,
     fetch_data,
@@ -576,6 +576,15 @@ def conf_thresholds(memory_storage):
     return {box.name: box.settings["conf_thresh"] for box in memory_storage.get_data()}
 
 
+def formats(memory_storage):
+    return {box.name: box.settings["format_regex"] for box in memory_storage.get_data()}
+
+
+# the Shotclock 0-39 and Time 0-59 presets' expressions up to 0.3.0 (schema 2)
+OLD_SHOT_CLOCK = "^[0-3]\\d$"
+OLD_TIME_0_59 = "^[0-5]\\d$"
+
+
 def test_new_boxes_have_the_confidence_threshold_off():
     assert normalize_settings_dict({}, None)["conf_thresh"] == 0.0
 
@@ -594,7 +603,7 @@ def test_boxes_from_0_1_x_get_the_confidence_threshold_off_once(
     assert memory_storage.find_item_by_name("Time").settings["dilate"] == 2
     assert "Migrated 2 box(es)" in caplog.text
     # saved back once, with the schema version
-    assert fetch_data(SETTINGS, storage.BOXES_SCHEMA_KEY) == 2
+    assert fetch_data(SETTINGS, storage.BOXES_SCHEMA_KEY) == 3
     saved = fetch_data(SETTINGS, "boxes")
     assert [box["settings"]["conf_thresh"] for box in saved] == [0.0, 0.0]
 
@@ -609,19 +618,23 @@ def test_boxes_from_0_1_x_get_the_confidence_threshold_off_once(
     assert "Migrated" not in caplog.text
 
 
-@pytest.mark.parametrize("schema_version", [2, 3])
+@pytest.mark.parametrize("schema_version", [3, 4])
 def test_boxes_with_the_schema_version_are_not_migrated(memory_storage, schema_version):
-    store_data(SETTINGS, "boxes", [old_box("Home Score", 0.5)])
+    store_data(
+        SETTINGS, "boxes", [old_box("Shot Clock", 0.5, format_regex=OLD_SHOT_CLOCK)]
+    )
     store_data(SETTINGS, storage.BOXES_SCHEMA_KEY, schema_version)
     assert memory_storage.loadBoxesFromStorage() is True
-    assert conf_thresholds(memory_storage) == {"Home Score": 0.5}
+    assert conf_thresholds(memory_storage) == {"Shot Clock": 0.5}
+    # a format typed since the upgrade is the user's own
+    assert formats(memory_storage) == {"Shot Clock": OLD_SHOT_CLOCK}
 
 
 def test_saving_boxes_marks_the_schema_version(data_dir, memory_storage):
     memory_storage.add_item(make_box("Home Score", (1, 2, 3, 4), conf_thresh=0.4))
     memory_storage.saveBoxesToStorage()
     settings = read_settings_file(data_dir)
-    assert settings[storage.BOXES_SCHEMA_KEY] == 2
+    assert settings[storage.BOXES_SCHEMA_KEY] == 3
     assert settings["boxes"][0]["settings"]["conf_thresh"] == 0.4
 
 
@@ -630,7 +643,7 @@ def test_exported_file_has_the_schema_version(tmp_path, memory_storage):
     export = tmp_path / "config.json"
     memory_storage.saveBoxesToFile(str(export))
     data = json.loads(export.read_text(encoding="utf-8"))
-    assert data[storage.BOXES_SCHEMA_KEY] == 2
+    assert data[storage.BOXES_SCHEMA_KEY] == 3
     assert [box["name"] for box in data["boxes"]] == ["Home Score"]
 
     memory_storage.clear()
@@ -644,6 +657,96 @@ def test_configuration_exported_by_0_1_x_is_migrated(tmp_path, memory_storage):
     export.write_text(json.dumps([old_box("Away Score", 0.5)]), encoding="utf-8")
     assert memory_storage.loadBoxesFromFile(str(export)) is True
     assert conf_thresholds(memory_storage) == {"Away Score": 0.0}
+
+
+def test_two_digit_clock_formats_are_migrated(data_dir, memory_storage, caplog):
+    # Up to 0.3.0 the Shotclock 0-39 and Time 0-59 presets took exactly two
+    # digits, so a shot clock showing 9 (not 09) failed the filter and the
+    # outputs froze at 10. Boxes that stored those presets get the new ones.
+    assert storage.BOXES_SCHEMA_VERSION == 3
+    assert format_prefixes[4] == "^[0-3]?\\d$"
+    assert format_prefixes[3] == "^[0-5]?\\d$"
+    store_data(
+        SETTINGS,
+        "boxes",
+        [
+            old_box("Shot Clock", 0.5, format_regex=OLD_SHOT_CLOCK),
+            old_box("Seconds", 0.4, format_regex=OLD_TIME_0_59, is_custom=True),
+            old_box("Home Score", 0.3, format_regex=format_prefixes[5]),
+            old_box("Countdown", 0.2, format_regex="^[0-3]\\d\\d$", is_custom=True),
+            old_box("Away Score", 0.1),
+        ],
+    )
+    store_data(SETTINGS, storage.BOXES_SCHEMA_KEY, 2)
+    assert memory_storage.loadBoxesFromStorage() is True
+    assert formats(memory_storage) == {
+        "Shot Clock": format_prefixes[4],
+        "Seconds": format_prefixes[3],
+        # other formats, and boxes without one (their preset's), are untouched
+        "Home Score": format_prefixes[5],
+        "Countdown": "^[0-3]\\d\\d$",
+        "Away Score": format_prefixes[5],
+    }
+    # schema 2 boxes keep their confidence threshold (that migration is 0.1.x's)
+    assert conf_thresholds(memory_storage) == {
+        "Shot Clock": 0.5,
+        "Seconds": 0.4,
+        "Home Score": 0.3,
+        "Countdown": 0.2,
+        "Away Score": 0.1,
+    }
+    assert "Migrated the format of 2 box(es)" in caplog.text
+    assert "confidence threshold" not in caplog.text
+    # saved back once, with the new schema version
+    assert fetch_data(SETTINGS, storage.BOXES_SCHEMA_KEY) == 3
+    saved = {box["name"]: box["settings"] for box in fetch_data(SETTINGS, "boxes")}
+    assert saved["Shot Clock"]["format_regex"] == format_prefixes[4]
+    assert saved["Seconds"]["format_regex"] == format_prefixes[3]
+
+    caplog.clear()
+    memory_storage.clear()
+    assert memory_storage.loadBoxesFromStorage() is True
+    assert formats(memory_storage)["Shot Clock"] == format_prefixes[4]
+    assert "Migrated" not in caplog.text
+
+
+def test_boxes_from_0_1_x_get_both_migrations(memory_storage):
+    store_data(
+        SETTINGS, "boxes", [old_box("Shot Clock", 0.5, format_regex=OLD_SHOT_CLOCK)]
+    )
+    assert memory_storage.loadBoxesFromStorage() is True
+    assert conf_thresholds(memory_storage) == {"Shot Clock": 0.0}
+    assert formats(memory_storage) == {"Shot Clock": format_prefixes[4]}
+
+
+@pytest.mark.parametrize(
+    ("schema_version", "conf_thresh"), [(None, 0.0), (2, 0.5), (3, 0.5)]
+)
+def test_exported_two_digit_clock_formats_are_migrated(
+    tmp_path, memory_storage, schema_version, conf_thresh
+):
+    boxes = [old_box("Shot Clock", 0.5, format_regex=OLD_SHOT_CLOCK)]
+    export = tmp_path / "config.json"
+    if schema_version is None:
+        content = boxes  # 0.1.x exported a plain list
+    else:
+        content = {storage.BOXES_SCHEMA_KEY: schema_version, "boxes": boxes}
+    export.write_text(json.dumps(content), encoding="utf-8")
+    assert memory_storage.loadBoxesFromFile(str(export)) is True
+    assert conf_thresholds(memory_storage) == {"Shot Clock": conf_thresh}
+    # a schema 3 file was exported after the upgrade: its format is the user's
+    expected = OLD_SHOT_CLOCK if schema_version == 3 else format_prefixes[4]
+    assert formats(memory_storage) == {"Shot Clock": expected}
+
+
+def test_malformed_formats_are_left_alone():
+    boxes = [
+        {"name": "A", "settings": {"format_regex": ["^[0-3]\\d$"]}},
+        {"name": "B", "settings": None},
+        "not a box",
+    ]
+    migrated = storage.migrate_boxes(boxes, "a test", 2)
+    assert migrated == boxes
 
 
 @pytest.mark.parametrize(
