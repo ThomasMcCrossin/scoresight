@@ -22,7 +22,7 @@ from PySide6.QtCore import (  # noqa: E402
     Signal,
 )
 from PySide6.QtGui import QKeySequence  # noqa: E402
-from PySide6.QtWidgets import QApplication, QWidget  # noqa: E402
+from PySide6.QtWidgets import QApplication, QMessageBox, QWidget  # noqa: E402
 
 from camera_info import CameraInfo  # noqa: E402
 from storage import fetch_data, store_data  # noqa: E402
@@ -35,6 +35,8 @@ class FakeViewer(QWidget):
 
     first_frame_received_signal = Signal()
     error_signal = Signal(str)
+    four_corner_changed = Signal()
+    zoom_changed = Signal(float)
 
     def __init__(
         self, camera_info, fourCornersApplied, storage, itemSelected, start=True
@@ -43,12 +45,49 @@ class FakeViewer(QWidget):
         self.camera_info = camera_info
         self.timerThread = None
         self.four_corner_calls = []
+        self.fourCornerSelectionMode = False
+        self.corrected = False
+        self.picked = 0
+        self.zoom = 1.0
 
     def startCapture(self):
         pass
 
-    def toggleFourCorner(self, state):
-        self.four_corner_calls.append(state)
+    def hasFourCornerCorrection(self):
+        return self.corrected
+
+    def fourCornersPicked(self):
+        return self.picked if self.fourCornerSelectionMode else 0
+
+    def startFourCornerSelection(self):
+        self.four_corner_calls.append("start")
+        self.fourCornerSelectionMode = True
+        self.four_corner_changed.emit()
+
+    def cancelFourCornerSelection(self):
+        self.four_corner_calls.append("cancel")
+        self.fourCornerSelectionMode = False
+        self.four_corner_changed.emit()
+
+    def removeFourCornerCorrection(self):
+        self.four_corner_calls.append("remove")
+        self.corrected = False
+        self.four_corner_changed.emit()
+
+    def zoomLevel(self):
+        return self.zoom
+
+    def zoomIn(self):
+        self.zoom *= 1.25
+        self.zoom_changed.emit(self.zoom)
+
+    def zoomOut(self):
+        self.zoom /= 1.25
+        self.zoom_changed.emit(self.zoom)
+
+    def resetZoom(self):
+        self.zoom = 0.5
+        self.zoom_changed.emit(self.zoom)
 
     def toggleBinary(self):
         pass
@@ -660,18 +699,22 @@ def test_viewer_is_connected_once(main_window, monkeypatch):
     main_window.image_viewer = viewer
     main_window.cameraConnectedEnableUI()
     main_window.cameraConnectedEnableUI()
-    main_window.ui.pushButton_fourCorner.setChecked(True)
+    main_window.ui.pushButton_fourCorner.click()
     viewer.timerThread.ocr_result_signal.emit([])
-    assert viewer.four_corner_calls == [True]
+    assert viewer.four_corner_calls == ["start"]
     assert http_updates == [[]]
 
     # a new viewer replaces the old one's connections
     new_viewer = FakeViewer(None, None, None, None)
     main_window.image_viewer = new_viewer
     main_window.cameraConnectedEnableUI()
-    main_window.ui.pushButton_fourCorner.setChecked(False)
-    assert viewer.four_corner_calls == [True]
-    assert new_viewer.four_corner_calls == [False]
+    main_window.ui.pushButton_fourCorner.click()
+    assert viewer.four_corner_calls == ["start"]
+    assert new_viewer.four_corner_calls == ["start"]
+    # the old viewer's picking no longer shows
+    viewer.four_corner_changed.emit()
+    main_window.ui.pushButton_fourCorner.click()  # cancels the new one's
+    assert not main_window.ui.frame_fourCornerBanner.isVisibleTo(main_window)
 
 
 def test_readings_from_the_start_of_the_capture_reach_the_window(
@@ -805,6 +848,8 @@ def test_the_keyboard_shortcuts(main_window, qtbot):
         "actionPauseOutputs": "Ctrl+Shift+P",
         "actionBinaryView": "Ctrl+B",
         "actionFitPicture": "Ctrl+0",
+        "actionZoomIn": "Ctrl+=",
+        "actionZoomOut": "Ctrl+-",
         "actionReloadSources": "F5",
     }
     from PySide6.QtTest import QTest
@@ -1374,8 +1419,14 @@ def test_controls_have_tooltips(main_window):
         "pushButton_stopUpdates",
         "horizontalSlider_detectionCadence",
         "comboBox_ocrModel",
-        "pushButton_saveOCRTrainingData",
         "toolButton_videoSettings",
+        "pushButton_refresh_sources",
+        "toolButton_speed",
+        "toolButton_osd",
+        "toolButton_zoomReset",
+        "label_zoom",
+        "pushButton_fourCorner",
+        "toolButton_topCrop",
         "toolButton_addBox",
         "toolButton_removeBox",
     ):
@@ -1651,8 +1702,8 @@ def test_cancelling_the_file_dialog_in_a_translated_ui(
 
 
 def menu_titles(window):
-    [file_menu] = [a.menu() for a in window.menuBar().actions() if a.menu()]
-    return [action.text() for action in file_menu.actions()]
+    """The texts of the File menu's items."""
+    return [action.text() for action in window.ui.menuFile.actions()]
 
 
 def test_menubar_stays_visible_after_the_window_is_deactivated(main_window, qapp):
@@ -1848,3 +1899,495 @@ def test_confidence_threshold_slider(main_window, make_target):
     assert ui.horizontalSlider_conf_thresh.value() == 29
     ui.horizontalSlider_conf_thresh.setValue(45)
     assert storage.find_item_by_name("Home Score").settings["conf_thresh"] == 0.45
+
+
+# --- the viewer column: source bar, banners, view tools, first run -----------------------
+
+
+class StartedViewer(FakeViewer):
+    """A viewer whose capture is running (a frame arrived)."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.timerThread = FakeCaptureThread()
+        self.firstFrameReceived = True
+
+
+def open_video(window, tmp_path, name="final game.mp4"):
+    video = tmp_path / name
+    video.write_bytes(b"")
+    window.source_name = str(video)
+    window.ui.comboBox_camera_source.blockSignals(True)
+    window.ui.comboBox_camera_source.setCurrentIndex(1)
+    window.ui.comboBox_camera_source.blockSignals(False)
+    window.sourceSelectionSucessful()
+    return video
+
+
+def test_the_source_combo_box_shows_the_open_source(main_window, tmp_path, qapp):
+    ui = main_window.ui
+    combo = ui.comboBox_camera_source
+    assert combo.itemText(0) == "No source"
+    assert combo.itemText(1) == "Video file…"
+    # wide enough for the whole name (it is elided to the combo box's width)
+    main_window.resize(1800, 800)
+    main_window.show()
+    qapp.processEvents()
+    video = open_video(main_window, tmp_path)
+    assert combo.currentText() == "Video file: final game.mp4"
+    assert str(video) in combo.toolTip()
+    assert combo.itemData(1, QtCore.Qt.ItemDataRole.ToolTipRole) == str(video)
+    # the speed is for video files, the video settings for cameras
+    assert ui.toolButton_speed.isVisibleTo(main_window)
+    assert ui.toolButton_speed.text() == "×1"
+    assert not ui.toolButton_videoSettings.isEnabled()
+    assert "only for cameras" in ui.toolButton_videoSettings.toolTip()
+
+    # a stream: without its password
+    main_window.source_name = "rtsp://admin:secret@10.0.1.200:554/11"
+    combo.blockSignals(True)
+    combo.setCurrentIndex(2)
+    combo.blockSignals(False)
+    main_window.sourceSelectionSucessful()
+    assert combo.itemText(1) == "Video file…"  # the chooser again
+    assert "Stream: rtsp://10.0.1.200:554/11".startswith(
+        combo.currentText().split("…")[0]
+    )
+    assert "secret" not in combo.currentText() + combo.toolTip()
+    assert not ui.toolButton_speed.isVisibleTo(main_window)
+
+    # a language change keeps it
+    main_window.changeLanguage("de_DE")
+    try:
+        assert combo.currentText().startswith("Stream: rtsp://")
+    finally:
+        qapp.removeTranslator(main_window.translator)
+    main_window.reset_playing_source()
+    combo.setCurrentIndex(0)
+    assert combo.itemText(2) == "Stream URL (RTSP, HTTP)…"
+
+
+def test_a_long_source_name_is_elided_in_the_middle(main_window, tmp_path):
+    main_window.show()
+    main_window.ui.comboBox_camera_source.setFixedWidth(160)
+    open_video(main_window, tmp_path, "a very long name of the final game.mp4")
+    combo = main_window.ui.comboBox_camera_source
+    text = combo.currentText()
+    assert text.startswith("Vid") and text.endswith(".mp4") and "…" in text
+    assert combo.fontMetrics().horizontalAdvance(text) < 160
+    assert "a very long name of the final game.mp4" in combo.toolTip()
+
+
+def test_video_settings_are_for_cameras(make_window, patched):
+    patched["cameras"].append(
+        CameraInfo("Capture Card", "0", 0, CameraInfo.CameraType.OPENCV)
+    )
+    window = make_window()
+    combo = window.ui.comboBox_camera_source
+    combo.setCurrentIndex(combo.findText("Capture Card"))
+    # (the source bar waits for the first frame)
+    assert window.ui.toolButton_videoSettings.isEnabledTo(window.ui.frame_source_view)
+    assert "resolution" in window.ui.toolButton_videoSettings.toolTip()
+    assert combo.currentText() == "Capture Card"
+
+
+def test_picking_the_open_file_again_chooses_another_one(
+    main_window, tmp_path, monkeypatch
+):
+    import mainwindow
+
+    video = open_video(main_window, tmp_path)
+    combo = main_window.ui.comboBox_camera_source
+    other = tmp_path / "second half.mp4"
+    other.write_bytes(b"")
+    answers = iter([("", ""), (str(other), "")])
+    monkeypatch.setattr(
+        mainwindow.QFileDialog,
+        "getOpenFileName",
+        lambda *args, **kwargs: next(answers),
+    )
+    first = main_window.image_viewer
+    # the list opened on the open file, which is picked again: Cancel keeps it
+    main_window.sourceIndexAtPopup = 1
+    combo.activated.emit(1)
+    assert main_window.image_viewer is first
+    assert first.camera_info.id == str(video)
+    main_window.sourceIndexAtPopup = 1
+    combo.activated.emit(1)
+    assert main_window.image_viewer.camera_info.id == str(other)
+    assert combo.itemData(1, QtCore.Qt.ItemDataRole.ToolTipRole) == str(other)
+    # picking another item (index changed first) doesn't ask twice
+    main_window.sourceIndexAtPopup = None
+    combo.activated.emit(1)
+
+
+def test_the_source_health_dot(make_window, monkeypatch, patched):
+    import mainwindow
+
+    monkeypatch.setattr(mainwindow, "ImageViewer", StartedViewer)
+    store_data("scoresight.json", "source_selected", "rtsp://10.0.1.200:554/11")
+    window = make_window()
+    dot = window.ui.label_sourceHealth
+    window.refreshLiveStatus()
+    assert dot.toolTip() == "Frames are arriving."
+    assert not dot.pixmap().isNull()
+    thread = window.image_viewer.timerThread
+    thread.nominal_fps = 30.0
+    thread.fps = 9.0
+    window.refreshLiveStatus()
+    assert "less than half" in dot.toolTip()
+    assert "slow: 9.0 of 30 fps" in window.statusBarWidgets.label_source.text()
+    thread.retry_count = 5
+    window.refreshLiveStatus()
+    assert "reconnecting" in dot.toolTip()
+    window.updateError("Error: Unable to play video stream")
+    assert dot.toolTip() == "The source can't be read."
+    window.reset_playing_source()
+    window.refreshLiveStatus()
+    assert dot.toolTip() == "No source is open."
+
+
+def test_a_source_error_shows_a_banner_with_retry(make_window, monkeypatch, patched):
+    import mainwindow
+
+    opened = []
+
+    class CountingViewer(FakeViewer):
+        def __init__(self, camera_info, *args, **kwargs):
+            super().__init__(camera_info, *args, **kwargs)
+            opened.append(camera_info)
+
+    monkeypatch.setattr(mainwindow, "ImageViewer", CountingViewer)
+    store_data("scoresight.json", "source_selected", "rtsp://10.0.1.200:554/11")
+    window = make_window()
+    ui = window.ui
+    window.show()
+    assert not ui.frame_sourceError.isVisibleTo(window)
+    window.cameraConnectedEnableUI()
+    assert ui.widget_viewOptions.isEnabled()
+
+    window.updateError("Error: Unable to play video stream")
+    assert ui.frame_sourceError.isVisibleTo(window)
+    assert "Can't open the stream rtsp://10.0.1.200:554/11" in (
+        ui.label_sourceError.text()
+    )
+    assert ui.pushButton_retrySource.isVisibleTo(window)
+    assert not ui.pushButton_openScreenSettings.isVisibleTo(window)
+    # the view tools wait for frames
+    assert not ui.widget_viewOptions.isEnabled()
+    assert not ui.widget_viewTools.isEnabled()
+
+    # Retry opens the same source again
+    ui.pushButton_retrySource.click()
+    assert len(opened) == 2 and opened[1].id == "rtsp://10.0.1.200:554/11"
+    assert not ui.frame_sourceError.isVisibleTo(window)
+
+    # Troubleshooting opens the guide
+    urls = []
+    monkeypatch.setattr(mainwindow.QDesktopServices, "openUrl", urls.append)
+    window.updateError("Error: Unable to play video stream")
+    ui.pushButton_sourceTroubleshooting.click()
+    assert urls[0].toString().endswith("troubleshooting.html#source-problems")
+    popups = []
+    monkeypatch.setattr(
+        ui.comboBox_camera_source, "showPopup", lambda: popups.append(True)
+    )
+    ui.pushButton_chooseSource.click()
+    assert popups == [True]
+    # another source: the banner goes
+    window.reset_playing_source()
+    assert not ui.frame_sourceError.isVisibleTo(window)
+
+
+def test_the_source_banner_asks_for_the_screen_recording_permission(
+    make_window, monkeypatch
+):
+    import mainwindow
+
+    monkeypatch.setattr(
+        mainwindow.source_bar, "screen_recording_allowed", lambda: False
+    )
+    monkeypatch.setattr(mainwindow.MainWindow, "screenCaptureWindows", lambda: [])
+    store_data(
+        "scoresight.json", "source_selected", {"type": "Screen Capture", "value": -1}
+    )
+    window = make_window()
+    window.show()
+    ui = window.ui
+    assert ui.frame_sourceError.isVisibleTo(window)
+    assert "isn't allowed to record the screen" in ui.label_sourceError.text()
+    # frames arrive (of the desktop only): the banner stays
+    window.cameraConnectedEnableUI()
+    assert ui.frame_sourceError.isVisibleTo(window)
+    assert ui.pushButton_openScreenSettings.isVisibleTo(window)
+    assert not ui.pushButton_retrySource.isVisibleTo(window)
+    urls = []
+    monkeypatch.setattr(mainwindow.QDesktopServices, "openUrl", urls.append)
+    ui.pushButton_openScreenSettings.click()
+    assert urls[0].toString().startswith("x-apple.systempreferences:")
+    assert ui.comboBox_camera_source.currentText() == "Screen: Entire screen"
+
+
+def test_four_corner_never_removes_a_correction_silently(
+    main_window, monkeypatch, qtbot
+):
+    import mainwindow
+
+    ui = main_window.ui
+    viewer = FakeViewer(None, None, None, None)
+    viewer.corrected = True
+    main_window.image_viewer = viewer
+    main_window.cameraConnectedEnableUI()
+    main_window.updateFourCornerUi()
+    main_window.show()
+    assert ui.pushButton_fourCorner.isChecked()  # a correction is in place
+
+    choices = iter([None, "remove", "remove", "redo"])
+    monkeypatch.setattr(main_window, "askFourCornerAction", lambda: next(choices))
+    answers = iter([QMessageBox.StandardButton.Cancel, QMessageBox.StandardButton.Yes])
+    monkeypatch.setattr(
+        mainwindow.QMessageBox, "question", lambda *args, **kwargs: next(answers)
+    )
+    ui.pushButton_fourCorner.click()  # menu cancelled
+    assert viewer.four_corner_calls == []
+    assert ui.pushButton_fourCorner.isChecked()
+    ui.pushButton_fourCorner.click()  # Remove correction..., then Cancel
+    assert viewer.four_corner_calls == []
+    ui.pushButton_fourCorner.click()  # Remove correction..., then Yes
+    assert viewer.four_corner_calls == ["remove"]
+    assert not ui.pushButton_fourCorner.isChecked()
+
+    # no correction: a click picks corners right away, with the banner
+    ui.pushButton_fourCorner.click()
+    assert viewer.four_corner_calls == ["remove", "start"]
+    assert ui.frame_fourCornerBanner.isVisibleTo(main_window)
+    assert "0 of 4" in ui.label_fourCornerBanner.text()
+    viewer.picked = 2
+    viewer.four_corner_changed.emit()
+    assert "2 of 4" in ui.label_fourCornerBanner.text()
+    # Esc (anywhere in the window) cancels
+    from PySide6.QtTest import QTest
+
+    QTest.keyClick(main_window, QtCore.Qt.Key.Key_Escape)
+    assert viewer.four_corner_calls[-1] == "cancel"
+    assert not ui.frame_fourCornerBanner.isVisibleTo(main_window)
+
+    # with a correction, Redo corners... keeps it until the new one replaces it
+    viewer.corrected = True
+    ui.pushButton_fourCorner.click()
+    assert viewer.four_corner_calls[-1] == "start"
+    assert "keeps the previous correction" in ui.label_fourCornerBanner.text()
+    ui.pushButton_cancelFourCorner.click()
+    assert viewer.four_corner_calls[-1] == "cancel"
+    assert viewer.corrected
+
+
+def test_fit_and_the_zoom_readout(make_window, monkeypatch):
+    import mainwindow
+
+    monkeypatch.setattr(mainwindow, "ImageViewer", StartedViewer)
+    store_data("scoresight.json", "source_selected", "rtsp://10.0.1.200:554/11")
+    window = make_window()
+    ui = window.ui
+    window.cameraConnectedEnableUI()
+    assert ui.label_zoom.text() == "100%"
+    ui.actionZoomIn.trigger()  # Ctrl+=
+    assert ui.label_zoom.text() == "125%"
+    ui.actionZoomOut.trigger()  # Ctrl+-
+    assert ui.label_zoom.text() == "100%"
+    assert ui.toolButton_zoomReset.text() == "Fit"
+    ui.actionFitPicture.trigger()  # Ctrl+0
+    assert ui.label_zoom.text() == "50%"
+    # the hint that was a label is in the tooltips
+    assert "Ctrl+scroll" in ui.toolButton_zoomReset.toolTip()
+    assert "Ctrl+scroll" in ui.label_zoom.toolTip()
+    assert not hasattr(ui, "label_11")
+    window.reset_playing_source()
+    assert ui.label_zoom.text() == ""
+
+
+def test_the_statistics_overlay_is_off_for_new_settings(make_window):
+    window = make_window()
+    assert not window.ui.toolButton_osd.isChecked()
+    assert fetch_data("scoresight.json", "show_osd") is False
+    assert window.ui.toolButton_osd.text() == "Stats"
+    window.ui.actionStatsOverlay.trigger()
+    assert window.ui.toolButton_osd.isChecked()
+    assert fetch_data("scoresight.json", "show_osd") is True
+
+
+def test_the_statistics_overlay_stays_on_for_older_settings(make_window):
+    # 0.2.0 and before always showed it
+    store_data("scoresight.json", "boxes", [])
+    window = make_window()
+    assert window.ui.toolButton_osd.isChecked()
+    assert window.ui.actionStatsOverlay.isChecked()
+    window.ui.toolButton_osd.setChecked(False)
+    window.close()
+    # the choice is kept
+    assert not make_window().ui.toolButton_osd.isChecked()
+
+
+def test_collecting_training_data_is_a_tools_action_with_a_chip(
+    main_window, monkeypatch
+):
+    from ocr_training_data import ocr_training_data_options
+
+    # (ocr_training_data_options follows the setting: its subscription isn't
+    # in the tests' registry)
+    ui = main_window.ui
+    assert not hasattr(ui, "pushButton_saveOCRTrainingData")
+    assert ui.actionCollectTrainingData in ui.menuTools.actions()
+    assert ui.actionOCRTrainingDataSetup in ui.menuTools.actions()
+    chip = main_window.statusBarWidgets.button_training
+    main_window.show()
+    assert not chip.isVisibleTo(main_window)
+
+    ui.actionCollectTrainingData.trigger()
+    assert fetch_data("scoresight.json", "save_ocr_training_data") is True
+    assert chip.isVisibleTo(main_window)
+    assert chip.text() == "Collecting training data"
+    assert ocr_training_data_options.ocr_training_data_folder in chip.toolTip()
+    opened = []
+    monkeypatch.setattr(main_window, "openOCRTrainingDataDialog", lambda: None)
+    main_window.statusBarWidgets.training_data_clicked.disconnect()
+    main_window.statusBarWidgets.training_data_clicked.connect(
+        lambda: opened.append(True)
+    )
+    chip.click()
+    assert opened == [True]
+
+    ui.actionCollectTrainingData.trigger()
+    assert fetch_data("scoresight.json", "save_ocr_training_data") is False
+    assert not chip.isVisibleTo(main_window)
+
+
+def test_collecting_training_data_is_restored(make_window):
+    store_data("scoresight.json", "save_ocr_training_data", True)
+    window = make_window()
+    assert window.ui.actionCollectTrainingData.isChecked()
+    window.refreshLiveStatus()
+    assert not window.statusBarWidgets.button_training.isHidden()
+
+
+def test_the_first_run_card(main_window, make_target, monkeypatch, no_dialogs):
+    import mainwindow
+
+    ui = main_window.ui
+    main_window.show()
+    assert ui.frame_firstRun.isVisibleTo(main_window)
+    assert ui.label_12.text() == "Open a source to begin"
+    assert "quickstart.html" in ui.label_firstRunQuickstart.text()
+    assert main_window.firstRunSteps() == (False, False, False)
+    steps = [
+        ui.label_firstRunStep1.accessibleName(),
+        ui.label_firstRunStep2.accessibleName(),
+        ui.label_firstRunStep3.accessibleName(),
+    ]
+    assert steps == ["Step 1", "Step 2", "Step 3"]
+
+    # a box placed, an output on: their steps get a check mark
+    main_window.detectionTargetsStorage.add_item(make_target("Home Score"))
+    ui.checkBox_enableOutAPI.setChecked(True)
+    main_window.refreshLiveStatus()
+    assert main_window.firstRunSteps() == (False, True, True)
+    assert ui.label_firstRunStep2.accessibleName() == "Step 2: done"
+    assert ui.label_firstRunStep3.accessibleName() == "Step 3: done"
+
+    # its buttons pick the source items (the file dialog is cancelled here)
+    monkeypatch.setattr(
+        mainwindow.QFileDialog, "getOpenFileName", lambda *args, **kwargs: ("", "")
+    )
+    asked = []
+    original = main_window.askSourceValue
+    monkeypatch.setattr(
+        main_window,
+        "askSourceValue",
+        lambda index: asked.append(index) or original(index),
+    )
+    ui.pushButton_firstRunFile.click()
+    ui.pushButton_firstRunUrl.click()  # the URL dialog (recorded, not shown)
+    assert asked == [1, 2]
+    assert no_dialogs == ["URL Source"]
+    assert ui.comboBox_camera_source.currentIndex() == 0
+    # no camera was found
+    actions = [a.text() for a in main_window.firstRunCameraMenu.actions()]
+    assert actions[0] == "No camera found"
+    assert ui.actionReloadSources in main_window.firstRunCameraMenu.actions()
+
+    # a source opens: the card goes
+    main_window.image_viewer = FakeViewer(None, None, None, None)
+    main_window.updateFirstRunCard()
+    assert not ui.frame_firstRun.isVisibleTo(main_window)
+
+
+def test_the_first_run_card_lists_the_cameras(make_window, patched, no_dialogs):
+    patched["cameras"].extend(
+        CameraInfo(f"Cam {n}", f"uuid-{n}", n, CameraInfo.CameraType.OPENCV)
+        for n in range(2)
+    )
+    window = make_window()
+    menu = window.firstRunCameraMenu
+    assert [a.text() for a in menu.actions()][:2] == ["Cam 0", "Cam 1"]
+    menu.actions()[1].trigger()
+    assert window.ui.comboBox_camera_source.currentText() == "Cam 1"
+    assert window.image_viewer.camera_info.uuid == "uuid-1"
+    assert not window.ui.frame_firstRun.isVisibleTo(window)
+
+
+def test_the_rotate_button_shows_the_angle(main_window, qapp):
+    ui = main_window.ui
+    assert ui.toolButton_rotate.text() == "Rotate 90° · 0°"
+    main_window.rotateImage()
+    assert ui.toolButton_rotate.text() == "Rotate 90° · 90°"
+    main_window.changeLanguage("de_DE")
+    try:
+        assert ui.toolButton_rotate.text().endswith("90°")
+    finally:
+        qapp.removeTranslator(main_window.translator)
+
+
+def test_crop_off_keeps_the_values(main_window):
+    ui = main_window.ui
+    main_window.setViewToolsEnabled(True)  # as with a source
+    ui.toolButton_topCrop.click()
+    ui.spinBox_leftCrop.setValue(40)
+    ui.toolButton_topCrop.click()
+    assert fetch_data("scoresight.json", "crop_mode") is False
+    assert fetch_data("scoresight.json", "left_crop") == 40
+    assert ui.spinBox_leftCrop.suffix() == " px"
+
+
+def test_checked_view_tools_are_filled(main_window):
+    style = main_window.ui.widget_4.styleSheet()
+    assert "QToolButton:checked" in style
+    assert main_window.ui.widget_viewTools.styleSheet() == style
+
+
+def test_a_narrow_source_bar_shows_icons(main_window, qtbot):
+    from PySide6.QtCore import Qt
+
+    ui = main_window.ui
+    row = main_window.sourceBarRow
+    main_window.resize(max(2000, main_window.minimumSizeHint().width() + 600), 800)
+    main_window.show()
+    qtbot.waitUntil(lambda: not row.compact)
+    assert (
+        ui.pushButton_binary.toolButtonStyle() == Qt.ToolButtonStyle.ToolButtonTextOnly
+    )
+    assert ui.label_boxDisplayStyle.isVisibleTo(main_window)
+
+    # narrower than the bar with its texts: icons, no labels
+    main_window.resize(main_window.minimumSizeHint().width(), 800)
+    qtbot.waitUntil(lambda: row.compact)
+    for button in (ui.pushButton_binary, ui.toolButton_osd, ui.toolButton_zoomReset):
+        assert button.toolButtonStyle() == Qt.ToolButtonStyle.ToolButtonIconOnly
+        assert not button.icon().isNull()
+        assert button.toolTip()
+    assert not ui.label_boxDisplayStyle.isVisibleTo(main_window)
+    # the bar no longer keeps the window wide
+    assert ui.widget_4.minimumSizeHint().width() < row.fullWidth
+
+    main_window.resize(2000, 800)
+    qtbot.waitUntil(lambda: not row.compact)
+    assert ui.label_boxDisplayStyle.isVisibleTo(main_window)

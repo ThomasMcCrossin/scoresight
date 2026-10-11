@@ -269,7 +269,7 @@ def test_an_invalid_four_corner_selection_is_not_a_source_error(
     try:
         with qtbot.waitSignal(viewer.first_frame_received_signal, timeout=5000):
             pass
-        viewer.toggleFourCorner(True)
+        viewer.startFourCornerSelection()
         # the same corner clicked twice
         for x, y in [(50, 50), (50, 50), (400, 300), (40, 290)]:
             click(viewer, x, y)
@@ -305,3 +305,258 @@ def test_a_frame_processing_error_is_shown_but_not_a_source_error(
         assert errors == ["Error: Unable to play video stream"]
     finally:
         view.close()
+
+
+# --- the viewer: four-corner picking, nudging, zoom, labels, overlay -----------------
+
+
+def press(viewer, key, modifiers=None):
+    from PySide6.QtCore import QEvent, Qt
+    from PySide6.QtGui import QKeyEvent
+
+    event = QKeyEvent(
+        QEvent.Type.KeyPress, key, modifiers or Qt.KeyboardModifier.NoModifier
+    )
+    viewer.keyPressEvent(event)
+    return event.isAccepted()
+
+
+def scene_rect(rect):
+    from PySide6.QtCore import QRectF
+
+    return QRectF(rect.x(), rect.y(), rect.width(), rect.height())
+
+
+VALID_CLICKS = [(50, 50), (400, 60), (390, 300), (40, 290)]
+
+
+class LargeFrames(FrameCapture):
+    def read(self):
+        time.sleep(0.01)
+        return True, np.full((480, 640, 3), 200, np.uint8)
+
+
+@pytest.fixture
+def running_viewer(qtbot, memory_storage, capture_factory):
+    """An ImageViewer that received its first frame (640x480)."""
+    capture_factory(LargeFrames())
+    viewer = make_viewer(memory_storage)
+    viewer.resize(800, 600)
+    with qtbot.waitSignal(viewer.first_frame_received_signal, timeout=5000):
+        pass
+    yield viewer
+    viewer.close()
+
+
+def test_four_corner_picking_keeps_the_correction_until_the_fourth_click(
+    qtbot, memory_storage, capture_factory
+):
+    # Clicking 4-corner cleared the correction at once: every box, placed on
+    # the corrected picture, was misplaced, without a way back.
+    from PySide6.QtCore import Qt
+
+    capture_factory(FrameCapture())
+    store_data("scoresight.json", "four_corners", VALID_QUAD)
+    viewer = make_viewer(memory_storage)
+    changes = []
+    viewer.four_corner_changed.connect(
+        lambda: changes.append(viewer.fourCornersPicked())
+    )
+    try:
+        with qtbot.waitSignal(viewer.first_frame_received_signal, timeout=5000):
+            pass
+        thread = viewer.timerThread
+        previous = thread.homography
+        assert viewer.hasFourCornerCorrection()
+
+        viewer.startFourCornerSelection()
+        # the corners are clicked on the picture without the correction, which
+        # stays in effect (also for the OCR) meanwhile
+        assert thread.preview_uncorrected
+        assert thread.homography is previous
+        for x, y in VALID_CLICKS[:3]:
+            click(viewer, x, y)
+        assert changes == [0, 1, 2, 3]
+        assert thread.homography is previous
+        assert fetch_data("scoresight.json", "four_corners") == [
+            list(corner) for corner in VALID_QUAD
+        ]
+
+        # Esc cancels and keeps it
+        assert press(viewer, Qt.Key.Key_Escape)
+        assert not viewer.fourCornerSelectionMode
+        assert viewer.fourCorners == []
+        assert thread.homography is previous
+        assert not thread.preview_uncorrected
+        assert viewer.hasFourCornerCorrection()
+
+        # an invalid 4th click starts the picking over, the correction stays
+        viewer.startFourCornerSelection()
+        for x, y in [(50, 50), (50, 50), (400, 300), (40, 290)]:
+            click(viewer, x, y)
+        assert viewer.fourCornerSelectionMode
+        assert viewer.fourCornersPicked() == 0
+        assert thread.homography is previous
+        assert "Invalid four-corner selection" in viewer.error_text.toPlainText()
+
+        # the 4th valid click replaces it
+        for x, y in VALID_CLICKS:
+            click(viewer, x, y)
+        assert not viewer.fourCornerSelectionMode
+        assert thread.homography is not None
+        assert thread.homography is not previous
+        assert not thread.preview_uncorrected
+        assert viewer.error_text is None
+        stored = fetch_data("scoresight.json", "four_corners")
+        assert len(stored) == 4 and stored[0] != list(VALID_QUAD[0])
+
+        viewer.removeFourCornerCorrection()
+        assert thread.homography is None
+        assert not viewer.hasFourCornerCorrection()
+        assert fetch_data("scoresight.json", "four_corners") is None
+    finally:
+        viewer.close()
+
+
+def test_the_boxes_hide_while_corners_are_picked(
+    running_viewer, memory_storage, make_target
+):
+    memory_storage.add_item(make_target("Home Score", rect=(100, 100, 120, 80)))
+    [box] = running_viewer.boxItems()
+    running_viewer.startFourCornerSelection()
+    assert not box.isVisible()
+    # a box added meanwhile too
+    memory_storage.add_item(make_target("Away Score", rect=(300, 100, 120, 80)))
+    assert not any(item.isVisible() for item in running_viewer.boxItems())
+    running_viewer.cancelFourCornerSelection()
+    assert all(item.isVisible() for item in running_viewer.boxItems())
+
+
+def test_the_preview_skips_the_correction_while_corners_are_picked(
+    memory_storage,
+):
+    # the preview is the adjusted (rotated, cropped) frame, the OCR reads the
+    # corrected one
+    thread = camera_thread.TimerThread(file_source(), memory_storage)
+    try:
+        previews = []
+        thread.update_signal.connect(previews.append)
+        frame = np.zeros((48, 64, 3), np.uint8)
+        frame[:, 32:] = 255
+        thread.homography = np.array([[1, 0, 16], [0, 1, 0], [0, 0, 1]], np.float64)
+        thread.preview_uncorrected = True
+        thread.process_frame(frame.copy())
+        assert np.array_equal(previews[-1], frame)
+        thread.preview_uncorrected = False
+        thread.requestPreview()
+        thread.process_frame(frame.copy())
+        assert not np.array_equal(previews[-1], frame)
+    finally:
+        thread.cleanup()
+
+
+def test_arrow_keys_nudge_the_selected_box(running_viewer, memory_storage, make_target):
+    from PySide6.QtCore import Qt
+
+    memory_storage.add_item(make_target("Home Score", rect=(100, 100, 120, 80)))
+    box = memory_storage.find_item_by_name("Home Score")
+    # nothing selected: the arrow keys scroll as usual
+    press(running_viewer, Qt.Key.Key_Right)
+    assert (box.x(), box.y()) == (100, 100)
+
+    running_viewer.selectBox("Home Score")
+    assert press(running_viewer, Qt.Key.Key_Right)
+    assert press(running_viewer, Qt.Key.Key_Down, Qt.KeyboardModifier.ShiftModifier)
+    assert press(running_viewer, Qt.Key.Key_Left)
+    assert (box.x(), box.y(), box.width(), box.height()) == (100, 110, 120, 80)
+    [item] = running_viewer.boxItems()
+    assert item.sceneBoxRect() == scene_rect(box)
+
+    # within the picture (640x480)
+    for _ in range(80):
+        press(running_viewer, Qt.Key.Key_Right, Qt.KeyboardModifier.ShiftModifier)
+    assert box.right() == 640
+
+    # Esc deselects: the arrows don't move it any more
+    assert press(running_viewer, Qt.Key.Key_Escape)
+    assert running_viewer.selectedBoxName is None
+    press(running_viewer, Qt.Key.Key_Left)
+    assert box.right() == 640
+
+
+def test_nudged_rect_stays_in_the_picture():
+    from PySide6.QtCore import QRectF
+
+    from source_view import nudged_rect
+
+    picture = QRectF(0, 0, 640, 480)
+    assert nudged_rect(QRectF(10, 10, 50, 50), -20, 5, picture) == QRectF(0, 15, 50, 50)
+    assert nudged_rect(QRectF(600, 10, 50, 50), 10, 0, picture).right() == 640
+    # larger than the picture: it stays where it is on that axis
+    assert nudged_rect(QRectF(-5, 0, 700, 50), 10, 0, picture).left() == -5
+    # no picture yet
+    assert nudged_rect(QRectF(0, 0, 5, 5), -3, 0, QRectF()) == QRectF(-3, 0, 5, 5)
+
+
+def test_zoom_and_fit(running_viewer):
+    from source_view import MAX_ZOOM, MIN_ZOOM
+
+    zooms = []
+    running_viewer.zoom_changed.connect(zooms.append)
+    fitted = running_viewer.zoomLevel()
+    assert running_viewer.zoomIn()
+    assert running_viewer.zoomLevel() == pytest.approx(fitted * 1.25)
+    assert zooms[-1] == pytest.approx(fitted * 1.25)
+    for _ in range(30):
+        running_viewer.zoomIn()
+    assert running_viewer.zoomLevel() == pytest.approx(MAX_ZOOM)
+    assert not running_viewer.zoomIn()
+    for _ in range(40):
+        running_viewer.zoomOut()
+    assert running_viewer.zoomLevel() == pytest.approx(min(MIN_ZOOM, fitted))
+    running_viewer.resetZoom()
+    assert running_viewer.zoomLevel() == pytest.approx(fitted)
+    assert zooms[-1] == pytest.approx(fitted)
+
+
+def test_labels_cover_no_other_box(running_viewer, memory_storage, make_target):
+    from resizable_rect import LABEL_BELOW_LEFT
+
+    # two boxes one above the other: the upper one's label can't go below it
+    memory_storage.add_item(make_target("Home Score", rect=(100, 100, 120, 60)))
+    memory_storage.add_item(make_target("Home Fouls", rect=(100, 170, 120, 60)))
+    items = {item.name: item for item in running_viewer.boxItems()}
+    scale = running_viewer.zoomLevel()
+    upper = items["Home Score"]
+    lower = items["Home Fouls"]
+    assert lower.label.placement == LABEL_BELOW_LEFT
+    assert upper.label.placement != LABEL_BELOW_LEFT
+    upper_label = upper.labelRectInScene(upper.label.placement, scale)
+    lower_label = lower.labelRectInScene(lower.label.placement, scale)
+    assert not upper_label.intersects(lower.sceneBoxRect())
+    assert not upper_label.intersects(upper.sceneBoxRect())
+    assert not upper_label.intersects(lower_label)
+
+
+def test_the_statistics_overlay_follows_its_setting(running_viewer, qtbot):
+    # off by default; fixed size at the viewer's top-left, translated
+    running_viewer.show()
+    assert not running_viewer.osd.isVisible()
+    store_data("scoresight.json", "show_osd", True)
+    qtbot.waitUntil(lambda: "Frames/s" in running_viewer.osd.text(), timeout=5000)
+    qtbot.waitUntil(running_viewer.osd.isVisible, timeout=5000)
+    assert "Resolution: 640×480" in running_viewer.osd.text()
+    position = running_viewer.osd.pos()
+    running_viewer.zoomIn()
+    assert running_viewer.osd.pos() == position  # not moved by the zoom
+    store_data("scoresight.json", "show_osd", False)
+    assert not running_viewer.osd.isVisible()
+
+
+def test_a_source_error_is_not_drawn_over_the_picture(running_viewer):
+    errors = []
+    running_viewer.error_signal.connect(errors.append)
+    running_viewer.timerThread.update_error.emit("Error: Unable to play video stream")
+    assert errors == ["Error: Unable to play video stream"]
+    # the main window's source banner says it
+    assert running_viewer.error_text is None

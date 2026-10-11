@@ -15,7 +15,10 @@ from PySide6.QtWidgets import (
     QInputDialog,
     QLineEdit,
     QMainWindow,
+    QMenu,
     QMessageBox,
+    QStyle,
+    QStyleOptionComboBox,
     QTableWidgetItem,
 )
 from PySide6.QtGui import (
@@ -25,12 +28,14 @@ from PySide6.QtGui import (
     QGuiApplication,
     QIcon,
     QKeySequence,
+    QPalette,
 )
 from PySide6.QtCore import (
     Qt,
     Signal,
     Slot,
     QByteArray,
+    QSize,
     QTimer,
     QTranslator,
     QObject,
@@ -52,7 +57,7 @@ from http_server import (
     start_http_server,
     update_http_server,
 )
-from ocr_training_data import OCRTrainingDataDialog
+from ocr_training_data import OCRTrainingDataDialog, ocr_training_data_options
 import output_status
 from output_status import (
     STATE_COLORS,
@@ -64,18 +69,18 @@ from output_status import (
 from output_worker import ErrorInfo
 from readings_view import ReadingDelegate, clear_reading, record_reading
 from resource_path import resource_path
+import source_bar
 from source_view import ImageViewer
 from status_bar import (
-    SOURCE_ERROR,
     SOURCE_NONE,
-    SOURCE_OPENING,
-    SOURCE_RUNNING,
-    SOURCE_STALLED,
     MainStatusBar,
     StatusSnapshot,
     http_server_urls,
     primary_lan_address,
     source_display_name,
+    source_look,
+    source_state,
+    source_state_description,
 )
 import theme
 from defaults import (
@@ -149,6 +154,12 @@ SOURCE_INDEX_FILE = 1
 SOURCE_INDEX_URL = 2
 SOURCE_INDEX_SCREEN_CAPTURE = 3
 FIRST_CAMERA_SOURCE_INDEX = 4
+# the items that open a chooser (a file dialog, the URL or the window)
+CHOOSER_SOURCE_INDEXES = (
+    SOURCE_INDEX_FILE,
+    SOURCE_INDEX_URL,
+    SOURCE_INDEX_SCREEN_CAPTURE,
+)
 
 # Box edits are written to the settings this long after the last change.
 BOXES_SAVE_DELAY_MS = 500
@@ -174,8 +185,10 @@ LANGUAGES = (
 SPLITTER_STATE_SETTING = "main_splitter_state"
 # The status bar, the readings' ages and the paused time are refreshed this often.
 STATUS_INTERVAL_MS = 1000
-# A source that delivered no frame for this long is shown as stalled.
-SOURCE_STALL_S = 3.0
+# View > Statistics overlay (camera_view reads it too)
+SHOW_OSD_SETTING = "show_osd"
+# Tools > Collect OCR training data (ocr_training_data reads it too)
+COLLECT_TRAINING_DATA_SETTING = "save_ocr_training_data"
 # The boxes list shows at most this many rows without scrolling.
 BOXES_LIST_MAX_VISIBLE_ROWS = 8
 # The window's default size, made smaller on smaller screens.
@@ -425,8 +438,6 @@ class MainWindow(QMainWindow):
         self.ui.toolButton_trashFolder.clicked.connect(self.clearOutputFolder)
         self.ui.pushButton_stopUpdates.toggled.connect(self.toggleStopUpdates)
         self.ui.comboBox_ocrModel.currentIndexChanged.connect(self.ocrModelChanged)
-        self.ui.toolButton_zoomReset.clicked.connect(self.resetZoom)
-        self.ui.toolButton_osd.toggled.connect(self.toggleOSD)
         self.ui.comboBox_boxDisplayStyle.currentIndexChanged.connect(
             partial(self.globalSettingsChanged, "box_display_style")
         )
@@ -455,6 +466,8 @@ class MainWindow(QMainWindow):
         self.connected_viewer = None
         self.obs_connect_modal = None
         self.source_name = None
+        # the title of the window a screen capture shows
+        self.sourceWindowTitle: str | None = None
         self.sources_discovery_running = False
         self.closing = False
         self.updateOCRResults = True
@@ -519,13 +532,6 @@ class MainWindow(QMainWindow):
             partial(self.globalSettingsChanged, "vmix_send_same")
         )
 
-        self.ui.pushButton_saveOCRTrainingData.clicked.connect(self.saveOCRTrainingData)
-        self.ui.pushButton_saveOCRTrainingData.setChecked(
-            fetch_data("scoresight.json", "save_ocr_training_data", False)
-        )
-
-        self.ui.toolButton_speed.clicked.connect(self.toggleSpeed)
-
         # Pause outputs: the banner over the viewer, the status bar chip
         self.ui.frame_pausedBanner.hide()
         self.ui.pushButton_resumeOutputs.clicked.connect(
@@ -551,8 +557,9 @@ class MainWindow(QMainWindow):
         self.statusTimer.timeout.connect(self.refreshLiveStatus)
         self.statusTimer.start()
 
-        # the label hides when the view tools need its room
-        self.ui.widget_viewTools.installEventFilter(self)
+        # the source bar, view tools, picture adjustments, banners and the
+        # first-run card around the picture
+        self.setupViewer()
         # the left column is as wide as its content
         self.ui.frame.installEventFilter(self)
 
@@ -610,19 +617,27 @@ class MainWindow(QMainWindow):
             )
             self.appearance_actions.addAction(action)
 
-        # shortcuts of the window (the actions aren't in a menu)
+        # shortcuts of the window (they also work while the menu bar is
+        # hidden, e.g. with the macOS global menu bar)
+        ui.actionZoomIn.setShortcuts(
+            [QKeySequence("Ctrl+="), QKeySequence(QKeySequence.StandardKey.ZoomIn)]
+        )
         for action in (
             ui.actionPauseOutputs,
             ui.actionBinaryView,
             ui.actionFitPicture,
+            ui.actionZoomIn,
+            ui.actionZoomOut,
             ui.actionReloadSources,
         ):
             action.setShortcutContext(Qt.ShortcutContext.WindowShortcut)
             self.addAction(action)
         ui.actionPauseOutputs.triggered.connect(ui.pushButton_stopUpdates.toggle)
+        ui.pushButton_stopUpdates.toggled.connect(ui.actionPauseOutputs.setChecked)
         # through the buttons: they do nothing while disabled (no source yet, a
         # reload running)
-        ui.actionBinaryView.triggered.connect(ui.pushButton_binary.click)
+        ui.actionBinaryView.triggered.connect(self.triggerBinaryView)
+        ui.pushButton_binary.toggled.connect(ui.actionBinaryView.setChecked)
         ui.actionFitPicture.triggered.connect(ui.toolButton_zoomReset.click)
         ui.actionReloadSources.triggered.connect(ui.pushButton_refresh_sources.click)
 
@@ -717,9 +732,10 @@ class MainWindow(QMainWindow):
         self.destinationsModel.retranslate()
         self.updateDestinationsListHeight()
         self.statusBarWidgets.retranslate()
+        self.applyViewerTexts()
         self.refreshLiveStatus()
         self.fitLeftPaneWidth()
-        self.updateZoomHintVisibility()
+        self.updateAdjustHintVisibility()
 
     def retranslateMenus(self):
         names = {
@@ -745,17 +761,26 @@ class MainWindow(QMainWindow):
             tooltip = button.toolTip()
             if shortcut and f"({shortcut})" not in tooltip:
                 button.setToolTip(f"{tooltip} ({shortcut})".strip())
-        # the zoom hint, also when the label is hidden for lack of room
-        zoom_tip = self.ui.toolButton_zoomReset.toolTip()
-        hint = self.ui.label_11.text()
-        if hint and hint not in zoom_tip:
-            self.ui.toolButton_zoomReset.setToolTip(f"{zoom_tip}\n{hint}")
+        # how to zoom and pan, on the Fit button and the zoom readout
+        native = QKeySequence.SequenceFormat.NativeText
+        zoom_hint = QCoreApplication.translate(
+            "MainWindow",
+            "Zoom with Ctrl+scroll or {zoom_in} and {zoom_out}; drag with the "
+            "middle mouse button to move the picture.",
+        ).format(
+            zoom_in=self.ui.actionZoomIn.shortcut().toString(native),
+            zoom_out=self.ui.actionZoomOut.shortcut().toString(native),
+        )
+        for widget in (self.ui.toolButton_zoomReset, self.ui.label_zoom):
+            tooltip = widget.toolTip()
+            if zoom_hint not in tooltip:
+                widget.setToolTip(f"{tooltip}\n{zoom_hint}".strip())
 
-    def updateZoomHintVisibility(self):
-        """Show the "Ctrl-scroll to zoom" hint only when the view tools row has
-        room for it: it never makes the window wider."""
+    def updateAdjustHintVisibility(self):
+        """Show the hint of the Adjust picture row only when the row has room
+        for it: it never makes the window wider."""
         row = self.ui.widget_viewTools
-        hint = self.ui.label_11
+        hint = self.ui.label_adjustHint
         layout = row.layout()
         needed = layout.contentsMargins().left() + layout.contentsMargins().right()
         visible = 0
@@ -841,31 +866,11 @@ class MainWindow(QMainWindow):
             action.setChecked(action.data() == scheme)
 
     def toggleSpeed(self):
-        # check the current speed and toggle it
-        # possible speeds are x2, x4, x8, x16, x32 and back to x1
-        # change the button text to the current speed
-        # change the speed of the image viewer
+        """The next playback speed of a video file: x2, x4 ... x32, then x1."""
         if self.image_viewer and self.image_viewer.timerThread is not None:
-            speed = self.image_viewer.timerThread.getSpeed()
-            if speed == 1:
-                speed = 2
-            elif speed == 2:
-                speed = 4
-            elif speed == 4:
-                speed = 8
-            elif speed == 8:
-                speed = 16
-            elif speed == 16:
-                speed = 32
-            else:
-                speed = 1
+            speed = source_bar.next_speed(self.image_viewer.timerThread.getSpeed())
             self.image_viewer.timerThread.setSpeed(speed)
-            self.ui.toolButton_speed.setText(f"x{speed}")
-
-    def saveOCRTrainingData(self):
-        self.globalSettingsChanged(
-            "save_ocr_training_data", self.ui.pushButton_saveOCRTrainingData.isChecked()
-        )
+            self.ui.toolButton_speed.setText(source_bar.speed_text(speed))
 
     def openVideoSettings(self):
         # only allow opening the video settings for an OpenCV type source
@@ -892,6 +897,7 @@ class MainWindow(QMainWindow):
         if rotation >= 360:
             rotation = 0
         self.globalSettingsChanged("rotation", rotation)
+        self.updateRotateText(rotation)
 
     def cropMode(self):
         # if the toolButton_topCrop is unchecked, go to crop mode
@@ -910,12 +916,29 @@ class MainWindow(QMainWindow):
     def eventFilter(self, obj, event):
         if event.type() == QEvent.KeyPress:
             if event.key() == Qt.Key_Escape:
-                # deselect any selected item
-                self.itemSelected(None)
-                if self.image_viewer is not None:
-                    self.image_viewer.selectBox(None)
+                viewer = self.image_viewer
+                if viewer is not None and viewer.fourCornerSelectionMode:
+                    # stop picking corners, the correction stays
+                    viewer.cancelFourCornerSelection()
+                else:
+                    # deselect any selected item
+                    self.itemSelected(None)
+                    if viewer is not None:
+                        viewer.selectBox(None)
         elif event.type() == QEvent.Type.Resize and obj is self.ui.widget_viewTools:
-            self.updateZoomHintVisibility()
+            self.updateAdjustHintVisibility()
+        elif (
+            event.type() == QEvent.Type.Resize
+            and obj is self.ui.comboBox_camera_source
+            and hasattr(self, "sourceIndexAtPopup")
+        ):
+            self.updateSourceBar()
+        elif (
+            event.type() == QEvent.Type.Show
+            and obj is self.ui.comboBox_camera_source.view()
+        ):
+            # picking the open file, stream or screen again chooses another one
+            self.sourceIndexAtPopup = self.ui.comboBox_camera_source.currentIndex()
         elif event.type() == QEvent.Type.LayoutRequest and obj is self.ui.frame:
             # its minimum width changed (fonts, language, a label's text)
             self.fitLeftPaneWidth()
@@ -929,6 +952,7 @@ class MainWindow(QMainWindow):
             QEvent.Type.ApplicationPaletteChange,
         ) and hasattr(self, "statusBarWidgets"):
             self.updatePauseUi()
+            self.applyViewerStyles()
             self.refreshLiveStatus()
         super().changeEvent(event)
 
@@ -1007,8 +1031,9 @@ class MainWindow(QMainWindow):
         QDesktopServices.openUrl(QUrl.fromLocalFile(data_dir))
 
     def toggleOSD(self, value):
-        if self.image_viewer:
-            self.image_viewer.toggleOSD(value)
+        """Stats (View > Statistics overlay): the viewer follows the setting."""
+        self.ui.actionStatsOverlay.setChecked(value)
+        self.globalSettingsChanged(SHOW_OSD_SETTING, bool(value))
 
     def resetZoom(self):
         if self.image_viewer:
@@ -1052,7 +1077,10 @@ class MainWindow(QMainWindow):
                 self.lanAddress = lan_address
                 self.updateBrowserEndpoints()
         outputs = self.refreshDestinations(now)
-        self.statusBarWidgets.update(self.statusSnapshot(now, outputs))
+        snapshot = self.statusSnapshot(now, outputs)
+        self.statusBarWidgets.update(snapshot)
+        self.updateSourceHealth(snapshot.source_state)
+        self.updateFirstRunCard(outputs)
         cadence = self.ui.horizontalSlider_detectionCadence.value()
         # stale after 20 detection cycles (at least 10 s)
         self.readingDelegate.setStaleAfter(20.0 / max(cadence, 0.1))
@@ -1072,21 +1100,22 @@ class MainWindow(QMainWindow):
         if viewer is not None:
             values["source_name"] = source_display_name(viewer.getCameraInfo())
             thread = getattr(viewer, "timerThread", None)
-            last_frame = getattr(thread, "last_frame_timestamp", None)
-            if self.sourceError:
-                state = SOURCE_ERROR
-            elif not getattr(viewer, "firstFrameReceived", False):
-                state = SOURCE_OPENING
-            elif last_frame is None or now - last_frame > SOURCE_STALL_S:
-                state = SOURCE_STALLED
-            else:
-                state = SOURCE_RUNNING
-            values["source_state"] = state
             # the capture thread's counters (written by it, read here)
+            values["source_state"] = source_state(
+                has_source=True,
+                error=bool(self.sourceError),
+                first_frame=getattr(viewer, "firstFrameReceived", False),
+                now=now,
+                last_frame_at=getattr(thread, "last_frame_timestamp", None),
+                fps=getattr(thread, "fps", None),
+                nominal_fps=getattr(thread, "nominal_fps", None),
+                failed_reads=getattr(thread, "retry_count", 0) or 0,
+            )
             frame_size = getattr(thread, "frame_size", None)
             if frame_size:
                 values["resolution"] = tuple(frame_size)
             values["fps"] = getattr(thread, "fps", None)
+            values["nominal_fps"] = getattr(thread, "nominal_fps", None)
             values["ocr_rate"] = getattr(thread, "ups", None)
             interval = getattr(thread, "update_frame_interval", None)
             if interval:
@@ -1095,6 +1124,11 @@ class MainWindow(QMainWindow):
             values["source_state"] = SOURCE_NONE
         if self.outputsPausedMonotonic is not None:
             values["paused_seconds"] = now - self.outputsPausedMonotonic
+        if self.ui.actionCollectTrainingData.isChecked():
+            values["collecting_training_data"] = True
+            values["training_data_folder"] = (
+                ocr_training_data_options.ocr_training_data_folder
+            )
         port = get_http_server_port()
         if port is None:
             values["http_port"] = self.http_port
@@ -1859,12 +1893,9 @@ class MainWindow(QMainWindow):
         for source in camera_sources:
             combo.addItem(source.description, source)
         combo.blockSignals(False)
-        # the combo box is kept narrow (long camera names don't widen the
-        # window); its list shows the whole names
-        view = combo.view()
-        view.setMinimumWidth(
-            view.sizeHintForColumn(0) + view.verticalScrollBar().sizeHint().width()
-        )
+        self.updateSourceBar()
+        self.fitSourceList()
+        self.updateFirstRunCameraMenu()
 
         self.ui.comboBox_camera_source.setEnabled(True)
         currentIndexChangedSignal = QMetaMethod.fromSignal(
@@ -1896,8 +1927,12 @@ class MainWindow(QMainWindow):
                 index = SOURCE_INDEX_URL
                 value = value.strip()
         elif source_type == CameraInfo.CameraType.SCREEN_CAPTURE:
-            if value == -1 or value in self.screenCaptureWindowIds():
+            windows = dict(
+                (window_id, title) for title, window_id in self.listScreenCaptures()
+            )
+            if value == source_bar.ENTIRE_SCREEN or value in windows:
                 index = SOURCE_INDEX_SCREEN_CAPTURE
+                self.sourceWindowTitle = windows.get(value)
         else:
             index = self.findCameraSourceIndex(source)
         if index is None:
@@ -1920,12 +1955,18 @@ class MainWindow(QMainWindow):
         return ScreenCapture.list_windows()
 
     @staticmethod
-    def screenCaptureWindowIds() -> list:
+    def listScreenCaptures() -> list:
+        """The windows a Screen Capture source can capture, as (title, id), or
+        none if they can't be listed."""
         try:
-            return [window[1] for window in MainWindow.screenCaptureWindows()]
+            return list(MainWindow.screenCaptureWindows())
         except Exception:
             logger.exception("Could not list the windows for screen capture")
             return []
+
+    @staticmethod
+    def screenCaptureWindowIds() -> list:
+        return [window[1] for window in MainWindow.listScreenCaptures()]
 
     def findCameraSourceIndex(self, source: dict) -> int | None:
         """The combo box index of the discovered camera/NDI source matching a
@@ -1967,8 +2008,9 @@ class MainWindow(QMainWindow):
         if viewer is None:
             return
         for signal, slot in (
-            (self.ui.pushButton_fourCorner.toggled, viewer.toggleFourCorner),
             (self.ui.pushButton_binary.clicked, viewer.toggleBinary),
+            (viewer.four_corner_changed, self.updateFourCornerUi),
+            (viewer.zoom_changed, self.updateZoomReadout),
         ):
             try:
                 signal.disconnect(slot)
@@ -1993,39 +2035,58 @@ class MainWindow(QMainWindow):
         self.ui.frame_for_source_view_label.layout().removeWidget(viewer)
         viewer.close()
         viewer.deleteLater()
+        self.updateSourceBanner()
+        self.updateFourCornerUi()
+        self.updateZoomReadout()
 
     def reset_playing_source(self):
         self.closeImageViewer()
-        # "Open a Camera or Load a File". It is hidden, never deleted: the
-        # .ui's retranslateUi sets its text on a language change.
-        self.ui.label_12.show()
+        self.sourceWindowTitle = None
+        # the first-run card. It is hidden, never deleted: the .ui's
+        # retranslateUi sets its texts (label_12 is its title) on a language
+        # change.
+        self.ui.frame_firstRun.show()
+        self.updateSourceBar()
+        self.updateFirstRunCard()
 
     def sourceChanged(self, index):
         # get the source name from the combobox
         self.source_name = None
+        # an index change: picking the item again doesn't reopen its chooser
+        self.sourceIndexAtPopup = None
         self.ui.groupBox_sb_info.setEnabled(False)
         self.ui.tableWidget_boxes.setEnabled(False)
-        self.ui.widget_viewTools.setEnabled(False)
-        self.ui.widget_cropPanel.setEnabled(False)
-        if self.ui.comboBox_camera_source.currentIndex() == 0:
+        self.setViewToolsEnabled(False)
+        index = self.ui.comboBox_camera_source.currentIndex()
+        if index == SOURCE_INDEX_NONE:
             self.reset_playing_source()
             return
-        elif self.ui.comboBox_camera_source.currentIndex() == 1:
+        if index in CHOOSER_SOURCE_INDEXES:
+            chosen = self.askSourceValue(index)
+            if chosen is None:
+                # cancelled: no source (by index: its text is translated)
+                self.ui.comboBox_camera_source.setCurrentIndex(SOURCE_INDEX_NONE)
+                return
+            self.source_name, self.sourceWindowTitle = chosen
+
+        self.sourceSelectionSucessful()
+
+    def askSourceValue(self, index: int) -> tuple | None:
+        """Ask for the video file, the stream URL or the window to capture (the
+        source combo box's item index): (value, window title or None), or None
+        if cancelled."""
+        if index == SOURCE_INDEX_FILE:
             logger.info("Open File selection dialog")
             # open a file dialog to select a video file
             file, _ = QFileDialog.getOpenFileName(
                 self, "Open Video File", "", "Video Files (*.mp4 *.avi *.mov)"
             )
             if not file or not path.exists(file):
-                # no file selected - change source to "Select a source" (by
-                # index: its text is translated)
                 logger.error("No file selected")
-                self.ui.comboBox_camera_source.setCurrentIndex(SOURCE_INDEX_NONE)
-                return
-            else:
-                logger.info("File selected: %s", file)
-            self.source_name = file
-        elif self.ui.comboBox_camera_source.currentIndex() == 2:
+                return None
+            logger.info("File selected: %s", file)
+            return file, None
+        if index == SOURCE_INDEX_URL:
             # open a dialog to enter the url
             url_dialog = QDialog()
             ui_urlsource = Ui_UrlSource()
@@ -2036,14 +2097,11 @@ class MainWindow(QMainWindow):
             url_dialog.exec()  # wait for the dialog to close
             # check if the dialog was accepted
             if url_dialog.result() != QDialog.DialogCode.Accepted:
-                self.ui.comboBox_camera_source.setCurrentIndex(0)
-                return
+                return None
             # pasted URLs often carry spaces or a newline (#10)
-            self.source_name = ui_urlsource.lineEdit_url.text().strip()
-            if self.source_name == "":
-                self.ui.comboBox_camera_source.setCurrentIndex(0)
-                return
-        elif self.ui.comboBox_camera_source.currentIndex() == 3:
+            url = ui_urlsource.lineEdit_url.text().strip()
+            return (url, None) if url else None
+        if index == SOURCE_INDEX_SCREEN_CAPTURE:
             # open a dialog to select the screen
             screen_dialog = QDialog()
             ui_screencapture = Ui_ScreenCapture()
@@ -2062,20 +2120,23 @@ class MainWindow(QMainWindow):
                 QCoreApplication.translate(
                     "MainWindow", "Capture the entire screen", None
                 ),
-                -1,
+                source_bar.ENTIRE_SCREEN,
             )
             for window in self.screenCaptureWindows():
                 ui_screencapture.comboBox_window.addItem(window[0], window[1])
             screen_dialog.exec()
             # check if the dialog was accepted
             if screen_dialog.result() != QDialog.DialogCode.Accepted:
-                self.ui.comboBox_camera_source.setCurrentIndex(0)
-                return
+                return None
             # get the window ID from the comboBox_window
             window_id = ui_screencapture.comboBox_window.currentData()
-            self.source_name = window_id
-
-        self.sourceSelectionSucessful()
+            title = (
+                None
+                if window_id == source_bar.ENTIRE_SCREEN
+                else ui_screencapture.comboBox_window.currentText()
+            )
+            return window_id, title
+        return None
 
     def itemSelected(self, item_name):
         if item_name is None:
@@ -2093,8 +2154,8 @@ class MainWindow(QMainWindow):
         self.listItemClicked(item)
 
     def fourCornersApplied(self, corners):
-        # check the button
-        self.ui.pushButton_fourCorner.setChecked(True)
+        # a correction was restored or picked
+        self.updateFourCornerUi()
 
     def sourceSelectionSucessful(self):
         if self.ui.comboBox_camera_source.currentIndex() == 0:
@@ -2151,7 +2212,7 @@ class MainWindow(QMainWindow):
         self.globalSettingsChanged("source_selected", self.sourceToStore(camera_info))
 
         self.closeImageViewer()
-        self.ui.label_12.hide()
+        self.ui.frame_firstRun.hide()
 
         # set the pixmap to the image viewer
         self.image_viewer = ImageViewer(
@@ -2161,9 +2222,8 @@ class MainWindow(QMainWindow):
             self.itemSelected,
             start=False,
         )
-        self.ui.toolButton_videoSettings.setEnabled(
-            camera_info.type == CameraInfo.CameraType.OPENCV
-        )
+        # a new capture plays at x1
+        self.ui.toolButton_speed.setText(source_bar.speed_text(1))
         self.image_viewer.first_frame_received_signal.connect(
             self.cameraConnectedEnableUI
         )
@@ -2174,8 +2234,12 @@ class MainWindow(QMainWindow):
         self.connectViewer()
         self.ocrModelChanged(fetch_data("scoresight.json", "ocr_model", 1))
 
-        # in the placeholder label's place (frame_for_source_view_label's grid)
+        # in the first-run card's place (frame_for_source_view_label's grid)
         self.ui.frame_for_source_view_label.layout().addWidget(self.image_viewer, 0, 0)
+        self.updateSourceBar()
+        self.updateSourceBanner()
+        self.updateFourCornerUi()
+        self.updateFirstRunCard()
         self.image_viewer.startCapture()
 
     def connectViewer(self):
@@ -2187,10 +2251,9 @@ class MainWindow(QMainWindow):
             return
         self.disconnectViewer()
         self.connected_viewer = self.image_viewer
-        self.ui.pushButton_fourCorner.toggled.connect(
-            self.image_viewer.toggleFourCorner
-        )
         self.ui.pushButton_binary.clicked.connect(self.image_viewer.toggleBinary)
+        self.image_viewer.four_corner_changed.connect(self.updateFourCornerUi)
+        self.image_viewer.zoom_changed.connect(self.updateZoomReadout)
         if self.image_viewer.timerThread:
             self.image_viewer.timerThread.ocr_result_signal.connect(self.ocrResult)
             self.image_viewer.timerThread.update_error.connect(self.updateError)
@@ -2205,22 +2268,588 @@ class MainWindow(QMainWindow):
         self.ui.groupBox_sb_info.setEnabled(True)
         self.ui.tableWidget_boxes.setEnabled(True)
         self.ui.frame_source_view.setEnabled(True)
-        self.ui.widget_viewTools.setEnabled(True)
-        self.ui.widget_cropPanel.setEnabled(True)
+        self.setViewToolsEnabled(True)
 
         # The boxes are not reloaded from scoresight.json here: they were loaded
         # at startup and the in-memory boxes may have newer, unsaved edits.
         self.sourceError = None
+        self.updateSourceBanner()
+        self.updateZoomReadout()
         self.refreshLiveStatus()
 
     def updateError(self, error):
+        """The source failed: the source error banner says so (with Retry),
+        and the view tools are disabled until it works again."""
         if not error:
             return
         logger.error(error)
         self.sourceError = error
         self.ui.frame_source_view.setEnabled(True)
-        self.ui.widget_viewTools.setEnabled(False)
-        self.ui.widget_cropPanel.setEnabled(False)
+        self.setViewToolsEnabled(False)
+        self.updateSourceBanner()
+        if hasattr(self, "statusBarWidgets"):
+            self.refreshLiveStatus()
+
+    # --- the viewer: source bar, view tools, picture adjustments, first run -------
+
+    def setupViewer(self):
+        """Connect the viewer column's controls: the source bar, the view tools,
+        the Adjust picture row, the banners over the picture and the first-run
+        card."""
+        ui = self.ui
+        # the item index when the source list was opened: picking the open
+        # file, stream or screen again asks for another one
+        self.sourceIndexAtPopup = None
+        # what the source's dot and the first-run card's steps show
+        self.sourceHealthLook = None
+        self.firstRunLook = None
+        self.lastOutputStatuses: list[DestinationStatus] = []
+        combo = ui.comboBox_camera_source
+        combo.activated.connect(self.sourceActivated)
+        combo.view().installEventFilter(self)
+        # the open source's name is elided to the combo box's width
+        combo.installEventFilter(self)
+        ui.toolButton_speed.clicked.connect(self.toggleSpeed)
+        ui.toolButton_speed.hide()
+
+        # view tools
+        ui.toolButton_zoomReset.clicked.connect(self.resetZoom)
+        ui.actionZoomIn.triggered.connect(self.zoomIn)
+        ui.actionZoomOut.triggered.connect(self.zoomOut)
+        show_osd = self.storedShowOsd()
+        ui.toolButton_osd.setChecked(show_osd)
+        ui.actionStatsOverlay.setChecked(show_osd)
+        ui.toolButton_osd.toggled.connect(self.toggleOSD)
+        ui.actionStatsOverlay.toggled.connect(
+            lambda checked: ui.toolButton_osd.setChecked(checked)
+        )
+        # "400%": the readout doesn't change the row's width as it changes
+        ui.label_zoom.setMinimumWidth(
+            QFontMetrics(ui.label_zoom.font()).horizontalAdvance(
+                source_bar.zoom_text(4.0)
+            )
+            + 4
+        )
+
+        # Adjust picture
+        ui.pushButton_fourCorner.clicked.connect(self.fourCornerClicked)
+        ui.pushButton_cancelFourCorner.clicked.connect(self.cancelFourCornerSelection)
+        ui.frame_fourCornerBanner.hide()
+        # the row's hint hides when the buttons need its room
+        ui.widget_viewTools.installEventFilter(self)
+        ui.label_adjustHint.setForegroundRole(QPalette.ColorRole.PlaceholderText)
+
+        # the source error banner
+        ui.frame_sourceError.hide()
+        ui.pushButton_retrySource.clicked.connect(self.retrySource)
+        ui.pushButton_chooseSource.clicked.connect(self.chooseAnotherSource)
+        ui.pushButton_sourceTroubleshooting.clicked.connect(
+            lambda: QDesktopServices.openUrl(
+                QUrl(source_bar.SOURCE_TROUBLESHOOTING_URL)
+            )
+        )
+        ui.pushButton_openScreenSettings.clicked.connect(
+            lambda: QDesktopServices.openUrl(
+                QUrl(source_bar.MACOS_SCREEN_RECORDING_SETTINGS_URL)
+            )
+        )
+
+        # Tools > Collect OCR training data, and its status bar chip
+        ui.actionCollectTrainingData.setChecked(
+            bool(fetch_data("scoresight.json", COLLECT_TRAINING_DATA_SETTING, False))
+        )
+        ui.actionCollectTrainingData.toggled.connect(self.toggleTrainingData)
+        self.statusBarWidgets.training_data_clicked.connect(
+            self.openOCRTrainingDataDialog
+        )
+
+        # the first-run card
+        self.firstRunCameraMenu = QMenu(ui.pushButton_firstRunCamera)
+        ui.pushButton_firstRunCamera.setMenu(self.firstRunCameraMenu)
+        for button, index in (
+            (ui.pushButton_firstRunFile, SOURCE_INDEX_FILE),
+            (ui.pushButton_firstRunUrl, SOURCE_INDEX_URL),
+            (ui.pushButton_firstRunScreen, SOURCE_INDEX_SCREEN_CAPTURE),
+        ):
+            button.clicked.connect(
+                lambda checked=False, index=index: self.chooseSource(index)
+            )
+        for label in (ui.label_firstRunBoxesHint, ui.label_firstRunOutputsHint):
+            label.setForegroundRole(QPalette.ColorRole.PlaceholderText)
+        self.sourceBarRow = None
+        self.applyViewerStyles()
+        # a narrow window: the view tools show their icons only
+        self.sourceBarRow = source_bar.CompactToolRow(
+            ui.widget_4,
+            [ui.pushButton_binary, ui.toolButton_osd, ui.toolButton_zoomReset],
+            [ui.label, ui.label_boxDisplayStyle],
+        )
+
+    def storedShowOsd(self) -> bool:
+        """Whether the statistics overlay is on. Off for new settings (the
+        status bar shows the same numbers); settings of a version without the
+        choice keep it on, as it was then."""
+        stored = fetch_data("scoresight.json", SHOW_OSD_SETTING)
+        if isinstance(stored, bool):
+            return stored
+        show = any(
+            fetch_data("scoresight.json", key) is not None
+            for key in ("boxes", "source_selected")
+        )
+        self.globalSettingsChanged(SHOW_OSD_SETTING, show)
+        return show
+
+    def applyViewerTexts(self):
+        """The viewer column's texts that are made at runtime."""
+        self.updateSourceBar()
+        self.updateRotateText()
+        self.updateZoomReadout()
+        self.updateFourCornerUi()
+        self.updateSourceBanner()
+        self.ui.label_firstRunQuickstart.setText(source_bar.quickstart_link())
+        if self.sourceBarRow is not None:
+            # the texts' widths changed
+            self.sourceBarRow.refresh()
+        self.updateFirstRunCameraMenu()
+        self.firstRunLook = None
+        self.updateFirstRunCard()
+
+    def applyViewerStyles(self):
+        """The colours of the viewer column's controls, from the palette (again
+        when it changes, e.g. File > Appearance)."""
+        if not hasattr(self, "sourceHealthLook"):
+            return
+        ui = self.ui
+        palette = self.palette()
+        # a checked toggle (Binary View, Stats, Crop, 4-corner, Stabilize) is
+        # filled: on and off are told apart at a glance
+        style = theme.tool_button_style(palette)
+        for row in (ui.widget_4, ui.widget_viewTools):
+            if row.styleSheet() != style:
+                row.setStyleSheet(style)
+        icon_color = theme.button_text_color(palette)
+        for button, kind in (
+            (ui.pushButton_refresh_sources, "reload"),
+            (ui.toolButton_videoSettings, "settings"),
+            (ui.pushButton_binary, "binary"),
+            (ui.toolButton_osd, "stats"),
+            (ui.toolButton_zoomReset, "fit"),
+        ):
+            button.setIcon(theme.tool_icon(kind, icon_color))
+        red = theme.color("empty", palette).name()
+        ui.frame_sourceError.setStyleSheet(
+            "QFrame#frame_sourceError {"
+            f" background-color: {theme.tint('empty', palette).name()};"
+            f" border: 1px solid {red}; border-left: 4px solid {red}; }}"
+        )
+        highlight = palette.color(QPalette.ColorRole.Highlight)
+        ui.frame_fourCornerBanner.setStyleSheet(
+            "QFrame#frame_fourCornerBanner {"
+            f" background-color: rgba({highlight.red()}, {highlight.green()},"
+            f" {highlight.blue()}, 40);"
+            f" border: 1px solid {highlight.name()};"
+            f" border-left: 4px solid {highlight.name()}; }}"
+        )
+        ui.frame_firstRun.setStyleSheet(
+            "QFrame#frame_firstRun {"
+            f" background-color: {palette.color(QPalette.ColorRole.Base).name()};"
+            f" border: 1px solid {palette.color(QPalette.ColorRole.Mid).name()};"
+            " border-radius: 8px; }"
+        )
+        # drawn again in the new colours
+        self.sourceHealthLook = None
+        self.firstRunLook = None
+        self.updateFirstRunCard()
+
+    def setViewToolsEnabled(self, enabled: bool):
+        """The view tools, the Adjust picture row and the crop values work only
+        while the source delivers frames."""
+        for widget in (
+            self.ui.widget_viewOptions,
+            self.ui.widget_viewTools,
+            self.ui.widget_cropPanel,
+        ):
+            widget.setEnabled(enabled)
+
+    def triggerBinaryView(self):
+        """View > Binary View (Ctrl+B), through the button."""
+        self.ui.pushButton_binary.click()
+        # the button does nothing while it's disabled: the action shows its state
+        self.ui.actionBinaryView.setChecked(self.ui.pushButton_binary.isChecked())
+
+    # the source bar
+
+    def fitSourceList(self):
+        """The source combo box is kept narrow (long camera names don't widen
+        the window); its list shows the whole names."""
+        view = self.ui.comboBox_camera_source.view()
+        view.setMinimumWidth(
+            view.sizeHintForColumn(0) + view.verticalScrollBar().sizeHint().width()
+        )
+
+    def updateSourceBar(self):
+        """The source combo box shows the open file, stream or screen ("Video
+        file: game.mp4", the full path in its tooltip). Video settings are for
+        cameras only, the playback speed for video files only."""
+        ui = self.ui
+        combo = ui.comboBox_camera_source
+        viewer = self.image_viewer
+        camera_info = viewer.getCameraInfo() if viewer is not None else None
+        current = combo.currentIndex()
+        open_text = source_bar.source_combo_text(camera_info, self.sourceWindowTitle)
+        full_name = source_bar.source_full_name(camera_info, self.sourceWindowTitle)
+        for index, text in enumerate(source_bar.chooser_texts()):
+            if index >= combo.count():
+                break
+            is_open = bool(open_text) and index == current
+            if is_open:
+                text = self.elidedSourceText(open_text)
+            if combo.itemText(index) != text:
+                combo.setItemText(index, text)
+            combo.setItemData(
+                index, full_name if is_open else None, Qt.ItemDataRole.ToolTipRole
+            )
+        tooltip = QCoreApplication.translate(
+            "MainWindow",
+            "The video source: a camera, capture card or NDI source, a video file, "
+            "a stream URL or a screen capture",
+        )
+        combo.setToolTip(f"{full_name}\n{tooltip}" if full_name else tooltip)
+
+        camera = (
+            camera_info is not None and camera_info.type == CameraInfo.CameraType.OPENCV
+        )
+        ui.toolButton_videoSettings.setEnabled(camera)
+        ui.toolButton_videoSettings.setToolTip(
+            QCoreApplication.translate(
+                "MainWindow",
+                "Video settings: the resolution, frame rate and format of the "
+                "camera or capture card",
+            )
+            if camera
+            else QCoreApplication.translate(
+                "MainWindow",
+                "Video settings: only for cameras and capture cards",
+            )
+        )
+        ui.toolButton_speed.setVisible(
+            camera_info is not None and camera_info.type == CameraInfo.CameraType.FILE
+        )
+
+    def elidedSourceText(self, text: str) -> str:
+        """text shortened in the middle to fit the source combo box (its tooltip
+        has it in full)."""
+        combo = self.ui.comboBox_camera_source
+        option = QStyleOptionComboBox()
+        combo.initStyleOption(option)
+        field = combo.style().subControlRect(
+            QStyle.ComplexControl.CC_ComboBox,
+            option,
+            QStyle.SubControl.SC_ComboBoxEditField,
+            combo,
+        )
+        if field.width() <= 0:
+            return text
+        return combo.fontMetrics().elidedText(
+            text, Qt.TextElideMode.ElideMiddle, field.width() - 2
+        )
+
+    def sourceActivated(self, index: int):
+        """An item of the source list was picked. Picking the open video file,
+        stream or screen capture again asks for another one (Cancel keeps the
+        open one); picking another item is handled by sourceChanged."""
+        reopened = index == self.sourceIndexAtPopup
+        self.sourceIndexAtPopup = None
+        if not reopened or index not in CHOOSER_SOURCE_INDEXES:
+            return
+        chosen = self.askSourceValue(index)
+        if chosen is None:
+            return
+        self.source_name, self.sourceWindowTitle = chosen
+        self.sourceSelectionSucessful()
+
+    def chooseSource(self, index: int):
+        """Pick a source item (e.g. from the first-run card), as in the source
+        combo box."""
+        combo = self.ui.comboBox_camera_source
+        if not combo.isEnabled() or not 0 <= index < combo.count():
+            return
+        if combo.currentIndex() == index:
+            self.sourceChanged(index)
+        else:
+            combo.setCurrentIndex(index)
+
+    def chooseAnotherSource(self):
+        combo = self.ui.comboBox_camera_source
+        combo.setFocus(Qt.FocusReason.OtherFocusReason)
+        combo.showPopup()
+
+    def retrySource(self):
+        """Open the failed source again."""
+        if self.ui.comboBox_camera_source.currentIndex() == SOURCE_INDEX_NONE:
+            return
+        logger.info("Opening the source again")
+        self.sourceSelectionSucessful()
+
+    def updateSourceBanner(self):
+        """The red banner over the picture: why the source can't be read and
+        what to do (Retry, Choose another source, Troubleshooting), or that
+        macOS doesn't let ScoreSight record the screen."""
+        ui = self.ui
+        viewer = self.image_viewer
+        camera_info = viewer.getCameraInfo() if viewer is not None else None
+        permission_missing = bool(
+            camera_info is not None
+            and camera_info.type == CameraInfo.CameraType.SCREEN_CAPTURE
+            and source_bar.screen_recording_allowed() is False
+        )
+        if self.sourceError:
+            headline, hint = source_bar.source_error_text(
+                camera_info, self.sourceWindowTitle
+            )
+        elif permission_missing:
+            headline, hint = source_bar.screen_recording_permission_text()
+        else:
+            ui.frame_sourceError.hide()
+            return
+        text = f"<b>{html.escape(headline, quote=False)}</b>"
+        if hint:
+            text += f" {html.escape(hint, quote=False)}"
+        ui.label_sourceError.setText(text)
+        ui.label_sourceError.setAccessibleName(f"{headline} {hint}".strip())
+        ui.pushButton_retrySource.setVisible(bool(self.sourceError))
+        ui.pushButton_openScreenSettings.setVisible(permission_missing)
+        ui.frame_sourceError.show()
+
+    def updateSourceHealth(self, state: str):
+        """The dot before the source: green while frames arrive, amber while the
+        source opens, is slow, stalls or reconnects, red when it fails (its
+        shape tells the same without colour)."""
+        label = self.ui.label_sourceHealth
+        shape, color_name = source_look(state)
+        palette = self.palette()
+        color = (
+            theme.color(color_name, palette)
+            if color_name
+            else theme.muted_color(palette)
+        )
+        look = (state, color.name())
+        if look != self.sourceHealthLook:
+            self.sourceHealthLook = look
+            label.setPixmap(
+                theme.state_icon(shape, color, 10).pixmap(
+                    QSize(10, 10), self.devicePixelRatioF()
+                )
+            )
+            description = source_state_description(state)
+            label.setToolTip(description)
+            label.setAccessibleName(description)
+
+    # the view tools
+
+    def updateZoomReadout(self, *_):
+        """The zoom readout ("100%"): the size of a picture pixel on screen."""
+        viewer = self.image_viewer
+        text = ""
+        if viewer is not None and getattr(viewer, "firstFrameReceived", False):
+            text = source_bar.zoom_text(viewer.zoomLevel())
+        self.ui.label_zoom.setText(text)
+
+    def zoomIn(self):
+        if self.image_viewer is not None and self.ui.widget_viewOptions.isEnabled():
+            self.image_viewer.zoomIn()
+
+    def zoomOut(self):
+        if self.image_viewer is not None and self.ui.widget_viewOptions.isEnabled():
+            self.image_viewer.zoomOut()
+
+    # Adjust picture
+
+    def updateRotateText(self, rotation=None):
+        if rotation is None:
+            rotation = fetch_data("scoresight.json", "rotation", 0)
+        self.ui.toolButton_rotate.setText(source_bar.rotate_text(rotation))
+
+    def fourCornerClicked(self):
+        """4-corner never removes a correction silently: with one in place it
+        offers to redo the corners or (after a confirmation) to remove it.
+        While picking, it cancels the picking."""
+        viewer = self.image_viewer
+        if viewer is not None:
+            if viewer.fourCornerSelectionMode:
+                viewer.cancelFourCornerSelection()
+            elif viewer.hasFourCornerCorrection():
+                choice = self.askFourCornerAction()
+                if choice == "redo":
+                    viewer.startFourCornerSelection()
+                elif choice == "remove" and self.confirmRemoveFourCornerCorrection():
+                    viewer.removeFourCornerCorrection()
+            else:
+                viewer.startFourCornerSelection()
+        # a click toggled the button: it shows the state again
+        self.updateFourCornerUi()
+
+    def askFourCornerAction(self) -> str | None:
+        """The 4-corner button's menu when a correction is in place: "redo",
+        "remove" or None (Cancel)."""
+        menu = QMenu(self)
+        redo = menu.addAction(QCoreApplication.translate("MainWindow", "Redo corners…"))
+        remove = menu.addAction(
+            QCoreApplication.translate("MainWindow", "Remove correction…")
+        )
+        menu.addSeparator()
+        menu.addAction(QCoreApplication.translate("MainWindow", "Cancel"))
+        button = self.ui.pushButton_fourCorner
+        chosen = menu.exec(button.mapToGlobal(button.rect().bottomLeft()))
+        menu.deleteLater()
+        if chosen is redo:
+            return "redo"
+        if chosen is remove:
+            return "remove"
+        return None
+
+    def confirmRemoveFourCornerCorrection(self) -> bool:
+        answer = QMessageBox.question(
+            self,
+            QCoreApplication.translate("MainWindow", "Remove the 4-corner correction?"),
+            QCoreApplication.translate(
+                "MainWindow",
+                "The picture will no longer be corrected. The boxes were placed on "
+                "the corrected picture, so they may have to be moved.",
+            ),
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.Cancel,
+            QMessageBox.StandardButton.Cancel,
+        )
+        return answer == QMessageBox.StandardButton.Yes
+
+    def cancelFourCornerSelection(self):
+        if self.image_viewer is not None:
+            self.image_viewer.cancelFourCornerSelection()
+        self.updateFourCornerUi()
+
+    def updateFourCornerUi(self, *_):
+        """The 4-corner button is checked while a correction is in place (or
+        corners are picked); while picking, the banner counts the corners."""
+        ui = self.ui
+        viewer = self.image_viewer
+        picking = bool(viewer is not None and viewer.fourCornerSelectionMode)
+        if viewer is not None:
+            corrected = viewer.hasFourCornerCorrection()
+        else:
+            corrected = bool(fetch_data("scoresight.json", "four_corners"))
+        button = ui.pushButton_fourCorner
+        button.setChecked(picking or corrected)
+        if picking:
+            tooltip = QCoreApplication.translate(
+                "MainWindow",
+                "Picking the corners: click the 4 corners of the scoreboard. Click "
+                "here or press Esc to cancel.",
+            )
+        elif corrected:
+            tooltip = QCoreApplication.translate(
+                "MainWindow",
+                "The perspective is corrected. Click to redo the corners or to "
+                "remove the correction.",
+            )
+        else:
+            tooltip = QCoreApplication.translate(
+                "MainWindow",
+                "Correct the perspective: click the 4 corners of the scoreboard",
+            )
+        button.setToolTip(tooltip)
+        ui.frame_fourCornerBanner.setVisible(picking)
+        if picking:
+            ui.label_fourCornerBanner.setText(
+                source_bar.four_corner_banner_text(
+                    viewer.fourCornersPicked(), corrected
+                )
+            )
+
+    # Tools > Collect OCR training data
+
+    def toggleTrainingData(self, collecting: bool):
+        logger.info(
+            "OCR training data collection %s", "started" if collecting else "stopped"
+        )
+        self.globalSettingsChanged(COLLECT_TRAINING_DATA_SETTING, bool(collecting))
+        self.refreshLiveStatus()
+
+    # the first-run card
+
+    def updateFirstRunCameraMenu(self):
+        """The first-run card's Camera menu: the cameras, capture cards and NDI
+        sources found."""
+        menu = self.firstRunCameraMenu
+        menu.clear()
+        combo = self.ui.comboBox_camera_source
+        for index in range(FIRST_CAMERA_SOURCE_INDEX, combo.count()):
+            action = menu.addAction(combo.itemText(index))
+            action.triggered.connect(
+                lambda checked=False, index=index: self.chooseSource(index)
+            )
+        if menu.isEmpty():
+            none = menu.addAction(
+                QCoreApplication.translate("MainWindow", "No camera found")
+            )
+            none.setEnabled(False)
+        menu.addSeparator()
+        menu.addAction(self.ui.actionReloadSources)
+
+    def firstRunSteps(self) -> tuple[bool, bool, bool]:
+        """Which of the first-run card's steps are done: a source is open, a
+        box is on the picture, an output is on (the HTTP server always is)."""
+        source_open = self.image_viewer is not None
+        box_placed = any(
+            not (box.settings or {}).get("templatefield")
+            for box in self.detectionTargetsStorage.get_data()
+        )
+        output_on = any(
+            status.enabled and status.switchable for status in self.lastOutputStatuses
+        )
+        return source_open, box_placed, output_on
+
+    def updateFirstRunCard(self, outputs: list[DestinationStatus] | None = None):
+        """The card shown while no source is open: three steps, each with a
+        check mark once done."""
+        ui = self.ui
+        if outputs is not None:
+            self.lastOutputStatuses = list(outputs)
+        visible = self.image_viewer is None
+        ui.frame_firstRun.setVisible(visible)
+        if not visible:
+            return
+        steps = self.firstRunSteps()
+        if steps != self.firstRunLook:
+            self.firstRunLook = steps
+            palette = self.palette()
+            for number, (label, done) in enumerate(
+                zip(
+                    (
+                        ui.label_firstRunStep1,
+                        ui.label_firstRunStep2,
+                        ui.label_firstRunStep3,
+                    ),
+                    steps,
+                ),
+                start=1,
+            ):
+                label.setPixmap(theme.step_pixmap(number, done, palette))
+                label.setAccessibleName(
+                    (
+                        QCoreApplication.translate("MainWindow", "Step {number}: done")
+                        if done
+                        else QCoreApplication.translate("MainWindow", "Step {number}")
+                    ).format(number=number)
+                )
+        # the sources can be picked once they were looked for
+        enabled = ui.comboBox_camera_source.isEnabled()
+        for button in (
+            ui.pushButton_firstRunCamera,
+            ui.pushButton_firstRunFile,
+            ui.pushButton_firstRunUrl,
+            ui.pushButton_firstRunScreen,
+        ):
+            button.setEnabled(enabled)
 
     def ocrResult(self, results: list[TextDetectionTargetWithResult]):
         # fill in the template fields from the boxes' last good readings; a

@@ -1,10 +1,13 @@
 from PySide6.QtWidgets import (
+    QGraphicsItem,
     QGraphicsView,
     QGraphicsScene,
     QGraphicsPixmapItem,
+    QGraphicsRectItem,
+    QLabel,
 )
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QImage, QPixmap, QPainter
+from PySide6.QtCore import QCoreApplication, Qt
+from PySide6.QtGui import QColor, QImage, QPixmap, QPainter, QTransform
 from PySide6.QtCore import Signal
 
 import warnings
@@ -15,6 +18,7 @@ import cv2
 from camera_info import CameraInfo
 from storage import (
     TextDetectionTargetMemoryStorage,
+    fetch_data,
     subscribe_to_data,
     unsubscribe_from_data,
 )
@@ -23,6 +27,39 @@ from camera_thread import STOP_TIMEOUT_MS, TimerThread
 
 # A four-corner selection must cover at least this many square pixels.
 MIN_FOUR_CORNER_AREA = 100.0
+
+# Around the picture (the viewer is dark in light and dark themes, like the
+# picture it shows)
+VIEWER_BACKGROUND = QColor("#16181C")
+# The statistics overlay: a pill at the viewer's top-left, the same size at
+# every zoom
+OSD_STYLE = (
+    "QLabel { background-color: rgba(11, 11, 11, 218); color: #F0F0F0;"
+    " border: 1px solid rgba(255, 255, 255, 50); border-radius: 5px;"
+    " padding: 3px 7px; }"
+)
+OSD_MARGIN_PX = 8
+# A message over the picture (e.g. an invalid four-corner selection)
+MESSAGE_COLOR = QColor("#FF7B72")
+MESSAGE_BACKGROUND = QColor(11, 11, 11, 218)
+MESSAGE_FONT_PX = 14
+# the show_osd setting
+SHOW_OSD_SETTING = "show_osd"
+
+
+def osd_text(fps, ups, pps, width, height) -> str:
+    """The statistics overlay's lines."""
+    return QCoreApplication.translate(
+        "CameraView",
+        "Frames/s: {fps}\nUpdates/s: {ups}\nPreviews/s: {pps}\n"
+        "Resolution: {width}×{height}",
+    ).format(
+        fps=f"{fps:.1f}",
+        ups=f"{ups:.1f}",
+        pps=f"{pps:.1f}",
+        width=int(width),
+        height=int(height),
+    )
 
 
 def compute_four_corner_homography(corners) -> np.ndarray | None:
@@ -63,6 +100,8 @@ def compute_four_corner_homography(corners) -> np.ndarray | None:
 class CameraView(QGraphicsView):
     first_frame_received_signal = Signal()
     error_signal = Signal(str)
+    # the zoom level changed: screen pixels per picture pixel (1.0 = 100 %)
+    zoom_changed = Signal(float)
 
     def __init__(
         self,
@@ -77,6 +116,7 @@ class CameraView(QGraphicsView):
         self.scene = QGraphicsScene(self)
         self.setScene(self.scene)
         self.setRenderHint(QPainter.RenderHint.Antialiasing)
+        self.setBackgroundBrush(VIEWER_BACKGROUND)
         self.camera_info = camera_index
         self.timerThread = TimerThread(camera_index, detectionTargetsStorage)
         self.timerThread.update_signal.connect(self.update_pixmap)
@@ -86,12 +126,20 @@ class CameraView(QGraphicsView):
         self.scenePixmapItem = None
         self.detectionTargetsStorage = detectionTargetsStorage
         self.firstFrameReceived = False
-        self.fps_text = None
         self.error_text = None
-        self.showOSD = True
         self.camera_width = 0
         self.camera_height = 0
+        self._zoom = None
+        # the statistics overlay: a child of the view, not of its viewport, so
+        # it stays at the top-left when the picture is scrolled
+        self.osd = QLabel(self)
+        self.osd.setObjectName("label_osd")
+        self.osd.setStyleSheet(OSD_STYLE)
+        self.osd.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
+        self.osd.setVisible(False)
+        self.showOSD = bool(fetch_data("scoresight.json", SHOW_OSD_SETTING, False))
         subscribe_to_data("scoresight.json", "video_settings", self.resetFrame)
+        subscribe_to_data("scoresight.json", SHOW_OSD_SETTING, self.toggleOSD)
         if start:
             self.startCapture()
 
@@ -118,9 +166,36 @@ class CameraView(QGraphicsView):
             self.timerThread.updateOnChange = updateOnChange
 
     def toggleOSD(self, state):
-        self.showOSD = state
-        if self.fps_text is not None:
-            self.fps_text.setVisible(state)
+        self.showOSD = bool(state)
+        # shown once there are statistics to show
+        self.osd.setVisible(self.showOSD and bool(self.osd.text()))
+
+    def zoomLevel(self) -> float:
+        """Screen pixels per picture pixel (1.0 = 100 %)."""
+        return abs(self.transform().m11())
+
+    def emitZoom(self):
+        """Signal the zoom level if it changed (after scaling or fitting)."""
+        zoom = self.zoomLevel()
+        if zoom != self._zoom:
+            self._zoom = zoom
+            self.zoom_changed.emit(zoom)
+
+    def fitPicture(self):
+        """Show the whole picture."""
+        self.resetTransform()
+        self.fitInView(self.scene.sceneRect(), Qt.AspectRatioMode.KeepAspectRatio)
+        self.emitZoom()
+
+    def placeOSD(self):
+        viewport = self.viewport().geometry()
+        self.osd.adjustSize()
+        self.osd.move(viewport.left() + OSD_MARGIN_PX, viewport.top() + OSD_MARGIN_PX)
+        self.osd.raise_()
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self.placeOSD()
 
     def update_pixmap(self, frame):
         if self.timerThread is None:
@@ -154,7 +229,9 @@ class CameraView(QGraphicsView):
             self.scenePixmapItem = QGraphicsPixmapItem(pixmap)
             self.scene.addItem(self.scenePixmapItem)
             self.scenePixmapItem.setZValue(0)
-            self.fitInView(self.scenePixmapItem, Qt.AspectRatioMode.KeepAspectRatio)
+            # the scene is the picture (the boxes' labels never widen it)
+            self.scene.setSceneRect(0, 0, pixmap.width(), pixmap.height())
+            self.fitPicture()
         else:
             refit = False
             # check if the pixmap is the same size as the current one
@@ -166,7 +243,7 @@ class CameraView(QGraphicsView):
                 self.scene.setSceneRect(0, 0, pixmap.width(), pixmap.height())
                 logger.info(f"scene size: {self.scene.sceneRect()}")
                 logger.info(f"Refitting view to new pixmap size: {pixmap.size()}")
-                self.fitInView(self.scenePixmapItem, Qt.AspectRatioMode.KeepAspectRatio)
+                self.fitPicture()
                 self.centerOn(self.scenePixmapItem)
 
         # the source's resolution, as read by the capture thread (asking the
@@ -177,18 +254,19 @@ class CameraView(QGraphicsView):
             self.firstFrameReceived = True
             self.first_frame_received_signal.emit()
 
-        # update the fps text
-        fps_text = f"Frames/s: {self.timerThread.fps:.2f}\nUpdates/s: {self.timerThread.ups:.2f}\nPreviews/s: {self.timerThread.pps:.2f}\nResolution: {int(self.camera_width)}x{int(self.camera_height)}"
-        if self.fps_text is None:
-            self.fps_text = self.scene.addText(fps_text)
-            self.fps_text.setPos(0, 0)
-            self.fps_text.setZValue(2)
-            self.fps_text.setDefaultTextColor(Qt.GlobalColor.white)
-            self.fps_text.setVisible(self.showOSD)
-        else:
-            self.fps_text.setPlainText(fps_text)
-        # scale the text according to the view size so its always the same size
-        self.fps_text.setScale(0.0015 * self.scenePixmapItem.boundingRect().width())
+        # the statistics overlay (translated; the same size at every zoom)
+        if self.showOSD:
+            self.osd.setText(
+                osd_text(
+                    self.timerThread.fps,
+                    self.timerThread.ups,
+                    self.timerThread.pps,
+                    self.camera_width,
+                    self.camera_height,
+                )
+            )
+            self.placeOSD()
+        self.osd.setVisible(self.showOSD)
 
     def show_error_text(self, error):
         """Show an error message at the bottom of the view (None clears it),
@@ -199,20 +277,37 @@ class CameraView(QGraphicsView):
             self.scene.removeItem(self.error_text)
             self.error_text = None
         if error is not None:
-            # add the error to the scene
-            self.error_text = self.scene.addText(f"⚠️ {error}")
-            self.error_text.setDefaultTextColor(Qt.GlobalColor.red)
-            self.error_text.setScale(0.004 * self.width())
-            # diplay error on the bottom of the video view
-            self.error_text.setPos(
-                0, self.height() - self.error_text.boundingRect().height() - 10
+            # at the picture's bottom left, the same size at every zoom, on a
+            # dark background
+            self.error_text = self.scene.addText(f"⚠ {error}")
+            self.error_text.setDefaultTextColor(MESSAGE_COLOR)
+            font = self.error_text.font()
+            font.setPixelSize(MESSAGE_FONT_PX)
+            font.setBold(True)
+            self.error_text.setFont(font)
+            self.error_text.setFlag(
+                QGraphicsItem.GraphicsItemFlag.ItemIgnoresTransformations
+            )
+            self.error_text.setZValue(20)
+            text_rect = self.error_text.boundingRect()
+            background = QGraphicsRectItem(text_rect, self.error_text)
+            background.setFlag(QGraphicsItem.GraphicsItemFlag.ItemStacksBehindParent)
+            background.setBrush(MESSAGE_BACKGROUND)
+            background.setPen(Qt.PenStyle.NoPen)
+            picture = self.scene.sceneRect()
+            self.error_text.setPos(picture.left(), picture.bottom())
+            # above the anchor, in screen pixels
+            self.error_text.setTransform(
+                QTransform.fromTranslate(
+                    OSD_MARGIN_PX, -text_rect.height() - OSD_MARGIN_PX
+                )
             )
 
     def error_event(self, error):
-        """A source error (e.g. it can't be played): shown in the view and
-        reported through error_signal, which disables the main window's view
-        tools."""
-        self.show_error_text(error)
+        """A source error (e.g. it can't be played): reported through
+        error_signal. The main window shows it in its source error banner (with
+        Retry) and disables the view tools; the in-scene text
+        (show_error_text) is for messages that aren't source failures."""
         if error is not None:
             logger.error("Error: %s", error)
             self.error_signal.emit(error)
@@ -239,6 +334,7 @@ class CameraView(QGraphicsView):
             return
         self.timerThread = None
         unsubscribe_from_data("scoresight.json", "video_settings", self.resetFrame)
+        unsubscribe_from_data("scoresight.json", SHOW_OSD_SETTING, self.toggleOSD)
         # nothing a stopping thread still emits may reach the UI
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", RuntimeWarning)
