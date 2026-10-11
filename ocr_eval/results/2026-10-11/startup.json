@@ -1,0 +1,80 @@
+{
+  "method": "Each number is the median (and minimum) of 7 fresh Python processes that first import numpy and cv2 (ScoreSight has loaded them before any OCR engine), then import onnxruntime, create the model's InferenceSession (1 intra-op thread, CPU provider, the model in the Hugging Face cache) and run it twice on a 48x320 input.",
+  "python": "3.13.2",
+  "onnxruntime": "1.31.0",
+  "machine": "Intel Core i9-14900K, Windows 11",
+  "models": {
+    "v6-tiny": {
+      "import_ms": {
+        "median": 66.4,
+        "min": 62.3
+      },
+      "load_ms": {
+        "median": 20.2,
+        "min": 19.9
+      },
+      "first_ms": {
+        "median": 3.9,
+        "min": 3.8
+      },
+      "second_ms": {
+        "median": 3.1,
+        "min": 3.1
+      }
+    },
+    "v6-small": {
+      "import_ms": {
+        "median": 66.3,
+        "min": 61.5
+      },
+      "load_ms": {
+        "median": 59.6,
+        "min": 58.5
+      },
+      "first_ms": {
+        "median": 17.5,
+        "min": 17.4
+      },
+      "second_ms": {
+        "median": 16.1,
+        "min": 15.7
+      }
+    },
+    "v6-medium": {
+      "import_ms": {
+        "median": 65.9,
+        "min": 63.8
+      },
+      "load_ms": {
+        "median": 125.5,
+        "min": 124.7
+      },
+      "first_ms": {
+        "median": 78.5,
+        "min": 77.1
+      },
+      "second_ms": {
+        "median": 77.1,
+        "min": 76.1
+      }
+    },
+    "v5-en-mobile": {
+      "import_ms": {
+        "median": 65.7,
+        "min": 62.5
+      },
+      "load_ms": {
+        "median": 109.0,
+        "min": 108.2
+      },
+      "first_ms": {
+        "median": 15.4,
+        "min": 15.3
+      },
+      "second_ms": {
+        "median": 14.8,
+        "min": 14.7
+      }
+    }
+  }
+}
