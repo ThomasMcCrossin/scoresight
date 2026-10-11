@@ -24,8 +24,8 @@ ScoreSight's readings can reach most broadcast graphics and streaming products t
 
 | Product | Status | How | Guide |
 |---|---|---|---|
-| **vMix** | Works | Built-in vMix output (Web API `SetText`); or a Data Source on `/xml?pivot&all`, `/csv?pivot&all` or `/json?array` | [vMix](vmix.md) |
-| **OBS Studio** | Works | Built-in OBS output (WebSocket); or a Browser Source, or *Text (Read from file)* | [OBS Studio](obs.md) |
+| **vMix** | Works | Built-in vMix output (Web API `SetText`). Untested alternative: a Data Source on `/xml?pivot&all`, `/csv?pivot&all` or `/json?array` | [vMix](vmix.md) |
+| **OBS Studio** | Works | Built-in OBS output (WebSocket); or a Browser Source on `/scoresight`, or *Text (Read from file)* | [OBS Studio](obs.md) |
 | **overlays.uno** | Works | Built-in UNO output | [Overlays.uno](uno.md) |
 | **Wirecast** | Works, untested | Text sources reading the per-field `.txt` files; or a Web Page source | [Wirecast](#wirecast) |
 | **NewBlue Captivate** | Works, untested | Outbound API push to Captivate's Simple Variable Update; or Captivate's JSON/XML reader polling ScoreSight | [NewBlue Captivate](#newblue-captivate) |
@@ -34,7 +34,7 @@ ScoreSight's readings can reach most broadcast graphics and streaming products t
 | **TriCaster** (Vizrt) | Works, untested | Outbound API preset **TriCaster DataLink**; or a Live Link web buffer | [TriCaster](#tricaster) |
 | **Epiphan Pearl** | Works, untested | Outbound API preset **Epiphan Pearl** (custom variables) | [Epiphan Pearl](#epiphan-pearl) |
 | **Magewell Director** | Partly, untested | A Webpage GFX showing an HTML page; the built-in scoreboards only for scores | [Magewell Director](#magewell-director) |
-| **CasparCG** | Partly | An HTML template that polls `/json?pivot&all` | [CasparCG](#casparcg) |
+| **CasparCG** | Partly, untested | An HTML template that polls `/json?pivot&all` | [CasparCG](#casparcg) |
 | **Singular.live** | Partly, untested | Outbound API to a Data Stream, plus a composition script | [Singular.live](#singularlive) |
 | **Viz Flowics** | Partly, untested | Outbound API to a JSON HTTP Push input; or the Data Bridge polling ScoreSight | [Viz Flowics](#viz-flowics) |
 | **Chyron PRIME** | Partly, untested | A Data object polling `/json?pivot&all`, with a timer that runs Update | [Chyron PRIME](#chyron-prime) |
@@ -180,7 +180,7 @@ Notes: ScoreSight doesn't serve custom pages, so your own overlay page has to be
 
 ## CasparCG
 
-**Partly.** CasparCG has no file or HTTP data source, but its HTML templates can fetch the values from ScoreSight.
+**Partly, untested.** CasparCG has no file or HTTP data source, but its HTML templates can fetch the values from ScoreSight.
 
 Quick test: from the CasparCG client (or a telnet session to port 5250), send `PLAY 1-20 [HTML] "http://<scoresight-ip>:18099/scoresight"` to show the demo page; `CLEAR 1-20` removes it.
 

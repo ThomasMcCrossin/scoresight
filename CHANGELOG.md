@@ -25,7 +25,7 @@ Release tags are the bare version number (for example `0.1.0`).
 - **HTTP server**: `?pivot&all` on `/json`, `/xml` and `/csv` gives every
   field with its last good value, so columns never come and go, and
   `/json?array` gives it as an array of one row, the shape vMix JSON Data
-  Sources read. Responses are never cached, and a page on a public site may
+  Sources expect (untested with vMix). Responses are never cached, and a page on a public site may
   read a ScoreSight on the local network. The existing URLs answer as before.
 - **Text files**: optional `results.json` (one object) and `results.txt`
   (`key=value` lines), for SuiteCG and similar.

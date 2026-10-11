@@ -112,7 +112,7 @@ Instead of the direct integration, you can feed vMix titles from ScoreSight's HT
 - Use `&all` (or the JSON `?array`, which includes it): every field is then always there with its last good value. Without it, a field whose reading is rejected for a moment is missing from that poll, and vMix may blank its title field.
 - Set the Data Source's refresh interval to 250–500 ms.
 
-These setups follow vMix's documentation and haven't been tested by the ScoreSight project with every vMix version. The direct integration above sends each change as it happens, and is the one we recommend.
+These setups are **untested**: they follow vMix's documentation (and, for JSON, a vMix forum answer saying it needs an array). The direct integration above sends each change as it happens, and is the one we recommend.
 
 ## Troubleshooting
 
