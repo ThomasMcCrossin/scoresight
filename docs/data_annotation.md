@@ -19,9 +19,9 @@ ScoreSight can save the image of every new reading together with the text it rec
 
 ## 1. Set up the training data folder
 
-Open **File** > **OCR Training Data Setup**:
+Open **Tools** > **OCR Training Data Setup** (it was in the **File** menu before):
 
-![The OCR Training Data Setup item in the File menu](image-25.png)
+![The Tools menu with Collect OCR training data and OCR Training Data Setup](image-25.png)
 
 ![The OCR Training Data Setup dialog](image-26.png)
 
@@ -40,9 +40,9 @@ In ScoreSight 0.1.x a changed **Save Folder** was ignored and samples always wen
 
 ## 2. Collect samples
 
-Click **Save OCR Training Data** (top right of the main window) to start collecting, and click it again to stop:
+Choose **Tools** > **Collect OCR training data** to start collecting, and choose it again to stop. It replaces the **Save OCR Training Data** button of 0.2.0 (the setting is the same, so it stays on if it was on), and the choice is remembered. While it is on, the status bar shows **Collecting training data** with a red dot, so it doesn't fill the folder unnoticed; click it to open the setup:
 
-![The Save OCR Training Data button](image-24.png)
+![The status bar while training data is collected](image-24.png)
 
 While it is on, every new reading (green) and every reading rejected by a filter (yellow) saves three files per box into the training data folder. The rejected readings are often the most useful ones to annotate. Empty and unchanged readings, template fields and boxes that are entirely outside the picture are not saved:
 

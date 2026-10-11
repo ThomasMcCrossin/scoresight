@@ -58,6 +58,7 @@ SELF_TEST_MODULES = (
     "resource_path",
     "sc_logging",
     "screen_capture_source",
+    "source_bar",
     "source_view",
     "startup_timing",
     "status_bar",

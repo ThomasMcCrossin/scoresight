@@ -122,6 +122,25 @@ your outputs and sources do, and adds profiles for running several instances.
   isn't a valid regular expression is shown in red with *Not a valid
   expression, so it is ignored* (the OCR accepted every reading without a
   word), and its tooltip says what is wrong.
+- The source shows whether it works. The **Source** drop-down names what's
+  open (*Video file: final.mp4*, *Stream: rtsp://...* without the password,
+  *Screen: ...*, with the full path or address in its tooltip), and a dot
+  before it tells its state: ● frames arrive, ▲ opening, slow, stalled or
+  reconnecting, ■ failed. When a source can't be opened or read, a red banner
+  says why and what to do, with **Retry**, **Choose another source** and
+  **Troubleshooting** (it replaces the large red "Unable to play video stream"
+  over the picture). On macOS, a screen capture without the Screen Recording
+  permission says so, with **Open System Settings**.
+- A first-run card in the viewer while no source is open: **Choose a source**
+  (Camera, Video file…, Stream URL…, Screen…), **Place fields** and **Send
+  them**, each with a check mark once done, and a link to the 5-minute
+  Quickstart.
+- The selected box moves with the arrow keys, by 1 pixel or by 10 with
+  **Shift**.
+- Zoom with **Ctrl+=** and **Ctrl+-**, with the zoom level shown next to
+  **Fit**.
+- **View** and **Tools** menus with the view tools, **Pause outputs**,
+  **Reload sources** and the OCR training data, showing their shortcuts.
 
 ### Changed
 
@@ -262,6 +281,14 @@ your outputs and sources do, and adds profiles for running several instances.
   banner over the picture shows since when (with a **Resume outputs**
   button), the values in the boxes list are marked *not sent*, the window
   title starts with ⏸ and the status bar shows how long they have been paused.
+- **The whole window is translated** into the 12 languages (German, Spanish,
+  French, Italian, Japanese, Korean, Dutch, Polish, Brazilian and European
+  Portuguese, Russian, Chinese). Before, most of it showed English in every
+  language. The new translations are machine drafts, marked for review in the
+  translation files: corrections from native speakers are welcome (see
+  `docs/development/translations.md`). The Video Settings, Logs, About and
+  stream URL window titles are translated too, and the settings panel widens
+  to fit a long language instead of cutting labels off.
 - The **File** menu is translated, and **File > Language** lists each language
   in its own language (Deutsch, Français, 日本語, ...) with the current one
   ticked.
@@ -276,6 +303,35 @@ your outputs and sources do, and adds profiles for running several instances.
   tab: select an output to show its settings under the list. The settings are
   the same as on the tabs, and a divider between the list and the settings
   gives the vMix and UNO mapping tables as much room as you need.
+- The boxes on the picture are easier to read and no longer hide what they
+  read. Each box has one label, under it (above it, or inside it, when
+  there's no room), that covers no other box: a symbol for the state of the
+  latest reading (✓ new, = unchanged, ! rejected, ∅ empty, instead of colours
+  alone and `EMP`), the box's name and the reading, the same size at every
+  zoom. Boxes are a light blue line with a dark edge, visible on red LED
+  digits; the selected box has the highlight colour and white handles.
+- The statistics overlay (**Stats**, was **OSD**) has a fixed size (it grew
+  with the picture), is translated, and is off for new installations (the
+  status bar shows the same numbers); it stays on if you used it before, and
+  the choice is now remembered.
+- **4-corner Correction** (now **4-corner**) no longer removes the correction
+  when clicked. With a correction in place it offers **Redo corners…**,
+  **Remove correction…** (asks first) and **Cancel**. While you pick corners,
+  a banner counts them, the boxes hide, and **Esc** keeps the previous
+  correction, which is replaced only by the fourth valid click.
+- The view tools moved next to the source (**Binary View**, **Boxes:**,
+  **Stats**, **Fit**, was **1:1**), and the picture adjustments have their own
+  row: **Adjust picture:** **Rotate** (showing the angle), **Crop**,
+  **4-corner**, **Stabilize**. A tool that is on is filled with the highlight
+  colour, and in a narrow window the view tools show icons only. Reload and
+  Video settings are icons; Video settings says why it's disabled for
+  sources other than cameras.
+- The playback speed of video files moved from the crop panel to the source
+  bar, shown for video files only, and starts at ×1 for each new file.
+- **Save OCR Training Data** is now **Tools** > **Collect OCR training data**,
+  with a **Collecting training data** chip in the status bar while it's on.
+  **OCR Training Data Setup** moved from **File** to **Tools**.
+- The viewer is dark around the picture in both light and dark themes.
 
 ### Fixed
 
