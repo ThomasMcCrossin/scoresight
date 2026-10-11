@@ -118,7 +118,7 @@
       <item row="2" column="1">
        <widget class="QSpinBox" name="spinBox_maxSize">
         <property name="suffix">
-         <string>Mb</string>
+         <string>MB</string>
         </property>
         <property name="minimum">
          <number>1</number>

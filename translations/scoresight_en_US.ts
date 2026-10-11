@@ -498,7 +498,7 @@
     <message>
         <location filename="../src/mainwindow.ui" line="94"/>
         <location filename="../src/mainwindow.ui" line="3483"/>
-        <location filename="../src/mainwindow.py" line="1593"/>
+        <location filename="../src/mainwindow.py" line="1599"/>
         <source>Pause outputs</source>
         <translation type="unfinished"></translation>
     </message>
@@ -550,6 +550,11 @@
     <message>
         <location filename="../src/mainwindow.ui" line="1837"/>
         <source>Shear the image horizontally to straighten slanted (italic) digits (0 = off)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="1908"/>
+        <source>Invert colors</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -713,7 +718,7 @@
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2700"/>
-        <location filename="../src/mainwindow.py" line="2189"/>
+        <location filename="../src/mainwindow.py" line="2195"/>
         <source>Connect to the WebSocket server of OBS Studio</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1163,11 +1168,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1908"/>
-        <source>Invert colours</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../src/mainwindow.ui" line="1915"/>
         <source>Crop the box to the area with bright pixels, plus a margin, before OCR. Formerly “Auto Crop”.</source>
         <translation type="unfinished"></translation>
@@ -1474,7 +1474,7 @@
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2715"/>
-        <location filename="../src/mainwindow.py" line="2187"/>
+        <location filename="../src/mainwindow.py" line="2193"/>
         <source>Connect OBS</source>
         <translation>Connect OBS</translation>
     </message>
@@ -1538,7 +1538,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1545"/>
+        <location filename="../src/mainwindow.py" line="1551"/>
         <source>Version {version}</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1582,94 +1582,109 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1199"/>
-        <location filename="../src/mainwindow.py" line="1202"/>
+        <location filename="../src/mainwindow.py" line="1201"/>
+        <location filename="../src/mainwindow.py" line="1204"/>
         <source>{value} /s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1614"/>
+        <location filename="../src/mainwindow.py" line="1503"/>
+        <source>Logs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.py" line="1548"/>
+        <source>About ScoreSight</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.py" line="1620"/>
         <source>&lt;b&gt;Outputs paused&lt;/b&gt; since {time}. Your graphics show the last values sent; the readings here keep updating.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1858"/>
+        <location filename="../src/mainwindow.py" line="1864"/>
         <source>Only custom fields can be renamed or deleted</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1904"/>
+        <location filename="../src/mainwindow.py" line="1910"/>
         <source>Remove “{name}” from the picture? Its settings go back to the defaults, so the settings you changed are lost.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1909"/>
+        <location filename="../src/mainwindow.py" line="1915"/>
         <source>Remove</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1921"/>
+        <location filename="../src/mainwindow.py" line="1927"/>
         <source>Delete the field “{name}”? Its box and its settings are deleted too.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1925"/>
+        <location filename="../src/mainwindow.py" line="1931"/>
         <source>Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1992"/>
+        <location filename="../src/mainwindow.py" line="1998"/>
         <source>Connect to OBS</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2054"/>
-        <location filename="../src/mainwindow.py" line="2180"/>
+        <location filename="../src/mainwindow.py" line="2060"/>
+        <location filename="../src/mainwindow.py" line="2186"/>
         <source>Connecting...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2101"/>
+        <location filename="../src/mainwindow.py" line="2107"/>
         <source>Cannot connect to OBS</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2171"/>
+        <location filename="../src/mainwindow.py" line="2177"/>
         <source>Change connection...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2174"/>
+        <location filename="../src/mainwindow.py" line="2180"/>
         <source>Connected to OBS at {target}. Click to connect to another OBS.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2182"/>
+        <location filename="../src/mainwindow.py" line="2188"/>
         <source>Connecting to OBS at {target}...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2438"/>
+        <location filename="../src/mainwindow.py" line="2423"/>
+        <source>URL Source</source>
+        <translation type="unfinished">URL Source</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.py" line="2446"/>
         <source>Screen Capture Selection</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2445"/>
+        <location filename="../src/mainwindow.py" line="2453"/>
         <source>Capture the entire screen</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2773"/>
+        <location filename="../src/mainwindow.py" line="2781"/>
         <source>Rename field</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2779"/>
+        <location filename="../src/mainwindow.py" line="2787"/>
         <source>New name:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2791"/>
+        <location filename="../src/mainwindow.py" line="2799"/>
         <source>There is already a field named “{name}”. Choose another name.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1734,7 +1749,7 @@
     <message>
         <location filename="../src/mainwindow.ui" line="245"/>
         <location filename="../src/mainwindow.ui" line="3388"/>
-        <location filename="../src/mainwindow.py" line="1903"/>
+        <location filename="../src/mainwindow.py" line="1909"/>
         <source>Remove from picture</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1750,7 +1765,7 @@
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="271"/>
-        <location filename="../src/mainwindow.py" line="1920"/>
+        <location filename="../src/mainwindow.py" line="1926"/>
         <source>Delete field</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1776,6 +1791,7 @@
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="430"/>
+        <location filename="../src/mainwindow.py" line="1031"/>
         <source>Video Settings</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1943,7 +1959,7 @@
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="868"/>
-        <location filename="../src/mainwindow.py" line="1591"/>
+        <location filename="../src/mainwindow.py" line="1597"/>
         <source>Resume outputs</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2003,7 +2019,7 @@
     </message>
     <message>
         <location filename="../src/ocr_training_data_dialog.ui" line="121"/>
-        <source>Mb</source>
+        <source>MB</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

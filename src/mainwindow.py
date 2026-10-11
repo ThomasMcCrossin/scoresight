@@ -1027,7 +1027,9 @@ class MainWindow(QMainWindow):
         if self.video_settings_dialog is None:
             # open the logs dialog
             self.video_settings_dialog = VideoSettingsDialog()
-            self.video_settings_dialog.setWindowTitle("Video Settings")
+            self.video_settings_dialog.setWindowTitle(
+                QCoreApplication.translate("MainWindow", "Video Settings")
+            )
 
         self.video_settings_dialog.init_ui(self.image_viewer.getCameraCapture())
 
@@ -1497,7 +1499,9 @@ class MainWindow(QMainWindow):
         if self.log_dialog is None:
             # open the logs dialog
             self.log_dialog = LogViewerDialog()
-            self.log_dialog.setWindowTitle("Logs")
+            self.log_dialog.setWindowTitle(
+                QCoreApplication.translate("MainWindow", "Logs")
+            )
 
         # show the dialog, non modal
         self.log_dialog.show()
@@ -1540,7 +1544,9 @@ class MainWindow(QMainWindow):
         about_dialog = QDialog(self)
         about_dialog.ui = Ui_About()
         about_dialog.ui.setupUi(about_dialog)
-        about_dialog.setWindowTitle("About ScoreSight")
+        about_dialog.setWindowTitle(
+            QCoreApplication.translate("MainWindow", "About ScoreSight")
+        )
         about_dialog.ui.label_version.setText(
             QCoreApplication.translate("MainWindow", "Version {version}").format(
                 version=__version__
@@ -2413,7 +2419,9 @@ class MainWindow(QMainWindow):
             url_dialog = QDialog()
             ui_urlsource = Ui_UrlSource()
             ui_urlsource.setupUi(url_dialog)
-            url_dialog.setWindowTitle("URL Source")
+            url_dialog.setWindowTitle(
+                QCoreApplication.translate("MainWindow", "URL Source")
+            )
             # focus on url input
             ui_urlsource.lineEdit_url.setFocus()
             url_dialog.exec()  # wait for the dialog to close

@@ -421,12 +421,18 @@ def test_language_change_keeps_the_runtime_texts(
     main_window.changeLanguage("de_DE")
     try:
         assert ui.pushButton_stopUpdates.isChecked()
-        assert ui.pushButton_stopUpdates.text() == "Resume outputs"
+        # (texts in the language loaded, whether they're translated or not)
+        tr = QCoreApplication.translate
+        assert ui.pushButton_stopUpdates.text() == tr("MainWindow", "Resume outputs")
         assert ui.frame_pausedBanner.isVisibleTo(main_window)
         assert ui.label_pausedBanner.text() != ""
         assert main_window.windowTitle().startswith("⏸ ")
-        assert ui.label_confThreshValue.text() == "45 %"
-        assert ui.label_detectionCadenceValue.text() == "5 /s"
+        assert ui.label_confThreshValue.text() == tr("BoxSettings", "{value} %").format(
+            value=45
+        )
+        assert ui.label_detectionCadenceValue.text() == tr(
+            "MainWindow", "{value} /s"
+        ).format(value=5)
         shortcut = QKeySequence("Ctrl+Shift+P").toString(
             QKeySequence.SequenceFormat.NativeText
         )
@@ -445,7 +451,6 @@ def test_language_change_keeps_the_runtime_texts(
         assert ui.label_selectedInfo.text() == "Home Score"
         assert ui.toolButton_imageCleanup.isChecked()
         assert ui.frame_imageCleanup.isVisibleTo(ui.tab_box)
-        # (in the language loaded, whether these strings are translated or not)
         assert ui.label_imageCleanupBadge.text() == QCoreApplication.translate(
             "BoxSettings", "%n changed", None, 1
         )
@@ -487,19 +492,23 @@ def test_language_change_keeps_the_output_controls(
     assert connect_text == "Change connection..."
     main_window.changeLanguage("de_DE")
     try:
-        assert main_window.ui.pushButton_startvmix.text() == vmix_text
-        assert main_window.ui.toolButton_toggleUno.text() == uno_text
+        # (texts in the language loaded, whether they're translated or not)
+        tr = QCoreApplication.translate
+        assert main_window.ui.pushButton_startvmix.text() == tr("MainWindow", vmix_text)
+        assert main_window.ui.toolButton_toggleUno.text() == tr("MainWindow", uno_text)
         assert main_window.ui.lineEdit_sceneName.text() == "Court 2"
         assert main_window.ui.toolButton_speed.text() == "x4"
         # retranslateUi set "Connect OBS" again; the selected destination and
         # its page stay
-        assert ui.pushButton_connectObs.text() == connect_text
+        assert ui.pushButton_connectObs.text() == tr("MainWindow", connect_text)
         assert ui.pushButton_disconnectObs.isEnabled()
         assert ui.listView_destinations.currentIndex().row() == 2
         assert ui.stackedWidget_outputs.currentWidget() is ui.tab_obs
         model = main_window.destinationsModel
         assert all(model.item(row).text() for row in range(model.rowCount()))
-        assert model.status("obs").detail == "Connected to obs-pc:4455"
+        assert model.status("obs").detail == tr(
+            "OutputStatus", "Connected to {target}"
+        ).format(target="obs-pc:4455")
         buttons = main_window.statusBarWidgets.output_buttons
         assert all(button.text() for button in buttons.values())
         assert main_window.statusBarWidgets.label_outputs.text().strip()

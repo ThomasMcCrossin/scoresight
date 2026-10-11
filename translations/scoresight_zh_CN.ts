@@ -6,64 +6,76 @@
     <message>
         <location filename="../src/box_settings_ui_handler.py" line="64"/>
         <source>Off</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">关</translation>
     </message>
     <message>
         <location filename="../src/box_settings_ui_handler.py" line="68"/>
         <source>{value} %</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">{value}%</translation>
     </message>
     <message>
         <location filename="../src/box_settings_ui_handler.py" line="372"/>
         <source>This field is built from other fields (see Template): it has no box on the picture and no reading settings.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">此字段由其他字段组成（见“模板”）：它在画面上没有检测框，也没有识别设置。</translation>
     </message>
     <message>
         <location filename="../src/box_settings_ui_handler.py" line="378"/>
         <source>This field isn&apos;t on the picture yet. Click Place on picture under the list, then drag its box over the value.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">此字段尚未放到画面上。请点击列表下方的“放到画面上”，然后将其检测框拖到数值上。</translation>
     </message>
     <message>
         <location filename="../src/box_settings_ui_handler.py" line="388"/>
         <source>Template: only custom fields can be built from other fields.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">模板：只有自定义字段才能由其他字段组成。</translation>
     </message>
     <message>
         <location filename="../src/box_settings_ui_handler.py" line="393"/>
         <source>To build this field from other fields instead, remove it from the picture first.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">若要改为由其他字段组成此字段，请先将其从画面移除。</translation>
     </message>
     <message>
         <location filename="../src/box_settings_ui_handler.py" line="399"/>
         <source>Each field in double braces is replaced by its value. Insert field adds one, spelled exactly as the template needs it.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">双花括号中的每个字段都会被替换为其值。“插入字段”会按模板所需的准确写法添加一个字段。</translation>
     </message>
     <message>
         <location filename="../src/box_settings_ui_handler.py" line="490"/>
         <source>Not a valid expression, so it is ignored: every reading passes.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">表达式无效，因此被忽略：所有读数都会通过。</translation>
     </message>
     <message numerus="yes">
         <location filename="../src/box_settings_ui_handler.py" line="531"/>
         <source>%n changed</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">
-            <numerusform></numerusform>
+            <numerusform>已更改 %n 项</numerusform>
         </translation>
     </message>
     <message>
         <location filename="../src/box_settings_ui_handler.py" line="535"/>
         <source>all default</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">全部为默认值</translation>
     </message>
     <message>
         <location filename="../src/box_settings_ui_handler.py" line="568"/>
         <source>{name} (not on the picture)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">{name}（不在画面上）</translation>
     </message>
     <message>
         <location filename="../src/box_settings_ui_handler.py" line="575"/>
         <source>No other fields</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">没有其他字段</translation>
     </message>
 </context>
 <context>
@@ -118,7 +130,8 @@
     <message>
         <location filename="../src/connect_obs.ui" line="70"/>
         <source>Show password</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">显示密码</translation>
     </message>
     <message>
         <location filename="../src/connect_obs.ui" line="97"/>
@@ -128,7 +141,8 @@
     <message>
         <location filename="../src/connect_obs.ui" line="107"/>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">取消</translation>
     </message>
     <message>
         <location filename="../src/log_view.ui" line="14"/>
@@ -148,7 +162,8 @@
     <message>
         <location filename="../src/log_view.ui" line="45"/>
         <source>Open on startup</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">启动时打开</translation>
     </message>
     <message>
         <location filename="../src/screen_capture.ui" line="14"/>
@@ -168,22 +183,26 @@
     <message>
         <location filename="../src/update_available.ui" line="35"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;A new version of ScoreSight is available!&lt;/p&gt;&lt;p&gt;Download it from &lt;a href=&quot;https://github.com/royshil/scoresight/releases/latest&quot;&gt;GitHub Releases&lt;/a&gt;.&lt;/p&gt;&lt;p&gt;Your settings carry over to the new version.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;ScoreSight 有新版本可用！&lt;/p&gt;&lt;p&gt;请从 &lt;a href=&quot;https://github.com/royshil/scoresight/releases/latest&quot;&gt;GitHub Releases&lt;/a&gt; 下载。&lt;/p&gt;&lt;p&gt;您的设置会保留到新版本中。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../src/update_available.ui" line="66"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You are running the latest version of ScoreSight.&lt;/p&gt;&lt;p&gt;All versions are available on &lt;a href=&quot;https://github.com/royshil/scoresight/releases&quot;&gt;GitHub Releases&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;您使用的已是最新版本的 ScoreSight。&lt;/p&gt;&lt;p&gt;所有版本均可在 &lt;a href=&quot;https://github.com/royshil/scoresight/releases&quot;&gt;GitHub Releases&lt;/a&gt; 获取。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../src/update_available.ui" line="91"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Could not check for updates. Check your internet connection, or look for new versions on &lt;a href=&quot;https://github.com/royshil/scoresight/releases/latest&quot;&gt;GitHub Releases&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;无法检查更新。请检查网络连接，或在 &lt;a href=&quot;https://github.com/royshil/scoresight/releases/latest&quot;&gt;GitHub Releases&lt;/a&gt; 上查找新版本。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../src/update_available.ui" line="124"/>
         <source>Don&apos;t check for updates at startup</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">启动时不检查更新</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;New version of ScoreSight is available!&lt;/p&gt;&lt;p&gt;Download:&lt;/p&gt;&lt;p&gt;&lt;a href=&quot;https://download.scoresight.live/scoresight-windows-latest.zip&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;https://download.scoresight.live/scoresight-windows-latest.zip&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;p&gt;&lt;a href=&quot;https://download.scoresight.live/scoresight-macos-x86-latest.dmg&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;https://download.scoresight.live/scoresight-macos-x86-latest.dmg&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;p&gt;&lt;a href=&quot;https://download.scoresight.live/scoresight-linux-latest.tar&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;https://download.scoresight.live/scoresight-linux-latest.tar&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;p&gt;Your configuration will transfer to the new version.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -214,38 +233,45 @@
     <message>
         <location filename="../src/video_settings.ui" line="14"/>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">对话框</translation>
     </message>
     <message>
         <location filename="../src/video_settings.ui" line="23"/>
         <source>Video Format</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">视频格式</translation>
     </message>
     <message>
         <location filename="../src/video_settings.ui" line="31"/>
         <location filename="../src/video_settings.ui" line="67"/>
         <source>Default</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">默认</translation>
     </message>
     <message>
         <location filename="../src/video_settings.ui" line="39"/>
         <source>FPS</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">帧率</translation>
     </message>
     <message>
         <location filename="../src/video_settings.ui" line="59"/>
         <source>Resolution</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">分辨率</translation>
     </message>
     <message>
         <location filename="../src/video_settings.ui" line="133"/>
         <source>Capture Backend</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">捕获后端</translation>
     </message>
     <message>
         <location filename="../src/video_settings.ui" line="141"/>
         <source>Default / Any</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">默认 / 任意</translation>
     </message>
 </context>
 <context>
@@ -253,12 +279,14 @@
     <message>
         <location filename="../src/log_view.py" line="58"/>
         <source>The log file could not be created, so this session&apos;s log is only written to the console (standard error).</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">无法创建日志文件，因此本次会话的日志只写入控制台（标准错误输出）。</translation>
     </message>
     <message>
         <location filename="../src/log_view.py" line="100"/>
         <source>Can&apos;t read the log file {path}: {error}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">无法读取日志文件 {path}：{error}</translation>
     </message>
 </context>
 <context>
@@ -492,80 +520,101 @@
     <message>
         <location filename="../src/mainwindow.ui" line="91"/>
         <source>Freeze every output (text files, HTTP server, OBS, vMix, UNO, API) at its current values, for example during a timeout or a replay. The readings in this window keep updating.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">将所有输出（文本文件、HTTP 服务器、OBS、vMix、UNO、API）冻结在当前值，例如在比赛暂停或回放期间。此窗口中的读数会继续更新。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="94"/>
         <location filename="../src/mainwindow.ui" line="3483"/>
-        <location filename="../src/mainwindow.py" line="1593"/>
+        <location filename="../src/mainwindow.py" line="1599"/>
         <source>Pause outputs</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">暂停输出</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="174"/>
         <source>Fields and readings</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">字段和读数</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1250"/>
         <source>Format preset</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">格式预设</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1205"/>
         <source>Which characters the OCR may output</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">OCR 可以输出哪些字符</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1218"/>
         <source>Which characters the OCR may output. Choose the narrowest: Number for scores, Time for clocks, Text only for words.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">OCR 可以输出哪些字符。请选择范围最小的类型：比分用“数字”，计时用“时间”，“文本”仅用于文字。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1751"/>
         <source>Remove specks smaller than a share of the box area (0 = off). Too high a value erases thin digits such as 1.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">去除小于检测框面积一定比例的斑点（0 = 关闭）。值过高会擦掉 1 这类细笔画数字。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1501"/>
         <source>Minimum OCR confidence in % (0-99): Tesseract&apos;s confidence in the reading. A reading below it is rejected (yellow, FailedFilter). 0 turns the check off.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">OCR 最低置信度，单位为 %（0-99）：Tesseract 对该读数的置信度。低于此值的读数会被拒绝（黄色，FailedFilter）。0 表示关闭此检查。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1240"/>
         <source>A regular expression the raw reading must match completely</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">原始读数必须完全匹配的正则表达式</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1880"/>
         <source>Thicken the bright strokes by this many passes (0 = off). Raise it when the segments of 7-segment digits don&apos;t touch; lower it when digits merge.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">将亮色笔画加粗指定的次数（0 = 关闭）。七段数码管数字的笔段不相连时调高；数字粘连时调低。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1788"/>
         <source>Squash the box vertically (100 % = unchanged), for very tall, narrow fonts</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">垂直压缩检测框（100% = 不变），适用于又高又窄的字体</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1837"/>
         <source>Shear the image horizontally to straighten slanted (italic) digits (0 = off)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">水平错切图像，以矫正倾斜（斜体）的数字（0 = 关闭）</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="1908"/>
+        <source>Invert colors</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">反转颜色</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2056"/>
         <location filename="../src/mainwindow.ui" line="2078"/>
         <source>Template</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">模板</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2081"/>
         <source>The template text, with the fields in double braces, for example {{Home Score}} - {{Away Score}}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">模板文本，字段写在双花括号中，例如 {{Home Score}} - {{Away Score}}</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2192"/>
         <source>The OCR model that reads every box</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">识别所有检测框所用的 OCR 模型</translation>
     </message>
     <message>
         <source>OCR Model</source>
@@ -575,7 +624,8 @@
         <location filename="../src/mainwindow.ui" line="2195"/>
         <location filename="../src/mainwindow.ui" line="2202"/>
         <source>OCR model</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">OCR 模型</translation>
     </message>
     <message>
         <source>Text Files</source>
@@ -584,7 +634,8 @@
     <message>
         <location filename="../src/output_status.py" line="143"/>
         <source>Write the readings to .txt, .csv and .xml files</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">将读数写入 .txt、.csv 和 .xml 文件</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2431"/>
@@ -594,12 +645,14 @@
     <message>
         <location filename="../src/mainwindow.ui" line="2459"/>
         <source>The folder the text files are written to</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">写入文本文件的文件夹</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2469"/>
         <source>Choose the output folder</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">选择输出文件夹</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2472"/>
@@ -609,7 +662,8 @@
     <message>
         <location filename="../src/mainwindow.ui" line="2479"/>
         <source>Stop writing files (forget the folder)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">停止写入文件（清除文件夹设置）</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2482"/>
@@ -619,7 +673,8 @@
     <message>
         <location filename="../src/mainwindow.ui" line="2513"/>
         <source>Also write results.csv: a timestamp and a column per field</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">同时写入 results.csv：一列时间戳，每个字段一列</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2516"/>
@@ -629,7 +684,8 @@
     <message>
         <location filename="../src/mainwindow.ui" line="2523"/>
         <source>Also write results.xml: every field with its name, text, state and position</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">同时写入 results.xml：每个字段及其名称、文本、状态和位置</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2526"/>
@@ -639,7 +695,8 @@
     <message>
         <location filename="../src/mainwindow.ui" line="2536"/>
         <source>Add each new value to a log, or keep only the latest values</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">将每个新值追加到日志，或只保留最新值</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2539"/>
@@ -649,7 +706,8 @@
     <message>
         <location filename="../src/mainwindow.ui" line="2546"/>
         <source>Add each new value to a log (results.csv, the .txt files or both), or keep only the latest values</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">将每个新值追加到日志（results.csv、.txt 文件或两者），或只保留最新值</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2556"/>
@@ -684,12 +742,14 @@
     <message>
         <location filename="../src/mainwindow.ui" line="2604"/>
         <source>File saves per second</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">每秒文件保存次数</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2607"/>
         <source>How many times per second the files are written (1-10). Affects only the files.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">每秒写入文件的次数（1-10）。只影响文件。</translation>
     </message>
     <message>
         <source>Browser</source>
@@ -698,770 +758,915 @@
     <message>
         <location filename="../src/output_status.py" line="146"/>
         <source>The built-in HTTP server: a scoreboard page, JSON, XML and CSV</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">内置 HTTP 服务器：记分板页面、JSON、XML 和 CSV</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2659"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Use these endpoints in external software to get live data updates&lt;/p&gt;&lt;p&gt;HTML Scoreboard: &lt;a href=&quot;http://localhost:18099/scoresight&quot;&gt;http://localhost:18099/scoresight&lt;/a&gt;&lt;br/&gt;JSON: &lt;a href=&quot;http://localhost:18099/json&quot;&gt;http://localhost:18099/json&lt;/a&gt; (optional: ?pivot)&lt;br/&gt;XML: &lt;a href=&quot;http://localhost:18099/xml&quot;&gt;http://localhost:18099/xml&lt;/a&gt; (optional: ?pivot)&lt;br/&gt;CSV: &lt;a href=&quot;http://localhost:18099/csv&quot;&gt;http://localhost:18099/csv&lt;/a&gt; (optional: ?pivot)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;在外部软件中使用这些端点获取实时数据更新&lt;/p&gt;&lt;p&gt;HTML 记分板：&lt;a href=&quot;http://localhost:18099/scoresight&quot;&gt;http://localhost:18099/scoresight&lt;/a&gt;&lt;br/&gt;JSON：&lt;a href=&quot;http://localhost:18099/json&quot;&gt;http://localhost:18099/json&lt;/a&gt;（可选：?pivot）&lt;br/&gt;XML：&lt;a href=&quot;http://localhost:18099/xml&quot;&gt;http://localhost:18099/xml&lt;/a&gt;（可选：?pivot）&lt;br/&gt;CSV：&lt;a href=&quot;http://localhost:18099/csv&quot;&gt;http://localhost:18099/csv&lt;/a&gt;（可选：?pivot）&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="150"/>
         <source>Update text sources in OBS Studio</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">更新 OBS Studio 中的文本源</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2700"/>
-        <location filename="../src/mainwindow.py" line="2189"/>
+        <location filename="../src/mainwindow.py" line="2195"/>
         <source>Connect to the WebSocket server of OBS Studio</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">连接到 OBS Studio 的 WebSocket 服务器</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2747"/>
         <source>The name of the scene Create OBS Scene makes</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">“创建OBS场景”所创建场景的名称</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2760"/>
         <source>Create a scene in OBS with a text source for each standard field</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">在 OBS 中创建一个场景，并为每个标准字段添加一个文本源</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="153"/>
         <source>Update a title in vMix</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">更新 vMix 中的标题</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2815"/>
         <source>Each field and the vMix title field it updates. Edit the right column.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">每个字段及其更新的 vMix 标题字段。请编辑右列。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2867"/>
         <source>vMix host</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">vMix 主机</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2870"/>
         <source>The address of the vMix computer (localhost if vMix runs on this computer)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">运行 vMix 的计算机地址（如果 vMix 在本机运行，则为 localhost）</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2887"/>
         <source>vMix port</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">vMix 端口</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2890"/>
         <source>The port of the vMix Web API (8088 by default; not 8099)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">vMix Web API 的端口（默认为 8088，不是 8099）</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2912"/>
         <source>Start or stop vMix</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">开始或停止向 vMix 发送</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2915"/>
         <source>Start or stop sending the readings to vMix</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">开始或停止向 vMix 发送读数</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2968"/>
         <source>vMix input</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">vMix 输入</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2971"/>
         <source>The vMix input (number or name) of the title to update</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">要更新的标题所在的 vMix 输入（编号或名称）</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2981"/>
         <location filename="../src/mainwindow.ui" line="3102"/>
         <source>Send only new detections or also existing?</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">只发送新读数，还是也发送相同的读数？</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2984"/>
         <location filename="../src/mainwindow.ui" line="3105"/>
         <source>Send Same?</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">发送相同值？</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="154"/>
         <source>Drive an overlays.uno control app</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">驱动 overlays.uno 控制应用</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3036"/>
         <location filename="../src/mainwindow.ui" line="3326"/>
         <source>URL</source>
-        <translation type="unfinished">URL地址</translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">URL</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3043"/>
         <source>UNO URL</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">UNO URL</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3046"/>
         <source>The API URL of the overlays.uno control app. Treat it like a password.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">overlays.uno 控制应用的 API URL。请像密码一样妥善保管。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3056"/>
         <source>Start or stop UNO</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">开始或停止向 UNO 发送</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3059"/>
         <source>Start or stop sending the readings to UNO</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">开始或停止向 UNO 发送读数</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3062"/>
         <location filename="../src/uno_ui_handler.py" line="127"/>
         <source>Start sending</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">开始发送</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3112"/>
         <source>The overlay uses UNO Essentials content fields</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">该叠加层使用 UNO Essentials 内容字段</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3348"/>
         <source>File</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">文件</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3352"/>
         <source>Language</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">语言</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3357"/>
         <source>Appearance</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">外观</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3393"/>
         <source>Rename...</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">重命名...</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3401"/>
         <source>Delete field...</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">删除字段...</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3409"/>
         <source>Reset settings to defaults</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">将设置重置为默认值</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3414"/>
         <source>Copy value</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">复制值</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3422"/>
         <source>Zoom to box</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">缩放到检测框</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3427"/>
         <source>Check for Updates</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">检查更新</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3435"/>
         <source>About</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">关于</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3443"/>
         <source>View Current Log</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">查看当前日志</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3451"/>
         <source>Import Configuration</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">导入配置</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3459"/>
         <source>Export Configuration</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">导出配置</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3467"/>
         <source>Open Configuration Folder</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">打开配置文件夹</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3475"/>
         <source>OCR Training Data Setup</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">OCR 训练数据设置</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3499"/>
         <source>Fit picture to window</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">画面适应窗口</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3507"/>
         <source>Reload sources</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">刷新来源</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3121"/>
         <source>Essentials</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Essentials</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="925"/>
         <source>Inspector</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">检查器</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="932"/>
         <source>Box</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">检测框</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="980"/>
         <source>No field selected</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">未选择字段</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="990"/>
         <source>Select a field in the list or a box on the picture to tune how it is read. Start with Type and Format.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">在列表中选择一个字段，或在画面上选择一个检测框，以调整其识别方式。请先从“类型”和“格式”开始。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1081"/>
         <source>Settings for this field only</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">仅适用于此字段的设置</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1093"/>
         <source>Put every setting of this field back to its default. Formerly “Defaults”.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">将此字段的所有设置恢复为默认值。原名“默认值”。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1102"/>
         <source>Reset to defaults</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">恢复默认值</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1198"/>
         <source>Reading</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">识别</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1253"/>
         <source>The preset whose expression is used, or Custom. Choose a preset to use its expression. Formerly “Select Preset”.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">所用表达式来自的预设，或“自定义”。选择一个预设即可使用其表达式。原名“选择预设”。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1317"/>
         <source>Custom</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">自定义</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1325"/>
         <source>Format expression</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">格式表达式</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1328"/>
         <source>A regular expression the raw reading must match completely, or it&apos;s rejected. Choose a preset above or type your own. An invalid expression is ignored.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">原始读数必须完全匹配的正则表达式，否则会被拒绝。可在上方选择预设，或自行输入。无效的表达式会被忽略。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1350"/>
         <source>Remove zeros at the start: 07 becomes 7. Formerly “Remove leading 0s”.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">去掉开头的零：07 变为 7。原名“移除前导0”。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1353"/>
         <source>Remove leading zeros</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">去除前导零</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1360"/>
         <source>07 → 7</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">07 → 7</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1386"/>
         <source>Add an ordinal suffix: 1 becomes 1st, 2 becomes 2nd. Formerly “Ordinal (1st, 2nd, ..)”.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">添加序数后缀：1 变为 1st，2 变为 2nd。原名“序数 (1st, 2nd, ..)”。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1389"/>
         <source>Add ordinal suffix</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">添加序数后缀</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1396"/>
         <source>2 → 2nd</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">2 → 2nd</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1417"/>
         <source>Count the lit dots or lights in the box (for example a period or possession indicator) instead of reading characters. Formerly “Dot Counter”.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">统计检测框中亮起的点或指示灯（例如节次或球权指示灯），而不是识别字符。原名“Dot Counter”。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1420"/>
         <source>Count lights (dot counter)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">统计指示灯（点计数器）</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1476"/>
         <source>Filtering</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">过滤</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1483"/>
         <source>Minimum OCR confidence in % (0-99): Tesseract&apos;s confidence in the reading. A reading below it is rejected. 0 turns the check off. Formerly “Conf. Th”.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">OCR 最低置信度，单位为 %（0-99）：Tesseract 对该读数的置信度。低于此值的读数会被拒绝。0 表示关闭此检查。原名“置信度阈值”。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1486"/>
         <location filename="../src/mainwindow.ui" line="1498"/>
         <source>Minimum confidence</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">最低置信度</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1526"/>
         <source>Show the most common of the box&apos;s last 5 accepted readings, to steady a value that flickers. Delays changes by a couple of detection cycles. Formerly “Average Output”.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">显示该检测框最近 5 个已接受读数中出现最多的值，以稳定闪烁的数值。变化会延迟几个检测周期。原名“平均输出”。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1529"/>
         <source>Smooth over last 5 readings</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">按最近 5 个读数平滑</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1541"/>
         <source>Skip OCR while the box&apos;s image hasn&apos;t changed since its last accepted reading, and repeat that value. Saves CPU on values that change rarely. Formerly “Skip Similar Image”.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">当检测框图像自上次接受的读数以来没有变化时跳过 OCR，并沿用该值。可为很少变化的数值节省 CPU。原名“跳过相似图像”。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1544"/>
         <source>Skip OCR while image is unchanged</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">图像未变化时跳过 OCR</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1551"/>
         <source>saves CPU</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">节省 CPU</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1595"/>
         <source>Show or hide the settings that clean up the box&apos;s image before it is read. Binary view shows the result.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">显示或隐藏识别前清理检测框图像的设置。“二进制视图”可显示结果。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1598"/>
         <location filename="../src/mainwindow.ui" line="1606"/>
         <source>Image cleanup</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">图像清理</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1651"/>
         <source>Binary view</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">二进制视图</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1693"/>
         <source>How the box is turned into black and white before OCR. Formerly “Binarize”.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">OCR 前如何将检测框转换为黑白图像。原名“二值化”。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1696"/>
         <source>Black &amp; white</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">黑白</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1703"/>
         <source>Black and white</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">黑白</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1706"/>
         <source>How the box is turned into black and white before OCR. Whole picture: one threshold for the whole picture. None: the grayscale image. This box: a threshold for this box only. Adaptive: a threshold that varies across the box, for uneven lighting.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">OCR 前如何将检测框转换为黑白图像。整个画面：整个画面使用同一个阈值。无：使用灰度图像。此检测框：仅为此检测框计算阈值。自适应：阈值在检测框内随位置变化，适用于光照不均。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1710"/>
         <source>Whole picture</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">整个画面</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1715"/>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">无</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1720"/>
         <source>This box</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">此检测框</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1733"/>
         <source>Remove specks smaller than a share of the box area (0 = off). Formerly “Cleanup”.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">去除小于检测框面积一定比例的斑点（0 = 关闭）。原名“清理”。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1736"/>
         <location filename="../src/mainwindow.ui" line="1748"/>
         <source>Remove specks</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">去除斑点</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1770"/>
         <source>Squash the box vertically (100 % = unchanged). Formerly “V.Scale”.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">垂直压缩检测框（100% = 不变）。原名“垂直缩放”。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1773"/>
         <location filename="../src/mainwindow.ui" line="1785"/>
         <source>Squash height</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">压缩高度</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1819"/>
         <source>Shear the image to straighten slanted digits (0 = off). Formerly “Skew”.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">错切图像以矫正倾斜的数字（0 = 关闭）。原名“倾斜”。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1822"/>
         <location filename="../src/mainwindow.ui" line="1834"/>
         <source>Straighten slant</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">矫正倾斜</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1862"/>
         <source>Thicken the bright strokes (0 = off). Formerly “Dilate”.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">加粗亮色笔画（0 = 关闭）。原名“膨胀”。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1865"/>
         <location filename="../src/mainwindow.ui" line="1877"/>
         <source>Thicken strokes</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">加粗笔画</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1905"/>
         <source>Swap black and white before OCR, for dark digits on a light background. Formerly “Invert Input”.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mainwindow.ui" line="1908"/>
-        <source>Invert colours</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">OCR 前互换黑白，适用于浅色背景上的深色数字。原名“反转输入”。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1915"/>
         <source>Crop the box to the area with bright pixels, plus a margin, before OCR. Formerly “Auto Crop”.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">OCR 前将检测框裁剪到含亮色像素的区域，并保留一定边距。原名“自动裁剪”。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1918"/>
         <source>Crop to text</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">裁剪到文字</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1925"/>
         <source>Scale the image to 35 pixels high, a favorable size for OCR. Formerly “Rescale Input”.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">将图像缩放到 35 像素高，这是适合 OCR 的尺寸。原名“重新缩放输入”。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1928"/>
         <source>Resize to 35 px (recommended)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">缩放到 35 px（推荐）</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1935"/>
         <source>Scale to a favorable 1:2 width-to-height ratio. Formerly “Normalize W-H Ratio”.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">缩放到适合识别的 1:2 宽高比。原名“归一化宽高比”。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1938"/>
         <source>Normalize digit width</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">统一数字宽度</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1945"/>
         <source>Experimental / legacy</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">实验性 / 旧版</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1960"/>
         <source>Experimental: draw one sub-box per character with the green + in the box. Recognition still reads the whole box. Formerly “Composite (Per-Character)”.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">实验性：使用检测框中的绿色 + 为每个字符绘制一个子框。识别时仍读取整个检测框。原名“Composite (Per-Character)”。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1963"/>
         <source>Per-character sub-boxes</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">逐字符子框</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1970"/>
         <source>not used for reading yet</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">暂未用于识别</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1996"/>
         <source>Never write an empty value to the box&apos;s text file or OBS text source. Since 0.2.0 they only ever get good readings, so this has no effect. Formerly “Skip Empty Values”.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">绝不向检测框的文本文件或 OBS 文本源写入空值。自 0.2.0 起它们只会收到有效读数，因此此选项不起作用。原名“跳过空值”。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1999"/>
         <source>Skip empty values</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">跳过空值</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2006"/>
         <source>no effect since 0.2.0</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">自 0.2.0 起无效</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2063"/>
         <source>Make this custom field a template: its value is built from other fields, for example {{Home Score}} - {{Away Score}}. Formerly “Template Field”.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">将此自定义字段设为模板：其值由其他字段组成，例如 {{Home Score}} - {{Away Score}}。原名“Template Field”。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2066"/>
         <source>Build from other fields</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">由其他字段组成</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2087"/>
         <source>{{Home Score}} - {{Away Score}}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">{{Home Score}} - {{Away Score}}</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2094"/>
         <source>Insert a field at the cursor, written exactly as the template needs it</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">在光标处插入字段，写法与模板要求完全一致</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2097"/>
         <source>Insert field</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">插入字段</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2149"/>
         <source>All boxes</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">所有检测框</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2179"/>
         <source>Changes how every field is read</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">影响所有字段的识别方式</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2205"/>
         <source>The OCR model that reads every box, not only the selected one. Load external model... reads a Tesseract .traineddata file.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">识别所有检测框（而不仅是所选检测框）所用的 OCR 模型。“加载外部模型...”可读取 Tesseract .traineddata 文件。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2267"/>
         <source>Report a reading that equals the field&apos;s last good value as unchanged (=, SameNoChange) instead of new (✓). vMix and UNO then don&apos;t resend unchanged values (unless their Send Same? is on), and the HTTP server and the outbound API mark them as unchanged. OBS and the text files get a value only when it changes either way.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">将等于字段上一个有效值的读数报告为未变化（=，SameNoChange），而不是新值（✓）。这样 vMix 和 UNO 不会重新发送未变化的值（除非开启了它们的“发送相同值？”），HTTP 服务器和外发 API 会将其标记为未变化。无论如何，OBS 和文本文件都只在值变化时才会收到新值。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2300"/>
         <location filename="../src/mainwindow.ui" line="2334"/>
         <source>Outputs</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">输出</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2337"/>
         <source>Select an output to show its settings below. Space turns it on or off.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">选择一个输出，即可在下方显示其设置。按空格键可开启或关闭。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2725"/>
         <source>Close the connection to OBS. ScoreSight connects to OBS again at its next start only after you connect again.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">关闭与 OBS 的连接。只有在您重新连接后，ScoreSight 才会在下次启动时再次连接 OBS。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2734"/>
         <source>Disconnect</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">断开连接</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3152"/>
         <source>Overlay ID</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">叠加层 ID</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3159"/>
         <source>The ID (UUID) of the Essentials overlay</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Essentials 叠加层的 ID（UUID）</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3171"/>
         <source>aaaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeeee</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">aaaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeeee</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3190"/>
         <source>Each field and the UNO command (or Essentials field ID) it drives. Edit the right column.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">每个字段及其驱动的 UNO 命令（或 Essentials 字段 ID）。请编辑右列。</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="157"/>
         <source>Send the readings to a URL (outbound HTTP API)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">将读数发送到 URL（外发 HTTP API）</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3213"/>
         <source>Send the readings to the URL below on every detection cycle</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">在每个检测周期将读数发送到下方的 URL</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3216"/>
         <source>Send out API requests to external services.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">向外部服务发送 API 请求。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3223"/>
         <source>Encode</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">格式</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3230"/>
         <source>The format of the readings in the requests</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">请求中读数的格式</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3234"/>
         <source>JSON (Full)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">JSON（完整）</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3239"/>
         <source>JSON (Simple key-value)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">JSON（简单键值对）</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3244"/>
         <source>XML</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">XML</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3249"/>
         <source>CSV</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">CSV</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3288"/>
         <source>API URL</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">API URL</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3291"/>
         <source>The URL the readings are sent to</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">读数发送到的 URL</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3294"/>
         <source>http://</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">http://</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3301"/>
         <source>The HTTP method of the requests</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">请求的 HTTP 方法</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3305"/>
         <source>POST</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">POST</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3310"/>
         <source>PUT</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">PUT</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3315"/>
         <source>GET</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">GET</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2212"/>
         <source>How many times per second the boxes are read</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">每秒识别检测框的次数</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2227"/>
         <source>Detections per second</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">每秒检测次数</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2230"/>
         <source>How many times per second the boxes are read (1-15). Higher values use more CPU; 5 suits most clocks.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">每秒识别检测框的次数（1-15）。数值越高，占用 CPU 越多；5 适合大多数计时器。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="385"/>
         <source>The video source: a camera, capture card or NDI source, a video file, a stream URL or a screen capture</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">视频来源：摄像头、采集卡或 NDI 来源、视频文件、流 URL 或屏幕捕获</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="424"/>
         <source>The resolution, frame rate and format of a camera or capture card. Only for cameras and capture cards.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">摄像头或采集卡的分辨率、帧率和格式。仅适用于摄像头和采集卡。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="463"/>
         <source>Save the box images and readings for training an OCR model (see File &gt; OCR Training Data Setup)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">保存检测框图像和读数，用于训练 OCR 模型（见“文件 &gt; OCR 训练数据设置”）</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="500"/>
         <location filename="../src/mainwindow.ui" line="1648"/>
         <source>Show what the OCR reads: the black-and-white image of every box</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">显示 OCR 读取的内容：每个检测框的黑白图像</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="513"/>
         <source>Correct the perspective: click the 4 corners of the scoreboard. Clicking it again removes the correction.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">校正透视：点击记分板的 4 个角。再次点击此按钮可取消校正。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="539"/>
         <source>Rotate the picture by 90 degrees</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">将画面旋转 90 度</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="549"/>
         <source>Compensate for a shaking camera</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">补偿摄像头抖动</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="575"/>
         <source>Box display style</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">检测框显示样式</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="578"/>
         <source>What the viewer draws for each box: nothing, the outline, the outline and the name, or everything</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">查看器为每个检测框绘制的内容：不绘制、轮廓、轮廓和名称，或全部</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="621"/>
         <source>Reset zoom</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">重置缩放</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;HTML Scoreboard: &lt;a href=&quot;http://localhost:18099/scoresight&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;http://localhost:18099/scoresight&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;p&gt;JSON: &lt;a href=&quot;http://localhost:18099/json&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;http://localhost:18099/json&lt;/span&gt;&lt;/a&gt; (optional: ?pivot)&lt;/p&gt;&lt;p&gt;XML: &lt;a href=&quot;http://localhost:18099/xml&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;http://localhost:18099/xml&lt;/span&gt;&lt;/a&gt; (optional: ?pivot)&lt;/p&gt;&lt;p&gt;CSV: &lt;a href=&quot;http://localhost:18099/csv&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;http://localhost:18099/csv&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1473,7 +1678,7 @@
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2715"/>
-        <location filename="../src/mainwindow.py" line="2187"/>
+        <location filename="../src/mainwindow.py" line="2193"/>
         <source>Connect OBS</source>
         <translation>连接OBS</translation>
     </message>
@@ -1554,63 +1759,74 @@
     <message>
         <location filename="../src/mainwindow.ui" line="71"/>
         <source>Fields</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">字段</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="110"/>
         <location filename="../src/mainwindow.ui" line="113"/>
         <location filename="../src/mainwindow.ui" line="3375"/>
         <source>New custom field</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">新建自定义字段</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="131"/>
         <source>Open a source to place fields on the picture.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">打开一个来源，即可将字段放到画面上。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="171"/>
         <source>The fields and their latest values. Click a field to select its box; double-click a custom field (or press F2) to rename it; right-click for more.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">字段及其最新值。单击字段可选中其检测框；双击自定义字段（或按 F2）可重命名；右键单击可查看更多操作。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="229"/>
         <source>Put a box for the selected field on the picture, then drag it over the value. Formerly “Add to Scene”.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">在画面上为所选字段放置一个检测框，然后将其拖到数值上。原名“添加到场景”。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="232"/>
         <location filename="../src/mainwindow.ui" line="3383"/>
         <source>Place on picture</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">放到画面上</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="242"/>
         <source>Take the selected field&apos;s box off the picture. Its settings go back to the defaults. Formerly “Remove Selected”.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">将所选字段的检测框从画面上移除。其设置会恢复为默认值。原名“移除所选项”。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="245"/>
         <location filename="../src/mainwindow.ui" line="3388"/>
-        <location filename="../src/mainwindow.py" line="1903"/>
+        <location filename="../src/mainwindow.py" line="1909"/>
         <source>Remove from picture</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">从画面移除</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="265"/>
         <source>Delete the selected custom field (the standard fields can&apos;t be deleted)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">删除所选的自定义字段（标准字段无法删除）</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="268"/>
         <source>Delete the selected custom field</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">删除所选的自定义字段</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="271"/>
-        <location filename="../src/mainwindow.py" line="1920"/>
+        <location filename="../src/mainwindow.py" line="1926"/>
         <source>Delete field</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">删除字段</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="401"/>
@@ -1634,8 +1850,10 @@
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="430"/>
+        <location filename="../src/mainwindow.py" line="1031"/>
         <source>Video Settings</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">视频设置</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="437"/>
@@ -1650,7 +1868,8 @@
     <message>
         <location filename="../src/mainwindow.ui" line="466"/>
         <source>Save OCR Training Data</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">保存 OCR 训练数据</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="503"/>
@@ -1666,17 +1885,20 @@
     <message>
         <location filename="../src/mainwindow.ui" line="526"/>
         <source>Apply cropping to the entire image</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">对整个画面应用裁剪</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="529"/>
         <source>Crop</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">裁剪</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="542"/>
         <source>Rotate</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">旋转</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="552"/>
@@ -1686,22 +1908,26 @@
     <message>
         <location filename="../src/mainwindow.ui" line="582"/>
         <source>No Box</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">无检测框</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="587"/>
         <source>Outline</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">轮廓</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="592"/>
         <source>Names</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">名称</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="597"/>
         <source>All</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">全部</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="605"/>
@@ -1734,12 +1960,14 @@
     <message>
         <location filename="../src/mainwindow.ui" line="679"/>
         <source>Left</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">左侧</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="686"/>
         <source>Pixels to cut off the left edge</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">从左边缘裁掉的像素数</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="698"/>
@@ -1747,63 +1975,75 @@
         <location filename="../src/mainwindow.ui" line="756"/>
         <location filename="../src/mainwindow.ui" line="785"/>
         <source>px</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">px</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="708"/>
         <source>Top</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">顶部</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="715"/>
         <source>Pixels to cut off the top edge</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">从上边缘裁掉的像素数</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="737"/>
         <source>Right</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">右侧</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="744"/>
         <source>Pixels to cut off the right edge</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">从右边缘裁掉的像素数</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="766"/>
         <source>Bottom</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">底部</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="773"/>
         <source>Pixels to cut off the bottom edge</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">从下边缘裁掉的像素数</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="795"/>
         <source>Speed</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">速度</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="802"/>
         <source>The playback speed of a video file (skips frames). Doesn&apos;t change how often the boxes are read.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">视频文件的播放速度（会跳帧）。不改变识别检测框的频率。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="805"/>
         <source>x1</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">x1</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="865"/>
         <source>Send the current values to every output again</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">将当前值重新发送到所有输出</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="868"/>
-        <location filename="../src/mainwindow.py" line="1591"/>
+        <location filename="../src/mainwindow.py" line="1597"/>
         <source>Resume outputs</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">恢复输出</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="908"/>
@@ -1813,155 +2053,203 @@
     <message>
         <location filename="../src/mainwindow.py" line="937"/>
         <source>&lt;p&gt;The HTTP server is not running: port {port} is already in use or not available.&lt;/p&gt;&lt;p&gt;Close the other program, or start ScoreSight with &lt;b&gt;--port&lt;/b&gt; to use a different port. The log has the details.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">&lt;p&gt;HTTP 服务器未运行：端口 {port} 已被占用或不可用。&lt;/p&gt;&lt;p&gt;请关闭其他程序，或使用 &lt;b&gt;--port&lt;/b&gt; 参数启动 ScoreSight 以使用其他端口。详情请查看日志。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1545"/>
+        <location filename="../src/mainwindow.py" line="1551"/>
         <source>Version {version}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">版本 {version}</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="872"/>
         <source>System</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">跟随系统</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="851"/>
         <source>Load external model...</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">加载外部模型...</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="857"/>
         <source>Drag to resize the fields list. Double-click to hide or show it.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">拖动可调整字段列表的大小。双击可隐藏或显示。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="863"/>
         <source>Drag to resize the Box and Outputs settings. Double-click to hide or show them.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">拖动可调整“检测框”和“输出”设置的大小。双击可隐藏或显示。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="873"/>
         <source>Light</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">浅色</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="874"/>
         <source>Dark</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">深色</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.py" line="952"/>
         <source>&lt;p&gt;From other computers on your network, use {url} instead of http://localhost:{port}.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">&lt;p&gt;在网络中的其他计算机上，请使用 {url} 代替 http://localhost:{port}。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1199"/>
-        <location filename="../src/mainwindow.py" line="1202"/>
+        <location filename="../src/mainwindow.py" line="1201"/>
+        <location filename="../src/mainwindow.py" line="1204"/>
         <source>{value} /s</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">{value} 次/秒</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1614"/>
+        <location filename="../src/mainwindow.py" line="1503"/>
+        <source>Logs</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">日志</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.py" line="1548"/>
+        <source>About ScoreSight</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">关于 ScoreSight</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.py" line="1620"/>
         <source>&lt;b&gt;Outputs paused&lt;/b&gt; since {time}. Your graphics show the last values sent; the readings here keep updating.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">自 {time} 起&lt;b&gt;输出已暂停&lt;/b&gt;。图文画面显示的是最后发送的值；此处的读数会继续更新。</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1858"/>
+        <location filename="../src/mainwindow.py" line="1864"/>
         <source>Only custom fields can be renamed or deleted</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">只有自定义字段可以重命名或删除</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1904"/>
+        <location filename="../src/mainwindow.py" line="1910"/>
         <source>Remove “{name}” from the picture? Its settings go back to the defaults, so the settings you changed are lost.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">要将“{name}”从画面移除吗？其设置会恢复为默认值，您更改过的设置将丢失。</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1909"/>
+        <location filename="../src/mainwindow.py" line="1915"/>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">移除</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1921"/>
+        <location filename="../src/mainwindow.py" line="1927"/>
         <source>Delete the field “{name}”? Its box and its settings are deleted too.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">要删除字段“{name}”吗？其检测框和设置也会一并删除。</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1925"/>
+        <location filename="../src/mainwindow.py" line="1931"/>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">删除</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1992"/>
+        <location filename="../src/mainwindow.py" line="1998"/>
         <source>Connect to OBS</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">连接到 OBS</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2054"/>
-        <location filename="../src/mainwindow.py" line="2180"/>
+        <location filename="../src/mainwindow.py" line="2060"/>
+        <location filename="../src/mainwindow.py" line="2186"/>
         <source>Connecting...</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">正在连接...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2101"/>
+        <location filename="../src/mainwindow.py" line="2107"/>
         <source>Cannot connect to OBS</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">无法连接到 OBS</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2171"/>
+        <location filename="../src/mainwindow.py" line="2177"/>
         <source>Change connection...</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">更改连接...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2174"/>
+        <location filename="../src/mainwindow.py" line="2180"/>
         <source>Connected to OBS at {target}. Click to connect to another OBS.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">已连接到 {target} 上的 OBS。点击可连接到其他 OBS。</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2182"/>
+        <location filename="../src/mainwindow.py" line="2188"/>
         <source>Connecting to OBS at {target}...</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">正在连接到 {target} 上的 OBS...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2438"/>
+        <location filename="../src/mainwindow.py" line="2423"/>
+        <source>URL Source</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">URL 来源</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.py" line="2446"/>
         <source>Screen Capture Selection</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">选择屏幕捕获</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2445"/>
+        <location filename="../src/mainwindow.py" line="2453"/>
         <source>Capture the entire screen</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">捕获整个屏幕</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2773"/>
+        <location filename="../src/mainwindow.py" line="2781"/>
         <source>Rename field</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">重命名字段</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2779"/>
+        <location filename="../src/mainwindow.py" line="2787"/>
         <source>New name:</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">新名称：</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2791"/>
+        <location filename="../src/mainwindow.py" line="2799"/>
         <source>There is already a field named “{name}”. Choose another name.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">已存在名为“{name}”的字段。请换一个名称。</translation>
     </message>
     <message>
         <location filename="../src/vmix_ui_handler.py" line="126"/>
         <source>Stop vMix</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">停止 vMix</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2924"/>
         <location filename="../src/vmix_ui_handler.py" line="128"/>
         <source>Start vMix</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">开始 vMix</translation>
     </message>
     <message>
         <location filename="../src/uno_ui_handler.py" line="125"/>
         <source>Stop sending</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">停止发送</translation>
     </message>
 </context>
 <context>
@@ -1969,57 +2257,68 @@
     <message>
         <location filename="../src/ocr_training_data_dialog.ui" line="26"/>
         <source>OCR Training Data Setup</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">OCR 训练数据设置</translation>
     </message>
     <message>
         <location filename="../src/ocr_training_data_dialog.ui" line="41"/>
         <source>Save Folder</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">保存文件夹</translation>
     </message>
     <message>
         <location filename="../src/ocr_training_data_dialog.ui" line="72"/>
         <source>...</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">...</translation>
     </message>
     <message>
         <location filename="../src/ocr_training_data_dialog.ui" line="97"/>
         <source>Open Folder</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">打开文件夹</translation>
     </message>
     <message>
         <location filename="../src/ocr_training_data_dialog.ui" line="104"/>
         <source>Save Zip File</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">保存 Zip 文件</translation>
     </message>
     <message>
         <location filename="../src/ocr_training_data_dialog.ui" line="114"/>
         <source>Max Size</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">最大大小</translation>
     </message>
     <message>
         <location filename="../src/ocr_training_data_dialog.ui" line="121"/>
-        <source>Mb</source>
-        <translation type="unfinished"></translation>
+        <source>MB</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">MB</translation>
     </message>
     <message>
         <location filename="../src/ocr_training_data_dialog.ui" line="134"/>
         <source>Open OCR Training Dojo</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">打开 OCR 训练道场</translation>
     </message>
     <message>
         <location filename="../src/ocr_training_data.py" line="381"/>
         <source>OCR Training Data</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">OCR 训练数据</translation>
     </message>
     <message>
         <location filename="../src/ocr_training_data.py" line="382"/>
         <source>Can&apos;t use this folder for OCR training data:</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">无法将此文件夹用于 OCR 训练数据：</translation>
     </message>
     <message>
         <location filename="../src/ocr_training_data.py" line="446"/>
         <source>Choose OCR training data save folder</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">选择 OCR 训练数据的保存文件夹</translation>
     </message>
 </context>
 <context>
@@ -2027,331 +2326,396 @@
     <message>
         <location filename="../src/output_status.py" line="123"/>
         <source>Text files</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">文本文件</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="125"/>
         <source>HTTP server</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">HTTP 服务器</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="127"/>
         <source>HTTP API</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">HTTP API</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="134"/>
         <source>Files</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">文件</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="167"/>
         <source>working</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">正常</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="169"/>
         <source>waiting</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">等待中</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="171"/>
         <source>needs attention</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">需要注意</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="173"/>
         <source>retrying</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">重试中</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="175"/>
         <source>not working</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">异常</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="176"/>
         <location filename="../src/output_status.py" line="242"/>
         <source>off</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">已关闭</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="183"/>
         <source>just now</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">刚刚</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="185"/>
         <source>{seconds} s ago</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">{seconds} 秒前</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="189"/>
         <source>{minutes} min ago</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">{minutes} 分钟前</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="192"/>
         <source>{hours} h ago</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">{hours} 小时前</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="203"/>
         <source>Last written {age}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">上次写入：{age}</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="207"/>
         <source>Last request {age}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">上次请求：{age}</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="210"/>
         <source>Last sent {age}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">上次发送：{age}</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="227"/>
         <source>Details: {error}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">详细信息：{error}</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="240"/>
         <source>on</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">已开启</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="393"/>
         <source>{problem} · retrying</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">{problem} · 重试中</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="414"/>
         <source>Port {port} is vMix&apos;s TCP API: use {web_port}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">端口 {port} 是 vMix 的 TCP API：请使用 {web_port}</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="417"/>
         <source>ScoreSight uses the vMix Web API. Set the port to the Web Controller port (vMix Settings › Web Controller, {web_port} by default).</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">ScoreSight 使用 vMix Web API。请将端口设为 Web Controller 端口（vMix 中的 Settings › Web Controller，默认为 {web_port}）。</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="434"/>
         <source>OBS needs a password</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">OBS 需要密码</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="435"/>
         <source>Enter the password of OBS&apos;s WebSocket server (in OBS: Tools › WebSocket Server Settings › Show Connect Info).</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">请输入 OBS 的 WebSocket 服务器密码（在 OBS 中：工具 › WebSocket 服务器设置 › 显示连接信息）。</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="444"/>
         <source>OBS refused the connection: check the password</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">OBS 拒绝了连接：请检查密码</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="447"/>
         <source>The password doesn&apos;t match the one of OBS&apos;s WebSocket server (in OBS: Tools › WebSocket Server Settings › Show Connect Info).</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">密码与 OBS 的 WebSocket 服务器密码不一致（在 OBS 中：工具 › WebSocket 服务器设置 › 显示连接信息）。</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="461"/>
         <source>OBS has no text source “{name}”</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">OBS 中没有文本源“{name}”</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="465"/>
         <source>OBS has no text source with a field&apos;s name</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">OBS 中没有与字段同名的文本源</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="471"/>
         <source>Create a text source with this name in OBS (names are case-sensitive), or use Create OBS Scene.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">请在 OBS 中创建同名的文本源（名称区分大小写），或使用“创建OBS场景”。</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="479"/>
         <source>OBS refused an update (code {code})</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">OBS 拒绝了一次更新（代码 {code}）</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="493"/>
         <source>No secure connection to {target}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">无法与 {target} 建立安全连接</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="496"/>
         <source>The HTTPS connection failed (for example, the server&apos;s certificate isn&apos;t trusted). Check the URL; on your own network, http:// may be what the receiver expects.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">HTTPS 连接失败（例如服务器证书不受信任）。请检查 URL；在您自己的网络中，接收方可能需要的是 http://。</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="523"/>
         <source>Can&apos;t find {host}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">找不到 {host}</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="528"/>
         <source>The address {host} isn&apos;t known on this network: check it, or use the computer&apos;s IP address.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">此网络中无法识别地址 {host}：请检查该地址，或改用计算机的 IP 地址。</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="539"/>
         <source>Nothing answered within a few seconds.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">几秒内没有任何响应。</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="546"/>
         <source>Nothing answered within a few seconds: the computer may be off, the address wrong, or a firewall may block port {port}.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">几秒内没有任何响应：计算机可能已关机、地址有误，或防火墙阻止了端口 {port}。</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="552"/>
         <source>Nothing answered within a few seconds: check this computer&apos;s network connection.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">几秒内没有任何响应：请检查本机的网络连接。</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="560"/>
         <source>No answer from {target}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">{target} 无响应</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="572"/>
         <source>Can&apos;t reach {target}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">无法访问 {target}</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="584"/>
         <source>Lost the connection to OBS at {target}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">与 {target} 上的 OBS 的连接已断开</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="589"/>
         <source>ScoreSight reconnects by itself as soon as OBS is reachable again. Check that OBS is running.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">OBS 恢复可访问后，ScoreSight 会自动重新连接。请确认 OBS 正在运行。</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="603"/>
         <source>Check that vMix is running, that its Web Controller is enabled (vMix Settings › Web Controller) on port {port}, and that the firewall of the vMix computer allows it.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">请确认 vMix 正在运行，其 Web Controller 已在端口 {port} 上启用（vMix 中的 Settings › Web Controller），并且 vMix 所在计算机的防火墙允许访问。</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="610"/>
         <source>Check that OBS is running and that its WebSocket server is enabled (in OBS: Tools › WebSocket Server Settings) on port {port}.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">请确认 OBS 正在运行，且其 WebSocket 服务器已在端口 {port} 上启用（在 OBS 中：工具 › WebSocket 服务器设置）。</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="616"/>
         <source>Check this computer&apos;s internet connection.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">请检查本机的互联网连接。</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="619"/>
         <source>Nothing answers at {target}: check the URL and that the receiving program is running.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">{target} 没有响应：请检查 URL，并确认接收程序正在运行。</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="633"/>
         <source>HTTP {code}: vMix asks for a login</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">HTTP {code}：vMix 要求登录</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="636"/>
         <source>In vMix Settings › Web Controller, tick “Allow access to following pages without login: API”. ScoreSight doesn&apos;t send a vMix login.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">在 vMix 的 Settings › Web Controller 中，勾选“Allow access to following pages without login: API”。ScoreSight 不会发送 vMix 登录信息。</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="646"/>
         <location filename="../src/output_status.py" line="682"/>
         <source>HTTP {code}: check the UNO URL</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">HTTP {code}：请检查 UNO URL</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="649"/>
         <location filename="../src/output_status.py" line="685"/>
         <source>overlays.uno refused the URL: it is wrong or no longer valid. Copy the API URL of your control app again.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">overlays.uno 拒绝了该 URL：它有误或已失效。请重新复制控制应用的 API URL。</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="657"/>
         <source>HTTP {code}: access denied</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">HTTP {code}：访问被拒绝</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="660"/>
         <source>The endpoint refused the request. If it needs a key, put it in the URL.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">端点拒绝了请求。如果需要密钥，请将其写入 URL。</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="670"/>
         <source>HTTP 404: this isn&apos;t the vMix Web API</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">HTTP 404：这不是 vMix Web API</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="673"/>
         <source>Check the host and the port: vMix&apos;s Web Controller port ({port} by default).</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">请检查主机和端口：应为 vMix 的 Web Controller 端口（默认为 {port}）。</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="693"/>
         <source>HTTP 404: check the URL</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">HTTP 404：请检查 URL</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="694"/>
         <source>The endpoint has nothing at this address: check the path.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">该端点在此地址下没有内容：请检查路径。</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="701"/>
         <source>overlays.uno limits how many updates it accepts, and drops the others. Keep Send Same? off and Update on change on.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">overlays.uno 会限制接受的更新数量，并丢弃其余更新。请关闭“发送相同值？”，并开启“发生变化时更新”。</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="707"/>
         <source>The endpoint limits the requests, and drops the others: lower Detections / s.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">该端点限制请求数量，并丢弃其余请求：请调低“检测次数 / 秒”。</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="714"/>
         <source>HTTP 429: too many requests</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">HTTP 429：请求过多</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="719"/>
         <source>Check the Input and the vMix field names in the table (for example Home Score.Text).</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">请检查“输入”以及表格中的 vMix 字段名称（例如 Home Score.Text）。</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="730"/>
         <location filename="../src/output_status.py" line="747"/>
         <source>It answered: {text}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">响应内容：{text}</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="739"/>
         <source>HTTP {code}: the receiver reported an error</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">HTTP {code}：接收方报告了错误</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="746"/>
         <source>HTTP {code}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">HTTP {code}</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="776"/>
         <source>{failing} of {total} failing: {problem}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">{total} 个中有 {failing} 个失败：{problem}</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="823"/>
         <source>Folder not found: {folder}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">找不到文件夹：{folder}</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="826"/>
         <source>The output folder {folder} doesn&apos;t exist any more, so no files are written. Choose a folder to write them again.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">输出文件夹 {folder} 已不存在，因此不会写入任何文件。请选择一个文件夹以重新写入。</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="835"/>
@@ -2359,241 +2723,288 @@
         <location filename="../src/output_status.py" line="1131"/>
         <location filename="../src/output_status.py" line="1202"/>
         <source>Off</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">已关闭</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="836"/>
         <source>Choose a folder to write the readings to files.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">请选择一个文件夹，以将读数写入文件。</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="845"/>
         <source>Waiting for readings to write to {folder}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">正在等待读数写入 {folder}</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="854"/>
         <source>Can&apos;t write {file}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">无法写入 {file}</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="858"/>
         <source>Can&apos;t write {file} and {count} more</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">无法写入 {file} 及另外 {count} 个文件</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="866"/>
         <source>Check that the folder can be written to and that no other program locks the files. ScoreSight tries again at every save.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">请确认该文件夹可写入，且没有其他程序锁定这些文件。ScoreSight 会在每次保存时重试。</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="878"/>
         <source>Writing to {folder} · 1 file</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">正在写入 {folder} · 1 个文件</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="882"/>
         <source>Writing to {folder} · {count} files</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">正在写入 {folder} · {count} 个文件</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="890"/>
         <source>The files are in {folder}. A file is written when its value changes.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">文件位于 {folder}。值变化时才会写入对应文件。</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="912"/>
         <source>Not running: port {port} is in use</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">未运行：端口 {port} 已被占用</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="917"/>
         <source>Another program (or another ScoreSight) uses port {port}. Close it, or start ScoreSight with --port to use another port.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">另一个程序（或另一个 ScoreSight）正在使用端口 {port}。请关闭它，或使用 --port 参数启动 ScoreSight 以使用其他端口。</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="926"/>
         <source>{url} · no requests yet</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">{url} · 尚无请求</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="930"/>
         <source>{url} · 1 client</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">{url} · 1 个客户端</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="934"/>
         <source>{url} · {count} clients</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">{url} · {count} 个客户端</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="938"/>
         <source>{url} · no recent requests</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">{url} · 近期无请求</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="947"/>
         <source>Always on. Open {url}/scoresight in a browser, or read {url}/json, /xml or /csv from other software.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">始终开启。在浏览器中打开 {url}/scoresight，或在其他软件中读取 {url}/json、/xml 或 /csv。</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="974"/>
         <source>Connecting to {target}…</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">正在连接到 {target}…</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="984"/>
         <source>Not connected: {problem}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">未连接：{problem}</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="991"/>
         <source>Then click Connect OBS.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">然后点击“连接OBS”。</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1002"/>
         <source>Not connected</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">未连接</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1003"/>
         <source>Click Connect OBS to update text sources in OBS Studio.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">点击“连接OBS”以更新 OBS Studio 中的文本源。</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1014"/>
         <source>Connected to {target}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">已连接到 {target}</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1018"/>
         <source>A text source is updated when its field&apos;s value changes.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">字段的值变化时，对应的文本源会更新。</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1027"/>
         <source>Reconnecting to OBS at {target}…</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">正在重新连接到 {target} 上的 OBS…</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1030"/>
         <source>The connection to OBS was lost. ScoreSight reconnects by itself as soon as OBS is reachable again.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">与 OBS 的连接已断开。OBS 恢复可访问后，ScoreSight 会自动重新连接。</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1039"/>
         <source>Connected, but no field has an OBS text source</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">已连接，但没有字段对应 OBS 文本源</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1042"/>
         <source>The standard fields update OBS text sources with their names (Home score, Clock...). Place them on the picture.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">标准字段会更新与其同名的 OBS 文本源（Home score、Clock...）。请将它们放到画面上。</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1066"/>
         <source>Click Start vMix to update input {input} at {target}.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">点击“开始 vMix”以更新 {target} 上的输入 {input}。</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1074"/>
         <location filename="../src/output_status.py" line="1153"/>
         <source>No fields to send</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">没有要发送的字段</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1076"/>
         <source>Place fields on the picture and enter their vMix field names (for example Home Score.Text) in the table.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">请将字段放到画面上，并在表格中输入它们的 vMix 字段名称（例如 Home Score.Text）。</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1087"/>
         <source>Waiting for a new value for {target}, input {input}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">正在等待 {target}（输入 {input}）的新值</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1091"/>
         <location filename="../src/output_status.py" line="1105"/>
         <source>vMix gets a field&apos;s value when it changes (or every time, with Send Same?).</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">字段值变化时 vMix 才会收到该值（开启“发送相同值？”时则每次都会收到）。</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1101"/>
         <source>Sending to {target}, input {input}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">正在发送到 {target}，输入 {input}</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1132"/>
         <source>Click Start sending to drive your overlays.uno overlay.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">点击“开始发送”以驱动您的 overlays.uno 叠加层。</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1141"/>
         <source>Enter your UNO API URL</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">请输入您的 UNO API URL</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1143"/>
         <source>Copy the API URL of your overlay&apos;s control app in overlays.uno into URL.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">将 overlays.uno 中叠加层控制应用的 API URL 复制到“URL”中。</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1155"/>
         <source>Place fields on the picture and enter the UNO commands in the table.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">请将字段放到画面上，并在表格中输入 UNO 命令。</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1165"/>
         <source>Waiting for a new value for {host}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">正在等待 {host} 的新值</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1174"/>
         <source>Sending to {host}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">正在发送到 {host}</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1203"/>
         <source>Tick the checkbox to send the readings to a URL on every detection cycle.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">勾选复选框，即可在每个检测周期将读数发送到 URL。</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1213"/>
         <source>Enter a URL</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">请输入 URL</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1215"/>
         <source>Enter the URL to send the readings to, for example http://192.168.1.10:8091/scores.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">请输入接收读数的 URL，例如 http://192.168.1.10:8091/scores。</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="511"/>
         <location filename="../src/output_status.py" line="1225"/>
         <source>The URL isn&apos;t valid</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">URL 无效</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="512"/>
         <location filename="../src/output_status.py" line="1227"/>
         <source>The URL needs a scheme and a host, for example http://192.168.1.10:8091/scores.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">URL 需要包含协议和主机，例如 http://192.168.1.10:8091/scores。</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1234"/>
         <source>GET to {target}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">GET 到 {target}</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1238"/>
         <source>{method} {encoding} to {target}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">{method} {encoding} 到 {target}</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1246"/>
         <source>Waiting for readings: {request}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">正在等待读数：{request}</translation>
     </message>
 </context>
 <context>
@@ -2601,67 +3012,80 @@
     <message>
         <location filename="../src/readings_view.py" line="132"/>
         <source>new</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">新</translation>
     </message>
     <message>
         <location filename="../src/readings_view.py" line="134"/>
         <source>same</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">相同</translation>
     </message>
     <message>
         <location filename="../src/readings_view.py" line="137"/>
         <source>rejected ‘{text}’</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">已拒绝“{text}”</translation>
     </message>
     <message>
         <location filename="../src/readings_view.py" line="140"/>
         <source>rejected</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">已拒绝</translation>
     </message>
     <message>
         <location filename="../src/readings_view.py" line="142"/>
         <source>no reading</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">无读数</translation>
     </message>
     <message>
         <location filename="../src/readings_view.py" line="150"/>
         <source>{seconds} s</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">{seconds} 秒</translation>
     </message>
     <message>
         <location filename="../src/readings_view.py" line="154"/>
         <source>{minutes} min</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">{minutes} 分钟</translation>
     </message>
     <message>
         <location filename="../src/readings_view.py" line="157"/>
         <source>{hours} h</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">{hours} 小时</translation>
     </message>
     <message>
         <location filename="../src/readings_view.py" line="180"/>
         <source>Last good reading: {value} ({age} ago)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">上次有效读数：{value}（{age}前）</translation>
     </message>
     <message>
         <location filename="../src/readings_view.py" line="186"/>
         <source>Last good reading: {value}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">上次有效读数：{value}</translation>
     </message>
     <message>
         <location filename="../src/readings_view.py" line="192"/>
         <source>Latest reading: {glyph} {state}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">最新读数：{glyph} {state}</translation>
     </message>
     <message>
         <location filename="../src/readings_view.py" line="198"/>
         <source>No good reading for a while: check the box and its settings.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">已有一段时间没有有效读数：请检查检测框及其设置。</translation>
     </message>
     <message>
         <location filename="../src/readings_view.py" line="376"/>
         <source>not sent</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">未发送</translation>
     </message>
 </context>
 <context>
@@ -2669,113 +3093,136 @@
     <message>
         <location filename="../src/status_bar.py" line="134"/>
         <source>Screen capture</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">屏幕捕获</translation>
     </message>
     <message>
         <location filename="../src/status_bar.py" line="159"/>
         <source>No source</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">无来源</translation>
     </message>
     <message>
         <location filename="../src/status_bar.py" line="162"/>
         <source>Opening {source}…</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">正在打开 {source}…</translation>
     </message>
     <message>
         <location filename="../src/status_bar.py" line="166"/>
         <source>{source}: can&apos;t be read</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">{source}：无法读取</translation>
     </message>
     <message>
         <location filename="../src/status_bar.py" line="170"/>
         <source>{source}: no new frames</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">{source}：没有新帧</translation>
     </message>
     <message>
         <location filename="../src/status_bar.py" line="179"/>
         <source>{fps} fps</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">{fps} 帧/秒</translation>
     </message>
     <message>
         <location filename="../src/status_bar.py" line="191"/>
         <source>Reading {rate}/s of {target}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">识别 {rate}/秒（目标 {target}）</translation>
     </message>
     <message>
         <location filename="../src/status_bar.py" line="194"/>
         <source>Reading {rate}/s</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">识别 {rate}/秒</translation>
     </message>
     <message>
         <location filename="../src/status_bar.py" line="211"/>
         <source>PAUSED {elapsed}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">已暂停 {elapsed}</translation>
     </message>
     <message>
         <location filename="../src/status_bar.py" line="219"/>
         <source>HTTP server not running (port {port} busy)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">HTTP 服务器未运行（端口 {port} 被占用）</translation>
     </message>
     <message>
         <location filename="../src/status_bar.py" line="301"/>
         <source>Outputs:</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">输出：</translation>
     </message>
     <message>
         <location filename="../src/status_bar.py" line="306"/>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">复制</translation>
     </message>
     <message>
         <location filename="../src/status_bar.py" line="308"/>
         <source>Copy the HTTP server&apos;s address to the clipboard</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">将 HTTP 服务器地址复制到剪贴板</translation>
     </message>
     <message>
         <location filename="../src/status_bar.py" line="313"/>
         <source>Copy the HTTP server&apos;s address</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">复制 HTTP 服务器地址</translation>
     </message>
     <message>
         <location filename="../src/status_bar.py" line="329"/>
         <source>The video source, its resolution and frame rate</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">视频来源及其分辨率和帧率</translation>
     </message>
     <message>
         <location filename="../src/status_bar.py" line="342"/>
         <source>How many times per second the boxes are read, and the Detections / s setting. The preview picture refreshes about once per second on purpose.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">每秒识别检测框的次数，以及“检测次数 / 秒”设置。预览画面有意每秒只刷新约一次。</translation>
     </message>
     <message>
         <location filename="../src/status_bar.py" line="348"/>
         <source>The computer can&apos;t keep up: lower Detections / s, use fewer boxes or a lower source resolution.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">计算机处理不过来：请调低“检测次数 / 秒”、减少检测框数量，或降低来源分辨率。</translation>
     </message>
     <message>
         <location filename="../src/status_bar.py" line="368"/>
         <source>The outputs are paused: they keep their last values</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">输出已暂停：保持最后的值</translation>
     </message>
     <message>
         <location filename="../src/status_bar.py" line="377"/>
         <source>The HTTP server (scoreboard page, JSON, XML, CSV). Open it in a browser or in other software on this computer or network:
 {urls}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">HTTP 服务器（记分板页面、JSON、XML、CSV）。可在本机或网络中的浏览器或其他软件中打开：
+{urls}</translation>
     </message>
     <message>
         <location filename="../src/status_bar.py" line="389"/>
         <source>Another program uses the port. Close it, or start ScoreSight with --port to use a different port.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">另一个程序正在使用该端口。请关闭它，或使用 --port 参数启动 ScoreSight 以使用其他端口。</translation>
     </message>
     <message>
         <location filename="../src/status_bar.py" line="422"/>
         <source>Click to show its settings.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">点击以显示其设置。</translation>
     </message>
     <message>
         <location filename="../src/status_bar.py" line="431"/>
         <source>Copied {url}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">已复制 {url}</translation>
     </message>
 </context>
 <context>
@@ -2783,47 +3230,56 @@
     <message>
         <location filename="../src/training_dojo.ui" line="20"/>
         <source>OCR Data Training Dojo</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">OCR 数据训练道场</translation>
     </message>
     <message>
         <location filename="../src/training_dojo.ui" line="75"/>
         <source>Text...</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">文本...</translation>
     </message>
     <message>
         <location filename="../src/training_dojo.ui" line="91"/>
         <source>&lt;</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">&lt;</translation>
     </message>
     <message>
         <location filename="../src/training_dojo.ui" line="98"/>
         <source>&gt;</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">&gt;</translation>
     </message>
     <message>
         <location filename="../src/training_dojo.ui" line="117"/>
         <source>Only Undone</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">仅未确认</translation>
     </message>
     <message>
         <location filename="../src/training_dojo.py" line="74"/>
         <source>Enter: approve and go to the next image</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Enter：确认并转到下一张图像</translation>
     </message>
     <message>
         <location filename="../src/training_dojo.py" line="76"/>
         <source>{shortcut}: remove the approval</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">{shortcut}：取消确认</translation>
     </message>
     <message>
         <location filename="../src/training_dojo.py" line="81"/>
         <source>Previous image ({shortcuts})</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">上一张图像（{shortcuts}）</translation>
     </message>
     <message>
         <location filename="../src/training_dojo.py" line="86"/>
         <source>Next image ({shortcuts})</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">下一张图像（{shortcuts}）</translation>
     </message>
 </context>
 <context>
@@ -2831,22 +3287,26 @@
     <message>
         <location filename="../src/update_check.py" line="213"/>
         <source>ScoreSight Update Available</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">ScoreSight 有可用更新</translation>
     </message>
     <message>
         <location filename="../src/update_check.py" line="215"/>
         <source>ScoreSight Update Check</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">ScoreSight 更新检查</translation>
     </message>
     <message>
         <location filename="../src/update_check.py" line="217"/>
         <source>Installed version: {current}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">已安装版本：{current}</translation>
     </message>
     <message>
         <location filename="../src/update_check.py" line="221"/>
         <source>Latest release: {latest}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">最新版本：{latest}</translation>
     </message>
 </context>
 <context>
@@ -2854,7 +3314,8 @@
     <message>
         <location filename="../src/video_settings.py" line="96"/>
         <source>The video source is not open.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">视频来源未打开。</translation>
     </message>
 </context>
 </TS>
