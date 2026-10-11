@@ -2,13 +2,18 @@
 title: Viewer & Image Tools
 parent: Guides
 nav_order: 2
-description: "Zoom and pan the viewer, Binary View, 4-corner perspective correction, crop, rotate, stabilize, box display styles and the OSD statistics."
+description: "Zoom and pan the viewer, Binary View, 4-corner perspective correction, crop, rotate, stabilize, box display styles and the statistics overlay."
 ---
 
 # Viewer & Image Tools
 {: .no_toc }
 
-The large viewer shows the source picture with your boxes on top. The tool bar above it changes how the picture is processed before any box is read.
+The large viewer shows the source picture with your boxes on top. Above it are two rows:
+
+- The **source bar**: the [source](sources.md) and, on the right, the **view tools**: **Binary View**, **Boxes:** (the box display style), **Stats**, **Fit** and the zoom level. They change only what you see.
+- **Adjust picture:** **Rotate**, **Crop**, **4-corner** and **Stabilize**. They change the picture every box is read from, so set them before you place your boxes.
+
+In a narrow window the view tools show icons only; their tooltips name them.
 
 <details open markdown="block">
   <summary>On this page</summary>
@@ -34,13 +39,13 @@ Boxes are positioned on the **result** of steps 1–4. Change rotation, crop or 
 
 | Action | How |
 |---|---|
-| Zoom in / out | **Ctrl + mouse wheel** (**⌘ Cmd + mouse wheel** on macOS), from 0.33x to 3x, in 5% steps |
+| Zoom in / out | **Ctrl + mouse wheel** (**⌘ Cmd + mouse wheel** on macOS) in 5% steps, or **Ctrl+=** and **Ctrl+-** in 25% steps, up to 400%. The zoom level (for example **59%**) is shown after **Fit** |
 | Scroll | Mouse wheel (vertical). Use the scroll bars when zoomed in |
 | Pan | Drag with the **middle mouse button** |
-| Fit the picture to the window | **1:1** button, or **Ctrl+0** |
+| Fit the picture to the window | **Fit** (it was **1:1**), or **Ctrl+0** |
 | Select a box | Click it (the field list selects it too) |
-| Move a box | Drag it |
-| Resize a box | Drag an edge or a corner handle. Handles appear on the selected box |
+| Move a box | Drag it, or press the **arrow keys**: 1 pixel per press, 10 with **Shift** (click the picture first, so the viewer has the keyboard) |
+| Resize a box | Drag an edge or a corner handle. White square handles appear on the selected box |
 | Deselect | Click empty space in the picture, or press **Esc** |
 
 See [Keyboard & Mouse](keyboard-mouse.md) for the full reference.
@@ -51,28 +56,36 @@ See [Keyboard & Mouse](keyboard-mouse.md) for the full reference.
 
 This is the most useful tuning tool: the OCR can only read what you see here. Digits should be solid and clearly separated from the background, with no stray specks touching them. See [Recognition Tuning](recognition-tuning.md).
 
+A view tool that is on, such as **Binary View** or **Stats**, is filled with the highlight colour.
+
 ## 4-corner correction
 
 When the camera looks at the scoreboard at an angle, the digits are skewed and get smaller towards the far side. 4-corner correction warps the picture so the scoreboard becomes a straight rectangle.
 
-1. Click **4-corner Correction**.
-2. Click the four corners of the scoreboard (or of the area you want straightened) in the picture. The order doesn't matter: ScoreSight sorts them clockwise from the top-left. Red markers and a red outline show your clicks.
-3. After the fourth click the warp is applied and saved, and the button stays highlighted.
+1. Click **4-corner**. A blue banner over the picture says **Click the 4 corners of the scoreboard: 0 of 4**. The picture is shown without any previous correction, and the boxes are hidden while you click.
+2. Click the four corners of the scoreboard (or of the area you want straightened). The order doesn't matter: ScoreSight sorts them clockwise from the top-left. Red markers and a red outline show your clicks, and the banner counts them.
+3. After the fourth click the warp is applied and saved, and **4-corner** stays highlighted.
 
-To redo it, click the button again (this clears the correction), then click it once more and pick new corners. To remove the correction, click the button so it is no longer highlighted.
+**Esc** or the banner's **Cancel** stops picking corners. A previous correction is kept: it is replaced only by the fourth valid click, and until then the boxes are still read from the corrected picture.
 
-If the four points can't be used (for example the same corner clicked twice, points almost in a line, a crossed shape, or a very small area), ScoreSight shows "Invalid four-corner selection", clears the points and lets you click four new corners. An unusable correction saved by an older version is discarded at startup.
+With a correction in place, **4-corner** never removes it at once. It opens a menu:
+
+- **Redo corners…**: pick four new corners as above (Esc keeps the current correction).
+- **Remove correction…**: asks first, because your boxes were placed on the corrected picture and may have to be moved.
+- **Cancel**.
+
+If the four points can't be used (for example the same corner clicked twice, points almost in a line, a crossed shape, or a very small area), ScoreSight shows "Invalid four-corner selection" at the bottom of the picture, the banner goes back to **0 of 4** and you can click four new corners. The previous correction stays. An unusable correction saved by an older version is discarded at startup.
 
 {: .tip }
 Pick corners that form a real rectangle in the world, such as the outer frame of the scoreboard.
 
 ## Crop
 
-**Crop** opens the crop panel with **Left**, **Top**, **Right** and **Bottom** values in pixels. Cropping removes the parts of the picture you don't need. That reduces CPU use, makes the picture larger in the viewer and, with [Global binarization](box-settings.md#binarize), improves the black-and-white threshold because the dark surroundings are gone. Click **Crop** again to turn cropping off; the values are kept.
+**Crop** opens the crop panel with **Left**, **Top**, **Right** and **Bottom** values in pixels. Cropping removes the parts of the picture you don't need. That reduces CPU use, makes the picture larger in the viewer and, with [Global binarization](box-settings.md#binarize), improves the black-and-white threshold because the dark surroundings are gone. Click **Crop** again to turn cropping off; the values are kept for the next time.
 
 ## Rotate
 
-**Rotate** turns the picture 90° clockwise each time you click it (0° → 90° → 180° → 270° → 0°). Use it for cameras mounted sideways or upside down.
+**Rotate** turns the picture 90° clockwise each time you click it (0° → 90° → 180° → 270° → 0°), and shows the current angle, for example **Rotate 90° · 180°**. Use it for cameras mounted sideways or upside down.
 
 ## Stabilize
 
@@ -85,20 +98,29 @@ Pick corners that form a real rectangle in the world, such as the outer frame of
 
 ## Box display style
 
-The drop-down next to the view tools controls how boxes are drawn:
+**Boxes:** controls how boxes are drawn:
 
 | Style | Shows |
 |---|---|
 | **No Box** | Nothing, except the box you have selected |
 | **Outline** | Box outlines only |
-| **Names** | Outlines, box names and the current reading |
-| **All** (default) | Everything in *Names*, plus a green rectangle around the area that was actually read (with [Auto Crop](box-settings.md#auto-crop)) and blue rectangles around each character the OCR found |
+| **Names** | Outlines and a label for each box: its state, name and reading |
+| **All** (default) | Everything in *Names*, plus a thin green rectangle around the area that was actually read (with [Auto Crop](box-settings.md#auto-crop)) and thin blue rectangles around each character the OCR found |
 
-The reading under each box is colour-coded. Green means a new value, light green an unchanged value, yellow a value rejected by a filter, and red `EMP` means nothing was read.
+Boxes are drawn with a light blue line and a dark edge, so they stay visible on red or yellow LED digits. The selected box is drawn in the highlight colour, with white square handles.
 
-## OSD (on-screen statistics)
+Each box's **label** sits **below** the box, so it covers neither the digits nor the scoreboard's captions (HOME, GUEST and PERIOD are usually above the digits). It moves above the box when there's no room below (another box, another label or the edge of the picture), and inside the box only when there's no room at all. Labels keep the same size at every zoom. The symbol at the start of a label tells the state of the latest reading:
 
-**OSD** toggles the statistics in the top-left corner of the viewer:
+| Symbol | State | Meaning |
+|---|---|---|
+| **✓** (green) | `Success` | A new value |
+| **=** (grey) | `SameNoChange` | The same value as before |
+| **!** (amber) | `FailedFilter` | Read, but rejected by a filter (the label shows the rejected text in quotes, for example ‘2l’, and has an amber border) |
+| **∅** (red) | `Empty` | Nothing was read (0.2.0 showed a red `EMP`) |
+
+## Statistics overlay
+
+**Stats** (or **View** > **Statistics overlay**) shows the statistics at the viewer's top-left corner, at the same size at every zoom. It is off by default for new installations, because the [status bar](performance.md) shows the same numbers; if you used it before, it stays on until you turn it off. The choice is remembered.
 
 | Statistic | Meaning |
 |---|---|

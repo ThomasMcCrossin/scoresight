@@ -50,7 +50,7 @@ Custom fields start as a Number field with the *Any number* format. Change the *
 1. Open a source first: until the picture shows, the field list is greyed out and says *Open a source to place fields on the picture*.
 2. Select a field in the list. Its icon is a red ✗ while it has no box.
 3. Click **Place on picture** under the list (in ScoreSight 0.1.x: **Add to Scene**). The icon turns into a green ✓, a box appears in the top-left corner of the picture, and the Box tab shows its settings.
-4. Drag the box over the value and resize it with the edge and corner handles.
+4. Drag the box over the value and resize it with the edge and corner handles. For the last pixel, click the box and use the arrow keys (1 pixel; with Shift, 10). The label under the box shows its name and reading (see [Box display style](view-tools.md#box-display-style)).
 5. To take a box off the picture, select its field and click **Remove from picture** (in 0.1.x: **Remove Selected**), which replaces **Place on picture** while the field has a box. Its settings go back to the defaults; if you changed any of them, ScoreSight asks first.
 
 Boxes and their settings are saved automatically, about half a second after each change. A box that reaches past the edge of the picture (for example after you changed the crop) is read from the part that is still inside the picture. Its saved position isn't changed, so it fits again when you undo the crop.

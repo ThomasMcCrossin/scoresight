@@ -15,9 +15,9 @@ description: "Understand Frames/s, Updates/s and Previews/s, and reduce CPU use 
 {:toc}
 </details>
 
-## Reading the OSD numbers
+## Reading the statistics
 
-Turn on **OSD** to see the statistics in the corner of the viewer:
+Turn on **Stats** (above the picture, or **View** > **Statistics overlay**) to see the statistics in the corner of the viewer:
 
 | Number | What it measures | Typical value |
 |---|---|---|
@@ -30,7 +30,7 @@ A low **Previews/s** is **not** a problem. The preview is refreshed about once p
 
 When a source opens, its first frame is shown and read right away, whatever the detection rate.
 
-The status bar at the bottom of the window shows the same numbers without the OSD: the source with its resolution and **frames per second**, and **Reading 4.7/s of 5**, the detection rate against your **Detections / s** setting. The reading rate turns orange when it falls below 70% of the setting: the computer can't keep up, so lower **Detections / s**, use fewer boxes or a lower source resolution.
+The status bar at the bottom of the window shows the same numbers without the overlay: the source with its resolution and **frames per second**, and **Reading 4.7/s of 5**, the detection rate against your **Detections / s** setting. The reading rate turns orange when it falls below 70% of the setting: the computer can't keep up, so lower **Detections / s**, use fewer boxes or a lower source resolution.
 
 ## How fast do you need to be?
 
@@ -67,7 +67,7 @@ The slider goes from 1 to 15. For values that change very rarely, you can set `d
 
 ## Video files
 
-When tuning on a recording, use the **Speed** button (x1–x32) to skip quickly to the interesting parts. Speed skips frames. It doesn't change how often boxes are read.
+When tuning on a recording, use the speed button next to the source (×1–×32) to skip quickly to the interesting parts. Speed skips frames. It doesn't change how often boxes are read.
 
 ## Multiple instances
 
