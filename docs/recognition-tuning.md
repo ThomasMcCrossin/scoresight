@@ -35,7 +35,7 @@ Do this before placing boxes. Straight, rectangular digits are much easier to re
 
 ## 3. Choose the OCR model
 
-The **OCR Model** drop-down applies to all boxes. See [OCR Models](ocr-models.md) for details.
+The **OCR model** list, under **All boxes** at the bottom of the **Box** tab, applies to all boxes. See [OCR Models](ocr-models.md) for details.
 
 | Model | Best for |
 |---|---|
@@ -43,41 +43,41 @@ The **OCR Model** drop-down applies to all boxes. See [OCR Models](ocr-models.md
 | **General Scoreboard Large** | Large, bold segment digits filling most of the box |
 | **Daktronics** | Daktronics-style dot-matrix/LED fonts |
 | **General Fonts (English)** | TV score bugs, apps, games and printed or on-screen text in regular fonts |
-| **Load External OCR Model** | Your own trained Tesseract `.traineddata` model |
+| **Load external model...** | Your own trained Tesseract `.traineddata` model |
 
 Try each model for a few seconds with Binary View on, and keep the one that reads most consistently.
 
 ## 4. Place the boxes well
 
 - One value per box, with a small margin. Keep frame edges, logos, colons from neighbouring clocks and other digits out of the box.
-- Set the display style to **All** to see the green "area read" rectangle (with **Auto Crop**) and the blue per-character rectangles. If a character has no blue rectangle, the OCR didn't see it.
-- If the box sometimes catches the edge of the scoreboard frame, turn on [Cleanup](box-settings.md#cleanup) or make the box a little smaller.
+- Set the display style to **All** to see the green "area read" rectangle (with **Crop to text**) and the blue per-character rectangles. If a character has no blue rectangle, the OCR didn't see it.
+- If the box sometimes catches the edge of the scoreboard frame, turn up [Remove specks](box-settings.md#cleanup) or make the box a little smaller.
 
 ## 5. Make the binary image clean
 
-Select the box and look at it in **Binary View**. You want solid, unbroken digits on a plain background.
+Select the box and look at it in **Binary View** (also the **Binary view** button in the header of **Image cleanup**, in the Box tab). You want solid, unbroken digits on a plain background. The settings below are in the **Image cleanup** section of the Box tab: click its header to open it.
 
 | What you see in Binary View | Try |
 |---|---|
-| The whole box is black or white, or digits are lost in dark/bright areas | **Binarize: Local** (threshold computed for this box only) or **Adaptive** (for uneven lighting, reflections and glare) |
-| Digits look fine in the camera view but are broken or noisy in binary | **Binarize: Local**, or **No Binarization** (the OCR then gets the grayscale image) |
-| Small specks or dust around the digits | Raise **Cleanup** |
-| Segments of 7-segment/LED digits don't touch (an "8" looks like dotted lines) | Raise **Dilate** by 1–2 |
-| Digits merge into blobs | Lower **Dilate** (0 or 1), or slightly under-expose the camera |
-| Digits are slanted (italic) | Adjust **Skew** until they stand upright |
-| Very tall, narrow digits | Lower **V.Scale**, or turn on **Normalize W-H Ratio** |
-| Reading improves when the colours are swapped | Toggle **Invert Input** |
+| The whole box is black or white, or digits are lost in dark/bright areas | **Black & white: This box** (threshold computed for this box only) or **Adaptive** (for uneven lighting, reflections and glare) |
+| Digits look fine in the camera view but are broken or noisy in binary | **Black & white: This box**, or **None** (the OCR then gets the grayscale image) |
+| Small specks or dust around the digits | Raise **Remove specks** |
+| Segments of 7-segment/LED digits don't touch (an "8" looks like dotted lines) | Raise **Thicken strokes** by 1–2 |
+| Digits merge into blobs | Lower **Thicken strokes** (0 or 1), or slightly under-expose the camera |
+| Digits are slanted (italic) | Adjust **Straighten slant** until they stand upright |
+| Very tall, narrow digits | Lower **Squash height**, or turn on **Normalize digit width** |
+| Reading improves when the colours are swapped | Toggle **Invert colours** |
 
-Binary View shows exactly what the OCR reads: **Dilate**, **Cleanup**, **V.Scale** and **Skew** apply to the OCR with every **Binarize** method. Keep **Rescale Input** on (the default). It resizes the box content to the height the OCR models were trained on.
+Binary View shows exactly what the OCR reads: **Thicken strokes**, **Remove specks**, **Squash height** and **Straighten slant** apply to the OCR with every **Black & white** choice. Keep **Resize to 35 px** on (the default). The header of **Image cleanup** says how many of its settings you changed, so you can see at a glance whether a box was tuned. It resizes the box content to the height the OCR models were trained on.
 
 A box over an empty area (for example an unlit digit position, or a board that is switched off) reads as empty (red `EMP`). ScoreSight doesn't run the OCR on a blank image, so the scoreboard models can't invent digits there.
 
 ## 6. Constrain what counts as valid
 
-Even a good picture produces an occasional wrong reading, for example while digits change or during camera flashes. These settings stop wrong readings from reaching your graphics:
+Even a good picture produces an occasional wrong reading, for example while digits change or during camera flashes. These settings, in the **Reading** and **Filtering** sections of the Box tab, stop wrong readings from reaching your graphics:
 
 - **Type**: *Number* only allows digits, and *Time* allows digits, `:` and `.`. This alone removes most garbage. Use *Text* only for real text.
-- **Format**: pick a preset from **Select Preset**. A reading that doesn't fully match the format is marked as *failed filter* (yellow) and is not sent as a new value.
+- **Format**: pick a preset from the **Format** list (it always shows the preset in use, or *Custom*). A reading that doesn't fully match the format is marked as *failed filter* (yellow) and is not sent as a new value. An invalid expression is shown in red: the OCR ignores it.
 
   | Preset | Accepts |
   |---|---|
@@ -97,34 +97,34 @@ Even a good picture produces an occasional wrong reading, for example while digi
 
   {: .note }
   *Time 0-59* and *Shotclock 0-39* require **two** digits. If your shot clock shows `9` rather than `09`, type the format `^[0-3]?\d$` instead.
-- **Remove leading 0s**: turns `07` into `7`. Use it for boards that zero-pad scores.
-- **Average Output**: shows the most common of the last 5 accepted readings to smooth out flicker. It compares whole values, so a change from `12` to `9` never shows a mix such as `92`. It adds a little delay when the value changes.
-- **Conf. Th** (confidence threshold): the minimum Tesseract confidence, in percent. Readings the OCR engine is less confident about are marked *failed filter*. It is **off (0) by default**. If random wrong values still get through a strict Format, try 30–50. Lower it if good values turn yellow: correct readings of real scoreboards often score only 30–50 %. See [Conf. Th](box-settings.md#conf-th-confidence-threshold).
-- **Ordinal**: adds st/nd/rd/th (`1st`, `2nd`...). It is on by default for Period.
+- **Remove leading zeros**: turns `07` into `7`. Use it for boards that zero-pad scores.
+- **Smooth over last 5 readings**: shows the most common of the last 5 accepted readings to smooth out flicker. It compares whole values, so a change from `12` to `9` never shows a mix such as `92`. It adds a little delay when the value changes.
+- **Minimum confidence**: the minimum Tesseract confidence, in percent. Readings the OCR engine is less confident about are marked *failed filter*. It is **off (0) by default**. If random wrong values still get through a strict Format, try 30–50. Lower it if good values turn yellow: correct readings of real scoreboards often score only 30–50 %. See [Minimum confidence](box-settings.md#conf-th-confidence-threshold).
+- **Add ordinal suffix**: adds st/nd/rd/th (`1st`, `2nd`...). It is on by default for Period.
 
 ## 7. Indicator lights and dots
 
-For possession arrows, bonus lights, timeout dots or balls/strikes/outs, don't read characters. Enable **Dot Counter** on the box instead. ScoreSight counts the lit blobs inside the box and reports the number. Use one box per row of lights, and use Binary View to check that each light is a separate white blob.
+For possession arrows, bonus lights, timeout dots or balls/strikes/outs, don't read characters. Turn on **Count lights (dot counter)** for the box instead. ScoreSight counts the lit blobs inside the box and reports the number. Use one box per row of lights, and use Binary View to check that each light is a separate white blob.
 
 ## 8. Still not reliable?
 
 - Try the other [OCR models](ocr-models.md).
-- Make sure **Detections / s** isn't higher than you need (see [Performance Tuning](performance.md)). Fewer, cleaner readings plus **Average Output** often beat many noisy ones.
-- [Collect training data](data_annotation.md) for your scoreboard and train a custom Tesseract model, then load it with **Load External OCR Model**.
+- Make sure **Detections / s** isn't higher than you need (see [Performance Tuning](performance.md)). Fewer, cleaner readings plus **Smooth over last 5 readings** often beat many noisy ones.
+- [Collect training data](data_annotation.md) for your scoreboard and train a custom Tesseract model, then load it with **Load external model...**.
 - [Open an issue](https://github.com/royshil/scoresight/issues/new/choose) with a short clip or screenshots (camera view and Binary View) and your exported configuration.
 
 ## Symptom quick reference
 
 | Symptom | Likely fix |
 |---|---|
-| `8` read as `0`, `6` or `B`, or `0` read as `8` | Adjust **Dilate**, try the **Daktronics** or **Large** model, improve focus |
-| `1` missing or read as `7` | Widen the box slightly; **Cleanup** lower; check the "1" isn't touching the box edge |
-| First digit dropped on two-digit scores | Box too tight on the left; use **Score** presets; turn off **Skip Similar Image** to test |
+| `8` read as `0`, `6` or `B`, or `0` read as `8` | Adjust **Thicken strokes**, try the **Daktronics** or **Large** model, improve focus |
+| `1` missing or read as `7` | Widen the box slightly; **Remove specks** lower; check the "1" isn't touching the box edge |
+| First digit dropped on two-digit scores | Box too tight on the left; use **Score** presets; turn off **Skip OCR while image is unchanged** to test |
 | Letters appear in a clock | **Type: Time** plus a **Time** format preset |
-| Score shows `07` instead of `7` | **Remove leading 0s** |
-| Value flickers between two readings | **Average Output**, a stricter **Format**, better exposure |
-| Correct readings turn yellow | The **Format** doesn't match (check the preset), or **Conf. Th** is too high. Set it to 0 to test |
-| A change on the board is missed | **Skip Similar Image** treats changes of less than 2% of the digit pixels as no change. Turn it off for that box |
-| Box shows red `EMP` | Nothing was read, or the box image is blank: check that the box is on the digits, then check **Binary View** and **Invert Input** |
-| Low-contrast stadium board, dark surroundings | Crop tightly, **Binarize: Local** or **Adaptive**, one box per value, **Remove leading 0s**, a strict **Format** |
-| Readings fine in daylight, bad at night (or the reverse) | Lock exposure; use **Local**/**Adaptive** binarization; save separate [profiles](profiles.md) for day and night |
+| Score shows `07` instead of `7` | **Remove leading zeros** |
+| Value flickers between two readings | **Smooth over last 5 readings**, a stricter **Format**, better exposure |
+| Correct readings turn yellow | The **Format** doesn't match (check the preset), or **Minimum confidence** is too high. Set it to 0 (*Off*) to test |
+| A change on the board is missed | **Skip OCR while image is unchanged** treats changes of less than 2% of the digit pixels as no change. Turn it off for that box |
+| Box shows red `EMP` | Nothing was read, or the box image is blank: check that the box is on the digits, then check **Binary View** and **Invert colours** |
+| Low-contrast stadium board, dark surroundings | Crop tightly, **Black & white: This box** or **Adaptive**, one box per value, **Remove leading zeros**, a strict **Format** |
+| Readings fine in daylight, bad at night (or the reverse) | Lock exposure; use **This box**/**Adaptive** black and white; save separate [profiles](profiles.md) for day and night |

@@ -7,7 +7,7 @@ description: "Overview of every ScoreSight output: text files, the HTTP server, 
 
 # Outputs
 
-ScoreSight can publish its readings to several destinations at the same time. The **Outputs** list at the bottom left of the main window has a row for each one: select a row to show that output's settings under the list.
+ScoreSight can publish its readings to several destinations at the same time. The **Outputs** tab of the inspector, on the right of the main window, lists them with a row for each one: select a row to show that output's settings under the list. Drag the divider between the list and the settings to give the settings (for example a mapping table) more room.
 
 | Output | In the Outputs list | Direction | Sends | Best for |
 |---|---|---|---|---|
@@ -53,7 +53,7 @@ Every detection cycle produces one reading per box, in one of four **states**:
 | State | Meaning | Colour in the viewer |
 |---|---|---|
 | `Success` | A new value was read | Green |
-| `SameNoChange` | The same value as the box's last good reading: with **Update on change** on, for a box whose OCR was skipped by [Skip Similar Image](box-settings.md#skip-similar-image), and for a [template field](boxes.md#template-fields) whose text didn't change | Light green |
+| `SameNoChange` | The same value as the box's last good reading: with **Update on change** on, for a box whose OCR was skipped by [Skip OCR while image is unchanged](box-settings.md#skip-similar-image), and for a [template field](boxes.md#template-fields) whose text didn't change | Light green |
 | `FailedFilter` | Something was read but it failed the box's Format or confidence threshold | Yellow |
 | `Empty` | Nothing was read | Red `EMP` |
 
@@ -72,8 +72,8 @@ Each output treats states differently:
 ## Global controls that affect outputs
 
 - **Pause outputs** (at the top of the field list, or **Ctrl+Shift+P**) freezes all outputs at their current values until you click **Resume outputs**. The field list in ScoreSight keeps updating, so you can watch the readings without sending them. While the outputs are paused, the button is orange, a banner over the picture says since when (with its own **Resume outputs** button), the values in the field list are marked *not sent*, the window title starts with ⏸ and the status bar shows **PAUSED** with the time. When you resume, vMix and UNO get each box's next good value even if it is unchanged, so values that changed while paused reach them. (In ScoreSight 0.1.x this button was called **Stop Updates**.)
-- **Update on change** (on by default) marks unchanged values as `SameNoChange` so that most outputs don't resend them.
-- **Detections / s** sets how often new readings are produced (see [Performance Tuning](performance.md)).
+- **Update on change** (on by default, under **All boxes** at the bottom of the Box tab) marks a reading that equals the box's last good value as `SameNoChange` instead of `Success`. vMix and UNO then don't resend unchanged values (unless their **Send Same?** is on), and the HTTP server and the outbound API report them as unchanged. OBS and the text files get a value only when it changes either way.
+- **Detections / s** (also under **All boxes**) sets how often new readings are produced (see [Performance Tuning](performance.md)).
 - **Save / s** (on the **Text files** page) limits only how often the files are written. It doesn't slow down the other outputs.
 
 ## Network outputs run in the background

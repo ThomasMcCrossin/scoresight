@@ -53,7 +53,7 @@ Set up your boxes first (see the [Quickstart](quickstart.md)):
 
 ![Boxes placed over the scores and clock in ScoreSight](image-11.png)
 
-Then select **vMix** in the **Outputs** list at the bottom left (or click **vMix** in the status bar). Its settings show under the list:
+Then select **vMix** in the **Outputs** tab on the right (or click **vMix** in the status bar). Its settings show under the list:
 
 ![The vMix settings with host, port 8088, input and the field mapping (ScoreSight 0.1.x showed them on a VMix tab)](image-12.png)
 

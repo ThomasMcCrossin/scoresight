@@ -43,14 +43,14 @@ Do this **before** you draw boxes, because boxes are placed on the corrected pic
 
 ## 3. Add boxes over the values
 
-The **Field** list on the left contains the standard fields: Home Score, Away Score, Time, Period, Home Fouls, Away Fouls and Shot Clock.
+The **Fields** list on the left contains the standard fields: Home Score, Away Score, Time, Period, Home Fouls, Away Fouls and Shot Clock.
 
 1. Click a field, for example **Home Score**.
-2. Click **Add to Scene ->**. A red box appears in the top-left corner of the picture.
+2. Click **Place on picture** under the list. A red box appears in the top-left corner of the picture, and the **Box** tab on the right shows its settings.
 3. Drag the box over the home score and drag its edges or corners to resize it. Leave a small margin around the digits.
 4. Repeat for every value you need.
 
-Need something that isn't in the list, such as "Downs", "Yards to go" or "Balls"? Click **+** to add a custom field, double-click it to rename it, then add it to the scene the same way. More details: [Detection Boxes & Templates](boxes.md).
+Need something that isn't in the list, such as "Downs", "Yards to go" or "Balls"? Click **+** to add a custom field, double-click it (or press **F2**) to rename it, then place it on the picture the same way. More details: [Detection Boxes & Templates](boxes.md).
 
 ## 4. Check the readings
 
@@ -66,14 +66,14 @@ Within a second, each box shows what ScoreSight reads, and the **Value** column 
 If readings are wrong or unstable:
 
 - Click **Binary View** to see the black-and-white image the OCR engine reads. Digits should be solid and clearly separated from the background.
-- Select the box and set its **Type** (Number, Time or Text) and a **Format** preset, such as *Time mm:ss* or *Score ddd*.
-- Try another **OCR Model**: *Daktronics* for segment/LED digits, or *General Scoreboard Large* for big digits.
+- Select the box and, in the **Box** tab on the right, set its **Type** (Number, Time or Text) and a **Format** preset, such as *Time mm:ss* or *Score ddd*.
+- Try another **OCR model** (under **All boxes**, at the bottom of the Box tab): *Daktronics* for segment/LED digits, or *General Scoreboard Large* for big digits.
 
 The [Recognition Tuning](recognition-tuning.md) guide walks through this step by step.
 
 ## 5. Send the results to your graphics
 
-Pick one or more outputs in the **Outputs** list at the bottom left. Select one to show its settings under the list, and turn it on with its switch:
+Pick one or more outputs in the **Outputs** tab, on the right next to the **Box** tab. Select one to show its settings under the list, and turn it on with its switch:
 
 | Output | What it does | Guide |
 |---|---|---|
@@ -96,10 +96,10 @@ ScoreSight saves your boxes and settings automatically and reopens the last sour
 
 | Control | What it does |
 |---|---|
-| **Detections / s** | How many times per second the boxes are read (1–15, default 5). |
-| **Update on change** | When on (default), a value that hasn't changed is marked "unchanged" and most outputs don't resend it. |
-| **Pause outputs** | Freezes all outputs at their current values, for example during a timeout or replay (**Ctrl+Shift+P**). The field list keeps updating; an orange banner and the status bar show that the outputs are paused. Click **Resume outputs** to continue. |
-| **OCR Model** | The recognition model used for all boxes. See [OCR Models](ocr-models.md). |
+| **Detections / s** | How many times per second the boxes are read (1–15, default 5). Under **All boxes**, at the bottom of the Box tab. |
+| **Update on change** | When on (default), a value that hasn't changed is marked "unchanged", and vMix and UNO don't resend it. Under **All boxes**. |
+| **Pause outputs** | At the top of the field list. Freezes all outputs at their current values, for example during a timeout or replay (**Ctrl+Shift+P**). The field list keeps updating; an orange banner and the status bar show that the outputs are paused. Click **Resume outputs** to continue. |
+| **OCR model** | The recognition model used for all boxes, under **All boxes**. See [OCR Models](ocr-models.md). |
 | **Status bar** | At the bottom of the window: the source with its resolution and frame rate, how many times per second the boxes are read, **PAUSED** while the outputs are paused, and the HTTP server's address with a **Copy** button. |
 | **File > Appearance** | Switch between the System, Light and Dark colour schemes. |
 

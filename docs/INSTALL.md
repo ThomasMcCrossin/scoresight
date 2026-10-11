@@ -173,7 +173,7 @@ Screen capture is not available on Linux. Use a capture card, NDI, or OBS's virt
 Install the new version over the old one (Windows), replace the app in Applications (macOS), or extract the new archive (Linux). Your boxes and settings live in a separate settings folder, so they carry over. See [Settings, Files & Command Line](configuration.md#where-scoresight-keeps-its-files).
 
 {: .new }
-When ScoreSight 0.2.0 first opens the settings of an older version, it changes a saved vMix port of `8099` to `8088` (the port of vMix's Web API), and it sets the **Conf. Th** confidence threshold of every box to 0 (off), because that setting had no effect before. Both changes happen once and are written to the log. See [One-time upgrades](configuration.md#one-time-upgrades-of-older-settings).
+When ScoreSight 0.2.0 first opens the settings of an older version, it changes a saved vMix port of `8099` to `8088` (the port of vMix's Web API), and it sets the **Minimum confidence** (in 0.1.x: **Conf. Th**) of every box to 0 (off), because that setting had no effect before. Both changes happen once and are written to the log. See [One-time upgrades](configuration.md#one-time-upgrades-of-older-settings).
 
 ## Next step
 

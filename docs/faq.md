@@ -24,11 +24,11 @@ Any scoreboard whose values you can see in a video picture: LED, LCD, 7-segment,
 
 ## Can it read indicator lights, like balls, strikes and outs?
 
-Yes. Use [Dot Counter](box-settings.md#dot-counter) on a box that covers a row of lights. ScoreSight reports how many are lit ([#4](https://github.com/royshil/scoresight/issues/4)).
+Yes. Use [Count lights (dot counter)](box-settings.md#dot-counter) on a box that covers a row of lights. ScoreSight reports how many are lit ([#4](https://github.com/royshil/scoresight/issues/4)).
 
 ## Can it read one character at a time?
 
-Put one box over each digit and combine them with a [template field](boxes.md#template-fields) such as `{% raw %}{{Digit 1}}{{Digit 2}}{% endraw %}`. The *Composite (Per-Character)* option is experimental: in this release you can draw the sub-boxes, but recognition doesn't use them yet ([#3](https://github.com/royshil/scoresight/issues/3)).
+Put one box over each digit and combine them with a [template field](boxes.md#template-fields) such as `{% raw %}{{Digit 1}}{{Digit 2}}{% endraw %}`. The *Per-character sub-boxes* option (*Composite* in ScoreSight 0.1.x) is experimental: in this release you can draw the sub-boxes, but recognition doesn't use them yet ([#3](https://github.com/royshil/scoresight/issues/3)).
 
 ## Can I use two cameras?
 

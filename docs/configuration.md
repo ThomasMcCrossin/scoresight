@@ -50,7 +50,7 @@ If a settings file is damaged anyway, for example by a full disk or manual editi
 When ScoreSight 0.2.0 first opens a settings file from an older version, it adjusts two settings once and writes a line about each to the log:
 
 - A vMix port of `8099` becomes `8088` (see [vMix](vmix.md)). The key `vmix_port_migrated` records that this was done.
-- The **Conf. Th** confidence threshold of every box becomes 0 (off). It had no effect in older versions, so the boxes read exactly as before (see [Conf. Th](box-settings.md#conf-th-confidence-threshold)). The key `boxes_schema_version` (set to `2`) records that this was done.
+- The **Minimum confidence** (in 0.1.x: **Conf. Th**) of every box becomes 0 (off). It had no effect in older versions, so the boxes read exactly as before (see [Minimum confidence](box-settings.md#conf-th-confidence-threshold)). The key `boxes_schema_version` (set to `2`) records that this was done.
 
 Settings you change afterwards are kept as you set them.
 
@@ -149,6 +149,8 @@ You normally never edit this file: everything is set through the UI. This list h
 |---|---|
 | `language` | The language chosen in **File > Language**, for example `de_DE`. Without it, ScoreSight follows the system language |
 | `color_scheme` | **File > Appearance**: `System`, `Light` or `Dark` |
+| `main_splitter_sizes` | The widths of the field list, the picture and the inspector in pixels, for example `[260, 742, 340]`. `0` means the pane is hidden |
+| `image_cleanup_expanded` | `true` while the **Image cleanup** section of the Box tab is open |
 | `open_on_startup` | Show the log window at startup |
 | `disable_update_checks` | `true` turns off the update check at startup (the **Don't check for updates at startup** checkbox in the update dialog). **File > Check for Updates** always works |
 | `save_ocr_training_data`, `ocr_training_data_folder`, `ocr_training_data_max_size` | [OCR training data](data_annotation.md) collection. An empty `ocr_training_data_folder` means the default folder. The 0.1.x key `ocr_training_data_save_folder` is still read if the new key was never set |
