@@ -484,6 +484,14 @@ class TimerThread(QThread):
         self.speed = 1
         # (width, height) of the last frame read from the source
         self.frame_size = (0, 0)
+        # the source's own frame rate (capped at what the loop reads), None if
+        # it doesn't tell: the window compares fps with it
+        self.nominal_fps: float | None = None
+        # While new four-corner points are picked the preview shows the picture
+        # without the four-corner correction (the corners are clicked on it).
+        # The OCR keeps reading the corrected picture until the new correction
+        # replaces it.
+        self.preview_uncorrected = False
         self.last_frame_timestamp = None
         self.last_update_timestamp = None
         self.last_emit_time = None
@@ -593,7 +601,26 @@ class TimerThread(QThread):
             self.update_error.emit("Error: Unable to play video stream")
             return False
 
+        self.nominal_fps = self._read_nominal_fps()
         return True
+
+    def _read_nominal_fps(self) -> float | None:
+        """The frame rate the source reports (a camera's mode, a file's or a
+        stream's rate), capped at the capture loop's own rate; None if it
+        reports none or a bogus one (screen captures and NDI report 0, some
+        streams 90000)."""
+        try:
+            fps = float(self.video_capture.get(cv2.CAP_PROP_FPS))
+        except Exception:
+            return None
+        if not math.isfinite(fps) or fps <= 0 or fps > 1000:
+            return None
+        return min(fps, 1000.0 / self.frame_interval)
+
+    def requestPreview(self):
+        """Emit the next frame as the preview, without waiting for the preview
+        interval (e.g. right after the four-corner picking started)."""
+        self.last_emit_time = None
 
     def _release_capture(self):
         capture, self.video_capture = self.video_capture, None
@@ -736,7 +763,8 @@ class TimerThread(QThread):
             # dump this frame since not enough time has passed
             return
 
-        frame_rgb = self.transform_frame(frame_rgb)
+        adjusted = self.adjust_frame(frame_rgb)
+        frame_rgb = self.correct_frame(adjusted)
         show_binary = self.show_binary
         save_training_data = ocr_training_data_options.save_ocr_training_data
         targets = None
@@ -782,7 +810,10 @@ class TimerThread(QThread):
                         + (1.0 - self.fps_alpha) * self.pps
                     )
             self.last_emit_time = now
-            if show_binary:
+            if self.preview_uncorrected:
+                # new four-corner points are being picked on this picture
+                self.update_signal.emit(adjusted)
+            elif show_binary:
                 if display is None:
                     if gray is None:
                         gray = to_gray(frame_rgb)
@@ -850,6 +881,10 @@ class TimerThread(QThread):
 
     def transform_frame(self, frame_rgb):
         """Apply the rotation, crop, stabilization and four-corner homography."""
+        return self.correct_frame(self.adjust_frame(frame_rgb))
+
+    def adjust_frame(self, frame_rgb):
+        """Apply the rotation, crop and stabilization."""
         crop = self.crop
         rotation = crop.rotation
         # apply rotation if set
@@ -875,8 +910,10 @@ class TimerThread(QThread):
         # Stabilize the frame
         if self.stabilizationEnabled:
             frame_rgb = self.framestabilizer.stabilize_frame(frame_rgb)
+        return frame_rgb
 
-        # Apply the homography to the frame
+    def correct_frame(self, frame_rgb):
+        """Apply the four-corner homography (the perspective correction)."""
         homography = self.homography
         if homography is not None:
             frame_rgb = cv2.warpPerspective(

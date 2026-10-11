@@ -1,13 +1,138 @@
+"""The boxes drawn over the picture in the viewer.
+
+Each box is an azure outline with a dark halo, so it shows on any scoreboard
+(red boxes vanished on red LED digits), and a label pill with the box's state
+glyph, name and latest reading. The pill is drawn at a fixed size on screen
+(ItemIgnoresTransformations) and sits outside the box, below it by default:
+scoreboard captions (HOME, GUEST, PERIOD) are usually above the digits.
+ImageViewer places the pills with place_label() so that they cover no box.
+"""
+
 from typing import Callable
-from PySide6.QtCore import QPointF, QRectF, Qt
-from PySide6.QtGui import QBrush, QColor, QFont, QPen
+from PySide6.QtCore import QPointF, QRectF, QSizeF, Qt
+from PySide6.QtGui import (
+    QBrush,
+    QColor,
+    QFont,
+    QFontMetricsF,
+    QGuiApplication,
+    QPainter,
+    QPalette,
+    QPen,
+)
 from PySide6.QtWidgets import (
     QGraphicsItem,
     QGraphicsRectItem,
     QGraphicsSimpleTextItem,
 )
 
+import theme
+from readings_view import draw_glyph, state_glyph, state_look
 from text_detection_target import TextDetectionTarget, TextDetectionTargetWithResult
+
+ResultState = TextDetectionTargetWithResult.ResultState
+
+# Box display styles (the "Boxes:" combo box and the box_display_style setting)
+BOX_STYLE_NONE = 0
+BOX_STYLE_OUTLINE = 1
+BOX_STYLE_NAMES = 2
+BOX_STYLE_ALL = 3
+
+# Colours over the video: they don't follow the theme, the picture is the
+# background in both
+BOX_STROKE = QColor("#1EA7FF")  # azure: rare on LED scoreboards
+BOX_HALO = QColor(0, 0, 0, 170)
+AUTO_CROP_STROKE = QColor("#3FB950")  # the area the OCR read (Auto Crop)
+CHARACTER_STROKE = QColor("#6E7BFF")  # each character the OCR found
+LABEL_BACKGROUND = QColor(11, 11, 11, 218)
+LABEL_BORDER = QColor(255, 255, 255, 50)
+LABEL_NAME = QColor("#D6D6D6")
+LABEL_VALUE = QColor("#FFFFFF")
+HANDLE_FILL = QColor("#FFFFFF")
+HANDLE_BORDER = QColor(0, 0, 0, 200)
+
+# Sizes on screen, in pixels (cosmetic: the same at every zoom)
+BOX_STROKE_PX = 2
+BOX_HALO_PX = 4
+LABEL_GAP_PX = 3  # between the box and its label
+LABEL_NAME_PX = 11
+LABEL_VALUE_PX = 12
+LABEL_PADDING_PX = 5
+LABEL_MAX_NAME_PX = 150
+LABEL_MAX_VALUE_PX = 110
+HANDLE_PX = 8
+# a press this close to a box's edge resizes it
+EDGE_GRAB_PX = 5
+
+# Label placements, relative to the box
+LABEL_BELOW_LEFT = "below-left"
+LABEL_BELOW_RIGHT = "below-right"
+LABEL_ABOVE_LEFT = "above-left"
+LABEL_ABOVE_RIGHT = "above-right"
+LABEL_INSIDE = "inside"
+# outside the box, in order of preference
+LABEL_OUTSIDE_PLACEMENTS = (
+    LABEL_BELOW_LEFT,
+    LABEL_BELOW_RIGHT,
+    LABEL_ABOVE_LEFT,
+    LABEL_ABOVE_RIGHT,
+)
+
+
+def label_rect(placement: str, box: QRectF, size: QSizeF, gap: float) -> QRectF:
+    """Where a label of size goes for a placement next to box (all in the same
+    coordinates, e.g. the scene's)."""
+    width, height = size.width(), size.height()
+    if placement == LABEL_BELOW_LEFT:
+        return QRectF(box.left(), box.bottom() + gap, width, height)
+    if placement == LABEL_BELOW_RIGHT:
+        return QRectF(box.right() - width, box.bottom() + gap, width, height)
+    if placement == LABEL_ABOVE_LEFT:
+        return QRectF(box.left(), box.top() - gap - height, width, height)
+    if placement == LABEL_ABOVE_RIGHT:
+        return QRectF(box.right() - width, box.top() - gap - height, width, height)
+    # inside, at the bottom left
+    return QRectF(box.left() + gap, box.bottom() - gap - height, width, height)
+
+
+def place_label(
+    box: QRectF,
+    size: QSizeF,
+    picture: QRectF,
+    obstacles: list[QRectF],
+    gap: float = 0.0,
+) -> str:
+    """The placement of a box's label: the first one outside the box (below
+    it, then above it; aligned to its left, then to its right edge) that is
+    within the picture and covers none of obstacles (the other boxes and the
+    labels placed before). Without such room, inside the box, at its bottom
+    left: the label then covers part of its own box, never another one."""
+    for placement in LABEL_OUTSIDE_PLACEMENTS:
+        rect = label_rect(placement, box, size, gap)
+        if picture.isValid() and not picture.contains(rect):
+            continue
+        if any(rect.intersects(obstacle) for obstacle in obstacles):
+            continue
+        return placement
+    return LABEL_INSIDE
+
+
+def view_scale(item: QGraphicsItem) -> float:
+    """The scale of the (first) view showing item: screen pixels per scene
+    unit, 1.0 when it isn't shown."""
+    scene = item.scene()
+    if scene is not None:
+        views = scene.views()
+        if views:
+            return max(1e-3, abs(views[0].transform().m11()))
+    return 1.0
+
+
+def _cosmetic_pen(color: QColor, width: float) -> QPen:
+    pen = QPen(color, width)
+    pen.setCosmetic(True)
+    pen.setJoinStyle(Qt.PenJoinStyle.MiterJoin)
+    return pen
 
 
 class ResizableRect(QGraphicsRectItem):
@@ -21,7 +146,7 @@ class ResizableRect(QGraphicsRectItem):
         self.setPos(x, y)
         self.setFlags(QGraphicsItem.GraphicsItemFlag.ItemIsMovable)
         self.setAcceptHoverEvents(True)
-        self.setPen(QPen(QBrush(Qt.GlobalColor.red), 3))
+        self.setPen(_cosmetic_pen(BOX_STROKE, BOX_STROKE_PX))
 
     def getOriginalRect(self):
         """
@@ -40,9 +165,14 @@ class ResizableRect(QGraphicsRectItem):
             rect.height() - border * 2,
         )
 
+    def edgeMargin(self) -> float:
+        """How close to an edge (in item units) a press grabs the edge: about
+        EDGE_GRAB_PX on screen, at any zoom."""
+        return EDGE_GRAB_PX / view_scale(self)
+
     def getEdges(self, pos):
         rect = self.rect()
-        border = self.pen().width() + 2
+        border = self.edgeMargin()
 
         edge = None
         if pos.x() < rect.x() + border:
@@ -69,7 +199,8 @@ class ResizableRect(QGraphicsRectItem):
             mouse_delta = event.pos() - event.buttonDownPos(Qt.MouseButton.LeftButton)
             rect = self.rect()
             pos_delta = QPointF()
-            border = self.pen().width()
+            # the smallest size
+            border = max(1.0, self.pen().widthF())
 
             if self.selected_edge & Qt.Edge.LeftEdge:
                 # ensure that the width is *always* positive, otherwise limit
@@ -173,6 +304,168 @@ class MiniRect(ResizableRect):
         self.boxChangedCallback()
 
 
+class BoxLabel(QGraphicsItem):
+    """A box's label pill: the state glyph of its latest reading (✓ new,
+    = unchanged, ! rejected, ∅ empty) on a coloured disc, the box's name and
+    the reading. Fixed size on screen; its parent (the box) positions it with
+    setPlacement()."""
+
+    def __init__(self, name: str, parent: QGraphicsItem):
+        super().__init__(parent)
+        self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIgnoresTransformations)
+        self.setAcceptedMouseButtons(Qt.MouseButton.NoButton)
+        self.setAcceptHoverEvents(False)
+        self.setZValue(5)
+        self.name = name
+        self.state: ResultState | None = None
+        self.value = ""
+        self.placement = LABEL_BELOW_LEFT
+        self.nameFont = QFont()
+        self.nameFont.setPixelSize(LABEL_NAME_PX)
+        self.valueFont = QFont()
+        self.valueFont.setPixelSize(LABEL_VALUE_PX)
+        self.valueFont.setWeight(QFont.Weight.Bold)
+        # digits of equal width, so a running clock doesn't jitter
+        self.valueFont.setFeature(QFont.Tag("tnum"), 1)
+        self._size = QSizeF()
+        self._local = QRectF()
+        self._layout()
+
+    # --- content ---------------------------------------------------------------
+
+    def setName(self, name: str):
+        if name != self.name:
+            self.name = name
+            self._layout()
+
+    def setReading(self, state: ResultState | None, value: str) -> bool:
+        """Show a reading; returns True if the label's size changed (its
+        placement may have to change too)."""
+        value = "" if value is None else str(value)
+        if state == ResultState.Empty:
+            value = ""  # the ∅ glyph says it
+        if state == self.state and value == self.value:
+            return False
+        self.state = state
+        self.value = value
+        old_size = self._size
+        self._layout()
+        return self._size != old_size
+
+    def text(self) -> str:
+        """The label as text: glyph, name and reading."""
+        parts = [state_glyph(self.state), self.name, self.displayedValue()]
+        return " ".join(part for part in parts if part)
+
+    def displayedValue(self) -> str:
+        if self.state == ResultState.FailedFilter and self.value:
+            return f"‘{self.value}’"
+        return self.value
+
+    def _layout(self):
+        self.prepareGeometryChange()
+        name_metrics = QFontMetricsF(self.nameFont)
+        value_metrics = QFontMetricsF(self.valueFont)
+        self._nameText = name_metrics.elidedText(
+            self.name, Qt.TextElideMode.ElideRight, LABEL_MAX_NAME_PX
+        )
+        self._valueText = value_metrics.elidedText(
+            self.displayedValue(), Qt.TextElideMode.ElideRight, LABEL_MAX_VALUE_PX
+        )
+        height = round(max(name_metrics.height(), value_metrics.height()) + 5)
+        self._disc = height - 6 if state_look(self.state) else 0
+        width = LABEL_PADDING_PX * 2 + name_metrics.horizontalAdvance(self._nameText)
+        if self._disc:
+            width += self._disc + 4
+        if self._valueText:
+            width += 6 + value_metrics.horizontalAdvance(self._valueText)
+        self._size = QSizeF(round(width), height)
+        self._updateLocalRect()
+
+    # --- placement -------------------------------------------------------------
+
+    def size(self) -> QSizeF:
+        """The label's size on screen, in pixels."""
+        return QSizeF(self._size)
+
+    def setPlacement(self, placement: str, box: QRectF):
+        """Put the label next to box (in the parent's coordinates)."""
+        if placement in (LABEL_BELOW_LEFT, LABEL_INSIDE):
+            anchor = box.bottomLeft()
+        elif placement == LABEL_BELOW_RIGHT:
+            anchor = box.bottomRight()
+        elif placement == LABEL_ABOVE_LEFT:
+            anchor = box.topLeft()
+        else:
+            anchor = box.topRight()
+        if placement != self.placement:
+            self.placement = placement
+            self._updateLocalRect()
+        if self.pos() != anchor:
+            self.setPos(anchor)
+
+    def _updateLocalRect(self):
+        # the label relative to its anchor, in screen pixels
+        self.prepareGeometryChange()
+        self._local = label_rect(
+            self.placement,
+            QRectF(0, 0, 0, 0),
+            self._size,
+            LABEL_GAP_PX,
+        )
+        self.update()
+
+    def boundingRect(self) -> QRectF:
+        return self._local.adjusted(-1, -1, 1, 1)
+
+    def paint(self, painter: QPainter, option, widget=None):
+        rect = self._local
+        painter.save()
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        look = state_look(self.state)
+        border = LABEL_BORDER
+        if self.state == ResultState.FailedFilter:
+            border = theme.overlay_color("rejected")
+        painter.setPen(QPen(border, 1))
+        painter.setBrush(LABEL_BACKGROUND)
+        painter.drawRoundedRect(rect.adjusted(0.5, 0.5, -0.5, -0.5), 4, 4)
+        x = rect.left() + LABEL_PADDING_PX
+        if look and self._disc:
+            color_name, glyph = look
+            disc = QRectF(x, rect.center().y() - self._disc / 2, self._disc, self._disc)
+            painter.setPen(Qt.PenStyle.NoPen)
+            painter.setBrush(theme.overlay_color(color_name))
+            painter.drawEllipse(disc)
+            draw_glyph(painter, disc, glyph, QColor("#1B1F24"))
+            x = disc.right() + 4
+        painter.setFont(self.nameFont)
+        painter.setPen(LABEL_NAME)
+        name_width = QFontMetricsF(self.nameFont).horizontalAdvance(self._nameText)
+        painter.drawText(
+            QRectF(x, rect.top(), name_width + 1, rect.height()),
+            Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
+            self._nameText,
+        )
+        if self._valueText:
+            painter.setFont(self.valueFont)
+            painter.setPen(
+                theme.overlay_color("rejected")
+                if self.state == ResultState.FailedFilter
+                else LABEL_VALUE
+            )
+            painter.drawText(
+                QRectF(
+                    x + name_width + 6,
+                    rect.top(),
+                    rect.right() - LABEL_PADDING_PX - (x + name_width + 6),
+                    rect.height(),
+                ),
+                Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
+                self._valueText,
+            )
+        painter.restore()
+
+
 class ResizableRectWithNameTypeAndResult(ResizableRect):
     def __init__(
         self,
@@ -182,7 +475,7 @@ class ResizableRectWithNameTypeAndResult(ResizableRect):
         onCenter=False,
         boxChangedCallback: Callable[[str, QRectF, list[QRectF]], None] = None,
         itemSelectedCallback=None,
-        boxDisplayStyle: int = 1,
+        boxDisplayStyle: int = BOX_STYLE_OUTLINE,
     ):
         super().__init__(
             detectionTarget.x(),
@@ -197,13 +490,16 @@ class ResizableRectWithNameTypeAndResult(ResizableRect):
         self.result = result
         self.boxChangedCallback = boxChangedCallback
         self.itemSelectedCallback = itemSelectedCallback
-        self.extraBoxes = []
-        self.cornerBoxes = []
-        self.cornerSize = 20
-
-        self.posItem = QGraphicsSimpleTextItem("{}".format(self.name), parent=self)
-        self.resultItem = QGraphicsSimpleTextItem("{}".format(self.result), parent=self)
-        self.bgItem = QGraphicsRectItem(self.posItem.boundingRect(), parent=self)
+        self.selected = False
+        # hidden whatever the style (e.g. while four-corner points are picked)
+        self.suppressed = False
+        self.boxDisplayStyle = boxDisplayStyle
+        # the area the OCR read and the characters it found ("All" style)
+        self.effectiveRect = None
+        self.effectiveRectUsed = False
+        self.extraBoxes: list[QGraphicsRectItem] = []
+        self.extraBoxesUsed = 0
+        self.label = BoxLabel(self.name, self)
 
         # Mini-rect related attributes
         self.mini_rects = [
@@ -221,11 +517,11 @@ class ResizableRectWithNameTypeAndResult(ResizableRect):
         self.add_button = None
         self.setupAddButton()
 
-        self.setupTextItems(image_size, boxDisplayStyle)
-        self.updateTextLabelPosition()
-        self.setBoxDisplayStyle(boxDisplayStyle)
+        self.cornerBoxes: list[QGraphicsRectItem] = []
         self.setupCornerBoxes()
         self.updateCornerBoxes()
+        self.label.setPlacement(LABEL_BELOW_LEFT, self.rect())
+        self.updateVisibility()
 
     def setupAddButton(self):
         self.add_button = QGraphicsRectItem(0, 0, 25, 30, parent=self)
@@ -244,187 +540,150 @@ class ResizableRectWithNameTypeAndResult(ResizableRect):
         self.mini_rect_mode = enabled
         self.add_button.setVisible(enabled)
 
-    def setupTextItems(self, image_size, boxDisplayStyle):
-        self.posItem.setBrush(QBrush(QColor("red")))
-        fontPos = QFont("Arial", int(image_size / 60) if image_size > 0 else 32)
-        fontPos.setWeight(QFont.Weight.Bold)
-        self.posItem.setFont(fontPos)
-        self.posItem.setPen(QPen(QColor("black"), 1))
-        self.resultItem.setBrush(QBrush(QColor("red")))
-        fontRes = QFont("Arial", int(image_size / 75) if image_size > 0 else 20)
-        fontRes.setWeight(QFont.Weight.Bold)
-        self.resultItem.setFont(fontRes)
-        # add a semitraansparent background to the text using another rect
-        self.bgItem.setBrush(QBrush(QColor(0, 0, 0, 128)))
-        self.bgItem.setPen(QPen(Qt.GlobalColor.transparent))
-        # z order the text over the rect
-        self.posItem.setZValue(2)
-        self.bgItem.setZValue(1)
-        self.effectiveRect = None
-
     def setupCornerBoxes(self):
-        for i in range(4):
-            cornerBox = QGraphicsRectItem(
-                0, 0, self.cornerSize, self.cornerSize, parent=self
-            )
-            cornerBox.setBrush(QBrush(QColor(255, 0, 0, 128)))  # Light red inside
-            cornerBox.setPen(QPen(QColor("red")))  # Red borders
+        # the selected box's handles: small white squares, the same size at
+        # every zoom
+        half = HANDLE_PX / 2
+        for _ in range(4):
+            cornerBox = QGraphicsRectItem(-half, -half, HANDLE_PX, HANDLE_PX, self)
+            cornerBox.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIgnoresTransformations)
+            cornerBox.setAcceptedMouseButtons(Qt.MouseButton.NoButton)
+            cornerBox.setBrush(QBrush(HANDLE_FILL))
+            cornerBox.setPen(QPen(HANDLE_BORDER, 1))
             cornerBox.setZValue(3)
-            cornerBox.setVisible(False)  # Initially hide the corner boxes
+            cornerBox.setVisible(False)
             self.cornerBoxes.append(cornerBox)
 
-    def updateTextLabelPosition(self):
-        xpos = (
-            self.boundingRect().x()
-            - self.posItem.boundingRect().width() / 2
-            + self.boundingRect().width() / 2
+    def updateCornerBoxes(self):
+        rect = self.rect()
+        self.cornerBoxes[0].setPos(rect.topLeft())
+        self.cornerBoxes[1].setPos(rect.topRight())
+        self.cornerBoxes[2].setPos(rect.bottomLeft())
+        self.cornerBoxes[3].setPos(rect.bottomRight())
+
+    # --- drawing -----------------------------------------------------------------
+
+    def paint(self, painter: QPainter, option, widget=None):
+        rect = self.rect()
+        painter.save()
+        painter.setBrush(Qt.BrushStyle.NoBrush)
+        # a dark halo under the stroke: visible on light and dark pictures
+        painter.setPen(_cosmetic_pen(BOX_HALO, BOX_HALO_PX))
+        painter.drawRect(rect)
+        if self.selected:
+            highlight = QGuiApplication.palette().color(QPalette.ColorRole.Highlight)
+            fill = QColor(highlight)
+            fill.setAlpha(40)
+            painter.setBrush(fill)
+            painter.setPen(_cosmetic_pen(highlight, BOX_STROKE_PX))
+        else:
+            painter.setPen(_cosmetic_pen(BOX_STROKE, BOX_STROKE_PX))
+        painter.drawRect(rect)
+        painter.restore()
+
+    def labelRectInScene(self, placement: str, scale: float) -> QRectF:
+        """Where the label goes for a placement, in scene coordinates, at the
+        view scale."""
+        size = self.label.size()
+        return label_rect(
+            placement,
+            self.sceneBoxRect(),
+            QSizeF(size.width() / scale, size.height() / scale),
+            LABEL_GAP_PX / scale,
         )
-        ypos = self.boundingRect().y() - self.posItem.boundingRect().height()
-        # set the text position to the top left corner of the rect
-        self.posItem.setPos(xpos, ypos)
-        self.bgItem.setRect(self.posItem.boundingRect())
-        self.bgItem.setPos(xpos, ypos)
+
+    def sceneBoxRect(self) -> QRectF:
+        return self.mapRectToScene(self.rect())
+
+    def setLabelPlacement(self, placement: str):
+        self.label.setPlacement(placement, self.rect())
+
+    def labelShown(self) -> bool:
+        return self.label.isVisibleTo(self) and self.isVisible()
+
+    # --- display style, selection --------------------------------------------------
+
+    def updateVisibility(self):
+        """Show the box, its label, its handles and the OCR's details as the
+        display style, the selection and the suppression say."""
+        style = self.boxDisplayStyle
+        visible = not self.suppressed and (style != BOX_STYLE_NONE or self.selected)
+        self.setVisible(visible)
+        self.label.setVisible(style >= BOX_STYLE_NAMES or self.selected)
+        for cornerBox in self.cornerBoxes:
+            cornerBox.setVisible(self.selected)
+        details = style == BOX_STYLE_ALL
+        if self.effectiveRect is not None:
+            self.effectiveRect.setVisible(details and self.effectiveRectUsed)
+        for index, extraBox in enumerate(self.extraBoxes):
+            extraBox.setVisible(details and index < self.extraBoxesUsed)
 
     def setBoxDisplayStyle(self, boxDisplayStyle: int):
         self.boxDisplayStyle = boxDisplayStyle
-        if self.boxDisplayStyle == 0:
-            # hide the rect and the text
-            self.hide()
-            self.posItem.hide()
-            self.bgItem.hide()
-            self.resultItem.hide()
-        elif self.boxDisplayStyle == 1:
-            # show the rect, but not the text
-            self.show()
-            self.posItem.hide()
-            self.bgItem.hide()
-            self.resultItem.hide()
-        else:
-            # show the rect and the text
-            self.show()
-            self.posItem.show()
-            self.bgItem.show()
-            self.resultItem.show()
+        self.updateVisibility()
 
-        if self.boxDisplayStyle != 3:
-            # do not show the effective rect and extra boxes
-            if self.effectiveRect is not None:
-                self.effectiveRect.hide()
-            for extraBox in self.extraBoxes:
-                # remove from the scene
-                extraBox.hide()
-
-    def updateCornerBoxes(self):
-        rect = self.boundingRect()
-        offset = QPointF(self.cornerSize / 2, self.cornerSize / 2)
-        self.cornerBoxes[0].setPos(rect.topLeft() - offset)
-        self.cornerBoxes[1].setPos(rect.topRight() - offset)
-        self.cornerBoxes[2].setPos(rect.bottomLeft() - offset)
-        self.cornerBoxes[3].setPos(rect.bottomRight() - offset)
+    def setSuppressed(self, suppressed: bool):
+        self.suppressed = suppressed
+        self.updateVisibility()
 
     def setRect(self, *args, **kwargs):
         super().setRect(*args, **kwargs)
         self.updateCornerBoxes()
-        self.updateTextLabelPosition()
+        self.label.setPlacement(self.label.placement, self.rect())
 
     def setSelected(self, selected):
         super().setSelected(selected)
-        for cornerBox in self.cornerBoxes:
-            cornerBox.setVisible(selected)
-        if selected:
-            self.show()
-            self.posItem.show()
-            self.bgItem.show()
-            self.resultItem.show()
-        else:
-            self.setBoxDisplayStyle(self.boxDisplayStyle)
+        if selected != self.selected:
+            self.selected = selected
+            self.update()
+        self.updateVisibility()
 
     def getRect(self):
         return self.getOriginalRect()
 
-    def updateResult(self, targetWithResult: TextDetectionTargetWithResult):
+    def updateResult(self, targetWithResult: TextDetectionTargetWithResult) -> bool:
+        """Show a reading: in the label, and with the "All" style the area the
+        OCR read and the characters it found. Returns True if the label's size
+        changed."""
         self.result = targetWithResult.result
-        self.resultItem.setText(targetWithResult.result)
-        # set the result color based on the state
-        if (
-            targetWithResult.result_state
-            == TextDetectionTargetWithResult.ResultState.Success
-        ):
-            self.resultItem.setBrush(QBrush(QColor("green")))
-        elif (
-            targetWithResult.result_state
-            == TextDetectionTargetWithResult.ResultState.SameNoChange
-        ):
-            self.resultItem.setBrush(QBrush(QColor("lightgreen")))
-        elif (
-            targetWithResult.result_state
-            == TextDetectionTargetWithResult.ResultState.FailedFilter
-        ):
-            self.resultItem.setBrush(QBrush(QColor("yellow")))
-        elif (
-            targetWithResult.result_state
-            == TextDetectionTargetWithResult.ResultState.Empty
-        ):
-            self.resultItem.setText("EMP")
-            self.resultItem.setBrush(QBrush(QColor("red")))
-        else:
-            self.resultItem.setBrush(QBrush(QColor("white")))
-        # set the result position to the lower left corner of the rect
-        self.resultItem.setPos(
-            self.boundingRect().x() + self.pen().width(),
-            self.boundingRect().y()
-            + self.boundingRect().height()
-            - self.resultItem.boundingRect().height(),
+        resized = self.label.setReading(
+            targetWithResult.result_state, targetWithResult.result
         )
-        self.resultItem.setZValue(2)
+        if self.boxDisplayStyle == BOX_STYLE_ALL:
+            self.updateDetails(targetWithResult)
+        return resized
 
-        if self.boxDisplayStyle != 3:
-            return
-
-        if targetWithResult.effectiveRect is not None:
-            # draw the effective rect in the scene
+    def updateDetails(self, targetWithResult: TextDetectionTargetWithResult):
+        """The area the OCR read (green) and each character it found (blue), as
+        thin lines: the items are reused from reading to reading."""
+        self.effectiveRectUsed = targetWithResult.effectiveRect is not None
+        if self.effectiveRectUsed:
             if self.effectiveRect is None:
-                self.effectiveRect = QGraphicsRectItem(
-                    targetWithResult.effectiveRect, parent=self
-                )
-                # ignore any mouse events on the effective rect
-                self.effectiveRect.setAcceptHoverEvents(False)
-                self.effectiveRect.setAcceptDrops(False)
-                self.effectiveRect.setAcceptedMouseButtons(Qt.MouseButton.NoButton)
-                self.effectiveRect.setBrush(QBrush(QColor(0, 0, 0, 0)))
-                self.effectiveRect.setPen(QPen(QColor("green"), 3))
-                self.effectiveRect.setZValue(-1)
-            else:
-                self.effectiveRect.setRect(targetWithResult.effectiveRect)
-        else:
-            if self.effectiveRect is not None:
-                self.effectiveRect.hide()
-        if (
-            targetWithResult.extras is not None
-            and "boxes" in targetWithResult.extras
-            and len(targetWithResult.extras["boxes"]) > 0
-        ):
-            if len(self.extraBoxes) > 0:
-                for extraBox in self.extraBoxes:
-                    # remove from the scene
-                    extraBox.hide()
-                    self.scene().removeItem(extraBox)
-                self.extraBoxes.clear()
-            for box in targetWithResult.extras["boxes"]:
-                if not ("x" in box and "y" in box and "w" in box and "h" in box):
-                    continue
-                # draw the extra boxes in the scene
-                extraRect = QGraphicsRectItem(
-                    QRectF(box["x"], box["y"], box["w"], box["h"]), parent=self
-                )
-                # ignore any mouse events on the extra rect
-                extraRect.setAcceptHoverEvents(False)
-                extraRect.setAcceptDrops(False)
-                extraRect.setAcceptedMouseButtons(Qt.MouseButton.NoButton)
-                extraRect.setBrush(QBrush(QColor(0, 0, 0, 0)))
-                extraRect.setPen(QPen(QColor("blue"), 3))
-                extraRect.setZValue(-2)
-                self.extraBoxes.append(extraRect)
+                self.effectiveRect = self._detailRect(AUTO_CROP_STROKE, -1)
+            self.effectiveRect.setRect(targetWithResult.effectiveRect)
+        extras = targetWithResult.extras or {}
+        rects = [
+            QRectF(box["x"], box["y"], box["w"], box["h"])
+            for box in extras.get("boxes") or []
+            if all(key in box for key in ("x", "y", "w", "h"))
+        ]
+        while len(self.extraBoxes) < len(rects):
+            self.extraBoxes.append(self._detailRect(CHARACTER_STROKE, -2))
+        for extraBox, rect in zip(self.extraBoxes, rects):
+            extraBox.setRect(rect)
+        self.extraBoxesUsed = len(rects)
+        self.updateVisibility()
+
+    def _detailRect(self, color: QColor, z: float) -> QGraphicsRectItem:
+        item = QGraphicsRectItem(self)
+        # ignore any mouse events on it
+        item.setAcceptHoverEvents(False)
+        item.setAcceptDrops(False)
+        item.setAcceptedMouseButtons(Qt.MouseButton.NoButton)
+        item.setBrush(Qt.BrushStyle.NoBrush)
+        item.setPen(_cosmetic_pen(color, 1))
+        item.setZValue(z)
+        return item
 
     def startCreateMiniRect(self, rect: QRectF):
         new_mini_rect = MiniRect(

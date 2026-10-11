@@ -165,3 +165,162 @@ def media_icon(kind: str, color: QColor, size: int = 16) -> QIcon:
 
 def button_text_color(palette: QPalette | None = None) -> QColor:
     return _palette(palette).color(QPalette.ColorRole.ButtonText)
+
+
+def overlay_color(name: str) -> QColor:
+    """A state colour (as color()) for drawing over the video: the bright
+    (dark theme) variant whatever the theme, as the picture is dark or
+    colourful in both."""
+    return QColor(_COLORS[name][1])
+
+
+def tool_icon(kind: str, color: QColor, size: int = 16) -> QIcon:
+    """An icon drawn in color, so it stays visible on light and dark buttons:
+    "reload" (a circular arrow), "settings" (a gear), "binary" (a square half
+    filled), "stats" (bars) or "fit" (four corners)."""
+    ratio = 2.0  # sharp on high-DPI screens
+    pixmap = QPixmap(round(size * ratio), round(size * ratio))
+    pixmap.setDevicePixelRatio(ratio)
+    pixmap.fill(Qt.GlobalColor.transparent)
+    painter = QPainter(pixmap)
+    painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+    unit = size / 16.0
+    if kind == "reload":
+        pen = QPen(color, 1.6 * unit)
+        pen.setCapStyle(Qt.PenCapStyle.RoundCap)
+        painter.setPen(pen)
+        painter.setBrush(Qt.BrushStyle.NoBrush)
+        # three quarters of a circle, open at the top right
+        painter.drawArc(
+            QRectF(3 * unit, 3 * unit, 10 * unit, 10 * unit), 75 * 16, 285 * 16
+        )
+        painter.setPen(Qt.PenStyle.NoPen)
+        painter.setBrush(color)
+        head = QPainterPath(QPointF(9.2 * unit, 0.6 * unit))
+        head.lineTo(QPointF(13.6 * unit, 3.4 * unit))
+        head.lineTo(QPointF(8.8 * unit, 6.2 * unit))
+        head.closeSubpath()
+        painter.drawPath(head)
+    elif kind == "settings":
+        painter.setPen(Qt.PenStyle.NoPen)
+        painter.setBrush(color)
+        center = QPointF(8 * unit, 8 * unit)
+        for step in range(8):
+            painter.save()
+            painter.translate(center)
+            painter.rotate(step * 45)
+            painter.drawRoundedRect(
+                QRectF(-1.4 * unit, -7.2 * unit, 2.8 * unit, 3.2 * unit),
+                0.6 * unit,
+                0.6 * unit,
+            )
+            painter.restore()
+        ring = QPainterPath()
+        ring.addEllipse(center, 5.2 * unit, 5.2 * unit)
+        hole = QPainterPath()
+        hole.addEllipse(center, 2.2 * unit, 2.2 * unit)
+        painter.drawPath(ring.subtracted(hole))
+    elif kind == "binary":
+        square = QRectF(2.5 * unit, 2.5 * unit, 11 * unit, 11 * unit)
+        painter.setPen(QPen(color, 1.2 * unit))
+        painter.setBrush(Qt.BrushStyle.NoBrush)
+        painter.drawRect(square)
+        painter.setPen(Qt.PenStyle.NoPen)
+        painter.setBrush(color)
+        half = QPainterPath(square.topLeft())
+        half.lineTo(square.topRight())
+        half.lineTo(square.bottomLeft())
+        half.closeSubpath()
+        painter.drawPath(half)
+    elif kind == "stats":
+        painter.setPen(Qt.PenStyle.NoPen)
+        painter.setBrush(color)
+        for left, top in ((2.5, 8.5), (6.75, 3.5), (11, 6.5)):
+            painter.drawRect(
+                QRectF(left * unit, top * unit, 2.5 * unit, (13.5 - top) * unit)
+            )
+    elif kind == "fit":
+        pen = QPen(color, 1.5 * unit)
+        pen.setCapStyle(Qt.PenCapStyle.SquareCap)
+        painter.setPen(pen)
+        for x, y, dx, dy in (
+            (2.5, 2.5, 1, 1),
+            (13.5, 2.5, -1, 1),
+            (2.5, 13.5, 1, -1),
+            (13.5, 13.5, -1, -1),
+        ):
+            corner = QPointF(x * unit, y * unit)
+            painter.drawLine(corner, corner + QPointF(3.5 * dx * unit, 0))
+            painter.drawLine(corner, corner + QPointF(0, 3.5 * dy * unit))
+    painter.end()
+    return QIcon(pixmap)
+
+
+def tool_button_style(palette: QPalette | None = None) -> str:
+    """A style sheet for rows of tool buttons: a checked one is filled with
+    the highlight colour, so on and off are told apart at a glance (the
+    native look of a checked tool button is a subtle shade in some styles).
+    Every state has the same border and padding, so toggling a button never
+    moves its neighbours."""
+    palette = _palette(palette)
+    role = QPalette.ColorRole
+    disabled = QPalette.ColorGroup.Disabled
+    highlight = palette.color(role.Highlight).name()
+    return (
+        "QToolButton {"
+        f" background-color: {palette.color(role.Button).name()};"
+        f" color: {palette.color(role.ButtonText).name()};"
+        f" border: 1px solid {palette.color(role.Mid).name()};"
+        " border-radius: 3px; padding: 2px 5px; }"
+        f" QToolButton:hover {{ border-color: {highlight}; }}"
+        f" QToolButton:pressed {{ background-color: {palette.color(role.Midlight).name()}; }}"
+        " QToolButton:checked {"
+        f" background-color: {highlight};"
+        f" color: {palette.color(role.HighlightedText).name()};"
+        f" border-color: {highlight}; }}"
+        " QToolButton:disabled {"
+        f" color: {palette.color(disabled, role.ButtonText).name()};"
+        f" border-color: {palette.color(disabled, role.Mid).name()}; }}"
+        " QToolButton:checked:disabled {"
+        f" background-color: {palette.color(disabled, role.Highlight).name()}; }}"
+    )
+
+
+def step_pixmap(
+    number: int, done: bool, palette: QPalette | None = None, size: int = 22
+) -> QPixmap:
+    """A numbered step of a list of steps: the number in a ring, or a check
+    mark on a filled disc ("new" green) once the step is done."""
+    palette = _palette(palette)
+    ratio = 2.0
+    pixmap = QPixmap(round(size * ratio), round(size * ratio))
+    pixmap.setDevicePixelRatio(ratio)
+    pixmap.fill(Qt.GlobalColor.transparent)
+    painter = QPainter(pixmap)
+    painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+    box = QRectF(1, 1, size - 2, size - 2)
+    if done:
+        painter.setPen(Qt.PenStyle.NoPen)
+        painter.setBrush(color("new", palette))
+        painter.drawEllipse(box)
+        pen = QPen(on_color(palette), max(1.6, size / 10.0))
+        pen.setCapStyle(Qt.PenCapStyle.RoundCap)
+        pen.setJoinStyle(Qt.PenJoinStyle.RoundJoin)
+        painter.setPen(pen)
+        check = QPainterPath(QPointF(size * 0.29, size * 0.52))
+        check.lineTo(QPointF(size * 0.44, size * 0.67))
+        check.lineTo(QPointF(size * 0.72, size * 0.36))
+        painter.setBrush(Qt.BrushStyle.NoBrush)
+        painter.drawPath(check)
+    else:
+        muted = muted_color(palette)
+        painter.setPen(QPen(muted, 1.5))
+        painter.setBrush(Qt.BrushStyle.NoBrush)
+        painter.drawEllipse(box.adjusted(0.5, 0.5, -0.5, -0.5))
+        font = painter.font()
+        font.setBold(True)
+        font.setPixelSize(round(size * 0.55))
+        painter.setFont(font)
+        painter.drawText(box, Qt.AlignmentFlag.AlignCenter, str(number))
+    painter.end()
+    return pixmap

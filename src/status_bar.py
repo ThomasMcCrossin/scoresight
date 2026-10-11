@@ -41,12 +41,22 @@ from output_status import (
 SOURCE_NONE = "none"
 SOURCE_OPENING = "opening"
 SOURCE_RUNNING = "running"
+# frames arrive, at less than SLOW_SOURCE_SHARE of the source's frame rate
+SOURCE_SLOW = "slow"
+# reads fail: the capture retries and reopens the source
+SOURCE_RECONNECTING = "reconnecting"
 SOURCE_STALLED = "stalled"
 SOURCE_ERROR = "error"
 
 # An OCR rate below this share of the Detections / s setting is highlighted:
 # the computer can't keep up.
 SLOW_OCR_SHARE = 0.7
+# A source delivering less than this share of its own frame rate is slow.
+SLOW_SOURCE_SHARE = 0.5
+# This many failed reads in a row: the source is reconnecting.
+RECONNECTING_FAILED_READS = 3
+# A source that delivered no frame for this long is shown as stalled.
+SOURCE_STALL_S = 3.0
 
 # (glyph, theme colour) of each source state; the glyph's shape tells the
 # states apart without colour
@@ -54,9 +64,49 @@ _SOURCE_LOOK = {
     SOURCE_NONE: ("○", None),
     SOURCE_OPENING: ("▲", "rejected"),
     SOURCE_RUNNING: ("●", "new"),
+    SOURCE_SLOW: ("▲", "rejected"),
+    SOURCE_RECONNECTING: ("▲", "rejected"),
     SOURCE_STALLED: ("▲", "rejected"),
     SOURCE_ERROR: ("■", "empty"),
 }
+# the shapes of theme.draw_state_shape() for the glyphs
+_GLYPH_SHAPES = {"○": "ring", "▲": "triangle", "●": "disc", "■": "square"}
+
+
+def source_look(state: str) -> tuple[str, str | None]:
+    """The (theme.draw_state_shape() shape, theme colour name or None) of a
+    source state."""
+    glyph, color_name = _SOURCE_LOOK.get(state, _SOURCE_LOOK[SOURCE_NONE])
+    return _GLYPH_SHAPES[glyph], color_name
+
+
+def source_state(
+    *,
+    has_source: bool,
+    error: bool = False,
+    first_frame: bool = False,
+    now: float = 0.0,
+    last_frame_at: float | None = None,
+    fps: float | None = None,
+    nominal_fps: float | None = None,
+    failed_reads: int = 0,
+) -> str:
+    """The state of the source, from what the capture thread reports: its last
+    frame's time, its frame rate (against the source's own, nominal_fps, when
+    the source tells it) and the reads that failed in a row."""
+    if not has_source:
+        return SOURCE_NONE
+    if error:
+        return SOURCE_ERROR
+    if not first_frame:
+        return SOURCE_OPENING
+    if failed_reads >= RECONNECTING_FAILED_READS:
+        return SOURCE_RECONNECTING
+    if last_frame_at is None or now - last_frame_at > SOURCE_STALL_S:
+        return SOURCE_STALLED
+    if nominal_fps and fps is not None and fps < SLOW_SOURCE_SHARE * nominal_fps:
+        return SOURCE_SLOW
+    return SOURCE_RUNNING
 
 
 @dataclass(frozen=True)
@@ -65,11 +115,17 @@ class StatusSnapshot:
     source_state: str = SOURCE_NONE
     resolution: tuple[int, int] | None = None
     fps: float | None = None
+    # the source's own frame rate, if it tells it
+    nominal_fps: float | None = None
     # detection passes per second, and the Detections / s setting
     ocr_rate: float | None = None
     ocr_target: float | None = None
     # seconds since the outputs were paused, None while they aren't
     paused_seconds: float | None = None
+    # OCR training data is being collected (Tools > Collect OCR training
+    # data), into this folder
+    collecting_training_data: bool = False
+    training_data_folder: str = ""
     # the HTTP server's URL, None when it isn't running
     http_url: str | None = None
     http_urls: tuple[str, ...] = ()
@@ -170,17 +226,55 @@ def source_text(snapshot: StatusSnapshot) -> str:
         return QCoreApplication.translate(
             "StatusBar", "{source}: no new frames"
         ).format(source=name)
+    if state == SOURCE_RECONNECTING:
+        return QCoreApplication.translate(
+            "StatusBar", "{source}: reconnecting…"
+        ).format(source=name)
     parts = [name]
     if snapshot.resolution and all(snapshot.resolution):
         width, height = snapshot.resolution
         parts.append(f"{int(width)}×{int(height)}")
     if snapshot.fps is not None:
-        parts.append(
-            QCoreApplication.translate("StatusBar", "{fps} fps").format(
-                fps=f"{snapshot.fps:.1f}"
+        if state == SOURCE_SLOW and snapshot.nominal_fps:
+            parts.append(
+                QCoreApplication.translate(
+                    "StatusBar", "slow: {fps} of {nominal} fps"
+                ).format(
+                    fps=f"{snapshot.fps:.1f}", nominal=f"{snapshot.nominal_fps:.0f}"
+                )
             )
-        )
+        else:
+            parts.append(
+                QCoreApplication.translate("StatusBar", "{fps} fps").format(
+                    fps=f"{snapshot.fps:.1f}"
+                )
+            )
     return " · ".join(parts)
+
+
+def source_state_description(state: str) -> str:
+    """One sentence about a source state, for the source's health dot."""
+    if state == SOURCE_OPENING:
+        return QCoreApplication.translate("StatusBar", "Opening the source…")
+    if state == SOURCE_RUNNING:
+        return QCoreApplication.translate("StatusBar", "Frames are arriving.")
+    if state == SOURCE_SLOW:
+        return QCoreApplication.translate(
+            "StatusBar",
+            "Frames arrive at less than half the source's frame rate: the "
+            "computer or the network can't keep up.",
+        )
+    if state == SOURCE_RECONNECTING:
+        return QCoreApplication.translate(
+            "StatusBar", "No frames: reconnecting to the source…"
+        )
+    if state == SOURCE_STALLED:
+        return QCoreApplication.translate(
+            "StatusBar", "No new frames for a few seconds."
+        )
+    if state == SOURCE_ERROR:
+        return QCoreApplication.translate("StatusBar", "The source can't be read.")
+    return QCoreApplication.translate("StatusBar", "No source is open.")
 
 
 def ocr_text(snapshot: StatusSnapshot) -> str:
@@ -238,6 +332,8 @@ class MainStatusBar(QObject):
 
     # an output's button was clicked: show that destination (its key)
     destination_clicked = Signal(str)
+    # the "Collecting training data" chip was clicked
+    training_data_clicked = Signal()
 
     def __init__(self, statusbar: QStatusBar):
         super().__init__(statusbar)
@@ -254,6 +350,18 @@ class MainStatusBar(QObject):
         self.label_paused = QLabel(statusbar)
         self.label_paused.setObjectName("label_statusPaused")
         self.label_paused.hide()
+        # "● Collecting training data", while Tools > Collect OCR training
+        # data is on; a click opens its setup
+        self.button_training = QToolButton(statusbar)
+        self.button_training.setObjectName("toolButton_statusTrainingData")
+        self.button_training.setAutoRaise(True)
+        self.button_training.setToolButtonStyle(
+            Qt.ToolButtonStyle.ToolButtonTextBesideIcon
+        )
+        self.button_training.setIconSize(QSize(9, 9))
+        self.button_training.clicked.connect(self.training_data_clicked)
+        self.button_training.hide()
+        self._training_look = None
         self.label_http = QLabel(statusbar)
         self.label_http.setObjectName("label_statusHttp")
         self.label_http.setTextFormat(Qt.TextFormat.RichText)
@@ -291,6 +399,7 @@ class MainStatusBar(QObject):
         statusbar.addWidget(self.label_source)
         statusbar.addWidget(self.label_ocr)
         statusbar.addWidget(self.label_paused)
+        statusbar.addWidget(self.button_training)
         statusbar.addPermanentWidget(self.widget_outputs)
         statusbar.addPermanentWidget(self.label_http)
         statusbar.addPermanentWidget(self.button_copy)
@@ -303,6 +412,10 @@ class MainStatusBar(QObject):
         for key, button in self.output_buttons.items():
             button.setText(short_name(key))
         self._output_looks.clear()
+        self.button_training.setText(
+            QCoreApplication.translate("StatusBar", "Collecting training data")
+        )
+        self._training_look = None
         self.button_copy.setText(QCoreApplication.translate("StatusBar", "Copy"))
         self.button_copy.setToolTip(
             QCoreApplication.translate(
@@ -369,6 +482,7 @@ class MainStatusBar(QObject):
                 "StatusBar", "The outputs are paused: they keep their last values"
             )
         )
+        self.updateTrainingChip(snapshot, palette)
 
         if snapshot.http_url:
             self.label_http.setText(html.escape(http_text(snapshot), quote=False))
@@ -394,6 +508,27 @@ class MainStatusBar(QObject):
             )
         self.button_copy.setVisible(bool(snapshot.http_url))
         self.updateOutputs(snapshot.outputs, snapshot.now, palette)
+
+    def updateTrainingChip(self, snapshot: StatusSnapshot, palette):
+        """ "● Collecting training data" while it is on: it fills a folder, so
+        it shouldn't go unnoticed."""
+        collecting = snapshot.collecting_training_data
+        self.button_training.setVisible(collecting)
+        if not collecting:
+            return
+        # a red "recording" dot
+        color = theme.color("empty", palette)
+        if self._training_look != color.name():
+            self._training_look = color.name()
+            self.button_training.setIcon(theme.state_icon("disc", color, 9))
+        self.button_training.setToolTip(
+            QCoreApplication.translate(
+                "StatusBar",
+                "The boxes' pictures and readings are saved for training an OCR "
+                "model, to {folder}.\nClick to change the folder or its size limit; "
+                "Tools > Collect OCR training data turns it off.",
+            ).format(folder=snapshot.training_data_folder or "?")
+        )
 
     def updateOutputs(self, outputs, now: float, palette):
         """The outputs summary: a glyph (its shape and colour tell the state)
