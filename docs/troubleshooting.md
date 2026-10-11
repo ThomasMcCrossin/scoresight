@@ -38,9 +38,11 @@ For even more detail, start ScoreSight with the environment variable `SCORESIGHT
 
 ## Source problems
 
+When a source can't be opened or read, a red banner under the source bar says what failed and what to try, and the dot before the **Source** drop-down turns into a red square. **Retry** opens the same source again; **Choose another source** opens the list. An amber triangle means the source is opening, slow (less than half its own frame rate), stalled or reconnecting: its tooltip says which.
+
 ### RTSP or URL stream won't open (#10)
 
-**Symptoms**: "Error: Unable to play video stream", a black picture, or (in old versions) `VIDEOIO(DSHOW): backend is generally available but can't be used to capture by name` in the log ([#10](https://github.com/royshil/scoresight/issues/10)).
+**Symptoms**: the banner says "Can't open the stream ...", a black picture, or (in old versions) `VIDEOIO(DSHOW): backend is generally available but can't be used to capture by name` in the log ([#10](https://github.com/royshil/scoresight/issues/10)).
 
 **Fix**:
 
@@ -55,22 +57,22 @@ ScoreSight 0.2.0 gives up opening or reading a stream after 5 seconds, so a dead
 
 ### Camera not listed or black picture
 
-- Click **Reload** after plugging in a camera.
+- Click **Reload sources** (⟳, or **F5**) after plugging in a camera.
 - Close other apps that use the camera (OBS, Zoom, Teams, the camera vendor's software). Most cameras serve only one app at a time.
 - **macOS**: allow **Camera** access in System Settings > Privacy & Security > Camera.
 - **Linux**: add your user to the `video` group and log in again. Cameras are listed as *name (/dev/videoN)*; only device nodes that can capture video are shown.
-- Open **Video Settings** and try another **Capture Backend** or **Video Format** (`MJPG` vs `YUY2`).
+- Open **Video settings** (the gear next to the source) and try another **Capture Backend** or **Video Format** (`MJPG` vs `YUY2`).
 - Capture cards: make sure the input signal is present (a resolution and frame rate the card supports), and try it in the vendor's own software.
 
 ### NDI source not listed
 
-- Click **Reload**. Sources that start after ScoreSight appear only after a reload.
+- Click **Reload sources** (⟳, or **F5**). Sources that start after ScoreSight appear only after a reload.
 - Make sure both computers are on the same network and subnet, and that the firewall allows NDI.
 - **macOS**: allow **Local Network** access for ScoreSight in System Settings > Privacy & Security.
 
 ### Screen capture shows nothing
 
-- **macOS**: allow **Screen Recording** (System Settings > Privacy & Security > Screen & System Audio Recording), then **quit and restart** ScoreSight.
+- **macOS**: allow **Screen Recording** (System Settings > Privacy & Security > Screen & System Audio Recording), then **quit and restart** ScoreSight. Without the permission, the source banner says so, and its **Open System Settings** button opens the page.
 - **Linux**: screen capture isn't supported. Use OBS with NDI or the virtual camera.
 - Minimized windows can't be captured. Keep the window visible and at a fixed size.
 
@@ -165,7 +167,7 @@ In ScoreSight 0.2.0, `results.csv` is updated atomically with the current values
 Readings come from the picture, so start there ([#30](https://github.com/royshil/scoresight/issues/30) is a good example of a low-contrast stadium board):
 
 1. Look at the box in **Binary View**. Digits must be solid and clearly separated from the background.
-2. Crop to the scoreboard and use **4-corner Correction** for angled cameras.
+2. Crop to the scoreboard and use **4-corner** for angled cameras.
 3. Set **Binarize** to **Local** or **Adaptive** for low-contrast boards or dark surroundings.
 4. Set the **Type** and a strict **Format** so impossible values are rejected.
 5. Use **Remove leading 0s** for zero-padded scores, and consider one box per digit for very poor boards.
@@ -179,7 +181,7 @@ The reading failed the box's **Format** (the raw text didn't fully match) or the
 
 ### Digits appear on a blank box
 
-ScoreSight 0.1.x could read digits on an empty area, such as an unlit digit position. ScoreSight 0.2.0 doesn't run the OCR on a blank image, so such a box reads as empty (red `EMP`). If you still see invented digits, the area isn't really blank in **Binary View**: try another **Binarize** method or raise **Cleanup**.
+ScoreSight 0.1.x could read digits on an empty area, such as an unlit digit position. ScoreSight 0.2.0 doesn't run the OCR on a blank image, so such a box reads as empty (**∅**). If you still see invented digits, the area isn't really blank in **Binary View**: try another **Binarize** method or raise **Cleanup**.
 
 ## Performance problems
 

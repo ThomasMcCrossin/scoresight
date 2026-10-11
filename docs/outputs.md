@@ -50,12 +50,12 @@ Use the arrow keys to move through the list and **Space** to turn the selected o
 
 Every detection cycle produces one reading per box, in one of four **states**:
 
-| State | Meaning | Colour in the viewer |
+| State | Meaning | In the viewer |
 |---|---|---|
-| `Success` | A new value was read | Green |
-| `SameNoChange` | The same value as the box's last good reading: with **Update on change** on, for a box whose OCR was skipped by [Skip Similar Image](box-settings.md#skip-similar-image), and for a [template field](boxes.md#template-fields) whose text didn't change | Light green |
-| `FailedFilter` | Something was read but it failed the box's Format or confidence threshold | Yellow |
-| `Empty` | Nothing was read | Red `EMP` |
+| `Success` | A new value was read | **✓** (green) |
+| `SameNoChange` | The same value as the box's last good reading: with **Update on change** on, for a box whose OCR was skipped by [Skip Similar Image](box-settings.md#skip-similar-image), and for a [template field](boxes.md#template-fields) whose text didn't change | **=** (grey) |
+| `FailedFilter` | Something was read but it failed the box's Format or confidence threshold | **!** (amber) |
+| `Empty` | Nothing was read | **∅** (red; 0.2.0 showed `EMP`) |
 
 `Success` and `SameNoChange` are the **good** readings. [Template fields](boxes.md#template-fields) follow the same rules: `Success` when their text changes, `SameNoChange` when it doesn't, and `Empty` until every box they use has had a good reading.
 

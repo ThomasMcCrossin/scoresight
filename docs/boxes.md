@@ -47,7 +47,7 @@ Custom fields start as a Number field with the *Any number* format. Change the *
 
 1. Select a field in the list. Its icon is a red ✗ while it has no box.
 2. Click **Add to Scene ->**. The icon turns into a green ✓ and a box appears in the top-left corner of the picture.
-3. Drag the box over the value and resize it with the edge and corner handles.
+3. Drag the box over the value and resize it with the edge and corner handles. For the last pixel, click the box and use the arrow keys (1 pixel; with Shift, 10). The label under the box shows its name and reading (see [Box display style](view-tools.md#box-display-style)).
 4. To take a box off the picture, select it and click **Remove Selected**. Its settings are reset the next time you add it.
 
 Boxes and their settings are saved automatically, about half a second after each change. A box that reaches past the edge of the picture (for example after you changed the crop) is read from the part that is still inside the picture. Its saved position isn't changed, so it fits again when you undo the crop.

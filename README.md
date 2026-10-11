@@ -83,10 +83,10 @@ Every release includes `SHA256SUMS.txt` so you can verify your download. Downloa
 
 ## Quickstart
 
-1. **Open a source**: pick your camera, NDI feed, URL, screen or video file in the **Source** drop-down.
-2. **Straighten the picture** (optional): rotate, crop, or click **4-corner Correction** and the four corners of the scoreboard.
+1. **Open a source**: pick your camera, NDI feed, URL, screen or video file in the **Source** drop-down, or with the buttons of the first-run card in the viewer.
+2. **Straighten the picture** (optional): rotate, crop, or click **4-corner** and the four corners of the scoreboard.
 3. **Add boxes**: select *Home Score* in the field list, click **Add to Scene**, and drag the box over the digits. Repeat for the other values, or click **+** for custom fields.
-4. **Check the readings**: green means a new value, yellow means rejected by a filter. Use **Binary View**, the box **Type** and a **Format** preset to make readings solid.
+4. **Check the readings**: each box's label shows ✓ for a new value, = for an unchanged one, ! when a filter rejected it and ∅ when nothing was read. Use **Binary View**, the box **Type** and a **Format** preset to make readings solid.
 5. **Send them out**: open [http://localhost:18099/json?pivot](http://localhost:18099/json?pivot) in a browser, or turn on Text files, OBS, vMix, UNO or HTTP API in the **Outputs** list, which shows whether each output works.
 
 The full walkthrough is in the [Quickstart guide](https://royshil.github.io/scoresight/quickstart.html).

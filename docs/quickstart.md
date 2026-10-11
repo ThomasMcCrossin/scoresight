@@ -21,22 +21,22 @@ This walkthrough takes you from a fresh install to live scores in your graphics 
 
 ## 1. Open a source
 
-Start ScoreSight. In the **Source** drop-down at the top of the window, choose where the picture comes from:
+Start ScoreSight. The viewer shows a card, **Open a source to begin**, with the three steps of this guide; each gets a check mark when it's done. Choose where the picture comes from, with the card's buttons or in the **Source** drop-down at the top of the viewer:
 
-- a camera or capture card (listed by name), or an NDI source,
-- **Open a Video File** (`.mp4`, `.avi`, `.mov`), which is useful for practising with a recording,
-- **URL Source (HTTP, RTSP)** for IP cameras and network streams,
-- **Screen Capture** for a window or your whole screen (Windows and macOS).
+- **Camera**: a camera or capture card (listed by name), or an NDI source,
+- **Video file…** (`.mp4`, `.avi`, `.mov`), which is useful for practising with a recording,
+- **Stream URL…** (**Stream URL (RTSP, HTTP)…** in the drop-down) for IP cameras and network streams,
+- **Screen…** (**Screen capture…** in the drop-down) for a window or your whole screen (Windows and macOS).
 
-Cameras and NDI sources are found in the background, so they may appear in the list a moment after the window opens. The picture appears in the viewer after a moment, and the rest of the window becomes active. If your camera isn't listed, click **Reload**. More details: [Video Sources](sources.md).
+Cameras and NDI sources are found in the background, so they may appear in the list a moment after the window opens. The picture appears in the viewer after a moment, the green dot before the drop-down shows that frames arrive, and the rest of the window becomes active. If your camera isn't listed, click **Reload sources** (⟳, or **F5**). If the source can't be opened, a red banner says why, with **Retry**. More details: [Video Sources](sources.md).
 
 ## 2. Straighten the picture (optional)
 
-The view tools above the picture help when the camera is not square to the scoreboard:
+The **Adjust picture** row above the picture helps when the camera is not square to the scoreboard:
 
 - **Rotate** turns the picture in 90° steps.
 - **Crop** removes pixels from the edges.
-- **4-corner Correction**: click it, then click the four corners of the scoreboard. ScoreSight warps the picture so the board becomes a flat rectangle.
+- **4-corner**: click it, then click the four corners of the scoreboard. ScoreSight warps the picture so the board becomes a flat rectangle.
 - **Stabilize** removes small camera bumps and drift.
 
 Do this **before** you draw boxes, because boxes are placed on the corrected picture. More details: [Viewer & Image Tools](view-tools.md).
@@ -46,7 +46,7 @@ Do this **before** you draw boxes, because boxes are placed on the corrected pic
 The **Field** list on the left contains the standard fields: Home Score, Away Score, Time, Period, Home Fouls, Away Fouls and Shot Clock.
 
 1. Click a field, for example **Home Score**.
-2. Click **Add to Scene ->**. A red box appears in the top-left corner of the picture.
+2. Click **Add to Scene ->**. A box appears in the top-left corner of the picture, with a label under it.
 3. Drag the box over the home score and drag its edges or corners to resize it. Leave a small margin around the digits.
 4. Repeat for every value you need.
 
@@ -54,14 +54,14 @@ Need something that isn't in the list, such as "Downs", "Yards to go" or "Balls"
 
 ## 4. Check the readings
 
-Within a second, each box shows what ScoreSight reads, and the **Value** column in the field list shows the latest good reading. The colour of the text on each box tells you its state:
+Within a second, each box's label shows what ScoreSight reads, and the **Value** column in the field list shows the latest good reading. The symbol at the start of each label (and next to the value in the list) tells you its state:
 
-| Colour | State | Meaning |
+| Symbol | State | Meaning |
 |---|---|---|
-| Green | `Success` | A new value was read and sent to the outputs. |
-| Light green | `SameNoChange` | The same value as the last good reading, for example with **Update on change** on (see [Outputs](outputs.md#which-readings-are-sent)). |
-| Yellow | `FailedFilter` | Something was read but rejected by the box's **Format**, or by its confidence threshold. |
-| Red `EMP` | `Empty` | Nothing was read, or the box is over a blank area. |
+| **✓** (green) | `Success` | A new value was read and sent to the outputs. |
+| **=** (grey) | `SameNoChange` | The same value as the last good reading, for example with **Update on change** on (see [Outputs](outputs.md#which-readings-are-sent)). |
+| **!** (amber) | `FailedFilter` | Something was read but rejected by the box's **Format**, or by its confidence threshold. The label shows the rejected text in quotes. |
+| **∅** (red) | `Empty` | Nothing was read, or the box is over a blank area. |
 
 If readings are wrong or unstable:
 

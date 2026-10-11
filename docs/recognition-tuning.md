@@ -29,7 +29,7 @@ Most recognition problems come from the picture, not from the OCR engine. Work t
 
 1. **Rotate** if the camera is mounted sideways.
 2. **Crop** away everything around the scoreboard.
-3. Use **4-corner Correction** if the camera looks at the board at an angle (see [4-corner correction](view-tools.md#4-corner-correction)).
+3. Use **4-corner** if the camera looks at the board at an angle (see [4-corner correction](view-tools.md#4-corner-correction)).
 
 Do this before placing boxes. Straight, rectangular digits are much easier to read.
 
@@ -70,7 +70,7 @@ Select the box and look at it in **Binary View**. You want solid, unbroken digit
 
 Binary View shows exactly what the OCR reads: **Dilate**, **Cleanup**, **V.Scale** and **Skew** apply to the OCR with every **Binarize** method. Keep **Rescale Input** on (the default). It resizes the box content to the height the OCR models were trained on.
 
-A box over an empty area (for example an unlit digit position, or a board that is switched off) reads as empty (red `EMP`). ScoreSight doesn't run the OCR on a blank image, so the scoreboard models can't invent digits there.
+A box over an empty area (for example an unlit digit position, or a board that is switched off) reads as empty (**∅**). ScoreSight doesn't run the OCR on a blank image, so the scoreboard models can't invent digits there.
 
 ## 6. Constrain what counts as valid
 
@@ -125,6 +125,6 @@ For possession arrows, bonus lights, timeout dots or balls/strikes/outs, don't r
 | Value flickers between two readings | **Average Output**, a stricter **Format**, better exposure |
 | Correct readings turn yellow | The **Format** doesn't match (check the preset), or **Conf. Th** is too high. Set it to 0 to test |
 | A change on the board is missed | **Skip Similar Image** treats changes of less than 2% of the digit pixels as no change. Turn it off for that box |
-| Box shows red `EMP` | Nothing was read, or the box image is blank: check that the box is on the digits, then check **Binary View** and **Invert Input** |
+| Box shows **∅** (empty) | Nothing was read, or the box image is blank: check that the box is on the digits, then check **Binary View** and **Invert Input** |
 | Low-contrast stadium board, dark surroundings | Crop tightly, **Binarize: Local** or **Adaptive**, one box per value, **Remove leading 0s**, a strict **Format** |
 | Readings fine in daylight, bad at night (or the reverse) | Lock exposure; use **Local**/**Adaptive** binarization; save separate [profiles](profiles.md) for day and night |

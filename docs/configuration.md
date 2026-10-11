@@ -118,6 +118,7 @@ You normally never edit this file: everything is set through the UI. This list h
 | `crop_mode`, `left_crop`, `top_crop`, `right_crop`, `bottom_crop` | Crop on/off and crop amounts in pixels |
 | `rotation` | `0`, `90`, `180` or `270` |
 | `box_display_style` | `0` No Box, `1` Outline, `2` Names, `3` All |
+| `show_osd` | The statistics overlay (**Stats**) on or off. Settings without it (a first start) get `false`, settings from 0.2.0 and before `true`, as it always showed then |
 | `fps`, `width`, `height`, `fourcc`, `backend` | Camera [Video Settings](sources.md#cameras-and-capture-cards), applied whenever a camera opens. Only the settings you changed in the dialog are stored |
 
 ### Recognition
@@ -151,7 +152,7 @@ You normally never edit this file: everything is set through the UI. This list h
 | `color_scheme` | **File > Appearance**: `System`, `Light` or `Dark` |
 | `open_on_startup` | Show the log window at startup |
 | `disable_update_checks` | `true` turns off the update check at startup (the **Don't check for updates at startup** checkbox in the update dialog). **File > Check for Updates** always works |
-| `save_ocr_training_data`, `ocr_training_data_folder`, `ocr_training_data_max_size` | [OCR training data](data_annotation.md) collection. An empty `ocr_training_data_folder` means the default folder. The 0.1.x key `ocr_training_data_save_folder` is still read if the new key was never set |
+| `save_ocr_training_data`, `ocr_training_data_folder`, `ocr_training_data_max_size` | [OCR training data](data_annotation.md) collection (`save_ocr_training_data` is **Tools** > **Collect OCR training data**). An empty `ocr_training_data_folder` means the default folder. The 0.1.x key `ocr_training_data_save_folder` is still read if the new key was never set |
 
 {: .warning }
 `scoresight.json` stores the OBS WebSocket password and the UNO and API URLs (which may contain access tokens) in plain text. Don't share the file publicly. Exported configurations contain only boxes, but check them before sharing anyway.

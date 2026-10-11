@@ -8,7 +8,7 @@ description: "Connect USB cameras, capture cards, NDI, RTSP/HTTP streams, screen
 # Video Sources
 {: .no_toc }
 
-ScoreSight reads one video source per window. Choose it from the **Source** drop-down at the top of the main window. To read two different sources at the same time, run two instances (see [Multiple Instances & Profiles](profiles.md)).
+ScoreSight reads one video source per window. Choose it from the **Source** drop-down at the top of the viewer, or, while no source is open, with the buttons of the **Open a source to begin** card in the viewer (**Camera**, **Video file…**, **Stream URL…**, **Screen…**). To read two different sources at the same time, run two instances (see [Multiple Instances & Profiles](profiles.md)).
 
 <details open markdown="block">
   <summary>On this page</summary>
@@ -31,11 +31,28 @@ ScoreSight remembers the last source and its type, and reopens it at the next st
 
 Cameras and NDI sources are discovered in the background, so the window appears right away and the **Source** list fills in a moment later.
 
+## What's open, and whether it works
+
+While a video file, a stream or a screen capture is open, the **Source** drop-down names it: **Video file: final.mp4**, **Stream: rtsp://10.0.1.200:554/11** (never with the password) or **Screen: OBS - Program**. Its tooltip has the full path or address. To pick another file, stream or window, choose the same item again: Cancel keeps the open one. **No source** closes it.
+
+The dot before the drop-down tells how the source is doing (its shape tells the same as its colour):
+
+| Dot | Meaning |
+|---|---|
+| **●** green | Frames are arriving |
+| **▲** amber | The source is opening, delivers less than half of its own frame rate, sent no frame for a few seconds, or is reconnecting |
+| **■** red | The source can't be opened or read |
+| **○** grey | No source is open |
+
+The status bar repeats it, with the resolution and the frame rate.
+
+When a source fails, a red banner under the source bar says what failed and what to try, with three buttons: **Retry** opens the same source again, **Choose another source** opens the **Source** list, and **Troubleshooting** opens the [source troubleshooting](troubleshooting.md#source-problems) guide. The view tools are disabled until frames arrive again.
+
 ## Cameras and capture cards
 
-Cameras and capture cards appear in the **Source** list by name. On Linux, each capture device is listed with its name and device node, for example *HD Webcam (/dev/video0)*; device nodes that can't capture video (such as metadata nodes) are not listed. If you plugged a camera in after starting ScoreSight, click **Reload**.
+Cameras and capture cards appear in the **Source** list by name. On Linux, each capture device is listed with its name and device node, for example *HD Webcam (/dev/video0)*; device nodes that can't capture video (such as metadata nodes) are not listed. If you plugged a camera in after starting ScoreSight, click **Reload sources** (the ⟳ button next to the drop-down, or **F5**).
 
-**Video Settings** (enabled only for camera sources) lets you request a specific format from the device:
+**Video settings** (the gear button next to it, enabled only for cameras and capture cards) lets you request a specific format from the device:
 
 | Setting | Use it to |
 |---|---|
@@ -56,7 +73,7 @@ On macOS, ScoreSight needs the **Camera** permission. On Linux, your user needs 
 
 ## NDI
 
-NDI sources on your local network are listed automatically. The first discovery after ScoreSight starts waits up to about 2 seconds for sources to answer, in the background. Click **Reload** if a source started after ScoreSight: later reloads are instant and list every source found so far. ScoreSight receives the highest-bandwidth stream and signals a *program* (on-air) tally to the sender.
+NDI sources on your local network are listed automatically. The first discovery after ScoreSight starts waits up to about 2 seconds for sources to answer, in the background. Click **Reload sources** (⟳ or **F5**) if a source started after ScoreSight: later reloads are instant and list every source found so far. ScoreSight receives the highest-bandwidth stream and signals a *program* (on-air) tally to the sender.
 
 If NDI sources don't appear:
 
@@ -66,7 +83,7 @@ If NDI sources don't appear:
 
 ## URL sources (RTSP and HTTP)
 
-Choose **URL Source (HTTP, RTSP)** and enter the stream address, for example:
+Choose **Stream URL (RTSP, HTTP)…** and enter the stream address, for example:
 
 ```
 rtsp://user:password@192.168.1.50:554/stream1
@@ -113,10 +130,10 @@ See also [Troubleshooting: RTSP stream won't open](troubleshooting.md#rtsp-or-ur
 
 ## Screen capture
 
-Choose **Screen Capture** and pick a window from the list, or **Capture the entire screen**. This lets you read a score from a game, a web page, a scoreboard-controller app or a TV graphics preview.
+Choose **Screen capture…** and pick a window from the list, or **Capture the entire screen**. This lets you read a score from a game, a web page, a scoreboard-controller app or a TV graphics preview.
 
 - **Windows**: captures the selected window or the whole screen.
-- **macOS**: requires the **Screen Recording** permission (System Settings > Privacy & Security > Screen & System Audio Recording). After granting it, quit and restart ScoreSight.
+- **macOS**: requires the **Screen Recording** permission (System Settings > Privacy & Security > Screen & System Audio Recording). Without it macOS shows ScoreSight only the desktop: the source banner says so, and its **Open System Settings** button opens that page. After granting it, quit and restart ScoreSight.
 - **Linux**: not supported. Use OBS (with its screen capture) plus NDI or the virtual camera.
 
 {: .tip }
@@ -124,12 +141,12 @@ Keep the captured window at a fixed size and position. Boxes are positioned in p
 
 ## Video files
 
-Choose **Open a Video File** to load an `.mp4`, `.avi` or `.mov` file. The file loops when it reaches the end, which makes it ideal for tuning your boxes on a recording before the game.
+Choose **Video file…** to load an `.mp4`, `.avi` or `.mov` file. The file loops when it reaches the end, which makes it ideal for tuning your boxes on a recording before the game.
 
-The **Speed** button (x1, x2, x4, x8, x16, x32) skips frames to fast-forward through long recordings. Speed does not change how often boxes are read (that is **Detections / s**).
+The speed button next to the source (**×1**, **×2**, **×4**, **×8**, **×16**, **×32**; shown for video files only) skips frames to fast-forward through long recordings. Speed does not change how often boxes are read (that is **Detections / s**). A newly opened file plays at ×1.
 
 ## Switching and reloading sources
 
 - Selecting a different source closes the current one and opens the new one. Your boxes and their settings stay as they are. If the old source is stalled, ScoreSight waits at most 3 seconds for it and lets it finish in the background.
-- **Reload** (**F5**) re-scans cameras and NDI sources.
+- **Reload sources** (⟳, **F5**) re-scans cameras and NDI sources.
 - Rotation, crop and 4-corner correction are global settings, not per-source settings. If you switch to a source with a different framing, adjust them again.
