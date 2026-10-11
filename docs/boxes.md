@@ -41,7 +41,7 @@ Use custom fields for anything else: downs, yards to go, balls/strikes/outs, set
 
 - **Add**: click **+** at the top of the field list (or press **Ctrl+N**). A new field named *Custom 1* (*Custom 2*, ...) appears, selected.
 - **Rename**: double-click the field name, press **F2**, or right-click it and choose **Rename...**, then type a new name. Names must be unique, and names that differ only in upper and lower case count as the same (their text files would be the same file): ScoreSight says so and asks again. Choose names carefully, because they become file names, JSON keys and template placeholders.
-- **Delete**: select the field and click **Delete field** under the list (or press **Del**, or right-click it). ScoreSight asks first. **Delete field** only shows for custom fields.
+- **Delete**: select the field and click **Delete field** under the list (or press **Del**, **Backspace** on a Mac, or right-click it). ScoreSight asks first. **Delete field** only shows for custom fields.
 
 Custom fields start as a Number field with the *Any number* format. Change the **Type** and **Format** in the Box tab.
 
@@ -84,7 +84,7 @@ Right-click a field for its actions:
 |---|---|---|
 | **Place on picture** / **Remove from picture** | | As the button under the list |
 | **Rename...** | **F2** or double-click | Custom fields |
-| **Delete field...** | **Del** | Custom fields; asks first |
+| **Delete field...** | **Del** (**Backspace** on a Mac) | Custom fields; asks first |
 | **Reset settings to defaults** | | Its box's settings |
 | **Copy value** | **Ctrl+C** | The last good reading, to paste elsewhere |
 | **Zoom to box** | | Zooms the picture in on its box (**Ctrl+0** fits the whole picture again) |

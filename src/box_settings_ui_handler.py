@@ -184,12 +184,11 @@ class BoxSettingsUIHandler:
             slider.setAccessibleDescription(text)
 
     def editSettings(self, settingsMutatorCallback):
-        # update the selected item's settings in the detectionTargetsStorage
-        item = self.ui.tableWidget_boxes.currentItem()
-        if item is None:
+        # update the settings of the field shown in the detectionTargetsStorage
+        item_name = self.fieldName
+        if item_name is None:
             logger.info("no item selected")
             return
-        item_name = item.text()
         item_obj = self.detectionTargetsStorage.find_item_by_name(item_name)
         if item_obj is None:
             logger.info("item not found: %s", item_name)
@@ -204,11 +203,10 @@ class BoxSettingsUIHandler:
             item_obj.settings = normalize_settings_dict({}, info)
             return item_obj
 
-        item = self.ui.tableWidget_boxes.currentItem()
-        if item is None:
+        if self.fieldName is None:
             return
         self.editSettings(restoreDefaultsSettings)
-        self.populateSettings(item.text())
+        self.populateSettings(self.fieldName)
 
     def confThreshChanged(self):
         self.genericSettingsChanged(

@@ -29,6 +29,7 @@ from PySide6.QtGui import (
     QIcon,
     QKeySequence,
     QPalette,
+    QTransform,
 )
 from PySide6.QtCore import (
     Qt,
@@ -197,6 +198,8 @@ SOURCE_STALL_S = 3.0
 BOXES_LIST_MIN_ROWS = 3
 # The outputs list is at least this many rows tall (it scrolls when shorter).
 DESTINATIONS_LIST_MIN_ROWS = 2
+# Zoom to box zooms in no further than the viewer's Ctrl+wheel zoom (3x).
+MAX_ZOOM = 3.0
 # The window's default size, made smaller on smaller screens.
 DEFAULT_WINDOW_SIZE = (1280, 800)
 # False after OBS was disconnected: the saved connection ("obs") isn't opened
@@ -666,12 +669,20 @@ class MainWindow(QMainWindow):
         self.updateBoxesListHeight()
 
         ui = self.ui
+        # the Box tab and the field's actions follow the selection, however it
+        # changes (a click, the arrow keys, typing a name)
+        table.itemSelectionChanged.connect(self.fieldSelectionChanged)
         table.customContextMenuRequested.connect(self.showFieldContextMenu)
         # F2, Del and Ctrl+C act on the selected field while the list has the
         # focus (Ctrl+C elsewhere copies as usual)
         for action in (ui.actionRenameField, ui.actionDeleteField, ui.actionCopyValue):
             action.setShortcutContext(Qt.ShortcutContext.WidgetShortcut)
             table.addAction(action)
+        if platform.system() == "Darwin":
+            # the key labelled "delete" on a Mac keyboard is Backspace
+            ui.actionDeleteField.setShortcuts(
+                [QKeySequence("Del"), QKeySequence("Backspace")]
+            )
         # the list takes Ctrl+C itself (it copies the current item: the field's
         # name), before the shortcut: see eventFilter
         table.installEventFilter(self)
@@ -789,6 +800,9 @@ class MainWindow(QMainWindow):
 
     def saveSplitterState(self):
         self.splitterSaveTimer.stop()
+        if not self.ui.splitter_main.isVisible():
+            # not laid out yet: its sizes mean nothing
+            return
         sizes = self.ui.splitter_main.sizes()
         if fetch_data("scoresight.json", PANE_SIZES_SETTING) != sizes:
             self.globalSettingsChanged(PANE_SIZES_SETTING, sizes)
@@ -804,7 +818,8 @@ class MainWindow(QMainWindow):
         if hidden == (sizes[index] == 0):
             return
         if hidden:
-            self.paneSizesBeforeHiding[index] = sizes[index]
+            if splitter.isVisible():
+                self.paneSizesBeforeHiding[index] = sizes[index]
             sizes[1] += sizes[index]
             sizes[index] = 0
         else:
@@ -1050,7 +1065,8 @@ class MainWindow(QMainWindow):
             # Ctrl+C in the fields list: the value, not the name
             self.copyFieldValue()
             return True
-        if event.type() == QEvent.KeyPress:
+        if event.type() == QEvent.KeyPress and obj is self:
+            # (a key the focused widget doesn't use reaches the window last)
             if event.key() == Qt.Key_Escape:
                 # deselect any selected item
                 self.itemSelected(None)
@@ -1705,12 +1721,28 @@ class MainWindow(QMainWindow):
                 # this is a template field
                 item.setIcon(QIcon(resource_path("icons", "template-field.svg")))
                 item.setData(Qt.ItemDataRole.UserRole, TEMPLATE)
+        # the fields whose box is gone (e.g. File > Import Configuration replaced
+        # the boxes) aren't on the picture any more
+        names = {box.name for box in detectionTargets}
+        table = self.ui.tableWidget_boxes
+        for row in range(table.rowCount()):
+            item = table.item(row, 0)
+            if item.text() in names or item.data(Qt.ItemDataRole.UserRole) in (
+                NOT_PLACED,
+                None,
+            ):
+                continue
+            item.setIcon(QIcon(resource_path("icons", "circle-x.svg")))
+            item.setData(Qt.ItemDataRole.UserRole, NOT_PLACED)
+            clear_reading(table.item(row, 1))
 
         self.vmixUiHandler.updatevMixTable(detectionTargets)
         self.unoUiHandler.updateUNOTable(detectionTargets)
         # Note: results.csv is not touched here. data_changed fires on every box
         # click and settings tweak; file_output starts a new CSV file by itself
         # when the set of boxes changes.
+        # the Box tab follows a change of the selected field's placement
+        self.fieldSelectionChanged()
         self.updateFieldActions()
 
     def scheduleBoxesSave(self, *_):
@@ -1754,6 +1786,19 @@ class MainWindow(QMainWindow):
         if item is None or not item.isSelected():
             return None
         return item
+
+    def fieldSelectionChanged(self):
+        item = self.currentFieldItem()
+        handler = self.boxSettingsUiHandler
+        if item is None:
+            if handler.fieldName is not None:
+                handler.showField(None)
+            self.updateFieldActions()
+        elif (item.text(), item.data(Qt.ItemDataRole.UserRole)) != (
+            handler.fieldName,
+            handler.fieldRole,
+        ):
+            self.listItemClicked(item)
 
     def updateFieldsHint(self):
         # the fields list is disabled until a source shows a picture
@@ -1835,7 +1880,9 @@ class MainWindow(QMainWindow):
         box.addButton(QMessageBox.StandardButton.Cancel)
         box.setDefaultButton(QMessageBox.StandardButton.Cancel)
         box.exec()
-        return box.clickedButton() is go
+        confirmed = box.clickedButton() is go
+        box.deleteLater()
+        return confirmed
 
     def placeOnPicture(self):
         """Place on picture: the field's box, then its settings in the Box tab."""
@@ -1906,10 +1953,20 @@ class MainWindow(QMainWindow):
             return
         # with some of the picture around it
         margin = max(box.width(), box.height()) * 0.5
-        viewer.fitInView(
-            QRectF(box).adjusted(-margin, -margin, margin, margin),
-            Qt.AspectRatioMode.KeepAspectRatio,
-        )
+        rect = QRectF(box).adjusted(-margin, -margin, margin, margin)
+        # The viewer fits the whole picture again when its viewport is resized,
+        # which zooming in does (its scroll bars appear), unless it is scaling:
+        # as for a Ctrl+wheel zoom (ImageViewer.wheelEvent).
+        scaling = hasattr(viewer, "resetScalingFlag")
+        if scaling:
+            viewer._isScaling = True
+        viewer.fitInView(rect, Qt.AspectRatioMode.KeepAspectRatio)
+        # no closer than the wheel zooms (3x)
+        if viewer.transform().m11() > MAX_ZOOM:
+            viewer.setTransform(QTransform.fromScale(MAX_ZOOM, MAX_ZOOM))
+            viewer.centerOn(rect.center())
+        if scaling:
+            QTimer.singleShot(0, viewer.resetScalingFlag)
         viewer.selectBox(item.text())
 
     def openOBSConnectModal(self):
@@ -2410,11 +2467,11 @@ class MainWindow(QMainWindow):
             self.boxSettingsUiHandler.showField(None)
             self.updateFieldActions()
             return
-        # select the item in the tableWidget_boxes
+        # select the item in the tableWidget_boxes (and only it: the list is
+        # single-selection, but setSelected() doesn't deselect the others)
         item = self.boxNameItem(item_name)
         if item is None:
             return
-        item.setSelected(True)
         self.ui.tableWidget_boxes.setCurrentItem(item)
         self.listItemClicked(item)
 
@@ -2751,8 +2808,12 @@ class MainWindow(QMainWindow):
             self.listItemClicked(item)
 
     def makeBox(self):
-        item = self.ui.tableWidget_boxes.currentItem()
+        item = self.nameItemOfRow(self.ui.tableWidget_boxes.currentItem())
         if not item:
+            return
+        if self.detectionTargetsStorage.find_item_by_name(item.text()) is not None:
+            # it has a box (or is a template) already: never two with one name
+            logger.info("'%s' is already on the picture", item.text())
             return
         # create a new box on self.image_viewer with the name of the selected item from the tableWidget_boxes
         # change the list icon to green checkmark
@@ -2789,12 +2850,19 @@ class MainWindow(QMainWindow):
         self.listItemClicked(item)
 
     def makeTemplateField(self, toggled: bool):
-        item = self.ui.tableWidget_boxes.currentItem()
+        item = self.nameItemOfRow(self.ui.tableWidget_boxes.currentItem())
         if not item:
             return
+        role = item.data(Qt.ItemDataRole.UserRole)
 
         if not toggled:
-            self.removeBox()
+            if role == TEMPLATE:
+                self.removeBox()
+            return
+        if role != NOT_PLACED or not self.isCustomField(item.text()):
+            # only a custom field without a box can be built from other fields
+            logger.info("'%s' can't be a template field", item.text())
+            self.listItemClicked(item)  # shows its real state again
             return
 
         # create a new box on self.image_viewer with the name of the selected item from the tableWidget_boxes

@@ -445,9 +445,15 @@ def test_language_change_keeps_the_runtime_texts(
         assert ui.label_selectedInfo.text() == "Home Score"
         assert ui.toolButton_imageCleanup.isChecked()
         assert ui.frame_imageCleanup.isVisibleTo(ui.tab_box)
-        assert ui.label_imageCleanupBadge.text() == "1 changed"
+        # (in the language loaded, whether these strings are translated or not)
+        assert ui.label_imageCleanupBadge.text() == QCoreApplication.translate(
+            "BoxSettings", "%n changed", None, 1
+        )
         assert ui.label_formatStatus.isVisibleTo(ui.tab_box)
-        assert "ignored" in ui.label_formatStatus.text()
+        assert ui.label_formatStatus.text() == QCoreApplication.translate(
+            "BoxSettings",
+            "Not a valid expression, so it is ignored: every reading passes.",
+        )
         assert ui.label_templateHint.text() != ""
         assert ui.comboBox_ocrModel.itemText(4) != ""
         assert ui.pushButton_removeBox.isVisibleTo(main_window)
@@ -839,6 +845,79 @@ def test_the_box_tab_shows_the_selected_field(main_window, make_target):
     assert ui.stackedWidget_boxSettings.currentWidget() is ui.page_boxEmpty
 
 
+def test_the_box_tab_follows_the_keyboard(main_window, make_target, qtbot):
+    # The Box tab, the footer and the field's actions followed clicks only: after
+    # the arrow keys, Place on picture made a second box for a placed field,
+    # and the settings shown were written to another box.
+    from PySide6.QtTest import QTest
+
+    ui = main_window.ui
+    table = ui.tableWidget_boxes
+    storage = main_window.detectionTargetsStorage
+    ui.groupBox_sb_info.setEnabled(True)  # as with a source
+    storage.add_item(make_target("Away Score", dilate=3))
+    with qtbot.waitActive(main_window):
+        main_window.show()
+        main_window.activateWindow()
+    main_window.itemSelected("Time")  # not on the picture
+    table.setFocus()
+    QTest.keyClick(table, QtCore.Qt.Key.Key_Up)  # Away Score, on the picture
+    assert ui.label_selectedInfo.text() == "Away Score"
+    assert ui.horizontalSlider_dilate.value() == 3
+    assert ui.pushButton_makeBox.isHidden()
+    assert not ui.pushButton_removeBox.isHidden()
+    ui.horizontalSlider_dilate.setValue(4)
+    assert storage.find_item_by_name("Away Score").settings["dilate"] == 4
+    QTest.keyClick(table, QtCore.Qt.Key.Key_Up)  # Home Score
+    assert ui.label_selectedInfo.text() == "Home Score"
+    assert ui.pushButton_makeBox.isEnabled()
+
+    # a field never gets a second box, nor a box and a template
+    main_window.itemSelected("Away Score")
+    main_window.makeBox()
+    main_window.makeTemplateField(True)
+    assert [box.name for box in storage.get_data()] == ["Away Score"]
+    assert not storage.find_item_by_name("Away Score").settings["templatefield"]
+
+
+def test_an_imported_layout_replaces_the_placed_fields(
+    main_window, make_target, tmp_path, monkeypatch
+):
+    # Fields whose box wasn't in the imported file stayed "on the picture"
+    import json
+
+    import mainwindow
+
+    ui = main_window.ui
+    storage = main_window.detectionTargetsStorage
+    storage.add_item(make_target("Home Score"))
+    storage.add_item(make_target("Time"))
+    main_window.itemSelected("Home Score")
+    layout = tmp_path / "layout.json"
+    rect = {"x": 1, "y": 2, "width": 30, "height": 20}
+    layout.write_text(
+        json.dumps(
+            {
+                "boxes_schema_version": 2,
+                "boxes": [{"name": "Time", "rect": rect, "settings": {}}],
+            }
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(
+        mainwindow.QFileDialog,
+        "getOpenFileName",
+        lambda *args, **kwargs: (str(layout), ""),
+    )
+    main_window.importConfiguration()
+    role = QtCore.Qt.ItemDataRole.UserRole
+    assert box_name_item(main_window, "Home Score").data(role) == "unchecked"
+    assert box_name_item(main_window, "Time").data(role) == "checked"
+    # the Box tab says Home Score isn't on the picture any more
+    assert ui.groupBox_target_settings.isHidden()
+    assert not ui.pushButton_makeBox.isHidden()
+
+
 def test_the_image_cleanup_section(make_window, make_target):
     window = make_window()
     ui = window.ui
@@ -1088,34 +1167,47 @@ def test_the_fields_context_menu(main_window, make_result, qapp):
     assert not ui.actionResetFieldSettings.isEnabled()  # no box
 
 
-def test_zoom_to_box(main_window, make_target):
+def test_zoom_to_box(main_window, make_target, qtbot):
+    # with the real viewer (not capturing): it fits the whole picture again
+    # when its viewport is resized, which zooming in does
     from PySide6.QtCore import QRectF
 
-    class ZoomingViewer(FakeViewer):
-        def __init__(self):
-            super().__init__(None, None, None, None)
-            self.fitted = []
-            self.selected = []
-
-        def fitInView(self, rect, mode):
-            self.fitted.append(rect)
-
-        def selectBox(self, name):
-            self.selected.append(name)
+    from source_view import ImageViewer
 
     ui = main_window.ui
-    viewer = ZoomingViewer()
-    main_window.image_viewer = viewer
-    box = make_target("Home Score", rect=(100, 50, 40, 20))
-    main_window.detectionTargetsStorage.add_item(box)
-    main_window.itemSelected("Home Score")
-    main_window.fieldContextMenu().deleteLater()
-    assert ui.actionZoomToBox.isEnabled()
-    ui.actionZoomToBox.trigger()
-    [rect] = viewer.fitted
-    # the box, with some of the picture around it
-    assert rect.contains(QRectF(box)) and rect.width() == 80
-    assert viewer.selected[-1] == "Home Score"
+    storage = main_window.detectionTargetsStorage
+    viewer = ImageViewer(
+        CameraInfo("stub", "stub", "stub", CameraInfo.CameraType.FILE),
+        lambda corners: None,
+        storage,
+        lambda name: None,
+        start=False,
+    )
+    try:
+        viewer.resize(800, 450)
+        with qtbot.waitExposed(viewer):
+            viewer.show()
+        viewer.scene.setSceneRect(0, 0, 1920, 1080)
+        viewer.resetZoom()
+        whole = viewer.transform().m11()
+        main_window.image_viewer = viewer
+        box = make_target("Home Score", rect=(900, 500, 120, 60))
+        storage.add_item(box)
+        main_window.itemSelected("Home Score")
+        main_window.fieldContextMenu().deleteLater()
+        assert ui.actionZoomToBox.isEnabled()
+        ui.actionZoomToBox.trigger()
+        qtbot.wait(100)  # the viewport's resize has been handled
+        zoom = viewer.transform().m11()
+        assert whole * 5 < zoom <= 3.0
+        # the box, with some of the picture around it
+        shown = viewer.mapToScene(viewer.viewport().rect()).boundingRect()
+        assert shown.contains(QRectF(box))
+        assert shown.width() < 400
+    finally:
+        main_window.image_viewer = None
+        viewer.close()
+        viewer.deleteLater()
 
 
 def test_renaming_to_a_used_name_says_so(main_window, monkeypatch):

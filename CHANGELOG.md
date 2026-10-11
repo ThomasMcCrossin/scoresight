@@ -285,6 +285,11 @@ your outputs and sources do, and adds profiles for running several instances.
   on), until another box was selected.
 - After a language change, the settings panel showed *Select an item above*
   instead of the selected box's name.
+- Moving through the field list with the arrow keys didn't update the
+  settings shown, so a change was saved to another box than the one shown,
+  and **Add to Scene** could add a second box with the same name.
+- After **File > Import Configuration**, fields that weren't in the file were
+  still marked as being on the picture.
 - Setting **Detections / s** to 1 froze the video and could leave the controls
   disabled. The preview and the first reading now start on the first frame,
   and the preview refreshes about once a second at any detection rate

@@ -32,7 +32,7 @@ Box positions and sizes are saved automatically.
 | The selected field's actions | **Right-click** it: Place on picture or Remove from picture, Rename..., Delete field..., Reset settings to defaults, Copy value, Zoom to box |
 | Rename a custom field | Double-click its name, or **F2** |
 | Add a custom field | **+** at the top of the list, or **Ctrl+N** |
-| Delete the selected custom field | **Delete field** under the list, or **Del** (asks first) |
+| Delete the selected custom field | **Delete field** under the list, or **Del** (**Backspace** on a Mac; asks first) |
 | Copy the selected field's value | **Ctrl+C** |
 | Put the selected field on the picture | **Place on picture** under the list (in ScoreSight 0.1.x: **Add to Scene**) |
 | Take the selected field off the picture | **Remove from picture** under the list (in 0.1.x: **Remove Selected**) |

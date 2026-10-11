@@ -68,7 +68,7 @@ Select the box and look at it in **Binary View** (also the **Binary view** butto
 | Very tall, narrow digits | Lower **Squash height**, or turn on **Normalize digit width** |
 | Reading improves when the colours are swapped | Toggle **Invert colours** |
 
-Binary View shows exactly what the OCR reads: **Thicken strokes**, **Remove specks**, **Squash height** and **Straighten slant** apply to the OCR with every **Black & white** choice. Keep **Resize to 35 px** on (the default). The header of **Image cleanup** says how many of its settings you changed, so you can see at a glance whether a box was tuned. It resizes the box content to the height the OCR models were trained on.
+Binary View shows exactly what the OCR reads: **Thicken strokes**, **Remove specks**, **Squash height** and **Straighten slant** apply to the OCR with every **Black & white** choice. Keep **Resize to 35 px** on (the default). It resizes the box content to the height the OCR models were trained on. The header of **Image cleanup** says how many of its settings you changed, so you can see at a glance whether a box was tuned.
 
 A box over an empty area (for example an unlit digit position, or a board that is switched off) reads as empty (red `EMP`). ScoreSight doesn't run the OCR on a blank image, so the scoreboard models can't invent digits there.
 
