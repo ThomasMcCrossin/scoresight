@@ -14,6 +14,7 @@ ScoreSight is a Python 3.13 desktop app built with PySide6 (Qt 6), OpenCV and Te
 - [Tests & Code Style](testing.md): pytest, the self-test, ruff and pre-commit.
 - [Translations](translations.md): update and compile the Qt translation files, and add a language.
 - [Releasing](releasing.md): versioning, the changelog and the tag-triggered release workflow.
+- [OCR Evaluation](ocr-eval.md): measure OCR engines on real scoreboard crops against a baseline, add an engine or contribute data.
 
 Also read [CONTRIBUTING.md](https://github.com/royshil/scoresight/blob/main/CONTRIBUTING.md) before opening a pull request.
 

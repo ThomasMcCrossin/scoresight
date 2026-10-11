@@ -19,7 +19,8 @@ select = ["E4", "E7", "E9", "F"]
 [tool.pytest.ini_options]
 minversion = "9.0"
 testpaths = ["tests"]
-pythonpath = ["src"]
+# src/ for the app's flat modules; the repository root for the ocr_eval package
+pythonpath = ["src", "."]
 addopts = ["-ra", "--strict-markers", "--strict-config"]
 xfail_strict = true
 qt_api = "pyside6"

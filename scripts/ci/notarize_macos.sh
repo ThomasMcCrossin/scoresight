@@ -18,9 +18,23 @@ credentials=(
 result="$(xcrun notarytool submit "$file" "${credentials[@]}" --wait --timeout 1h \
   --output-format json || true)"
 echo "$result"
-id="$(python3 -c 'import json, sys; print(json.load(sys.stdin).get("id", ""))' <<<"$result")"
-status="$(python3 -c 'import json, sys; print(json.load(sys.stdin).get("status", ""))' <<<"$result")"
+# notarytool prints a plain-text error, not JSON, when it can't sign in
+field() {
+  python3 -c '
+import json, sys
+try:
+    print(json.loads(sys.stdin.read()).get(sys.argv[1], ""))
+except ValueError:
+    print("")
+' "$1" <<<"$result"
+}
+id="$(field id)"
+status="$(field status)"
 
+if [ -z "$id" ]; then
+  echo "::error::notarytool didn't submit $(basename "$file"): see its message above. A 401 means Apple rejected the credentials: check the APPLE_DEVELOPER_ID_USER (Apple ID), APPLE_DEVELOPER_ID_PASSWORD (an app-specific password from account.apple.com) and APPLE_DEVELOPER_ID_TEAM (team ID) secrets"
+  exit 1
+fi
 if [ "$status" != "Accepted" ]; then
   echo "::error::Notarization of $(basename "$file") finished with status '$status'"
   if [ -n "$id" ]; then
