@@ -20,6 +20,7 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
+from ocr_eval import utf8_output
 from ocr_eval.metrics import mcnemar_exact_p, wilson_interval
 from ocr_eval.report import pct, read_results
 
@@ -110,6 +111,7 @@ def render_pairs(pairs: list[Pair], scoring: str) -> str:
 
 
 def main(argv=None) -> int:
+    utf8_output()
     parser = argparse.ArgumentParser(
         prog="python -m ocr_eval.pairwise",
         description="Compare the runs of two results files crop by crop.",

@@ -1,6 +1,8 @@
 """ocr_eval: engine discovery, the runner, results files, comparison, the
 Training Dojo importer and the command line, with fake engines (no OCR)."""
 
+import gzip
+import io
 import json
 import sys
 import textwrap
@@ -10,7 +12,7 @@ import pytest
 cv2 = pytest.importorskip("cv2")
 np = pytest.importorskip("numpy")
 
-from ocr_eval import cli  # noqa: E402
+from ocr_eval import cli, utf8_output  # noqa: E402
 from ocr_eval.compare import compare_results, render_comparison  # noqa: E402
 from ocr_eval.dataset import load_dataset, validate_dataset  # noqa: E402
 from ocr_eval.dojo import import_dojo  # noqa: E402
@@ -186,6 +188,8 @@ def test_run_scores_and_latency(dataset):
     assert good["latency"]["batch_size"] == 3
     assert good["latency"]["single"]["n"] == 2
     assert good["latency"]["batch"]["n"] == 4
+    cpu = good["latency"]["cpu_ms"]
+    assert cpu["batch"] >= 0 and cpu["single"] >= 0
     assert good["predictions"][0]["conf"] == 0.9
     assert bad["scores"]["raw"]["exact"]["value"] == 0.0
     assert set(raw["by_field_type"]) == {"score", "clock", "text"}
@@ -221,6 +225,41 @@ def test_results_round_trip_and_report(dataset, tmp_path):
     with pytest.raises(ValueError):
         (tmp_path / "x.json").write_text("{}", encoding="utf-8")
         read_results(tmp_path / "x.json")
+
+
+def test_gzipped_results_read_like_plain_ones(dataset, tmp_path):
+    results = run_all([dataset], [(OracleEngine, "good")], log=None)
+    plain = tmp_path / "results.json"
+    packed = tmp_path / "results.json.gz"
+    write_results(plain, results)
+    write_results(packed, results)
+    assert packed.read_bytes()[:2] == b"\x1f\x8b"
+    assert gzip.decompress(packed.read_bytes()) == plain.read_bytes()
+    assert read_results(packed) == read_results(plain)
+    # reproducible: no time or file name in the gzip header
+    again = tmp_path / "again" / "results.json.gz"
+    write_results(again, results)
+    assert again.read_bytes() == packed.read_bytes()
+    # recognized by content, not by name
+    renamed = tmp_path / "renamed.json"
+    renamed.write_bytes(packed.read_bytes())
+    assert read_results(renamed) == read_results(plain)
+    # compare and report take them too
+    assert cli.main(["compare", str(plain), str(packed)]) == 0
+    assert cli.main(["report", str(packed), "--out", str(tmp_path / "r.md")]) == 0
+    with pytest.raises(ValueError):
+        (tmp_path / "junk.json.gz").write_bytes(gzip.compress(b"\xff\xfe not json"))
+        read_results(tmp_path / "junk.json.gz")
+
+
+def test_utf8_output_survives_a_legacy_code_page(monkeypatch):
+    raw = io.BytesIO()
+    stream = io.TextIOWrapper(raw, encoding="cp1252")
+    monkeypatch.setattr(sys, "stdout", stream)
+    utf8_output()
+    print("Δ –")
+    stream.flush()
+    assert raw.getvalue().decode("utf-8").strip() == "Δ –"
 
 
 def _fake_results(

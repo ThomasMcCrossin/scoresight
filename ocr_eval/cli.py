@@ -5,6 +5,7 @@ import json
 import sys
 from pathlib import Path
 
+from ocr_eval import utf8_output
 from ocr_eval.dataset import (
     DatasetError,
     list_datasets,
@@ -404,5 +405,6 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv=None) -> int:
+    utf8_output()
     args = build_parser().parse_args(argv)
     return args.func(args)

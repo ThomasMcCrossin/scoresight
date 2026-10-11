@@ -1,16 +1,20 @@
 """Reading and writing results files, and the markdown report."""
 
+import gzip
 import json
 from pathlib import Path
 
 from ocr_eval import RESULTS_SCHEMA
 
 _PLACEHOLDER = "@@ocr_eval_predictions_{}@@"
+_GZIP_MAGIC = b"\x1f\x8b"
 
 
 def write_results(path: Path, results: dict) -> None:
     """Write results as JSON: indented, with one line per prediction so that
-    baselines diff readably."""
+    baselines diff readably. A path ending in .gz is gzipped, reproducibly (no
+    file name or time in the header): reference results that CI doesn't
+    compare are committed that way."""
     runs = []
     blocks = {}
     for index, run in enumerate(results.get("runs", [])):
@@ -31,14 +35,29 @@ def write_results(path: Path, results: dict) -> None:
     text = json.dumps({**results, "runs": runs}, indent=2, ensure_ascii=False)
     for marker, block in blocks.items():
         text = text.replace(marker, block, 1)
+    data = (text + "\n").encode("utf-8")
+    path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "w", encoding="utf-8", newline="\n") as f:
-        f.write(text + "\n")
+    with open(path, "wb") as f:
+        if path.name.endswith(".gz"):
+            with gzip.GzipFile(
+                filename="", mode="wb", fileobj=f, compresslevel=9, mtime=0
+            ) as compressed:
+                compressed.write(data)
+        else:
+            f.write(data)
 
 
 def read_results(path) -> dict:
-    with open(path, encoding="utf-8") as f:
-        results = json.load(f)
+    """A results file, plain or gzipped (whatever its name)."""
+    with open(path, "rb") as f:
+        data = f.read()
+    if data[:2] == _GZIP_MAGIC:
+        data = gzip.decompress(data)
+    try:
+        results = json.loads(data.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as e:
+        raise ValueError(f"{path} is not an ocr_eval results file: {e}") from e
     if not isinstance(results, dict) or results.get("schema") != RESULTS_SCHEMA:
         raise ValueError(f"{path} is not an ocr_eval results file ({RESULTS_SCHEMA})")
     return results

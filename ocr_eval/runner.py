@@ -123,6 +123,9 @@ def run_engine(
         recognitions: list[Recognition] = []
         per_crop_ms: list[float] = []
         started_all = time.perf_counter()
+        # the CPU time of every thread of the process (an engine's thread pool
+        # included): what the work costs, which wall time hides on many cores
+        cpu_started = time.process_time()
         for start in range(0, len(samples), batch_size):
             crops = images[start : start + batch_size]
             started = time.perf_counter()
@@ -134,20 +137,33 @@ def run_engine(
             if log and (start // batch_size) % 100 == 99:
                 log(f"  {record['key']}: {len(recognitions)}/{len(samples)}")
         total_seconds = time.perf_counter() - started_all
+        batch_cpu_ms = (time.process_time() - cpu_started) * 1000.0 / len(samples)
 
         if batch_size == 1:
             single_ms = per_crop_ms
+            single_cpu_ms = batch_cpu_ms
         else:
             single_ms = []
+            cpu_started = time.process_time()
             for i in range(min(options.single_latency_samples, len(samples))):
                 started = time.perf_counter()
                 _recognize(engine, [images[i]], [field_types[i]])
                 single_ms.append((time.perf_counter() - started) * 1000.0)
+            single_cpu_ms = (
+                (time.process_time() - cpu_started) * 1000.0 / len(single_ms)
+                if single_ms
+                else None
+            )
         record["latency"] = {
             "single": latency_summary(single_ms),
             "batch": latency_summary(per_crop_ms),
             "batch_size": batch_size,
             "total_seconds": round(total_seconds, 3),
+            # mean process CPU time per crop, ms
+            "cpu_ms": {
+                "single": None if single_cpu_ms is None else round(single_cpu_ms, 3),
+                "batch": round(batch_cpu_ms, 3),
+            },
         }
 
         predictions = []
@@ -207,7 +223,8 @@ def run_all(
                          "subset"? (dataset.Dataset.subset, when not all crops)}},
      "runs": [{"dataset", "engine", "variant", "key", "status" (ok | skipped |
                error), "reason", "engine_info", "load_seconds",
-               "latency": {"single", "batch", "batch_size", "total_seconds"},
+               "latency": {"single", "batch", "batch_size", "total_seconds",
+                           "cpu_ms": {"single", "batch"}},
                "scores": {"raw" | "postfilter": summary (metrics.summarize)},
                "predictions": [{"id", "truth", "text", "conf", "ms", "exact",
                                 "pf_exact", "pf_text"?, "info"?}]}]}

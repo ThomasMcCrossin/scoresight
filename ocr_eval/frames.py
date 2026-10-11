@@ -45,7 +45,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import NamedTuple
 
-from ocr_eval import REPO_ROOT
+from ocr_eval import REPO_ROOT, utf8_output
 from ocr_eval.dataset import Dataset, DatasetError, Sample, load_dataset, read_image
 from ocr_eval.fields import SPLITS, scoresight_postfilter
 from ocr_eval.metrics import latency_summary, score_item, summarize
@@ -307,6 +307,7 @@ def render_frames_section(results: dict) -> str:
 
 
 def main(argv=None) -> int:
+    utf8_output()
     parser = argparse.ArgumentParser(
         prog="python -m ocr_eval.frames",
         description="Read every box of a frame in one engine call, and score "
