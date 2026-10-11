@@ -3144,6 +3144,26 @@
                      </property>
                     </widget>
                    </item>
+                   <item>
+                    <widget class="QCheckBox" name="checkBox_saveJson">
+                     <property name="toolTip">
+                      <string>Also write results.json: one object with every field's latest value, {"Home Score": "21", ...} (for example for SuiteCG)</string>
+                     </property>
+                     <property name="text">
+                      <string>Save .json file</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QCheckBox" name="checkBox_saveKeyValue">
+                     <property name="toolTip">
+                      <string>Also write results.txt: a "Field Name=value" line per field (for example for SuiteCG or a TriCaster DataLink watch folder)</string>
+                     </property>
+                     <property name="text">
+                      <string>Save key=value .txt file</string>
+                     </property>
+                    </widget>
+                   </item>
                   </layout>
                  </widget>
                 </item>
@@ -3867,131 +3887,350 @@
                </layout>
               </widget>
               <widget class="QWidget" name="tab_api">
-               <layout class="QFormLayout" name="formLayout_3">
-                <property name="fieldGrowthPolicy">
-                 <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+               <layout class="QVBoxLayout" name="verticalLayout_api">
+                <property name="spacing">
+                 <number>0</number>
                 </property>
-                <property name="verticalSpacing">
-                 <number>3</number>
+                <property name="leftMargin">
+                 <number>0</number>
                 </property>
-                <item row="0" column="1">
-                 <widget class="QCheckBox" name="checkBox_enableOutAPI">
-                  <property name="toolTip">
-                   <string>Send the readings to the URL below on every detection cycle</string>
+                <property name="topMargin">
+                 <number>0</number>
+                </property>
+                <property name="rightMargin">
+                 <number>0</number>
+                </property>
+                <property name="bottomMargin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QScrollArea" name="scrollArea_api">
+                  <property name="frameShape">
+                   <enum>QFrame::NoFrame</enum>
                   </property>
-                  <property name="text">
-                   <string>Send out API requests to external services.</string>
+                  <property name="horizontalScrollBarPolicy">
+                   <enum>Qt::ScrollBarAlwaysOff</enum>
                   </property>
-                 </widget>
-                </item>
-                <item row="4" column="0">
-                 <widget class="QLabel" name="label_21">
-                  <property name="text">
-                   <string>Encode</string>
+                  <property name="widgetResizable">
+                   <bool>true</bool>
                   </property>
-                 </widget>
-                </item>
-                <item row="4" column="1">
-                 <widget class="QComboBox" name="comboBox_api_encode">
-                  <property name="toolTip">
-                   <string>The format of the readings in the requests</string>
-                  </property>
-                  <item>
-                   <property name="text">
-                    <string>JSON (Full)</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>JSON (Simple key-value)</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>XML</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>CSV</string>
-                   </property>
-                  </item>
-                 </widget>
-                </item>
-                <item row="5" column="1">
-                 <spacer name="verticalSpacer">
-                  <property name="orientation">
-                   <enum>Qt::Vertical</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>20</width>
-                    <height>40</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-                <item row="1" column="1">
-                 <widget class="QWidget" name="widget_24" native="true">
-                  <layout class="QHBoxLayout" name="horizontalLayout_27">
-                   <property name="spacing">
-                    <number>2</number>
-                   </property>
-                   <property name="leftMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="topMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="rightMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="bottomMargin">
-                    <number>0</number>
-                   </property>
-                   <item>
-                    <widget class="QLineEdit" name="lineEdit_api_url">
-                     <property name="accessibleName">
-                      <string>API URL</string>
-                     </property>
-                     <property name="toolTip">
-                      <string>The URL the readings are sent to</string>
-                     </property>
-                     <property name="placeholderText">
-                      <string>http://</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QComboBox" name="comboBox_outApiMethod">
-                     <property name="toolTip">
-                      <string>The HTTP method of the requests</string>
-                     </property>
-                     <item>
-                      <property name="text">
-                       <string>POST</string>
+                  <widget class="QWidget" name="scrollAreaWidgetContents_api">
+                   <layout class="QFormLayout" name="formLayout_3">
+                    <property name="fieldGrowthPolicy">
+                     <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+                    </property>
+                    <property name="verticalSpacing">
+                     <number>3</number>
+                    </property>
+                    <item row="0" column="1">
+                     <widget class="QCheckBox" name="checkBox_enableOutAPI">
+                      <property name="toolTip">
+                       <string>Send the readings to the URL below on every detection cycle</string>
                       </property>
-                     </item>
-                     <item>
                       <property name="text">
-                       <string>PUT</string>
+                       <string>Send out API requests to external services.</string>
                       </property>
-                     </item>
-                     <item>
+                     </widget>
+                    </item>
+                    <item row="1" column="0">
+                     <widget class="QLabel" name="label_outApiPreset">
                       <property name="text">
-                       <string>GET</string>
+                       <string>Preset</string>
                       </property>
-                     </item>
-                    </widget>
-                   </item>
-                  </layout>
-                 </widget>
-                </item>
-                <item row="1" column="0">
-                 <widget class="QLabel" name="label_20">
-                  <property name="text">
-                   <string>URL</string>
-                  </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="1">
+                     <widget class="QComboBox" name="comboBox_outApiPreset">
+                      <property name="toolTip">
+                       <string>Fill in the settings for a product. You can still change every setting afterwards.</string>
+                      </property>
+                      <item>
+                       <property name="text">
+                        <string>Custom</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string notr="true">TriCaster DataLink</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string notr="true">Epiphan Pearl</string>
+                       </property>
+                      </item>
+                     </widget>
+                    </item>
+                    <item row="2" column="1">
+                     <widget class="QLabel" name="label_outApiPresetHelp">
+                      <property name="wordWrap">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="0">
+                     <widget class="QLabel" name="label_20">
+                      <property name="text">
+                       <string>URL</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="1">
+                     <widget class="QWidget" name="widget_24" native="true">
+                      <layout class="QHBoxLayout" name="horizontalLayout_27">
+                       <property name="spacing">
+                        <number>2</number>
+                       </property>
+                       <property name="leftMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="topMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="rightMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="bottomMargin">
+                        <number>0</number>
+                       </property>
+                       <item>
+                        <widget class="QLineEdit" name="lineEdit_api_url">
+                         <property name="accessibleName">
+                          <string>API URL</string>
+                         </property>
+                         <property name="toolTip">
+                          <string>The URL the readings are sent to. With {field} and {value} in it, each field is sent in its own request, for example http://host/set?key={field}&amp;value={value}. For a login, put it in the URL: http://user:password@host/...</string>
+                         </property>
+                         <property name="placeholderText">
+                          <string>http://</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QComboBox" name="comboBox_outApiMethod">
+                         <property name="toolTip">
+                          <string>The HTTP method of the requests</string>
+                         </property>
+                         <item>
+                          <property name="text">
+                           <string>POST</string>
+                          </property>
+                         </item>
+                         <item>
+                          <property name="text">
+                           <string>PUT</string>
+                          </property>
+                         </item>
+                         <item>
+                          <property name="text">
+                           <string>GET</string>
+                          </property>
+                         </item>
+                        </widget>
+                       </item>
+                      </layout>
+                     </widget>
+                    </item>
+                    <item row="4" column="0">
+                     <widget class="QLabel" name="label_21">
+                      <property name="text">
+                       <string>Encode</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="1">
+                     <widget class="QComboBox" name="comboBox_api_encode">
+                      <property name="toolTip">
+                       <string>The format of the readings in the requests</string>
+                      </property>
+                      <item>
+                       <property name="text">
+                        <string>JSON (Full)</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>JSON (Simple key-value)</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>XML</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>CSV</string>
+                       </property>
+                      </item>
+                     </widget>
+                    </item>
+                    <item row="5" column="0">
+                     <widget class="QLabel" name="label_outApiSend">
+                      <property name="text">
+                       <string>Send</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="5" column="1">
+                     <widget class="QCheckBox" name="checkBox_outApiOnlyChanges">
+                      <property name="toolTip">
+                       <string>Send a reading only when its value changed (off: every reading on every detection cycle)</string>
+                      </property>
+                      <property name="text">
+                       <string>Only changes</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="6" column="0">
+                     <widget class="QLabel" name="label_outApiRefresh">
+                      <property name="text">
+                       <string>Resend all</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="6" column="1">
+                     <widget class="QSpinBox" name="spinBox_outApiRefresh">
+                      <property name="toolTip">
+                       <string>With Only changes: also send every value again this often, for a receiver that forgets them when it restarts</string>
+                      </property>
+                      <property name="specialValueText">
+                       <string>Never</string>
+                      </property>
+                      <property name="prefix">
+                       <string>every </string>
+                      </property>
+                      <property name="suffix">
+                       <string notr="true"> s</string>
+                      </property>
+                      <property name="maximum">
+                       <number>3600</number>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="7" column="0">
+                     <widget class="QLabel" name="label_outApiFields">
+                      <property name="text">
+                       <string>Fields</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="7" column="1">
+                     <widget class="QSpinBox" name="spinBox_outApiFieldsPerRequest">
+                      <property name="toolTip">
+                       <string>How many fields one request carries: all of them (one request per detection cycle), or at most this many (a request per batch of changed fields). A URL with {field} or {value} always sends one field per request.</string>
+                      </property>
+                      <property name="specialValueText">
+                       <string>All in one request</string>
+                      </property>
+                      <property name="suffix">
+                       <string> per request</string>
+                      </property>
+                      <property name="maximum">
+                       <number>99</number>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="8" column="0">
+                     <widget class="QLabel" name="label_outApiRate">
+                      <property name="text">
+                       <string>Rate</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="8" column="1">
+                     <widget class="QSpinBox" name="spinBox_outApiMaxRate">
+                      <property name="toolTip">
+                       <string>At most this many requests per second (the latest values wait for their turn)</string>
+                      </property>
+                      <property name="specialValueText">
+                       <string>No limit</string>
+                      </property>
+                      <property name="suffix">
+                       <string> requests/s</string>
+                      </property>
+                      <property name="maximum">
+                       <number>100</number>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="9" column="0">
+                     <widget class="QLabel" name="label_outApiNames">
+                      <property name="text">
+                       <string>Names</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="9" column="1">
+                     <widget class="QCheckBox" name="checkBox_outApiSafeNames">
+                      <property name="toolTip">
+                       <string>Send the field names in lower case with letters, digits and _ only ("Home Score" as home_score), for receivers that allow no other names</string>
+                      </property>
+                      <property name="text">
+                       <string>Letters, digits and _ only</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="10" column="1">
+                     <widget class="QLabel" name="label_outApiNamesSent">
+                      <property name="toolTip">
+                       <string>The names the fields are sent with</string>
+                      </property>
+                      <property name="wordWrap">
+                       <bool>true</bool>
+                      </property>
+                      <property name="textInteractionFlags">
+                       <set>Qt::TextSelectableByMouse</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="11" column="0">
+                     <widget class="QLabel" name="label_outApiHeaders">
+                      <property name="text">
+                       <string>Headers</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="11" column="1">
+                     <widget class="QPlainTextEdit" name="plainTextEdit_outApiHeaders">
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>52</height>
+                       </size>
+                      </property>
+                      <property name="accessibleName">
+                       <string>Request headers</string>
+                      </property>
+                      <property name="toolTip">
+                       <string>Extra request headers, one "Name: value" per line, for example an Authorization token</string>
+                      </property>
+                      <property name="tabChangesFocus">
+                       <bool>true</bool>
+                      </property>
+                      <property name="lineWrapMode">
+                       <enum>QPlainTextEdit::NoWrap</enum>
+                      </property>
+                      <property name="placeholderText">
+                       <string notr="true">Authorization: Bearer …</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="12" column="1">
+                     <spacer name="verticalSpacer">
+                      <property name="orientation">
+                       <enum>Qt::Vertical</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>20</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                   </layout>
+                  </widget>
                  </widget>
                 </item>
                </layout>

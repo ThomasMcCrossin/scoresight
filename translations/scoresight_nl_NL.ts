@@ -651,8 +651,8 @@ Resolutie: {width}×{height}</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="94"/>
-        <location filename="../src/mainwindow.ui" line="4238"/>
-        <location filename="../src/mainwindow.py" line="2223"/>
+        <location filename="../src/mainwindow.ui" line="4477"/>
+        <location filename="../src/mainwindow.py" line="2229"/>
         <source>Pause outputs</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Uitvoer pauzeren</translation>
@@ -818,60 +818,60 @@ Resolutie: {width}×{height}</translation>
         <translation>Opslaan als .xml-bestand</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3153"/>
+        <location filename="../src/mainwindow.ui" line="3173"/>
         <source>Add each new value to a log, or keep only the latest values</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Elke nieuwe waarde aan een geschiedenis toevoegen, of alleen de nieuwste waarden bewaren</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3156"/>
+        <location filename="../src/mainwindow.ui" line="3176"/>
         <source>Append</source>
         <translation>Toevoegen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3163"/>
+        <location filename="../src/mainwindow.ui" line="3183"/>
         <source>Add each new value to a log (results.csv, the .txt files or both), or keep only the latest values</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Elke nieuwe waarde aan een geschiedenis toevoegen (results.csv, de .txt-bestanden of beide), of alleen de nieuwste waarden bewaren</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3173"/>
+        <location filename="../src/mainwindow.ui" line="3193"/>
         <source>Results in .csv file</source>
         <translation>Resultaten in .csv-bestand</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3178"/>
+        <location filename="../src/mainwindow.ui" line="3198"/>
         <source>Results in .txt files</source>
         <translation>Resultaten in .txt-bestanden</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3183"/>
+        <location filename="../src/mainwindow.ui" line="3203"/>
         <source>Results in both</source>
         <translation>Resultaten in beide</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3188"/>
+        <location filename="../src/mainwindow.ui" line="3208"/>
         <source>Don&apos;t append results</source>
         <translation>Resultaten niet toevoegen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3196"/>
+        <location filename="../src/mainwindow.ui" line="3216"/>
         <source>How many times per second to save the results to files</source>
         <translation>Hoe vaak per seconde de resultaten naar bestanden moeten worden opgeslagen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3199"/>
+        <location filename="../src/mainwindow.ui" line="3219"/>
         <source>Save / s</source>
         <translation>Opslaan / s</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3221"/>
+        <location filename="../src/mainwindow.ui" line="3241"/>
         <source>File saves per second</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Bestanden opslaan per seconde</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3224"/>
+        <location filename="../src/mainwindow.ui" line="3244"/>
         <source>How many times per second the files are written (1-10). Affects only the files.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Hoe vaak per seconde de bestanden worden geschreven (1-10). Geldt alleen voor de bestanden.</translation>
@@ -887,7 +887,7 @@ Resolutie: {width}×{height}</translation>
         <translation type="unfinished">De ingebouwde HTTP-server: een scorebordpagina, JSON, XML en CSV</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3276"/>
+        <location filename="../src/mainwindow.ui" line="3296"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Use these endpoints in external software to get live data updates&lt;/p&gt;&lt;p&gt;HTML Scoreboard: &lt;a href=&quot;http://localhost:18099/scoresight&quot;&gt;http://localhost:18099/scoresight&lt;/a&gt;&lt;br/&gt;JSON: &lt;a href=&quot;http://localhost:18099/json&quot;&gt;http://localhost:18099/json&lt;/a&gt; (optional: ?pivot)&lt;br/&gt;XML: &lt;a href=&quot;http://localhost:18099/xml&quot;&gt;http://localhost:18099/xml&lt;/a&gt; (optional: ?pivot)&lt;br/&gt;CSV: &lt;a href=&quot;http://localhost:18099/csv&quot;&gt;http://localhost:18099/csv&lt;/a&gt; (optional: ?pivot)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Gebruik deze endpoints in externe software voor live gegevens&lt;/p&gt;&lt;p&gt;HTML-scorebord: &lt;a href=&quot;http://localhost:18099/scoresight&quot;&gt;http://localhost:18099/scoresight&lt;/a&gt;&lt;br/&gt;JSON: &lt;a href=&quot;http://localhost:18099/json&quot;&gt;http://localhost:18099/json&lt;/a&gt; (optioneel: ?pivot)&lt;br/&gt;XML: &lt;a href=&quot;http://localhost:18099/xml&quot;&gt;http://localhost:18099/xml&lt;/a&gt; (optioneel: ?pivot)&lt;br/&gt;CSV: &lt;a href=&quot;http://localhost:18099/csv&quot;&gt;http://localhost:18099/csv&lt;/a&gt; (optioneel: ?pivot)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
@@ -899,20 +899,20 @@ Resolutie: {width}×{height}</translation>
         <translation type="unfinished">Werkt tekstbronnen in OBS Studio bij</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3317"/>
-        <location filename="../src/mainwindow.py" line="2978"/>
+        <location filename="../src/mainwindow.ui" line="3337"/>
+        <location filename="../src/mainwindow.py" line="2985"/>
         <source>Connect to the WebSocket server of OBS Studio</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Verbinden met de WebSocket-server van OBS Studio</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3376"/>
+        <location filename="../src/mainwindow.ui" line="3396"/>
         <source>The name of the scene Create OBS Scene makes</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">De naam van de scène die “OBS-scène maken” aanmaakt</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3392"/>
+        <location filename="../src/mainwindow.ui" line="3412"/>
         <source>Create a scene in OBS with a text source for each standard field</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Maakt in OBS een scène met een tekstbron voor elk standaardveld</translation>
@@ -924,55 +924,55 @@ Resolutie: {width}×{height}</translation>
         <translation type="unfinished">Werkt een titel in vMix bij</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3482"/>
+        <location filename="../src/mainwindow.ui" line="3502"/>
         <source>Each field and the vMix title field it updates. Edit the right column.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Elk veld en het vMix-titelveld dat het bijwerkt. Bewerk de rechterkolom.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3534"/>
+        <location filename="../src/mainwindow.ui" line="3554"/>
         <source>vMix host</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">vMix-host</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3537"/>
+        <location filename="../src/mainwindow.ui" line="3557"/>
         <source>The address of the vMix computer (localhost if vMix runs on this computer)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Het adres van de vMix-computer (localhost als vMix op deze computer draait)</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3554"/>
+        <location filename="../src/mainwindow.ui" line="3574"/>
         <source>vMix port</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">vMix-poort</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3557"/>
+        <location filename="../src/mainwindow.ui" line="3577"/>
         <source>The port of the vMix Web API (8088 by default; not 8099)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">De poort van de vMix Web API (standaard 8088; niet 8099)</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3579"/>
+        <location filename="../src/mainwindow.ui" line="3599"/>
         <source>Start or stop vMix</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">vMix starten of stoppen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3582"/>
+        <location filename="../src/mainwindow.ui" line="3602"/>
         <source>Start or stop sending the readings to vMix</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Verzenden van de aflezingen naar vMix starten of stoppen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3635"/>
+        <location filename="../src/mainwindow.ui" line="3655"/>
         <source>vMix input</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">vMix-invoer</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3638"/>
+        <location filename="../src/mainwindow.ui" line="3658"/>
         <source>The vMix input (number or name) of the title to update</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">De vMix-invoer (nummer of naam) van de titel die moet worden bijgewerkt</translation>
@@ -994,105 +994,105 @@ Resolutie: {width}×{height}</translation>
         <translation type="unfinished">Stuurt een bedieningsapp van overlays.uno aan</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3703"/>
-        <location filename="../src/mainwindow.ui" line="3993"/>
+        <location filename="../src/mainwindow.ui" line="3723"/>
+        <location filename="../src/mainwindow.ui" line="3974"/>
         <source>URL</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">URL</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3710"/>
+        <location filename="../src/mainwindow.ui" line="3730"/>
         <source>UNO URL</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">UNO-URL</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3713"/>
+        <location filename="../src/mainwindow.ui" line="3733"/>
         <source>The API URL of the overlays.uno control app. Treat it like a password.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">De API-URL van de bedieningsapp van overlays.uno. Behandel deze als een wachtwoord.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3723"/>
+        <location filename="../src/mainwindow.ui" line="3743"/>
         <source>Start or stop UNO</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">UNO starten of stoppen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3726"/>
+        <location filename="../src/mainwindow.ui" line="3746"/>
         <source>Start or stop sending the readings to UNO</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Verzenden van de aflezingen naar UNO starten of stoppen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3729"/>
+        <location filename="../src/mainwindow.ui" line="3749"/>
         <location filename="../src/uno_ui_handler.py" line="127"/>
         <source>Start sending</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Verzenden starten</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3779"/>
+        <location filename="../src/mainwindow.ui" line="3799"/>
         <source>The overlay uses UNO Essentials content fields</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">De overlay gebruikt inhoudsvelden van UNO Essentials</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4015"/>
+        <location filename="../src/mainwindow.ui" line="4254"/>
         <source>File</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Bestand</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4030"/>
+        <location filename="../src/mainwindow.ui" line="4269"/>
         <source>Language</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Taal</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4035"/>
+        <location filename="../src/mainwindow.ui" line="4274"/>
         <source>Appearance</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Uiterlijk</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4026"/>
+        <location filename="../src/mainwindow.ui" line="4265"/>
         <source>View</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Weergave</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4053"/>
+        <location filename="../src/mainwindow.ui" line="4292"/>
         <source>Tools</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Extra</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4099"/>
+        <location filename="../src/mainwindow.ui" line="4338"/>
         <source>Rename...</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Naam wijzigen...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4107"/>
+        <location filename="../src/mainwindow.ui" line="4346"/>
         <source>Delete field...</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Veld verwijderen...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4115"/>
+        <location filename="../src/mainwindow.ui" line="4354"/>
         <source>Reset settings to defaults</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Instellingen herstellen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4120"/>
+        <location filename="../src/mainwindow.ui" line="4359"/>
         <source>Copy value</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Waarde kopiëren</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4128"/>
+        <location filename="../src/mainwindow.ui" line="4367"/>
         <source>Zoom to box</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Zoomen naar kader</translation>
@@ -1103,7 +1103,7 @@ Resolutie: {width}×{height}</translation>
         <translation type="obsolete">Controleren op updates</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4166"/>
+        <location filename="../src/mainwindow.ui" line="4405"/>
         <source>About</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Over</translation>
@@ -1134,20 +1134,20 @@ Resolutie: {width}×{height}</translation>
         <translation type="obsolete">OCR-trainingsgegevens instellen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4257"/>
+        <location filename="../src/mainwindow.ui" line="4496"/>
         <source>Fit picture to window</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Beeld aan venster aanpassen</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="546"/>
-        <location filename="../src/mainwindow.ui" line="4265"/>
+        <location filename="../src/mainwindow.ui" line="4504"/>
         <source>Reload sources</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Bronnen herladen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3788"/>
+        <location filename="../src/mainwindow.ui" line="3808"/>
         <source>Essentials</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Essentials</translation>
@@ -1296,7 +1296,7 @@ Resolutie: {width}×{height}</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="768"/>
-        <location filename="../src/mainwindow.py" line="3930"/>
+        <location filename="../src/mainwindow.py" line="3937"/>
         <source>Correct the perspective: click the 4 corners of the scoreboard</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Corrigeert het perspectief: klik op de 4 hoeken van het scorebord</translation>
@@ -1378,7 +1378,7 @@ Resolutie: {width}×{height}</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1153"/>
-        <location filename="../src/mainwindow.py" line="3876"/>
+        <location filename="../src/mainwindow.py" line="3883"/>
         <source>Cancel</source>
         <translation type="unfinished">Annuleren</translation>
     </message>
@@ -1492,6 +1492,7 @@ Resolutie: {width}×{height}</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1921"/>
+        <location filename="../src/mainwindow.ui" line="3949"/>
         <source>Custom</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Aangepast</translation>
@@ -1853,61 +1854,61 @@ Resolutie: {width}×{height}</translation>
         <translation type="obsolete">Meldt een aflezing die gelijk is aan de laatste goede waarde van het veld als ongewijzigd (=, SameNoChange) in plaats van nieuw (✓). vMix en UNO verzenden ongewijzigde waarden dan niet opnieuw (tenzij hun “Zelfde verzenden?” aan staat), en de HTTP-server en de uitgaande API markeren ze als ongewijzigd. OBS en de tekstbestanden krijgen hoe dan ook alleen een waarde als die verandert.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4311"/>
+        <location filename="../src/mainwindow.ui" line="4550"/>
         <source>Quit</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Afsluiten</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4328"/>
+        <location filename="../src/mainwindow.ui" line="4567"/>
         <source>Setup layout</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Instelindeling</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4331"/>
+        <location filename="../src/mainwindow.ui" line="4570"/>
         <source>For placing and tuning the fields and setting up the outputs: the field list, the picture with its adjustments, and the inspector</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Om de velden te plaatsen en af te stellen en de uitvoer in te stellen: de veldenlijst, het beeld met de aanpassingen ervan, en de Inspector</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4345"/>
+        <location filename="../src/mainwindow.ui" line="4584"/>
         <source>Live layout</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Live-indeling</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4348"/>
+        <location filename="../src/mainwindow.ui" line="4587"/>
         <source>For the game: large readings and the state of every output next to the picture. The inspector and the picture adjustments are hidden; the reading and the outputs work the same.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Voor de wedstrijd: grote aflezingen en de status van elke uitvoer naast het beeld. De Inspector en de beeldaanpassingen zijn verborgen; het aflezen en de uitvoer werken hetzelfde.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4362"/>
+        <location filename="../src/mainwindow.ui" line="4601"/>
         <source>Show unused fields</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Ongebruikte velden tonen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4365"/>
+        <location filename="../src/mainwindow.ui" line="4604"/>
         <source>Show the fields that aren&apos;t on the picture in the field list (remembered for each layout)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Toont de velden die niet in beeld staan in de veldenlijst (onthouden per indeling)</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4373"/>
+        <location filename="../src/mainwindow.ui" line="4612"/>
         <source>User guide</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Handleiding</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4376"/>
+        <location filename="../src/mainwindow.ui" line="4615"/>
         <source>Open the ScoreSight documentation in your web browser</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Opent de documentatie van ScoreSight in je webbrowser</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4387"/>
+        <location filename="../src/mainwindow.ui" line="4626"/>
         <source>Keyboard shortcuts</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Sneltoetsen</translation>
@@ -1938,7 +1939,7 @@ Resolutie: {width}×{height}</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2822"/>
-        <location filename="../src/mainwindow.py" line="1991"/>
+        <location filename="../src/mainwindow.py" line="1997"/>
         <source>The OCR model that reads every box, not only the selected one. PP-OCR (automatic) reads with PP-OCR (accurate) while this computer keeps up, and with PP-OCR (fast), which needs about a fifth of the CPU, when it doesn&apos;t. The Tesseract models use the boxes&apos; Image cleanup settings; Load external Tesseract model... reads a .traineddata file.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1955,208 +1956,343 @@ Resolutie: {width}×{height}</translation>
         <translation type="unfinished">Selecteer een uitvoer om de instellingen ervan hieronder te tonen. Met de spatiebalk zet je die aan of uit.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3342"/>
+        <location filename="../src/mainwindow.ui" line="3150"/>
+        <source>Also write results.json: one object with every field&apos;s latest value, {&quot;Home Score&quot;: &quot;21&quot;, ...} (for example for SuiteCG)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="3153"/>
+        <source>Save .json file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="3160"/>
+        <source>Also write results.txt: a &quot;Field Name=value&quot; line per field (for example for SuiteCG or a TriCaster DataLink watch folder)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="3163"/>
+        <source>Save key=value .txt file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="3362"/>
         <source>Close the connection to OBS. ScoreSight connects to OBS again at its next start only after you connect again.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Verbreekt de verbinding met OBS. ScoreSight maakt bij de volgende start pas weer verbinding met OBS nadat je opnieuw verbinding hebt gemaakt.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3351"/>
+        <location filename="../src/mainwindow.ui" line="3371"/>
         <source>Disconnect</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Loskoppelen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3379"/>
+        <location filename="../src/mainwindow.ui" line="3399"/>
         <source>OBS scene name</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Naam van de OBS-scène</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3408"/>
+        <location filename="../src/mainwindow.ui" line="3428"/>
         <source>If OBS already has a scene with this name, delete its sources and make it again. Off: an existing scene is kept as it is.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Als OBS al een scène met deze naam heeft, worden de bronnen ervan verwijderd en wordt de scène opnieuw gemaakt. Uit: een bestaande scène blijft zoals hij is.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3431"/>
+        <location filename="../src/mainwindow.ui" line="3451"/>
         <source>&lt;b&gt;Text sources&lt;/b&gt;: the OBS text source each field updates. Double-click a name to change it; leave it empty to not send that field to OBS.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">&lt;b&gt;Tekstbronnen&lt;/b&gt;: de OBS-tekstbron die elk veld bijwerkt. Dubbelklik op een naam om die te wijzigen; laat hem leeg om dat veld niet naar OBS te verzenden.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3447"/>
+        <location filename="../src/mainwindow.ui" line="3467"/>
         <source>Each field and the OBS text source it updates. Edit the right column; an empty name sends nothing to OBS.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Elk veld en de OBS-tekstbron die het bijwerkt. Bewerk de rechterkolom; een lege naam verzendt niets naar OBS.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3450"/>
+        <location filename="../src/mainwindow.ui" line="3470"/>
         <source>OBS text sources of the fields</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">OBS-tekstbronnen van de velden</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3651"/>
+        <location filename="../src/mainwindow.ui" line="3671"/>
         <source>Also send a field&apos;s value when it hasn&apos;t changed (marked “same”), at every detection, for example if someone may change the title in vMix by hand. Off: vMix gets a value only when it changes. Formerly “Send Same?”.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Verzendt de waarde van een veld ook als die niet is veranderd (gemarkeerd als “gelijk”), bij elke detectie, bijvoorbeeld als iemand de titel in vMix met de hand kan wijzigen. Uit: vMix krijgt alleen een waarde als die verandert. Voorheen “Zelfde verzenden?”.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3654"/>
-        <location filename="../src/mainwindow.ui" line="3772"/>
+        <location filename="../src/mainwindow.ui" line="3674"/>
+        <location filename="../src/mainwindow.ui" line="3792"/>
         <source>Also resend unchanged values</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Ook ongewijzigde waarden verzenden</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3769"/>
+        <location filename="../src/mainwindow.ui" line="3789"/>
         <source>Also send a field&apos;s value when it hasn&apos;t changed (marked “same”), at every detection. Off: the overlay gets a value only when it changes, which keeps within overlays.uno&apos;s request limits. Formerly “Send Same?”.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Verzendt de waarde van een veld ook als die niet is veranderd (gemarkeerd als “gelijk”), bij elke detectie. Uit: de overlay krijgt alleen een waarde als die verandert; zo blijven de verzoeken binnen de limieten van overlays.uno. Voorheen “Zelfde verzenden?”.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3819"/>
+        <location filename="../src/mainwindow.ui" line="3839"/>
         <source>Overlay ID</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Overlay-ID</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3826"/>
+        <location filename="../src/mainwindow.ui" line="3846"/>
         <source>The ID (UUID) of the Essentials overlay</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">De ID (UUID) van de Essentials-overlay</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3838"/>
+        <location filename="../src/mainwindow.ui" line="3858"/>
         <source>aaaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeeee</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">aaaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeeee</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3857"/>
+        <location filename="../src/mainwindow.ui" line="3877"/>
         <source>Each field and the UNO command (or Essentials field ID) it drives. Edit the right column.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Elk veld en de UNO-opdracht (of Essentials-veld-ID) die het aanstuurt. Bewerk de rechterkolom.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4065"/>
+        <location filename="../src/mainwindow.ui" line="3938"/>
+        <source>Preset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="3945"/>
+        <source>Fill in the settings for a product. You can still change every setting afterwards.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="4002"/>
+        <source>The URL the readings are sent to. With {field} and {value} in it, each field is sent in its own request, for example http://host/set?key={field}&amp;value={value}. For a login, put it in the URL: http://user:password@host/...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="4071"/>
+        <source>Send</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="4078"/>
+        <source>Send a reading only when its value changed (off: every reading on every detection cycle)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="4081"/>
+        <source>Only changes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="4088"/>
+        <source>Resend all</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="4095"/>
+        <source>With Only changes: also send every value again this often, for a receiver that forgets them when it restarts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="4098"/>
+        <source>Never</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="4101"/>
+        <source>every </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="4121"/>
+        <source>How many fields one request carries: all of them (one request per detection cycle), or at most this many (a request per batch of changed fields). A URL with {field} or {value} always sends one field per request.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="4124"/>
+        <source>All in one request</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="4127"/>
+        <source> per request</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="4137"/>
+        <source>Rate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="4144"/>
+        <source>At most this many requests per second (the latest values wait for their turn)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="4147"/>
+        <source>No limit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="4150"/>
+        <source> requests/s</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="4167"/>
+        <source>Send the field names in lower case with letters, digits and _ only (&quot;Home Score&quot; as home_score), for receivers that allow no other names</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="4170"/>
+        <source>Letters, digits and _ only</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="4177"/>
+        <source>The names the fields are sent with</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="4190"/>
+        <source>Headers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="4203"/>
+        <source>Request headers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="4206"/>
+        <source>Extra request headers, one &quot;Name: value&quot; per line, for example an Authorization token</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="4304"/>
         <source>Help</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Help</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4133"/>
-        <location filename="../src/mainwindow.py" line="2479"/>
+        <location filename="../src/mainwindow.ui" line="4372"/>
+        <location filename="../src/mainwindow.py" line="2486"/>
         <source>Hold value...</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Waarde vastzetten...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4136"/>
-        <location filename="../src/mainwindow.py" line="2521"/>
+        <location filename="../src/mainwindow.ui" line="4375"/>
+        <location filename="../src/mainwindow.py" line="2528"/>
         <source>Send a value you type to every output instead of this field&apos;s readings, until you release it</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Verzendt een waarde die je typt naar alle uitvoer in plaats van de aflezingen van dit veld, totdat je die vrijgeeft</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4147"/>
+        <location filename="../src/mainwindow.ui" line="4386"/>
         <source>Release held value</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Vastgezette waarde vrijgeven</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4150"/>
+        <location filename="../src/mainwindow.ui" line="4389"/>
         <source>Send this field&apos;s readings to the outputs again</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Verzendt de aflezingen van dit veld weer naar de uitvoer</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4158"/>
+        <location filename="../src/mainwindow.ui" line="4397"/>
         <source>Check for updates...</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Controleren op updates...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4174"/>
+        <location filename="../src/mainwindow.ui" line="4413"/>
         <source>View log</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Log bekijken</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4177"/>
+        <location filename="../src/mainwindow.ui" line="4416"/>
         <source>Show the log of this session as it is written</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Toont de log van deze sessie terwijl die wordt geschreven</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4188"/>
+        <location filename="../src/mainwindow.ui" line="4427"/>
         <source>Import field layout...</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Veldindeling importeren...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4191"/>
+        <location filename="../src/mainwindow.ui" line="4430"/>
         <source>Replace the fields on the picture (their boxes and settings) with the ones saved in a file. Formerly “Import Configuration”.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Vervangt de velden in beeld (hun kaders en instellingen) door die uit een bestand. Voorheen “Configuratie importeren”.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4202"/>
+        <location filename="../src/mainwindow.ui" line="4441"/>
         <source>Export field layout...</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Veldindeling exporteren...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4205"/>
+        <location filename="../src/mainwindow.ui" line="4444"/>
         <source>Save the fields on the picture (their boxes and settings) to a file. Formerly “Export Configuration”.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Slaat de velden in beeld (hun kaders en instellingen) op in een bestand. Voorheen “Configuratie exporteren”.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4216"/>
+        <location filename="../src/mainwindow.ui" line="4455"/>
         <source>Open settings folder</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Instellingenmap openen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4219"/>
+        <location filename="../src/mainwindow.ui" line="4458"/>
         <source>Open the folder with ScoreSight&apos;s settings file</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Opent de map met het instellingenbestand van ScoreSight</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4227"/>
+        <location filename="../src/mainwindow.ui" line="4466"/>
         <source>OCR training data setup...</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">OCR-trainingsgegevens instellen...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4273"/>
+        <location filename="../src/mainwindow.ui" line="4512"/>
         <source>Zoom in</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Inzoomen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4281"/>
+        <location filename="../src/mainwindow.ui" line="4520"/>
         <source>Zoom out</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Uitzoomen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4292"/>
+        <location filename="../src/mainwindow.ui" line="4531"/>
         <source>Statistics overlay</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Statistieken-overlay</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4300"/>
+        <location filename="../src/mainwindow.ui" line="4539"/>
         <source>Collect OCR training data</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">OCR-trainingsgegevens verzamelen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4303"/>
+        <location filename="../src/mainwindow.ui" line="4542"/>
         <source>Save each box&apos;s picture and reading to the training data folder, for training an OCR model</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Slaat de afbeelding en aflezing van elk kader op in de map met trainingsgegevens, om een OCR-model te trainen</translation>
@@ -2168,91 +2304,90 @@ Resolutie: {width}×{height}</translation>
         <translation type="unfinished">Verzendt de aflezingen naar een URL (uitgaande HTTP-API)</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3880"/>
+        <location filename="../src/mainwindow.ui" line="3928"/>
         <source>Send the readings to the URL below on every detection cycle</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Verzendt de aflezingen bij elke detectiecyclus naar de URL hieronder</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3883"/>
+        <location filename="../src/mainwindow.ui" line="3931"/>
         <source>Send out API requests to external services.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">API-verzoeken naar externe diensten verzenden.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3890"/>
+        <location filename="../src/mainwindow.ui" line="4037"/>
         <source>Encode</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Codering</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3897"/>
+        <location filename="../src/mainwindow.ui" line="4044"/>
         <source>The format of the readings in the requests</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Het formaat van de aflezingen in de verzoeken</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3901"/>
+        <location filename="../src/mainwindow.ui" line="4048"/>
         <source>JSON (Full)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">JSON (volledig)</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3906"/>
+        <location filename="../src/mainwindow.ui" line="4053"/>
         <source>JSON (Simple key-value)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">JSON (eenvoudig sleutel-waarde)</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3911"/>
+        <location filename="../src/mainwindow.ui" line="4058"/>
         <source>XML</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">XML</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3916"/>
+        <location filename="../src/mainwindow.ui" line="4063"/>
         <source>CSV</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">CSV</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3955"/>
+        <location filename="../src/mainwindow.ui" line="3999"/>
         <source>API URL</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">API-URL</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3958"/>
         <source>The URL the readings are sent to</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
-        <translation type="unfinished">De URL waarnaar de aflezingen worden verzonden</translation>
+        <translation type="obsolete">De URL waarnaar de aflezingen worden verzonden</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3961"/>
+        <location filename="../src/mainwindow.ui" line="4005"/>
         <source>http://</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">http://</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3968"/>
+        <location filename="../src/mainwindow.ui" line="4012"/>
         <source>The HTTP method of the requests</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">De HTTP-methode van de verzoeken</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3972"/>
+        <location filename="../src/mainwindow.ui" line="4016"/>
         <source>POST</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">POST</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3977"/>
+        <location filename="../src/mainwindow.ui" line="4021"/>
         <source>PUT</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">PUT</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3982"/>
+        <location filename="../src/mainwindow.ui" line="4026"/>
         <source>GET</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">GET</translation>
@@ -2277,7 +2412,7 @@ Resolutie: {width}×{height}</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="498"/>
-        <location filename="../src/mainwindow.py" line="3687"/>
+        <location filename="../src/mainwindow.py" line="3694"/>
         <source>The video source: a camera, capture card or NDI source, a video file, a stream URL or a screen capture</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">De videobron: een camera, capturekaart of NDI-bron, een videobestand, een stream-URL of een schermopname</translation>
@@ -2334,23 +2469,23 @@ Resolutie: {width}×{height}</translation>
         <translation type="vanished">OBS</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3332"/>
-        <location filename="../src/mainwindow.py" line="2976"/>
+        <location filename="../src/mainwindow.ui" line="3352"/>
+        <location filename="../src/mainwindow.py" line="2983"/>
         <source>Connect OBS</source>
         <translation>Verbinden met OBS</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3385"/>
+        <location filename="../src/mainwindow.ui" line="3405"/>
         <source>ScoreSight Scene</source>
         <translation>ScoreSight-scène</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3398"/>
+        <location filename="../src/mainwindow.ui" line="3418"/>
         <source>Create OBS Scene</source>
         <translation>OBS-scène maken</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3411"/>
+        <location filename="../src/mainwindow.ui" line="3431"/>
         <source>Recreate</source>
         <translation>Opnieuw maken</translation>
     </message>
@@ -2359,7 +2494,7 @@ Resolutie: {width}×{height}</translation>
         <translation type="vanished">VMix</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3527"/>
+        <location filename="../src/mainwindow.ui" line="3547"/>
         <source>Connection</source>
         <translation>Verbinding</translation>
     </message>
@@ -2368,7 +2503,7 @@ Resolutie: {width}×{height}</translation>
         <translation type="vanished">localhost</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3547"/>
+        <location filename="../src/mainwindow.ui" line="3567"/>
         <source>:</source>
         <translation>:</translation>
     </message>
@@ -2381,7 +2516,7 @@ Resolutie: {width}×{height}</translation>
         <translation type="vanished">Starten</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3628"/>
+        <location filename="../src/mainwindow.ui" line="3648"/>
         <source>Input</source>
         <translation>Invoer</translation>
     </message>
@@ -2415,8 +2550,9 @@ Resolutie: {width}×{height}</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="71"/>
-        <location filename="../src/mainwindow.py" line="1053"/>
-        <location filename="../src/mainwindow.py" line="2729"/>
+        <location filename="../src/mainwindow.ui" line="4114"/>
+        <location filename="../src/mainwindow.py" line="1057"/>
+        <location filename="../src/mainwindow.py" line="2736"/>
         <source>Fields</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Velden</translation>
@@ -2424,7 +2560,7 @@ Resolutie: {width}×{height}</translation>
     <message>
         <location filename="../src/mainwindow.ui" line="110"/>
         <location filename="../src/mainwindow.ui" line="113"/>
-        <location filename="../src/mainwindow.ui" line="4081"/>
+        <location filename="../src/mainwindow.ui" line="4320"/>
         <source>New custom field</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Nieuw eigen veld</translation>
@@ -2449,7 +2585,7 @@ Resolutie: {width}×{height}</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="258"/>
-        <location filename="../src/mainwindow.ui" line="4089"/>
+        <location filename="../src/mainwindow.ui" line="4328"/>
         <source>Place on picture</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">In beeld plaatsen</translation>
@@ -2462,8 +2598,8 @@ Resolutie: {width}×{height}</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="271"/>
-        <location filename="../src/mainwindow.ui" line="4094"/>
-        <location filename="../src/mainwindow.py" line="2571"/>
+        <location filename="../src/mainwindow.ui" line="4333"/>
+        <location filename="../src/mainwindow.py" line="2578"/>
         <source>Remove from picture</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Uit beeld halen</translation>
@@ -2482,7 +2618,7 @@ Resolutie: {width}×{height}</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="297"/>
-        <location filename="../src/mainwindow.py" line="2588"/>
+        <location filename="../src/mainwindow.py" line="2595"/>
         <source>Delete field</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Veld verwijderen</translation>
@@ -2504,7 +2640,7 @@ Resolutie: {width}×{height}</translation>
         <translation type="vanished">Schermopname</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1343"/>
+        <location filename="../src/mainwindow.py" line="1347"/>
         <source>Video Settings</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Video-instellingen</translation>
@@ -2525,7 +2661,7 @@ Resolutie: {width}×{height}</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="628"/>
-        <location filename="../src/mainwindow.ui" line="4249"/>
+        <location filename="../src/mainwindow.ui" line="4488"/>
         <source>Binary View</source>
         <translation>Binaire weergave</translation>
     </message>
@@ -2569,6 +2705,7 @@ Resolutie: {width}×{height}</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="665"/>
+        <location filename="../src/mainwindow.ui" line="4160"/>
         <source>Names</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Namen</translation>
@@ -2680,7 +2817,7 @@ Resolutie: {width}×{height}</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1203"/>
-        <location filename="../src/mainwindow.py" line="2221"/>
+        <location filename="../src/mainwindow.py" line="2227"/>
         <source>Resume outputs</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Uitvoer hervatten</translation>
@@ -2690,31 +2827,31 @@ Resolutie: {width}×{height}</translation>
         <translation type="vanished">### Open een camera of laad een bestand</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1269"/>
+        <location filename="../src/mainwindow.py" line="1273"/>
         <source>&lt;p&gt;The HTTP server is not running: port {port} is already in use or not available.&lt;/p&gt;&lt;p&gt;Close the other program, or start ScoreSight with &lt;b&gt;--port&lt;/b&gt; to use a different port. The log has the details.&lt;/p&gt;</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">&lt;p&gt;De HTTP-server draait niet: poort {port} is al in gebruik of niet beschikbaar.&lt;/p&gt;&lt;p&gt;Sluit het andere programma, of start ScoreSight met &lt;b&gt;--port&lt;/b&gt; om een andere poort te gebruiken. De log bevat de details.&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2175"/>
+        <location filename="../src/mainwindow.py" line="2181"/>
         <source>Version {version}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Versie {version}</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1195"/>
+        <location filename="../src/mainwindow.py" line="1199"/>
         <source>System</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Systeem</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1051"/>
+        <location filename="../src/mainwindow.py" line="1055"/>
         <source>Readings</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Aflezingen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1130"/>
+        <location filename="../src/mainwindow.py" line="1134"/>
         <source>Fields not on the picture: {count} hidden. &lt;a href=&quot;#show&quot;&gt;Show them&lt;/a&gt;</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Velden niet in beeld: {count} verborgen. &lt;a href=&quot;#show&quot;&gt;Tonen&lt;/a&gt;</translation>
@@ -2725,364 +2862,364 @@ Resolutie: {width}×{height}</translation>
         <translation type="obsolete">Extern model laden...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1164"/>
+        <location filename="../src/mainwindow.py" line="1168"/>
         <source>Drag to resize the fields list. Double-click to hide or show it.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Sleep om de breedte van de veldenlijst te wijzigen. Dubbelklik om deze te verbergen of te tonen.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1170"/>
+        <location filename="../src/mainwindow.py" line="1174"/>
         <source>Drag to resize the Box and Outputs settings. Double-click to hide or show them.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Sleep om de breedte van de instellingen “Kader” en “Uitvoer” te wijzigen. Dubbelklik om ze te verbergen of te tonen.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1196"/>
+        <location filename="../src/mainwindow.py" line="1200"/>
         <source>Light</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Licht</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1197"/>
+        <location filename="../src/mainwindow.py" line="1201"/>
         <source>Dark</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Donker</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1222"/>
+        <location filename="../src/mainwindow.py" line="1226"/>
         <source>Zoom with Ctrl+scroll or {zoom_in} and {zoom_out}; drag with the middle mouse button to move the picture.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Zoom met Ctrl+scrollen of {zoom_in} en {zoom_out}; sleep met de middelste muisknop om het beeld te verschuiven.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1284"/>
+        <location filename="../src/mainwindow.py" line="1288"/>
         <source>&lt;p&gt;From other computers on your network, use {url} instead of http://localhost:{port}.&lt;/p&gt;</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">&lt;p&gt;Gebruik op andere computers in je netwerk {url} in plaats van http://localhost:{port}.&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1544"/>
-        <location filename="../src/mainwindow.py" line="1547"/>
+        <location filename="../src/mainwindow.py" line="1549"/>
+        <location filename="../src/mainwindow.py" line="1552"/>
         <source>{value} /s</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{value} /s</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1896"/>
+        <location filename="../src/mainwindow.py" line="1902"/>
         <source>Load external Tesseract model...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1904"/>
+        <location filename="../src/mainwindow.py" line="1910"/>
         <source>Read the boxes with a Tesseract .traineddata file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1914"/>
+        <location filename="../src/mainwindow.py" line="1920"/>
         <source>A Tesseract model: the boxes&apos; Image cleanup settings prepare their images for it</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1924"/>
+        <location filename="../src/mainwindow.py" line="1930"/>
         <source>PaddleOCR PP-OCRv6: accurate while it keeps up with Detections / s on this computer, fast when it doesn&apos;t. The status bar says which one reads and why.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1932"/>
+        <location filename="../src/mainwindow.py" line="1938"/>
         <source>PP-OCR (accurate)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1934"/>
+        <location filename="../src/mainwindow.py" line="1940"/>
         <source>PaddleOCR PP-OCRv6 small: reads the most values right, always. It needs about five times the CPU of PP-OCR (fast): on a laptop, 10 boxes read 5 times a second can need more than a core.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1942"/>
+        <location filename="../src/mainwindow.py" line="1948"/>
         <source>PP-OCR (fast)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1944"/>
+        <location filename="../src/mainwindow.py" line="1950"/>
         <source>PaddleOCR PP-OCRv6 tiny: about a fifth of PP-OCR (accurate)&apos;s CPU, for many boxes, a high Detections / s or a slow computer; it misreads more of the hard displays (clocks, bulbs, LCDs).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1952"/>
+        <location filename="../src/mainwindow.py" line="1958"/>
         <source>The PP-OCR models aren&apos;t installed. Download them with: {command}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1957"/>
+        <location filename="../src/mainwindow.py" line="1963"/>
         <source>PP-OCR needs onnxruntime, which isn&apos;t installed (pip install -r requirements.txt).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1972"/>
+        <location filename="../src/mainwindow.py" line="1978"/>
         <source>PP-OCR (automatic: accurate)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1976"/>
+        <location filename="../src/mainwindow.py" line="1982"/>
         <source>PP-OCR (automatic: fast)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1977"/>
+        <location filename="../src/mainwindow.py" line="1983"/>
         <source>PP-OCR (automatic)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2086"/>
+        <location filename="../src/mainwindow.py" line="2092"/>
         <source>The OCR can&apos;t keep up</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2089"/>
+        <location filename="../src/mainwindow.py" line="2095"/>
         <source>The boxes are read {rate} times per second instead of {target}.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2099"/>
+        <location filename="../src/mainwindow.py" line="2105"/>
         <source>Use PP-OCR (fast)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2103"/>
+        <location filename="../src/mainwindow.py" line="2109"/>
         <source>Keep PP-OCR (accurate)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2127"/>
+        <location filename="../src/mainwindow.py" line="2133"/>
         <source>Logs</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Logboeken</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2172"/>
+        <location filename="../src/mainwindow.py" line="2178"/>
         <source>About ScoreSight</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Over ScoreSight</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2250"/>
+        <location filename="../src/mainwindow.py" line="2256"/>
         <source>&lt;b&gt;Outputs paused&lt;/b&gt; since {time}. Your graphics show the last values sent; the readings here keep updating.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">&lt;b&gt;Uitvoer gepauzeerd&lt;/b&gt; sinds {time}. Je graphics tonen de laatst verzonden waarden; de aflezingen hier worden gewoon bijgewerkt.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2477"/>
+        <location filename="../src/mainwindow.py" line="2484"/>
         <source>Change held value...</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Vastgezette waarde wijzigen...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2515"/>
+        <location filename="../src/mainwindow.py" line="2522"/>
         <source>Only custom fields can be renamed or deleted</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Alleen eigen velden kunnen worden hernoemd of verwijderd</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2527"/>
+        <location filename="../src/mainwindow.py" line="2534"/>
         <source>Place the field on the picture first</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Plaats het veld eerst in beeld</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2572"/>
+        <location filename="../src/mainwindow.py" line="2579"/>
         <source>Remove “{name}” from the picture? Its settings go back to the defaults, so the settings you changed are lost.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">“{name}” uit beeld halen? De instellingen ervan worden teruggezet naar de standaardwaarden, dus je wijzigingen gaan verloren.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2577"/>
+        <location filename="../src/mainwindow.py" line="2584"/>
         <source>Remove</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Uit beeld halen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2589"/>
+        <location filename="../src/mainwindow.py" line="2596"/>
         <source>Delete the field “{name}”? Its box and its settings are deleted too.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Het veld “{name}” verwijderen? Het kader en de instellingen ervan worden ook verwijderd.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2593"/>
+        <location filename="../src/mainwindow.py" line="2600"/>
         <source>Delete</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Verwijderen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2713"/>
+        <location filename="../src/mainwindow.py" line="2720"/>
         <source>Window</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Venster</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2741"/>
+        <location filename="../src/mainwindow.py" line="2748"/>
         <source>Picture</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Beeld</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2781"/>
+        <location filename="../src/mainwindow.py" line="2788"/>
         <source>Connect to OBS</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Verbinden met OBS</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2843"/>
-        <location filename="../src/mainwindow.py" line="2969"/>
+        <location filename="../src/mainwindow.py" line="2850"/>
+        <location filename="../src/mainwindow.py" line="2976"/>
         <source>Connecting...</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Verbinding maken...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2890"/>
+        <location filename="../src/mainwindow.py" line="2897"/>
         <source>Cannot connect to OBS</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Geen verbinding met OBS</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2960"/>
+        <location filename="../src/mainwindow.py" line="2967"/>
         <source>Change connection...</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Verbinding wijzigen...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2963"/>
+        <location filename="../src/mainwindow.py" line="2970"/>
         <source>Connected to OBS at {target}. Click to connect to another OBS.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Verbonden met OBS op {target}. Klik om met een andere OBS te verbinden.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2971"/>
+        <location filename="../src/mainwindow.py" line="2978"/>
         <source>Connecting to OBS at {target}...</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Verbinding maken met OBS op {target}...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3236"/>
+        <location filename="../src/mainwindow.py" line="3243"/>
         <source>URL Source</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">URL-bron</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3256"/>
+        <location filename="../src/mainwindow.py" line="3263"/>
         <source>Screen Capture Selection</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Schermopname selecteren</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3263"/>
+        <location filename="../src/mainwindow.py" line="3270"/>
         <source>Capture the entire screen</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Het hele scherm opnemen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3699"/>
+        <location filename="../src/mainwindow.py" line="3706"/>
         <source>Video settings: the resolution, frame rate and format of the camera or capture card</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Video-instellingen: de resolutie, framerate en het formaat van de camera of capturekaart</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3705"/>
+        <location filename="../src/mainwindow.py" line="3712"/>
         <source>Video settings: only for cameras and capture cards</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Video-instellingen: alleen voor camera&apos;s en capturekaarten</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3871"/>
+        <location filename="../src/mainwindow.py" line="3878"/>
         <source>Redo corners…</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Hoeken opnieuw kiezen…</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3873"/>
+        <location filename="../src/mainwindow.py" line="3880"/>
         <source>Remove correction…</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Correctie verwijderen…</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3889"/>
+        <location filename="../src/mainwindow.py" line="3896"/>
         <source>Remove the 4-corner correction?</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">4-hoekcorrectie verwijderen?</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3890"/>
+        <location filename="../src/mainwindow.py" line="3897"/>
         <source>The picture will no longer be corrected. The boxes were placed on the corrected picture, so they may have to be moved.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Het beeld wordt niet meer gecorrigeerd. De kaders zijn op het gecorrigeerde beeld geplaatst, dus misschien moet je ze verplaatsen.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3918"/>
+        <location filename="../src/mainwindow.py" line="3925"/>
         <source>Picking the corners: click the 4 corners of the scoreboard. Click here or press Esc to cancel.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Hoeken kiezen: klik op de 4 hoeken van het scorebord. Klik hier of druk op Esc om te annuleren.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3924"/>
+        <location filename="../src/mainwindow.py" line="3931"/>
         <source>The perspective is corrected. Click to redo the corners or to remove the correction.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Het perspectief is gecorrigeerd. Klik om de hoeken opnieuw te kiezen of de correctie te verwijderen.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3967"/>
+        <location filename="../src/mainwindow.py" line="3974"/>
         <source>No camera found</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Geen camera gevonden</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4014"/>
+        <location filename="../src/mainwindow.py" line="4021"/>
         <source>Step {number}: done</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Stap {number}: klaar</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4016"/>
+        <location filename="../src/mainwindow.py" line="4023"/>
         <source>Step {number}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Stap {number}</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4203"/>
+        <location filename="../src/mainwindow.py" line="4212"/>
         <source>Rename field</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Veld hernoemen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4209"/>
+        <location filename="../src/mainwindow.py" line="4218"/>
         <source>New name:</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Nieuwe naam:</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4221"/>
+        <location filename="../src/mainwindow.py" line="4230"/>
         <source>There is already a field named “{name}”. Choose another name.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Er is al een veld met de naam “{name}”. Kies een andere naam.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4345"/>
+        <location filename="../src/mainwindow.py" line="4354"/>
         <source>Created the scene “{name}” in OBS.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">De scène “{name}” is in OBS gemaakt.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4348"/>
+        <location filename="../src/mainwindow.py" line="4357"/>
         <source>Made the scene “{name}” again: its sources were replaced.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">De scène “{name}” is opnieuw gemaakt: de bronnen ervan zijn vervangen.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4352"/>
+        <location filename="../src/mainwindow.py" line="4361"/>
         <source>OBS already has a scene “{name}”: it was kept as it is. Tick Recreate to make it again.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">OBS heeft al een scène “{name}”: die is ongewijzigd gelaten. Vink “Opnieuw maken” aan om die opnieuw op te bouwen.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4357"/>
+        <location filename="../src/mainwindow.py" line="4366"/>
         <source>Couldn&apos;t create the scene “{name}”. Tools &gt; View log has the details.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Kan de scène “{name}” niet maken. De details staan in “Extra &gt; Log bekijken”.</translation>
@@ -3094,7 +3231,7 @@ Resolutie: {width}×{height}</translation>
         <translation type="unfinished">vMix stoppen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3591"/>
+        <location filename="../src/mainwindow.ui" line="3611"/>
         <location filename="../src/vmix_ui_handler.py" line="128"/>
         <source>Start vMix</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
@@ -3123,6 +3260,31 @@ Resolutie: {width}×{height}</translation>
         <source>5-minute Quickstart</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Snelstart in 5 minuten</translation>
+    </message>
+    <message>
+        <location filename="../src/api_ui_handler.py" line="34"/>
+        <source>Replace TRICASTER-IP with the TriCaster&apos;s address (and admin:admin with its login). Each field is a DataLink key named like the field: put %Home Score% in a title to show the Home Score field.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/api_ui_handler.py" line="41"/>
+        <source>Replace PEARL-IP with the Pearl&apos;s address and PASSWORD with its admin password. Each field is a Pearl variable with the name shown below: put %(home_score) in a layout&apos;s text to show the Home Score field.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/api_ui_handler.py" line="57"/>
+        <source>DataLink keys: {names}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/api_ui_handler.py" line="62"/>
+        <source>Pearl variables: {names}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/api_ui_handler.py" line="70"/>
+        <source>Sent as: {names}</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3277,7 +3439,7 @@ Resolutie: {width}×{height}</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="176"/>
-        <location filename="../src/output_status.py" line="242"/>
+        <location filename="../src/output_status.py" line="260"/>
         <source>off</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">uit</translation>
@@ -3307,249 +3469,283 @@ Resolutie: {width}×{height}</translation>
         <translation type="unfinished">{hours} u geleden</translation>
     </message>
     <message>
+        <location filename="../src/output_status.py" line="201"/>
+        <source>a few seconds</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../src/output_status.py" line="203"/>
+        <source>{seconds} s</source>
+        <translation type="unfinished">{seconds} s</translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="207"/>
+        <source>{minutes} min</source>
+        <translation type="unfinished">{minutes} min</translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="210"/>
+        <source>{hours} h</source>
+        <translation type="unfinished">{hours} u</translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="221"/>
         <source>Last written {age}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Laatst geschreven {age}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="207"/>
+        <location filename="../src/output_status.py" line="225"/>
         <source>Last request {age}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Laatste verzoek {age}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="210"/>
+        <location filename="../src/output_status.py" line="228"/>
         <source>Last sent {age}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Laatst verzonden {age}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="227"/>
+        <location filename="../src/output_status.py" line="245"/>
         <source>Details: {error}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Details: {error}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="240"/>
+        <location filename="../src/output_status.py" line="258"/>
         <source>on</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">aan</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="393"/>
+        <location filename="../src/output_status.py" line="411"/>
         <source>{problem} · retrying</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{problem} · probeert opnieuw</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="414"/>
+        <location filename="../src/output_status.py" line="432"/>
         <source>Port {port} is vMix&apos;s TCP API: use {web_port}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Poort {port} is de TCP-API van vMix: gebruik {web_port}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="417"/>
+        <location filename="../src/output_status.py" line="435"/>
         <source>ScoreSight uses the vMix Web API. Set the port to the Web Controller port (vMix Settings › Web Controller, {web_port} by default).</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">ScoreSight gebruikt de vMix Web API. Stel de poort in op die van de Web Controller (vMix Settings › Web Controller, standaard {web_port}).</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="434"/>
+        <location filename="../src/output_status.py" line="452"/>
         <source>OBS needs a password</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">OBS vraagt om een wachtwoord</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="435"/>
+        <location filename="../src/output_status.py" line="453"/>
         <source>Enter the password of OBS&apos;s WebSocket server (in OBS: Tools › WebSocket Server Settings › Show Connect Info).</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Voer het wachtwoord van de WebSocket-server van OBS in (in OBS: Tools › WebSocket Server Instellingen › Toon verbindingsinformatie).</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="444"/>
+        <location filename="../src/output_status.py" line="462"/>
         <source>OBS refused the connection: check the password</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">OBS weigerde de verbinding: controleer het wachtwoord</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="447"/>
+        <location filename="../src/output_status.py" line="465"/>
         <source>The password doesn&apos;t match the one of OBS&apos;s WebSocket server (in OBS: Tools › WebSocket Server Settings › Show Connect Info).</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Het wachtwoord komt niet overeen met dat van de WebSocket-server van OBS (in OBS: Tools › WebSocket Server Instellingen › Toon verbindingsinformatie).</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="461"/>
+        <location filename="../src/output_status.py" line="479"/>
         <source>OBS has no text source “{name}”</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">OBS heeft geen tekstbron “{name}”</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="465"/>
+        <location filename="../src/output_status.py" line="483"/>
         <source>OBS has no text source with a field&apos;s name</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">OBS heeft geen tekstbron met de naam van een veld</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="471"/>
+        <location filename="../src/output_status.py" line="489"/>
         <source>Create a text source with this name in OBS (names are case-sensitive), or use Create OBS Scene.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Maak in OBS een tekstbron met deze naam (hoofdlettergevoelig), of gebruik “OBS-scène maken”.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="479"/>
+        <location filename="../src/output_status.py" line="497"/>
         <source>OBS refused an update (code {code})</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">OBS weigerde een update (code {code})</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="493"/>
+        <location filename="../src/output_status.py" line="511"/>
         <source>No secure connection to {target}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Geen beveiligde verbinding met {target}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="496"/>
+        <location filename="../src/output_status.py" line="514"/>
         <source>The HTTPS connection failed (for example, the server&apos;s certificate isn&apos;t trusted). Check the URL; on your own network, http:// may be what the receiver expects.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">De HTTPS-verbinding is mislukt (bijvoorbeeld omdat het certificaat van de server niet wordt vertrouwd). Controleer de URL; op je eigen netwerk verwacht de ontvanger misschien http://.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="523"/>
+        <location filename="../src/output_status.py" line="541"/>
         <source>Can&apos;t find {host}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Kan {host} niet vinden</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="528"/>
+        <location filename="../src/output_status.py" line="546"/>
         <source>The address {host} isn&apos;t known on this network: check it, or use the computer&apos;s IP address.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Het adres {host} is onbekend op dit netwerk: controleer het, of gebruik het IP-adres van de computer.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="539"/>
+        <location filename="../src/output_status.py" line="557"/>
         <source>Nothing answered within a few seconds.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Binnen enkele seconden kwam er geen antwoord.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="546"/>
+        <location filename="../src/output_status.py" line="564"/>
         <source>Nothing answered within a few seconds: the computer may be off, the address wrong, or a firewall may block port {port}.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Binnen enkele seconden kwam er geen antwoord: de computer staat misschien uit, het adres klopt niet, of een firewall blokkeert poort {port}.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="552"/>
+        <location filename="../src/output_status.py" line="570"/>
         <source>Nothing answered within a few seconds: check this computer&apos;s network connection.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Binnen enkele seconden kwam er geen antwoord: controleer de netwerkverbinding van deze computer.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="560"/>
+        <location filename="../src/output_status.py" line="578"/>
         <source>No answer from {target}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Geen antwoord van {target}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="572"/>
+        <location filename="../src/output_status.py" line="590"/>
         <source>Can&apos;t reach {target}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Kan {target} niet bereiken</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="584"/>
+        <location filename="../src/output_status.py" line="602"/>
         <source>Lost the connection to OBS at {target}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Verbinding met OBS op {target} verbroken</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="589"/>
+        <location filename="../src/output_status.py" line="607"/>
         <source>ScoreSight reconnects by itself as soon as OBS is reachable again. Check that OBS is running.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">ScoreSight maakt vanzelf opnieuw verbinding zodra OBS weer bereikbaar is. Controleer of OBS draait.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="603"/>
+        <location filename="../src/output_status.py" line="621"/>
         <source>Check that vMix is running, that its Web Controller is enabled (vMix Settings › Web Controller) on port {port}, and that the firewall of the vMix computer allows it.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Controleer of vMix draait, of de Web Controller ervan is ingeschakeld (vMix Settings › Web Controller) op poort {port}, en of de firewall van de vMix-computer die toestaat.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="610"/>
+        <location filename="../src/output_status.py" line="628"/>
         <source>Check that OBS is running and that its WebSocket server is enabled (in OBS: Tools › WebSocket Server Settings) on port {port}.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Controleer of OBS draait en of de WebSocket-server ervan is ingeschakeld (in OBS: Tools › WebSocket Server Instellingen) op poort {port}.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="616"/>
+        <location filename="../src/output_status.py" line="634"/>
         <source>Check this computer&apos;s internet connection.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Controleer de internetverbinding van deze computer.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="619"/>
+        <location filename="../src/output_status.py" line="637"/>
         <source>Nothing answers at {target}: check the URL and that the receiving program is running.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Niets antwoordt op {target}: controleer de URL en of het ontvangende programma draait.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="633"/>
+        <location filename="../src/output_status.py" line="651"/>
         <source>HTTP {code}: vMix asks for a login</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">HTTP {code}: vMix vraagt om een login</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="636"/>
+        <location filename="../src/output_status.py" line="654"/>
         <source>In vMix Settings › Web Controller, tick “Allow access to following pages without login: API”. ScoreSight doesn&apos;t send a vMix login.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Vink in vMix Settings › Web Controller “Allow access to following pages without login: API” aan. ScoreSight verstuurt geen vMix-login.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="646"/>
-        <location filename="../src/output_status.py" line="682"/>
+        <location filename="../src/output_status.py" line="664"/>
+        <location filename="../src/output_status.py" line="701"/>
         <source>HTTP {code}: check the UNO URL</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">HTTP {code}: controleer de UNO-URL</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="649"/>
-        <location filename="../src/output_status.py" line="685"/>
+        <location filename="../src/output_status.py" line="667"/>
+        <location filename="../src/output_status.py" line="704"/>
         <source>overlays.uno refused the URL: it is wrong or no longer valid. Copy the API URL of your control app again.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">overlays.uno weigerde de URL: deze is onjuist of niet meer geldig. Kopieer de API-URL van je bedieningsapp opnieuw.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="657"/>
+        <location filename="../src/output_status.py" line="675"/>
         <source>HTTP {code}: access denied</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">HTTP {code}: toegang geweigerd</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="660"/>
-        <source>The endpoint refused the request. If it needs a key, put it in the URL.</source>
-        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
-        <translation type="unfinished">Het endpoint weigerde het verzoek. Als het een sleutel nodig heeft, zet die dan in de URL.</translation>
+        <location filename="../src/output_status.py" line="678"/>
+        <source>The endpoint refused the request. If it needs a login, put it in the URL (http://user:password@host/...); a key or token goes in the URL or in Headers.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="670"/>
+        <location filename="../src/output_status.py" line="720"/>
+        <source>HTTP 429: overlays.uno&apos;s call limit reached</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="723"/>
+        <source>overlays.uno limits the calls of your plan (the Free plan: about 10,000 a day). ScoreSight keeps the latest value of each field and sends it when the limit resets. To use fewer calls, keep “Also resend unchanged values” off and clear the command of fields the overlay doesn&apos;t use.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The endpoint refused the request. If it needs a key, put it in the URL.</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="obsolete">Het endpoint weigerde het verzoek. Als het een sleutel nodig heeft, zet die dan in de URL.</translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="689"/>
         <source>HTTP 404: this isn&apos;t the vMix Web API</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">HTTP 404: dit is niet de vMix Web API</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="673"/>
+        <location filename="../src/output_status.py" line="692"/>
         <source>Check the host and the port: vMix&apos;s Web Controller port ({port} by default).</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Controleer de host en de poort: de Web Controller-poort van vMix (standaard {port}).</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="693"/>
+        <location filename="../src/output_status.py" line="712"/>
         <source>HTTP 404: check the URL</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">HTTP 404: controleer de URL</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="694"/>
+        <location filename="../src/output_status.py" line="713"/>
         <source>The endpoint has nothing at this address: check the path.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Het endpoint heeft niets op dit adres: controleer het pad.</translation>
@@ -3560,246 +3756,265 @@ Resolutie: {width}×{height}</translation>
         <translation type="obsolete">overlays.uno beperkt hoeveel updates het accepteert en negeert de rest. Laat “Zelfde verzenden?” uit en “Bijwerken bij wijziging” aan.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="708"/>
         <source>The endpoint limits the requests, and drops the others: lower Detections / s.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
-        <translation type="unfinished">Het endpoint beperkt de verzoeken en negeert de rest: verlaag “Detecties / s”.</translation>
+        <translation type="obsolete">Het endpoint beperkt de verzoeken en negeert de rest: verlaag “Detecties / s”.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="715"/>
+        <location filename="../src/output_status.py" line="732"/>
         <source>HTTP 429: too many requests</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">HTTP 429: te veel verzoeken</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="720"/>
+        <location filename="../src/output_status.py" line="735"/>
+        <source>The endpoint limits the requests. ScoreSight keeps the latest readings and sends them when it accepts requests again. To send fewer, turn on “Send only changes”, set a rate limit, or lower Detections / s.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="746"/>
+        <source>HTTP 400: overlays.uno doesn&apos;t know a command</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="749"/>
+        <source>Check the commands in the table against your overlay&apos;s API description, and clear the command of fields the overlay doesn&apos;t use: every call counts against your daily limit.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="758"/>
         <source>Check the Input and the vMix field names in the table (for example Home Score.Text).</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Controleer de “Invoer” en de vMix-veldnamen in de tabel (bijvoorbeeld Home Score.Text).</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="731"/>
-        <location filename="../src/output_status.py" line="748"/>
+        <location filename="../src/output_status.py" line="769"/>
+        <location filename="../src/output_status.py" line="786"/>
         <source>It answered: {text}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Antwoord: {text}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="740"/>
+        <location filename="../src/output_status.py" line="778"/>
         <source>HTTP {code}: the receiver reported an error</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">HTTP {code}: de ontvanger meldde een fout</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="747"/>
+        <location filename="../src/output_status.py" line="785"/>
         <source>HTTP {code}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">HTTP {code}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="777"/>
+        <location filename="../src/output_status.py" line="818"/>
+        <source>Next try in {wait}.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="830"/>
         <source>{failing} of {total} failing: {problem}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{failing} van {total} mislukt: {problem}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="824"/>
+        <location filename="../src/output_status.py" line="877"/>
         <source>Folder not found: {folder}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Map niet gevonden: {folder}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="827"/>
+        <location filename="../src/output_status.py" line="880"/>
         <source>The output folder {folder} doesn&apos;t exist any more, so no files are written. Choose a folder to write them again.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">De uitvoermap {folder} bestaat niet meer, dus er worden geen bestanden geschreven. Kies een map om ze weer te schrijven.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="836"/>
-        <location filename="../src/output_status.py" line="1066"/>
-        <location filename="../src/output_status.py" line="1132"/>
-        <location filename="../src/output_status.py" line="1203"/>
+        <location filename="../src/output_status.py" line="889"/>
+        <location filename="../src/output_status.py" line="1119"/>
+        <location filename="../src/output_status.py" line="1197"/>
+        <location filename="../src/output_status.py" line="1293"/>
         <source>Off</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Uit</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="837"/>
+        <location filename="../src/output_status.py" line="890"/>
         <source>Choose a folder to write the readings to files.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Kies een map om de aflezingen naar bestanden te schrijven.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="846"/>
+        <location filename="../src/output_status.py" line="899"/>
         <source>Waiting for readings to write to {folder}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Wachten op aflezingen om naar {folder} te schrijven</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="855"/>
+        <location filename="../src/output_status.py" line="908"/>
         <source>Can&apos;t write {file}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Kan {file} niet schrijven</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="859"/>
+        <location filename="../src/output_status.py" line="912"/>
         <source>Can&apos;t write {file} and {count} more</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Kan {file} en {count} andere niet schrijven</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="867"/>
+        <location filename="../src/output_status.py" line="920"/>
         <source>Check that the folder can be written to and that no other program locks the files. ScoreSight tries again at every save.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Controleer of er in de map geschreven kan worden en of geen ander programma de bestanden vergrendelt. ScoreSight probeert het bij elke opslag opnieuw.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="879"/>
+        <location filename="../src/output_status.py" line="932"/>
         <source>Writing to {folder} · 1 file</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Schrijven naar {folder} · 1 bestand</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="883"/>
+        <location filename="../src/output_status.py" line="936"/>
         <source>Writing to {folder} · {count} files</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Schrijven naar {folder} · {count} bestanden</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="891"/>
+        <location filename="../src/output_status.py" line="944"/>
         <source>The files are in {folder}. A file is written when its value changes.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">De bestanden staan in {folder}. Een bestand wordt geschreven als de waarde ervan verandert.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="913"/>
+        <location filename="../src/output_status.py" line="966"/>
         <source>Not running: port {port} is in use</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Draait niet: poort {port} is in gebruik</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="918"/>
+        <location filename="../src/output_status.py" line="971"/>
         <source>Another program (or another ScoreSight) uses port {port}. Close it, or start ScoreSight with --port to use another port.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Een ander programma (of een andere ScoreSight) gebruikt poort {port}. Sluit het, of start ScoreSight met --port om een andere poort te gebruiken.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="927"/>
+        <location filename="../src/output_status.py" line="980"/>
         <source>{url} · no requests yet</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{url} · nog geen verzoeken</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="931"/>
+        <location filename="../src/output_status.py" line="984"/>
         <source>{url} · 1 client</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{url} · 1 client</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="935"/>
+        <location filename="../src/output_status.py" line="988"/>
         <source>{url} · {count} clients</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{url} · {count} clients</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="939"/>
+        <location filename="../src/output_status.py" line="992"/>
         <source>{url} · no recent requests</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{url} · geen recente verzoeken</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="948"/>
+        <location filename="../src/output_status.py" line="1001"/>
         <source>Always on. Open {url}/scoresight in a browser, or read {url}/json, /xml or /csv from other software.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Altijd aan. Open {url}/scoresight in een browser, of lees {url}/json, /xml of /csv uit met andere software.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="975"/>
+        <location filename="../src/output_status.py" line="1028"/>
         <source>Connecting to {target}…</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Verbinding maken met {target}…</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="985"/>
+        <location filename="../src/output_status.py" line="1038"/>
         <source>Not connected: {problem}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Niet verbonden: {problem}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="992"/>
+        <location filename="../src/output_status.py" line="1045"/>
         <source>Then click Connect OBS.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Klik daarna op “Verbinden met OBS”.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1003"/>
+        <location filename="../src/output_status.py" line="1056"/>
         <source>Not connected</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Niet verbonden</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1004"/>
+        <location filename="../src/output_status.py" line="1057"/>
         <source>Click Connect OBS to update text sources in OBS Studio.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Klik op “Verbinden met OBS” om tekstbronnen in OBS Studio bij te werken.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1015"/>
+        <location filename="../src/output_status.py" line="1068"/>
         <source>Connected to {target}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Verbonden met {target}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1019"/>
+        <location filename="../src/output_status.py" line="1072"/>
         <source>A text source is updated when its field&apos;s value changes.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Een tekstbron wordt bijgewerkt als de waarde van het bijbehorende veld verandert.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1028"/>
+        <location filename="../src/output_status.py" line="1081"/>
         <source>Reconnecting to OBS at {target}…</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Opnieuw verbinding maken met OBS op {target}…</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1031"/>
+        <location filename="../src/output_status.py" line="1084"/>
         <source>The connection to OBS was lost. ScoreSight reconnects by itself as soon as OBS is reachable again.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">De verbinding met OBS is verbroken. ScoreSight maakt vanzelf opnieuw verbinding zodra OBS weer bereikbaar is.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1040"/>
+        <location filename="../src/output_status.py" line="1093"/>
         <source>Connected, but no field has an OBS text source</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Verbonden, maar geen enkel veld heeft een OBS-tekstbron</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1043"/>
+        <location filename="../src/output_status.py" line="1096"/>
         <source>The standard fields update OBS text sources with their names (Home score, Clock...). Place them on the picture.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">De standaardvelden werken OBS-tekstbronnen met hun namen bij (Home score, Clock...). Plaats ze in beeld.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1067"/>
+        <location filename="../src/output_status.py" line="1120"/>
         <source>Click Start vMix to update input {input} at {target}.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Klik op “vMix starten” om invoer {input} op {target} bij te werken.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1075"/>
-        <location filename="../src/output_status.py" line="1154"/>
+        <location filename="../src/output_status.py" line="1128"/>
+        <location filename="../src/output_status.py" line="1219"/>
         <source>No fields to send</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Geen velden om te verzenden</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1077"/>
+        <location filename="../src/output_status.py" line="1130"/>
         <source>Place fields on the picture and enter their vMix field names (for example Home Score.Text) in the table.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Plaats velden in beeld en vul hun vMix-veldnamen (bijvoorbeeld Home Score.Text) in de tabel in.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1088"/>
+        <location filename="../src/output_status.py" line="1141"/>
         <source>Waiting for a new value for {target}, input {input}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Wachten op een nieuwe waarde voor {target}, invoer {input}</translation>
@@ -3810,106 +4025,150 @@ Resolutie: {width}×{height}</translation>
         <translation type="obsolete">vMix krijgt de waarde van een veld als die verandert (of elke keer, met “Zelfde verzenden?”).</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1102"/>
+        <location filename="../src/output_status.py" line="1155"/>
         <source>Sending to {target}, input {input}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Verzenden naar {target}, invoer {input}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1133"/>
+        <location filename="../src/output_status.py" line="1176"/>
+        <source>{calls} calls left today</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1198"/>
         <source>Click Start sending to drive your overlays.uno overlay.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Klik op “Verzenden starten” om je overlays.uno-overlay aan te sturen.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1142"/>
+        <location filename="../src/output_status.py" line="1207"/>
         <source>Enter your UNO API URL</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">UNO-API-URL invoeren</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1144"/>
+        <location filename="../src/output_status.py" line="1209"/>
         <source>Copy the API URL of your overlay&apos;s control app in overlays.uno into URL.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Kopieer de API-URL van de bedieningsapp van je overlay in overlays.uno naar “URL”.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1156"/>
+        <location filename="../src/output_status.py" line="1221"/>
         <source>Place fields on the picture and enter the UNO commands in the table.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Plaats velden in beeld en vul de UNO-opdrachten in de tabel in.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1166"/>
+        <location filename="../src/output_status.py" line="1229"/>
+        <source>{count} field(s) have no UNO command and aren&apos;t sent: enter one in the table if the overlay has a command for them.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1242"/>
         <source>Waiting for a new value for {host}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Wachten op een nieuwe waarde voor {host}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1175"/>
+        <location filename="../src/output_status.py" line="1249"/>
         <source>Sending to {host}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Verzenden naar {host}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1204"/>
+        <location filename="../src/output_status.py" line="1262"/>
+        <source>Only {calls} overlays.uno calls left today</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1265"/>
+        <source>Every update is a call. When none are left, overlays.uno refuses updates until the limit resets; ScoreSight then sends the latest values. To use fewer calls, keep “Also resend unchanged values” off and clear the command of fields the overlay doesn&apos;t use.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1294"/>
         <source>Tick the checkbox to send the readings to a URL on every detection cycle.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Vink het selectievakje aan om de aflezingen bij elke detectiecyclus naar een URL te verzenden.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1214"/>
+        <location filename="../src/output_status.py" line="1304"/>
         <source>Enter a URL</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">URL invoeren</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1216"/>
+        <location filename="../src/output_status.py" line="1306"/>
         <source>Enter the URL to send the readings to, for example http://192.168.1.10:8091/scores.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Voer de URL in waarnaar de aflezingen worden verzonden, bijvoorbeeld http://192.168.1.10:8091/scores.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="511"/>
-        <location filename="../src/output_status.py" line="1226"/>
+        <location filename="../src/output_status.py" line="529"/>
+        <location filename="../src/output_status.py" line="1316"/>
         <source>The URL isn&apos;t valid</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">De URL is ongeldig</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="512"/>
-        <location filename="../src/output_status.py" line="1228"/>
+        <location filename="../src/output_status.py" line="530"/>
+        <location filename="../src/output_status.py" line="1318"/>
         <source>The URL needs a scheme and a host, for example http://192.168.1.10:8091/scores.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">De URL heeft een schema en een host nodig, bijvoorbeeld http://192.168.1.10:8091/scores.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="701"/>
         <source>overlays.uno limits how many updates it accepts, and drops the others. Keep “Also resend unchanged values” off and “Update on change” on.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
-        <translation type="unfinished">overlays.uno beperkt hoeveel updates het accepteert en negeert de rest. Laat “Ook ongewijzigde waarden verzenden” uit en “Bijwerken bij wijziging” aan.</translation>
+        <translation type="obsolete">overlays.uno beperkt hoeveel updates het accepteert en negeert de rest. Laat “Ook ongewijzigde waarden verzenden” uit en “Bijwerken bij wijziging” aan.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1092"/>
-        <location filename="../src/output_status.py" line="1106"/>
+        <location filename="../src/output_status.py" line="1145"/>
+        <location filename="../src/output_status.py" line="1159"/>
         <source>vMix gets a field&apos;s value when it changes (or every time, with “Also resend unchanged values”).</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">vMix krijgt de waarde van een veld als die verandert (of elke keer, met “Ook ongewijzigde waarden verzenden”).</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1235"/>
+        <location filename="../src/output_status.py" line="1328"/>
+        <source>Enter your device&apos;s address in the URL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1332"/>
+        <source>Replace the capitalized placeholder in the URL (for example TRICASTER-IP) with the device&apos;s IP address, and the login with its user name and password.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1340"/>
         <source>GET to {target}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">GET naar {target}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1239"/>
+        <location filename="../src/output_status.py" line="1344"/>
         <source>{method} {encoding} to {target}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{method} {encoding} naar {target}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1247"/>
+        <location filename="../src/output_status.py" line="1352"/>
+        <source>a request per field</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1356"/>
+        <source>up to {fields} fields a request</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1361"/>
+        <source>only changes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1369"/>
         <source>Waiting for readings: {request}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Wachten op aflezingen: {request}</translation>

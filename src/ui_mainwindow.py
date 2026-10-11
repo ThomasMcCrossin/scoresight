@@ -1604,6 +1604,16 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_14.addWidget(self.checkBox_saveXML)
 
+        self.checkBox_saveJson = QCheckBox(self.widget_12)
+        self.checkBox_saveJson.setObjectName(u"checkBox_saveJson")
+
+        self.horizontalLayout_14.addWidget(self.checkBox_saveJson)
+
+        self.checkBox_saveKeyValue = QCheckBox(self.widget_12)
+        self.checkBox_saveKeyValue.setObjectName(u"checkBox_saveKeyValue")
+
+        self.horizontalLayout_14.addWidget(self.checkBox_saveKeyValue)
+
 
         self.formLayout_2.setWidget(1, QFormLayout.ItemRole.FieldRole, self.widget_12)
 
@@ -1938,34 +1948,51 @@ class Ui_MainWindow(object):
         self.stackedWidget_outputs.addWidget(self.tab_uno)
         self.tab_api = QWidget()
         self.tab_api.setObjectName(u"tab_api")
-        self.formLayout_3 = QFormLayout(self.tab_api)
+        self.verticalLayout_api = QVBoxLayout(self.tab_api)
+        self.verticalLayout_api.setSpacing(0)
+        self.verticalLayout_api.setObjectName(u"verticalLayout_api")
+        self.verticalLayout_api.setContentsMargins(0, 0, 0, 0)
+        self.scrollArea_api = QScrollArea(self.tab_api)
+        self.scrollArea_api.setObjectName(u"scrollArea_api")
+        self.scrollArea_api.setFrameShape(QFrame.NoFrame)
+        self.scrollArea_api.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.scrollArea_api.setWidgetResizable(True)
+        self.scrollAreaWidgetContents_api = QWidget()
+        self.scrollAreaWidgetContents_api.setObjectName(u"scrollAreaWidgetContents_api")
+        self.formLayout_3 = QFormLayout(self.scrollAreaWidgetContents_api)
         self.formLayout_3.setObjectName(u"formLayout_3")
         self.formLayout_3.setFieldGrowthPolicy(QFormLayout.AllNonFixedFieldsGrow)
         self.formLayout_3.setVerticalSpacing(3)
-        self.checkBox_enableOutAPI = QCheckBox(self.tab_api)
+        self.checkBox_enableOutAPI = QCheckBox(self.scrollAreaWidgetContents_api)
         self.checkBox_enableOutAPI.setObjectName(u"checkBox_enableOutAPI")
 
         self.formLayout_3.setWidget(0, QFormLayout.ItemRole.FieldRole, self.checkBox_enableOutAPI)
 
-        self.label_21 = QLabel(self.tab_api)
-        self.label_21.setObjectName(u"label_21")
+        self.label_outApiPreset = QLabel(self.scrollAreaWidgetContents_api)
+        self.label_outApiPreset.setObjectName(u"label_outApiPreset")
 
-        self.formLayout_3.setWidget(4, QFormLayout.ItemRole.LabelRole, self.label_21)
+        self.formLayout_3.setWidget(1, QFormLayout.ItemRole.LabelRole, self.label_outApiPreset)
 
-        self.comboBox_api_encode = QComboBox(self.tab_api)
-        self.comboBox_api_encode.addItem("")
-        self.comboBox_api_encode.addItem("")
-        self.comboBox_api_encode.addItem("")
-        self.comboBox_api_encode.addItem("")
-        self.comboBox_api_encode.setObjectName(u"comboBox_api_encode")
+        self.comboBox_outApiPreset = QComboBox(self.scrollAreaWidgetContents_api)
+        self.comboBox_outApiPreset.addItem("")
+        self.comboBox_outApiPreset.addItem(u"TriCaster DataLink")
+        self.comboBox_outApiPreset.addItem(u"Epiphan Pearl")
+        self.comboBox_outApiPreset.setObjectName(u"comboBox_outApiPreset")
 
-        self.formLayout_3.setWidget(4, QFormLayout.ItemRole.FieldRole, self.comboBox_api_encode)
+        self.formLayout_3.setWidget(1, QFormLayout.ItemRole.FieldRole, self.comboBox_outApiPreset)
 
-        self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+        self.label_outApiPresetHelp = QLabel(self.scrollAreaWidgetContents_api)
+        self.label_outApiPresetHelp.setObjectName(u"label_outApiPresetHelp")
+        self.label_outApiPresetHelp.setWordWrap(True)
 
-        self.formLayout_3.setItem(5, QFormLayout.ItemRole.FieldRole, self.verticalSpacer)
+        self.formLayout_3.setWidget(2, QFormLayout.ItemRole.FieldRole, self.label_outApiPresetHelp)
 
-        self.widget_24 = QWidget(self.tab_api)
+        self.label_20 = QLabel(self.scrollAreaWidgetContents_api)
+        self.label_20.setObjectName(u"label_20")
+
+        self.formLayout_3.setWidget(3, QFormLayout.ItemRole.LabelRole, self.label_20)
+
+        self.widget_24 = QWidget(self.scrollAreaWidgetContents_api)
         self.widget_24.setObjectName(u"widget_24")
         self.horizontalLayout_27 = QHBoxLayout(self.widget_24)
         self.horizontalLayout_27.setSpacing(2)
@@ -1985,12 +2012,104 @@ class Ui_MainWindow(object):
         self.horizontalLayout_27.addWidget(self.comboBox_outApiMethod)
 
 
-        self.formLayout_3.setWidget(1, QFormLayout.ItemRole.FieldRole, self.widget_24)
+        self.formLayout_3.setWidget(3, QFormLayout.ItemRole.FieldRole, self.widget_24)
 
-        self.label_20 = QLabel(self.tab_api)
-        self.label_20.setObjectName(u"label_20")
+        self.label_21 = QLabel(self.scrollAreaWidgetContents_api)
+        self.label_21.setObjectName(u"label_21")
 
-        self.formLayout_3.setWidget(1, QFormLayout.ItemRole.LabelRole, self.label_20)
+        self.formLayout_3.setWidget(4, QFormLayout.ItemRole.LabelRole, self.label_21)
+
+        self.comboBox_api_encode = QComboBox(self.scrollAreaWidgetContents_api)
+        self.comboBox_api_encode.addItem("")
+        self.comboBox_api_encode.addItem("")
+        self.comboBox_api_encode.addItem("")
+        self.comboBox_api_encode.addItem("")
+        self.comboBox_api_encode.setObjectName(u"comboBox_api_encode")
+
+        self.formLayout_3.setWidget(4, QFormLayout.ItemRole.FieldRole, self.comboBox_api_encode)
+
+        self.label_outApiSend = QLabel(self.scrollAreaWidgetContents_api)
+        self.label_outApiSend.setObjectName(u"label_outApiSend")
+
+        self.formLayout_3.setWidget(5, QFormLayout.ItemRole.LabelRole, self.label_outApiSend)
+
+        self.checkBox_outApiOnlyChanges = QCheckBox(self.scrollAreaWidgetContents_api)
+        self.checkBox_outApiOnlyChanges.setObjectName(u"checkBox_outApiOnlyChanges")
+
+        self.formLayout_3.setWidget(5, QFormLayout.ItemRole.FieldRole, self.checkBox_outApiOnlyChanges)
+
+        self.label_outApiRefresh = QLabel(self.scrollAreaWidgetContents_api)
+        self.label_outApiRefresh.setObjectName(u"label_outApiRefresh")
+
+        self.formLayout_3.setWidget(6, QFormLayout.ItemRole.LabelRole, self.label_outApiRefresh)
+
+        self.spinBox_outApiRefresh = QSpinBox(self.scrollAreaWidgetContents_api)
+        self.spinBox_outApiRefresh.setObjectName(u"spinBox_outApiRefresh")
+        self.spinBox_outApiRefresh.setSuffix(u" s")
+        self.spinBox_outApiRefresh.setMaximum(3600)
+
+        self.formLayout_3.setWidget(6, QFormLayout.ItemRole.FieldRole, self.spinBox_outApiRefresh)
+
+        self.label_outApiFields = QLabel(self.scrollAreaWidgetContents_api)
+        self.label_outApiFields.setObjectName(u"label_outApiFields")
+
+        self.formLayout_3.setWidget(7, QFormLayout.ItemRole.LabelRole, self.label_outApiFields)
+
+        self.spinBox_outApiFieldsPerRequest = QSpinBox(self.scrollAreaWidgetContents_api)
+        self.spinBox_outApiFieldsPerRequest.setObjectName(u"spinBox_outApiFieldsPerRequest")
+        self.spinBox_outApiFieldsPerRequest.setMaximum(99)
+
+        self.formLayout_3.setWidget(7, QFormLayout.ItemRole.FieldRole, self.spinBox_outApiFieldsPerRequest)
+
+        self.label_outApiRate = QLabel(self.scrollAreaWidgetContents_api)
+        self.label_outApiRate.setObjectName(u"label_outApiRate")
+
+        self.formLayout_3.setWidget(8, QFormLayout.ItemRole.LabelRole, self.label_outApiRate)
+
+        self.spinBox_outApiMaxRate = QSpinBox(self.scrollAreaWidgetContents_api)
+        self.spinBox_outApiMaxRate.setObjectName(u"spinBox_outApiMaxRate")
+        self.spinBox_outApiMaxRate.setMaximum(100)
+
+        self.formLayout_3.setWidget(8, QFormLayout.ItemRole.FieldRole, self.spinBox_outApiMaxRate)
+
+        self.label_outApiNames = QLabel(self.scrollAreaWidgetContents_api)
+        self.label_outApiNames.setObjectName(u"label_outApiNames")
+
+        self.formLayout_3.setWidget(9, QFormLayout.ItemRole.LabelRole, self.label_outApiNames)
+
+        self.checkBox_outApiSafeNames = QCheckBox(self.scrollAreaWidgetContents_api)
+        self.checkBox_outApiSafeNames.setObjectName(u"checkBox_outApiSafeNames")
+
+        self.formLayout_3.setWidget(9, QFormLayout.ItemRole.FieldRole, self.checkBox_outApiSafeNames)
+
+        self.label_outApiNamesSent = QLabel(self.scrollAreaWidgetContents_api)
+        self.label_outApiNamesSent.setObjectName(u"label_outApiNamesSent")
+        self.label_outApiNamesSent.setWordWrap(True)
+        self.label_outApiNamesSent.setTextInteractionFlags(Qt.TextSelectableByMouse)
+
+        self.formLayout_3.setWidget(10, QFormLayout.ItemRole.FieldRole, self.label_outApiNamesSent)
+
+        self.label_outApiHeaders = QLabel(self.scrollAreaWidgetContents_api)
+        self.label_outApiHeaders.setObjectName(u"label_outApiHeaders")
+
+        self.formLayout_3.setWidget(11, QFormLayout.ItemRole.LabelRole, self.label_outApiHeaders)
+
+        self.plainTextEdit_outApiHeaders = QPlainTextEdit(self.scrollAreaWidgetContents_api)
+        self.plainTextEdit_outApiHeaders.setObjectName(u"plainTextEdit_outApiHeaders")
+        self.plainTextEdit_outApiHeaders.setMaximumSize(QSize(16777215, 52))
+        self.plainTextEdit_outApiHeaders.setTabChangesFocus(True)
+        self.plainTextEdit_outApiHeaders.setLineWrapMode(QPlainTextEdit.NoWrap)
+        self.plainTextEdit_outApiHeaders.setPlaceholderText(u"Authorization: Bearer \u2026")
+
+        self.formLayout_3.setWidget(11, QFormLayout.ItemRole.FieldRole, self.plainTextEdit_outApiHeaders)
+
+        self.verticalSpacer = QSpacerItem(20, 0, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+
+        self.formLayout_3.setItem(12, QFormLayout.ItemRole.FieldRole, self.verticalSpacer)
+
+        self.scrollArea_api.setWidget(self.scrollAreaWidgetContents_api)
+
+        self.verticalLayout_api.addWidget(self.scrollArea_api)
 
         self.stackedWidget_outputs.addWidget(self.tab_api)
 
@@ -2570,6 +2689,14 @@ class Ui_MainWindow(object):
 #endif // QT_CONFIG(tooltip)
         self.checkBox_saveXML.setText(QCoreApplication.translate("MainWindow", u"Save .xml file", None))
 #if QT_CONFIG(tooltip)
+        self.checkBox_saveJson.setToolTip(QCoreApplication.translate("MainWindow", u"Also write results.json: one object with every field's latest value, {\"Home Score\": \"21\", ...} (for example for SuiteCG)", None))
+#endif // QT_CONFIG(tooltip)
+        self.checkBox_saveJson.setText(QCoreApplication.translate("MainWindow", u"Save .json file", None))
+#if QT_CONFIG(tooltip)
+        self.checkBox_saveKeyValue.setToolTip(QCoreApplication.translate("MainWindow", u"Also write results.txt: a \"Field Name=value\" line per field (for example for SuiteCG or a TriCaster DataLink watch folder)", None))
+#endif // QT_CONFIG(tooltip)
+        self.checkBox_saveKeyValue.setText(QCoreApplication.translate("MainWindow", u"Save key=value .txt file", None))
+#if QT_CONFIG(tooltip)
         self.label_append.setToolTip(QCoreApplication.translate("MainWindow", u"Add each new value to a log, or keep only the latest values", None))
 #endif // QT_CONFIG(tooltip)
         self.label_append.setText(QCoreApplication.translate("MainWindow", u"Append", None))
@@ -2691,20 +2818,18 @@ class Ui_MainWindow(object):
         self.checkBox_enableOutAPI.setToolTip(QCoreApplication.translate("MainWindow", u"Send the readings to the URL below on every detection cycle", None))
 #endif // QT_CONFIG(tooltip)
         self.checkBox_enableOutAPI.setText(QCoreApplication.translate("MainWindow", u"Send out API requests to external services.", None))
-        self.label_21.setText(QCoreApplication.translate("MainWindow", u"Encode", None))
-        self.comboBox_api_encode.setItemText(0, QCoreApplication.translate("MainWindow", u"JSON (Full)", None))
-        self.comboBox_api_encode.setItemText(1, QCoreApplication.translate("MainWindow", u"JSON (Simple key-value)", None))
-        self.comboBox_api_encode.setItemText(2, QCoreApplication.translate("MainWindow", u"XML", None))
-        self.comboBox_api_encode.setItemText(3, QCoreApplication.translate("MainWindow", u"CSV", None))
+        self.label_outApiPreset.setText(QCoreApplication.translate("MainWindow", u"Preset", None))
+        self.comboBox_outApiPreset.setItemText(0, QCoreApplication.translate("MainWindow", u"Custom", None))
 
 #if QT_CONFIG(tooltip)
-        self.comboBox_api_encode.setToolTip(QCoreApplication.translate("MainWindow", u"The format of the readings in the requests", None))
+        self.comboBox_outApiPreset.setToolTip(QCoreApplication.translate("MainWindow", u"Fill in the settings for a product. You can still change every setting afterwards.", None))
 #endif // QT_CONFIG(tooltip)
+        self.label_20.setText(QCoreApplication.translate("MainWindow", u"URL", None))
 #if QT_CONFIG(accessibility)
         self.lineEdit_api_url.setAccessibleName(QCoreApplication.translate("MainWindow", u"API URL", None))
 #endif // QT_CONFIG(accessibility)
 #if QT_CONFIG(tooltip)
-        self.lineEdit_api_url.setToolTip(QCoreApplication.translate("MainWindow", u"The URL the readings are sent to", None))
+        self.lineEdit_api_url.setToolTip(QCoreApplication.translate("MainWindow", u"The URL the readings are sent to. With {field} and {value} in it, each field is sent in its own request, for example http://host/set?key={field}&value={value}. For a login, put it in the URL: http://user:password@host/...", None))
 #endif // QT_CONFIG(tooltip)
         self.lineEdit_api_url.setPlaceholderText(QCoreApplication.translate("MainWindow", u"http://", None))
         self.comboBox_outApiMethod.setItemText(0, QCoreApplication.translate("MainWindow", u"POST", None))
@@ -2714,7 +2839,53 @@ class Ui_MainWindow(object):
 #if QT_CONFIG(tooltip)
         self.comboBox_outApiMethod.setToolTip(QCoreApplication.translate("MainWindow", u"The HTTP method of the requests", None))
 #endif // QT_CONFIG(tooltip)
-        self.label_20.setText(QCoreApplication.translate("MainWindow", u"URL", None))
+        self.label_21.setText(QCoreApplication.translate("MainWindow", u"Encode", None))
+        self.comboBox_api_encode.setItemText(0, QCoreApplication.translate("MainWindow", u"JSON (Full)", None))
+        self.comboBox_api_encode.setItemText(1, QCoreApplication.translate("MainWindow", u"JSON (Simple key-value)", None))
+        self.comboBox_api_encode.setItemText(2, QCoreApplication.translate("MainWindow", u"XML", None))
+        self.comboBox_api_encode.setItemText(3, QCoreApplication.translate("MainWindow", u"CSV", None))
+
+#if QT_CONFIG(tooltip)
+        self.comboBox_api_encode.setToolTip(QCoreApplication.translate("MainWindow", u"The format of the readings in the requests", None))
+#endif // QT_CONFIG(tooltip)
+        self.label_outApiSend.setText(QCoreApplication.translate("MainWindow", u"Send", None))
+#if QT_CONFIG(tooltip)
+        self.checkBox_outApiOnlyChanges.setToolTip(QCoreApplication.translate("MainWindow", u"Send a reading only when its value changed (off: every reading on every detection cycle)", None))
+#endif // QT_CONFIG(tooltip)
+        self.checkBox_outApiOnlyChanges.setText(QCoreApplication.translate("MainWindow", u"Only changes", None))
+        self.label_outApiRefresh.setText(QCoreApplication.translate("MainWindow", u"Resend all", None))
+#if QT_CONFIG(tooltip)
+        self.spinBox_outApiRefresh.setToolTip(QCoreApplication.translate("MainWindow", u"With Only changes: also send every value again this often, for a receiver that forgets them when it restarts", None))
+#endif // QT_CONFIG(tooltip)
+        self.spinBox_outApiRefresh.setSpecialValueText(QCoreApplication.translate("MainWindow", u"Never", None))
+        self.spinBox_outApiRefresh.setPrefix(QCoreApplication.translate("MainWindow", u"every ", None))
+        self.label_outApiFields.setText(QCoreApplication.translate("MainWindow", u"Fields", None))
+#if QT_CONFIG(tooltip)
+        self.spinBox_outApiFieldsPerRequest.setToolTip(QCoreApplication.translate("MainWindow", u"How many fields one request carries: all of them (one request per detection cycle), or at most this many (a request per batch of changed fields). A URL with {field} or {value} always sends one field per request.", None))
+#endif // QT_CONFIG(tooltip)
+        self.spinBox_outApiFieldsPerRequest.setSpecialValueText(QCoreApplication.translate("MainWindow", u"All in one request", None))
+        self.spinBox_outApiFieldsPerRequest.setSuffix(QCoreApplication.translate("MainWindow", u" per request", None))
+        self.label_outApiRate.setText(QCoreApplication.translate("MainWindow", u"Rate", None))
+#if QT_CONFIG(tooltip)
+        self.spinBox_outApiMaxRate.setToolTip(QCoreApplication.translate("MainWindow", u"At most this many requests per second (the latest values wait for their turn)", None))
+#endif // QT_CONFIG(tooltip)
+        self.spinBox_outApiMaxRate.setSpecialValueText(QCoreApplication.translate("MainWindow", u"No limit", None))
+        self.spinBox_outApiMaxRate.setSuffix(QCoreApplication.translate("MainWindow", u" requests/s", None))
+        self.label_outApiNames.setText(QCoreApplication.translate("MainWindow", u"Names", None))
+#if QT_CONFIG(tooltip)
+        self.checkBox_outApiSafeNames.setToolTip(QCoreApplication.translate("MainWindow", u"Send the field names in lower case with letters, digits and _ only (\"Home Score\" as home_score), for receivers that allow no other names", None))
+#endif // QT_CONFIG(tooltip)
+        self.checkBox_outApiSafeNames.setText(QCoreApplication.translate("MainWindow", u"Letters, digits and _ only", None))
+#if QT_CONFIG(tooltip)
+        self.label_outApiNamesSent.setToolTip(QCoreApplication.translate("MainWindow", u"The names the fields are sent with", None))
+#endif // QT_CONFIG(tooltip)
+        self.label_outApiHeaders.setText(QCoreApplication.translate("MainWindow", u"Headers", None))
+#if QT_CONFIG(accessibility)
+        self.plainTextEdit_outApiHeaders.setAccessibleName(QCoreApplication.translate("MainWindow", u"Request headers", None))
+#endif // QT_CONFIG(accessibility)
+#if QT_CONFIG(tooltip)
+        self.plainTextEdit_outApiHeaders.setToolTip(QCoreApplication.translate("MainWindow", u"Extra request headers, one \"Name: value\" per line, for example an Authorization token", None))
+#endif // QT_CONFIG(tooltip)
         self.tabWidget_inspector.setTabText(self.tabWidget_inspector.indexOf(self.widget_outputs), QCoreApplication.translate("MainWindow", u"Outputs", None))
         self.menuFile.setTitle(QCoreApplication.translate("MainWindow", u"File", None))
         self.menuView.setTitle(QCoreApplication.translate("MainWindow", u"View", None))

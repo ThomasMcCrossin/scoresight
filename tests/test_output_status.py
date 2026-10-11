@@ -34,7 +34,7 @@ from output_status import (
     url_target,
     worker_problem,
 )
-from output_worker import ErrorInfo, OutputError, WorkerStatus
+from output_worker import ErrorInfo, OutputError, RetryLater, WorkerStatus
 from vmix_output import VMixTCPPortError
 
 TOKEN = "f4b1c2d3e4f5a6b7c8d9"
@@ -94,8 +94,47 @@ def test_uno_url_refused_and_rate_limit():
 
     problem = describe_error(UNO, http_error(429, "UNO SetGoalsHome"), "uno")
     assert problem.state == WARNING
-    assert problem.detail == "HTTP 429: too many requests"
+    assert problem.detail == "HTTP 429: overlays.uno's call limit reached"
     assert "Also resend unchanged values" in problem.hint
+    assert "keeps the latest value" in problem.hint  # no longer dropped
+
+    # kept for a retry (RetryLater): says so
+    retried = ErrorInfo(RetryLater, "UNO x returned HTTP 429", 429, unreachable=True)
+    problem = describe_error(UNO, retried, "uno")
+    assert problem.detail == "HTTP 429: overlays.uno's call limit reached · retrying"
+    problem = describe_error(API, retried, "h")
+    assert problem.detail == "HTTP 429: too many requests · retrying"
+    assert "Send only changes" in problem.hint
+
+    problem = describe_error(UNO, http_error(400, "UNO Shot Clock"), "uno")
+    assert problem.detail == "HTTP 400: overlays.uno doesn't know a command"
+
+
+def test_retry_later_wait_is_in_the_hint():
+    worker = WorkerStatus(
+        "UNO",
+        retrying=True,
+        retry_delay=125.0,
+        last_error=ErrorInfo(RetryLater, "UNO x returned HTTP 429", 429, True),
+    )
+    problem = output_status.worker_problem(UNO, worker, "uno")
+    assert problem.state == RETRYING
+    assert problem.hint.endswith("Next try in 3 min.")
+
+
+@pytest.mark.parametrize(
+    "seconds, text",
+    [
+        (0, "a few seconds"),
+        (4.4, "a few seconds"),
+        (42, "42 s"),
+        (61, "2 min"),
+        (3600, "1 h"),
+        (3601, "2 h"),
+    ],
+)
+def test_wait_text(seconds, text):
+    assert output_status.wait_text(seconds) == text
 
 
 def test_api_error_statuses():

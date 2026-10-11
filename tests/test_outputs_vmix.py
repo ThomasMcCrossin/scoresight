@@ -102,6 +102,20 @@ def test_sends_set_text_with_a_timeout_and_no_body(make_vmix, make_result):
     assert kwargs == {"timeout": HTTP_TIMEOUT}  # no "data=" body any more
 
 
+def test_spaces_are_sent_as_percent_20(make_vmix, make_result):
+    # urlencode() sent spaces as "+", which vMix may show as a literal "+"
+    api = make_vmix(mapping={"Home Team": "Home Team Name.Text"})
+    api.start()
+    api.update_vmix([make_result("Home Team", "Red Sox + Co", "Success")])
+    flush(api)
+    [(_, url, _)] = api._session.calls
+    assert urlsplit(url).query == (
+        "Function=SetText&Input=1&SelectedName=Home%20Team%20Name.Text"
+        "&Value=Red%20Sox%20%2B%20Co"
+    )
+    assert api._session.sent() == [("Home Team Name.Text", "Red Sox + Co")]
+
+
 def test_only_new_good_values_are_sent(make_vmix, make_result):
     mapping = {"Home Score": "Home.Text", "Away Score": "Away.Text", "Time": "T.Text"}
     api = make_vmix(mapping=mapping)
