@@ -22,15 +22,21 @@
     </message>
     <message>
         <location filename="../src/box_settings_ui_handler.py" line="427"/>
+        <location filename="../src/mainwindow.py" line="2660"/>
         <source>This field is built from other fields (see Template): it has no box on the picture and no reading settings.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Dieses Feld wird aus anderen Feldern gebildet (siehe Vorlage): Es hat keinen Rahmen im Bild und keine Ableseeinstellungen.</translation>
     </message>
     <message>
-        <location filename="../src/box_settings_ui_handler.py" line="433"/>
         <source>This field isn&apos;t on the picture yet. Click Place on picture under the list, then drag its box over the value.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
-        <translation type="unfinished">Dieses Feld ist noch nicht im Bild. Klicken Sie unter der Liste auf „Im Bild platzieren“ und ziehen Sie dann seinen Rahmen über den Wert.</translation>
+        <translation type="obsolete">Dieses Feld ist noch nicht im Bild. Klicken Sie unter der Liste auf „Im Bild platzieren“ und ziehen Sie dann seinen Rahmen über den Wert.</translation>
+    </message>
+    <message>
+        <location filename="../src/box_settings_ui_handler.py" line="433"/>
+        <source>This field isn&apos;t on the picture yet. Drag over its numbers on the picture, or double-click the field in the list.</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Dieses Feld ist noch nicht im Bild. Ziehen Sie im Bild über seine Zahlen, oder doppelklicken Sie auf das Feld in der Liste.</translation>
     </message>
     <message>
         <location filename="../src/box_settings_ui_handler.py" line="443"/>
@@ -315,82 +321,141 @@ Auflösung: {width}×{height}</translation>
 <context>
     <name>ImageViewer</name>
     <message>
-        <location filename="../src/source_view.py" line="273"/>
+        <location filename="../src/source_view.py" line="440"/>
         <source>Invalid four-corner selection: click the four corners of the scoreboard</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Ungültige Eckenauswahl: Klicken Sie auf die vier Ecken der Anzeigetafel</translation>
+    </message>
+    <message>
+        <location filename="../src/source_view.py" line="718"/>
+        <source>Drag over the numbers to place {name}</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Über die Zahlen ziehen, um {name} zu platzieren</translation>
     </message>
 </context>
 <context>
     <name>KeyboardShortcuts</name>
     <message>
-        <location filename="../src/keyboard_shortcuts.py" line="53"/>
+        <location filename="../src/keyboard_shortcuts.py" line="59"/>
+        <source>Place the selected field&apos;s box</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Rahmen des ausgewählten Felds platzieren</translation>
+    </message>
+    <message>
+        <location filename="../src/keyboard_shortcuts.py" line="62"/>
+        <source>Drag over its numbers on the picture</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Im Bild über seine Zahlen ziehen</translation>
+    </message>
+    <message>
+        <location filename="../src/keyboard_shortcuts.py" line="67"/>
+        <source>Place the selected field&apos;s box at a point</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Rahmen des ausgewählten Felds an einer Stelle platzieren</translation>
+    </message>
+    <message>
+        <location filename="../src/keyboard_shortcuts.py" line="70"/>
+        <source>Double-click the picture</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Doppelklick ins Bild</translation>
+    </message>
+    <message>
+        <location filename="../src/keyboard_shortcuts.py" line="73"/>
+        <source>Draw the selected box again</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Ausgewählten Rahmen neu zeichnen</translation>
+    </message>
+    <message>
+        <location filename="../src/keyboard_shortcuts.py" line="76"/>
+        <source>{alt} + drag on the picture</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">{alt} + im Bild ziehen</translation>
+    </message>
+    <message>
+        <location filename="../src/keyboard_shortcuts.py" line="81"/>
+        <source>The selected box&apos;s actions</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Aktionen des ausgewählten Rahmens</translation>
+    </message>
+    <message>
+        <location filename="../src/keyboard_shortcuts.py" line="84"/>
+        <source>Right-click the box</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Rechtsklick auf den Rahmen</translation>
+    </message>
+    <message>
+        <location filename="../src/keyboard_shortcuts.py" line="87"/>
         <source>Zoom in or out</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Vergrößern oder verkleinern</translation>
     </message>
     <message>
-        <location filename="../src/keyboard_shortcuts.py" line="54"/>
+        <location filename="../src/keyboard_shortcuts.py" line="88"/>
         <source>{ctrl} + mouse wheel</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{ctrl} + Mausrad</translation>
     </message>
     <message>
-        <location filename="../src/keyboard_shortcuts.py" line="59"/>
+        <location filename="../src/keyboard_shortcuts.py" line="93"/>
         <source>Move the picture</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Bild verschieben</translation>
     </message>
     <message>
-        <location filename="../src/keyboard_shortcuts.py" line="60"/>
+        <location filename="../src/keyboard_shortcuts.py" line="94"/>
         <source>Drag with the middle mouse button</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Mit der mittleren Maustaste ziehen</translation>
     </message>
     <message>
-        <location filename="../src/keyboard_shortcuts.py" line="65"/>
+        <location filename="../src/keyboard_shortcuts.py" line="99"/>
         <source>Move the selected box by 1 pixel</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Ausgewählten Rahmen um 1 Pixel verschieben</translation>
     </message>
     <message>
-        <location filename="../src/keyboard_shortcuts.py" line="68"/>
+        <location filename="../src/keyboard_shortcuts.py" line="102"/>
         <source>Arrow keys</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Pfeiltasten</translation>
     </message>
     <message>
-        <location filename="../src/keyboard_shortcuts.py" line="71"/>
+        <location filename="../src/keyboard_shortcuts.py" line="105"/>
         <source>Move the selected box by 10 pixels</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Ausgewählten Rahmen um 10 Pixel verschieben</translation>
     </message>
     <message>
-        <location filename="../src/keyboard_shortcuts.py" line="74"/>
+        <location filename="../src/keyboard_shortcuts.py" line="108"/>
         <source>Shift + arrow keys</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Shift + Pfeiltasten</translation>
     </message>
     <message>
-        <location filename="../src/keyboard_shortcuts.py" line="77"/>
-        <source>Deselect, or stop picking the 4 corners</source>
+        <location filename="../src/keyboard_shortcuts.py" line="111"/>
+        <source>Cancel a drag, stop picking the 4 corners or the crop, or deselect</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
-        <translation type="unfinished">Auswahl aufheben oder Eckenauswahl beenden</translation>
+        <translation type="unfinished">Ziehen abbrechen, Ecken- oder Zuschnittauswahl beenden oder Auswahl aufheben</translation>
     </message>
     <message>
-        <location filename="../src/keyboard_shortcuts.py" line="91"/>
+        <source>Deselect, or stop picking the 4 corners</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="obsolete">Auswahl aufheben oder Eckenauswahl beenden</translation>
+    </message>
+    <message>
+        <location filename="../src/keyboard_shortcuts.py" line="126"/>
         <source>Keyboard shortcuts</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Tastenkürzel</translation>
     </message>
     <message>
-        <location filename="../src/keyboard_shortcuts.py" line="98"/>
+        <location filename="../src/keyboard_shortcuts.py" line="133"/>
         <source>Action</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Aktion</translation>
     </message>
     <message>
-        <location filename="../src/keyboard_shortcuts.py" line="99"/>
+        <location filename="../src/keyboard_shortcuts.py" line="134"/>
         <source>Keys</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Tasten</translation>
@@ -465,67 +530,67 @@ Auflösung: {width}×{height}</translation>
         <translation type="vanished">Standardwerte</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1847"/>
+        <location filename="../src/mainwindow.ui" line="1958"/>
         <source>Format</source>
         <translation>Format</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1861"/>
+        <location filename="../src/mainwindow.ui" line="1972"/>
         <source>Time mm:ss.d</source>
         <translation>Zeit mm:ss.d</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1866"/>
+        <location filename="../src/mainwindow.ui" line="1977"/>
         <source>Time mm:ss</source>
         <translation>Zeit mm:ss</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1871"/>
+        <location filename="../src/mainwindow.ui" line="1982"/>
         <source>Time ss.d</source>
         <translation>Zeit ss.d</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1876"/>
+        <location filename="../src/mainwindow.ui" line="1987"/>
         <source>Time 0-59</source>
         <translation>Zeit 0-59</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1881"/>
+        <location filename="../src/mainwindow.ui" line="1992"/>
         <source>Shotclock 0-39</source>
         <translation>Shotclock 0-39</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1886"/>
+        <location filename="../src/mainwindow.ui" line="1997"/>
         <source>Score 1dd</source>
         <translation>Punktzahl 1dd</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1891"/>
+        <location filename="../src/mainwindow.ui" line="2002"/>
         <source>Score ddd</source>
         <translation>Punktzahl ddd</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1896"/>
+        <location filename="../src/mainwindow.ui" line="2007"/>
         <source>Period 1-4</source>
         <translation>Periode 1-4</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1901"/>
+        <location filename="../src/mainwindow.ui" line="2012"/>
         <source>Period d</source>
         <translation>Periode d</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1906"/>
+        <location filename="../src/mainwindow.ui" line="2017"/>
         <source>Alphanumeric</source>
         <translation>Alphanumerisch</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1911"/>
+        <location filename="../src/mainwindow.ui" line="2022"/>
         <source>Any text</source>
         <translation>Beliebiger Text</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1916"/>
+        <location filename="../src/mainwindow.ui" line="2027"/>
         <source>Any number</source>
         <translation>Beliebige Zahl</translation>
     </message>
@@ -534,23 +599,23 @@ Auflösung: {width}×{height}</translation>
         <translation type="vanished">Voreinstellung auswählen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1812"/>
-        <location filename="../src/mainwindow.ui" line="1819"/>
+        <location filename="../src/mainwindow.ui" line="1923"/>
+        <location filename="../src/mainwindow.ui" line="1930"/>
         <source>Type</source>
         <translation>Typ</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1826"/>
+        <location filename="../src/mainwindow.ui" line="1937"/>
         <source>Number 0-9</source>
         <translation>Zahl 0-9</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1831"/>
+        <location filename="../src/mainwindow.ui" line="1942"/>
         <source>Time 0-9 , . :</source>
         <translation>Zeit 0-9 , . :</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1836"/>
+        <location filename="../src/mainwindow.ui" line="1947"/>
         <source>Text</source>
         <translation>Text</translation>
     </message>
@@ -615,7 +680,7 @@ Auflösung: {width}×{height}</translation>
         <translation type="vanished">Lokal</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2342"/>
+        <location filename="../src/mainwindow.ui" line="2453"/>
         <source>Adaptive</source>
         <translation>Adaptiv</translation>
     </message>
@@ -647,8 +712,8 @@ Auflösung: {width}×{height}</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="94"/>
-        <location filename="../src/mainwindow.ui" line="4238"/>
-        <location filename="../src/mainwindow.py" line="2223"/>
+        <location filename="../src/mainwindow.ui" line="4349"/>
+        <location filename="../src/mainwindow.py" line="2362"/>
         <source>Pause outputs</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Ausgaben pausieren</translation>
@@ -660,25 +725,25 @@ Auflösung: {width}×{height}</translation>
         <translation type="unfinished">Felder und Ablesungen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1854"/>
+        <location filename="../src/mainwindow.ui" line="1965"/>
         <source>Format preset</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Formatvorgabe</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1809"/>
+        <location filename="../src/mainwindow.ui" line="1920"/>
         <source>Which characters the OCR may output</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Welche Zeichen die OCR ausgeben darf</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1822"/>
+        <location filename="../src/mainwindow.ui" line="1933"/>
         <source>Which characters the OCR may output. Choose the narrowest: Number for scores, Time for clocks, Text only for words.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Welche Zeichen die OCR ausgeben darf. Wählen Sie den engsten Typ: Zahl für Spielstände, Zeit für Uhren, Text nur für Wörter.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2368"/>
+        <location filename="../src/mainwindow.ui" line="2479"/>
         <source>Remove specks smaller than a share of the box area (0 = off). Too high a value erases thin digits such as 1.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Entfernt Flecken, die kleiner als ein Anteil der Rahmenfläche sind (0 = aus). Ein zu hoher Wert löscht dünne Ziffern wie die 1.</translation>
@@ -689,50 +754,50 @@ Auflösung: {width}×{height}</translation>
         <translation type="obsolete">Mindestkonfidenz der OCR in % (0-99): wie sicher sich Tesseract bei der Ablesung ist. Eine Ablesung darunter wird verworfen (gelb, FailedFilter). 0 schaltet die Prüfung aus.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1844"/>
+        <location filename="../src/mainwindow.ui" line="1955"/>
         <source>A regular expression the raw reading must match completely</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Ein regulärer Ausdruck, dem die Rohablesung vollständig entsprechen muss</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2497"/>
+        <location filename="../src/mainwindow.ui" line="2608"/>
         <source>Thicken the bright strokes by this many passes (0 = off). Raise it when the segments of 7-segment digits don&apos;t touch; lower it when digits merge.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Verdickt die hellen Striche um so viele Durchgänge (0 = aus). Erhöhen Sie den Wert, wenn sich die Segmente von 7-Segment-Ziffern nicht berühren; senken Sie ihn, wenn Ziffern verschmelzen.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2405"/>
+        <location filename="../src/mainwindow.ui" line="2516"/>
         <source>Squash the box vertically (100 % = unchanged), for very tall, narrow fonts</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Staucht den Rahmen vertikal (100 % = unverändert), für sehr hohe, schmale Schriften</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2454"/>
+        <location filename="../src/mainwindow.ui" line="2565"/>
         <source>Shear the image horizontally to straighten slanted (italic) digits (0 = off)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Schert das Bild horizontal, um schräge (kursive) Ziffern aufzurichten (0 = aus)</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2525"/>
+        <location filename="../src/mainwindow.ui" line="2636"/>
         <source>Invert colors</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Farben invertieren</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2673"/>
-        <location filename="../src/mainwindow.ui" line="2695"/>
+        <location filename="../src/mainwindow.ui" line="2784"/>
+        <location filename="../src/mainwindow.ui" line="2806"/>
         <source>Template</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Vorlage</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2698"/>
+        <location filename="../src/mainwindow.ui" line="2809"/>
         <source>The template text, with the fields in double braces, for example {{Home Score}} - {{Away Score}}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Der Vorlagentext mit den Feldern in doppelten geschweiften Klammern, z. B. {{Home Score}} - {{Away Score}}</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2809"/>
+        <location filename="../src/mainwindow.ui" line="2920"/>
         <source>The OCR model that reads every box</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Das OCR-Modell, das alle Rahmen abliest</translation>
@@ -742,8 +807,8 @@ Auflösung: {width}×{height}</translation>
         <translation type="vanished">OCR-Modell</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2812"/>
-        <location filename="../src/mainwindow.ui" line="2819"/>
+        <location filename="../src/mainwindow.ui" line="2923"/>
+        <location filename="../src/mainwindow.ui" line="2930"/>
         <source>OCR model</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">OCR-Modell</translation>
@@ -759,115 +824,115 @@ Auflösung: {width}×{height}</translation>
         <translation type="unfinished">Schreibt die Ablesungen in .txt-, .csv- und .xml-Dateien</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3048"/>
+        <location filename="../src/mainwindow.ui" line="3159"/>
         <source>Folder</source>
         <translation>Ordner</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3076"/>
+        <location filename="../src/mainwindow.ui" line="3187"/>
         <source>The folder the text files are written to</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Der Ordner, in den die Textdateien geschrieben werden</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3086"/>
+        <location filename="../src/mainwindow.ui" line="3197"/>
         <source>Choose the output folder</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Ausgabeordner wählen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3089"/>
+        <location filename="../src/mainwindow.ui" line="3200"/>
         <source>Open</source>
         <translation>Öffnen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3096"/>
+        <location filename="../src/mainwindow.ui" line="3207"/>
         <source>Stop writing files (forget the folder)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Keine Dateien mehr schreiben (Ordner vergessen)</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3099"/>
+        <location filename="../src/mainwindow.ui" line="3210"/>
         <source>Clear</source>
         <translation>Löschen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3130"/>
+        <location filename="../src/mainwindow.ui" line="3241"/>
         <source>Also write results.csv: a timestamp and a column per field</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Zusätzlich results.csv schreiben: ein Zeitstempel und eine Spalte pro Feld</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3133"/>
+        <location filename="../src/mainwindow.ui" line="3244"/>
         <source>Save .csv file</source>
         <translation>Speichern Sie die .csv-Datei</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3140"/>
+        <location filename="../src/mainwindow.ui" line="3251"/>
         <source>Also write results.xml: every field with its name, text, state and position</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Zusätzlich results.xml schreiben: jedes Feld mit Name, Text, Status und Position</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3143"/>
+        <location filename="../src/mainwindow.ui" line="3254"/>
         <source>Save .xml file</source>
         <translation>Speichern Sie die .xml-Datei</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3153"/>
+        <location filename="../src/mainwindow.ui" line="3264"/>
         <source>Add each new value to a log, or keep only the latest values</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Jeden neuen Wert an einen Verlauf anhängen oder nur die neuesten Werte behalten</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3156"/>
+        <location filename="../src/mainwindow.ui" line="3267"/>
         <source>Append</source>
         <translation>Anhängen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3163"/>
+        <location filename="../src/mainwindow.ui" line="3274"/>
         <source>Add each new value to a log (results.csv, the .txt files or both), or keep only the latest values</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Jeden neuen Wert an einen Verlauf anhängen (results.csv, die .txt-Dateien oder beide) oder nur die neuesten Werte behalten</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3173"/>
+        <location filename="../src/mainwindow.ui" line="3284"/>
         <source>Results in .csv file</source>
         <translation>Ergebnisse in .csv-Datei</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3178"/>
+        <location filename="../src/mainwindow.ui" line="3289"/>
         <source>Results in .txt files</source>
         <translation>Ergebnisse in .txt-Dateien</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3183"/>
+        <location filename="../src/mainwindow.ui" line="3294"/>
         <source>Results in both</source>
         <translation>Ergebnisse in beiden</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3188"/>
+        <location filename="../src/mainwindow.ui" line="3299"/>
         <source>Don&apos;t append results</source>
         <translation>Ergebnisse nicht anhängen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3196"/>
+        <location filename="../src/mainwindow.ui" line="3307"/>
         <source>How many times per second to save the results to files</source>
         <translation>Wie oft pro Sekunde die Ergebnisse in Dateien gespeichert werden sollen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3199"/>
+        <location filename="../src/mainwindow.ui" line="3310"/>
         <source>Save / s</source>
         <translation>Speichern / s</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3221"/>
+        <location filename="../src/mainwindow.ui" line="3332"/>
         <source>File saves per second</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Dateispeicherungen pro Sekunde</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3224"/>
+        <location filename="../src/mainwindow.ui" line="3335"/>
         <source>How many times per second the files are written (1-10). Affects only the files.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Wie oft pro Sekunde die Dateien geschrieben werden (1-10). Betrifft nur die Dateien.</translation>
@@ -883,7 +948,7 @@ Auflösung: {width}×{height}</translation>
         <translation type="unfinished">Der integrierte HTTP-Server: eine Anzeigetafel-Seite, JSON, XML und CSV</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3276"/>
+        <location filename="../src/mainwindow.ui" line="3387"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Use these endpoints in external software to get live data updates&lt;/p&gt;&lt;p&gt;HTML Scoreboard: &lt;a href=&quot;http://localhost:18099/scoresight&quot;&gt;http://localhost:18099/scoresight&lt;/a&gt;&lt;br/&gt;JSON: &lt;a href=&quot;http://localhost:18099/json&quot;&gt;http://localhost:18099/json&lt;/a&gt; (optional: ?pivot)&lt;br/&gt;XML: &lt;a href=&quot;http://localhost:18099/xml&quot;&gt;http://localhost:18099/xml&lt;/a&gt; (optional: ?pivot)&lt;br/&gt;CSV: &lt;a href=&quot;http://localhost:18099/csv&quot;&gt;http://localhost:18099/csv&lt;/a&gt; (optional: ?pivot)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Verwenden Sie diese Endpunkte in externer Software, um Live-Daten zu erhalten&lt;/p&gt;&lt;p&gt;HTML-Anzeigetafel: &lt;a href=&quot;http://localhost:18099/scoresight&quot;&gt;http://localhost:18099/scoresight&lt;/a&gt;&lt;br/&gt;JSON: &lt;a href=&quot;http://localhost:18099/json&quot;&gt;http://localhost:18099/json&lt;/a&gt; (optional: ?pivot)&lt;br/&gt;XML: &lt;a href=&quot;http://localhost:18099/xml&quot;&gt;http://localhost:18099/xml&lt;/a&gt; (optional: ?pivot)&lt;br/&gt;CSV: &lt;a href=&quot;http://localhost:18099/csv&quot;&gt;http://localhost:18099/csv&lt;/a&gt; (optional: ?pivot)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
@@ -895,20 +960,20 @@ Auflösung: {width}×{height}</translation>
         <translation type="unfinished">Aktualisiert Textquellen in OBS Studio</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3317"/>
-        <location filename="../src/mainwindow.py" line="2978"/>
+        <location filename="../src/mainwindow.ui" line="3428"/>
+        <location filename="../src/mainwindow.py" line="3334"/>
         <source>Connect to the WebSocket server of OBS Studio</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Mit dem WebSocket-Server von OBS Studio verbinden</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3376"/>
+        <location filename="../src/mainwindow.ui" line="3487"/>
         <source>The name of the scene Create OBS Scene makes</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Der Name der Szene, die „OBS-Szene erstellen“ anlegt</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3392"/>
+        <location filename="../src/mainwindow.ui" line="3503"/>
         <source>Create a scene in OBS with a text source for each standard field</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Erstellt in OBS eine Szene mit einer Textquelle für jedes Standardfeld</translation>
@@ -920,55 +985,55 @@ Auflösung: {width}×{height}</translation>
         <translation type="unfinished">Aktualisiert einen Titel in vMix</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3482"/>
+        <location filename="../src/mainwindow.ui" line="3593"/>
         <source>Each field and the vMix title field it updates. Edit the right column.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Jedes Feld und das vMix-Titelfeld, das es aktualisiert. Bearbeiten Sie die rechte Spalte.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3534"/>
+        <location filename="../src/mainwindow.ui" line="3645"/>
         <source>vMix host</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">vMix-Host</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3537"/>
+        <location filename="../src/mainwindow.ui" line="3648"/>
         <source>The address of the vMix computer (localhost if vMix runs on this computer)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Die Adresse des vMix-Computers (localhost, wenn vMix auf diesem Computer läuft)</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3554"/>
+        <location filename="../src/mainwindow.ui" line="3665"/>
         <source>vMix port</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">vMix-Port</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3557"/>
+        <location filename="../src/mainwindow.ui" line="3668"/>
         <source>The port of the vMix Web API (8088 by default; not 8099)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Der Port der vMix Web API (standardmäßig 8088; nicht 8099)</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3579"/>
+        <location filename="../src/mainwindow.ui" line="3690"/>
         <source>Start or stop vMix</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">vMix starten oder stoppen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3582"/>
+        <location filename="../src/mainwindow.ui" line="3693"/>
         <source>Start or stop sending the readings to vMix</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Senden der Ablesungen an vMix starten oder stoppen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3635"/>
+        <location filename="../src/mainwindow.ui" line="3746"/>
         <source>vMix input</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">vMix-Eingabe</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3638"/>
+        <location filename="../src/mainwindow.ui" line="3749"/>
         <source>The vMix input (number or name) of the title to update</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Die vMix-Eingabe (Nummer oder Name) des zu aktualisierenden Titels</translation>
@@ -990,105 +1055,105 @@ Auflösung: {width}×{height}</translation>
         <translation type="unfinished">Bedient eine Steuer-App von overlays.uno</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3703"/>
-        <location filename="../src/mainwindow.ui" line="3993"/>
+        <location filename="../src/mainwindow.ui" line="3814"/>
+        <location filename="../src/mainwindow.ui" line="4104"/>
         <source>URL</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">URL</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3710"/>
+        <location filename="../src/mainwindow.ui" line="3821"/>
         <source>UNO URL</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">UNO-URL</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3713"/>
+        <location filename="../src/mainwindow.ui" line="3824"/>
         <source>The API URL of the overlays.uno control app. Treat it like a password.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Die API-URL der Steuer-App von overlays.uno. Behandeln Sie sie wie ein Passwort.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3723"/>
+        <location filename="../src/mainwindow.ui" line="3834"/>
         <source>Start or stop UNO</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">UNO starten oder stoppen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3726"/>
+        <location filename="../src/mainwindow.ui" line="3837"/>
         <source>Start or stop sending the readings to UNO</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Senden der Ablesungen an UNO starten oder stoppen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3729"/>
+        <location filename="../src/mainwindow.ui" line="3840"/>
         <location filename="../src/uno_ui_handler.py" line="127"/>
         <source>Start sending</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Senden starten</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3779"/>
+        <location filename="../src/mainwindow.ui" line="3890"/>
         <source>The overlay uses UNO Essentials content fields</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Das Overlay verwendet Inhaltsfelder von UNO Essentials</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4015"/>
+        <location filename="../src/mainwindow.ui" line="4126"/>
         <source>File</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Datei</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4030"/>
+        <location filename="../src/mainwindow.ui" line="4141"/>
         <source>Language</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Sprache</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4035"/>
+        <location filename="../src/mainwindow.ui" line="4146"/>
         <source>Appearance</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Darstellung</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4026"/>
+        <location filename="../src/mainwindow.ui" line="4137"/>
         <source>View</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Ansicht</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4053"/>
+        <location filename="../src/mainwindow.ui" line="4164"/>
         <source>Tools</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Werkzeuge</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4099"/>
+        <location filename="../src/mainwindow.ui" line="4210"/>
         <source>Rename...</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Umbenennen...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4107"/>
+        <location filename="../src/mainwindow.ui" line="4218"/>
         <source>Delete field...</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Feld löschen...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4115"/>
+        <location filename="../src/mainwindow.ui" line="4226"/>
         <source>Reset settings to defaults</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Einstellungen zurücksetzen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4120"/>
+        <location filename="../src/mainwindow.ui" line="4231"/>
         <source>Copy value</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Wert kopieren</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4128"/>
+        <location filename="../src/mainwindow.ui" line="4239"/>
         <source>Zoom to box</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Auf Rahmen zoomen</translation>
@@ -1099,7 +1164,7 @@ Auflösung: {width}×{height}</translation>
         <translation type="obsolete">Nach Updates suchen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4166"/>
+        <location filename="../src/mainwindow.ui" line="4277"/>
         <source>About</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Über</translation>
@@ -1130,26 +1195,26 @@ Auflösung: {width}×{height}</translation>
         <translation type="obsolete">OCR-Trainingsdaten einrichten</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4257"/>
+        <location filename="../src/mainwindow.ui" line="4368"/>
         <source>Fit picture to window</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Bild an Fenster anpassen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="546"/>
-        <location filename="../src/mainwindow.ui" line="4265"/>
+        <location filename="../src/mainwindow.ui" line="569"/>
+        <location filename="../src/mainwindow.ui" line="4376"/>
         <source>Reload sources</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Quellen neu laden</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3788"/>
+        <location filename="../src/mainwindow.ui" line="3899"/>
         <source>Essentials</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Essentials</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1529"/>
+        <location filename="../src/mainwindow.ui" line="1640"/>
         <source>Inspector</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Inspektor</translation>
@@ -1161,399 +1226,429 @@ Auflösung: {width}×{height}</translation>
         <translation type="unfinished">Die Felder, die nicht im Bild sind, sind in diesem Layout ausgeblendet (Ansicht &gt; Ungenutzte Felder anzeigen)</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="346"/>
+        <location filename="../src/mainwindow.ui" line="276"/>
+        <source>Put a box for the selected field in the middle of the picture, then drag it over the value. You can also drag over the value on the picture, or double-click the field. Formerly “Add to Scene”.</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Setzt einen Rahmen für das ausgewählte Feld in die Bildmitte; ziehen Sie ihn dann über den Wert. Sie können auch im Bild über den Wert ziehen oder auf das Feld doppelklicken. Früher „Add to Scene“.</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="369"/>
         <source>The outputs and what they are doing. Double-click one to show its settings.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Die Ausgaben und was sie gerade tun. Doppelklicken Sie auf eine Ausgabe, um ihre Einstellungen anzuzeigen.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="349"/>
+        <location filename="../src/mainwindow.ui" line="372"/>
         <source>Outputs and their state</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Ausgaben und ihr Status</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="520"/>
+        <location filename="../src/mainwindow.ui" line="543"/>
         <location filename="../src/source_bar.py" line="93"/>
         <source>No source</source>
         <translation type="unfinished">Keine Quelle</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="525"/>
-        <location filename="../src/mainwindow.ui" line="1363"/>
+        <location filename="../src/mainwindow.ui" line="548"/>
+        <location filename="../src/mainwindow.ui" line="1474"/>
         <location filename="../src/source_bar.py" line="94"/>
         <source>Video file…</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Videodatei…</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="530"/>
+        <location filename="../src/mainwindow.ui" line="553"/>
         <location filename="../src/source_bar.py" line="95"/>
         <source>Stream URL (RTSP, HTTP)…</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Stream-URL (RTSP, HTTP)…</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="535"/>
+        <location filename="../src/mainwindow.ui" line="558"/>
         <location filename="../src/source_bar.py" line="96"/>
         <source>Screen capture…</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Bildschirmaufnahme…</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="543"/>
+        <location filename="../src/mainwindow.ui" line="566"/>
         <source>Reload sources: look for cameras, capture cards and NDI sources again</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Quellen neu laden: erneut nach Kameras, Capture-Karten und NDI-Quellen suchen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="562"/>
+        <location filename="../src/mainwindow.ui" line="585"/>
         <source>Video settings</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Videoeinstellungen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="565"/>
+        <location filename="../src/mainwindow.ui" line="588"/>
         <source>Video settings…</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Videoeinstellungen…</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="578"/>
+        <location filename="../src/mainwindow.ui" line="601"/>
         <source>Playback speed</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Wiedergabegeschwindigkeit</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="625"/>
-        <location filename="../src/mainwindow.ui" line="2252"/>
+        <location filename="../src/mainwindow.ui" line="648"/>
+        <location filename="../src/mainwindow.ui" line="2363"/>
         <source>Show what the OCR reads of every box: its black-and-white image (Tesseract) or its picture in gray (PP-OCR)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="638"/>
+        <location filename="../src/mainwindow.ui" line="661"/>
         <source>Boxes:</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Rahmen:</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="651"/>
+        <location filename="../src/mainwindow.ui" line="674"/>
         <source>What the viewer draws for each box: nothing, the outline, the outline with its name and reading, or also the area the OCR reads and each character it found</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Was die Ansicht für jeden Rahmen zeichnet: nichts, den Umriss, den Umriss mit Name und Ablesung oder zusätzlich den Bereich, den die OCR liest, und jedes gefundene Zeichen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="678"/>
+        <location filename="../src/mainwindow.ui" line="701"/>
         <source>Statistics overlay: frames, readings and previews per second and the resolution, over the picture</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Statistik-Overlay: Frames, Ablesungen und Vorschauen pro Sekunde sowie die Auflösung, über dem Bild</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="681"/>
+        <location filename="../src/mainwindow.ui" line="704"/>
         <source>Stats</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Statistik</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="691"/>
+        <location filename="../src/mainwindow.ui" line="714"/>
         <source>Fit the whole picture in the viewer</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Passt das ganze Bild in die Ansicht ein</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="694"/>
+        <location filename="../src/mainwindow.ui" line="717"/>
         <source>Fit</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Einpassen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="701"/>
+        <location filename="../src/mainwindow.ui" line="724"/>
         <source>The zoom level. Ctrl+scroll (⌘+scroll on macOS) zooms, scrolling moves the picture and dragging with the middle mouse button pans it.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Die Zoomstufe. Ctrl+Scrollen (⌘+Scrollen unter macOS) zoomt; Scrollen oder Ziehen mit der mittleren Maustaste verschiebt das Bild.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="738"/>
+        <location filename="../src/mainwindow.ui" line="761"/>
         <source>Adjust picture:</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Bild anpassen:</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="745"/>
+        <location filename="../src/mainwindow.ui" line="768"/>
         <source>Rotate the picture by 90 degrees clockwise</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Dreht das Bild um 90 Grad im Uhrzeigersinn</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="755"/>
+        <location filename="../src/mainwindow.ui" line="778"/>
         <source>Cut the edges off the picture. Turning it off keeps the values for the next time.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Schneidet die Ränder des Bilds ab. Beim Ausschalten bleiben die Werte für das nächste Mal erhalten.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="768"/>
-        <location filename="../src/mainwindow.py" line="3930"/>
+        <location filename="../src/mainwindow.ui" line="791"/>
+        <location filename="../src/mainwindow.py" line="4338"/>
         <source>Correct the perspective: click the 4 corners of the scoreboard</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Korrigiert die Perspektive: Klicken Sie auf die 4 Ecken der Anzeigetafel</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="771"/>
+        <location filename="../src/mainwindow.ui" line="794"/>
         <source>4-corner</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">4 Ecken</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="803"/>
+        <location filename="../src/mainwindow.ui" line="826"/>
         <source>Set these first: the boxes sit on the adjusted picture.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Zuerst einstellen: Die Rahmen liegen auf dem angepassten Bild.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="874"/>
-        <location filename="../src/mainwindow.ui" line="903"/>
-        <location filename="../src/mainwindow.ui" line="932"/>
-        <location filename="../src/mainwindow.ui" line="961"/>
+        <location filename="../src/mainwindow.ui" line="884"/>
+        <source>Drag around the part of the picture to keep, on the whole picture. The values next to it fine-tune the crop.</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Ziehen Sie im ganzen Bild um den Teil, der bleiben soll. Mit den Werten daneben verfeinern Sie den Zuschnitt.</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="887"/>
+        <source>Drag to crop</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Zuschnitt ziehen</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="916"/>
+        <location filename="../src/mainwindow.ui" line="945"/>
+        <location filename="../src/mainwindow.ui" line="974"/>
+        <location filename="../src/mainwindow.ui" line="1003"/>
         <source> px</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished"> px</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1061"/>
+        <location filename="../src/mainwindow.ui" line="1116"/>
         <source>Open the source again</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Öffnet die Quelle erneut</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1064"/>
+        <location filename="../src/mainwindow.ui" line="1119"/>
         <source>Retry</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Wiederholen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1071"/>
+        <location filename="../src/mainwindow.ui" line="1126"/>
         <source>Pick another camera, file, stream or screen</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Wählt eine andere Kamera, Datei, einen anderen Stream oder Bildschirm</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1074"/>
+        <location filename="../src/mainwindow.ui" line="1129"/>
         <source>Choose another source</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Andere Quelle wählen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1081"/>
+        <location filename="../src/mainwindow.ui" line="1136"/>
         <source>Open the troubleshooting guide for sources in the browser</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Öffnet die Anleitung zur Fehlerbehebung bei Quellen im Browser</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1084"/>
+        <location filename="../src/mainwindow.ui" line="1139"/>
         <source>Troubleshooting</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Fehlerbehebung</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1091"/>
+        <location filename="../src/mainwindow.ui" line="1146"/>
         <source>Open Privacy &amp; Security › Screen Recording in System Settings</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Öffnet Datenschutz &amp; Sicherheit › Bildschirmaufnahme in den Systemeinstellungen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1094"/>
+        <location filename="../src/mainwindow.ui" line="1149"/>
         <source>Open System Settings</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Systemeinstellungen öffnen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1150"/>
+        <location filename="../src/mainwindow.ui" line="1205"/>
         <source>Stop picking corners and keep the current correction (Esc)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Beendet die Eckenauswahl und behält die aktuelle Korrektur (Esc)</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1153"/>
-        <location filename="../src/mainwindow.py" line="3876"/>
+        <location filename="../src/mainwindow.ui" line="1208"/>
+        <location filename="../src/mainwindow.ui" line="1264"/>
+        <location filename="../src/mainwindow.py" line="4284"/>
         <source>Cancel</source>
         <translation type="unfinished">Abbrechen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1282"/>
+        <location filename="../src/mainwindow.ui" line="1251"/>
+        <source>Drag around the part of the picture to keep. Esc cancels and keeps the current crop.</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Ziehen Sie um den Teil des Bilds, der bleiben soll. Esc bricht ab und behält den aktuellen Zuschnitt.</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="1261"/>
+        <source>Stop and keep the current crop (Esc)</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Beenden und den aktuellen Zuschnitt behalten (Esc)</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="1393"/>
         <source>Open a source to begin</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Öffnen Sie eine Quelle, um zu beginnen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1325"/>
+        <location filename="../src/mainwindow.ui" line="1436"/>
         <source>Choose a source</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Quelle wählen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1353"/>
+        <location filename="../src/mainwindow.ui" line="1464"/>
         <source>A camera, capture card or NDI source found on this computer or network</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Eine Kamera, Capture-Karte oder NDI-Quelle auf diesem Computer oder im Netzwerk</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1356"/>
+        <location filename="../src/mainwindow.ui" line="1467"/>
         <source>Camera</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Kamera</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1370"/>
+        <location filename="../src/mainwindow.ui" line="1481"/>
         <source>Stream URL…</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Stream-URL…</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1377"/>
+        <location filename="../src/mainwindow.ui" line="1488"/>
         <source>Screen…</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Bildschirm…</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1436"/>
+        <location filename="../src/mainwindow.ui" line="1547"/>
         <source>Place fields over the numbers</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Felder über die Zahlen legen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1443"/>
         <source>Select a field in the list, put it on the picture and drag its box over the numbers.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
-        <translation type="unfinished">Wählen Sie ein Feld in der Liste, platzieren Sie es im Bild und ziehen Sie seinen Rahmen über die Zahlen.</translation>
+        <translation type="obsolete">Wählen Sie ein Feld in der Liste, platzieren Sie es im Bild und ziehen Sie seinen Rahmen über die Zahlen.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1489"/>
+        <location filename="../src/mainwindow.ui" line="1600"/>
         <source>Send them</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Werte senden</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1496"/>
+        <location filename="../src/mainwindow.ui" line="1607"/>
         <source>To OBS, vMix, UNO, text files or a browser overlay: turn one on in the Outputs list.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">An OBS, vMix, UNO, Textdateien oder ein Browser-Overlay: Schalten Sie eine Ausgabe in der Liste „Ausgaben“ ein.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1536"/>
+        <location filename="../src/mainwindow.ui" line="1647"/>
         <source>Box</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Rahmen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1584"/>
+        <location filename="../src/mainwindow.ui" line="1695"/>
         <source>No field selected</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Kein Feld ausgewählt</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1594"/>
+        <location filename="../src/mainwindow.ui" line="1705"/>
         <source>Select a field in the list or a box on the picture to tune how it is read. Start with Type and Format.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Wählen Sie ein Feld in der Liste oder einen Rahmen im Bild aus, um einzustellen, wie es abgelesen wird. Beginnen Sie mit „Typ“ und „Format“.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1685"/>
+        <location filename="../src/mainwindow.ui" line="1796"/>
         <source>Settings for this field only</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Einstellungen nur für dieses Feld</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1697"/>
+        <location filename="../src/mainwindow.ui" line="1808"/>
         <source>Put every setting of this field back to its default. Formerly “Defaults”.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Setzt alle Einstellungen dieses Felds auf den Standard zurück. Früher „Standardwerte“.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1706"/>
+        <location filename="../src/mainwindow.ui" line="1817"/>
         <source>Reset to defaults</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Zurücksetzen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1802"/>
+        <location filename="../src/mainwindow.ui" line="1913"/>
         <source>Reading</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Ablesen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1857"/>
+        <location filename="../src/mainwindow.ui" line="1968"/>
         <source>The preset whose expression is used, or Custom. Choose a preset to use its expression. Formerly “Select Preset”.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Die Vorgabe, deren Ausdruck verwendet wird, oder „Benutzerdefiniert“. Wählen Sie eine Vorgabe, um ihren Ausdruck zu verwenden. Früher „Voreinstellung auswählen“.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1921"/>
+        <location filename="../src/mainwindow.ui" line="2032"/>
         <source>Custom</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Benutzerdefiniert</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1929"/>
+        <location filename="../src/mainwindow.ui" line="2040"/>
         <source>Format expression</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Formatausdruck</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1932"/>
+        <location filename="../src/mainwindow.ui" line="2043"/>
         <source>A regular expression the raw reading must match completely, or it&apos;s rejected. Choose a preset above or type your own. An invalid expression is ignored.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Ein regulärer Ausdruck, dem die Rohablesung vollständig entsprechen muss, sonst wird sie verworfen. Wählen Sie oben eine Vorgabe oder geben Sie einen eigenen Ausdruck ein. Ein ungültiger Ausdruck wird ignoriert.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1954"/>
+        <location filename="../src/mainwindow.ui" line="2065"/>
         <source>Remove zeros at the start: 07 becomes 7. Formerly “Remove leading 0s”.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Entfernt Nullen am Anfang: Aus 07 wird 7.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1957"/>
+        <location filename="../src/mainwindow.ui" line="2068"/>
         <source>Remove leading zeros</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Führende Nullen entfernen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1964"/>
+        <location filename="../src/mainwindow.ui" line="2075"/>
         <source>07 → 7</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">07 → 7</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1990"/>
+        <location filename="../src/mainwindow.ui" line="2101"/>
         <source>Add an ordinal suffix: 1 becomes 1st, 2 becomes 2nd. Formerly “Ordinal (1st, 2nd, ..)”.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Hängt eine englische Ordinalendung an: Aus 1 wird 1st, aus 2 wird 2nd. Früher „Ordinal (1., 2., ..)“.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1993"/>
+        <location filename="../src/mainwindow.ui" line="2104"/>
         <source>Add ordinal suffix</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Ordinalendung anhängen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2000"/>
+        <location filename="../src/mainwindow.ui" line="2111"/>
         <source>2 → 2nd</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">2 → 2nd</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2021"/>
+        <location filename="../src/mainwindow.ui" line="2132"/>
         <source>Count the lit dots or lights in the box (for example a period or possession indicator) instead of reading characters. Formerly “Dot Counter”.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Zählt die leuchtenden Punkte oder Lampen im Rahmen (z. B. eine Perioden- oder Ballbesitzanzeige), statt Zeichen abzulesen. Früher „Dot Counter“.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2024"/>
+        <location filename="../src/mainwindow.ui" line="2135"/>
         <source>Count lights (dot counter)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Lampen zählen (Punktzähler)</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2080"/>
+        <location filename="../src/mainwindow.ui" line="2191"/>
         <source>Filtering</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Filtern</translation>
@@ -1564,38 +1659,38 @@ Auflösung: {width}×{height}</translation>
         <translation type="obsolete">Mindestkonfidenz der OCR in % (0-99): wie sicher sich Tesseract bei der Ablesung ist. Eine Ablesung darunter wird verworfen. 0 schaltet die Prüfung aus. Früher „Konf. Schwellenwert“.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2090"/>
-        <location filename="../src/mainwindow.ui" line="2102"/>
+        <location filename="../src/mainwindow.ui" line="2201"/>
+        <location filename="../src/mainwindow.ui" line="2213"/>
         <source>Minimum confidence</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Mindestkonfidenz</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2130"/>
+        <location filename="../src/mainwindow.ui" line="2241"/>
         <source>Show the most common of the box&apos;s last 5 accepted readings, to steady a value that flickers. Delays changes by a couple of detection cycles. Formerly “Average Output”.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Zeigt die häufigste der letzten 5 akzeptierten Ablesungen des Rahmens, um einen flackernden Wert zu beruhigen. Verzögert Änderungen um ein paar Erkennungszyklen. Früher „Durchschnittliche Ausgabe“.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2133"/>
+        <location filename="../src/mainwindow.ui" line="2244"/>
         <source>Smooth over last 5 readings</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Über letzte 5 Ablesungen glätten</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2145"/>
+        <location filename="../src/mainwindow.ui" line="2256"/>
         <source>Skip OCR while the box&apos;s image hasn&apos;t changed since its last accepted reading, and repeat that value. Saves CPU on values that change rarely. Formerly “Skip Similar Image”.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Überspringt die OCR, solange sich das Bild des Rahmens seit der letzten akzeptierten Ablesung nicht geändert hat, und wiederholt diesen Wert. Spart CPU bei selten wechselnden Werten. Früher „Ähnliches Bild überspringen“.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2148"/>
+        <location filename="../src/mainwindow.ui" line="2259"/>
         <source>Skip OCR while image is unchanged</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">OCR überspringen, solange Bild unverändert</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2155"/>
+        <location filename="../src/mainwindow.ui" line="2266"/>
         <source>saves CPU</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">spart CPU</translation>
@@ -1606,234 +1701,234 @@ Auflösung: {width}×{height}</translation>
         <translation type="obsolete">Zeigt oder verbirgt die Einstellungen, die das Bild des Rahmens vor dem Ablesen bereinigen. „Binäre Ansicht“ zeigt das Ergebnis.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2202"/>
-        <location filename="../src/mainwindow.ui" line="2210"/>
+        <location filename="../src/mainwindow.ui" line="2313"/>
+        <location filename="../src/mainwindow.ui" line="2321"/>
         <source>Image cleanup</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Bildbereinigung</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2255"/>
+        <location filename="../src/mainwindow.ui" line="2366"/>
         <source>Binary view</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Binäre Ansicht</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2310"/>
+        <location filename="../src/mainwindow.ui" line="2421"/>
         <source>How the box is turned into black and white before OCR. Formerly “Binarize”.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Wie der Rahmen vor der OCR in Schwarzweiß umgewandelt wird. Früher „Binarisieren“.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2313"/>
+        <location filename="../src/mainwindow.ui" line="2424"/>
         <source>Black &amp; white</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Schwarzweiß</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2320"/>
+        <location filename="../src/mainwindow.ui" line="2431"/>
         <source>Black and white</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Schwarzweiß</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2323"/>
+        <location filename="../src/mainwindow.ui" line="2434"/>
         <source>How the box is turned into black and white before OCR. Whole picture: one threshold for the whole picture. None: the grayscale image. This box: a threshold for this box only. Adaptive: a threshold that varies across the box, for uneven lighting.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Wie der Rahmen vor der OCR in Schwarzweiß umgewandelt wird. Ganzes Bild: ein Schwellenwert für das ganze Bild. Keine: das Graustufenbild. Dieser Rahmen: ein Schwellenwert nur für diesen Rahmen. Adaptiv: ein Schwellenwert, der innerhalb des Rahmens variiert, für ungleichmäßige Beleuchtung.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2327"/>
+        <location filename="../src/mainwindow.ui" line="2438"/>
         <source>Whole picture</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Ganzes Bild</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2332"/>
+        <location filename="../src/mainwindow.ui" line="2443"/>
         <source>None</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Keine</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2337"/>
+        <location filename="../src/mainwindow.ui" line="2448"/>
         <source>This box</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Dieser Rahmen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2350"/>
+        <location filename="../src/mainwindow.ui" line="2461"/>
         <source>Remove specks smaller than a share of the box area (0 = off). Formerly “Cleanup”.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Entfernt Flecken, die kleiner als ein Anteil der Rahmenfläche sind (0 = aus). Früher „Aufräumen“.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2353"/>
-        <location filename="../src/mainwindow.ui" line="2365"/>
+        <location filename="../src/mainwindow.ui" line="2464"/>
+        <location filename="../src/mainwindow.ui" line="2476"/>
         <source>Remove specks</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Flecken entfernen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2387"/>
+        <location filename="../src/mainwindow.ui" line="2498"/>
         <source>Squash the box vertically (100 % = unchanged). Formerly “V.Scale”.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Staucht den Rahmen vertikal (100 % = unverändert). Früher „V.Skala“.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2390"/>
-        <location filename="../src/mainwindow.ui" line="2402"/>
+        <location filename="../src/mainwindow.ui" line="2501"/>
+        <location filename="../src/mainwindow.ui" line="2513"/>
         <source>Squash height</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Höhe stauchen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2436"/>
+        <location filename="../src/mainwindow.ui" line="2547"/>
         <source>Shear the image to straighten slanted digits (0 = off). Formerly “Skew”.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Schert das Bild, um schräge Ziffern aufzurichten (0 = aus). Früher „Verzerren“.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2439"/>
-        <location filename="../src/mainwindow.ui" line="2451"/>
+        <location filename="../src/mainwindow.ui" line="2550"/>
+        <location filename="../src/mainwindow.ui" line="2562"/>
         <source>Straighten slant</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Neigung ausgleichen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2479"/>
+        <location filename="../src/mainwindow.ui" line="2590"/>
         <source>Thicken the bright strokes (0 = off). Formerly “Dilate”.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Verdickt die hellen Striche (0 = aus). Früher „Dilatieren“.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2482"/>
-        <location filename="../src/mainwindow.ui" line="2494"/>
+        <location filename="../src/mainwindow.ui" line="2593"/>
+        <location filename="../src/mainwindow.ui" line="2605"/>
         <source>Thicken strokes</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Striche verdicken</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2522"/>
+        <location filename="../src/mainwindow.ui" line="2633"/>
         <source>Swap black and white before OCR, for dark digits on a light background. Formerly “Invert Input”.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Vertauscht Schwarz und Weiß vor der OCR, für dunkle Ziffern auf hellem Hintergrund. Früher „Eingabe invertieren“.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2532"/>
+        <location filename="../src/mainwindow.ui" line="2643"/>
         <source>Crop the box to the area with bright pixels, plus a margin, before OCR. Formerly “Auto Crop”.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Beschneidet den Rahmen vor der OCR auf den Bereich mit hellen Pixeln, plus einen Rand. Früher „Automatische Zuschneiden“.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2535"/>
+        <location filename="../src/mainwindow.ui" line="2646"/>
         <source>Crop to text</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Auf Text zuschneiden</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2542"/>
+        <location filename="../src/mainwindow.ui" line="2653"/>
         <source>Scale the image to 35 pixels high, a favorable size for OCR. Formerly “Rescale Input”.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Skaliert das Bild auf 35 Pixel Höhe, eine günstige Größe für die OCR. Früher „Eingabe neu skalieren“.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2545"/>
+        <location filename="../src/mainwindow.ui" line="2656"/>
         <source>Resize to 35 px (recommended)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Auf 35 px skalieren (empfohlen)</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2552"/>
+        <location filename="../src/mainwindow.ui" line="2663"/>
         <source>Scale to a favorable 1:2 width-to-height ratio. Formerly “Normalize W-H Ratio”.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Skaliert auf ein günstiges Breite-zu-Höhe-Verhältnis von 1:2. Früher „Breite-Höhe-Verhältnis normalisieren“.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2555"/>
+        <location filename="../src/mainwindow.ui" line="2666"/>
         <source>Normalize digit width</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Ziffernbreite normalisieren</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2562"/>
+        <location filename="../src/mainwindow.ui" line="2673"/>
         <source>Experimental / legacy</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Experimentell / veraltet</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2577"/>
+        <location filename="../src/mainwindow.ui" line="2688"/>
         <source>Experimental: draw one sub-box per character with the green + in the box. Recognition still reads the whole box. Formerly “Composite (Per-Character)”.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Experimentell: Zeichnen Sie mit dem grünen + im Rahmen einen Teilrahmen pro Zeichen. Die Erkennung liest weiterhin den ganzen Rahmen. Früher „Composite (Per-Character)“.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2580"/>
+        <location filename="../src/mainwindow.ui" line="2691"/>
         <source>Per-character sub-boxes</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Teilrahmen pro Zeichen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2587"/>
+        <location filename="../src/mainwindow.ui" line="2698"/>
         <source>not used for reading yet</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">noch nicht zum Ablesen genutzt</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2613"/>
+        <location filename="../src/mainwindow.ui" line="2724"/>
         <source>Never write an empty value to the box&apos;s text file or OBS text source. Since 0.2.0 they only ever get good readings, so this has no effect. Formerly “Skip Empty Values”.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Nie einen leeren Wert in die Textdatei oder OBS-Textquelle des Rahmens schreiben. Seit 0.2.0 erhalten diese nur noch gute Ablesungen, daher hat dies keine Wirkung.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2616"/>
+        <location filename="../src/mainwindow.ui" line="2727"/>
         <source>Skip empty values</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Leere Werte überspringen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2623"/>
+        <location filename="../src/mainwindow.ui" line="2734"/>
         <source>no effect since 0.2.0</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">seit 0.2.0 ohne Wirkung</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2680"/>
+        <location filename="../src/mainwindow.ui" line="2791"/>
         <source>Make this custom field a template: its value is built from other fields, for example {{Home Score}} - {{Away Score}}. Formerly “Template Field”.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Macht dieses eigene Feld zu einer Vorlage: Sein Wert wird aus anderen Feldern gebildet, z. B. {{Home Score}} - {{Away Score}}. Früher „Template Field“.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2683"/>
+        <location filename="../src/mainwindow.ui" line="2794"/>
         <source>Build from other fields</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Aus anderen Feldern bilden</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2704"/>
+        <location filename="../src/mainwindow.ui" line="2815"/>
         <source>{{Home Score}} - {{Away Score}}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{{Home Score}} - {{Away Score}}</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2711"/>
+        <location filename="../src/mainwindow.ui" line="2822"/>
         <source>Insert a field at the cursor, written exactly as the template needs it</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Fügt an der Cursorposition ein Feld ein, genau so geschrieben, wie die Vorlage es braucht</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2714"/>
+        <location filename="../src/mainwindow.ui" line="2825"/>
         <source>Insert field</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Feld einfügen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2766"/>
+        <location filename="../src/mainwindow.ui" line="2877"/>
         <source>All boxes</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Alle Rahmen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2796"/>
+        <location filename="../src/mainwindow.ui" line="2907"/>
         <source>Changes how every field is read</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Ändert, wie jedes Feld abgelesen wird</translation>
@@ -1849,310 +1944,317 @@ Auflösung: {width}×{height}</translation>
         <translation type="obsolete">Meldet eine Ablesung, die dem letzten guten Wert des Felds entspricht, als unverändert (=, SameNoChange) statt als neu (✓). vMix und UNO senden unveränderte Werte dann nicht erneut (außer dort ist „Gleiche senden?“ aktiviert), und der HTTP-Server und die ausgehende API markieren sie als unverändert. OBS und die Textdateien erhalten einen Wert ohnehin nur, wenn er sich ändert.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4311"/>
+        <location filename="../src/mainwindow.ui" line="4422"/>
         <source>Quit</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Beenden</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4328"/>
+        <location filename="../src/mainwindow.ui" line="4439"/>
         <source>Setup layout</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Einrichtungslayout</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4331"/>
+        <location filename="../src/mainwindow.ui" line="4442"/>
         <source>For placing and tuning the fields and setting up the outputs: the field list, the picture with its adjustments, and the inspector</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Zum Platzieren und Einstellen der Felder und zum Einrichten der Ausgaben: die Feldliste, das Bild mit seinen Anpassungen und der Inspektor</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4345"/>
+        <location filename="../src/mainwindow.ui" line="4456"/>
         <source>Live layout</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Live-Layout</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4348"/>
+        <location filename="../src/mainwindow.ui" line="4459"/>
         <source>For the game: large readings and the state of every output next to the picture. The inspector and the picture adjustments are hidden; the reading and the outputs work the same.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Für das Spiel: große Ablesungen und der Status jeder Ausgabe neben dem Bild. Der Inspektor und die Bildanpassungen sind ausgeblendet; Ablesen und Ausgaben funktionieren genauso.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4362"/>
+        <location filename="../src/mainwindow.ui" line="4473"/>
         <source>Show unused fields</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Ungenutzte Felder anzeigen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4365"/>
+        <location filename="../src/mainwindow.ui" line="4476"/>
         <source>Show the fields that aren&apos;t on the picture in the field list (remembered for each layout)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Zeigt die Felder, die nicht im Bild sind, in der Feldliste an (wird für jedes Layout gespeichert)</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4373"/>
+        <location filename="../src/mainwindow.ui" line="4484"/>
         <source>User guide</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Benutzerhandbuch</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4376"/>
+        <location filename="../src/mainwindow.ui" line="4487"/>
         <source>Open the ScoreSight documentation in your web browser</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Öffnet die Dokumentation von ScoreSight in Ihrem Webbrowser</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4387"/>
+        <location filename="../src/mainwindow.ui" line="4498"/>
         <source>Keyboard shortcuts</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Tastenkürzel</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="339"/>
-        <location filename="../src/mainwindow.ui" line="2917"/>
-        <location filename="../src/mainwindow.ui" line="2951"/>
+        <location filename="../src/mainwindow.ui" line="362"/>
+        <location filename="../src/mainwindow.ui" line="3028"/>
+        <location filename="../src/mainwindow.ui" line="3062"/>
         <source>Outputs</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Ausgaben</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2087"/>
+        <location filename="../src/mainwindow.ui" line="1554"/>
+        <location filename="../src/mainwindow.py" line="2666"/>
+        <source>Select a field, then drag over its numbers on the picture.</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Wählen Sie ein Feld und ziehen Sie dann im Bild über seine Zahlen.</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="2198"/>
         <source>Minimum OCR confidence in % (0-99): how sure the OCR model is of the reading. A reading below it is rejected. 0 turns the check off. Formerly “Conf. Th”.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2105"/>
+        <location filename="../src/mainwindow.ui" line="2216"/>
         <source>Minimum OCR confidence in % (0-99): how sure the OCR model is of the reading. A reading below it is rejected (yellow, FailedFilter). 0 turns the check off. With PP-OCR, 80-90 rejects most wrong readings.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2199"/>
+        <location filename="../src/mainwindow.ui" line="2310"/>
         <location filename="../src/box_settings_ui_handler.py" line="488"/>
         <source>Show or hide the settings that clean up the box&apos;s image before a Tesseract model reads it. Binary view shows the result.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2822"/>
-        <location filename="../src/mainwindow.py" line="1991"/>
+        <location filename="../src/mainwindow.ui" line="2933"/>
+        <location filename="../src/mainwindow.py" line="2130"/>
         <source>The OCR model that reads every box, not only the selected one. PP-OCR (automatic) reads with PP-OCR (accurate) while this computer keeps up, and with PP-OCR (fast), which needs about a fifth of the CPU, when it doesn&apos;t. The Tesseract models use the boxes&apos; Image cleanup settings; Load external Tesseract model... reads a .traineddata file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2884"/>
+        <location filename="../src/mainwindow.ui" line="2995"/>
         <source>Report a reading that equals the field&apos;s last good value as unchanged (=, SameNoChange) instead of new (✓). vMix and UNO then don&apos;t resend unchanged values (unless their “Also resend unchanged values” is on), and the HTTP server and the outbound API mark them as unchanged. OBS and the text files get a value only when it changes either way.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Meldet eine Ablesung, die dem letzten guten Wert des Felds entspricht, als unverändert (=, SameNoChange) statt als neu (✓). vMix und UNO senden unveränderte Werte dann nicht erneut (außer dort ist „Auch unveränderte Werte senden“ aktiviert), und der HTTP-Server und die ausgehende API markieren sie als unverändert. OBS und die Textdateien erhalten einen Wert ohnehin nur, wenn er sich ändert.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2954"/>
+        <location filename="../src/mainwindow.ui" line="3065"/>
         <source>Select an output to show its settings below. Space turns it on or off.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Wählen Sie eine Ausgabe, um unten ihre Einstellungen anzuzeigen. Die Leertaste schaltet sie ein oder aus.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3342"/>
+        <location filename="../src/mainwindow.ui" line="3453"/>
         <source>Close the connection to OBS. ScoreSight connects to OBS again at its next start only after you connect again.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Trennt die Verbindung zu OBS. ScoreSight verbindet sich beim nächsten Start erst wieder mit OBS, nachdem Sie sich erneut verbunden haben.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3351"/>
+        <location filename="../src/mainwindow.ui" line="3462"/>
         <source>Disconnect</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Trennen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3379"/>
+        <location filename="../src/mainwindow.ui" line="3490"/>
         <source>OBS scene name</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Name der OBS-Szene</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3408"/>
+        <location filename="../src/mainwindow.ui" line="3519"/>
         <source>If OBS already has a scene with this name, delete its sources and make it again. Off: an existing scene is kept as it is.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Wenn OBS bereits eine Szene mit diesem Namen hat, werden ihre Quellen gelöscht und sie wird neu erstellt. Aus: Eine vorhandene Szene bleibt unverändert.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3431"/>
+        <location filename="../src/mainwindow.ui" line="3542"/>
         <source>&lt;b&gt;Text sources&lt;/b&gt;: the OBS text source each field updates. Double-click a name to change it; leave it empty to not send that field to OBS.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">&lt;b&gt;Textquellen&lt;/b&gt;: die OBS-Textquelle, die jedes Feld aktualisiert. Doppelklicken Sie auf einen Namen, um ihn zu ändern; lassen Sie ihn leer, um dieses Feld nicht an OBS zu senden.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3447"/>
+        <location filename="../src/mainwindow.ui" line="3558"/>
         <source>Each field and the OBS text source it updates. Edit the right column; an empty name sends nothing to OBS.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Jedes Feld und die OBS-Textquelle, die es aktualisiert. Bearbeiten Sie die rechte Spalte; ein leerer Name sendet nichts an OBS.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3450"/>
+        <location filename="../src/mainwindow.ui" line="3561"/>
         <source>OBS text sources of the fields</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">OBS-Textquellen der Felder</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3651"/>
+        <location filename="../src/mainwindow.ui" line="3762"/>
         <source>Also send a field&apos;s value when it hasn&apos;t changed (marked “same”), at every detection, for example if someone may change the title in vMix by hand. Off: vMix gets a value only when it changes. Formerly “Send Same?”.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Sendet den Wert eines Felds auch, wenn er sich nicht geändert hat (als „gleich“ markiert), bei jeder Erkennung, z. B. wenn jemand den Titel in vMix von Hand ändern könnte. Aus: vMix erhält einen Wert nur, wenn er sich ändert. Früher „Gleiche senden?“.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3654"/>
-        <location filename="../src/mainwindow.ui" line="3772"/>
+        <location filename="../src/mainwindow.ui" line="3765"/>
+        <location filename="../src/mainwindow.ui" line="3883"/>
         <source>Also resend unchanged values</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Auch unveränderte Werte senden</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3769"/>
+        <location filename="../src/mainwindow.ui" line="3880"/>
         <source>Also send a field&apos;s value when it hasn&apos;t changed (marked “same”), at every detection. Off: the overlay gets a value only when it changes, which keeps within overlays.uno&apos;s request limits. Formerly “Send Same?”.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Sendet den Wert eines Felds auch, wenn er sich nicht geändert hat (als „gleich“ markiert), bei jeder Erkennung. Aus: Das Overlay erhält einen Wert nur, wenn er sich ändert; so bleiben die Anfragen innerhalb der Limits von overlays.uno. Früher „Gleiche senden?“.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3819"/>
+        <location filename="../src/mainwindow.ui" line="3930"/>
         <source>Overlay ID</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Overlay-ID</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3826"/>
+        <location filename="../src/mainwindow.ui" line="3937"/>
         <source>The ID (UUID) of the Essentials overlay</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Die ID (UUID) des Essentials-Overlays</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3838"/>
+        <location filename="../src/mainwindow.ui" line="3949"/>
         <source>aaaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeeee</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">aaaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeeee</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3857"/>
+        <location filename="../src/mainwindow.ui" line="3968"/>
         <source>Each field and the UNO command (or Essentials field ID) it drives. Edit the right column.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Jedes Feld und der UNO-Befehl (oder die Essentials-Feld-ID), den es steuert. Bearbeiten Sie die rechte Spalte.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4065"/>
+        <location filename="../src/mainwindow.ui" line="4176"/>
         <source>Help</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Hilfe</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4133"/>
-        <location filename="../src/mainwindow.py" line="2479"/>
+        <location filename="../src/mainwindow.ui" line="4244"/>
+        <location filename="../src/mainwindow.py" line="2702"/>
         <source>Hold value...</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Wert fixieren...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4136"/>
-        <location filename="../src/mainwindow.py" line="2521"/>
+        <location filename="../src/mainwindow.ui" line="4247"/>
+        <location filename="../src/mainwindow.py" line="2790"/>
         <source>Send a value you type to every output instead of this field&apos;s readings, until you release it</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Sendet einen von Ihnen eingegebenen Wert statt der Ablesungen dieses Felds an alle Ausgaben, bis Sie ihn freigeben</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4147"/>
+        <location filename="../src/mainwindow.ui" line="4258"/>
         <source>Release held value</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Fixierten Wert freigeben</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4150"/>
+        <location filename="../src/mainwindow.ui" line="4261"/>
         <source>Send this field&apos;s readings to the outputs again</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Sendet die Ablesungen dieses Felds wieder an die Ausgaben</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4158"/>
+        <location filename="../src/mainwindow.ui" line="4269"/>
         <source>Check for updates...</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Nach Updates suchen...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4174"/>
+        <location filename="../src/mainwindow.ui" line="4285"/>
         <source>View log</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Log anzeigen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4177"/>
+        <location filename="../src/mainwindow.ui" line="4288"/>
         <source>Show the log of this session as it is written</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Zeigt das Log dieser Sitzung, während es geschrieben wird</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4188"/>
+        <location filename="../src/mainwindow.ui" line="4299"/>
         <source>Import field layout...</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Feldanordnung importieren...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4191"/>
+        <location filename="../src/mainwindow.ui" line="4302"/>
         <source>Replace the fields on the picture (their boxes and settings) with the ones saved in a file. Formerly “Import Configuration”.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Ersetzt die Felder im Bild (ihre Rahmen und Einstellungen) durch die in einer Datei gespeicherten. Früher „Konfiguration importieren“.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4202"/>
+        <location filename="../src/mainwindow.ui" line="4313"/>
         <source>Export field layout...</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Feldanordnung exportieren...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4205"/>
+        <location filename="../src/mainwindow.ui" line="4316"/>
         <source>Save the fields on the picture (their boxes and settings) to a file. Formerly “Export Configuration”.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Speichert die Felder im Bild (ihre Rahmen und Einstellungen) in einer Datei. Früher „Konfiguration exportieren“.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4216"/>
+        <location filename="../src/mainwindow.ui" line="4327"/>
         <source>Open settings folder</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Einstellungsordner öffnen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4219"/>
+        <location filename="../src/mainwindow.ui" line="4330"/>
         <source>Open the folder with ScoreSight&apos;s settings file</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Öffnet den Ordner mit der Einstellungsdatei von ScoreSight</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4227"/>
+        <location filename="../src/mainwindow.ui" line="4338"/>
         <source>OCR training data setup...</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">OCR-Trainingsdaten einrichten...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4273"/>
+        <location filename="../src/mainwindow.ui" line="4384"/>
         <source>Zoom in</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Vergrößern</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4281"/>
+        <location filename="../src/mainwindow.ui" line="4392"/>
         <source>Zoom out</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Verkleinern</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4292"/>
+        <location filename="../src/mainwindow.ui" line="4403"/>
         <source>Statistics overlay</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Statistik-Overlay</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4300"/>
+        <location filename="../src/mainwindow.ui" line="4411"/>
         <source>Collect OCR training data</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">OCR-Trainingsdaten sammeln</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4303"/>
+        <location filename="../src/mainwindow.ui" line="4414"/>
         <source>Save each box&apos;s picture and reading to the training data folder, for training an OCR model</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Speichert Bild und Ablesung jedes Rahmens im Trainingsdatenordner, um ein OCR-Modell zu trainieren</translation>
@@ -2164,116 +2266,116 @@ Auflösung: {width}×{height}</translation>
         <translation type="unfinished">Sendet die Ablesungen an eine URL (ausgehende HTTP-API)</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3880"/>
+        <location filename="../src/mainwindow.ui" line="3991"/>
         <source>Send the readings to the URL below on every detection cycle</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Sendet die Ablesungen bei jedem Erkennungszyklus an die URL unten</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3883"/>
+        <location filename="../src/mainwindow.ui" line="3994"/>
         <source>Send out API requests to external services.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">API-Anfragen an externe Dienste senden.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3890"/>
+        <location filename="../src/mainwindow.ui" line="4001"/>
         <source>Encode</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Kodierung</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3897"/>
+        <location filename="../src/mainwindow.ui" line="4008"/>
         <source>The format of the readings in the requests</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Das Format der Ablesungen in den Anfragen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3901"/>
+        <location filename="../src/mainwindow.ui" line="4012"/>
         <source>JSON (Full)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">JSON (vollständig)</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3906"/>
+        <location filename="../src/mainwindow.ui" line="4017"/>
         <source>JSON (Simple key-value)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">JSON (einfach, Schlüssel-Wert)</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3911"/>
+        <location filename="../src/mainwindow.ui" line="4022"/>
         <source>XML</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">XML</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3916"/>
+        <location filename="../src/mainwindow.ui" line="4027"/>
         <source>CSV</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">CSV</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3955"/>
+        <location filename="../src/mainwindow.ui" line="4066"/>
         <source>API URL</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">API-URL</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3958"/>
+        <location filename="../src/mainwindow.ui" line="4069"/>
         <source>The URL the readings are sent to</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Die URL, an die die Ablesungen gesendet werden</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3961"/>
+        <location filename="../src/mainwindow.ui" line="4072"/>
         <source>http://</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">http://</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3968"/>
+        <location filename="../src/mainwindow.ui" line="4079"/>
         <source>The HTTP method of the requests</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Die HTTP-Methode der Anfragen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3972"/>
+        <location filename="../src/mainwindow.ui" line="4083"/>
         <source>POST</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">POST</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3977"/>
+        <location filename="../src/mainwindow.ui" line="4088"/>
         <source>PUT</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">PUT</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3982"/>
+        <location filename="../src/mainwindow.ui" line="4093"/>
         <source>GET</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">GET</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2829"/>
+        <location filename="../src/mainwindow.ui" line="2940"/>
         <source>How many times per second the boxes are read</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Wie oft pro Sekunde die Rahmen abgelesen werden</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2844"/>
+        <location filename="../src/mainwindow.ui" line="2955"/>
         <source>Detections per second</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Erkennungen pro Sekunde</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2847"/>
+        <location filename="../src/mainwindow.ui" line="2958"/>
         <source>How many times per second the boxes are read (1-15). Higher values use more CPU; 5 suits most clocks.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Wie oft pro Sekunde die Rahmen abgelesen werden (1-15). Höhere Werte brauchen mehr CPU; 5 reicht für die meisten Uhren.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="498"/>
-        <location filename="../src/mainwindow.py" line="3687"/>
+        <location filename="../src/mainwindow.ui" line="521"/>
+        <location filename="../src/mainwindow.py" line="4095"/>
         <source>The video source: a camera, capture card or NDI source, a video file, a stream URL or a screen capture</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Die Videoquelle: eine Kamera, Capture-Karte oder NDI-Quelle, eine Videodatei, eine Stream-URL oder eine Bildschirmaufnahme</translation>
@@ -2304,13 +2406,13 @@ Auflösung: {width}×{height}</translation>
         <translation type="obsolete">Dreht das Bild um 90 Grad</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="781"/>
+        <location filename="../src/mainwindow.ui" line="804"/>
         <source>Compensate for a shaking camera</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Gleicht eine wackelnde Kamera aus</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="648"/>
+        <location filename="../src/mainwindow.ui" line="671"/>
         <source>Box display style</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Rahmenanzeige</translation>
@@ -2330,23 +2432,23 @@ Auflösung: {width}×{height}</translation>
         <translation type="vanished">OBS</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3332"/>
-        <location filename="../src/mainwindow.py" line="2976"/>
+        <location filename="../src/mainwindow.ui" line="3443"/>
+        <location filename="../src/mainwindow.py" line="3332"/>
         <source>Connect OBS</source>
         <translation>OBS verbinden</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3385"/>
+        <location filename="../src/mainwindow.ui" line="3496"/>
         <source>ScoreSight Scene</source>
         <translation>ScoreSight-Szene</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3398"/>
+        <location filename="../src/mainwindow.ui" line="3509"/>
         <source>Create OBS Scene</source>
         <translation>OBS-Szene erstellen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3411"/>
+        <location filename="../src/mainwindow.ui" line="3522"/>
         <source>Recreate</source>
         <translation>Neu erstellen</translation>
     </message>
@@ -2355,7 +2457,7 @@ Auflösung: {width}×{height}</translation>
         <translation type="vanished">VMix</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3527"/>
+        <location filename="../src/mainwindow.ui" line="3638"/>
         <source>Connection</source>
         <translation>Verbindung</translation>
     </message>
@@ -2364,7 +2466,7 @@ Auflösung: {width}×{height}</translation>
         <translation type="vanished">localhost</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3547"/>
+        <location filename="../src/mainwindow.ui" line="3658"/>
         <source>:</source>
         <translation>:</translation>
     </message>
@@ -2377,7 +2479,7 @@ Auflösung: {width}×{height}</translation>
         <translation type="vanished">Start</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3628"/>
+        <location filename="../src/mainwindow.ui" line="3739"/>
         <source>Input</source>
         <translation>Eingabe</translation>
     </message>
@@ -2390,7 +2492,7 @@ Auflösung: {width}×{height}</translation>
         <translation type="vanished">Aktualisierungen stoppen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2832"/>
+        <location filename="../src/mainwindow.ui" line="2943"/>
         <source>Detections / s</source>
         <translation>Erkennungen / s</translation>
     </message>
@@ -2399,20 +2501,20 @@ Auflösung: {width}×{height}</translation>
         <translation type="vanished">Senden Sie nur ein Update, wenn sich der Feldwert geändert hat</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="2887"/>
+        <location filename="../src/mainwindow.ui" line="2998"/>
         <source>Update on change</source>
         <translation>Bei Änderung aktualisieren</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="472"/>
         <location filename="../src/mainwindow.ui" line="495"/>
+        <location filename="../src/mainwindow.ui" line="518"/>
         <source>Source</source>
         <translation>Quelle</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="71"/>
-        <location filename="../src/mainwindow.py" line="1053"/>
-        <location filename="../src/mainwindow.py" line="2729"/>
+        <location filename="../src/mainwindow.py" line="1075"/>
+        <location filename="../src/mainwindow.py" line="3059"/>
         <source>Fields</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Felder</translation>
@@ -2420,7 +2522,7 @@ Auflösung: {width}×{height}</translation>
     <message>
         <location filename="../src/mainwindow.ui" line="110"/>
         <location filename="../src/mainwindow.ui" line="113"/>
-        <location filename="../src/mainwindow.ui" line="4081"/>
+        <location filename="../src/mainwindow.ui" line="4192"/>
         <source>New custom field</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Neues eigenes Feld</translation>
@@ -2438,47 +2540,46 @@ Auflösung: {width}×{height}</translation>
         <translation type="unfinished">Die Felder und ihre neuesten Werte. Klicken Sie auf ein Feld, um seinen Rahmen auszuwählen; doppelklicken Sie auf ein eigenes Feld (oder drücken Sie F2), um es umzubenennen; Rechtsklick für mehr.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="255"/>
         <source>Put a box for the selected field on the picture, then drag it over the value. Formerly “Add to Scene”.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
-        <translation type="unfinished">Setzt einen Rahmen für das ausgewählte Feld ins Bild; ziehen Sie ihn dann über den Wert. Früher „Zur Szene hinzufügen“.</translation>
+        <translation type="obsolete">Setzt einen Rahmen für das ausgewählte Feld ins Bild; ziehen Sie ihn dann über den Wert. Früher „Zur Szene hinzufügen“.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="258"/>
-        <location filename="../src/mainwindow.ui" line="4089"/>
+        <location filename="../src/mainwindow.ui" line="279"/>
+        <location filename="../src/mainwindow.ui" line="4200"/>
         <source>Place on picture</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Im Bild platzieren</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="268"/>
+        <location filename="../src/mainwindow.ui" line="289"/>
         <source>Take the selected field&apos;s box off the picture. Its settings go back to the defaults. Formerly “Remove Selected”.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Nimmt den Rahmen des ausgewählten Felds aus dem Bild. Seine Einstellungen werden auf den Standard zurückgesetzt. Früher „Ausgewählte entfernen“.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="271"/>
-        <location filename="../src/mainwindow.ui" line="4094"/>
-        <location filename="../src/mainwindow.py" line="2571"/>
+        <location filename="../src/mainwindow.ui" line="292"/>
+        <location filename="../src/mainwindow.ui" line="4205"/>
+        <location filename="../src/mainwindow.py" line="2900"/>
         <source>Remove from picture</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Aus dem Bild entfernen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="291"/>
+        <location filename="../src/mainwindow.ui" line="312"/>
         <source>Delete the selected custom field (the standard fields can&apos;t be deleted)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Löscht das ausgewählte eigene Feld (die Standardfelder können nicht gelöscht werden)</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="294"/>
+        <location filename="../src/mainwindow.ui" line="315"/>
         <source>Delete the selected custom field</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Ausgewähltes eigenes Feld löschen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="297"/>
-        <location filename="../src/mainwindow.py" line="2588"/>
+        <location filename="../src/mainwindow.ui" line="318"/>
+        <location filename="../src/mainwindow.py" line="2917"/>
         <source>Delete field</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Feld löschen</translation>
@@ -2500,7 +2601,7 @@ Auflösung: {width}×{height}</translation>
         <translation type="vanished">Bildschirmaufnahme</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1343"/>
+        <location filename="../src/mainwindow.py" line="1372"/>
         <source>Video Settings</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Videoeinstellungen</translation>
@@ -2510,7 +2611,7 @@ Auflösung: {width}×{height}</translation>
         <translation type="vanished">Quellen aktualisieren</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="549"/>
+        <location filename="../src/mainwindow.ui" line="572"/>
         <source>Reload</source>
         <translation>Neu laden</translation>
     </message>
@@ -2520,8 +2621,8 @@ Auflösung: {width}×{height}</translation>
         <translation type="obsolete">OCR-Trainingsdaten speichern</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="628"/>
-        <location filename="../src/mainwindow.ui" line="4249"/>
+        <location filename="../src/mainwindow.ui" line="651"/>
+        <location filename="../src/mainwindow.ui" line="4360"/>
         <source>Binary View</source>
         <translation>Binäre Ansicht</translation>
     </message>
@@ -2535,42 +2636,42 @@ Auflösung: {width}×{height}</translation>
         <translation type="obsolete">Zuschnitt auf das ganze Bild anwenden</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="758"/>
+        <location filename="../src/mainwindow.ui" line="781"/>
         <source>Crop</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Zuschneiden</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="748"/>
+        <location filename="../src/mainwindow.ui" line="771"/>
         <source>Rotate</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Drehen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="784"/>
+        <location filename="../src/mainwindow.ui" line="807"/>
         <source>Stabilize</source>
         <translation>Stabilisieren</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="655"/>
+        <location filename="../src/mainwindow.ui" line="678"/>
         <source>No Box</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Kein Rahmen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="660"/>
+        <location filename="../src/mainwindow.ui" line="683"/>
         <source>Outline</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Umriss</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="665"/>
+        <location filename="../src/mainwindow.ui" line="688"/>
         <source>Names</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Namen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="670"/>
+        <location filename="../src/mainwindow.ui" line="693"/>
         <source>All</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Alles</translation>
@@ -2600,13 +2701,13 @@ Auflösung: {width}×{height}</translation>
         <translation type="vanished">Strg+Scrollen zum Zoomen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="855"/>
+        <location filename="../src/mainwindow.ui" line="897"/>
         <source>Left</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Links</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="862"/>
+        <location filename="../src/mainwindow.ui" line="904"/>
         <source>Pixels to cut off the left edge</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Pixel, die am linken Rand abgeschnitten werden</translation>
@@ -2617,37 +2718,37 @@ Auflösung: {width}×{height}</translation>
         <translation type="obsolete">px</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="884"/>
+        <location filename="../src/mainwindow.ui" line="926"/>
         <source>Top</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Oben</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="891"/>
+        <location filename="../src/mainwindow.ui" line="933"/>
         <source>Pixels to cut off the top edge</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Pixel, die am oberen Rand abgeschnitten werden</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="913"/>
+        <location filename="../src/mainwindow.ui" line="955"/>
         <source>Right</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Rechts</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="920"/>
+        <location filename="../src/mainwindow.ui" line="962"/>
         <source>Pixels to cut off the right edge</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Pixel, die am rechten Rand abgeschnitten werden</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="942"/>
+        <location filename="../src/mainwindow.ui" line="984"/>
         <source>Bottom</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Unten</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="949"/>
+        <location filename="../src/mainwindow.ui" line="991"/>
         <source>Pixels to cut off the bottom edge</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Pixel, die am unteren Rand abgeschnitten werden</translation>
@@ -2658,7 +2759,7 @@ Auflösung: {width}×{height}</translation>
         <translation type="obsolete">Tempo</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="575"/>
+        <location filename="../src/mainwindow.ui" line="598"/>
         <source>The playback speed of a video file (skips frames). Doesn&apos;t change how often the boxes are read.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Die Wiedergabegeschwindigkeit einer Videodatei (überspringt Frames). Ändert nicht, wie oft die Rahmen abgelesen werden.</translation>
@@ -2669,14 +2770,14 @@ Auflösung: {width}×{height}</translation>
         <translation type="obsolete">x1</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1200"/>
+        <location filename="../src/mainwindow.ui" line="1311"/>
         <source>Send the current values to every output again</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Sendet die aktuellen Werte erneut an alle Ausgaben</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="1203"/>
-        <location filename="../src/mainwindow.py" line="2221"/>
+        <location filename="../src/mainwindow.ui" line="1314"/>
+        <location filename="../src/mainwindow.py" line="2360"/>
         <source>Resume outputs</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Ausgaben fortsetzen</translation>
@@ -2686,31 +2787,43 @@ Auflösung: {width}×{height}</translation>
         <translation type="vanished">### Öffnen Sie eine Kamera oder laden Sie eine Datei</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1269"/>
+        <location filename="../src/mainwindow.py" line="1298"/>
         <source>&lt;p&gt;The HTTP server is not running: port {port} is already in use or not available.&lt;/p&gt;&lt;p&gt;Close the other program, or start ScoreSight with &lt;b&gt;--port&lt;/b&gt; to use a different port. The log has the details.&lt;/p&gt;</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">&lt;p&gt;Der HTTP-Server läuft nicht: Port {port} ist bereits belegt oder nicht verfügbar.&lt;/p&gt;&lt;p&gt;Schließen Sie das andere Programm oder starten Sie ScoreSight mit &lt;b&gt;--port&lt;/b&gt;, um einen anderen Port zu verwenden. Details stehen im Log.&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2175"/>
+        <location filename="../src/mainwindow.py" line="2314"/>
         <source>Version {version}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Version {version}</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1195"/>
+        <location filename="../src/mainwindow.py" line="1219"/>
         <source>System</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">System</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1051"/>
+        <location filename="../src/mainwindow.py" line="294"/>
+        <source>⌥ Option</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">⌥ Wahltaste</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.py" line="295"/>
+        <source>Alt</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Alt</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.py" line="1073"/>
         <source>Readings</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Ablesungen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1130"/>
+        <location filename="../src/mainwindow.py" line="1153"/>
         <source>Fields not on the picture: {count} hidden. &lt;a href=&quot;#show&quot;&gt;Show them&lt;/a&gt;</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Felder nicht im Bild: {count} ausgeblendet. &lt;a href=&quot;#show&quot;&gt;Anzeigen&lt;/a&gt;</translation>
@@ -2721,364 +2834,436 @@ Auflösung: {width}×{height}</translation>
         <translation type="obsolete">Externes Modell laden...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1164"/>
+        <location filename="../src/mainwindow.py" line="1188"/>
         <source>Drag to resize the fields list. Double-click to hide or show it.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Ziehen, um die Breite der Feldliste zu ändern. Doppelklick blendet sie aus oder ein.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1170"/>
+        <location filename="../src/mainwindow.py" line="1194"/>
         <source>Drag to resize the Box and Outputs settings. Double-click to hide or show them.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Ziehen, um die Breite der Einstellungen „Rahmen“ und „Ausgaben“ zu ändern. Doppelklick blendet sie aus oder ein.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1196"/>
+        <location filename="../src/mainwindow.py" line="1220"/>
         <source>Light</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Hell</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1197"/>
+        <location filename="../src/mainwindow.py" line="1221"/>
         <source>Dark</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Dunkel</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1222"/>
+        <location filename="../src/mainwindow.py" line="1251"/>
         <source>Zoom with Ctrl+scroll or {zoom_in} and {zoom_out}; drag with the middle mouse button to move the picture.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Zoomen mit Ctrl+Scrollen oder {zoom_in} und {zoom_out}; Ziehen mit der mittleren Maustaste verschiebt das Bild.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1284"/>
+        <location filename="../src/mainwindow.py" line="1313"/>
         <source>&lt;p&gt;From other computers on your network, use {url} instead of http://localhost:{port}.&lt;/p&gt;</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">&lt;p&gt;Verwenden Sie auf anderen Computern in Ihrem Netzwerk {url} statt http://localhost:{port}.&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1544"/>
-        <location filename="../src/mainwindow.py" line="1547"/>
+        <location filename="../src/mainwindow.py" line="1496"/>
+        <source>Outside the cropped picture: {names}. They read nothing: widen the crop, or remove them from the picture and place them again.</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Außerhalb des zugeschnittenen Bilds: {names}. Sie lesen nichts: Vergrößern Sie den Zuschnitt, oder entfernen Sie sie aus dem Bild und platzieren Sie sie neu.</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.py" line="1683"/>
+        <location filename="../src/mainwindow.py" line="1686"/>
         <source>{value} /s</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{value} /s</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1896"/>
+        <location filename="../src/mainwindow.py" line="2035"/>
         <source>Load external Tesseract model...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1904"/>
+        <location filename="../src/mainwindow.py" line="2043"/>
         <source>Read the boxes with a Tesseract .traineddata file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1914"/>
+        <location filename="../src/mainwindow.py" line="2053"/>
         <source>A Tesseract model: the boxes&apos; Image cleanup settings prepare their images for it</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1924"/>
+        <location filename="../src/mainwindow.py" line="2063"/>
         <source>PaddleOCR PP-OCRv6: accurate while it keeps up with Detections / s on this computer, fast when it doesn&apos;t. The status bar says which one reads and why.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1932"/>
+        <location filename="../src/mainwindow.py" line="2071"/>
         <source>PP-OCR (accurate)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1934"/>
+        <location filename="../src/mainwindow.py" line="2073"/>
         <source>PaddleOCR PP-OCRv6 small: reads the most values right, always. It needs about five times the CPU of PP-OCR (fast): on a laptop, 10 boxes read 5 times a second can need more than a core.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1942"/>
+        <location filename="../src/mainwindow.py" line="2081"/>
         <source>PP-OCR (fast)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1944"/>
+        <location filename="../src/mainwindow.py" line="2083"/>
         <source>PaddleOCR PP-OCRv6 tiny: about a fifth of PP-OCR (accurate)&apos;s CPU, for many boxes, a high Detections / s or a slow computer; it misreads more of the hard displays (clocks, bulbs, LCDs).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1952"/>
+        <location filename="../src/mainwindow.py" line="2091"/>
         <source>The PP-OCR models aren&apos;t installed. Download them with: {command}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1957"/>
+        <location filename="../src/mainwindow.py" line="2096"/>
         <source>PP-OCR needs onnxruntime, which isn&apos;t installed (pip install -r requirements.txt).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1972"/>
+        <location filename="../src/mainwindow.py" line="2111"/>
         <source>PP-OCR (automatic: accurate)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1976"/>
+        <location filename="../src/mainwindow.py" line="2115"/>
         <source>PP-OCR (automatic: fast)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1977"/>
+        <location filename="../src/mainwindow.py" line="2116"/>
         <source>PP-OCR (automatic)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2086"/>
+        <location filename="../src/mainwindow.py" line="2225"/>
         <source>The OCR can&apos;t keep up</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2089"/>
+        <location filename="../src/mainwindow.py" line="2228"/>
         <source>The boxes are read {rate} times per second instead of {target}.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2099"/>
+        <location filename="../src/mainwindow.py" line="2238"/>
         <source>Use PP-OCR (fast)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2103"/>
+        <location filename="../src/mainwindow.py" line="2242"/>
         <source>Keep PP-OCR (accurate)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2127"/>
+        <location filename="../src/mainwindow.py" line="2266"/>
         <source>Logs</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Protokolle</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2172"/>
+        <location filename="../src/mainwindow.py" line="2311"/>
         <source>About ScoreSight</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Über ScoreSight</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2250"/>
+        <location filename="../src/mainwindow.py" line="2389"/>
         <source>&lt;b&gt;Outputs paused&lt;/b&gt; since {time}. Your graphics show the last values sent; the readings here keep updating.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">&lt;b&gt;Ausgaben pausiert&lt;/b&gt; seit {time}. Ihre Grafiken zeigen die zuletzt gesendeten Werte; die Ablesungen hier werden weiter aktualisiert.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2477"/>
+        <location filename="../src/mainwindow.py" line="2608"/>
+        <source>Not on the picture yet. Drag over its numbers on the picture, or double-click here to put its box in the middle of the picture.</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Noch nicht im Bild. Ziehen Sie im Bild über seine Zahlen, oder doppelklicken Sie hier, um seinen Rahmen in die Bildmitte zu setzen.</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.py" line="2614"/>
+        <source>Built from other fields: it has no box.</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Aus anderen Feldern zusammengesetzt: Es hat keinen Rahmen.</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.py" line="2618"/>
+        <source>On the picture: drag its box to move it, or {alt}+drag on the picture to draw it again. Right-click for its actions.</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Im Bild: Ziehen Sie seinen Rahmen, um ihn zu verschieben, oder {alt}+Ziehen im Bild, um ihn neu zu zeichnen. Rechtsklick für seine Aktionen.</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.py" line="2625"/>
+        <source>F2 renames it.</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">F2 benennt es um.</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.py" line="2627"/>
+        <source>Double-click to rename it.</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Doppelklick zum Umbenennen.</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.py" line="2650"/>
+        <source>Drag on the picture to place it, or double-click the field</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Im Bild ziehen, um es zu platzieren, oder auf das Feld doppelklicken</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.py" line="2655"/>
+        <source>Drag the box to move it · {delete} removes it</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Rahmen ziehen, um ihn zu verschieben · {delete} entfernt ihn</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.py" line="2700"/>
         <source>Change held value...</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Fixierten Wert ändern...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2515"/>
+        <location filename="../src/mainwindow.py" line="2784"/>
         <source>Only custom fields can be renamed or deleted</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Nur eigene Felder können umbenannt oder gelöscht werden</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2527"/>
+        <location filename="../src/mainwindow.py" line="2796"/>
         <source>Place the field on the picture first</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Platzieren Sie das Feld zuerst im Bild</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2572"/>
+        <location filename="../src/mainwindow.py" line="2901"/>
         <source>Remove “{name}” from the picture? Its settings go back to the defaults, so the settings you changed are lost.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">„{name}“ aus dem Bild entfernen? Seine Einstellungen werden auf den Standard zurückgesetzt; Ihre Änderungen gehen verloren.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2577"/>
+        <location filename="../src/mainwindow.py" line="2906"/>
         <source>Remove</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Entfernen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2589"/>
+        <location filename="../src/mainwindow.py" line="2918"/>
         <source>Delete the field “{name}”? Its box and its settings are deleted too.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Das Feld „{name}“ löschen? Sein Rahmen und seine Einstellungen werden ebenfalls gelöscht.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2593"/>
+        <location filename="../src/mainwindow.py" line="2922"/>
         <source>Delete</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Löschen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2713"/>
+        <location filename="../src/mainwindow.py" line="3043"/>
         <source>Window</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Fenster</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2741"/>
+        <location filename="../src/mainwindow.py" line="3071"/>
+        <source>Remove the selected field&apos;s box from the picture</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Rahmen des ausgewählten Felds aus dem Bild entfernen</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.py" line="3078"/>
+        <source>Delete the selected custom field (not on the picture)</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Ausgewähltes eigenes Feld löschen (nicht im Bild)</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.py" line="3085"/>
+        <source>Put a field&apos;s box on the picture, or rename a custom field</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Rahmen eines Felds ins Bild setzen oder ein eigenes Feld umbenennen</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.py" line="3090"/>
+        <source>Double-click the field</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Doppelklick auf das Feld</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.py" line="3097"/>
         <source>Picture</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Bild</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2781"/>
+        <location filename="../src/mainwindow.py" line="3137"/>
         <source>Connect to OBS</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Mit OBS verbinden</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2843"/>
-        <location filename="../src/mainwindow.py" line="2969"/>
+        <location filename="../src/mainwindow.py" line="3199"/>
+        <location filename="../src/mainwindow.py" line="3325"/>
         <source>Connecting...</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Wird verbunden...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2890"/>
+        <location filename="../src/mainwindow.py" line="3246"/>
         <source>Cannot connect to OBS</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Keine Verbindung zu OBS</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2960"/>
+        <location filename="../src/mainwindow.py" line="3316"/>
         <source>Change connection...</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Verbindung ändern...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2963"/>
+        <location filename="../src/mainwindow.py" line="3319"/>
         <source>Connected to OBS at {target}. Click to connect to another OBS.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Mit OBS unter {target} verbunden. Klicken Sie, um sich mit einem anderen OBS zu verbinden.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2971"/>
+        <location filename="../src/mainwindow.py" line="3327"/>
         <source>Connecting to OBS at {target}...</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Verbindung zu OBS unter {target} wird hergestellt...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3236"/>
+        <location filename="../src/mainwindow.py" line="3599"/>
         <source>URL Source</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">URL-Quelle</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3256"/>
+        <location filename="../src/mainwindow.py" line="3619"/>
         <source>Screen Capture Selection</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Auswahl der Bildschirmaufnahme</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3263"/>
+        <location filename="../src/mainwindow.py" line="3626"/>
         <source>Capture the entire screen</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Ganzen Bildschirm aufnehmen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3699"/>
+        <location filename="../src/mainwindow.py" line="4107"/>
         <source>Video settings: the resolution, frame rate and format of the camera or capture card</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Videoeinstellungen: Auflösung, Bildrate und Format der Kamera oder Capture-Karte</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3705"/>
+        <location filename="../src/mainwindow.py" line="4113"/>
         <source>Video settings: only for cameras and capture cards</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Videoeinstellungen: nur für Kameras und Capture-Karten</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3871"/>
+        <location filename="../src/mainwindow.py" line="4279"/>
         <source>Redo corners…</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Ecken neu wählen…</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3873"/>
+        <location filename="../src/mainwindow.py" line="4281"/>
         <source>Remove correction…</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Korrektur entfernen…</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3889"/>
+        <location filename="../src/mainwindow.py" line="4297"/>
         <source>Remove the 4-corner correction?</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">4-Eck-Korrektur entfernen?</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3890"/>
+        <location filename="../src/mainwindow.py" line="4298"/>
         <source>The picture will no longer be corrected. The boxes were placed on the corrected picture, so they may have to be moved.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Das Bild wird nicht mehr korrigiert. Die Rahmen wurden auf dem korrigierten Bild platziert und müssen eventuell verschoben werden.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3918"/>
+        <location filename="../src/mainwindow.py" line="4326"/>
         <source>Picking the corners: click the 4 corners of the scoreboard. Click here or press Esc to cancel.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Eckenauswahl: Klicken Sie auf die 4 Ecken der Anzeigetafel. Klicken Sie hier oder drücken Sie Esc, um abzubrechen.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3924"/>
+        <location filename="../src/mainwindow.py" line="4332"/>
         <source>The perspective is corrected. Click to redo the corners or to remove the correction.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Die Perspektive ist korrigiert. Klicken Sie, um die Ecken neu zu wählen oder die Korrektur zu entfernen.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3967"/>
+        <location filename="../src/mainwindow.py" line="4434"/>
         <source>No camera found</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Keine Kamera gefunden</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4014"/>
+        <location filename="../src/mainwindow.py" line="4484"/>
         <source>Step {number}: done</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Schritt {number}: erledigt</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4016"/>
+        <location filename="../src/mainwindow.py" line="4486"/>
         <source>Step {number}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Schritt {number}</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4203"/>
+        <location filename="../src/mainwindow.py" line="4672"/>
         <source>Rename field</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Feld umbenennen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4209"/>
+        <location filename="../src/mainwindow.py" line="4678"/>
         <source>New name:</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Neuer Name:</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4221"/>
+        <location filename="../src/mainwindow.py" line="4690"/>
         <source>There is already a field named “{name}”. Choose another name.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Es gibt bereits ein Feld namens „{name}“. Wählen Sie einen anderen Namen.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4345"/>
+        <location filename="../src/mainwindow.py" line="4818"/>
         <source>Created the scene “{name}” in OBS.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Szene „{name}“ in OBS erstellt.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4348"/>
+        <location filename="../src/mainwindow.py" line="4821"/>
         <source>Made the scene “{name}” again: its sources were replaced.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Szene „{name}“ neu erstellt: Ihre Quellen wurden ersetzt.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4352"/>
+        <location filename="../src/mainwindow.py" line="4825"/>
         <source>OBS already has a scene “{name}”: it was kept as it is. Tick Recreate to make it again.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">OBS hat bereits eine Szene „{name}“: Sie bleibt unverändert. Aktivieren Sie „Neu erstellen“, um sie neu anzulegen.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4357"/>
+        <location filename="../src/mainwindow.py" line="4830"/>
         <source>Couldn&apos;t create the scene “{name}”. Tools &gt; View log has the details.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Die Szene „{name}“ konnte nicht erstellt werden. Details unter „Werkzeuge &gt; Log anzeigen“.</translation>
@@ -3090,7 +3275,7 @@ Auflösung: {width}×{height}</translation>
         <translation type="unfinished">vMix stoppen</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3591"/>
+        <location filename="../src/mainwindow.ui" line="3702"/>
         <location filename="../src/vmix_ui_handler.py" line="128"/>
         <source>Start vMix</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
