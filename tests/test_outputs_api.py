@@ -106,6 +106,14 @@ def test_get_sends_only_good_readings(session, configure, readings):
     }
 
 
+def test_get_sends_spaces_as_percent_20(session, configure, make_result):
+    # urlencode() sent "Home+Score=Red+Sox"; not every receiver decodes "+"
+    configure(url="http://receiver.test/scores", method="GET")
+    send([make_result("Home Score", "Red Sox + 1", "Success")])
+    [request] = session.requests
+    assert urlsplit(request["url"]).query == "Home%20Score=Red%20Sox%20%2B%201"
+
+
 @pytest.mark.parametrize(
     "method, encoding", [("GET", None), ("PUT", "JSON (Simple key-value)")]
 )

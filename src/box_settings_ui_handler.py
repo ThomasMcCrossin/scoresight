@@ -432,8 +432,8 @@ class BoxSettingsUIHandler:
         elif self.fieldRole != PLACED:
             note = QCoreApplication.translate(
                 "BoxSettings",
-                "This field isn't on the picture yet. Click Place on picture "
-                "under the list, then drag its box over the value.",
+                "This field isn't on the picture yet. Drag over its numbers on "
+                "the picture, or double-click the field in the list.",
             )
         else:
             note = ""

@@ -1,6 +1,7 @@
 """file_output.FileOutput: state-based, atomic .txt/.csv/.xml outputs (#6, #29)."""
 
 import csv
+import json
 import os
 import xml.etree.ElementTree as ET
 
@@ -408,6 +409,110 @@ def test_xml_rewritten_only_on_change(make_result, out, monkeypatch):
     assert writes.count("results.xml") == 2
     root = ET.parse(out / "results.xml").getroot()
     assert root.find("result").findtext("text") == "2"
+
+
+# --- results.json and results.txt (key=value) --------------------------------------
+
+
+def test_json_and_key_value_files_have_every_box_with_its_last_good_value(
+    make_result, out
+):
+    output = FileOutput()
+    output.record(
+        [
+            make_result("Home Score", "12"),
+            make_result("Time", "1:2X", "FailedFilter"),  # no good reading yet
+            make_result("Période", "2ème"),
+        ]
+    )
+    output.flush(str(out), save_json=True, save_key_value=True)
+    assert json.loads(read(out / "results.json")) == {
+        "Home Score": "12",
+        "Time": "",
+        "Période": "2ème",
+    }
+    assert read(out / "results.txt").splitlines() == [
+        "Home Score=12",
+        "Time=",
+        "Période=2ème",
+    ]
+    # a rejected reading never replaces a good value
+    output.record(
+        [
+            make_result("Home Score", "13", "FailedFilter"),
+            make_result("Time", "4:59"),
+            make_result("Période", "2ème", "SameNoChange"),
+        ]
+    )
+    output.flush(str(out), save_json=True, save_key_value=True)
+    assert json.loads(read(out / "results.json")) == {
+        "Home Score": "12",
+        "Time": "4:59",
+        "Période": "2ème",
+    }
+    assert "Time=4:59" in read(out / "results.txt").splitlines()
+
+
+def test_json_and_key_value_files_are_off_by_default(make_result, out):
+    output = FileOutput()
+    output.record([make_result("Home Score", "12")])
+    output.flush(str(out), save_csv=True, save_xml=True)
+    assert sorted(os.listdir(out)) == ["Home Score.txt", "results.csv", "results.xml"]
+
+
+def test_json_and_key_value_files_are_written_atomically_on_change(
+    make_result, out, monkeypatch
+):
+    writes = []
+    real_write = file_output.write_text_atomic
+    monkeypatch.setattr(
+        file_output,
+        "write_text_atomic",
+        lambda path, *a, **k: (
+            writes.append(os.path.basename(path)) or real_write(path, *a, **k)
+        ),
+    )
+    output = FileOutput()
+    for text, state in [("1", "Success"), ("1", "SameNoChange"), ("2", "Success")]:
+        output.record([make_result("Home Score", text, state)])
+        output.flush(str(out), save_json=True, save_key_value=True)
+    assert writes.count("results.json") == 2
+    assert writes.count("results.txt") == 2
+    # a deleted file is written again
+    os.remove(out / "results.json")
+    output.flush(str(out), save_json=True, save_key_value=True)
+    assert writes.count("results.json") == 3
+    assert json.loads(read(out / "results.json")) == {"Home Score": "2"}
+    assert not [name for name in os.listdir(out) if name.endswith(".tmp")]
+
+
+def test_key_value_lines_stay_parseable(make_result, out):
+    output = FileOutput()
+    output.record(
+        [
+            make_result("a=b", "x=y", type=2, format_regex="^.*$"),
+            make_result("Two\nLines", "1\n2", type=2, format_regex="^.*$"),
+        ]
+    )
+    output.flush(str(out), save_key_value=True)
+    lines = read(out / "results.txt").splitlines()
+    assert lines == ["a_b=x=y", "Two Lines=1 2"]
+    # split at the first "=": the key, then the value
+    assert [line.split("=", 1) for line in lines] == [
+        ["a_b", "x=y"],
+        ["Two Lines", "1 2"],
+    ]
+
+
+def test_a_box_named_results_keeps_its_own_txt_file(make_result, out):
+    output = FileOutput()
+    output.record([make_result("Results", "7"), make_result("Time", "1:00")])
+    output.flush(str(out), save_key_value=True)
+    # the box's file (its value only), not the key=value file
+    assert read(out / text_file_name("Results")) == "7"
+    status = output.status()
+    assert status.failing == ("results.txt",)
+    assert "Results" in status.last_error
 
 
 def test_flush_without_folder_or_results_writes_nothing(make_result, out):

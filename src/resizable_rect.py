@@ -705,15 +705,21 @@ class ResizableRectWithNameTypeAndResult(ResizableRect):
 
     def updateDetails(self, targetWithResult: TextDetectionTargetWithResult):
         """The area the OCR read (green) and each character it found (blue), as
-        thin lines: the items are reused from reading to reading."""
+        thin lines: the items are reused from reading to reading. The OCR
+        gives them relative to the box's top-left corner, which isn't this
+        item's origin once the box was moved other than by dragging it (e.g.
+        with the arrow keys, drawn again, or with the crop)."""
+        corner = self.rect().topLeft()
         self.effectiveRectUsed = targetWithResult.effectiveRect is not None
         if self.effectiveRectUsed:
             if self.effectiveRect is None:
                 self.effectiveRect = self._detailRect(AUTO_CROP_STROKE, -1)
-            self.effectiveRect.setRect(targetWithResult.effectiveRect)
+            self.effectiveRect.setRect(
+                QRectF(targetWithResult.effectiveRect).translated(corner)
+            )
         extras = targetWithResult.extras or {}
         rects = [
-            QRectF(box["x"], box["y"], box["w"], box["h"])
+            QRectF(box["x"], box["y"], box["w"], box["h"]).translated(corner)
             for box in extras.get("boxes") or []
             if all(key in box for key in ("x", "y", "w", "h"))
         ]

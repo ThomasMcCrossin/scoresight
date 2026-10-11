@@ -2,13 +2,13 @@
 title: Text, CSV & XML Files
 parent: Outputs
 nav_order: 1
-description: "Write each field to a .txt file, plus results.csv and results.xml, for software that reads text files."
+description: "Write each field to a .txt file, plus results.csv, results.xml, results.json and a key=value results.txt, for software that reads text files."
 ---
 
 # Text, CSV & XML Files
 {: .no_toc }
 
-The **Text files** output writes the readings to files in a folder. Almost any broadcast or office software can read them: OBS (*Text (GDI+/FreeType 2)* > *Read from file*), vMix Data Sources, NewBlue Captivate/Titler Live, CasparCG, Excel and more.
+The **Text files** output writes the readings to files in a folder. Almost any broadcast or office software can read them: OBS (*Text (GDI+/FreeType 2)* > *Read from file*), Wirecast, vMix Data Sources, NewBlue Captivate, Ross XPression, SuiteCG, Excel and more (see [Works with…](integrations.md)).
 
 <details open markdown="block">
   <summary>On this page</summary>
@@ -21,7 +21,7 @@ The **Text files** output writes the readings to files in a folder. Almost any b
 
 1. Select **Text files** in the **Outputs** tab on the right (or click **Files** in the status bar). (In ScoreSight 0.1.x this was the **Text Files** tab.)
 2. Click **Open** next to **Folder** and choose an output folder. **Clear** stops file output. The switch of the Text files row does the same: turning it on asks for a folder, turning it off clears it.
-3. Optionally tick **Save .csv file** and/or **Save .xml file**.
+3. Optionally tick **Save .csv file**, **Save .xml file**, **Save .json file** and/or **Save key=value .txt file**.
 4. Choose an **Append** mode and a **Save / s** rate (see below).
 
 The Text files row then shows ● *Writing to D:\Scores · 4 files* and when a file was last written (files are written when a value changes, so a few minutes is normal for a score). Before the first reading it shows ◐ *Waiting for readings*.
@@ -33,6 +33,8 @@ The Text files row then shows ● *Writing to D:\Scores · 4 files* and when a f
 | `<Box Name>.txt` (for example `Home Score.txt`) | Always, once a folder is set | The latest good value of that box |
 | `results.csv` | **Save .csv file** is ticked | A `Timestamp` column followed by one column per box |
 | `results.xml` | **Save .xml file** is ticked | Every box with its name, text, state and position |
+| `results.json` | **Save .json file** is ticked | One JSON object: every box with its last good value |
+| `results.txt` | **Save key=value .txt file** is ticked | A `Box Name=value` line per box |
 
 How the files are written:
 
@@ -102,6 +104,35 @@ Timestamp,Home Score,Away Score,Time,Period
 - `<rect>` is the box position in pixels on the processed picture.
 - The file is rewritten when a text or a box position changes. Text is escaped, so values such as `<` or `&` always produce valid XML.
 
+### `results.json`
+
+```json
+{
+  "Home Score": "65",
+  "Away Score": "39",
+  "Time": "4:27",
+  "Period": ""
+}
+```
+
+- One flat object with every box (in the order of the boxes) and its last good value; an empty string for a box without a good reading yet.
+- For programs that read one JSON file with all the fields, such as SuiteCG's Data Automation.
+- Rewritten (atomically) when a value changes, or a box is added, removed or renamed. It isn't affected by the append mode.
+
+### `results.txt` (key=value)
+
+```text
+Home Score=65
+Away Score=39
+Time=4:27
+Period=
+```
+
+- A `Box Name=value` line per box, with its last good value (empty before the first). The first `=` ends the name: an `=` in a box name is written as `_`, and line breaks in a name or a value become spaces.
+- For programs that read `key=value` text files: SuiteCG's Data Automation (TXT), a TriCaster DataLink watch folder (untested: the watch folder also sees the per-box `.txt` files, which have no `=`) and similar.
+- Rewritten (atomically) when a value changes, or a box is added, removed or renamed. It isn't affected by the append mode.
+- A box named *results* writes its own `results.txt` (its value only). The key=value file is then not written, and the Text files row says why: rename that box.
+
 ## Append modes
 
 The **Append** drop-down chooses which files keep a history instead of only the latest value:
@@ -128,7 +159,9 @@ Use **Don't append results** for live graphics, and an append mode to log a whol
 
 - **OBS**: add a *Text (GDI+)* (Windows) or *Text (FreeType 2)* source and enable **Read from file**, pointing at `Time.txt`, for example. To update OBS without files, see [OBS Studio](obs.md).
 - **vMix**: add the CSV or XML file as a **Data Source** (Settings > Data Sources) and bind title fields to its columns. Alternatively, use the direct [vMix integration](vmix.md).
-- **NewBlue, CasparCG and others**: see [Other Software](other-software.md).
+- **Wirecast**: add a *Text* source in *File* mode with **Keep reading text file continuously** (see [Works with…](integrations.md#wirecast)).
+- **SuiteCG**: point Data Automation at `results.json` or `results.txt` (see [Works with…](integrations.md#suitecg)).
+- **NewBlue, CasparCG and others**: see [Works with…](integrations.md) and [Other Software](other-software.md).
 
 {: .tip }
 Keep the output folder on a local disk. Network shares and cloud-synced folders (OneDrive, Dropbox, iCloud) can delay or lock files.

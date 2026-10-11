@@ -22,8 +22,11 @@ ScoreSight can update text sources in OBS Studio directly over the OBS WebSocket
 | Method | How | Pros |
 |---|---|---|
 | **WebSocket** (this page) | ScoreSight sets the text of OBS text sources | Native OBS text, no files, works across computers |
-| **Browser Source** | An HTML overlay polls the [HTTP server](http_server.md) | Full design freedom (HTML/CSS), any field name including custom fields |
-| **Text from file** | OBS text sources read the [text files](text-files.md) | Simple, works with every OBS version |
+| **Browser Source** | An HTML overlay polls the [HTTP server](http_server.md), for example `http://<scoresight-ip>:18099/scoresight` or your own page reading `/json?pivot&all` | Full design freedom (HTML/CSS), any field name including custom fields |
+| **Text from file** | OBS text sources read the [text files](text-files.md) (*Read from file*) | Simple, works with every OBS version. OBS checks the file about once a second, so it lags up to a second |
+
+{: .tip }
+A page that ScoreSight serves (`/scoresight`) is on the same address as the data, so browser security checks about reading the local network don't apply to it. If your own overlay page is hosted elsewhere (for example on a public https site), ScoreSight's HTTP server allows it to read the data (CORS, including Chromium's local-network preflight), but OBS may still block http:// requests from an https:// page.
 
 ## 1. Enable the WebSocket server in OBS
 
@@ -60,7 +63,12 @@ ScoreSight updates OBS text sources whose names exactly match the standard field
 
 You have two options:
 
-- **Use the ready-made scene**: type a scene name (default *ScoreSight Scene*) and click **Create OBS Scene**. ScoreSight builds a complete scoreboard graphic in OBS, with the text sources above plus team names, logos and backgrounds you can restyle. If a scene with that name already exists, **Recreate** (on by default) removes its contents and rebuilds it; with **Recreate** off, the existing scene is kept as it is. A line under the button says what happened: *Created the scene*, *Made the scene again*, *OBS already has a scene...: it was kept as it is*, or *Couldn't create the scene* (the log has the details).
+- **Use the ready-made scene**: type a scene name (default *ScoreSight Scene*) and click **Create OBS Scene**. ScoreSight builds a complete scoreboard graphic in OBS, with the text sources above plus team names, logos and backgrounds you can restyle. If a scene with that name already exists, **Recreate** (on by default) empties it and rebuilds it; with **Recreate** off, the existing scene is kept as it is. A line under the button says what happened: *Created the scene*, *Made the scene again*, *OBS already has a scene...: it was kept as it is*, or *Couldn't create the scene* (the log has the details).
+
+  **Recreate never deletes a source that another scene uses.** It removes the scene's items from that scene only. A source itself is deleted only if it looks like one ScoreSight made (it has the name and kind of a source of the ready-made scene, for example a FreeType 2 text source named `Clock`) and no other scene or group uses it. Any other source you added to the scene, and any source that other scenes share, stays in OBS: a shared ScoreSight source (for example `Clock` added to another scene with **Add Existing**) is put back into the rebuilt scene with its own settings and filters. So don't keep your own text sources with the ready-made scene's names only in that scene if you want to keep them.
+
+  {: .note }
+  In ScoreSight 0.2.0 and earlier, Recreate deleted every source of the scene from the whole scene collection, including sources that other scenes shared.
 - **Use your own design**: create *Text (GDI+)* or *Text (FreeType 2)* sources with the names in the table, anywhere in your scenes. Names are case-sensitive.
 
 The **Text sources** table on the OBS page lists every field on the picture with the OBS text source it updates. Double-click a source name to change it, for example to use the names of your own design; leave it empty to send nothing to OBS for that field. The names are saved with the boxes (and in exported field layouts).

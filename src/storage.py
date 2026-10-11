@@ -403,6 +403,18 @@ class TextDetectionTargetMemoryStorage(QObject):
                 return
         logger.warning("unable to find item to edit in storage: " + item_name)
 
+    def move_items(self, dx: float, dy: float):
+        """Move every box (not the template fields, which have none) by
+        (dx, dy) pixels, e.g. to keep them on the same part of the picture
+        when the crop changes; one data_changed for all of them."""
+        moved = False
+        for item in self._data:
+            if not (item.settings or {}).get("templatefield"):
+                item.translate(dx, dy)
+                moved = True
+        if moved:
+            self.data_changed.emit(self._data)
+
     def rename_item(self, old_name: str, new_name: str):
         for i, item in enumerate(self._data):
             if item.name == old_name:

@@ -45,10 +45,44 @@ def action_rows(actions: Iterable[QAction]) -> list[tuple[str, str]]:
     return rows
 
 
+def modifier_text(modifier: str) -> str:
+    """A modifier key as the platform writes it: Ctrl or Alt, ⌘ or ⌥ on
+    macOS."""
+    return key_text(f"{modifier}+B").replace("B", "").rstrip("+") or modifier
+
+
 def viewer_rows() -> list[tuple[str, str]]:
     """The viewer's keys and mouse controls, which no action has."""
-    ctrl = key_text("Ctrl+B").replace("B", "").rstrip("+") or "Ctrl"
+    ctrl = modifier_text("Ctrl")
     return [
+        (
+            QCoreApplication.translate(
+                "KeyboardShortcuts", "Place the selected field's box"
+            ),
+            QCoreApplication.translate(
+                "KeyboardShortcuts", "Drag over its numbers on the picture"
+            ),
+        ),
+        (
+            QCoreApplication.translate(
+                "KeyboardShortcuts", "Place the selected field's box at a point"
+            ),
+            QCoreApplication.translate("KeyboardShortcuts", "Double-click the picture"),
+        ),
+        (
+            QCoreApplication.translate(
+                "KeyboardShortcuts", "Draw the selected box again"
+            ),
+            QCoreApplication.translate(
+                "KeyboardShortcuts", "{alt} + drag on the picture"
+            ).format(alt=modifier_text("Alt")),
+        ),
+        (
+            QCoreApplication.translate(
+                "KeyboardShortcuts", "The selected box's actions"
+            ),
+            QCoreApplication.translate("KeyboardShortcuts", "Right-click the box"),
+        ),
         (
             QCoreApplication.translate("KeyboardShortcuts", "Zoom in or out"),
             QCoreApplication.translate(
@@ -75,7 +109,8 @@ def viewer_rows() -> list[tuple[str, str]]:
         ),
         (
             QCoreApplication.translate(
-                "KeyboardShortcuts", "Deselect, or stop picking the 4 corners"
+                "KeyboardShortcuts",
+                "Cancel a drag, stop picking the 4 corners or the crop, or deselect",
             ),
             key_text("Esc"),
         ),

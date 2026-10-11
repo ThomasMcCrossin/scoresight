@@ -34,6 +34,7 @@ DEFAULT_LOCALE = "en_US"
 # platform-specific modules are imported through screen_capture_source.
 SELF_TEST_MODULES = (
     "api_output",
+    "api_ui_handler",
     "base_video_capture",
     "box_settings_ui_handler",
     "camera_info",

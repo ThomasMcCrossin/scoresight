@@ -38,6 +38,11 @@ class FakeViewer(QWidget):
     error_signal = Signal(str)
     four_corner_changed = Signal()
     zoom_changed = Signal(float)
+    box_drawn = Signal(str, QtCore.QRectF)
+    place_requested = Signal(str, QtCore.QPointF)
+    box_menu_requested = Signal(str, QtCore.QPoint)
+    crop_drawn = Signal(QtCore.QRectF, QtCore.QSizeF)
+    crop_selection_changed = Signal()
 
     def __init__(
         self, camera_info, fourCornersApplied, storage, itemSelected, start=True
@@ -47,6 +52,9 @@ class FakeViewer(QWidget):
         self.timerThread = None
         self.four_corner_calls = []
         self.fourCornerSelectionMode = False
+        self.cropSelectionMode = False
+        self.placementField = None
+        self.homography_corners = None
         self.corrected = False
         self.picked = 0
         self.zoom = 1.0
@@ -54,6 +62,37 @@ class FakeViewer(QWidget):
 
     def startCapture(self):
         pass
+
+    def hasPicture(self):
+        return False
+
+    def uncroppedFrameSize(self):
+        return None
+
+    def setPlacementField(self, name):
+        self.placementField = name
+
+    def updatePlacementHint(self):
+        pass
+
+    def isDrawing(self):
+        return False
+
+    def cancelDrawing(self):
+        return False
+
+    def startCropSelection(self):
+        self.fourCornerSelectionMode = False
+        self.cropSelectionMode = True
+        self.crop_selection_changed.emit()
+
+    def cancelCropSelection(self):
+        self.cropSelectionMode = False
+        self.crop_selection_changed.emit()
+
+    def setFourCornersForHomography(self, corners):
+        self.homography_corners = corners
+        return True
 
     def setHeldValues(self, values):
         self.heldValues = dict(values)
@@ -965,7 +1004,7 @@ def test_the_box_tab_shows_the_selected_field(main_window, make_target):
     assert ui.label_selectedInfo.text() == "Home Fouls"
     assert ui.groupBox_target_settings.isHidden()
     assert not ui.groupBox_target_settings.isEnabled()
-    assert "Place on picture" in ui.label_boxNote.text()
+    assert "Drag over its numbers" in ui.label_boxNote.text()
     assert not ui.pushButton_restoreDefaults.isEnabled()
 
     # a new custom field is selected; it can become a template
@@ -1467,8 +1506,11 @@ def test_the_keyboard_shortcuts(main_window, qtbot):
     field_keys = {
         action.objectName(): action.shortcut().toString() for action in table.actions()
     }
+    # (Del removes the box of a field on the picture, see
+    # test_del_removes_the_box_or_deletes_the_field)
     assert field_keys == {
         "actionRenameField": "F2",
+        "actionRemoveFromPicture": "",
         "actionDeleteField": "Del",
         "actionCopyValue": "Ctrl+C",
     }
@@ -2249,6 +2291,10 @@ def test_every_language_fits(language, make_window, make_target, qapp, reference
         ui.splitter_main.setSizes(window.defaultPaneSizes(window.width()))
         window.itemSelected("Home Score")
         ui.toolButton_imageCleanup.setChecked(True)
+        # the crop panel (with Drag to crop) and the crop picking's banner
+        ui.toolButton_topCrop.setChecked(True)
+        window.cropMode()
+        ui.frame_cropBanner.show()
         qapp.processEvents()
         qapp.processEvents()
         hint = window.minimumSizeHint()

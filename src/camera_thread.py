@@ -118,15 +118,22 @@ def _clamp_margin(value, limit: int) -> int:
     return max(0, min(value, limit))
 
 
+def crop_margins(width, height, top, bottom, left, right):
+    """The crop margins (top, bottom, left, right) that crop_frame cuts off a
+    frame of this size: clamped so at least one row and column remain."""
+    top = _clamp_margin(top, height - 1)
+    bottom = _clamp_margin(bottom, height - 1 - top)
+    left = _clamp_margin(left, width - 1)
+    right = _clamp_margin(right, width - 1 - left)
+    return top, bottom, left, right
+
+
 def crop_frame(frame, top, bottom, left, right):
     """Crop the given margins off the frame. The margins are clamped to the
     frame so at least one row and column remain, e.g. when a crop set for a
     larger source is applied to a smaller (or rotated) one."""
     height, width = frame.shape[:2]
-    top = _clamp_margin(top, height - 1)
-    bottom = _clamp_margin(bottom, height - 1 - top)
-    left = _clamp_margin(left, width - 1)
-    right = _clamp_margin(right, width - 1 - left)
+    top, bottom, left, right = crop_margins(width, height, top, bottom, left, right)
     return frame[top : height - bottom, left : width - right]
 
 
@@ -554,6 +561,12 @@ class TimerThread(QThread):
         # The OCR keeps reading the corrected picture until the new correction
         # replaces it.
         self.preview_uncorrected = False
+        # While a crop is dragged (Drag to crop) the preview shows the whole
+        # rotated frame, without the crop and the corrections after it. The OCR
+        # keeps reading the cropped picture until the new crop replaces it.
+        self.preview_uncropped = False
+        # When the boxes last moved with the crop (boxesMoved), on _clock
+        self.boxes_moved_at: float | None = None
         self.last_frame_timestamp = None
         self.last_update_timestamp = None
         self.last_emit_time = None
@@ -846,6 +859,7 @@ class TimerThread(QThread):
             # dump this frame since not enough time has passed
             return
 
+        source = frame_rgb
         adjusted = self.adjust_frame(frame_rgb)
         frame_rgb = self.correct_frame(adjusted)
         show_binary = self.show_binary
@@ -878,7 +892,10 @@ class TimerThread(QThread):
                         + (1.0 - self.fps_alpha) * self.pps
                     )
             self.last_emit_time = now
-            if self.preview_uncorrected:
+            if self.preview_uncropped:
+                # a new crop is being dragged on the whole picture
+                self.update_signal.emit(self.rotate_frame(source))
+            elif self.preview_uncorrected:
                 # new four-corner points are being picked on this picture
                 self.update_signal.emit(adjusted)
             elif show_binary:
@@ -898,6 +915,17 @@ class TimerThread(QThread):
             else:
                 self.update_signal.emit(frame_rgb)
 
+    def boxesMoved(self):
+        """The boxes were moved to stay on the same part of the picture,
+        because the crop's corner moved. A frame read until now was cropped
+        as before: read with the boxes' new places, it would give readings of
+        other pixels, so they are dropped (the OCR worker may hold one)."""
+        self.boxes_moved_at = self._clock()
+
+    def readBeforeBoxesMoved(self, frame_time) -> bool:
+        moved = self.boxes_moved_at
+        return moved is not None and frame_time is not None and frame_time <= moved
+
     def run_ocr_cycle(self, frame_rgb, frame_time, want_display=False):
         """Read the boxes of a (transformed) frame read at frame_time and
         publish the results. Returns (the boxes, the gray frame, the binary
@@ -906,8 +934,8 @@ class TimerThread(QThread):
         # One snapshot of the boxes per frame: the GUI thread may add or
         # remove boxes while the OCR runs.
         targets = self._snapshot_targets()
-        if not targets:
-            return targets, None, None
+        if not targets or self.readBeforeBoxesMoved(frame_time):
+            return [], None, None
         gray = to_gray(frame_rgb)
         binary = None
         display = None
@@ -959,6 +987,9 @@ class TimerThread(QThread):
     def _publish_results(self, targets, texts, display, gray, frame_time=None):
         if len(texts) == 0 or len(targets) != len(texts):
             return
+        if self.readBeforeBoxesMoved(frame_time):
+            # the boxes moved with the crop while this frame was read
+            return
         # augment the text detection targets with the results
         results = []
         for target, result in zip(targets, texts):
@@ -994,11 +1025,9 @@ class TimerThread(QThread):
         """Apply the rotation, crop, stabilization and four-corner homography."""
         return self.correct_frame(self.adjust_frame(frame_rgb))
 
-    def adjust_frame(self, frame_rgb):
-        """Apply the rotation, crop and stabilization."""
-        crop = self.crop
-        rotation = crop.rotation
-        # apply rotation if set
+    def rotate_frame(self, frame_rgb):
+        """Apply the rotation."""
+        rotation = self.crop.rotation
         if rotation != 0:
             # use cv2.rotate to rotate the frame
             rotateCode = (
@@ -1011,6 +1040,12 @@ class TimerThread(QThread):
                 )
             )
             frame_rgb = cv2.rotate(frame_rgb, rotateCode)
+        return frame_rgb
+
+    def adjust_frame(self, frame_rgb):
+        """Apply the rotation, crop and stabilization."""
+        crop = self.crop
+        frame_rgb = self.rotate_frame(frame_rgb)
 
         # apply top-level crop if set
         if crop.isCropSet:
