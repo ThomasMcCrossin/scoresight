@@ -419,7 +419,10 @@ def test_client_js_is_served(base_url):
     assert response.status_code == 200
     assert response.headers["Content-Type"].startswith("text/javascript")
     text = response.text
-    with open(resource_path("overlays", "client.js"), encoding="utf-8") as f:
+    # served as it is on disk (with CRLF line ends in a Windows checkout)
+    with open(
+        resource_path("overlays", "client.js"), encoding="utf-8", newline=""
+    ) as f:
         assert text == f.read()
     for part in ("EventSource", "/events", "/overlay/state", "data-field"):
         assert part in text
