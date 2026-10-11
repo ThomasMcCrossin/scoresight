@@ -7,7 +7,7 @@ unreachable vMix never blocks the UI.
 """
 
 from collections.abc import Container
-from urllib.parse import urlencode
+from urllib.parse import quote, urlencode
 
 import requests
 
@@ -117,7 +117,8 @@ class VMixAPI:
             "SelectedName": field,
             "Value": value,
         }
-        return f"http://{host}:{port}/api/?{urlencode(query)}"
+        # spaces as %20, not "+": vMix may not decode "+" as a space
+        return f"http://{host}:{port}/api/?{urlencode(query, quote_via=quote)}"
 
     def _send_text(self, field: str, value: str) -> None:
         # runs on the worker thread

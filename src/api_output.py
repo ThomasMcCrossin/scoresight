@@ -12,7 +12,7 @@ import io
 import json
 import xml.etree.ElementTree as ET
 from typing import NamedTuple
-from urllib.parse import urlencode, urlparse
+from urllib.parse import quote, urlencode, urlparse
 
 import requests
 
@@ -157,7 +157,9 @@ def build_request(
         if not values:
             return None
         separator = "&" if "?" in url else "?"
-        return ApiRequest("GET", url + separator + urlencode(values), {}, None)
+        # spaces as %20: not every receiver decodes "+" as a space
+        query = urlencode(values, quote_via=quote)
+        return ApiRequest("GET", url + separator + query, {}, None)
 
     if encoding == ENCODING_JSON_SIMPLE:
         values = good_values(data)
