@@ -6,6 +6,7 @@ devices or ports. Sources are opened with a fake viewer (no capture thread).
 """
 
 import csv
+from pathlib import Path
 import threading
 
 import pytest
@@ -1862,6 +1863,84 @@ def test_the_window_fits_a_small_screen(make_window, qapp, qtbot, reference_font
         assert inspector >= max(300, ui.tabWidget_inspector.minimumSizeHint().width())
         assert viewer >= 360, (language, ui.splitter_main.sizes())
     qapp.removeTranslator(window.translator)
+
+
+def cut_off_texts(root: QWidget) -> list[tuple]:
+    """The labels and buttons under root (visible) whose text doesn't fit:
+    narrower than their text, or reaching past root's right edge."""
+    from PySide6.QtWidgets import QAbstractButton, QCheckBox, QLabel, QRadioButton
+
+    found = []
+    for widget in root.findChildren(QWidget):
+        if not widget.isVisibleTo(root) or not widget.width():
+            continue
+        if isinstance(widget, QLabel) and widget.wordWrap():
+            continue
+        if not isinstance(widget, (QLabel, QAbstractButton)) or not widget.text():
+            continue
+        if isinstance(widget, (QLabel, QCheckBox, QRadioButton)):
+            needed = widget.sizeHint().width() - 1
+        else:
+            # a push or tool button's size hint has room to spare: its text
+            # (and icon) must fit
+            needed = widget.fontMetrics().horizontalAdvance(
+                widget.text().replace("&", "")
+            )
+            if not widget.icon().isNull():
+                needed += widget.iconSize().width()
+        right = widget.mapTo(root, widget.rect().topRight()).x()
+        if widget.width() < needed or right > root.width():
+            found.append((widget.objectName(), widget.text(), widget.width()))
+    return found
+
+
+TRANSLATIONS = sorted(
+    path.stem.removeprefix("scoresight_")
+    for path in (Path(__file__).parent.parent / "translations").glob("*.qm")
+)
+
+
+@pytest.mark.parametrize("language", TRANSLATIONS)
+def test_every_language_fits(language, make_window, make_target, qapp, reference_font):
+    # Translations are longer than English (Russian by a third): every text of
+    # the side panes and the status bar must still show whole at 1366x768
+    # (wider with a wider font), and the window must fit a small screen.
+    from PySide6.QtGui import QFontMetricsF
+
+    width_ratio = 1.0
+    if not reference_font:
+        width_ratio = max(
+            1.0, QFontMetricsF(qapp.font()).horizontalAdvance(SIZE_REFERENCE_TEXT) / 342
+        )
+    window = make_window()
+    ui = window.ui
+    window.resize(int(1366 * width_ratio), 768)
+    window.show()
+    window.detectionTargetsStorage.add_item(make_target("Home Score"))
+    window.changeLanguage(language)
+    try:
+        ui.splitter_main.setSizes(window.defaultPaneSizes(window.width()))
+        window.itemSelected("Home Score")
+        ui.toolButton_imageCleanup.setChecked(True)
+        qapp.processEvents()
+        qapp.processEvents()
+        hint = window.minimumSizeHint()
+        assert hint.width() <= 1024 * width_ratio, hint
+        assert hint.height() <= 640, hint
+        # the Box tab's settings scroll only vertically: they get their width
+        content = ui.scrollAreaWidgetContents_boxSettings
+        viewport = ui.scrollArea_boxSettings.viewport()
+        assert content.minimumSizeHint().width() <= viewport.width()
+        for pane in (viewport, ui.groupBox_allBoxes, ui.widget_leftPane):
+            assert cut_off_texts(pane) == [], pane.objectName()
+        assert cut_off_texts(window.statusBar()) == []
+        ui.tabWidget_inspector.setCurrentWidget(ui.widget_outputs)
+        for destination in ("files", "http", "obs", "vmix", "uno", "api"):
+            window.showDestination(destination)
+            qapp.processEvents()
+            assert cut_off_texts(ui.widget_outputs) == [], destination
+    finally:
+        qapp.removeTranslator(window.translator)
 
 
 def test_the_panes_widths_and_hidden_panes_are_kept(make_window, qtbot):
