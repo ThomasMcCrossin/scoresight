@@ -75,6 +75,12 @@ your outputs and sources do, and adds profiles for running several instances.
   `scripts/compile_ui.py` to compile the Qt Designer files on every platform,
   `scripts/update_translations.py` to refresh the translation sources from
   `src/` only, and `scripts/bump_version.py` to prepare a release.
+- For contributors: an OCR evaluation (`ocr_eval/`, see the developer guide)
+  that measures OCR engines on 2,320 real scoreboard crops from openly
+  licensed photos, and checks in continuous integration that changes to the
+  recognition don't make it worse. Its first report compares ScoreSight's
+  Tesseract setup with PaddleOCR, docTR's recognizers, the Windows OCR and
+  small vision-language models.
 - A status bar: the source with its resolution and frame rate, how many times
   per second the boxes are read against the **Detections / s** setting (orange
   when the computer can't keep up), **PAUSED** while the outputs are paused,
