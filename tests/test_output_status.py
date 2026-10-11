@@ -95,7 +95,7 @@ def test_uno_url_refused_and_rate_limit():
     problem = describe_error(UNO, http_error(429, "UNO SetGoalsHome"), "uno")
     assert problem.state == WARNING
     assert problem.detail == "HTTP 429: too many requests"
-    assert "Send Same?" in problem.hint
+    assert "Also resend unchanged values" in problem.hint
 
 
 def test_api_error_statuses():

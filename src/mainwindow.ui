@@ -216,9 +216,35 @@
             </widget>
            </item>
            <item>
+            <widget class="QLabel" name="label_hiddenFields">
+             <property name="toolTip">
+              <string>The fields that aren't on the picture are hidden in this layout (View &gt; Show unused fields)</string>
+             </property>
+             <property name="wordWrap">
+              <bool>true</bool>
+             </property>
+             <property name="hint" stdset="0">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QWidget" name="widget_fieldsFooter" native="true">
             <layout class="QHBoxLayout" name="horizontalLayout_fieldsFooter">
              <property name="spacing">
               <number>4</number>
+             </property>
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
              </property>
              <item>
               <widget class="QPushButton" name="pushButton_makeBox">
@@ -273,6 +299,68 @@
               </widget>
              </item>
             </layout>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QWidget" name="widget_liveDestinations" native="true">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_liveDestinations">
+           <property name="spacing">
+            <number>2</number>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>4</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QLabel" name="label_liveDestinations">
+             <property name="font">
+              <font>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Outputs</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QListView" name="listView_liveDestinations">
+             <property name="toolTip">
+              <string>The outputs and what they are doing. Double-click one to show its settings.</string>
+             </property>
+             <property name="accessibleName">
+              <string>Outputs and their state</string>
+             </property>
+             <property name="horizontalScrollBarPolicy">
+              <enum>Qt::ScrollBarAlwaysOff</enum>
+             </property>
+             <property name="editTriggers">
+              <set>QAbstractItemView::NoEditTriggers</set>
+             </property>
+             <property name="selectionMode">
+              <enum>QAbstractItemView::NoSelection</enum>
+             </property>
+             <property name="uniformItemSizes">
+              <bool>true</bool>
+             </property>
+            </widget>
            </item>
           </layout>
          </widget>
@@ -2780,7 +2868,7 @@
            <item row="3" column="0" colspan="2">
             <widget class="QCheckBox" name="checkBox_updateOnchange">
              <property name="toolTip">
-              <string>Report a reading that equals the field's last good value as unchanged (=, SameNoChange) instead of new (✓). vMix and UNO then don't resend unchanged values (unless their Send Same? is on), and the HTTP server and the outbound API mark them as unchanged. OBS and the text files get a value only when it changes either way.</string>
+              <string>Report a reading that equals the field's last good value as unchanged (=, SameNoChange) instead of new (✓). vMix and UNO then don't resend unchanged values (unless their “Also resend unchanged values” is on), and the HTTP server and the outbound API mark them as unchanged. OBS and the text files get a value only when it changes either way.</string>
              </property>
              <property name="text">
               <string>Update on change</string>
@@ -3256,11 +3344,26 @@
                 </item>
                 <item row="1" column="0" alignment="Qt::AlignTop">
                  <widget class="QWidget" name="widget_18" native="true">
-                  <layout class="QHBoxLayout" name="horizontalLayout_22">
-                   <item>
+                  <layout class="QGridLayout" name="gridLayout_obsScene">
+                   <property name="leftMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="topMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="rightMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="bottomMargin">
+                    <number>0</number>
+                   </property>
+                   <item row="0" column="0" colspan="2">
                     <widget class="QLineEdit" name="lineEdit_sceneName">
                      <property name="toolTip">
                       <string>The name of the scene Create OBS Scene makes</string>
+                     </property>
+                     <property name="accessibleName">
+                      <string>OBS scene name</string>
                      </property>
                      <property name="enabled">
                       <bool>false</bool>
@@ -3270,7 +3373,7 @@
                      </property>
                     </widget>
                    </item>
-                   <item>
+                   <item row="1" column="0">
                     <widget class="QPushButton" name="pushButton_createOBSScene">
                      <property name="toolTip">
                       <string>Create a scene in OBS with a text source for each standard field</string>
@@ -3283,10 +3386,13 @@
                      </property>
                     </widget>
                    </item>
-                   <item>
+                   <item row="1" column="1">
                     <widget class="QCheckBox" name="checkBox_recreate">
                      <property name="enabled">
                       <bool>false</bool>
+                     </property>
+                     <property name="toolTip">
+                      <string>If OBS already has a scene with this name, delete its sources and make it again. Off: an existing scene is kept as it is.</string>
                      </property>
                      <property name="text">
                       <string>Recreate</string>
@@ -3300,17 +3406,49 @@
                  </widget>
                 </item>
                 <item row="2" column="0">
-                 <spacer name="verticalSpacer_obs">
-                  <property name="orientation">
-                   <enum>Qt::Vertical</enum>
+                 <widget class="QLabel" name="label_obsSceneStatus">
+                  <property name="wordWrap">
+                   <bool>true</bool>
                   </property>
-                  <property name="sizeHint" stdset="0">
+                 </widget>
+                </item>
+                <item row="3" column="0">
+                 <widget class="QLabel" name="label_obsSources">
+                  <property name="text">
+                   <string>&lt;b&gt;Text sources&lt;/b&gt;: the OBS text source each field updates. Double-click a name to change it; leave it empty to not send that field to OBS.</string>
+                  </property>
+                  <property name="wordWrap">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="0">
+                 <widget class="QTableView" name="tableView_obsSources">
+                  <property name="minimumSize">
                    <size>
-                    <width>20</width>
-                    <height>0</height>
+                    <width>0</width>
+                    <height>90</height>
                    </size>
                   </property>
-                 </spacer>
+                  <property name="toolTip">
+                   <string>Each field and the OBS text source it updates. Edit the right column; an empty name sends nothing to OBS.</string>
+                  </property>
+                  <property name="accessibleName">
+                   <string>OBS text sources of the fields</string>
+                  </property>
+                  <property name="editTriggers">
+                   <set>QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed|QAbstractItemView::AnyKeyPressed</set>
+                  </property>
+                  <property name="selectionMode">
+                   <enum>QAbstractItemView::SingleSelection</enum>
+                  </property>
+                  <attribute name="verticalHeaderVisible">
+                   <bool>false</bool>
+                  </attribute>
+                  <attribute name="horizontalHeaderStretchLastSection">
+                   <bool>true</bool>
+                  </attribute>
+                 </widget>
                 </item>
                </layout>
               </widget>
@@ -3491,17 +3629,17 @@
                        </property>
                       </widget>
                      </item>
-                     <item>
-                      <widget class="QCheckBox" name="checkBox_vmix_send_same">
-                       <property name="toolTip">
-                        <string>Send only new detections or also existing?</string>
-                       </property>
-                       <property name="text">
-                        <string>Send Same?</string>
-                       </property>
-                      </widget>
-                     </item>
                     </layout>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QCheckBox" name="checkBox_vmix_send_same">
+                    <property name="toolTip">
+                     <string>Also send a field's value when it hasn't changed (marked “same”), at every detection, for example if someone may change the title in vMix by hand. Off: vMix gets a value only when it changes. Formerly “Send Same?”.</string>
+                    </property>
+                    <property name="text">
+                     <string>Also resend unchanged values</string>
+                    </property>
                    </widget>
                   </item>
                  </layout>
@@ -3615,10 +3753,10 @@
                          </sizepolicy>
                         </property>
                         <property name="toolTip">
-                         <string>Send only new detections or also existing?</string>
+                         <string>Also send a field's value when it hasn't changed (marked “same”), at every detection. Off: the overlay gets a value only when it changes, which keeps within overlays.uno's request limits. Formerly “Send Same?”.</string>
                         </property>
                         <property name="text">
-                         <string>Send Same?</string>
+                         <string>Also resend unchanged values</string>
                         </property>
                        </widget>
                       </item>
@@ -3863,6 +4001,17 @@
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="actionImportConfiguration"/>
+    <addaction name="actionExportConfiguration"/>
+    <addaction name="separator"/>
+    <addaction name="actionOpenConfigurationFolder"/>
+    <addaction name="separator"/>
+    <addaction name="actionQuit"/>
+   </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>View</string>
+    </property>
     <widget class="QMenu" name="menuLanguage">
      <property name="title">
       <string>Language</string>
@@ -3873,25 +4022,18 @@
       <string>Appearance</string>
      </property>
     </widget>
-    <addaction name="actionCheckForUpdates"/>
-    <addaction name="actionAbout"/>
-    <addaction name="actionViewLog"/>
-    <addaction name="actionImportConfiguration"/>
-    <addaction name="actionExportConfiguration"/>
-    <addaction name="actionOpenConfigurationFolder"/>
-    <addaction name="menuLanguage"/>
-    <addaction name="menuAppearance"/>
-   </widget>
-   <widget class="QMenu" name="menuView">
-    <property name="title">
-     <string>View</string>
-    </property>
-    <addaction name="actionBinaryView"/>
-    <addaction name="actionStatsOverlay"/>
+    <addaction name="actionSetupLayout"/>
+    <addaction name="actionLiveLayout"/>
     <addaction name="separator"/>
+    <addaction name="actionBinaryView"/>
     <addaction name="actionFitPicture"/>
     <addaction name="actionZoomIn"/>
     <addaction name="actionZoomOut"/>
+    <addaction name="actionStatsOverlay"/>
+    <addaction name="actionShowUnusedFields"/>
+    <addaction name="separator"/>
+    <addaction name="menuAppearance"/>
+    <addaction name="menuLanguage"/>
    </widget>
    <widget class="QMenu" name="menuTools">
     <property name="title">
@@ -3902,10 +4044,23 @@
     <addaction name="separator"/>
     <addaction name="actionCollectTrainingData"/>
     <addaction name="actionOCRTrainingDataSetup"/>
+    <addaction name="separator"/>
+    <addaction name="actionViewLog"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionUserGuide"/>
+    <addaction name="actionKeyboardShortcuts"/>
+    <addaction name="separator"/>
+    <addaction name="actionCheckForUpdates"/>
+    <addaction name="actionAbout"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuView"/>
    <addaction name="menuTools"/>
+   <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionNewField">
@@ -3960,9 +4115,34 @@
     <string>Zoom to box</string>
    </property>
   </action>
+  <action name="actionHoldValue">
+   <property name="text">
+    <string>Hold value...</string>
+   </property>
+   <property name="toolTip">
+    <string>Send a value you type to every output instead of this field's readings, until you release it</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+H</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionReleaseValue">
+   <property name="text">
+    <string>Release held value</string>
+   </property>
+   <property name="toolTip">
+    <string>Send this field's readings to the outputs again</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::NoRole</enum>
+   </property>
+  </action>
   <action name="actionCheckForUpdates">
    <property name="text">
-    <string>Check for Updates</string>
+    <string>Check for updates...</string>
    </property>
    <property name="menuRole">
     <enum>QAction::NoRole</enum>
@@ -3978,7 +4158,13 @@
   </action>
   <action name="actionViewLog">
    <property name="text">
-    <string>View Current Log</string>
+    <string>View log</string>
+   </property>
+   <property name="toolTip">
+    <string>Show the log of this session as it is written</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Shift+L</string>
    </property>
    <property name="menuRole">
     <enum>QAction::NoRole</enum>
@@ -3986,7 +4172,13 @@
   </action>
   <action name="actionImportConfiguration">
    <property name="text">
-    <string>Import Configuration</string>
+    <string>Import field layout...</string>
+   </property>
+   <property name="toolTip">
+    <string>Replace the fields on the picture (their boxes and settings) with the ones saved in a file. Formerly “Import Configuration”.</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+O</string>
    </property>
    <property name="menuRole">
     <enum>QAction::NoRole</enum>
@@ -3994,7 +4186,13 @@
   </action>
   <action name="actionExportConfiguration">
    <property name="text">
-    <string>Export Configuration</string>
+    <string>Export field layout...</string>
+   </property>
+   <property name="toolTip">
+    <string>Save the fields on the picture (their boxes and settings) to a file. Formerly “Export Configuration”.</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Shift+S</string>
    </property>
    <property name="menuRole">
     <enum>QAction::NoRole</enum>
@@ -4002,7 +4200,10 @@
   </action>
   <action name="actionOpenConfigurationFolder">
    <property name="text">
-    <string>Open Configuration Folder</string>
+    <string>Open settings folder</string>
+   </property>
+   <property name="toolTip">
+    <string>Open the folder with ScoreSight's settings file</string>
    </property>
    <property name="menuRole">
     <enum>QAction::NoRole</enum>
@@ -4010,7 +4211,7 @@
   </action>
   <action name="actionOCRTrainingDataSetup">
    <property name="text">
-    <string>OCR Training Data Setup</string>
+    <string>OCR training data setup...</string>
    </property>
    <property name="menuRole">
     <enum>QAction::NoRole</enum>
@@ -4087,6 +4288,90 @@
    </property>
    <property name="toolTip">
     <string>Save each box's picture and reading to the training data folder, for training an OCR model</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionQuit">
+   <property name="text">
+    <string>Quit</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Q</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::QuitRole</enum>
+   </property>
+  </action>
+  <action name="actionSetupLayout">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Setup layout</string>
+   </property>
+   <property name="toolTip">
+    <string>For placing and tuning the fields and setting up the outputs: the field list, the picture with its adjustments, and the inspector</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+1</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionLiveLayout">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Live layout</string>
+   </property>
+   <property name="toolTip">
+    <string>For the game: large readings and the state of every output next to the picture. The inspector and the picture adjustments are hidden; the reading and the outputs work the same.</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+2</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionShowUnusedFields">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show unused fields</string>
+   </property>
+   <property name="toolTip">
+    <string>Show the fields that aren't on the picture in the field list (remembered for each layout)</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionUserGuide">
+   <property name="text">
+    <string>User guide</string>
+   </property>
+   <property name="toolTip">
+    <string>Open the ScoreSight documentation in your web browser</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">F1</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionKeyboardShortcuts">
+   <property name="text">
+    <string>Keyboard shortcuts</string>
    </property>
    <property name="menuRole">
     <enum>QAction::NoRole</enum>

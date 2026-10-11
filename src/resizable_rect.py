@@ -27,7 +27,7 @@ from PySide6.QtWidgets import (
 )
 
 import theme
-from readings_view import draw_glyph, state_glyph, state_look
+from readings_view import draw_glyph, held_text, state_glyph, state_look
 from text_detection_target import TextDetectionTarget, TextDetectionTargetWithResult
 
 ResultState = TextDetectionTargetWithResult.ResultState
@@ -307,8 +307,9 @@ class MiniRect(ResizableRect):
 class BoxLabel(QGraphicsItem):
     """A box's label pill: the state glyph of its latest reading (✓ new,
     = unchanged, ! rejected, ∅ empty) on a coloured disc, the box's name and
-    the reading. Fixed size on screen; its parent (the box) positions it with
-    setPlacement()."""
+    the reading. While the field's value is held (Hold value), an amber HELD
+    chip and the held value instead. Fixed size on screen; its parent (the
+    box) positions it with setPlacement()."""
 
     def __init__(self, name: str, parent: QGraphicsItem):
         super().__init__(parent)
@@ -319,6 +320,11 @@ class BoxLabel(QGraphicsItem):
         self.name = name
         self.state: ResultState | None = None
         self.value = ""
+        # the value held for the field, or None
+        self.held: str | None = None
+        self.chipFont = QFont()
+        self.chipFont.setPixelSize(LABEL_NAME_PX - 1)
+        self.chipFont.setWeight(QFont.Weight.Bold)
         self.placement = LABEL_BELOW_LEFT
         self.nameFont = QFont()
         self.nameFont.setPixelSize(LABEL_NAME_PX)
@@ -352,12 +358,25 @@ class BoxLabel(QGraphicsItem):
         self._layout()
         return self._size != old_size
 
+    def setHeld(self, value: str | None) -> bool:
+        """Show a held value (None: the readings again); returns True if the
+        label's size changed."""
+        if value == self.held:
+            return False
+        self.held = value
+        old_size = self._size
+        self._layout()
+        return self._size != old_size
+
     def text(self) -> str:
-        """The label as text: glyph, name and reading."""
-        parts = [state_glyph(self.state), self.name, self.displayedValue()]
+        """The label as text: glyph (or HELD), name and reading."""
+        mark = held_text() if self.held is not None else state_glyph(self.state)
+        parts = [mark, self.name, self.displayedValue()]
         return " ".join(part for part in parts if part)
 
     def displayedValue(self) -> str:
+        if self.held is not None:
+            return self.held
         if self.state == ResultState.FailedFilter and self.value:
             return f"‘{self.value}’"
         return self.value
@@ -373,12 +392,21 @@ class BoxLabel(QGraphicsItem):
             self.displayedValue(), Qt.TextElideMode.ElideRight, LABEL_MAX_VALUE_PX
         )
         height = round(max(name_metrics.height(), value_metrics.height()) + 5)
-        self._disc = height - 6 if state_look(self.state) else 0
+        self._disc = height - 6 if state_look(self.state) and self.held is None else 0
+        # the HELD chip, in the disc's place
+        self._chipText = held_text() if self.held is not None else ""
+        self._chipWidth = (
+            QFontMetricsF(self.chipFont).horizontalAdvance(self._chipText) + 8
+            if self._chipText
+            else 0
+        )
         # measured here, not in paint(): readings arrive several times a second
         self._nameWidth = name_metrics.horizontalAdvance(self._nameText)
         width = LABEL_PADDING_PX * 2 + self._nameWidth
         if self._disc:
             width += self._disc + 4
+        if self._chipWidth:
+            width += self._chipWidth + 4
         if self._valueText:
             width += 6 + value_metrics.horizontalAdvance(self._valueText)
         self._size = QSizeF(round(width), height)
@@ -425,14 +453,29 @@ class BoxLabel(QGraphicsItem):
         painter.save()
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         look = state_look(self.state)
+        held = self.held is not None
         border = LABEL_BORDER
-        if self.state == ResultState.FailedFilter:
+        if held:
+            border = theme.overlay_color("paused")
+        elif self.state == ResultState.FailedFilter:
             border = theme.overlay_color("rejected")
         painter.setPen(QPen(border, 1))
         painter.setBrush(LABEL_BACKGROUND)
         painter.drawRoundedRect(rect.adjusted(0.5, 0.5, -0.5, -0.5), 4, 4)
         x = rect.left() + LABEL_PADDING_PX
-        if look and self._disc:
+        if held and self._chipWidth:
+            chip_height = rect.height() - 6
+            chip = QRectF(
+                x, rect.center().y() - chip_height / 2, self._chipWidth, chip_height
+            )
+            painter.setPen(Qt.PenStyle.NoPen)
+            painter.setBrush(theme.overlay_color("paused"))
+            painter.drawRoundedRect(chip, 3, 3)
+            painter.setFont(self.chipFont)
+            painter.setPen(QColor("#1B1F24"))
+            painter.drawText(chip, Qt.AlignmentFlag.AlignCenter, self._chipText)
+            x = chip.right() + 4
+        elif look and self._disc:
             color_name, glyph = look
             disc = QRectF(x, rect.center().y() - self._disc / 2, self._disc, self._disc)
             painter.setPen(Qt.PenStyle.NoPen)
@@ -452,7 +495,7 @@ class BoxLabel(QGraphicsItem):
             painter.setFont(self.valueFont)
             painter.setPen(
                 theme.overlay_color("rejected")
-                if self.state == ResultState.FailedFilter
+                if self.state == ResultState.FailedFilter and not held
                 else LABEL_VALUE
             )
             painter.drawText(
@@ -642,6 +685,11 @@ class ResizableRectWithNameTypeAndResult(ResizableRect):
 
     def getRect(self):
         return self.getOriginalRect()
+
+    def setHeldValue(self, value: str | None) -> bool:
+        """The label shows the value held for the field (None: its readings).
+        Returns True if the label's size changed."""
+        return self.label.setHeld(value)
 
     def updateResult(self, targetWithResult: TextDetectionTargetWithResult) -> bool:
         """Show a reading: in the label, and with the "All" style the area the

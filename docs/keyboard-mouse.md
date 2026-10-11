@@ -30,16 +30,18 @@ Box positions and sizes are saved automatically.
 | Action | Control |
 |---|---|
 | Select a field (and its box) | Click its name or its value |
-| The selected field's actions | **Right-click** it: Place on picture or Remove from picture, Rename..., Delete field..., Reset settings to defaults, Copy value, Zoom to box |
+| The selected field's actions | **Right-click** it: Place on picture or Remove from picture, Rename..., Delete field..., Reset settings to defaults, Copy value, Hold value... (and Release held value), Zoom to box |
 | Rename a custom field | Double-click its name, or **F2** |
 | Add a custom field | **+** at the top of the list, or **Ctrl+N** |
 | Delete the selected custom field | **Delete field** under the list, or **Del** (**Backspace** on a Mac; asks first) |
 | Copy the selected field's value | **Ctrl+C** |
+| Hold the selected field's value (send a value you type instead of its readings) | **Ctrl+H** (**⌃ Control+H** on a Mac), or right-click > **Hold value...** |
+| Release a held value | **Release** in its row, or right-click > **Release held value** |
 | Put the selected field on the picture | **Place on picture** under the list (in ScoreSight 0.1.x: **Add to Scene**) |
 | Take the selected field off the picture | **Remove from picture** under the list (in 0.1.x: **Remove Selected**) |
 | Deselect | **Esc** |
 
-**F2**, **Del** and **Ctrl+C** work while the field list has the focus (click a field first).
+**F2**, **Del** and **Ctrl+C** work while the field list has the focus (click a field first). **Ctrl+H** works anywhere in the window, on the selected field. The Live layout hides the buttons under the list: their actions are in the right-click menu.
 
 ## Panes
 
@@ -47,21 +49,29 @@ Box positions and sizes are saved automatically.
 |---|---|
 | Make the field list, the picture or the inspector wider | Drag the dividers between them |
 | Hide or show the field list or the inspector | Double-click the divider next to it, or drag it to the window's edge |
+| Setup layout: the field list, the picture with its adjustments, the inspector | **View > Setup layout**, or **Ctrl+1** |
+| Live layout: large readings and the outputs' state, for the game | **View > Live layout**, or **Ctrl+2** |
 
-ScoreSight remembers the widths and which panes are hidden. A click on an output in the status bar shows the inspector's **Outputs** tab, also when the inspector was hidden.
+ScoreSight remembers the layout, the widths and which panes are hidden. The Setup layout gets back the widths it had; the Live layout keeps the width of its field list. A click on an output in the status bar shows the inspector's **Outputs** tab, also when the inspector was hidden.
 
 ## Main window shortcuts
 
-On macOS, use **⌘ Cmd** wherever this table says **Ctrl**. The tooltips of the buttons show their shortcut.
+On macOS, use **⌘ Cmd** wherever this table says **Ctrl** (except **Ctrl + H**: **⌃ Control + H** on a Mac, as ⌘H hides the app). The tooltips of the buttons show their shortcut, and **Help > Keyboard shortcuts** lists them all.
 
 | Key | Action |
 |---|---|
+| **Ctrl + 1** / **Ctrl + 2** | Setup layout / Live layout |
 | **Ctrl + Shift + P** | Pause outputs / Resume outputs |
 | **Ctrl + B** | Binary View on or off (once a source is open) |
 | **Ctrl + 0** | Fit the picture to the window (the **Fit** button) |
 | **Ctrl + =** / **Ctrl + -** | Zoom in / out |
 | **F5** | Reload the sources (cameras and NDI) |
 | **Ctrl + N** | New custom field |
+| **Ctrl + H** | Hold value... of the selected field |
+| **Ctrl + O** / **Ctrl + Shift + S** | Import field layout... / Export field layout... |
+| **Ctrl + Shift + L** | View log |
+| **F1** | User guide (this site) |
+| **Ctrl + Q** | Quit |
 | **Esc** | Cancel picking 4-corner points, or deselect the box |
 
 ## Training Dojo
@@ -83,16 +93,18 @@ See [OCR Training Data](data_annotation.md).
 
 On Windows and Linux, the menus are at the top of the main window. On macOS they are in the system menu bar. Menu items show their shortcuts.
 
-**File**:
+**File**: **Import field layout...** (Ctrl+O) and **Export field layout...** (Ctrl+Shift+S) (in 0.1.x: Import/Export Configuration, see [Import and export layouts](boxes.md#import-and-export-layouts)), **Open settings folder** and **Quit** (Ctrl+Q).
 
-- **Check for Updates** (asks GitHub for the latest release and always shows the result), **About**
-- **View Current Log**
-- **Import Configuration**, **Export Configuration**, **Open Configuration Folder**
-- **Language**: each language is listed in its own language: English (US), Français, Español, Deutsch, Italiano, 日本語, 한국어, Nederlands, Polski, Português (Brasil), Português (Portugal), Русский and 简体中文. The current one is ticked, and the choice is remembered
+**View**:
+
+- **Setup layout** (Ctrl+1) and **Live layout** (Ctrl+2), see [Setup and Live layouts](boxes.md#setup-and-live-layouts)
+- **Binary View** (Ctrl+B), **Fit picture to window** (Ctrl+0), **Zoom in** (Ctrl+=), **Zoom out** (Ctrl+-) and **Statistics overlay**
+- **Show unused fields**: the fields that aren't on the picture in the field list, remembered for each layout (shown in the Setup layout, hidden in the Live layout at first)
 - **Appearance**: System, Light or Dark colour scheme. The choice is remembered
+- **Language**: each language is listed in its own language: English (US), Français, Español, Deutsch, Italiano, 日本語, 한국어, Nederlands, Polski, Português (Brasil), Português (Portugal), Русский and 简体中文. The current one is ticked, and the choice is remembered
 
-**View**: **Binary View** (Ctrl+B), **Statistics overlay**, **Fit picture to window** (Ctrl+0), **Zoom in** (Ctrl+=) and **Zoom out** (Ctrl+-).
+**Tools**: **Pause outputs** (Ctrl+Shift+P), **Reload sources** (F5), **Collect OCR training data** (on or off), **OCR training data setup...** (see [OCR Training Data](data_annotation.md)) and **View log** (Ctrl+Shift+L).
 
-**Tools**: **Pause outputs** (Ctrl+Shift+P), **Reload sources** (F5), **Collect OCR training data** (on or off) and **OCR Training Data Setup** (see [OCR Training Data](data_annotation.md)).
+**Help**: **User guide** (F1, opens this site), **Keyboard shortcuts**, **Check for updates...** (asks GitHub for the latest release and always shows the result) and **About**.
 
-On macOS, **About** is in the **ScoreSight** application menu (next to the Apple menu) instead of the **File** menu.
+In ScoreSight 0.1.x, Check for Updates, About, View Current Log, OCR Training Data Setup and Language were in the **File** menu. On macOS, **About** and **Quit** are in the **ScoreSight** application menu (next to the Apple menu).

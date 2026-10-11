@@ -158,7 +158,7 @@ def test_status_of_the_rate_limit_and_a_new_url(make_uno, make_result):
     flush(api)
     status = destination(api)
     assert (status.state, status.detail) == ("warning", "HTTP 429: too many requests")
-    assert "Send Same?" in status.hint
+    assert "Also resend unchanged values" in status.hint
     assert "abc" not in status.technical  # the URL's token
 
     # another URL: the status starts over

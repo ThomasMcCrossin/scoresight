@@ -50,9 +50,13 @@ class FakeViewer(QWidget):
         self.corrected = False
         self.picked = 0
         self.zoom = 1.0
+        self.heldValues = {}
 
     def startCapture(self):
         pass
+
+    def setHeldValues(self, values):
+        self.heldValues = dict(values)
 
     def hasFourCornerCorrection(self):
         return self.corrected
@@ -305,24 +309,111 @@ def test_create_obs_scene_sends_every_current_value_again(
     # placeholder texts ("24", "18", ...); unchanged values were never sent to
     # them, so OBS showed the placeholders until each box's value changed.
     import mainwindow
+    import obs_websocket
 
     scenes = []
-    monkeypatch.setattr(
-        mainwindow,
-        "create_obs_scene_from_export",
-        lambda client, name: scenes.append((client, name)),
-    )
+
+    def create(client, name, recreate=True):
+        scenes.append((client, name, recreate))
+        return obs_websocket.SCENE_CREATED
+
+    monkeypatch.setattr(mainwindow, "create_obs_scene_from_export", create)
     client = FakeObsClient()
     main_window.obs_websocket_client = client
     main_window.ocrResult([make_result("Home Score", "3")])
     main_window.ui.lineEdit_sceneName.setText("ScoreSight Scene")
     main_window.createOBSScene()
-    assert scenes == [(client, "ScoreSight Scene")]
+    assert scenes == [(client, "ScoreSight Scene", True)]
     main_window.ocrResult([make_result("Home Score", "3", "SameNoChange")])
     assert patched["obs"] == [
         (client, "Home score", "3"),
         (client, "Home score", "3"),
     ]
+
+
+@pytest.mark.parametrize(
+    ("recreate", "outcome", "said"),
+    [
+        (True, "recreated", "again"),
+        (False, "kept", "kept as it is"),
+        (True, "failed", "Couldn't create"),
+    ],
+)
+def test_create_obs_scene_follows_recreate_and_says_what_it_did(
+    main_window, monkeypatch, qapp, recreate, outcome, said
+):
+    # Recreate was never read: an existing scene was always emptied and made
+    # again
+    import mainwindow
+
+    calls = []
+
+    def create(client, name, recreate=True):
+        calls.append(recreate)
+        return outcome
+
+    monkeypatch.setattr(mainwindow, "create_obs_scene_from_export", create)
+    ui = main_window.ui
+    main_window.obs_websocket_client = FakeObsClient()
+    main_window.show()
+    assert ui.label_obsSceneStatus.isHidden()
+    ui.checkBox_recreate.setChecked(recreate)
+    ui.lineEdit_sceneName.setText("Court 2")
+    main_window.createOBSScene()
+    assert calls == [recreate]
+    assert not ui.label_obsSceneStatus.isHidden()
+    assert said in ui.label_obsSceneStatus.text()
+    assert "“Court 2”" in ui.label_obsSceneStatus.text()
+    # said again after a language change
+    main_window.changeLanguage("de_DE")
+    try:
+        assert "Court 2" in ui.label_obsSceneStatus.text()
+        assert not ui.label_obsSceneStatus.isHidden()
+    finally:
+        qapp.removeTranslator(main_window.translator)
+
+
+def test_the_obs_text_sources_are_editable(
+    main_window, patched, make_target, make_result
+):
+    # The OBS text source of a field could only be set by editing an exported
+    # configuration file
+    from PySide6.QtCore import Qt
+
+    ui = main_window.ui
+    storage = main_window.detectionTargetsStorage
+    storage.add_item(make_target("Home Score"))
+    storage.add_item(make_target("Custom 1"))
+    model = ui.tableView_obsSources.model()
+    rows = [
+        (model.item(row, 0).text(), model.item(row, 1).text())
+        for row in range(model.rowCount())
+    ]
+    assert rows == [("Home Score", "Home score"), ("Custom 1", "")]
+    # the names aren't editable, the sources are
+    assert not model.item(0, 0).flags() & Qt.ItemFlag.ItemIsEditable
+    assert model.item(1, 1).flags() & Qt.ItemFlag.ItemIsEditable
+
+    main_window.obs_websocket_client = client = FakeObsClient()
+    model.item(1, 1).setText("  Shot clock ")  # typed in the table
+    assert model.item(1, 1).text() == "Shot clock"
+    box = storage.find_item_by_name("Custom 1")
+    assert box.settings["obs_source_name"] == "Shot clock"
+    # saved with the boxes
+    main_window.saveBoxes()
+    stored = {box["name"]: box for box in fetch_data("scoresight.json", "boxes")}
+    assert stored["Custom 1"]["settings"]["obs_source_name"] == "Shot clock"
+    # an empty name: not sent to OBS any more
+    model.item(0, 1).setText("")
+    assert storage.find_item_by_name("Home Score").settings["obs_source_name"] == ""
+    # (the readings carry their box's settings)
+    main_window.ocrResult(
+        [
+            make_result("Home Score", "3", obs_source_name=""),
+            make_result("Custom 1", "24", obs_source_name="Shot clock"),
+        ]
+    )
+    assert patched["obs"] == [(client, "Shot clock", "24")]
 
 
 def test_template_fields_report_changes_only(main_window, make_result):
@@ -1203,8 +1294,10 @@ def test_the_fields_context_menu(main_window, make_result, qapp):
         "actionDeleteField",
         "actionResetFieldSettings",
         "actionCopyValue",
+        "actionHoldValue",
         "actionZoomToBox",
     ]
+    assert ui.actionHoldValue.isEnabled()
     # a standard field: no Rename or Delete, and the menu says why
     assert not ui.actionRenameField.isEnabled()
     assert not ui.actionDeleteField.isEnabled()
@@ -1221,6 +1314,9 @@ def test_the_fields_context_menu(main_window, make_result, qapp):
     assert ui.actionRenameField.isEnabled() and ui.actionDeleteField.isEnabled()
     assert not ui.actionCopyValue.isEnabled()  # no value yet
     assert not ui.actionResetFieldSettings.isEnabled()  # no box
+    # nothing to hold: it isn't read
+    assert not ui.actionHoldValue.isEnabled()
+    assert "picture first" in ui.actionHoldValue.toolTip()
 
 
 def test_zoom_to_box(main_window, make_target, qtbot):
@@ -1311,6 +1407,15 @@ def test_pausing_the_outputs_shows_everywhere(main_window, patched, make_result)
     assert ui.pushButton_stopUpdates.isChecked()
     assert ui.pushButton_stopUpdates.text() == "Resume outputs"
     assert ":checked" in ui.pushButton_stopUpdates.styleSheet()
+    # bold, and as wide as its bold text ("Resume output" was cut off)
+    from PySide6.QtGui import QFontMetrics
+
+    button = ui.pushButton_stopUpdates
+    assert button.font().bold()
+    assert button.sizeHint().width() >= (
+        QFontMetrics(button.font()).horizontalAdvance(button.text())
+        + button.iconSize().width()
+    )
     assert ui.frame_pausedBanner.isVisibleTo(main_window)
     assert "Outputs paused" in ui.label_pausedBanner.text()
     assert main_window.windowTitle() == f"⏸ ScoreSight - v{__version__}"
@@ -1337,6 +1442,8 @@ def test_the_keyboard_shortcuts(main_window, qtbot):
         action.objectName(): action.shortcut().toString()
         for action in main_window.actions()
     }
+    import platform
+
     assert shortcuts == {
         "actionPauseOutputs": "Ctrl+Shift+P",
         "actionBinaryView": "Ctrl+B",
@@ -1345,6 +1452,15 @@ def test_the_keyboard_shortcuts(main_window, qtbot):
         "actionZoomOut": "Ctrl+-",
         "actionReloadSources": "F5",
         "actionNewField": "Ctrl+N",
+        "actionSetupLayout": "Ctrl+1",
+        "actionLiveLayout": "Ctrl+2",
+        # ⌘H hides the app on macOS: ⌃H there
+        "actionHoldValue": "Meta+H" if platform.system() == "Darwin" else "Ctrl+H",
+        "actionImportConfiguration": "Ctrl+O",
+        "actionExportConfiguration": "Ctrl+Shift+S",
+        "actionViewLog": "Ctrl+Shift+L",
+        "actionUserGuide": "F1",
+        "actionQuit": "Ctrl+Q",
     }
     # the selected field's keys, while the fields list has the focus
     table = ui.tableWidget_boxes
@@ -1389,6 +1505,20 @@ def test_the_keyboard_shortcuts(main_window, qtbot):
     )
     [name] = custom_field_names()
     assert ui.label_selectedInfo.text() == name
+
+    # Ctrl+2 and Ctrl+1: the Live and the Setup layout
+    QTest.keyClick(
+        main_window.windowHandle(),
+        QtCore.Qt.Key.Key_2,
+        QtCore.Qt.KeyboardModifier.ControlModifier,
+    )
+    assert main_window.layoutMode == "live" and ui.actionLiveLayout.isChecked()
+    QTest.keyClick(
+        main_window.windowHandle(),
+        QtCore.Qt.Key.Key_1,
+        QtCore.Qt.KeyboardModifier.ControlModifier,
+    )
+    assert main_window.layoutMode == "setup" and ui.actionSetupLayout.isChecked()
 
 
 def test_ctrl_c_in_the_fields_list_copies_the_value(main_window, make_result, qtbot):
@@ -2012,6 +2142,67 @@ def test_every_language_fits(language, make_window, make_target, qapp, reference
         qapp.removeTranslator(window.translator)
 
 
+@pytest.mark.parametrize("language", TRANSLATIONS)
+def test_every_language_fits_the_live_layout(
+    language, make_window, make_target, make_result, qapp, reference_font
+):
+    # The Live layout's field list (large readings, a held value's HELD chip
+    # and the outputs' lines) must show whole at 1366x768 in every language
+    from PySide6.QtGui import QFontMetrics, QFontMetricsF
+    from PySide6.QtWidgets import QStyleOptionViewItem
+
+    width_ratio = 1.0
+    if not reference_font:
+        width_ratio = max(
+            1.0, QFontMetricsF(qapp.font()).horizontalAdvance(SIZE_REFERENCE_TEXT) / 342
+        )
+    window = make_window()
+    ui = window.ui
+    window.resize(int(1366 * width_ratio), 768)
+    window.show()
+    storage = window.detectionTargetsStorage
+    for name in ("Home Score", "Away Score", "Time", "Period"):
+        storage.add_item(make_target(name))
+    window.changeLanguage(language)
+    try:
+        window.setLayoutMode("live")
+        window.ocrResult(
+            [
+                make_result("Home Score", "21"),
+                make_result("Away Score", "17"),
+                make_result("Time", "03:59"),
+                make_result("Period", "Z", "FailedFilter"),
+            ]
+        )
+        window.heldValues.hold("Period", "2nd")
+        window.updateHeldUi()
+        qapp.processEvents()
+        qapp.processEvents()
+        assert window.minimumSizeHint().height() <= 640
+        assert cut_off_texts(ui.widget_leftPane) == []
+        # the held value, its chip and its Release button fit the row
+        table = ui.tableWidget_boxes
+        delegate = window.readingDelegate
+        item = box_value_item(window, "Period")
+        option = QStyleOptionViewItem()
+        option.rect = table.visualItemRect(item)
+        option.font = table.font()
+        from readings_view import reading_at
+
+        reading = reading_at(table.indexFromItem(item))
+        assert delegate.releaseShown(option.rect, option.font, reading)
+        value_width = QFontMetrics(delegate.valueFont(table.font())).horizontalAdvance(
+            "03:59"
+        )
+        assert value_width + delegate.discSize(table.font()) < table.columnWidth(1)
+        # the OBS page's text sources table and scene controls
+        window.showDestination("obs")
+        qapp.processEvents()
+        assert cut_off_texts(ui.widget_outputs) == []
+    finally:
+        qapp.removeTranslator(window.translator)
+
+
 def test_the_panes_widths_and_hidden_panes_are_kept(make_window, qtbot):
     from PySide6.QtTest import QTest
 
@@ -2110,6 +2301,41 @@ def test_output_buttons_have_text_and_no_emoji(main_window):
         assert not any(ord(c) > 0x2000 for c in text)
 
 
+def test_resend_unchanged_values(main_window):
+    # "Send Same?" said nothing about what it does; the setting is the same
+    for checkbox, setting in (
+        (main_window.ui.checkBox_vmix_send_same, "vmix_send_same"),
+        (main_window.ui.checkBox_uno_send_same, "uno_send_same"),
+    ):
+        assert checkbox.text() == "Also resend unchanged values"
+        assert "Send Same?" in checkbox.toolTip()
+        assert "hasn't changed" in checkbox.toolTip()
+        checkbox.setChecked(True)
+        # (UNO stores the check state, 2)
+        assert fetch_data("scoresight.json", setting)
+    assert main_window.vmixUiHandler.vmixUpdater.update_same is True
+    assert main_window.unoUiHandler.unoUpdater.update_same
+
+
+def test_keyboard_shortcut_rows(qapp):
+    from PySide6.QtGui import QAction
+
+    from keyboard_shortcuts import action_name, action_rows
+
+    native = QKeySequence.SequenceFormat.NativeText
+    action = QAction("&Import field layout...")
+    assert action_name(action) == "Import field layout"
+    assert action_name(QAction("Black && white…")) == "Black & white"
+    action.setShortcuts([QKeySequence("Ctrl+O"), QKeySequence("F3")])
+    plain = QAction("No key")
+    assert action_rows([action, plain]) == [
+        (
+            "Import field layout",
+            f"{QKeySequence('Ctrl+O').toString(native)}, {QKeySequence('F3').toString(native)}",
+        )
+    ]
+
+
 def test_the_obs_dialog(main_window, qapp):
     from PySide6.QtWidgets import QLineEdit
 
@@ -2171,7 +2397,111 @@ def test_cancel_while_connecting_to_obs(main_window, monkeypatch, qtbot):
     assert fetch_data("scoresight.json", "obs") is None
 
 
-def test_the_file_menu_is_translatable(main_window, qapp):
+def menu_items(menu):
+    """The objectNames of a menu's items (a submenu's for a submenu)."""
+    names = []
+    for action in menu.actions():
+        if action.isSeparator():
+            continue
+        names.append(
+            action.menu().objectName() if action.menu() else action.objectName()
+        )
+    return names
+
+
+def test_the_menus(main_window):
+    # File, View, Tools and Help, every item where the redesign put it
+    from PySide6.QtGui import QAction
+
+    ui = main_window.ui
+    assert menu_items(ui.menuFile) == [
+        "actionImportConfiguration",
+        "actionExportConfiguration",
+        "actionOpenConfigurationFolder",
+        "actionQuit",
+    ]
+    assert menu_items(ui.menuView) == [
+        "actionSetupLayout",
+        "actionLiveLayout",
+        "actionBinaryView",
+        "actionFitPicture",
+        "actionZoomIn",
+        "actionZoomOut",
+        "actionStatsOverlay",
+        "actionShowUnusedFields",
+        "menuAppearance",
+        "menuLanguage",
+    ]
+    assert menu_items(ui.menuTools) == [
+        "actionPauseOutputs",
+        "actionReloadSources",
+        "actionCollectTrainingData",
+        "actionOCRTrainingDataSetup",
+        "actionViewLog",
+    ]
+    assert menu_items(ui.menuHelp) == [
+        "actionUserGuide",
+        "actionKeyboardShortcuts",
+        "actionCheckForUpdates",
+        "actionAbout",
+    ]
+    # on macOS, About and Quit go to the application menu; "Setup layout"
+    # must not be taken for the preferences
+    assert ui.actionAbout.menuRole() == QAction.MenuRole.AboutRole
+    assert ui.actionQuit.menuRole() == QAction.MenuRole.QuitRole
+    for action in (
+        ui.actionSetupLayout,
+        ui.actionLiveLayout,
+        ui.actionShowUnusedFields,
+        ui.actionUserGuide,
+        ui.actionKeyboardShortcuts,
+        ui.actionOpenConfigurationFolder,
+        ui.actionCheckForUpdates,
+    ):
+        assert action.menuRole() == QAction.MenuRole.NoRole, action.objectName()
+
+
+def test_the_help_menu(main_window, monkeypatch, qapp):
+    import mainwindow
+
+    opened = []
+    monkeypatch.setattr(
+        mainwindow.QDesktopServices, "openUrl", lambda url: opened.append(url)
+    )
+    ui = main_window.ui
+    ui.actionUserGuide.trigger()  # F1
+    assert [url.toString() for url in opened] == [
+        "https://royshil.github.io/scoresight/"
+    ]
+
+    main_window.show()
+    ui.actionKeyboardShortcuts.trigger()
+    dialog = main_window.keyboardShortcutsDialog
+    try:
+        assert dialog.isVisible()
+        rows = {(name, keys) for _, name, keys in dialog.rows()}
+        native = QKeySequence.SequenceFormat.NativeText
+        for name, key in (
+            ("Pause outputs", "Ctrl+Shift+P"),
+            ("Live layout", "Ctrl+2"),
+            ("Rename", "F2"),
+            ("Copy value", "Ctrl+C"),
+            ("Binary View", "Ctrl+B"),
+        ):
+            assert (name, QKeySequence(key).toString(native)) in rows, name
+        assert any("Arrow keys" in keys for _, keys in rows)
+    finally:
+        dialog.close()
+
+
+def test_quit_closes_the_window(main_window, qapp):
+    main_window.show()
+    main_window.ui.actionQuit.trigger()
+    assert not main_window.isVisible()
+    assert main_window.closing
+
+
+def test_the_menus_are_translatable(main_window, qapp):
     # The File menu was made in code without tr(): never translated
     from PySide6.QtCore import QTranslator
 
@@ -2185,8 +2515,10 @@ def test_the_file_menu_is_translatable(main_window, qapp):
         main_window.ui.retranslateUi(main_window)
         main_window.applyRuntimeTexts()
         assert main_window.ui.menuFile.title() == "«File»"
-        assert "«Check for Updates»" in menu_titles(main_window)
-        assert "«Appearance»" in menu_titles(main_window)
+        assert main_window.ui.menuHelp.title() == "«Help»"
+        assert "«Check for updates...»" in menu_titles(main_window, "menuHelp")
+        assert "«Appearance»" in menu_titles(main_window, "menuView")
+        assert "«Live layout»" in menu_titles(main_window, "menuView")
         appearance = [a.text() for a in main_window.appearance_actions.actions()]
         assert appearance == ["«System»", "«Light»", "«Dark»"]
     finally:
@@ -2367,9 +2699,9 @@ def test_cancelling_the_file_dialog_in_a_translated_ui(
 # --- menus, appearance (#50), dialogs ---------------------------------------------------------
 
 
-def menu_titles(window):
-    """The texts of the File menu's items."""
-    return [action.text() for action in window.ui.menuFile.actions()]
+def menu_titles(window, menu="menuFile"):
+    """The texts of a menu's items (the File menu's by default)."""
+    return [action.text() for action in getattr(window.ui, menu).actions()]
 
 
 def test_menubar_stays_visible_after_the_window_is_deactivated(main_window, qapp):
@@ -2383,8 +2715,8 @@ def test_menubar_stays_visible_after_the_window_is_deactivated(main_window, qapp
         QApplication.sendEvent(main_window, QEvent(event_type))
     qapp.processEvents()
     assert main_window.menuBar().isVisible()
-    assert "Appearance" in menu_titles(main_window)
-    assert "Theme" not in menu_titles(main_window)
+    assert "Appearance" in menu_titles(main_window, "menuView")
+    assert "Theme" not in menu_titles(main_window, "menuView")
 
 
 class FakeStyleHints:
@@ -3162,3 +3494,413 @@ def test_a_new_source_starts_without_binary_view(main_window, tmp_path):
     assert not ui.pushButton_binary.isChecked()
     assert not ui.actionBinaryView.isChecked()
     assert not ui.pushButton_stabilize.isChecked()
+
+
+# --- the Setup and Live layouts ------------------------------------------------------
+
+
+def visible_rows(window):
+    table = window.ui.tableWidget_boxes
+    return [
+        table.item(row, 0).text()
+        for row in range(table.rowCount())
+        if not table.isRowHidden(row)
+    ]
+
+
+def test_the_live_layout(make_window, qtbot, patched, make_target, make_result):
+    from defaults import default_boxes
+
+    window = make_window()
+    ui = window.ui
+    window.resize(1366, 768)
+    with qtbot.waitExposed(window):
+        window.show()
+    storage = window.detectionTargetsStorage
+    storage.add_item(make_target("Home Score"))
+    storage.add_item(make_target("Time"))
+    # (the Box tab's content sets the Inspector's minimum width)
+    window.itemSelected("Time")
+    qtbot.wait(10)
+    setup_sizes = ui.splitter_main.sizes()
+    assert setup_sizes[2] > 0
+    setup_row = window.readingDelegate.rowHeight(ui.tableWidget_boxes.font())
+    assert len(visible_rows(window)) == len(default_boxes)
+
+    ui.actionLiveLayout.trigger()  # Ctrl+2
+    assert window.layoutMode == "live"
+    assert fetch_data("scoresight.json", "window_layout") == "live"
+    fields, viewer, inspector = ui.splitter_main.sizes()
+    # the Inspector collapsed, the readings about 400 pixels wide
+    assert inspector == 0 and 380 <= fields <= 420 and viewer >= 360
+    # the readings large, the unused fields hidden
+    assert window.readingDelegate.density == "live"
+    assert window.readingDelegate.rowHeight(ui.tableWidget_boxes.font()) > setup_row
+    assert ui.tableWidget_boxes.verticalHeader().defaultSectionSize() > setup_row
+    assert visible_rows(window) == ["Home Score", "Time"]
+    assert ui.label_hiddenFields.isVisibleTo(window)
+    assert f": {len(default_boxes) - 2} hidden" in ui.label_hiddenFields.text()
+    assert ui.label_fields.text() == "Readings"
+    # no picture adjustments; the outputs under the readings
+    assert not ui.widget_viewTools.isVisibleTo(window)
+    assert not ui.widget_fieldsFooter.isVisibleTo(window)
+    live_list = ui.listView_liveDestinations
+    assert live_list.isVisibleTo(window)
+    assert live_list.model() is window.destinationsModel
+    # one line per output, all of them shown
+    assert live_list.height() >= window.destinationsModel.rowCount() * (
+        window.liveDestinationDelegate.rowHeight(live_list.font())
+    )
+    live_list.grab()  # paints without errors
+
+    # the reading and the outputs work the same
+    window.obs_websocket_client = client = FakeObsClient()
+    window.ocrResult([make_result("Home Score", "12"), make_result("Time", "1:00")])
+    assert box_value(window, "Home Score") == "12"
+    assert patched["obs"] == [(client, "Home score", "12"), (client, "Clock", "1:00")]
+
+    # a new field is shown (it is selected) until another one is selected
+    window.addBox()
+    [custom] = custom_field_names()
+    assert custom in visible_rows(window)
+    window.itemSelected("Time")
+    assert custom not in visible_rows(window)
+
+    # View > Show unused fields, remembered for the Live layout only
+    ui.actionShowUnusedFields.trigger()
+    assert len(visible_rows(window)) == len(default_boxes) + 1
+    assert not ui.label_hiddenFields.isVisibleTo(window)
+    assert fetch_data("scoresight.json", "show_unused_fields_live") is True
+    ui.actionShowUnusedFields.trigger()
+    assert visible_rows(window) == ["Home Score", "Time"]
+
+    # Setup: the widths it had, every field, the adjustments
+    ui.actionSetupLayout.trigger()  # Ctrl+1
+    assert ui.splitter_main.sizes() == setup_sizes
+    assert window.readingDelegate.density == "setup"
+    assert len(visible_rows(window)) == len(default_boxes) + 1
+    assert ui.actionShowUnusedFields.isChecked()
+    assert ui.widget_viewTools.isVisibleTo(window)
+    assert ui.widget_fieldsFooter.isVisibleTo(window)
+    assert not live_list.isVisibleTo(window)
+    assert ui.label_fields.text() == "Fields"
+    assert fetch_data("scoresight.json", "main_splitter_sizes") == setup_sizes
+
+    # the layout is remembered
+    ui.actionLiveLayout.trigger()
+    window.close()
+    again = make_window()
+    assert again.layoutMode == "live" and again.ui.actionLiveLayout.isChecked()
+    assert again.readingDelegate.density == "live"
+    again.resize(1366, 768)
+    with qtbot.waitExposed(again):
+        again.show()
+    assert again.ui.splitter_main.sizes()[2] == 0
+    again.ui.actionSetupLayout.trigger()
+    qtbot.waitUntil(lambda: again.ui.splitter_main.sizes() == setup_sizes)
+
+
+def test_the_live_layout_fits_a_small_screen_in_every_language(
+    make_window, qapp, qtbot, reference_font
+):
+    window = make_window()
+    ui = window.ui
+    window.resize(1366, 768)
+    with qtbot.waitExposed(window):
+        window.show()
+    window.setLayoutMode("live")
+    try:
+        for language in ("de_DE", "en_US"):
+            window.changeLanguage(language)
+            qapp.processEvents()
+            # a language change keeps the layout
+            assert window.layoutMode == "live"
+            assert ui.actionLiveLayout.isChecked()
+            assert ui.listView_liveDestinations.isVisibleTo(window)
+            assert not ui.widget_viewTools.isVisibleTo(window)
+            assert ui.label_fields.text() == QCoreApplication.translate(
+                "MainWindow", "Readings"
+            )
+            assert window.minimumSizeHint().height() <= 640
+            fields, viewer, inspector = ui.splitter_main.sizes()
+            assert inspector == 0 and fields >= 300 and viewer >= 360, (
+                language,
+                ui.splitter_main.sizes(),
+            )
+            # every output on its line
+            model = window.destinationsModel
+            assert ui.listView_liveDestinations.height() >= model.rowCount() * (
+                window.liveDestinationDelegate.rowHeight(
+                    ui.listView_liveDestinations.font()
+                )
+            )
+    finally:
+        qapp.removeTranslator(window.translator)
+
+
+def test_a_language_change_keeps_the_shortcuts_and_the_names_width(main_window, qapp):
+    ui = main_window.ui
+    zoom_in = [key.toString() for key in ui.actionZoomIn.shortcuts()]
+    hold = ui.actionHoldValue.shortcut().toString()
+    assert len(zoom_in) == 2
+    ui.tableWidget_boxes.setColumnWidth(0, 140)  # dragged by the user
+    main_window.changeLanguage("de_DE")
+    try:
+        assert [key.toString() for key in ui.actionZoomIn.shortcuts()] == zoom_in
+        assert ui.actionHoldValue.shortcut().toString() == hold
+        assert ui.tableWidget_boxes.columnWidth(0) == 140
+        # back from the Live layout: that width again
+        main_window.setLayoutMode("live")
+        main_window.setLayoutMode("setup")
+        assert ui.tableWidget_boxes.columnWidth(0) == 140
+    finally:
+        qapp.removeTranslator(main_window.translator)
+
+
+def test_the_obs_text_sources_follow_the_fields(main_window, make_target):
+    ui = main_window.ui
+    storage = main_window.detectionTargetsStorage
+    storage.add_item(make_target("Custom 1", obs_source_name="Shots"))
+    model = ui.tableView_obsSources.model()
+    first = model.item(0, 1)
+    # the user's edit doesn't rebuild the table (an editor stays open)
+    first.setText("Shot clock")
+    assert model.item(0, 1) is first
+    storage.rename_item("Custom 1", "Game Clock")
+    assert [model.item(row, 0).text() for row in range(model.rowCount())] == [
+        "Game Clock"
+    ]
+    assert model.item(0, 1).text() == "Shot clock"
+    storage.remove_item("Game Clock")
+    assert model.rowCount() == 0
+
+
+def test_a_live_output_opens_its_settings(main_window):
+    ui = main_window.ui
+    main_window.setLayoutMode("live")
+    live_list = ui.listView_liveDestinations
+    index = main_window.destinationsModel.index(3, 0)  # vMix
+    # no switch here: a click doesn't turn it on
+    assert not main_window.liveDestinationDelegate.editorEvent(
+        None, main_window.destinationsModel, None, index
+    )
+    live_list.activated.emit(index)  # a double-click or Enter
+    assert ui.stackedWidget_outputs.currentWidget() is ui.tab_vmix
+    assert not main_window.isPaneHidden(2)
+
+
+# --- Hold value -----------------------------------------------------------------------
+
+
+@pytest.fixture
+def http_url():
+    import http_server
+
+    http_server.start_http_server(port=0)
+    port = http_server.get_http_server_port()
+    assert port
+    yield f"http://127.0.0.1:{port}"
+    http_server.stop_http_server()
+    http_server.update_http_server([])
+
+
+def test_a_held_value_reaches_every_output(
+    main_window, patched, make_result, make_target, monkeypatch, tmp_path, http_url
+):
+    import requests
+
+    import mainwindow
+
+    ui = main_window.ui
+    storage = main_window.detectionTargetsStorage
+    storage.add_item(make_target("Home Score"))
+    storage.add_item(make_target("Period"))
+    ui.horizontalSlider_aggsPerSecond.setValue(10)
+    main_window.setOutputFolder(str(tmp_path))
+    main_window.obs_websocket_client = client = FakeObsClient()
+    sent = {"vmix": [], "uno": [], "api": []}
+
+    def readings(results):
+        return {r.name: (r.result, r.result_state.name) for r in results}
+
+    vmix = main_window.vmixUiHandler.vmixUpdater
+    uno = main_window.unoUiHandler.unoUpdater
+    vmix.update_vmix = lambda results, resend_unchanged=(): sent["vmix"].append(
+        readings(results)
+    )
+    uno.update_uno = lambda results, resend_unchanged=(): sent["uno"].append(
+        readings(results)
+    )
+    monkeypatch.setattr(
+        mainwindow,
+        "update_out_api",
+        lambda results: sent["api"].append(readings(results)),
+    )
+    ui.checkBox_enableOutAPI.setChecked(True)
+
+    def cycle(period, state="Success"):
+        template = make_result(
+            "Score Line",
+            "",
+            "Empty",
+            templatefield=True,
+            templatefield_text="{{Home Score}} - {{Period}}",
+        )
+        main_window.ocrResult(
+            [
+                make_result("Home Score", "12", "SameNoChange"),
+                make_result("Period", period, state),
+                template,
+            ]
+        )
+        main_window.flushFileOutputs()
+
+    def http():
+        return requests.get(http_url + "/json?pivot", timeout=5).json()
+
+    cycle("2nd")
+    # Ctrl+H on the selected field: the editor is pre-filled with its value
+    main_window.itemSelected("Period")
+    asked = []
+    monkeypatch.setattr(
+        main_window,
+        "askHoldValue",
+        lambda name, value, held: asked.append((name, value, held)) or ("hold", "3rd"),
+    )
+    ui.actionHoldValue.trigger()
+    assert asked == [("Period", "2nd", False)]
+    patched["obs"].clear()
+
+    cycle("Z", "FailedFilter")  # a misread
+    for output in ("vmix", "uno", "api"):
+        assert sent[output][-1]["Period"] == ("3rd", "Success"), output
+        # templates use the held value
+        assert sent[output][-1]["Score Line"] == ("12 - 3rd", "Success"), output
+    assert http()["Period"] == "3rd"
+    assert http()["Score Line"] == "12 - 3rd"
+    assert (tmp_path / "Period.txt").read_text(encoding="utf-8") == "3rd"
+    assert (tmp_path / "Score Line.txt").read_text(encoding="utf-8") == "12 - 3rd"
+    assert patched["obs"] == [(client, "Period", "3rd")]
+    # once new, then unchanged
+    cycle("2nd", "SameNoChange")
+    assert sent["vmix"][-1]["Period"] == ("3rd", "SameNoChange")
+    assert sent["vmix"][-1]["Score Line"] == ("12 - 3rd", "SameNoChange")
+    assert patched["obs"] == [(client, "Period", "3rd")]
+
+    # the readings go on in the list: the OCR's value under the held one
+    assert box_value(main_window, "Period") == "2nd"
+    from readings_view import HELD_VALUE_ROLE
+
+    assert box_value_item(main_window, "Period").data(HELD_VALUE_ROLE) == "3rd"
+
+    # Release (the row's button): the readings again, sent as new
+    main_window.readingDelegate.releaseRequested.emit("Period")
+    assert box_value_item(main_window, "Period").data(HELD_VALUE_ROLE) is None
+    cycle("2nd", "SameNoChange")
+    for output in ("vmix", "uno", "api"):
+        assert sent[output][-1]["Period"] == ("2nd", "Success"), output
+        assert sent[output][-1]["Score Line"] == ("12 - 2nd", "Success"), output
+    assert http()["Period"] == "2nd"
+    assert (tmp_path / "Period.txt").read_text(encoding="utf-8") == "2nd"
+    assert patched["obs"][-1] == (client, "Period", "2nd")
+    cycle("2nd", "SameNoChange")
+    assert sent["vmix"][-1]["Period"] == ("2nd", "SameNoChange")
+
+
+def test_hold_value_in_the_field_list_and_the_picture(
+    make_window, make_target, make_result, monkeypatch, qapp
+):
+    from PySide6.QtGui import QGuiApplication
+
+    from readings_view import HELD_VALUE_ROLE
+
+    store_data("scoresight.json", "source_selected", "rtsp://10.0.1.200:554/11")
+    window = make_window()
+    ui = window.ui
+    viewer = window.image_viewer
+    storage = window.detectionTargetsStorage
+    storage.add_item(make_target("Period"))
+    window.ocrResult([make_result("Period", "2nd")])
+    window.itemSelected("Period")
+    window.fieldContextMenu().deleteLater()
+    assert ui.actionHoldValue.isEnabled() and not ui.actionReleaseValue.isEnabled()
+
+    answers = [("hold", "3rd")]
+    monkeypatch.setattr(window, "askHoldValue", lambda *args: answers.pop(0))
+    ui.actionHoldValue.trigger()
+    # the overlay says HELD
+    assert viewer.heldValues == {"Period": "3rd"}
+    assert box_value_item(window, "Period").data(HELD_VALUE_ROLE) == "3rd"
+    menu = window.fieldContextMenu()
+    names = [action.objectName() for action in menu.actions() if action.objectName()]
+    menu.deleteLater()
+    assert "actionReleaseValue" in names
+    assert ui.actionHoldValue.text() == "Change held value..."
+    ui.actionCopyValue.trigger()
+    assert QGuiApplication.clipboard().text() == "3rd"
+    # a new source shows it too
+    window.sourceSelectionSucessful()
+    assert window.image_viewer is not viewer
+    assert window.image_viewer.heldValues == {"Period": "3rd"}
+    # kept by a language change
+    window.changeLanguage("de_DE")
+    try:
+        assert box_value_item(window, "Period").data(HELD_VALUE_ROLE) == "3rd"
+        assert ui.actionReleaseValue.isEnabled()
+    finally:
+        qapp.removeTranslator(window.translator)
+
+    # Release from the context menu
+    ui.actionReleaseValue.trigger()
+    assert window.image_viewer.heldValues == {}
+    assert box_value_item(window, "Period").data(HELD_VALUE_ROLE) is None
+    assert ui.actionHoldValue.text() == "Hold value..."
+
+    # Release from the editor
+    answers[:] = [("hold", "OT"), ("release", "")]
+    ui.actionHoldValue.trigger()
+    assert "Period" in window.heldValues
+    ui.actionHoldValue.trigger()
+    assert "Period" not in window.heldValues
+
+    # taken off the picture: nothing to hold any more
+    answers[:] = [("hold", "OT")]
+    ui.actionHoldValue.trigger()
+    window.removeBox()
+    assert "Period" not in window.heldValues
+    assert window.image_viewer.heldValues == {}
+    assert not ui.actionHoldValue.isEnabled()
+
+
+def test_a_renamed_field_stays_held(main_window, make_target, monkeypatch):
+    import mainwindow
+
+    main_window.addBox()
+    [name] = custom_field_names()
+    main_window.makeBox()
+    main_window.heldValues.hold(name, "x")
+    main_window.updateHeldUi()
+    monkeypatch.setattr(
+        mainwindow.QInputDialog, "getText", lambda *a, **k: ("Game Clock", True)
+    )
+    main_window.ui.actionRenameField.trigger()
+    assert main_window.heldValues.values() == {"Game Clock": "x"}
+
+
+def test_the_hold_value_dialog(main_window):
+    from held_values import RELEASE, HoldValueDialog
+
+    dialog = HoldValueDialog("Period", "2nd", False, main_window)
+    assert dialog.value() == "2nd"
+    assert dialog.releaseButton is None
+    dialog.lineEdit.setText("3rd")
+    dialog.holdButton.click()
+    assert dialog.result() == dialog.DialogCode.Accepted
+    assert dialog.value() == "3rd"
+    dialog.deleteLater()
+
+    held = HoldValueDialog("Period", "3rd", True, main_window)
+    held.open()
+    held.releaseButton.click()
+    assert held.result() == RELEASE
+    held.deleteLater()

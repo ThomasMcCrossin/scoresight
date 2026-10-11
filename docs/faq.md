@@ -42,7 +42,7 @@ No. Reading the scoreboard and all local outputs (files, the HTTP server, OBS, v
 
 Your readings go only to the outputs you configure. ScoreSight has no accounts, no cloud service of its own and no analytics.
 
-The only other connection is the update check: at startup, and when you choose **File > Check for Updates**, ScoreSight asks GitHub (`api.github.com`) for the latest ScoreSight release. The request carries nothing but the ScoreSight version. At startup, a dialog appears only when a newer version exists. To turn off the startup check, tick **Don't check for updates at startup** in the update dialog (open it with **File > Check for Updates**).
+The only other connection is the update check: at startup, and when you choose **Help > Check for updates...**, ScoreSight asks GitHub (`api.github.com`) for the latest ScoreSight release. The request carries nothing but the ScoreSight version. At startup, a dialog appears only when a newer version exists. To turn off the startup check, tick **Don't check for updates at startup** in the update dialog (open it with **Help > Check for updates...**).
 
 ## How many boxes can I use?
 
@@ -54,11 +54,11 @@ Up to 15 readings per second (the **Detections / s** slider), with all boxes rea
 
 ## Which languages is the interface available in?
 
-English, French, Spanish, German, Italian, Japanese, Korean, Dutch, Polish, Portuguese (Brazil), Portuguese (Portugal), Russian and Chinese (Simplified). ScoreSight follows your system language, also for regional variants (for example Austrian German gets the German translation). Choose another one with **File > Language**: ScoreSight remembers it for the next start. Want to help translate? See [Translations](development/translations.md).
+English, French, Spanish, German, Italian, Japanese, Korean, Dutch, Polish, Portuguese (Brazil), Portuguese (Portugal), Russian and Chinese (Simplified). ScoreSight follows your system language, also for regional variants (for example Austrian German gets the German translation). Choose another one with **View > Language**: ScoreSight remembers it for the next start. Want to help translate? See [Translations](development/translations.md).
 
 ## Can I make the interface dark (or light)?
 
-Yes: **File > Appearance** > **Dark**, **Light** or **System** ([#50](https://github.com/royshil/scoresight/issues/50)). ScoreSight remembers the choice.
+Yes: **View > Appearance** > **Dark**, **Light** or **System** ([#50](https://github.com/royshil/scoresight/issues/50)). ScoreSight remembers the choice.
 
 ## Can other computers on my network read the data?
 
@@ -74,7 +74,7 @@ The project doesn't currently run a central data collection. You can use the [bu
 
 ## Where are my settings? How do I back them up or move them to another computer?
 
-See [Settings, Files & Command Line](configuration.md#where-scoresight-keeps-its-files). To move only the boxes, use **File > Export Configuration** and **Import Configuration**. To move everything, copy `scoresight.json` (or a profile's `scoresight-<name>.json`) to the same folder on the other computer.
+See [Settings, Files & Command Line](configuration.md#where-scoresight-keeps-its-files). To move only the boxes, use **File > Export field layout...** and **Import field layout...**. To move everything, copy `scoresight.json` (or a profile's `scoresight-<name>.json`) to the same folder on the other computer.
 
 ## How do I report a bug or request a feature?
 

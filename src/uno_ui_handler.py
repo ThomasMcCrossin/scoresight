@@ -82,7 +82,7 @@ class UNOUIHandler:
 
         self.ui.toolButton_toggleUno.toggled.connect(self.toggleUNO)
 
-        # Connect the "Send Same?" checkbox
+        # Connect the "Also resend unchanged values" checkbox
         self.ui.checkBox_uno_send_same.setChecked(
             fetch_data("scoresight.json", "uno_send_same", False)
         )

@@ -8,9 +8,36 @@ Release tags are the bare version number (for example `0.1.0`).
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-10
+
 ScoreSight is actively maintained again. This release modernizes the whole
-stack, fixes the most reported problems, keeps the window responsive whatever
-your outputs and sources do, and adds profiles for running several instances.
+stack, redesigns the window, fixes the most reported problems, and is tested
+end to end on every platform before it ships. Highlights:
+
+- **A redesigned window.** The field list with large live values, the picture
+  and a settings panel (**Box** and **Outputs**) side by side, and a **Live
+  layout** (Ctrl+2) for game time. Each output (text files, HTTP server, OBS,
+  vMix, UNO, HTTP API) has an on/off switch and a live status that says what
+  is wrong and what to do ("vMix: no answer from 192.168.1.40:8088 ·
+  retrying"). **Pause outputs** says that it is paused everywhere, 4-corner
+  correction no longer throws away the previous one by accident, a first-run
+  card walks through the three steps, and **Hold value** (Ctrl+H) sends a
+  typed value instead of a misread one until you release it. The window fits
+  a 1366×768 laptop. Nothing was removed: every setting has a place.
+- **Starts in 1 to 2 seconds**, 3 to 6 times faster than 0.1.0, measured on
+  every platform in CI (on an Intel Mac, 2.0 s against 0.1.0's 12.9 s; users
+  reported up to 30 s before).
+- **The whole window is translated** into 12 languages (machine drafts so far:
+  corrections from native speakers are welcome).
+- **Outputs never freeze the window**, whatever vMix, UNO, OBS or an API
+  endpoint do, and the OBS text source of each field can be edited in place.
+- **Fewer crashes:** an intermittent native crash and a race that lost the
+  first readings of a source are fixed, and a crash now leaves a trace in the
+  log.
+- **Profiles** (`--profile`) and `--port` for running several instances
+  side by side, and `--self-test` to check an installation.
+- Downloads for Windows (installer and portable zip), macOS (Apple Silicon and
+  Intel) and Linux, with `SHA256SUMS.txt`.
 
 ### Added
 
@@ -38,9 +65,9 @@ your outputs and sources do, and adds profiles for running several instances.
 - If ScoreSight crashes in a library (Qt, OpenCV, Tesseract...), the
   `scoresight_std_` log shows where: what every part of the program was doing
   at that moment. Before, such a crash left no trace.
-- **File > Appearance** with System, Light and Dark colour schemes,
+- **View > Appearance** with System, Light and Dark colour schemes,
   remembered between runs ([#50](https://github.com/royshil/scoresight/issues/50)).
-- **File > Check for Updates** checks GitHub Releases and always shows the
+- **Help > Check for updates...** checks GitHub Releases and always shows the
   result. The check at startup shows a dialog only when a newer version
   exists, and can be turned off in that dialog.
 - A `/csv?pivot` endpoint on the built-in HTTP server: a header row with the
@@ -141,6 +168,28 @@ your outputs and sources do, and adds profiles for running several instances.
   **Fit**.
 - **View** and **Tools** menus with the view tools, **Pause outputs**,
   **Reload sources** and the OCR training data, showing their shortcuts.
+- **Setup** and **Live** layouts (**View** menu, **Ctrl+1** and **Ctrl+2**),
+  remembered between runs. The Live layout is for the game: the inspector
+  is hidden, the field list is wider with the values in large type, the
+  fields that aren't on the picture are hidden (**View > Show unused
+  fields**, remembered for each layout), and the outputs are listed under
+  the readings with their state, one line each. The **Adjust picture** row
+  is hidden. The reading and the outputs work the same in both layouts, and
+  the Setup layout gets its widths back.
+- **Hold value...** (right-click a field, or **Ctrl+H**; **⌃H** on macOS):
+  every output and template field gets a value you type instead of the
+  field's readings, for example to correct a misread during a game, until
+  you **Release** it. The field's row shows **HELD** and what the OCR reads
+  meanwhile, and its label on the picture says **HELD**. A held value isn't
+  saved.
+- The OBS page has a **Text sources** table: the OBS text source each field
+  updates, which you can edit (a custom field can now update OBS without
+  editing an exported file). The names are saved with the boxes.
+- A **Help** menu: **User guide** (**F1**, opens the documentation site),
+  **Keyboard shortcuts** (lists every shortcut), **Check for updates...** and
+  **About**. **File > Quit** (**Ctrl+Q**), and shortcuts for **Import field
+  layout...** (**Ctrl+O**), **Export field layout...** (**Ctrl+Shift+S**)
+  and **View log** (**Ctrl+Shift+L**).
 
 ### Changed
 
@@ -200,7 +249,7 @@ your outputs and sources do, and adds profiles for running several instances.
   means the platform default (DirectShow on Windows). **Capture Backend** lists
   only the backends ScoreSight's OpenCV includes, and a saved backend that
   can't open the camera falls back to the default one.
-- ScoreSight remembers the language chosen in **File > Language**, and regional
+- ScoreSight remembers the language chosen in **View > Language**, and regional
   system locales (for example `de_AT` or `fr_CA`) now get the matching
   translation.
 - In the Training Dojo, the next/back/remove-approval shortcuts are now
@@ -289,9 +338,18 @@ your outputs and sources do, and adds profiles for running several instances.
   `docs/development/translations.md`). The Video Settings, Logs, About and
   stream URL window titles are translated too, and the settings panel widens
   to fit a long language instead of cutting labels off.
-- The **File** menu is translated, and **File > Language** lists each language
+- The menus are translated, and **View > Language** lists each language
   in its own language (Deutsch, Français, 日本語, ...) with the current one
   ticked.
+- The menus are **File** (**Import field layout...** and **Export field
+  layout...**, formerly Import and Export Configuration, **Open settings
+  folder**, **Quit**), **View** (the layouts, the view tools, **Show unused
+  fields**, **Appearance** and **Language**, which moved from File),
+  **Tools** (... and **View log**, formerly File > View Current Log) and
+  **Help** (**Check for updates...** and **About** moved from File). On
+  macOS, **About** and **Quit** are in the application menu.
+- vMix and UNO: **Send Same?** is now **Also resend unchanged values**, with
+  a tooltip that says what it does (the setting is the same).
 - **Connect to OBS** hides the password (with **Show password**), has a
   **Cancel** button and stays in front of the main window.
 - The vMix and UNO start buttons show a text and an icon instead of emoji:
@@ -335,6 +393,10 @@ your outputs and sources do, and adds profiles for running several instances.
 
 ### Fixed
 
+- **Recreate** next to **Create OBS Scene** did nothing: an existing scene
+  was always emptied and made again. Unticked, an existing scene is now
+  kept as it is, and a line under the button says what happened (created,
+  made again, kept, or failed).
 - Renaming a field to a name that was taken did nothing, without a message.
   ScoreSight now says so and asks again. Names that differ only in upper and
   lower case count as the same, because their text files are the same file on
@@ -726,7 +788,8 @@ your outputs and sources do, and adds profiles for running several instances.
 
 - First open-source release of ScoreSight.
 
-[Unreleased]: https://github.com/royshil/scoresight/compare/0.1.0...HEAD
+[Unreleased]: https://github.com/royshil/scoresight/compare/0.2.0...HEAD
+[0.2.0]: https://github.com/royshil/scoresight/compare/0.1.0...0.2.0
 [0.1.0]: https://github.com/royshil/scoresight/compare/0.0.17...0.1.0
 [0.0.17]: https://github.com/royshil/scoresight/compare/0.0.16...0.0.17
 [0.0.16]: https://github.com/royshil/scoresight/compare/0.0.15...0.0.16
