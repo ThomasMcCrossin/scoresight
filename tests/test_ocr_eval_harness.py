@@ -383,10 +383,11 @@ def test_a_role_with_a_preset_is_read_with_it():
     shot_clock = box_settings("number", "shot_clock", dilate=0)
     assert shot_clock["format_regex"] == defaults.format_prefixes[4]
     assert shot_clock["dilate"] == 0
-    # the Shot Clock preset's format takes two digits, 00-39
+    # the Shot Clock preset's format takes one or two digits, 0-39
     assert scoresight_postfilter("07", "number", "shot_clock") == "07"
-    assert scoresight_postfilter("7", "number", "shot_clock") == ""
-    assert scoresight_postfilter("7", "number", "home_timeouts") == "7"
+    assert scoresight_postfilter("7", "number", "shot_clock") == "7"
+    assert scoresight_postfilter("40", "number", "shot_clock") == ""
+    assert scoresight_postfilter("40", "number", "home_timeouts") == "40"
 
 
 class RoleEngine(Engine):

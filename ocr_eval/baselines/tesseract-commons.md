@@ -1,6 +1,6 @@
 # OCR evaluation: Tesseract baseline on commons_scoreboards (Linux)
 
-Created 2026-10-11T03:26:41+00:00 with harness v1 on Linux 5.15.167.4-microsoft-standard-WSL2 x86_64, Python 3.13.2.
+Created 2026-10-11T13:39:51+00:00 with harness v1 on Linux 5.15.167.4-microsoft-standard-WSL2 x86_64, Python 3.13.2.
 
 Exact = normalized exact match; Digits = same digits ignoring separators; CER = character error rate; Empty = no output; Post-filter = exact match after ScoreSight's whitelist and format regex for the field type. Percentages with 95% confidence intervals (Wilson; CER: bootstrap). Latency per crop in ms, p50 / p95.
 
@@ -10,15 +10,15 @@ Real scoreboard fields (scores, clocks, shot clocks, periods, fouls ...) cut fro
 
 | Engine:variant | Exact % | Digits % | CER % | Empty % | Post-filter exact % | ms single | ms batch | Load s |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| tesseract:tuned | 58.0 (54.9–60.9) | 60.9 | 29.3 (26.7–32.3) | 5.2 | 57.3 (54.3–60.2) | 2.0 / 5.8 | 2.0 / 5.8 | 0.128 |
-| tesseract:eng-nobin | 52.8 (49.7–55.8) | 54.9 | 34.6 (31.6–38.1) | 8.5 | 52.0 (49.0–55.0) | 2.8 / 10.2 | 2.8 / 10.2 | 0.222 |
-| tesseract:eng | 47.4 (44.4–50.4) | 50.2 | 42.1 (38.9–45.4) | 10.0 | 46.6 (43.6–49.7) | 3.8 / 13.8 | 3.8 / 13.8 | 0.197 |
-| tesseract:scoreboard_general-nobin | 44.4 (41.5–47.5) | 45.3 | 65.5 (61.8–69.1) | 3.7 | 44.3 (41.3–47.3) | 2.9 / 9.4 | 2.9 / 9.4 | 0.068 |
-| tesseract:scoreboard_general | 40.5 (37.6–43.5) | 41.1 | 69.2 (65.9–72.4) | 4.4 | 40.3 (37.4–43.3) | 1.5 / 4.5 | 1.5 / 4.5 | 0.683 |
-| tesseract:scoreboard_general_large-nobin | 37.4 (34.5–40.3) | 38.2 | 68.0 (64.8–71.1) | 3.1 | 37.3 (34.4–40.2) | 6.5 / 20.7 | 6.5 / 20.7 | 0.059 |
-| tesseract:scoreboard_general_large | 33.9 (31.1–36.8) | 34.8 | 71.4 (68.2–74.4) | 3.5 | 33.6 (30.8–36.5) | 5.8 / 21.3 | 5.8 / 21.3 | 0.045 |
-| tesseract:daktronics-nobin | 22.4 (20.0–25.0) | 22.9 | 79.5 (77.3–81.5) | 5.1 | 22.2 (19.8–24.8) | 1.9 / 5.6 | 1.9 / 5.6 | 0.042 |
-| tesseract:daktronics | 20.2 (17.9–22.8) | 20.6 | 83.0 (80.9–85.1) | 4.5 | 20.0 (17.7–22.6) | 2.2 / 5.7 | 2.2 / 5.7 | 0.047 |
+| tesseract:tuned | 58.0 (54.9–60.9) | 60.9 | 29.3 (26.7–32.3) | 5.2 | 57.3 (54.3–60.2) | 2.1 / 6.1 | 2.1 / 6.1 | 0.116 |
+| tesseract:eng-nobin | 52.8 (49.7–55.8) | 54.9 | 34.6 (31.6–38.1) | 8.5 | 52.0 (49.0–55.0) | 2.8 / 9.0 | 2.8 / 9.0 | 0.12 |
+| tesseract:eng | 47.4 (44.4–50.4) | 50.2 | 42.1 (38.9–45.4) | 10.0 | 46.7 (43.7–49.8) | 2.8 / 10.2 | 2.8 / 10.2 | 0.148 |
+| tesseract:scoreboard_general-nobin | 44.4 (41.5–47.5) | 45.3 | 65.5 (61.8–69.1) | 3.7 | 44.3 (41.3–47.3) | 1.5 / 4.4 | 1.5 / 4.4 | 0.017 |
+| tesseract:scoreboard_general | 40.5 (37.6–43.5) | 41.1 | 69.2 (65.9–72.4) | 4.4 | 40.3 (37.4–43.3) | 1.6 / 4.9 | 1.6 / 4.9 | 0.747 |
+| tesseract:scoreboard_general_large-nobin | 37.4 (34.5–40.3) | 38.2 | 68.0 (64.8–71.1) | 3.1 | 37.3 (34.4–40.2) | 4.9 / 15.9 | 4.9 / 15.9 | 0.026 |
+| tesseract:scoreboard_general_large | 33.9 (31.1–36.8) | 34.8 | 71.4 (68.2–74.4) | 3.5 | 33.6 (30.8–36.5) | 4.9 / 17.1 | 4.9 / 17.1 | 0.03 |
+| tesseract:daktronics-nobin | 22.4 (20.0–25.0) | 22.9 | 79.5 (77.3–81.5) | 5.1 | 22.3 (19.9–24.9) | 1.6 / 4.1 | 1.6 / 4.1 | 0.016 |
+| tesseract:daktronics | 20.2 (17.9–22.8) | 20.6 | 83.0 (80.9–85.1) | 4.5 | 20.1 (17.8–22.7) | 1.5 / 3.6 | 1.5 / 3.6 | 0.017 |
 
 ### By field type (exact %, 95% CI)
 

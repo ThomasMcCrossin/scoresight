@@ -424,6 +424,28 @@ def test_remove_leading_zeros_keeps_a_failed_read_empty(detector, make_target):
     assert result.text == "7"
 
 
+def test_shot_clock_reads_its_last_ten_seconds(detector, make_target):
+    # A shot clock shows 9, 8, ... 0 without a leading zero; its default
+    # format (Shotclock 0-39) once took exactly two digits, so those readings
+    # failed the filter and the outputs stayed at 10.
+    gray, rect = digits_frame()
+    box = make_target("Shot Clock", rect=rect)
+    states = {}
+    for text in ["24", "10", "9", "8", "0", "08", "40"]:
+        detector.api.text = text
+        [result] = detector.detect_multi_text(binarize(gray), gray, [box])
+        states[text] = result.state
+    assert states == {
+        "24": SUCCESS,
+        "10": SUCCESS,
+        "9": SUCCESS,
+        "8": SUCCESS,
+        "0": SUCCESS,
+        "08": SUCCESS,
+        "40": FAILED,
+    }
+
+
 def test_one_failing_box_does_not_stop_the_others(detector, make_target):
     gray, rect = digits_frame()
     broken = make_target("Home Score", rect=rect)

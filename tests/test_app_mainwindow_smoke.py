@@ -1174,7 +1174,7 @@ def test_the_format_shows_its_preset_and_an_invalid_expression(
     main_window.itemSelected("Home Score")
     combo = ui.comboBox_formatPrefix
     assert combo.currentText() == "Score 1dd"  # the field's default format
-    ui.lineEdit_format.setText("^[0-3]?\\d$")
+    ui.lineEdit_format.setText("^[0-3]\\d\\d$")
     assert combo.currentText() == "Custom"
     combo.setCurrentIndex(1)
     assert ui.lineEdit_format.text() == format_prefixes[1]
@@ -1197,6 +1197,32 @@ def test_the_format_shows_its_preset_and_an_invalid_expression(
     ui.lineEdit_format.setText("^1?\\d$")
     assert ui.label_formatStatus.isHidden()
     assert ui.lineEdit_format.styleSheet() == ""
+
+
+def test_a_shot_clock_saved_by_0_3_0_shows_its_preset(make_window):
+    # up to 0.3.0 the Shotclock 0-39 preset took exactly two digits; a box
+    # that stored it is migrated to the preset's expression, so the Format list
+    # still shows the preset (not Custom)
+    import storage
+    from defaults import format_prefixes
+
+    store_data(
+        "scoresight.json",
+        "boxes",
+        [
+            {
+                "name": "Shot Clock",
+                "rect": {"x": 1, "y": 2, "width": 3, "height": 4},
+                "settings": {"format_regex": "^[0-3]\\d$"},
+            }
+        ],
+    )
+    store_data("scoresight.json", storage.BOXES_SCHEMA_KEY, 2)
+    window = make_window()
+    window.itemSelected("Shot Clock")
+    assert window.ui.comboBox_formatPrefix.currentText() == "Shotclock 0-39"
+    assert window.ui.lineEdit_format.text() == format_prefixes[4]
+    assert fetch_data("scoresight.json", storage.BOXES_SCHEMA_KEY) == 3
 
 
 def test_insert_field_into_a_template(main_window, make_target):

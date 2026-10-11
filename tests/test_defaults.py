@@ -124,9 +124,17 @@ def test_format_prefixes_compile():
         (1, "5.7", False),
         (2, "59.9", True),
         (3, "07", True),
-        (3, "7", False),
+        # clocks show 7, not 07
+        (3, "7", True),
+        (3, "60", False),
+        (3, "007", False),
         (4, "39", True),
+        (4, "8", True),
+        (4, "08", True),
+        (4, "0", True),
         (4, "40", False),
+        (4, "", False),
+        (4, "100", False),
         (5, "199", True),
         (5, "200", False),
         (6, "999", True),
@@ -142,3 +150,15 @@ def test_format_prefixes_compile():
 )
 def test_format_prefix_presets(index, text, matches):
     assert (re.fullmatch(format_prefixes[index], text) is not None) == matches
+
+
+@pytest.mark.parametrize(
+    ("text", "matches"),
+    [("24", True), ("10", True), ("9", True), ("8", True), ("0", True), ("40", False)],
+)
+def test_shot_clock_accepts_a_single_digit(text, matches):
+    # A shot clock shows 9, 8, ... 0 in its last ten seconds, not 09: a format
+    # of exactly two digits rejected them and the outputs stayed at 10.
+    shot_clock = normalize_settings_dict({}, default_info_for_box_name("Shot Clock"))
+    assert shot_clock["format_regex"] == format_prefixes[4]
+    assert (re.fullmatch(shot_clock["format_regex"], text) is not None) == matches

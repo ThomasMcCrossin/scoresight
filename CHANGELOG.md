@@ -8,6 +8,16 @@ Release tags are the bare version number (for example `0.1.0`).
 
 ## [Unreleased]
 
+### Fixed
+
+- The **Shotclock 0-39** and **Time 0-59** formats took exactly two digits,
+  so a shot clock that shows `9`, `8`, ... `0` without a leading zero failed
+  the filter, and the outputs stayed at `10` for the last ten seconds of
+  every shot clock. They now take one or two digits (the Shot Clock field
+  uses Shotclock 0-39 by default). Boxes saved with the old formats, in the
+  settings or an exported configuration, are updated once when loaded
+  (`boxes_schema_version` 3); other formats are kept.
+
 ## [0.3.0] - 2026-10-11
 
 A new OCR engine, live overlays, and many more broadcast products. Highlights:

@@ -177,7 +177,7 @@ The full method is in [Recognition Tuning](recognition-tuning.md).
 
 ### Readings are yellow even though they look right
 
-The reading failed the box's **Format** (the raw text didn't fully match) or the **Conf. Th** confidence threshold. Check the format (for example *Shotclock 0-39* needs two digits). The confidence threshold is off (0) by default; if you raised it, lower it or set it back to 0. With Tesseract, correct readings of real scoreboards often have a confidence of only 30–50 %; with PP-OCR, 80–90 % is a good threshold. See [Conf. Th](box-settings.md#conf-th-confidence-threshold).
+The reading failed the box's **Format** (the raw text didn't fully match) or the **Conf. Th** confidence threshold. Check the format (for example *Period 1-4* rejects an overtime period `5`: choose *Period d*). The confidence threshold is off (0) by default; if you raised it, lower it or set it back to 0. With Tesseract, correct readings of real scoreboards often have a confidence of only 30–50 %; with PP-OCR, 80–90 % is a good threshold. See [Conf. Th](box-settings.md#conf-th-confidence-threshold).
 
 ### Digits appear on a blank box
 

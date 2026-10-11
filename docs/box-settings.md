@@ -117,8 +117,8 @@ The **Format** list shows the preset whose expression is in the field under it, 
 | Time mm:ss.d | `mm:ss` or `ss.d` (expression below) | Time |
 | Time mm:ss | `^[0-5]?\d:[0-5]\d$` | |
 | Time ss.d | `^[0-5]?\d\.\d$` | |
-| Time 0-59 | `^[0-5]\d$` | |
-| Shotclock 0-39 | `^[0-3]\d$` | Shot Clock |
+| Time 0-59 | `^[0-5]?\d$` | |
+| Shotclock 0-39 | `^[0-3]?\d$` | Shot Clock |
 | Score 1dd | `^1?\d{1,2}$` | Home Score, Away Score |
 | Score ddd | `^\d{1,3}$` | |
 | Period 1-4 | `^[1-4]{1}$` | Period |
