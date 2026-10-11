@@ -60,8 +60,10 @@ ScoreSight updates OBS text sources whose names exactly match the standard field
 
 You have two options:
 
-- **Use the ready-made scene**: type a scene name (default *ScoreSight Scene*) and click **Create OBS Scene**. ScoreSight builds a complete scoreboard graphic in OBS, with the text sources above plus team names, logos and backgrounds you can restyle. If a scene with that name already exists, its contents are removed and rebuilt.
+- **Use the ready-made scene**: type a scene name (default *ScoreSight Scene*) and click **Create OBS Scene**. ScoreSight builds a complete scoreboard graphic in OBS, with the text sources above plus team names, logos and backgrounds you can restyle. If a scene with that name already exists, **Recreate** (on by default) removes its contents and rebuilds it; with **Recreate** off, the existing scene is kept as it is. A line under the button says what happened: *Created the scene*, *Made the scene again*, *OBS already has a scene...: it was kept as it is*, or *Couldn't create the scene* (the log has the details).
 - **Use your own design**: create *Text (GDI+)* or *Text (FreeType 2)* sources with the names in the table, anywhere in your scenes. Names are case-sensitive.
+
+The **Text sources** table on the OBS page lists every field on the picture with the OBS text source it updates. Double-click a source name to change it, for example to use the names of your own design; leave it empty to send nothing to OBS for that field. The names are saved with the boxes (and in exported field layouts).
 
 Once connected, every change of a field's value updates its OBS text source.
 
@@ -78,11 +80,11 @@ In ScoreSight 0.1.x, OBS updates only ran when an output folder was set in the *
 
 ## Custom fields
 
-Custom fields have no OBS source name by default, so they don't update OBS. Your options:
+Custom fields have no OBS source name at first, so they don't update OBS. Your options:
 
-- Use a **Browser Source** with the [HTTP server](http_server.md) (recommended). It can show any field.
+- Type the name of an OBS text source next to the field in the **Text sources** table of the OBS page. The custom field then updates that text source like a standard field. (In ScoreSight 0.1.x this needed an exported configuration file edited by hand.)
+- Use a **Browser Source** with the [HTTP server](http_server.md). It can show any field.
 - Use a text source that **reads from file** with the field's `.txt` file ([Text Files](text-files.md)).
-- Advanced: **File > Export Configuration**, set `"obs_source_name": "My OBS Source"` in that box's `settings` in the exported `.json`, then **File > Import Configuration**. The custom field now updates the OBS text source with that name.
 
 ## Troubleshooting
 
@@ -96,7 +98,7 @@ Start with the OBS row of the **Outputs** list (or **OBS** in the status bar): i
 | *Connected, but no field has an OBS text source* | No field on the picture has an OBS source name. Place the standard fields, or see [Custom fields](#custom-fields) |
 | *Reconnecting to OBS at ...* | OBS closed or the network dropped. ScoreSight reconnects by itself when OBS is back (the log shows `OBS: OBSConnectionLost: ...` at most every 30 seconds). If it doesn't, click **Connect OBS** again |
 | ● *Connected*, but the text doesn't change | The reading is green in ScoreSight, and **Pause outputs** is off. The time next to the OBS row shows when a text source was last updated |
-| One field never updates | It is a custom field (see [Custom fields](#custom-fields)) |
+| One field never updates | Its OBS text source in the **Text sources** table is empty or doesn't match a source in OBS (custom fields have none at first, see [Custom fields](#custom-fields)) |
 
 {: .note }
 ScoreSight 0.2.0 no longer writes the OBS WebSocket password to its log files.

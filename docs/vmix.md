@@ -62,7 +62,7 @@ Then select **vMix** in the **Outputs** tab on the right (or click **vMix** in t
 | **Connection** | Host (`localhost` or the vMix computer's IP) and port `8088` |
 | **Input** | The vMix input that holds the title: its number (as shown on the input in vMix), its name, or its key |
 | **Output Mapping** | One row per ScoreSight field. In the right column, type the exact vMix field name, for example `Home Score.Text`. The default is the ScoreSight field name, which usually needs the `.Text` suffix added. The mapping the table shows is used right away, even for rows you haven't edited. Clear a cell to stop sending that field |
-| **Send Same?** | Off: send only new values. On: also resend unchanged values on every cycle. This is useful if someone else may overwrite the title in vMix |
+| **Also resend unchanged values** (was **Send Same?**) | Off: send only new values. On: also resend unchanged values on every cycle. This is useful if someone else may overwrite the title in vMix |
 
 Click **Start vMix** (or the switch of the vMix row) to begin sending (the button changes to **Stop vMix**). Click it again to stop sending without losing the settings.
 
@@ -79,7 +79,7 @@ The vMix row of the **Outputs** list (and **vMix** in the status bar) shows it:
 | State | The vMix row says |
 |---|---|
 | ● Working | *Sending to localhost:8088, input 1*, and when the last value was sent (*2 s ago*) |
-| ◐ Waiting | *Waiting for a new value for ...*: started, but no field changed yet. vMix gets a value when it changes (or every time, with **Send Same?**) |
+| ◐ Waiting | *Waiting for a new value for ...*: started, but no field changed yet. vMix gets a value when it changes (or every time, with **Also resend unchanged values**) |
 | ▲ Retrying | *Can't reach 192.168.1.40:8088 · retrying* or *No answer from ... · retrying*: vMix can't be reached. ScoreSight retries by itself and sends the latest values when vMix is back |
 | ▲ Needs attention | *No fields to send* (nothing mapped), or *1 of 4 failing: ...* when some fields arrive and others don't |
 | ■ Not working | *Port 8099 is vMix's TCP API: use 8088*, *HTTP 401: vMix asks for a login*, or another error vMix answered with |
@@ -114,6 +114,6 @@ The vMix row of the **Outputs** list says what is wrong (see [above](#is-vmix-re
 | *Port 8099 is vMix's TCP API: use 8088* (`vMix: VMixTCPPortError: localhost:8099 answered like the vMix TCP API ('VERSION OK')...`) | You are pointing at the vMix **TCP API** port (8099). Change the port to the Web Controller port, **8088** by default |
 | *Can't reach ...* or *No answer from ...* (`vMix: ConnectionError: ...`, connection refused, or a timeout) | The vMix Web Controller is not enabled, the port is wrong, or a firewall blocks it. Open `http://<host>:8088/api` in a browser to test |
 | *HTTP 401: vMix asks for a login* (`vMix: OutputError: SetText 'Home Score.Text' returned HTTP 401`, or 403) | The Web Controller requires a login. Allow API access without login (see step 1) |
-| ◐ *Waiting for a new value*, nothing changes in vMix | The mapping names don't match the Title Editor (remember `.Text`), or the **Input** is wrong. Values are sent when they change: turn on **Send Same?** to send them every time |
+| ◐ *Waiting for a new value*, nothing changes in vMix | The mapping names don't match the Title Editor (remember `.Text`), or the **Input** is wrong. Values are sent when they change: turn on **Also resend unchanged values** to send them every time |
 | ○ *Off* | Click **Start vMix** |
 | Some fields update, others don't (*1 of 4 failing: ...* when vMix answers some of them with an error) | Check each mapping row against the Title Editor: empty cells are not sent. Readings that are yellow or red in ScoreSight are not sent |

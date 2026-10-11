@@ -14,7 +14,7 @@ Each box has its own settings. Select its field in the field list (or its box on
 - **Filtering**: which readings are accepted.
 - **Image cleanup**: how the box's picture is prepared for the OCR. It is collapsed until you open it (ScoreSight remembers whether it's open), and its header says how many of its settings you changed (*all default*, *2 changed*...) and has a **Binary view** button that shows the result.
 
-**Reset to defaults** puts every setting of the field back to its default. Every slider shows its value next to it (*Off* when the setting is off), and every setting has a tooltip, which also gives its name in ScoreSight 0.1.x. Settings are saved with your layout and included in **File > Export Configuration**. In exported files and `scoresight.json`, they appear under each box's `settings` object, using the JSON keys listed here.
+**Reset to defaults** puts every setting of the field back to its default. Every slider shows its value next to it (*Off* when the setting is off), and every setting has a tooltip, which also gives its name in ScoreSight 0.1.x. Settings are saved with your layout and included in **File > Export field layout...**. In exported files and `scoresight.json`, they appear under each box's `settings` object, using the JSON keys listed here.
 
 A few settings apply to every box at once. They are in **All boxes**, at the bottom of the Box tab, always available: the [OCR model](ocr-models.md), **Detections / s** (see [Performance](performance.md)) and [Update on change](outputs.md#which-readings-are-sent).
 
@@ -56,7 +56,7 @@ For a task-oriented guide, see [Recognition Tuning](recognition-tuning.md).
 | **Template** | | | |
 | [Build from other fields](#template-field) (Template Field) | `templatefield`, `templatefield_text` | on/off, text | off, empty |
 | (not shown) | `is_custom` | true/false | true for fields you added with **+** |
-| (not shown) | `obs_source_name` | text | see [OBS source name](#obs-source-name) |
+| OBS page: **Text sources** | `obs_source_name` | text | see [OBS source name](#obs-source-name) |
 
 ## Processing order
 
@@ -286,7 +286,7 @@ The last two settings of **Image cleanup**, under *Experimental / legacy*, don't
 
 ### OBS source name
 
-`obs_source_name`: the OBS text source this box updates (see [OBS Studio](obs.md)). It is not editable in the UI. Standard fields use `Home score`, `Away score`, `Clock`, `Period`, `#Home Fouls`, `#Away Fouls` and `shotclock`. Custom fields have an empty name and don't update OBS unless you set one in an exported configuration file.
+`obs_source_name`: the OBS text source this box updates (see [OBS Studio](obs.md)). Set it in the **Text sources** table of the OBS page (**Outputs** tab > **OBS**). Standard fields use `Home score`, `Away score`, `Clock`, `Period`, `#Home Fouls`, `#Away Fouls` and `shotclock`. Custom fields have an empty name, and an empty name doesn't update OBS. (In 0.1.x it could only be changed in an exported configuration file.)
 
 ### is_custom
 

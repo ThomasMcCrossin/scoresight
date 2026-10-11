@@ -60,7 +60,7 @@ The slider goes from 1 to 15. For values that change very rarely, you can set `d
 ## Output latency
 
 - Outputs (OBS, vMix, UNO, the outbound API) send in the background. If a target is slow or unreachable, ScoreSight keeps only the latest values and drops intermediate ones. The window and the readings never wait for the network.
-- **Update on change** (on by default) means unchanged values are not resent to vMix and UNO, which keeps traffic low. Turn on **Send Same?** on the vMix or UNO page only if your target needs constant refreshes. OBS text sources and files are only updated when their value changes anyway.
+- **Update on change** (on by default) means unchanged values are not resent to vMix and UNO, which keeps traffic low. Turn on **Also resend unchanged values** on the vMix or UNO page only if your target needs constant refreshes. OBS text sources and files are only updated when their value changes anyway.
 - The [outbound HTTP API](out_api.md) sends on **every** detection cycle. Point it at a fast endpoint on your local network.
 - OBS updates go out as soon as a value changes. File outputs are written at most **Save / s** times per second (1–10, set on the **Text files** page), and the last change always reaches the files.
 - The built-in [HTTP server](http_server.md) always serves the latest values. Browser overlays that poll it every 100–250 ms are fine.

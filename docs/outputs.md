@@ -66,13 +66,14 @@ Each output treats states differently:
 | Text files | The latest good value of each box. A file is rewritten when its content changes (or the file is missing), at most **Save / s** times per second |
 | HTTP server | Always the latest reading of every box, including its state. The `?pivot` endpoints include only good values |
 | OBS | A box's good value whenever it differs from the text last sent to its OBS text source. Sent right away, not limited by **Save / s**, and no output folder needed |
-| vMix, UNO | New values (`Success`). With **Send Same?**, unchanged values (`SameNoChange`) are resent too. Fields with an empty mapping are skipped |
+| vMix, UNO | New values (`Success`). With **Also resend unchanged values** (was **Send Same?**), unchanged values (`SameNoChange`) are resent too. Fields with an empty mapping are skipped |
 | Outbound HTTP API | *JSON (Full)*, *XML* and *CSV*: every reading of every box on every cycle, so the receiver should check the state. *JSON (Simple key-value)* and `GET`: only the good readings |
 
 ## Global controls that affect outputs
 
 - **Pause outputs** (at the top of the field list, or **Ctrl+Shift+P**) freezes all outputs at their current values until you click **Resume outputs**. The field list in ScoreSight keeps updating, so you can watch the readings without sending them. While the outputs are paused, the button is orange, a banner over the picture says since when (with its own **Resume outputs** button), the values in the field list are marked *not sent*, the window title starts with ⏸ and the status bar shows **PAUSED** with the time. When you resume, vMix and UNO get each box's next good value even if it is unchanged, so values that changed while paused reach them. (In ScoreSight 0.1.x this button was called **Stop Updates**.)
-- **Update on change** (on by default, under **All boxes** at the bottom of the Box tab) marks a reading that equals the box's last good value as `SameNoChange` instead of `Success`. vMix and UNO then don't resend unchanged values (unless their **Send Same?** is on), and the HTTP server and the outbound API report them as unchanged. OBS and the text files get a value only when it changes either way.
+- **Update on change** (on by default, under **All boxes** at the bottom of the Box tab) marks a reading that equals the box's last good value as `SameNoChange` instead of `Success`. vMix and UNO then don't resend unchanged values (unless their **Also resend unchanged values** is on), and the HTTP server and the outbound API report them as unchanged. OBS and the text files get a value only when it changes either way.
+- **Hold value...** (right-click a field, or **Ctrl+H**) sends a value you type to every output instead of that field's readings, until you release it: to correct a misread or freeze one field. See [Hold value](boxes.md#hold-value).
 - **Detections / s** (also under **All boxes**) sets how often new readings are produced (see [Performance Tuning](performance.md)).
 - **Save / s** (on the **Text files** page) limits only how often the files are written. It doesn't slow down the other outputs.
 

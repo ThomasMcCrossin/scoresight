@@ -76,6 +76,7 @@ The **Value** column shows each box's last good reading in large type, so you ca
 - The age turns amber when the box hasn't had a good reading for a while (20 detection cycles, at least 10 seconds): check the box's position and settings.
 - A dash (–) means the box hasn't had a good reading yet.
 - While the outputs are paused, the values are marked *not sent*.
+- A held value (see [Hold value](#hold-value)) shows an amber **HELD** chip, *held · OCR: 2nd* under it (what the OCR reads meanwhile) and a **Release** button when the list is wide enough.
 - Click a value to select its field, as with a click on the name. Hover over it for the details.
 
 Right-click a field for its actions:
@@ -86,10 +87,29 @@ Right-click a field for its actions:
 | **Rename...** | **F2** or double-click | Custom fields |
 | **Delete field...** | **Del** (**Backspace** on a Mac) | Custom fields; asks first |
 | **Reset settings to defaults** | | Its box's settings |
-| **Copy value** | **Ctrl+C** | The last good reading, to paste elsewhere |
+| **Copy value** | **Ctrl+C** | The last good reading (or the held value), to paste elsewhere |
+| **Hold value...** | **Ctrl+H** (**⌃H** on a Mac) | Send a value you type instead of the readings; see [Hold value](#hold-value) |
+| **Release held value** | | Send the readings again |
 | **Zoom to box** | | Zooms the picture in on its box (**Ctrl+0** fits the whole picture again) |
 
-The keys work while the field list has the focus.
+**F2**, **Del** and **Ctrl+C** work while the field list has the focus; **Ctrl+H** anywhere in the window.
+
+## Setup and Live layouts
+
+The window has two layouts of the same controls, in the **View** menu:
+
+- **Setup layout** (**Ctrl+1**): for placing and tuning the fields and setting up the outputs. The field list, the picture with the **Adjust picture** row, and the inspector.
+- **Live layout** (**Ctrl+2**): for the game. The inspector is hidden, the field list is wider (about 400 pixels) with the values in large type, and the fields that aren't on the picture are hidden (*Fields not on the picture: 3 hidden. Show them*, or **View > Show unused fields**). Under the readings, the **Outputs** list shows each output on one line with its state, for example *▲ vMix: Can't reach 192.168.1.40:8088 · retrying*; double-click one for its settings. The **Adjust picture** row and the buttons under the field list are hidden (the field's actions are in its right-click menu).
+
+The reading and the outputs work exactly the same in both layouts. ScoreSight remembers the layout. Coming back to the Setup layout restores its widths. To adjust the picture during a game (a bumped camera), press **Ctrl+1**, then **Stabilize** or **4-corner**, then **Ctrl+2**.
+
+## Hold value
+
+When a field is misread during a game, or to freeze one field, hold its value: select the field and press **Ctrl+H** (or right-click it > **Hold value...**), check or type the value (it starts with the current one) and click **Hold**. From the next reading on, every output (text files, HTTP server, OBS, vMix, UNO, the outbound API) and every [template field](#template-fields) gets the held value instead of the readings: once as a new value, then as unchanged. The field's row shows **HELD** and the label on the picture says **HELD**. The OCR goes on reading the box in the background, and the row shows what it reads.
+
+To send the readings again, click **Release** in the field's row, or right-click it > **Release held value** (or **Ctrl+H** > **Release**). The next good reading is sent as a new value, even if it equals the last one before the hold.
+
+A held value isn't saved: it ends when ScoreSight closes, and when the field is taken off the picture. Renaming the field keeps it held. To freeze every output at once, use **Pause outputs** instead.
 
 ## Box settings
 
@@ -133,10 +153,12 @@ The **Per-character sub-boxes** checkbox (under *Experimental / legacy* in **Ima
 
 ## Import and export layouts
 
-- **File > Export Configuration** saves all boxes (names, positions, settings including the **Type**, and composite sub-boxes) to a `.json` file.
-- **File > Import Configuration** replaces the current boxes with the ones from a file.
+- **File > Export field layout...** (**Ctrl+Shift+S**) saves all boxes (names, positions, settings including the **Type** and the OBS text source, and composite sub-boxes) to a `.json` file.
+- **File > Import field layout...** (**Ctrl+O**) replaces the current boxes with the ones from a file.
+
+(In ScoreSight 0.1.x: **Export Configuration** and **Import Configuration**.)
 
 Exported files contain **boxes only**. The source, crop/rotation/4-corner settings and output settings (folders, OBS/vMix/UNO/API connections) are not included. To keep complete, separate setups, use [profiles](profiles.md).
 
 {: .tip }
-Advanced: in an exported file, each box's `settings.obs_source_name` sets the OBS text source it updates. Custom fields have an empty name, so they don't update OBS. Set a name in the file and import it again to drive an OBS text source from a custom field. See [OBS Studio](obs.md#custom-fields).
+The OBS text source each field updates is set in the **Text sources** table of the OBS page (it is saved with the boxes, as `settings.obs_source_name`). Custom fields have none until you type one. See [OBS Studio](obs.md#custom-fields).

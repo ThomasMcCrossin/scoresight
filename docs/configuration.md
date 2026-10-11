@@ -33,7 +33,7 @@ The settings folder contains:
 | `scoresight.json.corrupt-<timestamp>` | A backup ScoreSight made of a settings file it could not read (see below) |
 | `ocr_training_data/` | The default folder for [OCR training data](data_annotation.md) |
 
-**File > Open Configuration Folder** opens the settings folder (the one from `SCORESIGHT_DATA_DIR`, if set). **File > View Current Log** shows the live log. Its **Open Log Folder** button opens the log folder, and **Open on startup** shows the log window every time ScoreSight starts. If ScoreSight couldn't create a log file, the log window says that the log goes to the console instead.
+**File > Open settings folder** opens the settings folder (the one from `SCORESIGHT_DATA_DIR`, if set). **Tools > View log** (**Ctrl+Shift+L**) shows the live log. Its **Open Log Folder** button opens the log folder, and **Open on startup** shows the log window every time ScoreSight starts. If ScoreSight couldn't create a log file, the log window says that the log goes to the console instead.
 
 Both folders can be moved with [environment variables](#environment-variables).
 
@@ -103,7 +103,7 @@ When running from source, ScoreSight also reads a `.env` file in the repository 
 
 ## Import and export
 
-**File > Export Configuration** writes the current boxes (names, positions, settings) to a `.json` file, and **File > Import Configuration** loads them. Other settings (source, crop, 4-corner correction, outputs) are not included. To keep complete, separate setups, use [profiles](profiles.md) or copy the profile's settings file.
+**File > Export field layout...** (**Ctrl+Shift+S**) writes the current boxes (names, positions, settings) to a `.json` file, and **File > Import field layout...** (**Ctrl+O**) loads them (in 0.1.x: Export and Import Configuration). Other settings (source, crop, 4-corner correction, outputs) are not included. To keep complete, separate setups, use [profiles](profiles.md) or copy the profile's settings file.
 
 ## Settings keys in `scoresight.json`
 
@@ -148,13 +148,16 @@ You normally never edit this file: everything is set through the UI. This list h
 
 | Key | Meaning |
 |---|---|
-| `language` | The language chosen in **File > Language**, for example `de_DE`. Without it, ScoreSight follows the system language |
-| `color_scheme` | **File > Appearance**: `System`, `Light` or `Dark` |
-| `main_splitter_sizes` | The widths of the field list, the picture and the inspector in pixels, for example `[260, 742, 340]`. `0` means the pane is hidden |
+| `language` | The language chosen in **View > Language**, for example `de_DE`. Without it, ScoreSight follows the system language |
+| `color_scheme` | **View > Appearance**: `System`, `Light` or `Dark` |
+| `window_layout` | **View > Setup layout** (`setup`) or **Live layout** (`live`) |
+| `main_splitter_sizes` | The widths of the field list, the picture and the inspector in pixels in the Setup layout, for example `[260, 742, 340]`. `0` means the pane is hidden |
+| `live_fields_width` | The width of the field list in the Live layout, in pixels (400 by default) |
+| `show_unused_fields_setup`, `show_unused_fields_live` | **View > Show unused fields** in each layout (`true` and `false` by default) |
 | `image_cleanup_expanded` | `true` while the **Image cleanup** section of the Box tab is open |
 | `open_on_startup` | Show the log window at startup |
-| `disable_update_checks` | `true` turns off the update check at startup (the **Don't check for updates at startup** checkbox in the update dialog). **File > Check for Updates** always works |
+| `disable_update_checks` | `true` turns off the update check at startup (the **Don't check for updates at startup** checkbox in the update dialog). **Help > Check for updates...** always works |
 | `save_ocr_training_data`, `ocr_training_data_folder`, `ocr_training_data_max_size` | [OCR training data](data_annotation.md) collection (`save_ocr_training_data` is **Tools** > **Collect OCR training data**). An empty `ocr_training_data_folder` means the default folder. The 0.1.x key `ocr_training_data_save_folder` is still read if the new key was never set |
 
 {: .warning }
-`scoresight.json` stores the OBS WebSocket password and the UNO and API URLs (which may contain access tokens) in plain text. Don't share the file publicly. Exported configurations contain only boxes, but check them before sharing anyway.
+`scoresight.json` stores the OBS WebSocket password and the UNO and API URLs (which may contain access tokens) in plain text. Don't share the file publicly. Exported field layouts contain only boxes, but check them before sharing anyway.
