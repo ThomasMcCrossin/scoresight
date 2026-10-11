@@ -9,17 +9,33 @@ a rejected or empty reading doesn't replace it, it shows as a note under it.
 
 The state is shown by a glyph in a coloured disc (✓ new, = same, ! rejected,
 ∅ empty) and a word, so it never depends on colour alone.
+
+A field whose value is held (Hold value) shows the held value, an amber HELD
+chip in place of the disc, what the OCR reads meanwhile, and a Release button
+(set_held()).
+
+The Setup layout draws the rows compact, the Live layout large
+(ReadingDelegate.setDensity()).
 """
 
 import time
 from dataclasses import dataclass
 
-from PySide6.QtCore import QCoreApplication, QEvent, QPointF, QRectF, QSize, Qt
+from PySide6.QtCore import (
+    QCoreApplication,
+    QEvent,
+    QPointF,
+    QRectF,
+    QSize,
+    Qt,
+    Signal,
+)
 from PySide6.QtGui import QFont, QFontMetrics, QPainter, QPainterPath, QPalette, QPen
 from PySide6.QtWidgets import (
     QApplication,
     QStyle,
     QStyledItemDelegate,
+    QStyleOptionButton,
     QStyleOptionViewItem,
     QTableWidgetItem,
     QToolTip,
@@ -37,6 +53,16 @@ LAST_GOOD_TIME_ROLE = (
     Qt.ItemDataRole.UserRole + 2
 )  # monotonic time of the last good one
 REJECTED_TEXT_ROLE = Qt.ItemDataRole.UserRole + 3  # text of the latest rejected one
+HELD_VALUE_ROLE = Qt.ItemDataRole.UserRole + 4  # the value held (Hold value), or None
+# the placement (column 0's UserRole) of a template field
+TEMPLATE_PLACEMENT = "templatefield"
+
+# the rows' sizes: compact in the Setup layout, large in the Live layout
+DENSITY_SETUP = "setup"
+DENSITY_LIVE = "live"
+# the size of the value and of the note under it, times the list's font size
+_VALUE_SCALE = {DENSITY_SETUP: 1.4, DENSITY_LIVE: 2.5}
+_NOTE_SCALE = {DENSITY_SETUP: 0.85, DENSITY_LIVE: 0.95}
 
 # the readings the outputs send
 GOOD_STATES = (ResultState.Success, ResultState.SameNoChange)
@@ -69,6 +95,14 @@ class Reading:
     rejected: str  # the text of the latest rejected reading
     age: float | None  # seconds since the last good reading
     stale: bool  # the last good reading is old
+    held: str | None = None  # the value held for the field (Hold value)
+    template: bool = False  # a template field (no OCR of its own)
+
+    @property
+    def shown(self) -> str:
+        """The value the outputs get: the held value, or the last good
+        reading."""
+        return self.held if self.held is not None else self.value
 
 
 def record_reading(
@@ -83,8 +117,30 @@ def record_reading(
     elif state == ResultState.FailedFilter:
         item.setData(REJECTED_TEXT_ROLE, text)
     item.setData(STATE_ROLE, state.name)
-    rejected = text if state == ResultState.FailedFilter else ""
-    reading = Reading(state, item.text(), rejected, None, False)
+    _update_accessible_text(item)
+
+
+def set_held(item: QTableWidgetItem, value: str | None):
+    """Show that the field's value is held (value), or no longer (None)."""
+    item.setData(HELD_VALUE_ROLE, None if value is None else str(value))
+    _update_accessible_text(item)
+
+
+def _update_accessible_text(item: QTableWidgetItem):
+    state_name = item.data(STATE_ROLE)
+    try:
+        state = ResultState[state_name] if state_name else None
+    except KeyError:
+        state = None
+    rejected = item.data(REJECTED_TEXT_ROLE) or ""
+    reading = Reading(
+        state,
+        item.text(),
+        rejected if state == ResultState.FailedFilter else "",
+        None,
+        False,
+        item.data(HELD_VALUE_ROLE),
+    )
     item.setData(Qt.ItemDataRole.AccessibleTextRole, accessible_text(reading))
 
 
@@ -95,6 +151,7 @@ def clear_reading(item: QTableWidgetItem):
         STATE_ROLE,
         LAST_GOOD_TIME_ROLE,
         REJECTED_TEXT_ROLE,
+        HELD_VALUE_ROLE,
         Qt.ItemDataRole.AccessibleTextRole,
     ):
         item.setData(role, None)
@@ -110,12 +167,17 @@ def reading_at(index, now: float | None = None, stale_after: float = MIN_STALE_A
         state = None
     last_good = index.data(LAST_GOOD_TIME_ROLE)
     age = max(0.0, now - last_good) if isinstance(last_good, (int, float)) else None
+    held = index.data(HELD_VALUE_ROLE)
+    placement = index.siblingAtColumn(0).data(Qt.ItemDataRole.UserRole)
     return Reading(
         state=state,
         value=index.data(Qt.ItemDataRole.DisplayRole) or "",
         rejected=index.data(REJECTED_TEXT_ROLE) or "",
         age=age,
-        stale=age is not None and age > stale_after,
+        # a held value doesn't get old
+        stale=held is None and age is not None and age > stale_after,
+        held=None if held is None else str(held),
+        template=placement == TEMPLATE_PLACEMENT,
     )
 
 
@@ -164,8 +226,31 @@ def format_age(seconds: float) -> str:
     )
 
 
+def ocr_text(reading: Reading) -> str:
+    """What the OCR reads (its last good reading, or the rejected text in
+    quotes, or ∅), e.g. while the field's value is held."""
+    if reading.state == ResultState.FailedFilter and reading.rejected:
+        return f"‘{reading.rejected}’"
+    if reading.state == ResultState.Empty:
+        return "∅"
+    return reading.value
+
+
+def held_text() -> str:
+    """The chip of a held value."""
+    return QCoreApplication.translate("ReadingDelegate", "HELD")
+
+
 def reading_note(reading: Reading) -> str:
-    """The line under the value, e.g. "new · 3 s" or "rejected ‘2l’ · 8 s"."""
+    """The line under the value, e.g. "new · 3 s", "rejected ‘2l’ · 8 s" or,
+    for a held value, "held · OCR: 21"."""
+    if reading.held is not None:
+        ocr = "" if reading.template else ocr_text(reading)
+        if not ocr:
+            return QCoreApplication.translate("ReadingDelegate", "held")
+        return QCoreApplication.translate(
+            "ReadingDelegate", "held · OCR: {value}"
+        ).format(value=ocr)
     parts = [state_text(reading)]
     if reading.age is not None:
         parts.append(format_age(reading.age))
@@ -174,11 +259,23 @@ def reading_note(reading: Reading) -> str:
 
 def accessible_text(reading: Reading) -> str:
     """The value and the state, for screen readers (no age: it isn't live)."""
+    if reading.held is not None:
+        held = QCoreApplication.translate("ReadingDelegate", "held")
+        return ", ".join(part for part in (reading.held, held) if part)
     return ", ".join(part for part in (reading.value, state_text(reading)) if part)
 
 
 def reading_tooltip(reading: Reading) -> str:
     lines = []
+    if reading.held is not None:
+        lines.append(
+            QCoreApplication.translate(
+                "ReadingDelegate",
+                "Held value: {value}. Every output gets it instead of the "
+                "readings until you release it (Release, or right-click the "
+                "field).",
+            ).format(value=reading.held)
+        )
     if reading.value:
         if reading.age is not None:
             lines.append(
@@ -241,12 +338,16 @@ class ReadingDelegate(QStyledItemDelegate):
     """Paints a Value item: the state disc on the left, the last good reading
     large on the right, and the state and age under it."""
 
+    # the Release button of a held value was clicked: the field's name
+    releaseRequested = Signal(str)
+
     def __init__(self, parent=None, clock=time.monotonic):
         super().__init__(parent)
         self.clock = clock
         self.stale_after = MIN_STALE_AFTER_S
         # outputs are paused: the values on screen are not being sent
         self.paused = False
+        self.density = DENSITY_SETUP
 
     def setStaleAfter(self, seconds: float):
         self.stale_after = max(MIN_STALE_AFTER_S, float(seconds))
@@ -254,26 +355,76 @@ class ReadingDelegate(QStyledItemDelegate):
     def setPaused(self, paused: bool):
         self.paused = paused
 
-    @staticmethod
-    def valueFont(font: QFont) -> QFont:
+    def setDensity(self, density: str):
+        """DENSITY_SETUP (compact rows) or DENSITY_LIVE (large values)."""
+        self.density = density if density in _VALUE_SCALE else DENSITY_SETUP
+
+    def valueFont(self, font: QFont) -> QFont:
+        scale = _VALUE_SCALE[self.density]
         value_font = QFont(font)
         size = font.pointSizeF()
         if size > 0:
-            value_font.setPointSizeF(size * 1.4)
+            value_font.setPointSizeF(size * scale)
         else:
-            value_font.setPixelSize(round(font.pixelSize() * 1.4))
-        value_font.setWeight(QFont.Weight.DemiBold)
+            value_font.setPixelSize(round(font.pixelSize() * scale))
+        value_font.setWeight(
+            QFont.Weight.Bold if self.density == DENSITY_LIVE else QFont.Weight.DemiBold
+        )
         # digits of equal width, so a running clock doesn't jitter
         value_font.setFeature(QFont.Tag("tnum"), 1)
         return value_font
 
-    @staticmethod
-    def noteFont(font: QFont) -> QFont:
+    def noteFont(self, font: QFont) -> QFont:
         note_font = QFont(font)
         size = font.pointSizeF()
         if size > 0:
-            note_font.setPointSizeF(max(7.0, size * 0.85))
+            note_font.setPointSizeF(max(7.0, size * _NOTE_SCALE[self.density]))
         return note_font
+
+    def chipFont(self, font: QFont) -> QFont:
+        chip_font = self.noteFont(font)
+        chip_font.setWeight(QFont.Weight.Bold)
+        return chip_font
+
+    def chipSize(self, font: QFont) -> QSize:
+        """The size of a held value's HELD chip."""
+        metrics = QFontMetrics(self.chipFont(font))
+        return QSize(metrics.horizontalAdvance(held_text()) + 10, metrics.height() + 2)
+
+    @staticmethod
+    def releaseText() -> str:
+        return QCoreApplication.translate("ReadingDelegate", "Release")
+
+    def releaseRect(self, rect, font: QFont) -> QRectF:
+        """Where a held value's Release button is in its cell: on the value's
+        line, at the left."""
+        metrics = QFontMetrics(self.noteFont(font))
+        line_height = QFontMetrics(self.valueFont(font)).height()
+        width = metrics.horizontalAdvance(self.releaseText()) + 14
+        height = metrics.height() + 6
+        rect = QRectF(rect)
+        return QRectF(
+            rect.left() + _PAD_X,
+            rect.top() + _PAD_Y + (line_height - height) / 2,
+            width,
+            height,
+        )
+
+    def releaseShown(self, rect, font: QFont, reading: Reading) -> bool:
+        """Whether a cell shows the Release button: the value is held and the
+        cell has room for it beside the value and its chip."""
+        if reading.held is None:
+            return False
+        value_width = QFontMetrics(self.valueFont(font)).horizontalAdvance(
+            reading.held or "–"
+        )
+        needed = (
+            self.releaseRect(rect, font).width()
+            + value_width
+            + self.chipSize(font).width()
+            + 4 * _PAD_X
+        )
+        return QRectF(rect).width() >= needed
 
     def rowHeight(self, font: QFont) -> int:
         """The height of a row that fits the value and the note."""
@@ -284,14 +435,18 @@ class ReadingDelegate(QStyledItemDelegate):
         )
 
     def discSize(self, font: QFont) -> int:
-        return QFontMetrics(self.noteFont(font)).height() + 3
+        size = QFontMetrics(self.noteFont(font)).height() + 3
+        if self.density == DENSITY_LIVE:
+            # in proportion to the large value
+            size = max(size, round(QFontMetrics(self.valueFont(font)).height() * 0.5))
+        return size
 
     def sizeHint(self, option, index):
         reading = reading_at(index, self.clock(), self.stale_after)
         value_metrics = QFontMetrics(self.valueFont(option.font))
         note_metrics = QFontMetrics(self.noteFont(option.font))
         width = max(
-            value_metrics.horizontalAdvance(reading.value or "00"),
+            value_metrics.horizontalAdvance(reading.shown or "00"),
             note_metrics.horizontalAdvance(reading_note(reading)),
         )
         return QSize(
@@ -317,7 +472,7 @@ class ReadingDelegate(QStyledItemDelegate):
         style.drawControl(QStyle.ControlElement.CE_ItemViewItem, opt, painter, widget)
 
         reading = reading_at(index, self.clock(), self.stale_after)
-        if reading.state is None and not reading.value:
+        if reading.state is None and not reading.value and reading.held is None:
             return
 
         palette = opt.palette
@@ -345,22 +500,50 @@ class ReadingDelegate(QStyledItemDelegate):
         note_font = self.noteFont(opt.font)
         note_metrics = QFontMetrics(note_font)
         line = QRectF(rect.left(), rect.top(), rect.width(), value_metrics.height())
-        disc_size = self.discSize(opt.font) if reading.state in _STATE_LOOK else 0
+        held = reading.held is not None
+        chip = self.chipSize(opt.font)
+        disc_size = (
+            self.discSize(opt.font) if reading.state in _STATE_LOOK and not held else 0
+        )
         disc_room = disc_size + _PAD_X if disc_size else 0
+        if held:
+            disc_room = chip.width() + _PAD_X
         # no good reading yet: a dash in the value's place
-        value = reading.value or "–"
+        value = reading.shown or "–"
         value = value_metrics.elidedText(
             value, Qt.TextElideMode.ElideRight, int(max(0.0, line.width() - disc_room))
         )
         value_width = value_metrics.horizontalAdvance(value)
         painter.setFont(value_font)
-        painter.setPen(text_color if reading.value else muted_color)
+        painter.setPen(text_color if reading.shown else muted_color)
         painter.drawText(
             line, Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter, value
         )
         left = line.right() - value_width
+        # left of the "not sent" marker: the Release button of a held value
+        release_shown = self.releaseShown(opt.rect, opt.font, reading)
+        free_from = line.left()
 
-        if disc_size:
+        if held:
+            # the amber HELD chip in the state disc's place
+            amber = theme.color("paused", palette) if enabled else muted_color
+            chip_rect = QRectF(
+                left - _PAD_X - chip.width(),
+                line.center().y() - chip.height() / 2,
+                chip.width(),
+                chip.height(),
+            )
+            painter.setPen(Qt.PenStyle.NoPen)
+            painter.setBrush(amber)
+            painter.drawRoundedRect(chip_rect, 3, 3)
+            painter.setFont(self.chipFont(opt.font))
+            painter.setPen(theme.on_color(palette))
+            painter.drawText(chip_rect, Qt.AlignmentFlag.AlignCenter, held_text())
+            left = chip_rect.left()
+            if release_shown:
+                self._paintReleaseButton(painter, opt, enabled)
+                free_from = self.releaseRect(opt.rect, opt.font).right() + _PAD_X
+        elif disc_size:
             color_name, glyph = _STATE_LOOK[reading.state]
             disc = QRectF(
                 left - _PAD_X - disc_size,
@@ -377,10 +560,10 @@ class ReadingDelegate(QStyledItemDelegate):
 
         painter.setFont(note_font)
         # outputs paused: the value isn't being sent
-        if self.paused and reading.value:
+        if self.paused and reading.shown:
             marker = QCoreApplication.translate("ReadingDelegate", "not sent")
             marker_width = note_metrics.horizontalAdvance(marker)
-            if left - line.left() >= marker_width + _PAD_X:
+            if left - free_from >= marker_width + _PAD_X:
                 painter.setPen(
                     text_color if selected else theme.color("paused", palette)
                 )
@@ -401,11 +584,16 @@ class ReadingDelegate(QStyledItemDelegate):
         )
         state_part = state_text(reading)
         age_part = format_age(reading.age) if reading.age is not None else ""
+        if held:
+            # "held · OCR: 21": what the OCR reads meanwhile
+            state_part, age_part = reading_note(reading), ""
         if selected or not enabled:
             state_color = age_color = muted_color
         else:
             state_color = muted_color
-            if reading.state == ResultState.FailedFilter:
+            if held:
+                state_color = theme.color("paused", palette)
+            elif reading.state == ResultState.FailedFilter:
                 state_color = theme.color("rejected", palette)
             elif reading.state == ResultState.Empty:
                 state_color = theme.color("empty", palette)
@@ -443,9 +631,58 @@ class ReadingDelegate(QStyledItemDelegate):
                 right -= width
         painter.restore()
 
+    def _paintReleaseButton(self, painter, opt, enabled: bool):
+        """A held value's Release button, drawn by the style."""
+        button = QStyleOptionButton()
+        button.rect = self.releaseRect(opt.rect, opt.font).toRect()
+        button.text = self.releaseText()
+        button.palette = opt.palette
+        note_font = self.noteFont(opt.font)
+        button.fontMetrics = QFontMetrics(note_font)
+        button.state = QStyle.StateFlag.State_Raised
+        if enabled:
+            button.state |= QStyle.StateFlag.State_Enabled
+        widget = opt.widget
+        style = widget.style() if widget is not None else QApplication.style()
+        painter.save()
+        painter.setFont(note_font)
+        style.drawControl(QStyle.ControlElement.CE_PushButton, button, painter, widget)
+        painter.restore()
+
+    def _overRelease(self, option, index, position) -> bool:
+        reading = reading_at(index, self.clock(), self.stale_after)
+        return self.releaseShown(option.rect, option.font, reading) and (
+            self.releaseRect(option.rect, option.font).contains(QPointF(position))
+        )
+
+    def editorEvent(self, event, model, option, index):
+        # a click on a held value's Release button
+        if (
+            event.type()
+            in (
+                QEvent.Type.MouseButtonPress,
+                QEvent.Type.MouseButtonRelease,
+                QEvent.Type.MouseButtonDblClick,
+            )
+            and event.button() == Qt.MouseButton.LeftButton
+            and self._overRelease(option, index, event.position())
+        ):
+            if event.type() == QEvent.Type.MouseButtonRelease:
+                name = index.siblingAtColumn(0).data(Qt.ItemDataRole.DisplayRole)
+                self.releaseRequested.emit(name or "")
+            return True
+        return super().editorEvent(event, model, option, index)
+
     def helpEvent(self, event, view, option, index):
         if event.type() == QEvent.Type.ToolTip and index.isValid():
-            text = reading_tooltip(reading_at(index, self.clock(), self.stale_after))
+            if self._overRelease(option, index, event.pos()):
+                text = QCoreApplication.translate(
+                    "ReadingDelegate", "Send this field's readings to the outputs again"
+                )
+            else:
+                text = reading_tooltip(
+                    reading_at(index, self.clock(), self.stale_after)
+                )
             if text:
                 QToolTip.showText(event.globalPos(), text, view)
                 return True

@@ -21,7 +21,7 @@ Available locales: `en_US`, `de_DE`, `es_ES`, `fr_FR`, `it_IT`, `ja_JP`, `ko_KR`
 
 At startup ScoreSight picks the language in this order:
 
-1. the language chosen in **File > Language** (saved as the `language` setting),
+1. the language chosen in **View > Language** (saved as the `language` setting),
 2. the system's UI languages and locale: an exact match such as `de_DE`, or else another region of the same language (`de_AT` gets `de_DE`, `fr_CA` gets `fr_FR`, `pt_AO` gets `pt_PT`; the language's "home" region is preferred),
 3. `en_US`.
 
@@ -66,7 +66,7 @@ On Windows, `scripts/compile_translations.ps1` does the same. By hand: `for ts i
 
 ### 4. Test and commit
 
-Start ScoreSight, choose the language in **File > Language** and check the main window and dialogs for truncated or untranslated text. Commit both the `.ts` and the `.qm` files.
+Start ScoreSight, choose the language in **View > Language** and check the main window and dialogs for truncated or untranslated text. Commit both the `.ts` and the `.qm` files.
 
 {: .note }
 Connection values in the `.ui` files (the vMix host, port and input, the UNO URL and Essentials overlay ID, the template text) are marked as not translatable, so switching the language never resets them. Keep it that way for any field whose default text is a value rather than a label.
@@ -81,7 +81,7 @@ Connection values in the `.ui` files (the vMix host, port and input, the UNO URL
 
    lupdate sets `<TS language="sv_SE">` from the file name. From then on, `python scripts/update_translations.py` keeps the file up to date with the others, because it picks up every `translations/*.ts`.
 2. Translate it and compile the `.qm` file (steps 2–3 above).
-3. Add the language to the `LANGUAGES` tuple at the top of `src/mainwindow.py`, with its name in its own language (the **File > Language** menu lists the languages that way, untranslated):
+3. Add the language to the `LANGUAGES` tuple at the top of `src/mainwindow.py`, with its name in its own language (the **View > Language** menu lists the languages that way, untranslated):
 
    ```python
    ("sv_SE", "Svenska"),

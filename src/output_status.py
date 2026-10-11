@@ -701,7 +701,8 @@ def _describe_http_status(key: str, error: ErrorInfo, secrets) -> Problem:
             hint = QCoreApplication.translate(
                 "OutputStatus",
                 "overlays.uno limits how many updates it accepts, and drops the "
-                "others. Keep Send Same? off and Update on change on.",
+                "others. Keep “Also resend unchanged values” off and “Update on "
+                "change” on.",
             )
         else:
             hint = QCoreApplication.translate(
@@ -1091,7 +1092,7 @@ def vmix_status(
             hint=QCoreApplication.translate(
                 "OutputStatus",
                 "vMix gets a field's value when it changes (or every time, with "
-                "Send Same?).",
+                "“Also resend unchanged values”).",
             ),
         )
     else:
@@ -1105,7 +1106,7 @@ def vmix_status(
             hint=QCoreApplication.translate(
                 "OutputStatus",
                 "vMix gets a field's value when it changes (or every time, with "
-                "Send Same?).",
+                "“Also resend unchanged values”).",
             ),
             last_activity_at=last_sent,
         )

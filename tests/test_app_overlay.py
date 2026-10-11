@@ -199,3 +199,51 @@ def test_a_label_alone(qapp):
     assert label.text() == "Period"
     assert label.setReading(ResultState.Success, "2nd") is True
     assert label.text() == "✓ Period 2nd"
+
+
+def test_a_held_value_says_held(box, make_result):
+    # Hold value: the label says HELD and shows the held value, whatever the
+    # OCR reads meanwhile
+    from PySide6.QtGui import QImage, QPainter
+
+    box.updateResult(reading(make_result, "FailedFilter", "Z"))
+    assert box.setHeldValue("3rd") is True
+    assert box.label.text() == "HELD Home Score 3rd"
+    box.updateResult(reading(make_result, "Success", "2nd"))
+    assert box.label.text() == "HELD Home Score 3rd"
+    image = QImage(300, 60, QImage.Format.Format_ARGB32)
+    painter = QPainter(image)
+    box.label.paint(painter, None)  # paints without errors
+    painter.end()
+    # released: the reading again
+    assert box.setHeldValue(None) is True
+    assert box.label.text() == "✓ Home Score 2nd"
+    assert box.setHeldValue(None) is False
+
+
+def test_the_viewer_marks_the_held_values(qapp, make_target, memory_storage):
+    from camera_info import CameraInfo
+    from source_view import ImageViewer
+
+    memory_storage.add_item(make_target("Home Score", rect=(100, 100, 200, 100)))
+    memory_storage.add_item(make_target("Time", rect=(400, 100, 200, 100)))
+    viewer = ImageViewer(
+        CameraInfo("stub", "stub", "stub", CameraInfo.CameraType.FILE),
+        lambda corners: None,
+        memory_storage,
+        lambda name: None,
+        start=False,
+    )
+    try:
+        viewer.scene.setSceneRect(0, 0, 1280, 720)
+        viewer.firstFrameReceived = True
+        viewer.setHeldValues({"Time": "0:00"})
+        viewer.detectionTargetsChanged()
+        labels = {item.name: item.label for item in viewer.boxItems()}
+        assert labels["Time"].held == "0:00"
+        assert labels["Home Score"].held is None
+        viewer.setHeldValues({})
+        assert labels["Time"].held is None
+    finally:
+        viewer.close()
+        viewer.deleteLater()

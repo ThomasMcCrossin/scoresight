@@ -90,7 +90,7 @@ Things to keep separate:
 - **vMix / UNO mappings**: map each instance's fields to different title fields or commands.
 
 {: .tip }
-To set up a second profile quickly, configure the first instance, then use **File > Export Configuration**. Start the new profile and use **File > Import Configuration** to copy the boxes. Then adjust the boxes and set the source and outputs for the new profile.
+To set up a second profile quickly, configure the first instance, then use **File > Export field layout...**. Start the new profile and use **File > Import field layout...** to copy the boxes. Then adjust the boxes and set the source and outputs for the new profile.
 
 ## Separate log folders (optional)
 

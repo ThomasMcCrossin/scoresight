@@ -57,8 +57,15 @@ from box_settings_ui_handler import (
     changed_settings,
 )
 from camera_info import CameraInfo
-from destinations_view import STATUS_ROLE, DestinationDelegate, DestinationsModel
+from destinations_view import (
+    KEY_ROLE,
+    STATUS_ROLE,
+    CompactDestinationDelegate,
+    DestinationDelegate,
+    DestinationsModel,
+)
 from get_camera_info import get_camera_info
+from held_values import RELEASE, HeldValues, HoldValueDialog
 from http_server import (
     get_http_server_port,
     http_server_stats,
@@ -75,7 +82,17 @@ from output_status import (
     status_tooltip,
 )
 from output_worker import ErrorInfo
-from readings_view import ReadingDelegate, clear_reading, record_reading
+from keyboard_shortcuts import KeyboardShortcutsDialog, action_rows, viewer_rows
+from obs_ui_handler import OBSSourcesTable
+from readings_view import (
+    DENSITY_LIVE,
+    DENSITY_SETUP,
+    HELD_VALUE_ROLE,
+    ReadingDelegate,
+    clear_reading,
+    record_reading,
+    set_held,
+)
 from resource_path import resource_path
 import source_bar
 from source_view import ImageViewer
@@ -110,6 +127,10 @@ from storage import (
     fetch_custom_box_names,
 )
 from obs_websocket import (
+    SCENE_CREATED,
+    SCENE_FAILED,
+    SCENE_KEPT,
+    SCENE_RECREATED,
     close_obs_websocket,
     create_obs_scene_from_export,
     last_connect_error,
@@ -120,7 +141,7 @@ from obs_websocket import (
 )
 
 import startup_timing
-from template_fields import apply_template_fields
+from template_fields import apply_template_fields, is_template_field
 from text_detection_target import TextDetectionTarget, TextDetectionTargetWithResult
 from sc_logging import logger
 from uno_ui_handler import UNOUIHandler
@@ -213,6 +234,22 @@ DEFAULT_WINDOW_SIZE = (1280, 800)
 # False after OBS was disconnected: the saved connection ("obs") isn't opened
 # at startup until the user connects again
 OBS_AUTO_CONNECT_SETTING = "obs_auto_connect"
+# View > Setup layout / Live layout: two arrangements of the same widgets
+LAYOUT_SETTING = "window_layout"
+LAYOUT_SETUP = "setup"
+LAYOUT_LIVE = "live"
+# The Fields pane's width in the Live layout (the setting keeps the user's;
+# the Setup layout's widths are PANE_SIZES_SETTING)
+LIVE_FIELDS_WIDTH = 400
+LIVE_FIELDS_WIDTH_SETTING = "live_fields_width"
+# View > Show unused fields (the fields not on the picture), for each layout
+SHOW_UNUSED_SETTINGS = {
+    LAYOUT_SETUP: "show_unused_fields_setup",
+    LAYOUT_LIVE: "show_unused_fields_live",
+}
+SHOW_UNUSED_DEFAULTS = {LAYOUT_SETUP: True, LAYOUT_LIVE: False}
+# Help > User guide
+USER_GUIDE_URL = source_bar.DOCS_URL
 
 
 def apply_color_scheme(name: str | None) -> str:
@@ -303,6 +340,11 @@ class MainWindow(QMainWindow):
         # next good reading, even an unchanged one (they normally send only
         # changed values)
         self.resendAfterPause: set[str] = set()
+        # Hold value: the fields whose outputs get a value typed by the user
+        # instead of their readings (not saved)
+        self.heldValues = HeldValues()
+        # View > Setup layout or Live layout (applied by setupLayout)
+        self.layoutMode = LAYOUT_SETUP
         self.updateWindowTitle()
         if platform.system() == "Windows":
             # set the icon
@@ -443,6 +485,12 @@ class MainWindow(QMainWindow):
             lambda: self.get_sources.emit()
         )
         self.detectionTargetsStorage = TextDetectionTargetMemoryStorage()
+        # the OBS page's table: the OBS text source of each field, editable
+        self.obsSourcesTable = OBSSourcesTable(
+            self.ui.tableView_obsSources, self.detectionTargetsStorage
+        )
+        # what Create OBS Scene did last: (outcome, scene name)
+        self.obsSceneOutcome: tuple[str, str] | None = None
         self.detectionTargetsStorage.data_changed.connect(self.detectionTargetsChanged)
         # Box edits (settings panel, add/remove, rename, template fields) are
         # persisted shortly after they happen, not only on a click in the viewer.
@@ -593,19 +641,31 @@ class MainWindow(QMainWindow):
     # --- layout, menus and texts set at runtime ---------------------------------
 
     def setupMenus(self):
-        """Connect the File menu's actions (defined in the .ui, so they are
+        """Connect the menus' actions (defined in the .ui, so they are
         translated), fill the Language and Appearance submenus, and add the
         window's keyboard shortcuts."""
         ui = self.ui
-        ui.actionCheckForUpdates.triggered.connect(lambda: self.checkForUpdates(True))
-        ui.actionAbout.triggered.connect(self.openAboutDialog)
-        ui.actionViewLog.triggered.connect(self.openLogsDialog)
+        # File
         ui.actionImportConfiguration.triggered.connect(self.importConfiguration)
         ui.actionExportConfiguration.triggered.connect(self.exportConfiguration)
         ui.actionOpenConfigurationFolder.triggered.connect(self.openConfigurationFolder)
+        ui.actionQuit.triggered.connect(self.close)
+        # Tools
         ui.actionOCRTrainingDataSetup.triggered.connect(self.openOCRTrainingDataDialog)
+        ui.actionViewLog.triggered.connect(self.openLogsDialog)
+        # Help
+        ui.actionUserGuide.triggered.connect(self.openUserGuide)
+        ui.actionKeyboardShortcuts.triggered.connect(self.showKeyboardShortcuts)
+        ui.actionCheckForUpdates.triggered.connect(lambda: self.checkForUpdates(True))
+        ui.actionAbout.triggered.connect(self.openAboutDialog)
+        # the selected field's held value
+        ui.actionHoldValue.triggered.connect(self.holdValue)
+        ui.actionReleaseValue.triggered.connect(lambda: self.releaseValue())
+        if platform.system() == "Darwin":
+            # ⌘H hides the application on macOS: ⌃H (the Control key) instead
+            ui.actionHoldValue.setShortcut(QKeySequence("Meta+H"))
 
-        # File > Language, each language in its own language
+        # View > Language, each language in its own language
         self.language_actions = QActionGroup(self)
         self.language_actions.setExclusive(True)
         current_locale = self.currentLocale()
@@ -619,7 +679,7 @@ class MainWindow(QMainWindow):
             )
             self.language_actions.addAction(action)
 
-        # File > Appearance: System / Light / Dark color scheme (#50)
+        # View > Appearance: System / Light / Dark color scheme (#50)
         self.appearance_actions = QActionGroup(self)
         self.appearance_actions.setExclusive(True)
         current_scheme = fetch_data("scoresight.json", "color_scheme")
@@ -648,6 +708,14 @@ class MainWindow(QMainWindow):
             ui.actionZoomOut,
             ui.actionReloadSources,
             ui.actionNewField,
+            ui.actionSetupLayout,
+            ui.actionLiveLayout,
+            ui.actionHoldValue,
+            ui.actionImportConfiguration,
+            ui.actionExportConfiguration,
+            ui.actionViewLog,
+            ui.actionUserGuide,
+            ui.actionQuit,
         ):
             action.setShortcutContext(Qt.ShortcutContext.WindowShortcut)
             self.addAction(action)
@@ -674,9 +742,20 @@ class MainWindow(QMainWindow):
         table = self.ui.tableWidget_boxes
         self.readingDelegate = ReadingDelegate(table)
         table.setItemDelegateForColumn(1, self.readingDelegate)
+        # a held value's Release button
+        self.readingDelegate.releaseRequested.connect(self.releaseValue)
         header = table.verticalHeader()
         header.setSectionResizeMode(QHeaderView.ResizeMode.Fixed)
         self.updateBoxesListHeight()
+        # the names' column fits the names in the Live layout
+        table.viewport().installEventFilter(self)
+        self.setupNameColumnWidth = table.columnWidth(0)
+        # "Unused fields hidden: 3. Show them"
+        self.ui.label_hiddenFields.hide()
+        self.ui.label_hiddenFields.setTextFormat(Qt.TextFormat.RichText)
+        self.ui.label_hiddenFields.linkActivated.connect(
+            lambda _link: self.ui.actionShowUnusedFields.setChecked(True)
+        )
 
         ui = self.ui
         # the Box tab and the field's actions follow the selection, however it
@@ -712,7 +791,8 @@ class MainWindow(QMainWindow):
         table = self.ui.tableWidget_boxes
         row_height = self.readingDelegate.rowHeight(table.font())
         table.verticalHeader().setDefaultSectionSize(row_height)
-        header_height = table.horizontalHeader().sizeHint().height()
+        header = table.horizontalHeader()
+        header_height = 0 if header.isHidden() else header.sizeHint().height()
         table.setMinimumHeight(
             header_height + BOXES_LIST_MIN_ROWS * row_height + 2 * table.frameWidth()
         )
@@ -764,6 +844,21 @@ class MainWindow(QMainWindow):
             height = min(height, available.height() - 48)
         self.resize(width, height)
 
+        self.restoreSetupPaneSizes()
+        # the two-pane layout before the Inspector
+        if fetch_data("scoresight.json", OLD_SPLITTER_STATE_SETTING) is not None:
+            remove_data("scoresight.json", OLD_SPLITTER_STATE_SETTING)
+        self.splitterSaveTimer = QTimer(self)
+        self.splitterSaveTimer.setSingleShot(True)
+        self.splitterSaveTimer.setInterval(BOXES_SAVE_DELAY_MS)
+        self.splitterSaveTimer.timeout.connect(self.saveSplitterState)
+        splitter.splitterMoved.connect(lambda *_: self.splitterSaveTimer.start())
+        self.setupLayoutModes()
+
+    def restoreSetupPaneSizes(self):
+        """The Setup layout's pane widths: the stored ones, or the defaults
+        for the window's width."""
+        splitter = self.ui.splitter_main
         stored = fetch_data("scoresight.json", PANE_SIZES_SETTING)
         if (
             isinstance(stored, list)
@@ -776,15 +871,7 @@ class MainWindow(QMainWindow):
                 if stored[index] > 0:
                     self.paneSizesBeforeHiding[index] = stored[index]
         else:
-            splitter.setSizes(self.defaultPaneSizes(width))
-        # the two-pane layout before the Inspector
-        if fetch_data("scoresight.json", OLD_SPLITTER_STATE_SETTING) is not None:
-            remove_data("scoresight.json", OLD_SPLITTER_STATE_SETTING)
-        self.splitterSaveTimer = QTimer(self)
-        self.splitterSaveTimer.setSingleShot(True)
-        self.splitterSaveTimer.setInterval(BOXES_SAVE_DELAY_MS)
-        self.splitterSaveTimer.timeout.connect(self.saveSplitterState)
-        splitter.splitterMoved.connect(lambda *_: self.splitterSaveTimer.start())
+            splitter.setSizes(self.defaultPaneSizes(self.width()))
 
     def defaultPaneSizes(self, window_width: int) -> list[int]:
         """[fields, viewer, inspector] for a window this wide: the side panes'
@@ -813,11 +900,20 @@ class MainWindow(QMainWindow):
         return [fields, max(VIEWER_MIN_WIDTH, total - fields - inspector), inspector]
 
     def saveSplitterState(self):
+        """Remember the panes' widths: in the Setup layout all of them, in the
+        Live layout the Fields pane's width (the Setup layout's widths are
+        kept for when it is chosen again)."""
         self.splitterSaveTimer.stop()
         if not self.ui.splitter_main.isVisible():
             # not laid out yet: its sizes mean nothing
             return
         sizes = self.ui.splitter_main.sizes()
+        if self.layoutMode == LAYOUT_LIVE:
+            if sizes[0] > 0 and (
+                fetch_data("scoresight.json", LIVE_FIELDS_WIDTH_SETTING) != sizes[0]
+            ):
+                self.globalSettingsChanged(LIVE_FIELDS_WIDTH_SETTING, sizes[0])
+            return
         if fetch_data("scoresight.json", PANE_SIZES_SETTING) != sizes:
             self.globalSettingsChanged(PANE_SIZES_SETTING, sizes)
 
@@ -845,6 +941,195 @@ class MainWindow(QMainWindow):
         splitter.setSizes(sizes)
         self.saveSplitterState()
 
+    # --- View > Setup layout / Live layout ----------------------------------------
+
+    def setupLayoutModes(self):
+        """The Setup and Live layouts (View menu, Ctrl+1 and Ctrl+2): the same
+        widgets, arranged for setting up or for the game. The OCR and the
+        outputs work the same in both. The layout chosen is remembered."""
+        ui = self.ui
+        group = QActionGroup(self)
+        group.setExclusive(True)
+        for action in (ui.actionSetupLayout, ui.actionLiveLayout):
+            group.addAction(action)
+        ui.actionSetupLayout.triggered.connect(lambda: self.setLayoutMode(LAYOUT_SETUP))
+        ui.actionLiveLayout.triggered.connect(lambda: self.setLayoutMode(LAYOUT_LIVE))
+        ui.actionShowUnusedFields.toggled.connect(self.showUnusedFieldsToggled)
+        stored = fetch_data("scoresight.json", LAYOUT_SETTING, LAYOUT_SETUP)
+        if stored == LAYOUT_LIVE:
+            self.setLayoutMode(LAYOUT_LIVE, store=False)
+        else:
+            self.applyLayoutUi()
+
+    def setLayoutMode(self, mode: str, store: bool = True):
+        """Arrange the window for LAYOUT_SETUP or LAYOUT_LIVE.
+
+        Live: the Inspector is hidden, the field list is about 400 pixels wide
+        with the readings large, the fields not on the picture are hidden (View
+        > Show unused fields), the outputs' list is under the readings, and the
+        Adjust picture row is hidden. Setup restores the panes' widths."""
+        if mode not in (LAYOUT_SETUP, LAYOUT_LIVE):
+            mode = LAYOUT_SETUP
+        changed = mode != self.layoutMode
+        if changed:
+            # the widths of the layout left (the Setup ones are restored later)
+            self.saveSplitterState()
+            self.layoutMode = mode
+            viewer = getattr(self, "image_viewer", None)
+            if mode == LAYOUT_LIVE and viewer is not None:
+                if viewer.fourCornerSelectionMode:
+                    # the Adjust picture row is hidden: stop picking corners
+                    self.cancelFourCornerSelection()
+            logger.info("%s layout", "Live" if mode == LAYOUT_LIVE else "Setup")
+        if store and fetch_data("scoresight.json", LAYOUT_SETTING) != mode:
+            self.globalSettingsChanged(LAYOUT_SETTING, mode)
+        # the widgets first: the panes' minimum widths depend on them
+        self.applyLayoutUi()
+        if changed:
+            if mode == LAYOUT_LIVE:
+                self.applyLivePaneSizes()
+            else:
+                self.restoreSetupPaneSizes()
+
+    def splitterTotalWidth(self) -> int:
+        """The width the three panes share."""
+        splitter = self.ui.splitter_main
+        if splitter.isVisible():
+            return sum(splitter.sizes())
+        margins = self.ui.centralwidget.layout().contentsMargins()
+        return (
+            self.width() - margins.left() - margins.right() - 2 * splitter.handleWidth()
+        )
+
+    def applyLivePaneSizes(self):
+        """The Live layout's panes: the field list at its Live width (about
+        400 pixels), the Inspector hidden, the picture the rest."""
+        splitter = self.ui.splitter_main
+        sizes = splitter.sizes()
+        if splitter.isVisible() and sizes[2] > 0:
+            # shown again at this width (a double-click on its divider)
+            self.paneSizesBeforeHiding[2] = sizes[2]
+        total = self.splitterTotalWidth()
+        stored = fetch_data("scoresight.json", LIVE_FIELDS_WIDTH_SETTING)
+        fields = stored if isinstance(stored, int) and stored > 0 else LIVE_FIELDS_WIDTH
+        minimum = max(
+            self.ui.widget_leftPane.minimumSizeHint().width(), FIELDS_PANE_WIDTH
+        )
+        fields = max(minimum, min(fields, total - VIEWER_MIN_WIDTH))
+        splitter.setSizes([fields, max(VIEWER_MIN_WIDTH, total - fields), 0])
+
+    def applyLayoutUi(self):
+        """Show the widgets of the current layout (also after a language
+        change: retranslateUi resets the texts)."""
+        ui = self.ui
+        live = self.layoutMode == LAYOUT_LIVE
+        ui.actionSetupLayout.setChecked(not live)
+        ui.actionLiveLayout.setChecked(live)
+        self.readingDelegate.setDensity(DENSITY_LIVE if live else DENSITY_SETUP)
+        table = ui.tableWidget_boxes
+        header = table.horizontalHeader()
+        # (the header is hidden in the Live layout only)
+        was_live = header.isHidden()
+        if live and not was_live:
+            self.setupNameColumnWidth = table.columnWidth(0)
+        header.setHidden(live)
+        table.setIconSize(QSize(20, 20) if live else QSize())
+        for row in range(table.rowCount()):
+            self.applyFieldNameFont(table.item(row, 0))
+        self.updateBoxesListHeight()
+        if live:
+            self.fitNameColumn()
+        elif was_live:
+            # back from the Live layout: the width the names had
+            table.setColumnWidth(0, self.setupNameColumnWidth)
+        ui.label_fields.setText(
+            QCoreApplication.translate("MainWindow", "Readings")
+            if live
+            else QCoreApplication.translate("MainWindow", "Fields")
+        )
+        # the picture adjustments are for setting up
+        ui.widget_viewTools.setVisible(not live)
+        ui.widget_cropPanel.setVisible(not live and ui.toolButton_topCrop.isChecked())
+        # the field actions are in the context menu (and their keys)
+        ui.widget_fieldsFooter.setVisible(not live)
+        ui.widget_liveDestinations.setVisible(live)
+        action = ui.actionShowUnusedFields
+        action.blockSignals(True)
+        action.setChecked(self.showUnusedFields())
+        action.blockSignals(False)
+        self.updateHiddenFields()
+        table.viewport().update()
+
+    def applyFieldNameFont(self, item: QTableWidgetItem | None):
+        """A field's name: larger in the Live layout."""
+        if item is None:
+            return
+        if self.layoutMode != LAYOUT_LIVE:
+            item.setData(Qt.ItemDataRole.FontRole, None)
+            return
+        font = QFont(self.ui.tableWidget_boxes.font())
+        if font.pointSizeF() > 0:
+            font.setPointSizeF(font.pointSizeF() * 1.25)
+        font.setWeight(QFont.Weight.DemiBold)
+        item.setFont(font)
+
+    def fitNameColumn(self):
+        """In the Live layout, the names' column fits the names, leaving at
+        least half of the list to the values."""
+        table = self.ui.tableWidget_boxes
+        if self.layoutMode != LAYOUT_LIVE:
+            return
+        wanted = table.sizeHintForColumn(0) + 8
+        half = table.viewport().width() // 2
+        width = max(100, min(wanted, half)) if half > 0 else wanted
+        if table.columnWidth(0) != width:
+            table.setColumnWidth(0, width)
+
+    def showUnusedFields(self) -> bool:
+        """Whether the current layout shows the fields not on the picture."""
+        stored = fetch_data(
+            "scoresight.json", SHOW_UNUSED_SETTINGS[self.layoutMode], None
+        )
+        if isinstance(stored, bool):
+            return stored
+        return SHOW_UNUSED_DEFAULTS[self.layoutMode]
+
+    def showUnusedFieldsToggled(self, show: bool):
+        """View > Show unused fields, for the current layout."""
+        self.globalSettingsChanged(SHOW_UNUSED_SETTINGS[self.layoutMode], bool(show))
+        self.updateHiddenFields()
+
+    def updateHiddenFields(self):
+        """Hide the fields that aren't on the picture when the layout doesn't
+        show them (except the selected one, e.g. a new field), and say how
+        many are hidden."""
+        ui = self.ui
+        table = ui.tableWidget_boxes
+        show = self.showUnusedFields()
+        current = self.currentFieldItem()
+        hidden = 0
+        for row in range(table.rowCount()):
+            item = table.item(row, 0)
+            hide = (
+                not show
+                and item is not None
+                and item.data(Qt.ItemDataRole.UserRole) == NOT_PLACED
+                and (current is None or current.row() != row)
+            )
+            if table.isRowHidden(row) != hide:
+                table.setRowHidden(row, hide)
+            hidden += hide
+        label = ui.label_hiddenFields
+        if hidden:
+            label.setText(
+                QCoreApplication.translate(
+                    "MainWindow",
+                    'Fields not on the picture: {count} hidden. <a href="#show">'
+                    "Show them</a>",
+                ).format(count=hidden)
+            )
+        label.setVisible(hidden > 0)
+
     def applyRuntimeTexts(self):
         """Set the texts that are made at runtime: at startup and again after a
         language change (retranslateUi resets them to the .ui texts)."""
@@ -867,6 +1152,10 @@ class MainWindow(QMainWindow):
         )
         self.updateFieldsHint()
         self.updateFieldActions()
+        # "Readings" in the Live layout, the hidden fields' line
+        self.applyLayoutUi()
+        self.obsSourcesTable.retranslate()
+        self.updateObsSceneStatus()
         splitter = self.ui.splitter_main
         splitter.handle(1).setToolTip(
             QCoreApplication.translate(
@@ -1109,6 +1398,11 @@ class MainWindow(QMainWindow):
             self.updateAdjustHintVisibility()
         elif (
             event.type() == QEvent.Type.Resize
+            and obj is self.ui.tableWidget_boxes.viewport()
+        ):
+            self.fitNameColumn()
+        elif (
+            event.type() == QEvent.Type.Resize
             and obj is self.ui.comboBox_camera_source
             and hasattr(self, "sourceIndexAtPopup")
         ):
@@ -1145,6 +1439,7 @@ class MainWindow(QMainWindow):
             self.refreshLiveStatus()
             # an invalid format's red
             self.boxSettingsUiHandler.updateFormatState()
+            self.updateObsSceneStatus()
         super().changeEvent(event)
 
     def changeLanguage(self, locale):
@@ -1358,6 +1653,19 @@ class MainWindow(QMainWindow):
         splitter.setStretchFactor(0, 0)
         splitter.setStretchFactor(1, 1)
         splitter.setSizes([self.destinationsListHeight(), 10000])
+        # The Live layout's outputs list, under the readings: the same model on
+        # one line per output (a double-click shows the output's settings)
+        live = self.ui.listView_liveDestinations
+        self.liveDestinationDelegate = CompactDestinationDelegate(live)
+        live.setModel(self.destinationsModel)
+        live.setItemDelegate(self.liveDestinationDelegate)
+        live.activated.connect(lambda index: self.showDestination(index.data(KEY_ROLE)))
+        live.setFixedHeight(
+            self.destinationsModel.rowCount()
+            * self.liveDestinationDelegate.rowHeight(live.font())
+            + 2 * live.frameWidth()
+        )
+        self.ui.widget_liveDestinations.hide()
         # the controls the switches mirror: show their changes right away
         for signal in (
             self.ui.pushButton_startvmix.toggled,
@@ -1487,6 +1795,7 @@ class MainWindow(QMainWindow):
         self.destinationsModel.setStatuses(statuses)
         # the times of the last activity
         self.ui.listView_destinations.viewport().update()
+        self.ui.listView_liveDestinations.viewport().update()
         self.updateDestinationDetails(now)
         return statuses
 
@@ -1670,8 +1979,14 @@ class MainWindow(QMainWindow):
             "QPushButton#pushButton_stopUpdates:checked {"
             f" background-color: {amber}; color: {on_amber};"
             f" border: 1px solid {amber}; border-radius: 3px;"
-            " padding: 4px 8px; font-weight: bold; }"
+            " padding: 4px 8px; }"
         )
+        # bold while paused, in the button's font (not the style sheet's), so
+        # its size fits the bold text: "Resume outputs" was cut off
+        font = QFont(button.font())
+        if font.bold() != paused:
+            font.setBold(paused)
+            button.setFont(font)
 
         banner = self.ui.frame_pausedBanner
         banner.setVisible(paused)
@@ -1733,6 +2048,7 @@ class MainWindow(QMainWindow):
         row = table.rowCount()
         table.insertRow(row)
         item = QTableWidgetItem(name)
+        self.applyFieldNameFont(item)
         table.setItem(row, 0, item)
         # the reading: enabled (so it isn't drawn greyed out), not selectable
         # or editable (the name item stays the current item)
@@ -1801,15 +2117,22 @@ class MainWindow(QMainWindow):
             item.setIcon(QIcon(resource_path("icons", "circle-x.svg")))
             item.setData(Qt.ItemDataRole.UserRole, NOT_PLACED)
             clear_reading(table.item(row, 1))
+            # nothing to hold any more
+            if item.text() in self.heldValues:
+                self.heldValues.forget(item.text())
+                self.updateHeldUi()
 
         self.vmixUiHandler.updatevMixTable(detectionTargets)
         self.unoUiHandler.updateUNOTable(detectionTargets)
+        self.obsSourcesTable.refresh(detectionTargets)
         # Note: results.csv is not touched here. data_changed fires on every box
         # click and settings tweak; file_output starts a new CSV file by itself
         # when the set of boxes changes.
         # the Box tab follows a change of the selected field's placement
         self.fieldSelectionChanged()
         self.updateFieldActions()
+        self.updateHiddenFields()
+        self.fitNameColumn()
 
     def scheduleBoxesSave(self, *_):
         # (re)start the timer: a burst of edits (e.g. dragging a slider) is
@@ -1865,6 +2188,8 @@ class MainWindow(QMainWindow):
             handler.fieldRole,
         ):
             self.listItemClicked(item)
+        # the selected field is shown even when unused fields are hidden
+        self.updateHiddenFields()
 
     def updateFieldsHint(self):
         # the fields list is disabled until a source shows a picture
@@ -1887,9 +2212,18 @@ class MainWindow(QMainWindow):
         ui.actionRenameField.setEnabled(custom)
         ui.actionDeleteField.setEnabled(custom)
         ui.actionResetFieldSettings.setEnabled(placed)
+        held = item is not None and item.text() in self.heldValues
         ui.actionCopyValue.setEnabled(
-            value_item is not None and bool(value_item.text())
+            value_item is not None and (held or bool(value_item.text()))
         )
+        # a value can be held for a field that is read (or a template)
+        ui.actionHoldValue.setEnabled(role in (PLACED, TEMPLATE))
+        ui.actionHoldValue.setText(
+            QCoreApplication.translate("MainWindow", "Change held value...")
+            if held
+            else QCoreApplication.translate("MainWindow", "Hold value...")
+        )
+        ui.actionReleaseValue.setEnabled(held)
         # (also called while the boxes load, before there is an image_viewer)
         viewer = getattr(self, "image_viewer", None)
         ui.actionZoomToBox.setEnabled(placed and viewer is not None)
@@ -1918,14 +2252,27 @@ class MainWindow(QMainWindow):
         menu.addSeparator()
         menu.addAction(ui.actionResetFieldSettings)
         menu.addAction(ui.actionCopyValue)
-        # A "Hold value..." action (send a value typed in instead of the
-        # readings, until released) belongs here, before Zoom to box.
+        # send a value typed in instead of the readings, until released
+        menu.addAction(ui.actionHoldValue)
+        if ui.actionReleaseValue.isEnabled():
+            menu.addAction(ui.actionReleaseValue)
         menu.addAction(ui.actionZoomToBox)
         standard_only = QCoreApplication.translate(
             "MainWindow", "Only custom fields can be renamed or deleted"
         )
         for action in (ui.actionRenameField, ui.actionDeleteField):
             action.setToolTip("" if action.isEnabled() else standard_only)
+        ui.actionHoldValue.setToolTip(
+            QCoreApplication.translate(
+                "MainWindow",
+                "Send a value you type to every output instead of this field's "
+                "readings, until you release it",
+            )
+            if ui.actionHoldValue.isEnabled()
+            else QCoreApplication.translate(
+                "MainWindow", "Place the field on the picture first"
+            )
+        )
         return menu
 
     def showFieldContextMenu(self, pos):
@@ -1999,11 +2346,14 @@ class MainWindow(QMainWindow):
             self.editBoxName(item)
 
     def copyFieldValue(self):
-        """Copy the selected field's value (its last good reading)."""
+        """Copy the selected field's value (its last good reading, or the value
+        held for it)."""
         item = self.currentFieldItem()
         if item is None:
             return
-        value = self.ui.tableWidget_boxes.item(item.row(), 1).text()
+        value = self.heldValues.value(item.text())
+        if value is None:
+            value = self.ui.tableWidget_boxes.item(item.row(), 1).text()
         if value:
             QGuiApplication.clipboard().setText(value)
 
@@ -2021,6 +2371,137 @@ class MainWindow(QMainWindow):
         margin = max(box.width(), box.height()) * 0.5
         viewer.zoomToRect(QRectF(box).adjusted(-margin, -margin, margin, margin))
         viewer.selectBox(item.text())
+
+    # --- Hold value ---------------------------------------------------------------
+
+    def holdValue(self):
+        """Hold value... (Ctrl+H): every output gets a value typed in instead
+        of the selected field's readings, until it is released."""
+        item = self.currentFieldItem()
+        if item is None or item.data(Qt.ItemDataRole.UserRole) not in (
+            PLACED,
+            TEMPLATE,
+        ):
+            return
+        name = item.text()
+        held = self.heldValues.value(name)
+        value = held
+        if value is None:
+            # the field's current value
+            value = self.ui.tableWidget_boxes.item(item.row(), 1).text()
+        answer = self.askHoldValue(name, value, held is not None)
+        if answer is None:
+            return
+        choice, value = answer
+        if choice == "release":
+            self.releaseValue(name)
+            return
+        self.heldValues.hold(name, value)
+        logger.info("Holding the value of '%s': %r", name, value)
+        self.updateHeldUi()
+
+    def askHoldValue(self, name: str, value: str, held: bool) -> tuple[str, str] | None:
+        """Ask for the value to hold: ("hold", value), ("release", "") or None
+        (cancelled)."""
+        dialog = HoldValueDialog(name, value, held, self)
+        result = dialog.exec()
+        value = dialog.value()
+        dialog.deleteLater()
+        if result == RELEASE:
+            return "release", ""
+        if result == QDialog.DialogCode.Accepted:
+            return "hold", value
+        return None
+
+    def releaseValue(self, name: str | None = None):
+        """Send a held field's readings again (the selected field's by
+        default)."""
+        if not name:
+            item = self.currentFieldItem()
+            if item is None:
+                return
+            name = item.text()
+        if self.heldValues.release(name):
+            logger.info("Released the value of '%s'", name)
+            self.updateHeldUi()
+
+    def updateHeldUi(self):
+        """The boxes list, the picture's labels and the field's actions show
+        the held values."""
+        table = self.ui.tableWidget_boxes
+        for row in range(table.rowCount()):
+            name_item = table.item(row, 0)
+            value_item = table.item(row, 1)
+            if name_item is None or value_item is None:
+                continue
+            held = self.heldValues.value(name_item.text())
+            if value_item.data(HELD_VALUE_ROLE) != held:
+                set_held(value_item, held)
+        # (the boxes are loaded before there is an image_viewer)
+        viewer = getattr(self, "image_viewer", None)
+        if viewer is not None:
+            viewer.setHeldValues(self.heldValues.values())
+        self.updateFieldActions()
+        table.viewport().update()
+
+    # --- Help ---------------------------------------------------------------------
+
+    def openUserGuide(self):
+        """Help > User guide (F1): the documentation site."""
+        QDesktopServices.openUrl(QUrl(USER_GUIDE_URL))
+
+    def keyboardShortcutGroups(self) -> list[tuple[str, list[tuple[str, str]]]]:
+        """The window's keys in groups, from the actions that have them."""
+        ui = self.ui
+        return [
+            (
+                QCoreApplication.translate("MainWindow", "Window"),
+                action_rows(
+                    [
+                        ui.actionSetupLayout,
+                        ui.actionLiveLayout,
+                        ui.actionPauseOutputs,
+                        ui.actionReloadSources,
+                        ui.actionImportConfiguration,
+                        ui.actionExportConfiguration,
+                        ui.actionViewLog,
+                        ui.actionUserGuide,
+                        ui.actionQuit,
+                    ]
+                ),
+            ),
+            (
+                QCoreApplication.translate("MainWindow", "Fields"),
+                action_rows(
+                    [
+                        ui.actionNewField,
+                        ui.actionHoldValue,
+                        ui.actionRenameField,
+                        ui.actionDeleteField,
+                        ui.actionCopyValue,
+                    ]
+                ),
+            ),
+            (
+                QCoreApplication.translate("MainWindow", "Picture"),
+                action_rows(
+                    [
+                        ui.actionBinaryView,
+                        ui.actionFitPicture,
+                        ui.actionZoomIn,
+                        ui.actionZoomOut,
+                    ]
+                )
+                + viewer_rows(),
+            ),
+        ]
+
+    def showKeyboardShortcuts(self):
+        """Help > Keyboard shortcuts."""
+        dialog = KeyboardShortcutsDialog(self.keyboardShortcutGroups(), self)
+        dialog.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
+        dialog.open()
+        self.keyboardShortcutsDialog = dialog
 
     def openOBSConnectModal(self):
         if self.obs_connect_modal is not None and self.obs_connect_modal.isVisible():
@@ -2629,6 +3110,8 @@ class MainWindow(QMainWindow):
             self.itemSelected,
             start=False,
         )
+        # its labels say HELD for the held values
+        self.image_viewer.setHeldValues(self.heldValues.values())
         # a new capture plays at x1, without Binary View and stabilization
         self.ui.toolButton_speed.setText(source_bar.speed_text(1))
         self.ui.pushButton_binary.setChecked(False)
@@ -2639,7 +3122,7 @@ class MainWindow(QMainWindow):
         self.image_viewer.error_signal.connect(self.updateError)
         # connected before the capture starts: the first readings are often the
         # only Success of a box whose value doesn't change (later ones are
-        # SameNoChange), and vMix and UNO only send Success unless "Send Same?"
+        # SameNoChange), and vMix and UNO only send Success unless "Also resend unchanged values"
         self.connectViewer()
         self.ocrModelChanged(fetch_data("scoresight.json", "ocr_model", 1))
 
@@ -3289,20 +3772,29 @@ class MainWindow(QMainWindow):
             button.setEnabled(enabled)
 
     def ocrResult(self, results: list[TextDetectionTargetWithResult]):
+        # Hold value: the held fields' readings are replaced by their held
+        # values (and a released field's next good reading is new), before the
+        # template fields are filled in, so the templates and every output get
+        # them. The OCR's own readings are still shown in the boxes list.
+        readings = results
+        results = self.heldValues.apply(results)
         # fill in the template fields from the boxes' last good readings; a
         # template is Success when its text changed, SameNoChange otherwise
         apply_template_fields(results)
+        self.heldValues.finish_released(results)
 
         # The boxes list: each box's last good reading (a SameNoChange is its
         # last good reading), and the state of its latest one (a rejected or
         # empty reading is shown, but doesn't replace the value)
         now = time.monotonic()
-        for targetWithResult in results:
-            item = self.boxValueItem(targetWithResult.name)
+        for reading, sent in zip(readings, results):
+            if sent is not reading and is_template_field(reading):
+                # a held template field isn't filled in: it keeps its text
+                continue
+            # (a template field was filled in in place)
+            item = self.boxValueItem(reading.name)
             if item is not None:
-                record_reading(
-                    item, targetWithResult.result_state, targetWithResult.result, now
-                )
+                record_reading(item, reading.result_state, reading.result, now)
 
         if not self.updateOCRResults:
             # the outputs are paused (the readings above keep updating)
@@ -3481,11 +3973,14 @@ class MainWindow(QMainWindow):
         # rename the item in the tableWidget_boxes
         rename_custom_box_name_in_storage(old_name, new_name)
         item.setText(new_name)
+        # a held value stays held under the new name
+        self.heldValues.rename(old_name, new_name)
         # rename the item in the detectionTargetsStorage (a box that isn't
         # made yet isn't there). The row was renamed in place above, and
         # detectionTargetsChanged keeps its icon and role.
         if not self.detectionTargetsStorage.rename_item(old_name, new_name):
             logger.info("Error renaming item in application storage")
+        self.updateHeldUi()
         if item.isSelected():
             # the Box tab shows the new name
             self.listItemClicked(item)
@@ -3529,7 +4024,10 @@ class MainWindow(QMainWindow):
         item.setData(Qt.ItemDataRole.UserRole, NOT_PLACED)
         # it isn't read any more: don't show its last reading as current
         clear_reading(self.ui.tableWidget_boxes.item(item.row(), 1))
+        # nor sent: a held value ends with it
+        self.heldValues.forget(item.text())
         self.detectionTargetsStorage.remove_item(item.text())
+        self.updateHeldUi()
         self.listItemClicked(item)
 
     def makeTemplateField(self, toggled: bool):
@@ -3567,13 +4065,52 @@ class MainWindow(QMainWindow):
         self.listItemClicked(item)
 
     def createOBSScene(self):
-        # get the scene name from the lineEdit_sceneName
+        """Create OBS Scene: make the scene, or with Recreate off, keep a scene
+        of that name that exists already. The page says which happened."""
         scene_name = self.ui.lineEdit_sceneName.text()
-        # clear or create a new scene
-        create_obs_scene_from_export(self.obs_websocket_client, scene_name)
+        outcome = create_obs_scene_from_export(
+            self.obs_websocket_client,
+            scene_name,
+            recreate=self.ui.checkBox_recreate.isChecked(),
+        )
+        self.obsSceneOutcome = (outcome, scene_name)
+        self.updateObsSceneStatus()
         # the new text sources show the scene's placeholder texts (and updates
         # sent before they existed failed): send every current value again
         self.obs_last_sent.clear()
+
+    def updateObsSceneStatus(self):
+        """Under the scene's name: what Create OBS Scene did last."""
+        label = self.ui.label_obsSceneStatus
+        if self.obsSceneOutcome is None:
+            label.hide()
+            return
+        outcome, name = self.obsSceneOutcome
+        texts = {
+            SCENE_CREATED: QCoreApplication.translate(
+                "MainWindow", "Created the scene “{name}” in OBS."
+            ),
+            SCENE_RECREATED: QCoreApplication.translate(
+                "MainWindow",
+                "Made the scene “{name}” again: its sources were replaced.",
+            ),
+            SCENE_KEPT: QCoreApplication.translate(
+                "MainWindow",
+                "OBS already has a scene “{name}”: it was kept as it is. Tick "
+                "Recreate to make it again.",
+            ),
+            SCENE_FAILED: QCoreApplication.translate(
+                "MainWindow",
+                "Couldn't create the scene “{name}”. Tools > View log has the details.",
+            ),
+        }
+        label.setText(texts.get(outcome, texts[SCENE_FAILED]).format(name=name))
+        problem = outcome in (SCENE_KEPT, SCENE_FAILED)
+        color = theme.color(
+            "empty" if outcome == SCENE_FAILED else "rejected", self.palette()
+        )
+        label.setStyleSheet(f"color: {color.name()};" if problem else "")
+        label.show()
 
     # on destroy, close the OBS connection
     def closeEvent(self, event):

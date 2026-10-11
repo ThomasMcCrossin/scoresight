@@ -154,7 +154,7 @@ if __name__ == "__main__":
    - ■ *No secure connection to ...*: the `https://` connection failed, for example because the server's certificate isn't trusted.
    - ■ *HTTP 401: access denied*, *HTTP 404: check the URL*, *HTTP 500: the receiver reported an error*: your endpoint answered with that status. Hover the row for what it answered.
    - ▲ *HTTP 429: too many requests*: your endpoint limits the requests.
-2. **Read the log** (**File > View Current Log**). Output API errors start with `Output API:` and the type of the error, for example:
+2. **Read the log** (**Tools > View log**). Output API errors start with `Output API:` and the type of the error, for example:
 
    ```
    ERROR - output_worker - Output API: ConnectionError: HTTPConnectionPool(host='localahost', port=8091): Max retries exceeded ... Failed to resolve 'localahost'

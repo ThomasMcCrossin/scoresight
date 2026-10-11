@@ -371,3 +371,110 @@ class DestinationDelegate(QStyledItemDelegate):
                 )
                 return True
         return super().helpEvent(event, view, option, index)
+
+
+class CompactDestinationDelegate(DestinationDelegate):
+    """Paints a destination on one line, for the Live layout's outputs list:
+    the state glyph, the name, the status line and the time of the last
+    activity. It has no switch: the outputs are turned on and off in the
+    inspector."""
+
+    # the width of the name column, as a multiple of the font's height
+    NAME_COLUMN_EMS = 6.5
+
+    def rowHeight(self, font: QFont) -> int:
+        return (
+            max(
+                QFontMetrics(self.nameFont(font)).height(),
+                QFontMetrics(self.noteFont(font)).height(),
+            )
+            + _PAD_Y
+        )
+
+    def sizeHint(self, option, index):
+        metrics = QFontMetrics(self.nameFont(option.font))
+        return QSize(
+            round(metrics.height() * self.NAME_COLUMN_EMS) + 120,
+            self.rowHeight(option.font),
+        )
+
+    def paint(self, painter, option, index):
+        opt = QStyleOptionViewItem(option)
+        self.initStyleOption(opt, index)
+        opt.text = ""
+        opt.features &= ~QStyleOptionViewItem.ViewItemFeature.HasCheckIndicator
+        widget = opt.widget
+        style = widget.style() if widget is not None else QApplication.style()
+        style.drawControl(QStyle.ControlElement.CE_ItemViewItem, opt, painter, widget)
+
+        status: DestinationStatus | None = index.data(STATUS_ROLE)
+        palette = opt.palette
+        enabled = bool(opt.state & QStyle.StateFlag.State_Enabled)
+        group = QPalette.ColorGroup.Normal if enabled else QPalette.ColorGroup.Disabled
+        text_color = palette.color(group, QPalette.ColorRole.Text)
+        muted = palette.color(group, QPalette.ColorRole.PlaceholderText)
+
+        painter.save()
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        rect = QRectF(opt.rect).adjusted(_PAD_X, 0, -_PAD_X, 0)
+        name_font = self.nameFont(opt.font)
+        name_metrics = QFontMetrics(name_font)
+        note_font = self.noteFont(opt.font)
+        note_metrics = QFontMetrics(note_font)
+
+        # the state glyph
+        glyph_size = max(8.0, note_metrics.ascent() * 0.85)
+        state_color = muted
+        if status is not None:
+            color_name = STATE_COLORS.get(status.state)
+            if color_name and enabled:
+                state_color = theme.color(color_name, palette)
+            glyph = QRectF(
+                rect.left(), rect.center().y() - glyph_size / 2, glyph_size, glyph_size
+            )
+            theme.draw_state_shape(
+                painter, glyph, STATE_SHAPES[status.state], state_color
+            )
+        left = rect.left() + glyph_size + _GAP
+
+        # the name, in a column
+        name_width = round(name_metrics.height() * self.NAME_COLUMN_EMS)
+        name = index.data(Qt.ItemDataRole.DisplayRole) or ""
+        painter.setFont(name_font)
+        painter.setPen(text_color)
+        painter.drawText(
+            QRectF(left, rect.top(), name_width, rect.height()),
+            Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
+            name_metrics.elidedText(name, Qt.TextElideMode.ElideRight, name_width),
+        )
+        left += name_width + _GAP
+
+        # the time of the last activity, at the right
+        painter.setFont(note_font)
+        right = rect.right()
+        if status is not None and status.last_activity_at is not None:
+            age = age_text(self.clock() - status.last_activity_at)
+            age_width = note_metrics.horizontalAdvance(age)
+            painter.setPen(muted)
+            painter.drawText(
+                QRectF(right - age_width, rect.top(), age_width, rect.height()),
+                Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter,
+                age,
+            )
+            right -= age_width + _GAP
+
+        # the status line, between them
+        if status is not None and right > left:
+            painter.setPen(state_color if status.has_problem else muted)
+            painter.drawText(
+                QRectF(left, rect.top(), right - left, rect.height()),
+                Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
+                note_metrics.elidedText(
+                    status.detail, Qt.TextElideMode.ElideMiddle, int(right - left)
+                ),
+            )
+        painter.restore()
+
+    def editorEvent(self, event, model, option, index):
+        # no switch to click
+        return False

@@ -65,10 +65,10 @@ Essentials mode:
 {"command": "SetOverlayContentField", "id": "<Overlay ID>", "fieldId": "<mapping>", "value": "65"}
 ```
 
-- Only **new** values are sent. Tick **Send Same?** to also resend unchanged values on every cycle.
+- Only **new** values are sent. Tick **Also resend unchanged values** (was **Send Same?**) to also resend unchanged values on every cycle.
 - Fields whose mapping cell is empty are not sent.
 - Requests are sent in the background with a 2-second timeout. If UNO is slow or unreachable, ScoreSight keeps only the latest value of each command, retries with an increasing delay, and sends the latest values when UNO responds again. Any 2xx response counts as success.
-- overlays.uno limits how many API calls an account can make. Keep **Send Same?** off and **Update on change** on to stay well within the limits. ScoreSight doesn't throttle UNO requests itself.
+- overlays.uno limits how many API calls an account can make. Keep **Also resend unchanged values** off and **Update on change** on to stay well within the limits. ScoreSight doesn't throttle UNO requests itself.
 
 {: .new }
 ScoreSight 0.2.0 removed the **Rate Limit** field of 0.1.x, which had no effect.
@@ -77,8 +77,8 @@ ScoreSight 0.2.0 removed the **Rate Limit** field of 0.1.x, which had no effect.
 
 - Look at the UNO row of the **Outputs** list. It says, for example:
   - ■ *HTTP 401: check the UNO URL* (or 403, 404): the URL is wrong or expired. Copy the API URL of your control app again.
-  - ▲ *HTTP 429: too many requests*: overlays.uno's limit; the updates over it are dropped. Keep **Send Same?** off and **Update on change** on.
+  - ▲ *HTTP 429: too many requests*: overlays.uno's limit; the updates over it are dropped. Keep **Also resend unchanged values** off and **Update on change** on.
   - ▲ *Enter your UNO API URL*: the URL field still holds the example URL.
   - ▲ *Can't reach app.overlays.uno · retrying*: no internet connection. ScoreSight sends the latest values when it's back.
-- The log (**File > View Current Log**) has the details in lines that start with `UNO:`, for example `UNO: OutputError: UNO SetGoalsHome returned HTTP 401: ...`. Errors are logged at most once every 30 seconds.
+- The log (**Tools > View log**) has the details in lines that start with `UNO:`, for example `UNO: OutputError: UNO SetGoalsHome returned HTTP 401: ...`. Errors are logged at most once every 30 seconds.
 - Make sure the overlay supports the command you mapped, and that the values have the format the overlay expects (for example `mm:ss` for match time). Use the box's [Format](box-settings.md#format) setting to enforce it.

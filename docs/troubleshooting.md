@@ -20,7 +20,7 @@ Each section describes a symptom, its usual causes and the fix. The issue number
 
 The log almost always shows what went wrong.
 
-1. Open **File** > **View Current Log** to watch the log live. Its **Open Log Folder** button opens the folder with all log files.
+1. Open **Tools** > **View log** (**Ctrl+Shift+L**) to watch the log live. Its **Open Log Folder** button opens the folder with all log files.
 2. Or open the folder directly:
 
    | OS | Log folder |
@@ -211,7 +211,7 @@ In 0.1.x, a changed **Save Folder** in **OCR Training Data Setup** was ignored (
 
 ### The interface is too light or hard to read (#50)
 
-Use **File** > **Appearance** to choose **Dark**, **Light** or **System** (follow the operating system) ([#50](https://github.com/royshil/scoresight/issues/50)). The choice is remembered.
+Use **View** > **Appearance** to choose **Dark**, **Light** or **System** (follow the operating system) ([#50](https://github.com/royshil/scoresight/issues/50)). The choice is remembered.
 
 ### Two cameras at once (#8)
 
@@ -227,7 +227,7 @@ Packages older than 0.2.0 may not include `libxcb-cursor0` and the other xcb lib
 
 ### Start over with clean settings
 
-1. Optionally use **File > Export Configuration** to keep your boxes.
+1. Optionally use **File > Export field layout...** to keep your boxes.
 2. Quit ScoreSight.
 3. In the [settings folder](configuration.md#where-scoresight-keeps-its-files), rename `scoresight.json` (or `scoresight-<profile>.json` for a [profile](profiles.md)), for example to `scoresight.json.old`. Don't delete the folder: it also holds your other profiles and, in its default location `ocr_training_data/`, your OCR training data.
 4. Start ScoreSight. It starts with defaults.

@@ -347,3 +347,67 @@ def test_create_obs_scene_points_image_sources_at_the_bundled_images(caplog):
     assert images
     for image in images:
         assert os.path.isfile(image), image
+
+
+class ExistingSceneClient:
+    """An OBS with the scenes "Main" and "ScoreSight" (one text source)."""
+
+    def __init__(self, fail=False):
+        self.fail = fail
+        self.calls = []
+
+    def get_scene_list(self):
+        if self.fail:
+            raise ConnectionError("OBS is gone")
+        return SimpleNamespace(
+            scenes=[{"sceneName": "Main"}, {"sceneName": "ScoreSight"}]
+        )
+
+    def get_current_program_scene(self):
+        return SimpleNamespace(current_program_scene_name="Main")
+
+    def get_current_preview_scene(self):
+        return SimpleNamespace(current_preview_scene_name="Main")
+
+    def get_scene_item_list(self, scene):
+        return SimpleNamespace(scene_items=[{"sceneItemId": 1, "sourceName": "Clock"}])
+
+    def __getattr__(self, name):
+        # create_scene, create_input, remove_input...: recorded
+        if name.startswith(("create_", "remove_", "set_", "get_scene_item_id")):
+            return lambda *args, **kwargs: (
+                self.calls.append(name) or SimpleNamespace(scene_item_id=1)
+            )
+        raise AttributeError(name)
+
+
+def test_create_obs_scene_keeps_an_existing_scene_without_recreate():
+    # The "Recreate" checkbox was never read: an existing scene was always
+    # emptied and made again
+    client = ExistingSceneClient()
+    outcome = obs_websocket.create_obs_scene_from_export(
+        client, "ScoreSight", recreate=False
+    )
+    assert outcome == obs_websocket.SCENE_KEPT
+    assert client.calls == []  # left as it is
+
+    outcome = obs_websocket.create_obs_scene_from_export(client, "ScoreSight")
+    assert outcome == obs_websocket.SCENE_RECREATED
+    assert client.calls[:2] == ["remove_scene_item", "remove_input"]
+    assert "create_input" in client.calls
+
+    client.calls.clear()
+    outcome = obs_websocket.create_obs_scene_from_export(
+        client, "Court 2", recreate=False
+    )
+    assert outcome == obs_websocket.SCENE_CREATED
+    assert client.calls[0] == "create_scene"
+
+
+def test_create_obs_scene_says_when_obs_cannot_be_asked(caplog):
+    client = ExistingSceneClient(fail=True)
+    with caplog.at_level(logging.ERROR, logger=obs_websocket.logger.name):
+        outcome = obs_websocket.create_obs_scene_from_export(client, "ScoreSight")
+    assert outcome == obs_websocket.SCENE_FAILED
+    assert client.calls == []
+    assert "scene list" in caplog.text
