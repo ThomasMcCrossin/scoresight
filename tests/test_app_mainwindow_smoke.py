@@ -1990,6 +1990,118 @@ def test_the_http_page_shows_the_address_for_other_computers(
         qapp.removeTranslator(window.translator)
 
 
+def test_the_http_page_builds_overlay_urls(make_window, make_target, monkeypatch, qapp):
+    import mainwindow
+
+    monkeypatch.setattr(mainwindow, "primary_lan_address", lambda: "192.168.1.20")
+    window = make_window(http_port=18100)
+    for name in ("Home Score", "Away Score", "Time", "Period", "Shot Clock"):
+        window.detectionTargetsStorage.add_item(make_target(name))
+    ui = window.ui
+    url = ui.lineEdit_overlayUrl
+    assert url.text() == "http://192.168.1.20:18100/overlay/scorebug"
+    assert ui.toolButton_overlayFields.text() == "Standard fields"
+    assert [ui.comboBox_overlayHost.itemText(i) for i in range(2)] == [
+        "192.168.1.20:18100",
+        "localhost:18100",
+    ]
+
+    ui.comboBox_overlayTheme.setCurrentIndex(1)  # Light
+    ui.doubleSpinBox_overlayScale.setValue(1.5)
+    assert url.text() == (
+        "http://192.168.1.20:18100/overlay/scorebug?theme=light&scale=1.5"
+    )
+    # the fields, from the fields menu (made when it opens), in the list's order
+    builder = window.overlayBuilder
+    builder.fillFieldsMenu()
+    actions = {a.text(): a for a in builder.fieldsMenu.actions() if a.text()}
+    assert actions["Standard fields"].isChecked()
+    actions["Time"].trigger()
+    actions["Home Score"].trigger()
+    assert url.text() == (
+        "http://192.168.1.20:18100/overlay/scorebug"
+        "?fields=Home%20Score,Time&theme=light&scale=1.5"
+    )
+    assert ui.toolButton_overlayFields.text() == "Home Score, Time"
+    assert not actions["Standard fields"].isChecked()
+    actions["Standard fields"].trigger()
+    assert "fields=" not in url.text()
+
+    # the single field picks one field
+    ui.comboBox_overlayKind.setCurrentIndex(
+        ui.comboBox_overlayKind.findText("Single field")
+    )
+    builder.fillFieldsMenu()
+    [shot_clock] = [a for a in builder.fieldsMenu.actions() if a.text() == "Shot Clock"]
+    shot_clock.trigger()
+    assert url.text() == (
+        "http://192.168.1.20:18100/overlay/field?name=Shot%20Clock&theme=light"
+        "&scale=1.5"
+    )
+    # for software on this computer
+    ui.comboBox_overlayHost.setCurrentIndex(1)
+    assert url.text().startswith("http://localhost:18100/overlay/field?")
+    ui.pushButton_copyOverlayUrl.click()
+    assert QApplication.clipboard().text() == url.text()
+
+    # the choices are kept
+    again = make_window(http_port=18100)
+    assert again.ui.lineEdit_overlayUrl.text() == url.text()
+
+
+def test_the_http_page_lists_the_custom_overlays(make_window, data_dir, monkeypatch):
+    import mainwindow
+
+    monkeypatch.setattr(mainwindow, "primary_lan_address", lambda: None)
+    window = make_window(http_port=18100)
+    ui = window.ui
+    combo = ui.comboBox_overlayKind
+    # the overlays folder is made with the example
+    assert (data_dir / "overlays" / "example.html").is_file()
+    assert combo.findText("example.html") > 0
+
+    (data_dir / "overlays" / "My Board.html").write_text("<p>", encoding="utf-8")
+    # the list is read again when it is opened (clicked)
+    window.overlayBuilder.eventFilter(
+        combo, QtCore.QEvent(QtCore.QEvent.Type.MouseButtonPress)
+    )
+    combo.setCurrentIndex(combo.findText("My Board.html"))
+    assert ui.lineEdit_overlayUrl.text() == (
+        "http://localhost:18100/overlay/custom/My%20Board.html"
+    )
+    # a custom overlay has its own look
+    assert not ui.comboBox_overlayTheme.isEnabled()
+    assert not ui.toolButton_overlayFields.isEnabled()
+
+
+def test_the_overlay_builder_without_the_server(make_window, patched):
+    patched["http_port_busy"] = True
+    window = make_window()
+    ui = window.ui
+    assert ui.lineEdit_overlayUrl.text() == ""
+    assert ui.lineEdit_overlayUrl.placeholderText() == "The HTTP server is not running"
+    assert not ui.pushButton_copyOverlayUrl.isEnabled()
+    assert not ui.pushButton_openOverlayUrl.isEnabled()
+
+
+def test_a_language_change_keeps_the_overlay_choices(make_window, qapp, monkeypatch):
+    import mainwindow
+
+    monkeypatch.setattr(mainwindow, "primary_lan_address", lambda: None)
+    window = make_window(http_port=18100)
+    ui = window.ui
+    ui.comboBox_overlayKind.setCurrentIndex(2)  # Clock
+    ui.comboBox_overlayTheme.setCurrentIndex(2)  # Minimal
+    before = ui.lineEdit_overlayUrl.text()
+    assert before == "http://localhost:18100/overlay/clock?theme=minimal"
+    window.changeLanguage("de_DE")
+    try:
+        assert ui.comboBox_overlayKind.currentIndex() == 2
+        assert ui.lineEdit_overlayUrl.text() == before
+    finally:
+        qapp.removeTranslator(window.translator)
+
+
 @pytest.fixture
 def reference_font(qapp):
     """Segoe UI 9 pt (the Windows UI font) where it's installed; the offscreen

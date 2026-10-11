@@ -57,6 +57,7 @@ SELF_TEST_MODULES = (
     "output_status",
     "output_worker",
     "overlay_feed",
+    "overlay_ui_handler",
     "overlays",
     "readings_view",
     "resizable_rect",

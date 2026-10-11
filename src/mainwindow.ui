@@ -3276,6 +3276,342 @@
                   </property>
                  </widget>
                 </item>
+                <item>
+                 <widget class="QGroupBox" name="groupBox_overlays">
+                  <property name="toolTip">
+                   <string>Transparent pages with live values, for a browser source in OBS, vMix, Wirecast, CasparCG and other production software</string>
+                  </property>
+                  <property name="title">
+                   <string>Browser overlays</string>
+                  </property>
+                  <layout class="QFormLayout" name="formLayout_overlays">
+                   <property name="fieldGrowthPolicy">
+                    <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+                   </property>
+                   <property name="horizontalSpacing">
+                    <number>6</number>
+                   </property>
+                   <property name="verticalSpacing">
+                    <number>3</number>
+                   </property>
+                   <property name="leftMargin">
+                    <number>6</number>
+                   </property>
+                   <property name="topMargin">
+                    <number>4</number>
+                   </property>
+                   <property name="rightMargin">
+                    <number>6</number>
+                   </property>
+                   <property name="bottomMargin">
+                    <number>6</number>
+                   </property>
+                   <item row="0" column="0">
+                    <widget class="QLabel" name="label_overlayKind">
+                     <property name="text">
+                      <string>Overlay</string>
+                     </property>
+                     <property name="buddy">
+                      <cstring>comboBox_overlayKind</cstring>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="1">
+                    <widget class="QWidget" name="widget_overlayKind" native="true">
+                     <layout class="QHBoxLayout" name="horizontalLayout_overlayKind">
+                      <property name="spacing">
+                       <number>3</number>
+                      </property>
+                      <property name="leftMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="topMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="rightMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="bottomMargin">
+                       <number>0</number>
+                      </property>
+                      <item>
+                       <widget class="QComboBox" name="comboBox_overlayKind">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="toolTip">
+                         <string>A built-in overlay, or one of yours from the overlays folder</string>
+                        </property>
+                        <property name="sizeAdjustPolicy">
+                         <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
+                        </property>
+                        <property name="minimumContentsLength">
+                         <number>8</number>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QToolButton" name="toolButton_overlaysFolder">
+                        <property name="toolTip">
+                         <string>Open the overlays folder: put your own HTML overlays there</string>
+                        </property>
+                        <property name="accessibleName">
+                         <string>Open the overlays folder</string>
+                        </property>
+                        <property name="toolButtonStyle">
+                         <enum>Qt::ToolButtonIconOnly</enum>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </widget>
+                   </item>
+                   <item row="1" column="0">
+                    <widget class="QLabel" name="label_overlayFields">
+                     <property name="text">
+                      <string>Fields</string>
+                     </property>
+                     <property name="buddy">
+                      <cstring>toolButton_overlayFields</cstring>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="1">
+                    <widget class="QToolButton" name="toolButton_overlayFields">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="toolTip">
+                      <string>The fields the overlay shows, in the order of the fields list</string>
+                     </property>
+                     <property name="accessibleName">
+                      <string>Overlay fields</string>
+                     </property>
+                     <property name="popupMode">
+                      <enum>QToolButton::InstantPopup</enum>
+                     </property>
+                     <property name="toolButtonStyle">
+                      <enum>Qt::ToolButtonTextOnly</enum>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="0">
+                    <widget class="QLabel" name="label_overlayTheme">
+                     <property name="text">
+                      <string>Theme</string>
+                     </property>
+                     <property name="buddy">
+                      <cstring>comboBox_overlayTheme</cstring>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="1">
+                    <widget class="QWidget" name="widget_overlayLook" native="true">
+                     <layout class="QHBoxLayout" name="horizontalLayout_overlayLook">
+                      <property name="spacing">
+                       <number>6</number>
+                      </property>
+                      <property name="leftMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="topMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="rightMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="bottomMargin">
+                       <number>0</number>
+                      </property>
+                      <item>
+                       <widget class="QComboBox" name="comboBox_overlayTheme">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="toolTip">
+                         <string>The overlay's colors. Minimal has no panels: white text with a shadow</string>
+                        </property>
+                        <property name="sizeAdjustPolicy">
+                         <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
+                        </property>
+                        <property name="minimumContentsLength">
+                         <number>5</number>
+                        </property>
+                        <item>
+                         <property name="text">
+                          <string>Dark</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>Light</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>Minimal</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>Bold</string>
+                         </property>
+                        </item>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QLabel" name="label_overlayScale">
+                        <property name="text">
+                         <string>Scale</string>
+                        </property>
+                        <property name="buddy">
+                         <cstring>doubleSpinBox_overlayScale</cstring>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QDoubleSpinBox" name="doubleSpinBox_overlayScale">
+                        <property name="toolTip">
+                         <string>The overlays fit the page's width (1920x1080, 1280x720...); this makes them bigger or smaller</string>
+                        </property>
+                        <property name="suffix">
+                         <string notr="true">×</string>
+                        </property>
+                        <property name="decimals">
+                         <number>2</number>
+                        </property>
+                        <property name="minimum">
+                         <double>0.250000000000000</double>
+                        </property>
+                        <property name="maximum">
+                         <double>4.000000000000000</double>
+                        </property>
+                        <property name="singleStep">
+                         <double>0.250000000000000</double>
+                        </property>
+                        <property name="value">
+                         <double>1.000000000000000</double>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </widget>
+                   </item>
+                   <item row="3" column="0">
+                    <widget class="QLabel" name="label_overlayHost">
+                     <property name="text">
+                      <string>Address</string>
+                     </property>
+                     <property name="buddy">
+                      <cstring>comboBox_overlayHost</cstring>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="1">
+                    <widget class="QComboBox" name="comboBox_overlayHost">
+                     <property name="toolTip">
+                      <string>The network address for software on other computers, localhost for software on this one</string>
+                     </property>
+                     <property name="sizeAdjustPolicy">
+                      <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
+                     </property>
+                     <property name="minimumContentsLength">
+                      <number>12</number>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="0" colspan="2">
+                    <widget class="QLineEdit" name="lineEdit_overlayUrl">
+                     <property name="toolTip">
+                      <string>Paste this address in a browser source</string>
+                     </property>
+                     <property name="accessibleName">
+                      <string>Overlay address</string>
+                     </property>
+                     <property name="readOnly">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="5" column="0" colspan="2">
+                    <widget class="QWidget" name="widget_overlayButtons" native="true">
+                     <layout class="QHBoxLayout" name="horizontalLayout_overlayButtons">
+                      <property name="spacing">
+                       <number>6</number>
+                      </property>
+                      <property name="leftMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="topMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="rightMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="bottomMargin">
+                       <number>0</number>
+                      </property>
+                      <item>
+                       <widget class="QPushButton" name="pushButton_copyOverlayUrl">
+                        <property name="toolTip">
+                         <string>Copy the overlay's address</string>
+                        </property>
+                        <property name="text">
+                         <string>Copy</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QPushButton" name="pushButton_openOverlayUrl">
+                        <property name="toolTip">
+                         <string>Open the overlay in your web browser</string>
+                        </property>
+                        <property name="text">
+                         <string>Open in browser</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <spacer name="horizontalSpacer_overlayButtons">
+                        <property name="orientation">
+                         <enum>Qt::Horizontal</enum>
+                        </property>
+                        <property name="sizeHint" stdset="0">
+                         <size>
+                          <width>0</width>
+                          <height>0</height>
+                         </size>
+                        </property>
+                       </spacer>
+                      </item>
+                     </layout>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="verticalSpacer_browser">
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>0</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
                </layout>
               </widget>
               <widget class="QWidget" name="tab_obs">
