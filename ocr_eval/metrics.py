@@ -22,6 +22,13 @@ Per-item scores:
 Aggregates: exact/digits accuracy and the empty-output rate with Wilson score
 95% intervals; CER = total edits / total ground-truth characters, with a
 percentile bootstrap 95% interval over items (fixed seed, so reproducible).
+
+Clustered statistics: the crops of one photo share its board, lighting and
+focus, so they aren't independent, and intervals or tests that treat them as
+independent are too narrow or too confident. cluster_bootstrap_interval
+resamples whole clusters (dataset.Sample.cluster: a photo, or the photos of
+one board and game) and cluster_sign_flip_p compares two engines with a
+paired permutation test on the per-cluster differences.
 """
 
 import math
@@ -35,6 +42,10 @@ NUMERIC_FIELD_TYPES = ("score", "clock", "period", "number")
 _ASCII_DIGITS = "0123456789"
 BOOTSTRAP_SAMPLES = 2000
 BOOTSTRAP_SEED = 0
+# random sign patterns of cluster_sign_flip_p (its p-values are then at least
+# 1 / 20001), and the most non-zero clusters for which it enumerates all 2^m
+SIGN_FLIP_PERMUTATIONS = 20000
+SIGN_FLIP_EXACT_MAX_CLUSTERS = 16
 
 
 def normalize(text: str | None, field_type: str) -> str:
@@ -198,6 +209,86 @@ def latency_summary(values_ms: list[float]) -> dict | None:
         "p95_ms": round(float(np.percentile(values, 95)), 3),
         "max_ms": round(float(values.max()), 3),
     }
+
+
+def _cluster_sums(values, clusters) -> tuple[np.ndarray, np.ndarray]:
+    """Per cluster (in order of first appearance): the sum of values and the
+    number of items."""
+    index: dict = {}
+    keys = [index.setdefault(cluster, len(index)) for cluster in clusters]
+    if len(keys) != len(values):
+        raise ValueError("values and clusters differ in length")
+    sums = np.bincount(
+        keys, weights=np.asarray(values, np.float64), minlength=len(index)
+    )
+    sizes = np.bincount(keys, minlength=len(index)).astype(np.float64)
+    return sums, sizes
+
+
+def cluster_count(clusters) -> int:
+    return len(set(clusters))
+
+
+def cluster_bootstrap_interval(
+    values, clusters, samples=BOOTSTRAP_SAMPLES, seed=BOOTSTRAP_SEED
+) -> tuple[float, float]:
+    """Percentile bootstrap 95% interval of the mean of values over items
+    (1/0 for a right/wrong reading, or a paired difference -1/0/1), resampling
+    the clusters with replacement (each resample's mean is its items' sum over
+    its items' count). With one item per cluster it is the item bootstrap."""
+    sums, sizes = _cluster_sums(values, clusters)
+    k = len(sums)
+    if k == 0:
+        return (0.0, 0.0)
+    rng = np.random.default_rng(seed)
+    chunks = []
+    chunk_size = max(1, min(samples, 2_000_000 // k))
+    done = 0
+    while done < samples:
+        size = min(chunk_size, samples - done)
+        index = rng.integers(0, k, size=(size, k))
+        chunks.append(sums[index].sum(axis=1) / sizes[index].sum(axis=1))
+        done += size
+    means = np.concatenate(chunks)
+    return (float(np.percentile(means, 2.5)), float(np.percentile(means, 97.5)))
+
+
+def cluster_sign_flip_p(
+    differences,
+    clusters,
+    permutations=SIGN_FLIP_PERMUTATIONS,
+    seed=BOOTSTRAP_SEED,
+) -> float:
+    """Two-sided p-value of a paired comparison of two engines that respects
+    clusters. differences are per item, b - a (1 if only b read it, -1 if only
+    a did, else 0). Under the null hypothesis the two engines are exchangeable
+    on every crop, so each cluster's sum of differences is as likely to have
+    either sign; the observed |sum over clusters| is compared with its
+    distribution under random sign flips of the cluster sums. Exact (every
+    sign pattern) when at most SIGN_FLIP_EXACT_MAX_CLUSTERS clusters have a
+    non-zero sum, else Monte Carlo with a fixed seed: then p = (exceedances +
+    1) / (permutations + 1), never below 1 / (permutations + 1). With one item
+    per cluster it is a sign test of the discordant items, like McNemar's.
+    1.0 when no cluster has a non-zero sum."""
+    sums, _ = _cluster_sums(differences, clusters)
+    sums = sums[sums != 0]
+    m = len(sums)
+    if m == 0:
+        return 1.0
+    observed = abs(sums.sum()) - 1e-9
+    if m <= SIGN_FLIP_EXACT_MAX_CLUSTERS:
+        patterns = (np.arange(2**m)[:, None] >> np.arange(m)) & 1
+        totals = np.abs((patterns * 2 - 1) @ sums)
+        return float(np.count_nonzero(totals >= observed) / len(totals))
+    rng = np.random.default_rng(seed)
+    exceed = done = 0
+    chunk_size = max(1, min(permutations, 2_000_000 // m))
+    while done < permutations:
+        size = min(chunk_size, permutations - done)
+        signs = rng.integers(0, 2, size=(size, m), dtype=np.int8) * 2 - 1
+        exceed += int(np.count_nonzero(np.abs(signs @ sums) >= observed))
+        done += size
+    return (exceed + 1) / (permutations + 1)
 
 
 def mcnemar_exact_p(b: int, c: int) -> float:

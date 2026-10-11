@@ -176,6 +176,9 @@ def test_build_writes_a_valid_dataset(tmp_path, offline_commons):
     assert (crop[..., 2] > 200).all()  # only the red panel
     clock = next(s for s in dataset.samples if s.extra["role"] == "clock")
     assert clock.display_tech == "dotmatrix"  # the field's own
+    # no group: the photo is the crops' cluster
+    assert score.extra["group"] is None
+    assert score.cluster == clock.cluster == "source_image:commons:101"
 
     frames = [
         json.loads(line)
@@ -189,6 +192,19 @@ def test_build_writes_a_valid_dataset(tmp_path, offline_commons):
     assert "Jane Doe" in attribution and "File:Board.jpg" in attribution
     readme = (out / "README.md").read_text(encoding="utf-8")
     assert "| illegible | 1 |" in readme
+
+
+def test_build_records_the_photo_group(tmp_path, offline_commons):
+    cache, _ = offline_commons
+    labels = _labels()
+    labels["photos"]["File:Board.jpg"]["group"] = "board-a"
+    labels_path = tmp_path / "labels.json"
+    cs.save_labels(labels_path, labels)
+    out = tmp_path / "out"
+    cs.build(cache, out, labels_path, log=None)
+    samples = load_dataset(out).samples
+    assert {s.extra["group"] for s in samples} == {"board-a"}
+    assert {s.cluster for s in samples} == {"group:board-a"}
 
 
 def test_build_scales_boxes_to_the_rendition(tmp_path, offline_commons):

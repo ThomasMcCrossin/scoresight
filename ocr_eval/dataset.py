@@ -20,7 +20,10 @@ manifest.jsonl has one JSON object per crop:
     source_box    [x, y, w, h] of the crop in the source image, or null
     notes         free text
 
-Unknown keys are kept (Sample.extra) and ignored.
+Unknown keys are kept (Sample.extra) and ignored, except "group",
+"source_image" and "frame": crops with the same value come from the same photo
+(or group of photos of one board and game), which clustered statistics
+resample together (Sample.cluster).
 """
 
 import hashlib
@@ -47,6 +50,10 @@ REQUIRED_FIELDS = (
     "license",
 )
 OPTIONAL_FIELDS = ("source_url", "author", "attribution", "source_box", "notes")
+# Optional keys that say which crops come from the same photo (Sample.cluster),
+# in order of precedence: a group of photos of the same board and game, the
+# photo, the frame.
+CLUSTER_KEYS = ("group", "source_image", "frame")
 LICENSE_FILES = ("LICENSE", "LICENSE.md", "LICENSE.txt")
 ATTRIBUTION_FILES = ("ATTRIBUTION", "ATTRIBUTION.md", "ATTRIBUTION.txt")
 
@@ -82,6 +89,20 @@ class Sample:
     source_box: tuple[int, int, int, int] | None = None
     notes: str | None = None
     extra: dict = field(default_factory=dict)
+
+    @property
+    def cluster(self) -> str:
+        """The photo the crop was cut from, or the group of photos of the same
+        board and game: crops of one photo share its lighting, focus and
+        board, so they aren't independent, and clustered statistics
+        (metrics.cluster_bootstrap_interval, cluster_sign_flip_p) resample
+        these clusters instead of crops. The row's "group", else its
+        "source_image" or "frame", else the crop itself."""
+        for key in CLUSTER_KEYS:
+            value = self.extra.get(key)
+            if value:
+                return f"{key}:{value}"
+        return f"id:{self.id}"
 
     def to_dict(self) -> dict:
         row = {name: getattr(self, name) for name in REQUIRED_FIELDS}

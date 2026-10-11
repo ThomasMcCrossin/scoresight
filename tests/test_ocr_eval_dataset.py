@@ -122,6 +122,22 @@ def test_extra_keys_are_kept(tmp_path):
     assert sample.to_dict()["word_box"] == [1, 1, 5, 5]
 
 
+def test_cluster_is_the_group_then_the_photo_then_the_crop(tmp_path):
+    rows = [
+        _row(id="a", image="images/a.png", source_image="pic:1", group="board-x"),
+        _row(id="b", image="images/b.png", source_image="pic:2", group=None),
+        _row(id="c", image="images/c.png", frame="frames/3.jpg"),
+        _row(id="d", image="images/d.png"),
+    ]
+    samples = load_dataset(make_dataset(tmp_path / "ds", rows)).samples
+    assert [s.cluster for s in samples] == [
+        "group:board-x",
+        "source_image:pic:2",
+        "frame:frames/3.jpg",
+        "id:d",
+    ]
+
+
 @pytest.mark.parametrize(
     ("overrides", "message"),
     [

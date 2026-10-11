@@ -7,6 +7,9 @@ pytest.importorskip("numpy")
 from ocr_eval.metrics import (  # noqa: E402
     ItemScore,
     bootstrap_ratio_interval,
+    cluster_bootstrap_interval,
+    cluster_count,
+    cluster_sign_flip_p,
     latency_summary,
     levenshtein,
     mcnemar_exact_p,
@@ -94,6 +97,51 @@ def test_mcnemar_exact():
     assert mcnemar_exact_p(5, 5) == 1.0
     # large counts don't overflow
     assert 0.0 < mcnemar_exact_p(700, 640) < 1.0
+
+
+def test_cluster_bootstrap_with_one_item_per_cluster_is_the_item_bootstrap():
+    values = [1, 0, 1, 1, 0, 1, 1, 1, 0, 1] * 4
+    assert cluster_bootstrap_interval(values, range(len(values))) == (
+        bootstrap_ratio_interval(values, [1] * len(values))
+    )
+    assert cluster_bootstrap_interval([], []) == (0.0, 0.0)
+    with pytest.raises(ValueError):
+        cluster_bootstrap_interval([1, 0], ["a"])
+
+
+def test_cluster_bootstrap_is_wider_when_crops_of_a_photo_agree():
+    # 20 photos of 10 crops each: a photo is read entirely right or wrong
+    values = [photo % 2 for photo in range(20) for _ in range(10)]
+    photos = [photo for photo in range(20) for _ in range(10)]
+    low, high = cluster_bootstrap_interval(values, photos)
+    crop_low, crop_high = cluster_bootstrap_interval(values, range(len(values)))
+    assert low < 0.5 < high
+    assert high - low > 2 * (crop_high - crop_low)
+    assert cluster_count(photos) == 20
+    assert cluster_bootstrap_interval(values, photos) == (low, high)  # seeded
+
+
+def test_sign_flip_with_one_item_per_cluster_is_mcnemar():
+    # 3 crops only a reads, 9 only b reads, 20 both or neither
+    differences = [-1] * 3 + [1] * 9 + [0] * 20
+    p = cluster_sign_flip_p(differences, range(len(differences)))
+    assert p == pytest.approx(mcnemar_exact_p(3, 9))
+    assert cluster_sign_flip_p([0, 0, 0], ["a", "b", "c"]) == 1.0
+
+
+def test_sign_flip_counts_photos_not_crops():
+    # one photo where b reads 12 more crops: significant if the crops were
+    # independent, not as one photo
+    differences = [1] * 12 + [0] * 30
+    photos = ["big"] * 12 + [f"p{i}" for i in range(30)]
+    assert mcnemar_exact_p(0, 12) < 0.001
+    assert cluster_sign_flip_p(differences, photos) == 1.0
+    # many photos that each lean the same way: significant (Monte Carlo)
+    differences = [1, 1, -1, 0] * 40
+    photos = [i // 4 for i in range(160)]
+    p = cluster_sign_flip_p(differences, photos)
+    assert p == 1 / 20001  # all 40 photos +1: no random pattern reaches it
+    assert p == cluster_sign_flip_p(differences, photos)  # seeded
 
 
 class _Sample:

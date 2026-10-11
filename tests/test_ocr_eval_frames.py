@@ -185,6 +185,16 @@ def test_frames_command_line(frame_dataset, tmp_path, monkeypatch):
         0,
     )
     assert pair.delta == pytest.approx(-1 / 3)
+    assert pair.clusters is None  # no datasets given
+    # with the dataset: its 3 crops come from 2 photos, and the one crop the
+    # runs disagree on is one photo's difference, which a sign flip can't
+    # tell from chance
+    clusters = pairwise.dataset_clusters(results)
+    assert clusters["ds"]["f1a"] == clusters["ds"]["f1b"] == "source_image:pic:f1"
+    [pair] = pairwise.pair_runs(results, results, "*good*", "*bad*", clusters=clusters)
+    assert (pair.clusters, pair.cluster_p) == (2, 1.0)
+    low, high = pair.delta_ci
+    assert low <= pair.delta <= high <= 0
     markdown = tmp_path / "pairs.md"
     assert (
         pairwise.main(
@@ -201,6 +211,7 @@ def test_frames_command_line(frame_dataset, tmp_path, monkeypatch):
     )
     table = markdown.read_text(encoding="utf-8")
     assert "frameoracle:good@frames-boxes | frameoracle:bad@frames-boxes | 3" in table
+    assert "| 1 | 0 | 1 | 2 | " in table  # McNemar p 1, then 2 photos
     assert (
         pairwise.main([str(tmp_path / "missing.json"), str(out / "results.json")]) == 2
     )

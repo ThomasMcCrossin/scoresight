@@ -84,7 +84,7 @@ Each line of `manifest.jsonl` is one crop:
 | `source_box` | `[x, y, w, h]` of the crop in the source image, or `null` |
 | `notes` | Free text |
 
-Other keys are allowed and kept (the TextOCR rows add `source_image` and `word_box`; the Commons rows `role`, `sport` and `frame_image`).
+Other keys are allowed and kept (the TextOCR rows add `source_image` and `word_box`; the Commons rows `source_image`, `group`, `role`, `sport` and `source_size`). Three of them say which crops come from the same photo: `group` (photos of the same board and game), else `source_image`, else `frame`. Crops of one photo share its board, lighting and focus, so they aren't independent observations, and the clustered statistics below resample these photos instead of crops (`Sample.cluster`; a crop without any of the three is its own cluster).
 
 Each field type is read with the box settings ScoreSight gives that kind of box (`ocr_eval/fields.py`, from `defaults.py`):
 
@@ -127,6 +127,8 @@ Both the prediction and the ground truth are normalized first: Unicode NFKC (ful
 | CPU time | Per crop, in ms (`latency.cpu_ms`): the process's CPU time (every thread) divided by the crops read, one at a time and batched. What a crop costs the machine, which wall time hides when an engine uses several cores |
 
 Accuracies come with a 95% Wilson score interval and CER with a 95% bootstrap interval (2,000 resamples, fixed seed), so small differences aren't over-read: on 1,276 crops an accuracy near 30% is known to about ±2.5 points. Every metric is also broken down by field type, display technology and split. `compare` pairs the two runs crop by crop and reports the crops lost and gained and an exact McNemar test.
+
+Those intervals and McNemar's test treat every crop as independent, but a photo gives several crops (the 2,320 real crops come from 358 photos or groups of photos of one board), and crops of one photo tend to be read alike. `ocr_eval/metrics.py` therefore also has clustered statistics: `cluster_bootstrap_interval` (a percentile bootstrap that resamples whole photos, 2,000 resamples, fixed seed) and `cluster_sign_flip_p` (a paired test of two engines on the per-photo differences: each photo's difference keeps or flips its sign at random; exact up to 16 photos with a difference, else 20,000 random sign patterns, so p ≥ 5×10⁻⁵). The report's intervals and paired tests use them, and `python -m ocr_eval.pairwise` adds them when it finds the dataset. With one crop per photo they reduce to the crop bootstrap and McNemar's test.
 
 ## Engines
 

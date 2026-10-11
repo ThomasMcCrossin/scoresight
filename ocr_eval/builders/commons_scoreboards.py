@@ -647,6 +647,9 @@ def build(
                     notes=notes,
                     extra={
                         "source_image": source_image,
+                        # photos of the same board and game: clustered
+                        # statistics resample them together
+                        "group": group,
                         "source_size": [width, height],
                         "role": role,
                         "sport": photo.get("sport"),
