@@ -53,7 +53,9 @@ jobs:
         run: python -c "import tesserocr; print('Tesseract', tesserocr.tesseract_version().splitlines()[0])"
 
       - name: Validate the datasets
-        run: python -m ocr_eval validate --strict-licenses textocr_scoreboards synthetic_7seg
+        run: >-
+          python -m ocr_eval validate --strict-licenses
+          textocr_scoreboards synthetic_7seg commons_scoreboards
 
       - name: Run the Tesseract pipeline on the datasets
         env:
@@ -61,6 +63,7 @@ jobs:
         run: >-
           python -m ocr_eval run
           --dataset textocr_scoreboards --dataset synthetic_7seg
+          --dataset commons_scoreboards
           --engine tesseract --label "$LABEL" --quiet --out ocr-eval-results
 
       - name: Compare with the baseline
@@ -69,10 +72,20 @@ jobs:
           ocr_eval/baselines/tesseract.json ocr-eval-results/results.json
           --max-drop 0.02 --require-all --markdown ocr-eval-results/comparison.md
 
+      # commons_scoreboards has its own baseline file, so that its labels can
+      # be corrected (python -m ocr_eval review) without touching tesseract.json
+      - name: Compare with the commons_scoreboards baseline
+        if: success() || failure()
+        run: >-
+          python -m ocr_eval compare
+          ocr_eval/baselines/tesseract-commons.json ocr-eval-results/results.json
+          --max-drop 0.02 --require-all
+          --markdown ocr-eval-results/comparison-commons.md
+
       - name: Write the job summary
         if: always()
         run: |
-          for file in ocr-eval-results/comparison.md ocr-eval-results/report.md; do
+          for file in ocr-eval-results/comparison.md ocr-eval-results/comparison-commons.md ocr-eval-results/report.md; do
             if [ -f "$file" ]; then
               cat "$file" >> "$GITHUB_STEP_SUMMARY"
             fi

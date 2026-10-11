@@ -25,6 +25,7 @@ python -m ocr_eval run --dataset textocr_scoreboards --dataset synthetic_7seg \
     --engine tesseract --out results/my-change            # results.json + report.md
 python -m ocr_eval compare ocr_eval/baselines/tesseract.json results/my-change/results.json
 python -m ocr_eval report results/my-change/results.json  # print the markdown report again
+python -m ocr_eval review commons_scoreboards             # HTML contact sheet for checking labels
 ```
 
 Run it from the repository root with the development environment (see [Building from Source](building.md)); the Tesseract engine needs nothing beyond `requirements.txt`. The harness never touches your ScoreSight settings or logs: it points `SCORESIGHT_DATA_DIR` and `SCORESIGHT_LOG_DIR` at a temporary folder unless you set them.
@@ -69,6 +70,8 @@ Settings that only matter across frames or format the output (smoothing, "skip s
 
 **`textocr_scoreboards`** (1,276 crops from 219 photos, about 11 MB): real scoreboards and clocks. The photos are the TextVQA images tagged "Scoreboard" or "Digital clock" whose Open Images metadata lists a license that allows redistribution (all of them are CC BY 2.0); the transcriptions are TextOCR's human annotations (CC BY 4.0). `ocr_eval/builders/textocr_scoreboards.py` rebuilds it from scratch (`python -m ocr_eval.builders.textocr_scoreboards --cache FOLDER`; it downloads about 3.1 GB, 2.7 GB of which is the Open Images metadata CSV, filtered as it streams in, and keeps about 0.5 GB in the cache folder). It keeps clocks (`M:SS`, `MM:SS`, `S.D`), numbers of 1 to 3 digits, ordinals and common scoreboard words that are at least 12 px tall and nearly level, at most 12 per photo, and pads each word box by a quarter of its height like a user's box. Every remaining crop was then reviewed on contact sheets (`--contact-sheets FOLDER` renders them): crops that aren't scoreboard values (phone screens, analog dials, signs, jerseys, ads, keypads), aren't legible, or whose transcription disagrees with the display were dropped, and each photo or crop got a display technology. The decisions are in `ocr_eval/builders/textocr_scoreboards_review.json`, and the dataset's `dropped.jsonl` and `README.md` list every dropped candidate with its reason. Field types come from the transcription only: `number` covers scores, periods, innings and other numbers alike. The review was model-assisted (Claude), so a second human pass is welcome.
 
+**`commons_scoreboards`** (1,044 crops from 186 photos, about 24 MB with the downscaled photos): the fields of physical scoreboards and stadium video boards photographed by Wikimedia Commons contributors: ice hockey, basketball, American, Canadian and association football, cricket, volleyball, table tennis and a few others. Each field is its own crop, cut by a box drawn the way a ScoreSight user would draw it, and labelled with its role (`home_score`, `clock`, `shot_clock`, `period`, `home_fouls`, `down`, `overs`, ...) and a field type from its meaning: `score` for scores, `clock` for game, shot and penalty clocks with a separator, `period`, `number` for other counts (shot clocks in whole seconds, fouls, timeouts, downs, cricket totals), `text` for team names and words. Display technologies: 411 crops 7-segment LED, 304 dot matrix, 216 video boards, 54 bulb, 51 flip or hand-hung cards. Licenses are per photo (CC BY 2.0 to 4.0, CC BY-SA 2.0 to 4.0, CC0 and public domain; crops of CC BY-SA photos stay CC BY-SA), re-checked with the Commons API on every build, and `LICENSE` and `ATTRIBUTION.md` credit every photo. `frames.jsonl` lists each photo with the URL of its 1280 px rendition and all its boxes, and `frames/` holds the photos downscaled to 576 px, for whole-frame experiments (for example a vision-language model reading the whole board). `ocr_eval/builders/commons_scoreboards.py --cache FOLDER --discover` lists the candidates (2,901 files with a usable license in the scoreboard categories) and downloads their thumbnails for choosing; about 900 thumbnails of the sport categories were looked at, 235 photos picked, and 186 used (the 49 others are in the labels file with the reason). `--cache FOLDER --frames` rebuilds the dataset from `ocr_eval/builders/commons_scoreboards_labels.json`, fetching about 60 MB of renditions at most one request per second. Photos of the same board and game share a split (`group`). The labels were drawn and transcribed with a model's help (Claude): every field looked at zoomed in, fields that weren't clearly legible left out, and every crop checked on contact sheets. They are marked `model-assisted-unverified` until a person checks them (see [Checking labels](#checking-labels)).
+
 **`synthetic_7seg`** (56 crops): rendered 7-segment LED and LCD displays from `tests/synthetic_images.py`, CC0. A control, not a measure of real-world accuracy; `python -m ocr_eval.builders.synthetic_7seg` rebuilds it.
 
 ## Metrics
@@ -106,6 +109,21 @@ Accuracies come with a 95% Wilson score interval and CER with a 95% bootstrap in
 On `synthetic_7seg`, `scoreboard_general` reads 58.9% (45.9–70.8), the best variant there.
 
 What this says: with its default settings, ScoreSight's pipeline reads fewer than one in five real crops exactly; the general English model without binarization does twice as well but is still far from usable; the scoreboard models never output a letter, so they read no words, and clocks are the weakest field. Part of the gap is the eval's single-crop, default-settings setup (users tune boxes, invert patches and pick a model per board), but the size of the gap is why other engines are worth measuring. Note also that the Time format rejects soccer clocks past 59 minutes (`89:41`).
+
+`ocr_eval/baselines/tesseract-commons.json` and `tesseract-commons.md` hold the same for `commons_scoreboards`, made the same way (Linux and Windows agreed on 8,351 of the 8,352 predictions; the one difference is a wrong reading on both). Exact match (95% CI), by field type, and latency per crop:
+
+| Variant | Exact % | Clock % | Number % | Period % | Score % | Text % | Post-filter % | ms p50 / p95 |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| `eng-nobin` | 52.8 (49.7–55.8) | 32.7 | 52.4 | 60.3 | 62.8 | 51.5 | 52.0 | 3.8 / 12.7 |
+| `eng` | 47.4 (44.4–50.4) | 22.4 | 52.1 | 52.6 | 55.3 | 42.5 | 46.7 | 4.4 / 14.7 |
+| `scoreboard_general-nobin` | 44.3 (41.4–47.4) | 17.9 | 59.3 | 71.8 | 53.7 | 0.0 | 44.2 | 2.6 / 7.1 |
+| `scoreboard_general` (the app's default) | 40.4 (37.5–43.4) | 16.0 | 53.2 | 69.2 | 49.2 | 0.0 | 40.2 | 2.1 / 6.4 |
+| `scoreboard_general_large-nobin` | 37.4 (34.5–40.3) | 12.2 | 49.6 | 69.2 | 44.7 | 0.0 | 37.3 | 6.2 / 20.1 |
+| `scoreboard_general_large` | 34.0 (31.2–36.9) | 9.0 | 42.9 | 64.1 | 44.3 | 0.0 | 33.7 | 6.4 / 22.6 |
+| `daktronics-nobin` | 22.4 (20.0–25.0) | 0.6 | 24.5 | 42.3 | 36.2 | 0.0 | 22.3 | 2.3 / 6.1 |
+| `daktronics` | 20.2 (17.9–22.8) | 0.0 | 22.8 | 42.3 | 31.1 | 0.0 | 20.1 | 2.0 / 5.5 |
+
+One field per crop, boxed like a user's box, is easier than TextOCR's word crops (the app's default reads 40% instead of 18%), but the picture is the same: `eng-nobin` is best overall, carried by video boards (73% of them) and words; on 7-segment LED digits `scoreboard_general-nobin` is best (65.0%, against 59.4% for the default and 45.0% for `eng-nobin`); turning binarization off helps every model; and clocks stay the weakest field (16% with the default). The post-filter rejects up to 8 correct readings: soccer clocks past 59 minutes (`90:00`, `93:03`; the set has 11 such clocks), `0:00.0`, and periods 0 and 5.
 
 ### PaddleOCR (`ppocr`)
 
@@ -199,16 +217,16 @@ What this says:
 
 ## Continuous integration
 
-`.github/workflows/ocr-eval.yml` runs on pull requests that change recognition (`src/tesseract.py`, `src/defaults.py`, `src/text_detection_target.py`, `tesseract/`, `ocr_eval/`, `requirements.txt`, the workflow) and manually. On Ubuntu 24.04 it validates the datasets, runs every Tesseract variant on both datasets, and compares with the baseline:
+`.github/workflows/ocr-eval.yml` runs on pull requests that change recognition (`src/tesseract.py`, `src/defaults.py`, `src/text_detection_target.py`, `tesseract/`, `ocr_eval/`, `requirements.txt`, the workflow) and manually. On Ubuntu 24.04 it validates the datasets, runs every Tesseract variant on the committed datasets, and compares with the baseline:
 
 ```bash
 python -m ocr_eval compare ocr_eval/baselines/tesseract.json ocr-eval-results/results.json \
     --max-drop 0.02 --require-all
 ```
 
-It fails when a variant's exact-match accuracy (raw or post-filter) drops by more than 2 points on either dataset, or a variant didn't run. Add `--alpha 0.05` to also require the drop to be significant (McNemar). The comparison and the report go to the job summary, and the results are uploaded as the `ocr-eval-results` artifact.
+It fails when a variant's exact-match accuracy (raw or post-filter) drops by more than 2 points on either dataset, or a variant didn't run. The same run also reads `commons_scoreboards`, compared with its own baseline, `ocr_eval/baselines/tesseract-commons.json`, in a second step. Add `--alpha 0.05` to also require the drop to be significant (McNemar). The comparisons and the report go to the job summary, and the results are uploaded as the `ocr-eval-results` artifact.
 
-When a change improves recognition, or changes a dataset, update the baseline in the same pull request: run the command the workflow runs (on Linux, or check that your platform gives the same predictions) and copy `results.json` to `ocr_eval/baselines/tesseract.json` and `report.md` to `ocr_eval/baselines/tesseract.md`. A changed dataset is flagged by `compare` (the manifest hash differs), which then compares the crops both runs have.
+When a change improves recognition, or changes a dataset, update the baseline in the same pull request: run the command the workflow runs (on Linux, or check that your platform gives the same predictions) and copy `results.json` to `ocr_eval/baselines/tesseract.json` and `report.md` to `ocr_eval/baselines/tesseract.md`; for `commons_scoreboards`, run it alone (`--dataset commons_scoreboards`) and copy the files to `tesseract-commons.json` and `tesseract-commons.md`. A changed dataset is flagged by `compare` (the manifest hash differs), which then compares the crops both runs have.
 
 ## Adding an engine
 
@@ -276,7 +294,11 @@ python -m ocr_eval import-dojo "path/to/ocr_training_data" --out ocr_eval/datase
 
 Only approved samples are imported (`label_source: human`; `--include-unapproved` adds the rest as `model-assisted-unverified`), always with the raw gray crop. The field type is guessed from the text unless given; running it again adds only new samples. Contributions need the contributor to grant CC0-1.0 or CC-BY-4.0 and to own the footage (your own camera at your own venue, not a broadcast).
 
-**From other sources.** Write a builder in `ocr_eval/builders/` that downloads, selects and crops reproducibly (see `textocr_scoreboards.py`), records every photo's license and author, and keeps decisions made by hand in a review file next to it. Keep crops small (the committed sets downscale to at most 160 px tall) and the total for a dataset under about 15 MB; a large set belongs on a dataset host, with a small subset here.
+**From other sources.** Write a builder in `ocr_eval/builders/` that downloads, selects and crops reproducibly (see `textocr_scoreboards.py`, or `commons_scoreboards.py` for photos labelled by hand), records every photo's license and author, and keeps decisions made by hand in a review or labels file next to it. Keep crops small (the committed sets downscale to at most 160 px tall) and the total for a dataset under about 25 MB; a large set belongs on a dataset host, with a small subset here.
+
+### Checking labels
+
+Labels that a model helped make (`label_source: model-assisted-unverified`) should be checked by a person. `python -m ocr_eval review DATASET [--out FILE] [--results RESULTS.json [--run engine:variant,...]]` writes one self-contained HTML page (the images are embedded) with every crop, its text, field type, display technology and role, grouped by source photo with its link, author and license; for datasets with `frames.jsonl`, each photo can be opened with all its boxes drawn. With `--results`, each crop also shows what each engine read, and "only crops no engine read" filters to the likeliest label errors. Mark each crop **OK**, **Fix** (type the correct text) or **Drop** (with a reason); "Mark shown as OK" marks every shown crop without a decision. Decisions are kept in the browser, and **Export decisions** saves them as a JSON file (`scoresight-ocr-eval-review/1`: the dataset, its manifest hash, the reviewer and `decisions` by crop id), which **Import** loads again. For `commons_scoreboards`, `python -m ocr_eval.builders.commons_scoreboards --apply-review FILE` applies an export to the labels file (checked fields become `human`, fixed texts keep the old one as `corrected_from`, dropped fields move to `rejected_fields`); rebuild with `--cache FOLDER --frames` and regenerate its baseline afterwards. For other datasets, carry the decisions into their review file (the crop ids of `textocr_scoreboards` are the TextOCR word ids that `textocr_scoreboards_review.json` uses).
 
 ## Results file
 
