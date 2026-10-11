@@ -1284,7 +1284,7 @@ Resolução: {width}×{height}</translation>
         <location filename="../src/mainwindow.ui" line="1282"/>
         <source>Stream URL…</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
-        <translation type="unfinished">URL de transmissão…</translation>
+        <translation type="unfinished">Transmissão…</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1289"/>
