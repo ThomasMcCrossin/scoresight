@@ -241,9 +241,10 @@ class UNOAPI:
 
     def _send_payload(self, command, payload) -> None:
         # runs on the worker thread
-        response = self._session.put(self.endpoint, json=payload, timeout=HTTP_TIMEOUT)
+        endpoint = self.endpoint
+        response = self._session.put(endpoint, json=payload, timeout=HTTP_TIMEOUT)
         headers = getattr(response, "headers", None) or {}
-        self.check_rate_limits(headers)
+        self.check_rate_limits(headers, endpoint)
         try:
             check_http_response(response, f"UNO {command}")
         except RetryLater as e:
@@ -254,9 +255,10 @@ class UNOAPI:
             raise RetryLater(str(e), delay=delay) from None
         logger.debug(f"Successfully sent {command}: {payload['value']} to UNO API")
 
-    def check_rate_limits(self, headers):
+    def check_rate_limits(self, headers, endpoint=None):
         """Remember the limits the response reports, and space out the calls
-        to stay under the per-minute limit."""
+        to stay under the per-minute limit. endpoint: the URL the response
+        came from (if the URL changed since, its limits no longer apply)."""
         now = time.time()
         burst = parse_rate_window(headers.get(BURST_CALLS_HEADER), now)
         daily = parse_rate_window(headers.get(DAILY_CALLS_HEADER), now)
@@ -264,14 +266,20 @@ class UNOAPI:
             return
         logger.debug("UNO rate limits: burst %s, daily %s", burst, daily)
         with self._quota_lock:
-            quota = UnoQuota(
-                burst=burst or self._quota.burst, daily=daily or self._quota.daily
+            if endpoint is not None and endpoint != self.endpoint:
+                return  # an answer from the URL there was before
+            self._set_quota_locked(
+                UnoQuota(
+                    burst=burst or self._quota.burst, daily=daily or self._quota.daily
+                )
             )
-        self._set_quota(quota)
 
     def _set_quota(self, quota: UnoQuota) -> None:
         with self._quota_lock:
-            self._quota = quota
+            self._set_quota_locked(quota)
+
+    def _set_quota_locked(self, quota: UnoQuota) -> None:
+        self._quota = quota
         burst = quota.burst
         if burst is not None and burst.limit:
             self._worker.min_interval = BURST_WINDOW_S / burst.limit

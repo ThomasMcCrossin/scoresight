@@ -235,7 +235,7 @@ def test_a_value_refused_with_429_is_sent_after_the_wait(make_uno, make_result):
 def test_without_retry_after_the_wait_comes_from_the_limit_headers(
     make_uno, make_result
 ):
-    reset = time.time() + 0.4
+    reset = time.time() + 0.9
     used_up = {
         "X-Singular-Ratelimit-Daily-Calls": json.dumps(
             {"limit": 10000, "remaining": 0, "reset": reset}
@@ -246,10 +246,33 @@ def test_without_retry_after_the_wait_comes_from_the_limit_headers(
     api.start()
     api.update_uno([make_result("Time", "1:00", "Success")])
     wait_for(lambda: api.status().retrying)
-    assert 0 < api.status().retry_delay <= 0.4
+    # (more than the worker's first backoff, 0.5 s)
+    assert 0.6 < api.status().retry_delay <= 0.9
     flush(api)
     assert len(session.calls) == 2
-    assert session.calls[1]["at"] - session.calls[0]["at"] >= 0.3
+    assert session.calls[1]["at"] - session.calls[0]["at"] >= 0.6
+
+
+def test_an_answer_from_the_previous_url_does_not_set_the_limits(make_uno):
+    api = make_uno(endpoint=URL)
+    headers = {
+        "X-Singular-Ratelimit-Burst-Calls": json.dumps({"limit": 60, "remaining": 1})
+    }
+    api.set_endpoint("https://app.overlays.uno/apiv2/controlapps/other/api")
+    api.check_rate_limits(headers, URL)  # in flight while the URL changed
+    assert api.quota().burst is None and api._worker.min_interval == 0
+    api.check_rate_limits(headers, api.endpoint)
+    assert api.quota().burst.limit == 60 and api._worker.min_interval == 1.0
+
+
+def test_fields_without_a_command_are_mentioned(make_uno, make_result):
+    import output_status
+
+    status = output_status.uno_status(
+        True, URL, {"Time": "SetMatchTime", "Logo": "", "Shot Clock": ""}, None
+    )
+    assert status.state == "sending"
+    assert status.hint.startswith("2 field(s) have no UNO command")
 
 
 def test_calls_are_spaced_out_to_the_burst_limit(make_uno, make_result):

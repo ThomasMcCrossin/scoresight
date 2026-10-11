@@ -496,6 +496,9 @@ class SnapshotItem(NamedTuple):
 
     request: ApiRequest
     values: tuple[tuple[str, str], ...]
+    # _sent_epoch when it was queued: what was sent is recorded only if it
+    # hasn't changed since (the settings didn't change meanwhile)
+    epoch: int = 0
 
 
 class FieldConfig(NamedTuple):
@@ -516,6 +519,7 @@ class FieldItem(NamedTuple):
     state: str
     rect: tuple[float, float, float, float]
     config: FieldConfig
+    epoch: int = 0  # as SnapshotItem.epoch
 
 
 def good_values(data: list[TextDetectionTargetWithResult]) -> dict[str, str]:
@@ -664,14 +668,26 @@ _sent_lock = threading.Lock()
 # the text of each field that was last sent (alone, or in a cycle's request),
 # by box name
 _sent_fields: dict[str, str] = {}
+# incremented by _forget_sent(): a request queued before (e.g. for the URL there
+# was before a settings change) that arrives afterwards isn't recorded as sent
+_sent_epoch = 0
 # when "Resend all" last made every value count as changed (time.monotonic())
 _last_refresh_at: float | None = None
 
 
 def _forget_sent():
     """Everything counts as changed: it is sent again."""
+    global _sent_epoch
     with _sent_lock:
         _sent_fields.clear()
+        _sent_epoch += 1
+
+
+def _record_sent(values: Iterable[tuple[str, str]], epoch: int) -> None:
+    """Remember values as sent, if what was sent wasn't forgotten meanwhile."""
+    with _sent_lock:
+        if epoch == _sent_epoch:
+            _sent_fields.update(values)
 
 
 def _refresh_if_due(now: float) -> None:
@@ -748,17 +764,15 @@ def _send_chunk(chunk: list[tuple[object, object]]) -> None:
     for _key, item in chunk:
         if isinstance(item, SnapshotItem):
             _send_request(item.request)
-            with _sent_lock:
-                _sent_fields.update(item.values)
+            _record_sent(item.values, item.epoch)
         elif isinstance(item, FieldItem):
             fields.append(item)
     # (the fields of a chunk share their settings: a change clears the queue)
     for config in dict.fromkeys(field.config for field in fields):
         batch = [field for field in fields if field.config == config]
         _send_request(build_field_request(batch))
-        with _sent_lock:
-            for field in batch:
-                _sent_fields[field.name] = field.text
+        for field in batch:
+            _record_sent([(field.name, field.text)], field.epoch)
 
 
 _worker = OutputWorker(
@@ -808,6 +822,7 @@ def update_out_api(data: list[TextDetectionTargetWithResult]):
         config = FieldConfig(url, method, encoding, tuple(headers.items()))
         with _sent_lock:
             sent = dict(_sent_fields)
+            epoch = _sent_epoch
         for r in data:
             if r.result_state not in GOOD_STATES:
                 continue
@@ -821,6 +836,7 @@ def update_out_api(data: list[TextDetectionTargetWithResult]):
                 state=r.result_state.name,
                 rect=(r.x(), r.y(), r.width(), r.height()),
                 config=config,
+                epoch=epoch,
             )
             _worker.submit(r.name, item)
         return
@@ -833,10 +849,10 @@ def update_out_api(data: list[TextDetectionTargetWithResult]):
         (name, "" if text is None else str(text))
         for name, text in good_values(data).items()
     )
-    if out_api_only_changes:
-        with _sent_lock:
-            changed = any(_sent_fields.get(name) != text for name, text in values)
-        # (a reading that is rejected for a moment isn't a change)
-        if not changed:
-            return
-    _worker.submit("request", SnapshotItem(request, values))
+    with _sent_lock:
+        changed = any(_sent_fields.get(name) != text for name, text in values)
+        epoch = _sent_epoch
+    # (a reading that is rejected for a moment isn't a change)
+    if out_api_only_changes and not changed:
+        return
+    _worker.submit("request", SnapshotItem(request, values, epoch))

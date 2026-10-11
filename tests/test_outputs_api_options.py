@@ -263,6 +263,36 @@ def test_everything_is_sent_again_after_the_receiver_was_unreachable(
     assert len(receiver.accepted()) == 4
 
 
+def test_a_request_in_flight_during_a_settings_change_is_not_counted_as_sent(
+    receiver, configure, send, make_result, monkeypatch
+):
+    # it was sent to the old URL: the new one must still get the value
+    gate = threading.Event()
+    real_request = api_output._session.request
+
+    def slow_request(*args, **kwargs):
+        assert gate.wait(5)
+        return real_request(*args, **kwargs)
+
+    configure(receiver.url("/old?key={field}&value={value}"), only_changes=True)
+    monkeypatch.setattr(api_output._session, "request", slow_request)
+    api_output.update_out_api([make_result("Home Score", "21", "Success")])
+    time.sleep(0.1)  # in flight, waiting for the gate
+    # the URL changes (as its subscription does)
+    monkeypatch.setattr(
+        api_output, "out_api_url", receiver.url("/new?key={field}&value={value}")
+    )
+    api_output._restart()
+    gate.set()
+    assert api_output._worker.wait_idle(10)
+    assert api_output._sent_fields == {}
+    send(("Home Score", "21", "SameNoChange"))
+    assert [r["path"] for r in receiver.accepted()] == [
+        "/old?key=Home%20Score&value=21",
+        "/new?key=Home%20Score&value=21",
+    ]
+
+
 def test_a_refused_connection_forgets_what_was_sent(configure, make_result):
     configure("http://127.0.0.1:9/set?key={field}&value={value}", only_changes=True)
     api_output._sent_fields["Home Score"] = "12"

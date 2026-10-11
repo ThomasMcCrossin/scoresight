@@ -189,6 +189,8 @@ class WorkerStatus:
     # every retry_delay seconds (last_error tells which)
     retrying: bool = False
     retry_delay: float | None = None
+    # while retrying: the seconds left until the next try (None if unknown)
+    retry_in: float | None = None
     # keys (e.g. fields) whose latest item was sent, or failed and was dropped
     ok_keys: int = 0
     failing_keys: int = 0
@@ -270,6 +272,8 @@ class OutputWorker:
         # the wait the last RetryLater asked for (None: the backoff applies)
         self._retry_after: float | None = None
         self._throttled = False  # the retries are because of a RetryLater
+        # when the retry being waited for happens (time.monotonic())
+        self._retry_at: float | None = None
         # for status(), written with the lock held. reset_status() increments
         # the epoch: the result of a request that was in flight then (e.g. to
         # the previous vMix host) doesn't count.
@@ -339,6 +343,9 @@ class OutputWorker:
                 _, error = max(self._key_errors.values(), key=lambda entry: entry[0])
             else:
                 error = None
+            retry_in = None
+            if retrying and self._retry_at is not None:
+                retry_in = max(0.0, self._retry_at - time.monotonic())
             return WorkerStatus(
                 name=self.name,
                 pending=len(self._pending),
@@ -348,6 +355,7 @@ class OutputWorker:
                 consecutive_failures=self._consecutive_failures,
                 retrying=retrying,
                 retry_delay=self._backoff_delay() if retrying else None,
+                retry_in=retry_in,
                 ok_keys=sum(1 for ok in self._key_ok.values() if ok),
                 failing_keys=sum(1 for ok in self._key_ok.values() if not ok),
                 last_success_at=self._last_success_at,
@@ -428,6 +436,8 @@ class OutputWorker:
                     self._cond.notify_all()
             if retry:
                 with self._cond:
+                    delay = self._backoff_delay()
+                    self._retry_at = time.monotonic() + delay
                     # cleared, or sending somewhere else (reset_status): don't
                     # wait out the backoff of the old items or target
                     self._cond.wait_for(
@@ -436,20 +446,24 @@ class OutputWorker:
                             or self._generation != generation
                             or self._status_epoch != epoch
                         ),
-                        self._backoff_delay(),
+                        delay,
                     )
+                    self._retry_at = None
 
     def _backoff_delay(self) -> float:
         """The wait before retrying: what the last RetryLater asked for, else
         an exponential backoff after self._retry_failures consecutive
         "unreachable" failures."""
-        if self._retry_after is not None:
-            return self._retry_after
         # cap the exponent: the failures go on for as long as the endpoint is
         # down, and 2 ** 1024 doesn't fit in a float (OverflowError would end
         # the thread, and with it the output, for the rest of the session)
         exponent = min(self._retry_failures - 1, 32)
-        return min(self._initial_backoff * 2**exponent, self._max_backoff)
+        backoff = min(self._initial_backoff * 2**exponent, self._max_backoff)
+        if self._retry_after is not None:
+            # never less than the backoff: "Retry-After: 0", or a date that is
+            # past by this computer's clock, mustn't make a busy loop
+            return max(self._retry_after, backoff)
+        return backoff
 
     def _chunks(self, items: list[tuple[Hashable, object]]):
         """items split into the lists handed to one send_many call each."""
@@ -467,8 +481,15 @@ class OutputWorker:
             wait = self._last_call_at + interval - time.monotonic()
             if wait > 0:
                 with self._cond:
+                    epoch = self._status_epoch
+                    # (reset_status: sending somewhere else, without the old
+                    # target's pacing)
                     self._cond.wait_for(
-                        lambda: self._stopped or self._generation != generation,
+                        lambda: (
+                            self._stopped
+                            or self._generation != generation
+                            or self._status_epoch != epoch
+                        ),
                         wait,
                     )
         if self._stopped or self._generation != generation:

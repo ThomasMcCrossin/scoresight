@@ -611,11 +611,11 @@ def test_retry_later_keeps_the_latest_value_and_resends_it(make_worker):
             raise output_worker.RetryLater("HTTP 429", delay=0.3)
         assert gate.wait(5)
 
-    worker = make_worker(send)
+    worker = make_worker(send, initial_backoff=0.05)
     worker.submit("Home Score", "3")
     wait_for(lambda: worker.status().retrying)
     status = worker.status()
-    assert status.retry_delay == 0.3
+    assert status.retry_delay == 0.3  # as asked (more than the backoff)
     assert status.last_error.code == 429 and status.last_error.unreachable
     assert status.failing_keys == 0  # kept, not dropped
     # a newer value for the key replaces the kept one; another key waits too
@@ -633,6 +633,37 @@ def test_retry_later_keeps_the_latest_value_and_resends_it(make_worker):
     status = worker.status()
     assert not status.retrying and status.retry_delay is None
     assert (status.ok_keys, status.failing_keys) == (2, 0)
+
+
+@pytest.mark.parametrize("delay", [0.0, None])
+def test_retry_later_never_retries_in_a_busy_loop(make_worker, delay):
+    # "Retry-After: 0", or an HTTP date already past by this computer's clock:
+    # the worker still waits its backoff
+    calls = []
+
+    def send(key, item):
+        calls.append(time.monotonic())
+        raise output_worker.RetryLater("HTTP 429", delay=delay)
+
+    worker = make_worker(send, initial_backoff=0.1, max_backoff=0.2)
+    worker.submit("k", 1)
+    time.sleep(0.5)
+    assert 2 <= len(calls) <= 6
+    assert worker.status().retry_delay >= 0.1
+
+
+def test_the_status_counts_down_to_the_next_try(make_worker):
+    worker = make_worker(
+        Recorder(errors={0: output_worker.RetryLater("HTTP 429", delay=60)})
+    )
+    worker.submit("k", 1)
+    wait_for(lambda: worker.status().retry_in is not None)
+    first = worker.status().retry_in
+    assert 59 < first <= 60
+    time.sleep(0.2)
+    status = worker.status()
+    assert status.retry_delay == 60  # the whole wait
+    assert status.retry_in < first  # the time left
 
 
 def test_recovery_from_a_rate_limit_is_logged(make_worker, caplog):

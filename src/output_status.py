@@ -807,7 +807,9 @@ def worker_problem(
         if problem.state == ERROR:  # e.g. vMix's TCP API port: needs action
             return problem
         hint = problem.hint
-        if _is_a(worker.last_error, RetryLater) and worker.retry_delay is not None:
+        # the time left until the next try (or the whole wait, if unknown)
+        wait = worker.retry_in if worker.retry_in is not None else worker.retry_delay
+        if _is_a(worker.last_error, RetryLater) and wait is not None:
             # the endpoint said how long to wait (e.g. until a quota resets)
             hint = " ".join(
                 part
@@ -815,7 +817,7 @@ def worker_problem(
                     hint,
                     QCoreApplication.translate(
                         "OutputStatus", "Next try in {wait}."
-                    ).format(wait=wait_text(worker.retry_delay)),
+                    ).format(wait=wait_text(wait)),
                 )
                 if part
             )
@@ -1221,6 +1223,17 @@ def uno_status(
                 "Place fields on the picture and enter the UNO commands in the table.",
             ),
         )
+    # fields without a command (since custom fields get none by default)
+    unmapped = sum(1 for command in (mapping or {}).values() if not command)
+    hint = (
+        QCoreApplication.translate(
+            "OutputStatus",
+            "{count} field(s) have no UNO command and aren't sent: enter one in "
+            "the table if the overlay has a command for them.",
+        ).format(count=unmapped)
+        if unmapped
+        else ""
+    )
     last_sent = worker.last_success_at if worker is not None else None
     if last_sent is None:
         status = DestinationStatus(
@@ -1230,6 +1243,7 @@ def uno_status(
                 "OutputStatus", "Waiting for a new value for {host}"
             ).format(host=host),
             enabled=True,
+            hint=hint,
         )
     else:
         detail = QCoreApplication.translate("OutputStatus", "Sending to {host}").format(
@@ -1239,7 +1253,7 @@ def uno_status(
         if calls_left:
             detail = f"{detail} · {calls_left}"
         status = DestinationStatus(
-            UNO, OK, detail, enabled=True, last_activity_at=last_sent
+            UNO, OK, detail, enabled=True, hint=hint, last_activity_at=last_sent
         )
     problem = worker_problem(UNO, worker, host, secrets)
     if problem is None and getattr(quota, "daily_low", False):
