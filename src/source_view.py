@@ -118,6 +118,9 @@ class ImageViewer(CameraView):
         self.itemSelectedCallback = itemSelectedCallback
         # the name of the selected box (None: none is)
         self.selectedBoxName = None
+        # {field name: value} of the fields whose value is held (Hold value):
+        # their labels say HELD and show that value
+        self.heldValues: dict[str, str] = {}
         self.first_frame_received_signal.connect(self.detectionTargetsChanged)
         self.detectionTargetsStorage.data_changed.connect(self.detectionTargetsChanged)
         self.timerThread.ocr_result_signal.connect(self.ocrResult)
@@ -317,6 +320,7 @@ class ImageViewer(CameraView):
                 )
                 boxFound.setSuppressed(self.fourCornerSelectionMode)
                 boxFound.setSelected(detectionTarget.name == self.selectedBoxName)
+                boxFound.setHeldValue(self.heldValues.get(detectionTarget.name))
                 self.scene.addItem(boxFound)
             else:
                 boxFound.setRect(
@@ -540,6 +544,16 @@ class ImageViewer(CameraView):
 
     def resetScalingFlag(self):
         self._isScaling = False  # Reset the flag after potential resizeEvent
+
+    def setHeldValues(self, values: dict[str, str]):
+        """The fields whose value is held ({name: value}): their labels say
+        HELD and show the held value instead of the reading."""
+        self.heldValues = dict(values)
+        resized = False
+        for item in self.boxItems():
+            resized |= item.setHeldValue(self.heldValues.get(item.name))
+        if resized:
+            self.layoutLabels()
 
     def ocrResult(self, results: list[TextDetectionTargetWithResult]):
         if not self.firstFrameReceived:
