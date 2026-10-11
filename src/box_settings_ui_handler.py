@@ -1,16 +1,63 @@
+"""The Box tab of the inspector: the settings of the selected field.
+
+stackedWidget_boxSettings shows a short explanation while no field is
+selected, and the field's settings page otherwise. What the page shows depends
+on the field (MainWindow.listItemClicked calls showField):
+- a box on the picture: its reading settings (groupBox_target_settings) in
+  three sections: Reading, Filtering and Image cleanup. Image cleanup is
+  collapsed unless the user opened it (remembered as "image_cleanup_expanded")
+  and says how many of its settings differ from the defaults;
+- a field that isn't on the picture: how to place it;
+- a template field: its template, with Insert field to add another field.
+Only custom fields can be templates, and a field on the picture can't become
+one (it would be both).
+
+The Format preset list shows the preset whose expression is in the Format
+field ("Custom" for any other), and an expression Python can't compile (which
+the OCR ignores) is shown in red.
+"""
+
+import re
 from functools import partial
 
-from PySide6.QtCore import QCoreApplication
-from PySide6.QtGui import QFontMetrics
+from PySide6.QtCore import QCoreApplication, Qt
+from PySide6.QtGui import QFont, QFontDatabase, QFontMetrics
+from PySide6.QtWidgets import QMenu
 
+import theme
 from defaults import (
     default_info_for_box_name,
     normalize_settings_dict,
     format_prefixes,
 )
-from storage import TextDetectionTargetMemoryStorage
+from storage import TextDetectionTargetMemoryStorage, fetch_data, store_data
 from ui_mainwindow import Ui_MainWindow
 from sc_logging import logger
+
+# a field's placement (the UserRole of its name in the boxes list)
+PLACED = "checked"
+NOT_PLACED = "unchecked"
+TEMPLATE = "templatefield"
+
+# the last item of comboBox_formatPrefix: an expression that is no preset
+CUSTOM_PRESET_INDEX = len(format_prefixes) - 1
+
+# the settings in the Image cleanup section (its badge counts the changed ones)
+IMAGE_CLEANUP_SETTINGS = (
+    "binarization_method",
+    "cleanup_thresh",
+    "vscale",
+    "skew",
+    "dilate",
+    "invert_patch",
+    "autocrop",
+    "rescale_patch",
+    "normalize_wh_ratio",
+    "composite_box",
+    "skip_empty",
+)
+# whether the Image cleanup section is open
+IMAGE_CLEANUP_SETTING = "image_cleanup_expanded"
 
 
 def _off():
@@ -41,11 +88,47 @@ def slider_readout(name: str, value: int) -> str:
     return str(value)
 
 
+def matching_preset(regex: str) -> int:
+    """The index (in comboBox_formatPrefix) of the format preset whose
+    expression is regex, or CUSTOM_PRESET_INDEX."""
+    for index, preset in enumerate(format_prefixes[:CUSTOM_PRESET_INDEX]):
+        if preset == regex:
+            return index
+    return CUSTOM_PRESET_INDEX
+
+
+def regex_error(pattern: str) -> str | None:
+    """Why a format can't be used (the OCR then ignores it), or None."""
+    try:
+        re.compile(pattern)
+    except re.error as error:
+        return str(error)
+    return None
+
+
+def changed_settings(settings: dict | None, name: str, keys=None) -> list[str]:
+    """The settings (of the given keys, or all) of the box name that differ
+    from the defaults for that field."""
+    info = default_info_for_box_name(name)
+    defaults = normalize_settings_dict({}, info)
+    current = normalize_settings_dict(settings, info)
+    return [
+        key
+        for key in (defaults if keys is None else keys)
+        if current[key] != defaults[key]
+    ]
+
+
 class BoxSettingsUIHandler:
     def __init__(self, ui: Ui_MainWindow):
         self.ui = ui
-        self.boxSettingsUiSetup()
         self.detectionTargetsStorage = TextDetectionTargetMemoryStorage()
+        # the field shown: its name (None: none selected), placement (PLACED,
+        # NOT_PLACED or TEMPLATE) and whether it is a custom field
+        self.fieldName: str | None = None
+        self.fieldRole: str | None = None
+        self.fieldCustom = False
+        self.boxSettingsUiSetup()
 
     def readoutSliders(self):
         """(setting name, slider, value label) of the sliders with a readout."""
@@ -56,6 +139,34 @@ class BoxSettingsUIHandler:
             ("vscale", ui.horizontalSlider_vscale, ui.label_vscaleValue),
             ("dilate", ui.horizontalSlider_dilate, ui.label_dilateValue),
             ("skew", ui.horizontalSlider_skew, ui.label_skewValue),
+        )
+
+    def settingsWidgets(self):
+        """The controls populateSettings sets (with their signals blocked)."""
+        ui = self.ui
+        return (
+            ui.lineEdit_format,
+            ui.comboBox_fieldType,
+            ui.checkBox_smoothing,
+            ui.checkBox_skip_empty,
+            ui.horizontalSlider_conf_thresh,
+            ui.checkBox_autocrop,
+            ui.checkBox_skip_similar_image,
+            ui.horizontalSlider_cleanup,
+            ui.horizontalSlider_dilate,
+            ui.horizontalSlider_skew,
+            ui.horizontalSlider_vscale,
+            ui.checkBox_removeLeadingZeros,
+            ui.checkBox_rescalePatch,
+            ui.checkBox_normWHRatio,
+            ui.checkBox_invertPatch,
+            ui.checkBox_dotDetector,
+            ui.checkBox_ordinalIndicator,
+            ui.comboBox_binarizationMethod,
+            ui.comboBox_formatPrefix,
+            ui.checkBox_templatefield,
+            ui.lineEdit_templatefield,
+            ui.checkBox_compositeBox,
         )
 
     def updateReadouts(self, *_):
@@ -73,12 +184,11 @@ class BoxSettingsUIHandler:
             slider.setAccessibleDescription(text)
 
     def editSettings(self, settingsMutatorCallback):
-        # update the selected item's settings in the detectionTargetsStorage
-        item = self.ui.tableWidget_boxes.currentItem()
-        if item is None:
+        # update the settings of the field shown in the detectionTargetsStorage
+        item_name = self.fieldName
+        if item_name is None:
             logger.info("no item selected")
             return
-        item_name = item.text()
         item_obj = self.detectionTargetsStorage.find_item_by_name(item_name)
         if item_obj is None:
             logger.info("item not found: %s", item_name)
@@ -93,8 +203,10 @@ class BoxSettingsUIHandler:
             item_obj.settings = normalize_settings_dict({}, info)
             return item_obj
 
+        if self.fieldName is None:
+            return
         self.editSettings(restoreDefaultsSettings)
-        self.populateSettings(self.ui.tableWidget_boxes.currentItem().text())
+        self.populateSettings(self.fieldName)
 
     def confThreshChanged(self):
         self.genericSettingsChanged(
@@ -107,10 +219,12 @@ class BoxSettingsUIHandler:
         )
 
     def formatPrefixChanged(self, index):
-        if index == 12:
-            return  # do nothing if "Select Preset" is selected
-        # based on the selected index, set the format prefix
-        # change lineEdit_format to the selected format prefix
+        if index == CUSTOM_PRESET_INDEX:
+            # "Custom": type an expression
+            self.ui.lineEdit_format.setFocus()
+            self.ui.lineEdit_format.selectAll()
+            return
+        # the preset's expression (textChanged stores it)
         self.ui.lineEdit_format.setText(format_prefixes[index])
 
     def genericSettingsChanged(self, settingName, value):
@@ -119,6 +233,8 @@ class BoxSettingsUIHandler:
             return item_obj
 
         self.editSettings(editGenericSettings)
+        if settingName in IMAGE_CLEANUP_SETTINGS:
+            self.updateBadge()
 
     def boxSettingsUiSetup(self):
         self.ui.pushButton_restoreDefaults.clicked.connect(self.restoreDefaults)
@@ -134,6 +250,7 @@ class BoxSettingsUIHandler:
         self.ui.lineEdit_format.textChanged.connect(
             partial(self.genericSettingsChanged, "format_regex")
         )
+        self.ui.lineEdit_format.textChanged.connect(self.updateFormatState)
         self.ui.comboBox_fieldType.currentIndexChanged.connect(
             partial(self.genericSettingsChanged, "type")
         )
@@ -187,126 +304,279 @@ class BoxSettingsUIHandler:
             slider.valueChanged.connect(self.updateReadouts)
         self.updateReadouts()
 
-    def populateSettings(self, name):
-        self.ui.lineEdit_format.blockSignals(True)
-        self.ui.comboBox_fieldType.blockSignals(True)
-        self.ui.checkBox_smoothing.blockSignals(True)
-        self.ui.checkBox_skip_empty.blockSignals(True)
-        self.ui.horizontalSlider_conf_thresh.blockSignals(True)
-        self.ui.checkBox_autocrop.blockSignals(True)
-        self.ui.checkBox_skip_similar_image.blockSignals(True)
-        self.ui.horizontalSlider_cleanup.blockSignals(True)
-        self.ui.horizontalSlider_dilate.blockSignals(True)
-        self.ui.horizontalSlider_skew.blockSignals(True)
-        self.ui.horizontalSlider_vscale.blockSignals(True)
-        self.ui.checkBox_removeLeadingZeros.blockSignals(True)
-        self.ui.checkBox_rescalePatch.blockSignals(True)
-        self.ui.checkBox_normWHRatio.blockSignals(True)
-        self.ui.checkBox_invertPatch.blockSignals(True)
-        self.ui.checkBox_dotDetector.blockSignals(True)
-        self.ui.checkBox_ordinalIndicator.blockSignals(True)
-        self.ui.comboBox_binarizationMethod.blockSignals(True)
-        self.ui.comboBox_formatPrefix.blockSignals(True)
-        self.ui.checkBox_templatefield.blockSignals(True)
-        self.ui.lineEdit_templatefield.blockSignals(True)
-        self.ui.checkBox_compositeBox.blockSignals(True)
+        ui = self.ui
+        # the expression in a fixed-width font: brackets and dots stand out
+        fixed = QFontDatabase.systemFont(QFontDatabase.SystemFont.FixedFont)
+        font = QFont(ui.lineEdit_format.font())
+        font.setFamilies(["Cascadia Mono", "Consolas", "Menlo", fixed.family()])
+        font.setStyleHint(QFont.StyleHint.Monospace)
+        ui.lineEdit_format.setFont(font)
 
+        # Image cleanup: collapsed unless the user opened it
+        ui.toolButton_imageCleanup.toggled.connect(self.setImageCleanupExpanded)
+        self.setImageCleanupExpanded(
+            fetch_data("scoresight.json", IMAGE_CLEANUP_SETTING, False) is True,
+            store=False,
+        )
+        # a shortcut to the view tools' Binary View (they stay in sync)
+        ui.toolButton_cleanupBinary.clicked.connect(self.toggleBinaryView)
+        ui.pushButton_binary.toggled.connect(ui.toolButton_cleanupBinary.setChecked)
+        # Insert field: the fields, as {{Name}}
+        self.insertFieldMenu = QMenu(ui.toolButton_insertField)
+        self.insertFieldMenu.aboutToShow.connect(self.fillInsertFieldMenu)
+        ui.toolButton_insertField.setMenu(self.insertFieldMenu)
+
+        self.showField(None)
+
+    # --- the field shown ------------------------------------------------------------
+
+    def showField(self, name: str | None, role: str | None = None, custom=False):
+        """Show the settings of the field name (None: the empty page)."""
+        ui = self.ui
+        self.fieldName = name
+        self.fieldRole = role
+        self.fieldCustom = bool(custom)
+        if name is None:
+            ui.stackedWidget_boxSettings.setCurrentWidget(ui.page_boxEmpty)
+            ui.groupBox_target_settings.setEnabled(False)
+            ui.label_selectedInfo.setText("")
+            self.populateSettings("")
+            return
+        placed = role == PLACED
+        template = role == TEMPLATE
+        ui.stackedWidget_boxSettings.setCurrentWidget(ui.page_boxSettings)
+        ui.label_selectedInfo.setText(name)
+        # the name may be cut off in a narrow inspector
+        ui.label_selectedInfo.setToolTip(name)
+        # the reading settings only exist for a box on the picture
+        ui.groupBox_target_settings.setVisible(placed)
+        ui.groupBox_target_settings.setEnabled(placed)
+        ui.pushButton_restoreDefaults.setEnabled(placed)
+        # the template: custom fields only, and not one on the picture
+        ui.label_sectionTemplate.setVisible(self.fieldCustom)
+        ui.checkBox_templatefield.setVisible(self.fieldCustom)
+        ui.checkBox_templatefield.setEnabled(self.fieldCustom and not placed)
+        for widget in (ui.lineEdit_templatefield, ui.toolButton_insertField):
+            widget.setVisible(self.fieldCustom)
+            widget.setEnabled(self.fieldCustom and template)
+        self.populateSettings(name)
+        self.updateNotes()
+
+    def updateNotes(self):
+        """The notes of the settings page, for the field shown (in the current
+        language)."""
+        if self.fieldName is None:
+            return
+        ui = self.ui
+        if self.fieldRole == TEMPLATE:
+            note = QCoreApplication.translate(
+                "BoxSettings",
+                "This field is built from other fields (see Template): it has no "
+                "box on the picture and no reading settings.",
+            )
+        elif self.fieldRole != PLACED:
+            note = QCoreApplication.translate(
+                "BoxSettings",
+                "This field isn't on the picture yet. Click Place on picture "
+                "under the list, then drag its box over the value.",
+            )
+        else:
+            note = ""
+        ui.label_boxNote.setText(note)
+        ui.label_boxNote.setVisible(bool(note))
+        if not self.fieldCustom:
+            hint = QCoreApplication.translate(
+                "BoxSettings",
+                "Template: only custom fields can be built from other fields.",
+            )
+        elif self.fieldRole == PLACED:
+            hint = QCoreApplication.translate(
+                "BoxSettings",
+                "To build this field from other fields instead, remove it from "
+                "the picture first.",
+            )
+        else:
+            hint = QCoreApplication.translate(
+                "BoxSettings",
+                "Each field in double braces is replaced by its value. Insert "
+                "field adds one, spelled exactly as the template needs it.",
+            )
+        ui.label_templateHint.setText(hint)
+
+    def retranslate(self):
+        """Set the texts made at runtime again (after a language change)."""
+        self.updateNotes()
+        self.updateFormatState()
+        self.updateBadge()
+        self.updateReadouts()
+
+    def populateSettings(self, name):
+        widgets = self.settingsWidgets()
+        for widget in widgets:
+            widget.blockSignals(True)
+
+        ui = self.ui
         # populate the settings from the detectionTargetsStorage
         item_obj = self.detectionTargetsStorage.find_item_by_name(name)
         if item_obj is None:
-            self.ui.lineEdit_format.setText("")
-            self.ui.comboBox_fieldType.setCurrentIndex(0)
-            self.ui.checkBox_smoothing.setChecked(True)
-            self.ui.checkBox_skip_empty.setChecked(True)
-            self.ui.horizontalSlider_conf_thresh.setValue(0)
-            self.ui.checkBox_autocrop.setChecked(False)
-            self.ui.checkBox_skip_similar_image.setChecked(False)
-            self.ui.horizontalSlider_cleanup.setValue(0)
-            self.ui.horizontalSlider_dilate.setValue(1)
-            self.ui.horizontalSlider_skew.setValue(0)
-            self.ui.horizontalSlider_vscale.setValue(10)
-            self.ui.label_selectedInfo.setText("")
-            self.ui.checkBox_removeLeadingZeros.setChecked(False)
-            self.ui.checkBox_rescalePatch.setChecked(False)
-            self.ui.checkBox_normWHRatio.setChecked(False)
-            self.ui.checkBox_invertPatch.setChecked(False)
-            self.ui.checkBox_dotDetector.setChecked(False)
-            self.ui.checkBox_ordinalIndicator.setChecked(False)
-            self.ui.comboBox_binarizationMethod.setCurrentIndex(0)
-            self.ui.checkBox_templatefield.setChecked(False)
-            self.ui.lineEdit_templatefield.setText("")
-            self.ui.checkBox_compositeBox.setChecked(False)
+            # no box (yet): the defaults for the field
+            settings = normalize_settings_dict({}, default_info_for_box_name(name))
         else:
             item_obj.settings = normalize_settings_dict(
                 item_obj.settings, default_info_for_box_name(item_obj.name)
             )
-            self.ui.label_selectedInfo.setText(f"{item_obj.name}")
-            self.ui.lineEdit_format.setText(item_obj.settings["format_regex"])
-            self.ui.comboBox_fieldType.setCurrentIndex(item_obj.settings["type"])
-            self.ui.checkBox_smoothing.setChecked(item_obj.settings["smoothing"])
-            self.ui.checkBox_skip_empty.setChecked(item_obj.settings["skip_empty"])
-            # stored as a fraction of Tesseract's confidence %; a value above 1
-            # (hand-edited) is already a percentage, as in tesseract.py
-            conf_thresh = float(item_obj.settings["conf_thresh"])
-            self.ui.horizontalSlider_conf_thresh.setValue(
-                round(conf_thresh if conf_thresh > 1 else conf_thresh * 100)
-            )
-            self.ui.checkBox_autocrop.setChecked(item_obj.settings["autocrop"])
-            self.ui.checkBox_skip_similar_image.setChecked(
-                item_obj.settings["skip_similar_image"]
-            )
-            self.ui.horizontalSlider_cleanup.setValue(
-                int(item_obj.settings["cleanup_thresh"] * 100)
-            )
-            self.ui.horizontalSlider_dilate.setValue(item_obj.settings["dilate"])
-            self.ui.horizontalSlider_skew.setValue(item_obj.settings["skew"])
-            self.ui.horizontalSlider_vscale.setValue(item_obj.settings["vscale"])
-            self.ui.checkBox_removeLeadingZeros.setChecked(
-                item_obj.settings["remove_leading_zeros"]
-            )
-            self.ui.checkBox_rescalePatch.setChecked(item_obj.settings["rescale_patch"])
-            self.ui.checkBox_normWHRatio.setChecked(
-                item_obj.settings["normalize_wh_ratio"]
-            )
-            self.ui.checkBox_invertPatch.setChecked(item_obj.settings["invert_patch"])
-            self.ui.checkBox_dotDetector.setChecked(item_obj.settings["dot_detector"])
-            self.ui.checkBox_ordinalIndicator.setChecked(
-                item_obj.settings["ordinal_indicator"]
-            )
-            self.ui.comboBox_binarizationMethod.setCurrentIndex(
-                item_obj.settings["binarization_method"]
-            )
-            self.ui.checkBox_templatefield.setChecked(
-                item_obj.settings["templatefield"]
-            )
-            self.ui.lineEdit_templatefield.setText(
-                item_obj.settings["templatefield_text"]
-            )
-            self.ui.checkBox_compositeBox.setChecked(item_obj.settings["composite_box"])
+            settings = item_obj.settings
+        ui.lineEdit_format.setText(settings["format_regex"])
+        ui.comboBox_fieldType.setCurrentIndex(settings["type"])
+        ui.checkBox_smoothing.setChecked(settings["smoothing"])
+        ui.checkBox_skip_empty.setChecked(settings["skip_empty"])
+        # stored as a fraction of Tesseract's confidence %; a value above 1
+        # (hand-edited) is already a percentage, as in tesseract.py
+        conf_thresh = float(settings["conf_thresh"])
+        ui.horizontalSlider_conf_thresh.setValue(
+            round(conf_thresh if conf_thresh > 1 else conf_thresh * 100)
+        )
+        ui.checkBox_autocrop.setChecked(settings["autocrop"])
+        ui.checkBox_skip_similar_image.setChecked(settings["skip_similar_image"])
+        ui.horizontalSlider_cleanup.setValue(int(settings["cleanup_thresh"] * 100))
+        ui.horizontalSlider_dilate.setValue(settings["dilate"])
+        ui.horizontalSlider_skew.setValue(settings["skew"])
+        ui.horizontalSlider_vscale.setValue(settings["vscale"])
+        ui.checkBox_removeLeadingZeros.setChecked(settings["remove_leading_zeros"])
+        ui.checkBox_rescalePatch.setChecked(settings["rescale_patch"])
+        ui.checkBox_normWHRatio.setChecked(settings["normalize_wh_ratio"])
+        ui.checkBox_invertPatch.setChecked(settings["invert_patch"])
+        ui.checkBox_dotDetector.setChecked(settings["dot_detector"])
+        ui.checkBox_ordinalIndicator.setChecked(settings["ordinal_indicator"])
+        ui.comboBox_binarizationMethod.setCurrentIndex(settings["binarization_method"])
+        ui.checkBox_templatefield.setChecked(settings["templatefield"])
+        ui.lineEdit_templatefield.setText(settings["templatefield_text"])
+        ui.checkBox_compositeBox.setChecked(settings["composite_box"])
 
-        self.ui.comboBox_formatPrefix.setCurrentIndex(12)
-
-        self.ui.lineEdit_format.blockSignals(False)
-        self.ui.comboBox_fieldType.blockSignals(False)
-        self.ui.checkBox_smoothing.blockSignals(False)
-        self.ui.checkBox_skip_empty.blockSignals(False)
-        self.ui.horizontalSlider_conf_thresh.blockSignals(False)
-        self.ui.checkBox_autocrop.blockSignals(False)
-        self.ui.checkBox_skip_similar_image.blockSignals(False)
-        self.ui.horizontalSlider_cleanup.blockSignals(False)
-        self.ui.horizontalSlider_dilate.blockSignals(False)
-        self.ui.horizontalSlider_skew.blockSignals(False)
-        self.ui.horizontalSlider_vscale.blockSignals(False)
-        self.ui.checkBox_removeLeadingZeros.blockSignals(False)
-        self.ui.checkBox_rescalePatch.blockSignals(False)
-        self.ui.checkBox_normWHRatio.blockSignals(False)
-        self.ui.checkBox_invertPatch.blockSignals(False)
-        self.ui.checkBox_dotDetector.blockSignals(False)
-        self.ui.checkBox_ordinalIndicator.blockSignals(False)
-        self.ui.comboBox_binarizationMethod.blockSignals(False)
-        self.ui.comboBox_formatPrefix.blockSignals(False)
-        self.ui.checkBox_templatefield.blockSignals(False)
-        self.ui.lineEdit_templatefield.blockSignals(False)
-        self.ui.checkBox_compositeBox.blockSignals(False)
+        for widget in widgets:
+            widget.blockSignals(False)
         # the values were set with the signals blocked
+        self.updateFormatState()
+        self.updateBadge()
         self.updateReadouts()
+
+    # --- Format: the matching preset, an invalid expression ------------------------
+
+    def updateFormatState(self, *_):
+        """Show the preset that matches the expression ("Custom" for others),
+        and mark an expression the OCR can't use."""
+        ui = self.ui
+        text = ui.lineEdit_format.text()
+        combo = ui.comboBox_formatPrefix
+        preset = matching_preset(text)
+        if combo.currentIndex() != preset:
+            combo.blockSignals(True)
+            combo.setCurrentIndex(preset)
+            combo.blockSignals(False)
+        error = regex_error(text)
+        status = ui.label_formatStatus
+        if error is None:
+            ui.lineEdit_format.setStyleSheet("")
+            ui.lineEdit_format.setAccessibleDescription("")
+            status.setText("")
+            status.setToolTip("")
+            status.hide()
+            return
+        red = theme.color("empty", ui.lineEdit_format.palette()).name()
+        ui.lineEdit_format.setStyleSheet(
+            f"QLineEdit#lineEdit_format {{ border: 2px solid {red};"
+            " border-radius: 3px; padding: 1px 2px; }"
+        )
+        message = QCoreApplication.translate(
+            "BoxSettings",
+            "Not a valid expression, so it is ignored: every reading passes.",
+        )
+        status.setText(message)
+        status.setStyleSheet(f"QLabel#label_formatStatus {{ color: {red}; }}")
+        # Python's explanation, e.g. "missing ), unterminated subpattern"
+        status.setToolTip(error)
+        ui.lineEdit_format.setAccessibleDescription(message)
+        status.show()
+
+    # --- Image cleanup: collapsed, the changed settings ----------------------------
+
+    def setImageCleanupExpanded(self, expanded: bool, store: bool = True):
+        ui = self.ui
+        expanded = bool(expanded)
+        ui.frame_imageCleanup.setVisible(expanded)
+        ui.toolButton_imageCleanup.setArrowType(
+            Qt.ArrowType.DownArrow if expanded else Qt.ArrowType.RightArrow
+        )
+        if ui.toolButton_imageCleanup.isChecked() != expanded:
+            ui.toolButton_imageCleanup.blockSignals(True)
+            ui.toolButton_imageCleanup.setChecked(expanded)
+            ui.toolButton_imageCleanup.blockSignals(False)
+        if store and fetch_data("scoresight.json", IMAGE_CLEANUP_SETTING) != expanded:
+            store_data("scoresight.json", IMAGE_CLEANUP_SETTING, expanded)
+
+    def updateBadge(self):
+        """How many of the Image cleanup settings of the box shown differ from
+        the defaults."""
+        box = (
+            self.detectionTargetsStorage.find_item_by_name(self.fieldName)
+            if self.fieldName
+            else None
+        )
+        changed = (
+            len(changed_settings(box.settings, box.name, IMAGE_CLEANUP_SETTINGS))
+            if box is not None
+            else 0
+        )
+        if changed:
+            text = QCoreApplication.translate(
+                "BoxSettings", "%n changed", None, changed
+            )
+        else:
+            text = QCoreApplication.translate("BoxSettings", "all default")
+        self.ui.label_imageCleanupBadge.setText(text)
+        self.ui.toolButton_imageCleanup.setAccessibleDescription(text)
+
+    def toggleBinaryView(self):
+        # through the view tools' button: it does nothing while they are
+        # disabled (no source yet)
+        self.ui.pushButton_binary.click()
+        self.ui.toolButton_cleanupBinary.setChecked(
+            self.ui.pushButton_binary.isChecked()
+        )
+
+    # --- Template: Insert field ------------------------------------------------------
+
+    def fieldNames(self) -> list[tuple[str, str]]:
+        """(name, placement) of every field, in the order of the boxes list."""
+        table = self.ui.tableWidget_boxes
+        fields = []
+        for row in range(table.rowCount()):
+            item = table.item(row, 0)
+            if item is not None:
+                fields.append((item.text(), item.data(Qt.ItemDataRole.UserRole)))
+        return fields
+
+    def fillInsertFieldMenu(self):
+        menu = self.insertFieldMenu
+        menu.clear()
+        for name, role in self.fieldNames():
+            if name == self.fieldName:
+                continue
+            text = name.replace("&", "&&")
+            if role not in (PLACED, TEMPLATE):
+                # its placeholder stays as it is until the field is placed
+                text = QCoreApplication.translate(
+                    "BoxSettings", "{name} (not on the picture)"
+                ).format(name=text)
+            action = menu.addAction(text)
+            action.triggered.connect(partial(self.insertField, name))
+        if menu.isEmpty():
+            menu.addAction(
+                QCoreApplication.translate("BoxSettings", "No other fields")
+            ).setEnabled(False)
+
+    def insertField(self, name: str):
+        """Insert {{name}} at the cursor of the template (textChanged stores it)."""
+        line_edit = self.ui.lineEdit_templatefield
+        line_edit.insert("{{" + name + "}}")
+        line_edit.setFocus()

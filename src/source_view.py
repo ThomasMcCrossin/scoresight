@@ -1,6 +1,14 @@
 import math
 from PySide6.QtCore import QCoreApplication, QPointF, QRectF, QSizeF, Qt, QTimer, Signal
-from PySide6.QtGui import QBrush, QColor, QKeyEvent, QMouseEvent, QPen, QPolygonF
+from PySide6.QtGui import (
+    QBrush,
+    QColor,
+    QKeyEvent,
+    QMouseEvent,
+    QPen,
+    QPolygonF,
+    QTransform,
+)
 from PySide6.QtWidgets import (
     QGraphicsEllipseItem,
     QGraphicsItem,
@@ -495,6 +503,20 @@ class ImageViewer(CameraView):
         QTimer.singleShot(0, self.resetScalingFlag)
         self.emitZoom()
         return True
+
+    def zoomToRect(self, rect: QRectF):
+        """Show rect (e.g. a box with some of the picture around it) as large
+        as it fits, but no closer than MAX_ZOOM. Fit shows the whole picture
+        again."""
+        # zooming in makes the scroll bars appear: that resize keeps the zoom
+        self._isScaling = True
+        self.fitted = False
+        self.fitInView(rect, Qt.AspectRatioMode.KeepAspectRatio)
+        if self.zoomLevel() > MAX_ZOOM:
+            self.setTransform(QTransform.fromScale(MAX_ZOOM, MAX_ZOOM))
+            self.centerOn(rect.center())
+        QTimer.singleShot(0, self.resetScalingFlag)
+        self.emitZoom()
 
     def zoomIn(self):
         return self.zoomBy(KEY_ZOOM_FACTOR)

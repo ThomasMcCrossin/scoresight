@@ -6,13 +6,13 @@ screen.
 
 MainWindow owns the widgets (they are in mainwindow.ui); this module words
 and computes what they show, so it can be tested without a window.
-CompactToolRow fits the source bar into narrow windows.
+CompactToolRow fits the viewer column's rows into narrow windows.
 """
 
 import platform
 
 from PySide6.QtCore import QCoreApplication, QEvent, QObject, Qt
-from PySide6.QtWidgets import QToolButton, QWidget
+from PySide6.QtWidgets import QWidget
 
 from camera_info import CameraInfo
 from status_bar import without_credentials
@@ -240,58 +240,124 @@ def quickstart_link() -> str:
 
 
 class CompactToolRow(QObject):
-    """Fits a row of tool buttons into less room. Narrower than its buttons
-    need with their texts, the row shows them with their icons only (the texts
-    stay their tooltips and accessible names) and hides its labels. The window
-    can then be narrower than the row with its texts."""
+    """Fits a row of controls into less room, in up to three steps:
 
-    def __init__(self, row: QWidget, buttons: list[QToolButton], labels: list[QWidget]):
+    0. as designed;
+    1. compact: its tool buttons show their icons only (their texts stay
+       their tooltips and accessible names) and its labels hide;
+    2. wrapped: also compact, and the widgets in wraps move to other cells of
+       the row's grid layout, e.g. to a second line.
+
+    The step is chosen from the room the row has (the width of area: the row
+    itself, or e.g. the space a centred card can use) against the width each
+    step needs. The row's minimum width is the last step's, so the window can
+    always be as narrow as that.
+    """
+
+    WRAPPED = 2
+
+    def __init__(
+        self,
+        row: QWidget,
+        buttons=(),
+        labels=(),
+        wraps=(),
+        area: QWidget | None = None,
+        ignore=(),
+    ):
+        """wraps: (widget, (row, column[, rowspan, colspan[, alignment]]) as
+        designed, (...) wrapped) of the row's grid layout; ignore: widgets
+        whose width isn't needed (they hide by themselves when there's no
+        room)."""
         super().__init__(row)
         self.row = row
         self.buttons = list(buttons)
         self.labels = list(labels)
-        self.compact = False
-        # the row's width with the texts
-        self.fullWidth = 0
-        for label in self.labels:
-            # they hide instead of keeping the window wide
-            label.setMinimumWidth(1)
-        row.installEventFilter(self)
+        self.wraps = list(wraps)
+        self.area = area if area is not None else row
+        self.ignore = list(ignore)
+        self.step = 0
+        # the width that steps 0 and 1 need
+        self.needs = [0, 0]
+        self.area.installEventFilter(self)
+        if self.area is not self.row:
+            self.row.installEventFilter(self)
         self.refresh()
 
+    @property
+    def compact(self) -> bool:
+        return self.step > 0
+
+    @property
+    def wrapped(self) -> bool:
+        return self.step == self.WRAPPED
+
     def eventFilter(self, watched, event):
-        if watched is self.row and event.type() == QEvent.Type.Resize:
+        kind = event.type()
+        if watched is self.area and kind == QEvent.Type.Resize:
             self.update()
+        elif kind in (QEvent.Type.FontChange, QEvent.Type.StyleChange):
+            # the texts' widths changed
+            self.refresh()
         return False
 
     def refresh(self):
-        """Measure the row with its texts again (after the texts changed, e.g.
-        with the language)."""
-        self.setCompact(False)
-        for button in self.buttons:
-            # the room it can be squeezed to: its icon
-            button.setMinimumWidth(0)
-            button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonIconOnly)
-            icon_only = button.sizeHint().width()
-            button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextOnly)
-            button.setMinimumWidth(icon_only)
+        """Measure the steps again (after the texts changed, e.g. with the
+        language, or the style)."""
+        for step in (0, 1):
+            self.apply(step)
+            self.needs[step] = self.neededWidth()
+        last = self.WRAPPED if self.wraps else 1
+        self.apply(last)
+        self.row.setMinimumWidth(0)
+        self.activate()
+        minimum = self.row.minimumSizeHint().width()
+        # narrower than the earlier steps need: they squeeze until the next
+        # resize picks the step that fits
+        self.row.setMinimumWidth(minimum)
         self.update()
 
     def update(self):
-        if not self.compact:
-            self.fullWidth = self.row.layout().sizeHint().width()
-        self.setCompact(self.row.width() < self.fullWidth)
+        width = self.area.width()
+        if width >= self.needs[0]:
+            step = 0
+        elif width >= self.needs[1] or not self.wraps:
+            step = 1
+        else:
+            step = self.WRAPPED
+        if step != self.step:
+            self.apply(step)
 
-    def setCompact(self, compact: bool):
-        if compact == self.compact:
-            return
-        self.compact = compact
+    def activate(self):
+        for widget in [self.row] + self.row.findChildren(QWidget):
+            layout = widget.layout()
+            if layout is not None:
+                layout.invalidate()
+                layout.activate()
+
+    def neededWidth(self) -> int:
+        self.activate()
+        width = self.row.sizeHint().width()
+        layout = self.row.layout()
+        spacing = max(0, layout.spacing()) if layout is not None else 0
+        for widget in self.ignore:
+            if not widget.isHidden():
+                width -= widget.sizeHint().width() + spacing
+        return width
+
+    def apply(self, step: int):
+        self.step = step
         style = (
             Qt.ToolButtonStyle.ToolButtonIconOnly
-            if compact
+            if step > 0
             else Qt.ToolButtonStyle.ToolButtonTextOnly
         )
         for button in self.buttons:
             button.setToolButtonStyle(style)
         for label in self.labels:
-            label.setVisible(not compact)
+            label.setVisible(step == 0)
+        for widget, designed, wrapped in self.wraps:
+            cell = wrapped if step == self.WRAPPED else designed
+            layout = widget.parentWidget().layout()
+            layout.removeWidget(widget)
+            layout.addWidget(widget, *cell)

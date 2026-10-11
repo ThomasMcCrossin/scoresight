@@ -51,7 +51,7 @@ The slider goes from 1 to 15. For values that change very rarely, you can set `d
 1. **Lower Detections / s** to what you actually need.
 2. **Remove boxes you don't use**, and keep boxes tight around the digits.
 3. **Crop** the picture to the scoreboard. Less picture means less processing per frame.
-4. Turn on **Skip Similar Image** for values that rarely change (scores, periods). When a box's image hasn't changed, OCR is skipped for that box and its last good value is repeated.
+4. Turn on **Skip OCR while image is unchanged** (in the Box tab's **Filtering**) for values that rarely change (scores, periods). When a box's image hasn't changed, OCR is skipped for that box and its last good value is repeated.
 5. Turn **Stabilize** off when the camera is fixed or you use screen capture.
 6. Use a lower source resolution. In [Video Settings](sources.md#cameras-and-capture-cards), 1280x720 with the `MJPG` format is a good choice for USB cameras. For IP cameras, use a sub stream.
 7. Prefer **General Scoreboard** over **General Scoreboard Large** if both read your board correctly. The large model is slower.
