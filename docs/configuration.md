@@ -52,7 +52,7 @@ When ScoreSight 0.2.0 first opens a settings file from an older version, it adju
 - A vMix port of `8099` becomes `8088` (see [vMix](vmix.md)). The key `vmix_port_migrated` records that this was done.
 - The **Minimum confidence** (in 0.1.x: **Conf. Th**) of every box becomes 0 (off). It had no effect in older versions, so the boxes read exactly as before (see [Minimum confidence](box-settings.md#conf-th-confidence-threshold)). The key `boxes_schema_version` (set to `2`) records that this was done.
 
-When a version after 0.3.0 first opens boxes saved by 0.3.0 or older (in the settings file or an imported configuration file), a box whose **Format** is the old *Time 0-59* (`^[0-5]\d$`) or *Shotclock 0-39* (`^[0-3]\d$`) expression gets the preset's new one (`^[0-5]?\d$` or `^[0-3]?\d$`), which also accepts a single digit: a shot clock shows `9`, not `09`. Other formats are kept, and the log says how many boxes changed. `boxes_schema_version` `3` records that this was done.
+When ScoreSight 0.3.1 or later first opens boxes saved by 0.3.0 or older (in the settings file or an imported configuration file), a box whose **Format** is the old *Time 0-59* (`^[0-5]\d$`) or *Shotclock 0-39* (`^[0-3]\d$`) expression gets the preset's new one (`^[0-5]?\d$` or `^[0-3]?\d$`), which also accepts a single digit: a shot clock shows `9`, not `09`. Other formats are kept, and the log says how many boxes changed. `boxes_schema_version` `3` records that this was done.
 
 Settings you change afterwards are kept as you set them.
 
