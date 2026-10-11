@@ -1730,7 +1730,15 @@ def test_the_outputs_are_destinations_over_their_pages(main_window):
     assert ui.splitter_outputs.widget(0) is ui.listView_destinations
     assert ui.splitter_outputs.widget(1).isAncestorOf(ui.stackedWidget_outputs)
     names = [model.item(row).text() for row in range(model.rowCount())]
-    assert names == ["Text files", "HTTP server", "OBS", "vMix", "UNO", "HTTP API"]
+    assert names == [
+        "Text files",
+        "HTTP server",
+        "OBS",
+        "vMix",
+        "UNO",
+        "HTTP API",
+        "TCP / UDP",
+    ]
     stack = ui.stackedWidget_outputs
     assert [stack.widget(i).objectName() for i in range(stack.count())] == [
         "tab_textFiles",
@@ -1739,6 +1747,7 @@ def test_the_outputs_are_destinations_over_their_pages(main_window):
         "tab_vmix",
         "tab_uno",
         "tab_api",
+        "tab_tcp",
     ]
     assert not hasattr(ui, "tabWidget_outputs")
     # the first one shows, as the first tab did
@@ -1877,7 +1886,7 @@ def test_the_status_bar_shows_every_output_and_opens_it(main_window):
     main_window.refreshLiveStatus()
     assert not bar.widget_outputs.isHidden()
     texts = [button.text() for button in bar.output_buttons.values()]
-    assert texts == ["Files", "HTTP", "OBS", "vMix", "UNO", "API"]
+    assert texts == ["Files", "HTTP", "OBS", "vMix", "UNO", "API", "TCP"]
     vmix = bar.output_buttons["vmix"]
     assert vmix.toolTip().startswith("vMix: ○ off")
     assert vmix.accessibleName() == "vMix: off"
@@ -1929,6 +1938,174 @@ def test_an_unreachable_vmix_shows_everywhere(main_window, make_result, qtbot):
     ui.pushButton_startvmix.setChecked(False)  # Stop vMix
     assert destination_status(main_window, "vmix").state == "off"
     assert not ui.frame_destinationStatus.isVisibleTo(main_window)
+
+
+class LineReceiver:
+    """A TCP server on 127.0.0.1 that keeps what its connections send."""
+
+    def __init__(self):
+        import socket
+
+        self.sock = socket.socket()
+        self.sock.bind(("127.0.0.1", 0))
+        self.sock.listen(4)
+        self.port = self.sock.getsockname()[1]
+        self.data = bytearray()
+        self.connections = 0
+        self.lock = threading.Lock()
+        threading.Thread(target=self._accept, daemon=True).start()
+
+    def _accept(self):
+        while True:
+            try:
+                client, _ = self.sock.accept()
+            except OSError:
+                return
+            with self.lock:
+                self.connections += 1
+            threading.Thread(target=self._read, args=(client,), daemon=True).start()
+
+    def _read(self, client):
+        while True:
+            try:
+                data = client.recv(4096)
+            except OSError:
+                return
+            if not data:
+                return
+            with self.lock:
+                self.data += data
+
+    def received(self) -> bytes:
+        with self.lock:
+            return bytes(self.data)
+
+    def close(self):
+        self.sock.close()
+
+
+def test_the_tcp_output_page(main_window, make_target, make_result, qtbot):
+    from tcp_output import CASPARCG, LIVE_SCORE
+
+    window_ui = main_window.ui
+    tcp = main_window.tcpUiHandler
+    ui = tcp.ui
+    model = main_window.destinationsModel
+    main_window.showDestination("tcp")
+    assert window_ui.stackedWidget_outputs.currentWidget() is tcp.page
+    assert destination_status(main_window, "tcp").state == "off"
+
+    # a preset sets the port, the template and the options, and is stored
+    combo = ui.comboBox_tcpPreset
+    combo.setCurrentIndex(combo.findData(LIVE_SCORE))
+    combo.activated.emit(combo.currentIndex())
+    assert ui.plainTextEdit_tcpTemplate.toPlainText() == (
+        '{"type":"ocr", "values":{json}}'
+    )
+    assert ui.lineEdit_tcpPort.text() == ""  # set in Live Score
+    assert "untested" in ui.label_tcpPresetNote.text()
+    assert not ui.groupBox_tcpCaspar.isVisibleTo(tcp.page)
+    assert fetch_data("scoresight.json", "tcp_output")["preset"] == LIVE_SCORE
+
+    # a row per field, with the preset's names; an edited name is stored
+    storage = main_window.detectionTargetsStorage
+    storage.add_item(make_target("Home Score"))
+    storage.add_item(make_target("Time"))
+    table = ui.tableView_tcpMapping.model()
+    assert [
+        (table.item(row, 0).text(), table.item(row, 1).text())
+        for row in range(table.rowCount())
+    ] == [("Home Score", "ScoreHome"), ("Time", "GameClock")]
+    table.item(1, 1).setText("Clock")
+    assert fetch_data("scoresight.json", "tcp_mapping") == {"Time": "Clock"}
+
+    # the switch starts it; without a port it says what's missing
+    model.requestToggle(destination_index(main_window, "tcp"))
+    assert ui.pushButton_tcpStart.isChecked() and tcp.output.running
+    assert ui.pushButton_tcpStart.text() == "Stop sending"
+    status = destination_status(main_window, "tcp")
+    assert (status.state, status.detail) == ("warning", "Enter the host and port")
+
+    receiver = LineReceiver()
+    try:
+        ui.lineEdit_tcpHost.setText("127.0.0.1")
+        ui.lineEdit_tcpHost.editingFinished.emit()
+        ui.lineEdit_tcpPort.setText(str(receiver.port))
+        ui.lineEdit_tcpPort.editingFinished.emit()
+        qtbot.waitUntil(lambda: destination_status(main_window, "tcp").state == "ok")
+        assert destination_status(main_window, "tcp").detail == (
+            f"Live Score: Connected to 127.0.0.1:{receiver.port}"
+        )
+        main_window.ocrResult(
+            [make_result("Home Score", "21"), make_result("Time", "3:12")]
+        )
+        expected = b'{"type":"ocr", "values":{"ScoreHome": "21", "Clock": "3:12"}}\n'
+        qtbot.waitUntil(lambda: receiver.received().endswith(expected))
+        # the preview shows what the current values make
+        tcp.updatePreview()
+        assert '"Clock": "3:12"' in ui.plainTextEdit_tcpPreview.toPlainText()
+
+        # a template edit applies after the typing stops, and is stored
+        ui.plainTextEdit_tcpTemplate.setPlainText("SCORES {json}")
+        qtbot.waitUntil(
+            lambda: (
+                fetch_data("scoresight.json", "tcp_output")["template"]
+                == "SCORES {json}"
+            )
+        )
+        qtbot.waitUntil(
+            lambda: receiver.received().endswith(
+                b'SCORES {"ScoreHome": "21", "Clock": "3:12"}\n'
+            )
+        )
+
+        # CasparCG: its settings and buttons show
+        combo.setCurrentIndex(combo.findData(CASPARCG))
+        combo.activated.emit(combo.currentIndex())
+        assert ui.groupBox_tcpCaspar.isVisibleTo(tcp.page)
+        assert ui.pushButton_tcpPlay.isEnabled()
+        assert ui.lineEdit_tcpPort.text() == "5250"
+        # the names of a preset that needs safe ones
+        assert table is not ui.tableView_tcpMapping.model()
+        table = ui.tableView_tcpMapping.model()
+        assert table.item(0, 1).text() == "HomeScore"
+        assert table.item(1, 1).text() == "Clock"  # edited: kept
+        ui.toolButton_tcpResetNames.click()
+        assert ui.tableView_tcpMapping.model().item(1, 1).text() == "Time"
+        assert fetch_data("scoresight.json", "tcp_mapping") == {}
+    finally:
+        receiver.close()
+
+    # the switch stops it
+    model.requestToggle(destination_index(main_window, "tcp"))
+    assert not ui.pushButton_tcpStart.isChecked() and not tcp.output.running
+    assert destination_status(main_window, "tcp").state == "off"
+    assert not ui.pushButton_tcpPlay.isEnabled()
+
+
+def test_the_tcp_output_keeps_its_settings_across_a_language_change(main_window, qapp):
+    from tcp_output import CHYRON
+
+    tcp = main_window.tcpUiHandler
+    ui = tcp.ui
+    combo = ui.comboBox_tcpPreset
+    combo.setCurrentIndex(combo.findData(CHYRON))
+    combo.activated.emit(combo.currentIndex())
+    ui.lineEdit_tcpPort.setText("2323")
+    ui.lineEdit_tcpPort.editingFinished.emit()
+    template = ui.plainTextEdit_tcpTemplate.toPlainText()
+    main_window.changeLanguage("de_DE")
+    try:
+        tr = QCoreApplication.translate
+        assert combo.currentData() == CHYRON
+        assert ui.lineEdit_tcpPort.text() == "2323"
+        assert ui.plainTextEdit_tcpTemplate.toPlainText() == template
+        assert ui.comboBox_tcpEncoding.currentData() == "iso-8859-1"
+        assert ui.pushButton_tcpStart.text() == tr("MainWindow", "Start sending")
+        assert ui.label_tcpPreset.text() == tr("TcpOutputPage", "Preset")
+        assert tcp.output.config.port == 2323
+    finally:
+        qapp.removeTranslator(main_window.translator)
 
 
 def test_obs_connect_and_disconnect(make_window, monkeypatch, qtbot, make_target):
@@ -2313,10 +2490,22 @@ def test_every_language_fits(language, make_window, make_target, qapp, reference
             assert cut_off_texts(pane) == [], pane.objectName()
         assert cut_off_texts(window.statusBar()) == []
         ui.tabWidget_inspector.setCurrentWidget(ui.widget_outputs)
-        for destination in ("files", "http", "obs", "vmix", "uno", "api"):
+        for destination in ("files", "http", "obs", "vmix", "uno", "api", "tcp"):
             window.showDestination(destination)
             qapp.processEvents()
             assert cut_off_texts(ui.widget_outputs) == [], destination
+        # the TCP page with every control: the CasparCG preset, started
+        from tcp_output import CASPARCG
+
+        tcp = window.tcpUiHandler
+        combo = tcp.ui.comboBox_tcpPreset
+        combo.setCurrentIndex(combo.findData(CASPARCG))
+        combo.activated.emit(combo.currentIndex())
+        tcp.ui.pushButton_tcpStart.setChecked(True)
+        qapp.processEvents()
+        assert tcp.ui.groupBox_tcpCaspar.isVisibleTo(ui.widget_outputs)
+        assert cut_off_texts(ui.widget_outputs) == [], "tcp (CasparCG)"
+        tcp.ui.pushButton_tcpStart.setChecked(False)
     finally:
         qapp.removeTranslator(window.translator)
 

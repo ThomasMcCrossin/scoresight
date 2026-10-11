@@ -1,7 +1,7 @@
 ---
 title: Other Software
 parent: Outputs
-nav_order: 7
+nav_order: 8
 description: "Use ScoreSight with NewBlue Captivate/Titler Live, CasparCG, Streamlabs, Home Assistant, Node-RED and anything that reads files or JSON."
 ---
 
@@ -15,6 +15,7 @@ ScoreSight has built-in integrations for [OBS](obs.md), [vMix](vmix.md) and [ove
 | poll a URL for JSON, XML or CSV | [HTTP Server API](http_server.md) (`http://<scoresight-ip>:18099/json?pivot&all`) |
 | show a web page (browser source, HTML template) | The [browser overlays](overlays.md) (built-in or your own HTML, pushed live) |
 | receive webhooks / HTTP requests | [Outbound HTTP API](out_api.md) |
+| take text lines over a TCP connection or UDP | [TCP / UDP output](tcp-output.md) (presets for CasparCG, Chyron PRIME, Live Score, MagicSoft CG and Vizrt) |
 
 ## NewBlue Captivate / Titler Live
 
@@ -24,7 +25,9 @@ ScoreSight has no NewBlue-specific integration, but works with NewBlue through i
 
 ## CasparCG
 
-Play a [browser overlay](overlays.md#casparcg) with the HTML producer: `PLAY 1-20 [HTML] "http://<scoresight-ip>:18099/overlay/scorebug"`. For your own template, load `http://<scoresight-ip>:18099/overlay/client.js` in it and mark the elements with `data-field` (see [the overlay contract](overlays.md#the-overlay-contract)). Or adapt the polling template in [Works with…](integrations.md#casparcg).
+Use the [TCP / UDP output](tcp-output.md#casparcg) with its CasparCG preset: it loads ScoreSight's scorebug template (or your own) over AMCP and updates it as the values change.
+
+Or play a [browser overlay](overlays.md#casparcg) with the HTML producer: `PLAY 1-20 [HTML] "http://<scoresight-ip>:18099/overlay/scorebug"`. For your own template, load `http://<scoresight-ip>:18099/overlay/client.js` in it and mark the elements with `data-field` (see [the overlay contract](overlays.md#the-overlay-contract)). Or adapt the polling template in [Works with…](integrations.md#casparcg).
 
 ## Streamlabs Desktop and other OBS-like apps
 

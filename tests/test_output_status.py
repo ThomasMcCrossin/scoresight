@@ -576,8 +576,10 @@ def test_destination_names():
         "vMix",
         "UNO",
         "HTTP API",
+        "TCP / UDP",
     ]
     assert output_status.short_name(FILES) == "Files"
+    assert output_status.short_name(output_status.TCP) == "TCP"
     assert all(
         output_status.destination_description(key) for key in output_status.DESTINATIONS
     )

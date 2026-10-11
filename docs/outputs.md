@@ -18,6 +18,7 @@ ScoreSight can publish its readings to several destinations at the same time. Th
 | [vMix](vmix.md) | **vMix** | ScoreSight pushes to the vMix Web API | `SetText` on title fields | vMix GT titles |
 | [Overlays.uno](uno.md) | **UNO** | ScoreSight pushes to the UNO control app API | Commands / overlay fields | overlays.uno graphics |
 | [Outbound HTTP API](out_api.md) | **HTTP API** | ScoreSight pushes to your URL | JSON, XML, CSV or GET query, per cycle or per field, with presets | Your own server, cloud functions, automations, TriCaster DataLink, Epiphan Pearl, NewBlue Captivate |
+| [TCP / UDP](tcp-output.md) | **TCP / UDP** | ScoreSight pushes over a TCP connection or UDP | Text lines from a template, with presets | CasparCG (AMCP), Chyron PRIME, Live Score, MagicSoft CG, Vizrt Viz Engine, custom line protocols |
 | [Works with…](integrations.md) | (uses the outputs above) | | | 21 broadcast products, with their status and setup guides |
 | [Other software](other-software.md) | (uses the outputs above) | | | NewBlue Captivate/Titler Live, CasparCG, Streamlabs, Home Assistant and more |
 
@@ -69,6 +70,7 @@ Each output treats states differently:
 | HTTP server | Always the latest reading of every box, including its state. The `?pivot` endpoints include only good values |
 | OBS | A box's good value whenever it differs from the text last sent to its OBS text source. Sent right away, not limited by **Save / s**, and no output folder needed |
 | vMix, UNO | New values (`Success`). With **Also resend unchanged values** (was **Send Same?**), unchanged values (`SameNoChange`) are resent too. Fields with an empty mapping are skipped |
+| TCP / UDP | A field's good value when it differs from the last one sent (every good value with **Also resend unchanged values**). With **One message with every field**, each change sends every field's last good value. Fields with an empty name are skipped |
 | Outbound HTTP API | *JSON (Full)*, *XML* and *CSV*: every reading of every box on every cycle, so the receiver should check the state. *JSON (Simple key-value)* and `GET`: only the good readings |
 
 ## Global controls that affect outputs
@@ -81,7 +83,7 @@ Each output treats states differently:
 
 ## Network outputs run in the background
 
-OBS, vMix, UNO and the outbound API send from background workers, never from the ScoreSight window itself:
+OBS, vMix, UNO, the outbound API and the TCP / UDP output send from background workers, never from the ScoreSight window itself:
 
 - Every HTTP request has a timeout (2 seconds to connect, 2 seconds to answer). OBS has a 3-second timeout.
 - If a target falls behind, only the most recent value of each field is kept, so old values never pile up.

@@ -157,6 +157,7 @@ from obs_websocket import (
 )
 
 import startup_timing
+from tcp_ui_handler import TcpUIHandler
 from template_fields import apply_template_fields, is_template_field
 from text_detection_target import TextDetectionTarget, TextDetectionTargetWithResult
 from sc_logging import logger
@@ -391,6 +392,8 @@ class MainWindow(QMainWindow):
 
         self.vmixUiHandler = VMixUIHanlder(self.ui)
         self.unoUiHandler = UNOUIHandler(self.ui)
+        # the TCP / UDP output's page is the last of the output pages
+        self.tcpUiHandler = TcpUIHandler(self.ui.stackedWidget_outputs, self)
         # the start/stop buttons show the same texts from the start as after a
         # toggle or a language change
         self.vmixUiHandler.restoreUiState()
@@ -1636,6 +1639,7 @@ class MainWindow(QMainWindow):
             self.ui.toolButton_speed.setText(speed)
             self.vmixUiHandler.restoreUiState()
             self.unoUiHandler.restoreUiState()
+            self.tcpUiHandler.retranslate()
             self.apiUiHandler.restoreUiState()
             self.applyRuntimeTexts()
 
@@ -1854,6 +1858,7 @@ class MainWindow(QMainWindow):
             self.ui.pushButton_startvmix.toggled,
             self.ui.toolButton_toggleUno.toggled,
             self.ui.checkBox_enableOutAPI.toggled,
+            self.tcpUiHandler.ui.pushButton_tcpStart.toggled,
         ):
             signal.connect(lambda *_: self.refreshLiveStatus())
 
@@ -1909,6 +1914,8 @@ class MainWindow(QMainWindow):
             self.ui.toolButton_toggleUno.setChecked(on)
         elif key == output_status.API:
             self.ui.checkBox_enableOutAPI.setChecked(on)
+        elif key == output_status.TCP:
+            self.tcpUiHandler.setRunning(on)
         self.refreshLiveStatus()
 
     def destinationStatuses(self, now: float) -> list[DestinationStatus]:
@@ -1951,6 +1958,7 @@ class MainWindow(QMainWindow):
                 out_api_status(),
                 send_mode(),
             ),
+            self.tcpUiHandler.destinationStatus(),
         ]
 
     def obsDestinationStatus(self) -> DestinationStatus:
@@ -1977,6 +1985,7 @@ class MainWindow(QMainWindow):
         now = time.monotonic() if now is None else now
         statuses = self.destinationStatuses(now)
         self.destinationsModel.setStatuses(statuses)
+        self.tcpUiHandler.refresh()
         # the times of the last activity
         self.ui.listView_destinations.viewport().update()
         self.ui.listView_liveDestinations.viewport().update()
@@ -2430,6 +2439,7 @@ class MainWindow(QMainWindow):
         )
         self.vmixUiHandler.refreshToggleButton()
         self.unoUiHandler.refreshToggleButton()
+        self.tcpUiHandler.refreshTheme()
         self.updateWindowTitle()
         self.readingDelegate.setPaused(paused)
         self.ui.tableWidget_boxes.viewport().update()
@@ -2543,6 +2553,7 @@ class MainWindow(QMainWindow):
 
         self.vmixUiHandler.updatevMixTable(detectionTargets)
         self.unoUiHandler.updateUNOTable(detectionTargets)
+        self.tcpUiHandler.updateTable(detectionTargets)
         self.apiUiHandler.setBoxNames(box.name for box in detectionTargets)
         self.obsSourcesTable.refresh(detectionTargets)
         # Note: results.csv is not touched here. data_changed fires on every box
@@ -4559,9 +4570,9 @@ class MainWindow(QMainWindow):
         if self.ui.checkBox_enableOutAPI.isChecked():
             update_out_api(results)
 
-        # update vmix and uno. After a pause they also get the boxes' unchanged
-        # values (which may have changed while the outputs were paused), once
-        # per box: until the box's first good reading since
+        # update vMix, UNO and the TCP / UDP output. After a pause they also get
+        # the boxes' unchanged values (which may have changed while the outputs
+        # were paused), once per box: until the box's first good reading since
         resend = frozenset(self.resendAfterPause)
         if resend:
             self.resendAfterPause -= {
@@ -4577,6 +4588,7 @@ class MainWindow(QMainWindow):
             self.vmixUiHandler.vmixUpdater.update_vmix(results, resend_unchanged=resend)
         if self.unoUiHandler.unoUpdater is not None:
             self.unoUiHandler.unoUpdater.update_uno(results, resend_unchanged=resend)
+        self.tcpUiHandler.output.update(results, resend_unchanged=resend)
 
         # OBS text sources don't depend on the output folder (#30)
         self.updateObsTextSources(results)
@@ -4895,5 +4907,7 @@ class MainWindow(QMainWindow):
         if self.obs_websocket_client:
             self.closeObsClient(self.obs_websocket_client)
             self.obs_websocket_client = None
+        # store a template being typed, close the TCP connection
+        self.tcpUiHandler.close()
 
         super().closeEvent(event)

@@ -37,15 +37,15 @@ ScoreSight's readings can reach most broadcast graphics and streaming products t
 | **TriCaster** (Vizrt) | Works, untested | Outbound API preset **TriCaster DataLink**; or a Live Link web buffer | [TriCaster](#tricaster) |
 | **Epiphan Pearl** | Works, untested | Outbound API preset **Epiphan Pearl** (custom variables) | [Epiphan Pearl](#epiphan-pearl) |
 | **Magewell Director** | Partly, untested | A Webpage GFX showing an HTML page; the built-in scoreboards only for scores | [Magewell Director](#magewell-director) |
-| **CasparCG** | Partly, untested | An HTML template that polls `/json?pivot&all` | [CasparCG](#casparcg) |
+| **CasparCG** | Works, untested | The [TCP / UDP output](tcp-output.md#casparcg)'s CasparCG preset (AMCP, with ScoreSight's scorebug template); or a [browser overlay](overlays.md#casparcg) with the HTML producer; or an HTML template that polls `/json?pivot&all` | [CasparCG](#casparcg) |
 | **Singular.live** | Partly, untested | Outbound API to a Data Stream, plus a composition script | [Singular.live](#singularlive) |
 | **Viz Flowics** | Partly, untested | Outbound API to a JSON HTTP Push input; or the Data Bridge polling ScoreSight | [Viz Flowics](#viz-flowics) |
-| **Chyron PRIME** | Partly, untested | A Data object polling `/json?pivot&all`, with a timer that runs Update | [Chyron PRIME](#chyron-prime) |
-| **Vizrt** (Viz Engine, Trio, Pilot) | Partly, untested | A Vizrt Datacenter REST dataset polling `/json?pivot&all` (needs a Datacenter licence); or through Viz Flowics | [Vizrt Datacenter REST](https://documentation.vizrt.com/datacenter-user-guide/2.5/Rest_Webserver_Dataset.html) |
+| **Chyron PRIME** | Works, untested | The [TCP / UDP output](tcp-output.md)'s Chyron preset (Intelligent Interface `P\UPDATE`); or a Data object polling `/json?pivot&all`, with a timer that runs Update | [Chyron PRIME](#chyron-prime) |
+| **Vizrt** (Viz Engine, Trio, Pilot) | Partly, untested | The [TCP / UDP output](tcp-output.md)'s Vizrt Shared Memory preset; a Vizrt Datacenter REST dataset polling `/json?pivot&all` (needs a Datacenter licence); or through Viz Flowics | [Vizrt Datacenter REST](https://documentation.vizrt.com/datacenter-user-guide/2.5/Rest_Webserver_Dataset.html) |
 | **ClassX LiveBoard** | Partly, untested | A DataSource on `results.csv` or `/csv?pivot&all` with auto-update | [LiveBoard](https://www.for-a.com/products/liveboard/) |
 | **wTVision** | Partly, untested | Studio CG data sources on the files or `/xml?pivot&all` (usually set up by wTVision) | [Studio CG](https://www.wtvision.com/files/studio_en.pdf) |
-| **Live Score** (live-score-app.com) | Not yet | Needs a TCP output, which ScoreSight doesn't have yet | [Live Score](https://www.live-score-app.com/) |
-| **MagicSoft CG** | Not yet | Needs a TCP socket output, which ScoreSight doesn't have yet | [MagicSoft CG](https://magicsoft.tv/cg.html) |
+| **Live Score** (live-score-app.com) | Works, untested | The [TCP / UDP output](tcp-output.md)'s Live Score preset (based on public documentation) | [Live Score](https://www.live-score-app.com/) |
+| **MagicSoft CG** | Works, untested | The [TCP / UDP output](tcp-output.md)'s MagicSoft preset (based on public documentation) | [MagicSoft CG](https://magicsoft.tv/cg.html) |
 | **Grafster** (Converge Horizons) | Not yet | Its data feed protocol isn't published | [Grafster](https://convergetech.com/Products/Grafster/grafster.html) |
 | **RT Software Swift** | Not yet | Needs a Swift Web API (WebSocket) output | [Swift API](https://rtsw.co.uk/all-products/api-control/) |
 
