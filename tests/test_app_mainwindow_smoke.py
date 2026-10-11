@@ -3948,6 +3948,11 @@ def test_the_live_layout(make_window, qtbot, patched, make_target, make_result):
     assert ui.splitter_main.sizes() == setup_sizes
     assert window.readingDelegate.density == "setup"
     assert len(visible_rows(window)) == len(default_boxes) + 1
+    # every row has the Setup height, also those that were hidden in Live
+    table = ui.tableWidget_boxes
+    assert [table.rowHeight(row) for row in range(table.rowCount())] == [
+        setup_row
+    ] * table.rowCount()
     assert ui.actionShowUnusedFields.isChecked()
     assert ui.widget_viewTools.isVisibleTo(window)
     assert ui.widget_fieldsFooter.isVisibleTo(window)

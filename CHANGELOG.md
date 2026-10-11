@@ -8,6 +8,11 @@ Release tags are the bare version number (for example `0.1.0`).
 
 ## [Unreleased]
 
+### Fixed
+
+- After going back from the Live layout to the Setup layout, the fields that
+  aren't on the picture kept the Live layout's taller rows in the field list.
+
 ## [0.3.0] - 2026-10-11
 
 A new OCR engine, live overlays, and many more broadcast products. Highlights:
