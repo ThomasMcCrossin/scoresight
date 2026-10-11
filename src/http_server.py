@@ -25,6 +25,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse, Response
 
 import startup_timing
+from overlay_feed import feed as overlay_feed
+from overlays import router as overlays_router
 from sc_logging import file_handler, logger
 from text_detection_target import TextDetectionTargetWithResult
 
@@ -92,13 +94,14 @@ _last_request_at: float | None = None
 _client_seen_at: dict[str, float] = {}
 
 
-def _record_request(client) -> None:
+def _record_request(client, new_request: bool = True) -> None:
     global _request_count, _last_request_at
     now = time.monotonic()
     host = client[0] if client else "?"
     with _stats_lock:
-        _request_count += 1
-        _last_request_at = now
+        if new_request:
+            _request_count += 1
+            _last_request_at = now
         _client_seen_at[host] = now
         if len(_client_seen_at) > _MAX_CLIENTS:
             # forget the client seen longest ago
@@ -107,18 +110,31 @@ def _record_request(client) -> None:
 
 class _RequestCounter:
     """ASGI middleware that counts the requests (a lock and a few integers: it
-    never slows a request down)."""
+    never slows a request down). A long response (the overlays' live stream,
+    /events) keeps its client counted as recent while it sends."""
 
     def __init__(self, app):
         self.app = app
 
     async def __call__(self, scope, receive, send):
-        if scope["type"] == "http":
-            _record_request(scope.get("client"))
-        await self.app(scope, receive, send)
+        if scope["type"] != "http":
+            await self.app(scope, receive, send)
+            return
+        client = scope.get("client")
+        _record_request(client)
+
+        async def send_and_record(message):
+            if message["type"] == "http.response.body" and message.get("more_body"):
+                _record_request(client, new_request=False)
+            await send(message)
+
+        await self.app(scope, receive, send_and_record)
 
 
 app.add_middleware(_RequestCounter)
+
+# the overlays: /events, /overlay/... (overlays.py)
+app.include_router(overlays_router)
 
 
 @dataclass(frozen=True)
@@ -329,6 +345,8 @@ def update_http_server(results: list[TextDetectionTargetWithResult]):
         )
         for r in results
     )
+    # the overlays' live values (pushes only what changed)
+    overlay_feed.publish(_readings)
 
 
 # --- server lifecycle -----------------------------------------------------
@@ -462,6 +480,8 @@ def stop_http_server(timeout: float = 3.0) -> None:
         return
 
     logger.info("Stopping HTTP server...")
+    # end the overlays' live streams, so the server doesn't wait for them
+    overlay_feed.close_streams()
     server.should_exit = True
     thread.join(timeout / 2)
     if thread.is_alive():

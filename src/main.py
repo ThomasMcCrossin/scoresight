@@ -56,6 +56,8 @@ SELF_TEST_MODULES = (
     "ocr_training_data",
     "output_status",
     "output_worker",
+    "overlay_feed",
+    "overlays",
     "readings_view",
     "resizable_rect",
     "resource_path",
@@ -101,6 +103,10 @@ SELF_TEST_RESOURCES = (
     ("icons", "circle-x.svg"),
     ("icons", "template-field.svg"),
     ("obs_data", "Scoresight_OBS_scene_collection.json"),
+    ("overlays", "client.js"),
+    ("overlays", "client-worker.js"),
+    ("overlays", "overlay.css"),
+    ("overlays", "example.html"),
 )
 
 SELF_TEST_TEXT = "45"
