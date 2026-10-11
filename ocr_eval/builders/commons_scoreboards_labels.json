@@ -1482,7 +1482,7 @@
         {"role": "away_name", "box": [866, 360, 109, 57], "text": "BRUINS", "field_type": "text"},
         {"role": "clock", "box": [668, 336, 105, 79], "text": "0:08", "field_type": "clock"},
         {"role": "home_score", "box": [537, 392, 73, 78], "text": "29", "field_type": "score"},
-        {"role": "away_score", "box": [876, 413, 51, 70], "text": "18", "field_type": "score"},
+        {"role": "away_score", "box": [876, 413, 51, 70], "text": "19", "field_type": "score", "corrected_from": "18"},
         {"role": "period", "box": [767, 424, 30, 50], "text": "4", "field_type": "period"},
         {"role": "down", "box": [469, 539, 33, 56], "text": "2", "field_type": "number"},
         {"role": "to_go", "box": [473, 676, 43, 56], "text": "11", "field_type": "number"},
