@@ -96,6 +96,7 @@ from keyboard_shortcuts import (
     viewer_rows,
 )
 from obs_ui_handler import OBSSourcesTable
+from overlay_ui_handler import OverlayBuilder
 from readings_view import (
     DENSITY_LIVE,
     DENSITY_SETUP,
@@ -399,6 +400,10 @@ class MainWindow(QMainWindow):
         self.ui.checkBox_templatefield.toggled.connect(self.makeTemplateField)
 
         start_http_server(port=self.http_port)
+        # the browser overlays' URL builder on the HTTP server's page
+        self.overlayBuilder = OverlayBuilder(
+            self.ui, self.overlayFieldNames, self.overlayBaseUrls
+        )
         self.updateBrowserEndpoints()
 
         self.ui.pushButton_stabilize.setEnabled(True)
@@ -1166,6 +1171,7 @@ class MainWindow(QMainWindow):
         """Set the texts that are made at runtime: at startup and again after a
         language change (retranslateUi resets them to the .ui texts)."""
         self.updateWindowTitle()
+        self.overlayBuilder.retranslate()
         self.updateBrowserEndpoints()
         self.updatePauseUi()
         self.updateSliderReadouts()
@@ -1296,6 +1302,7 @@ class MainWindow(QMainWindow):
         """Show the HTTP server's real port on its page, and its address for
         other computers, or that the server isn't running (its port was
         busy)."""
+        self.overlayBuilder.refresh()
         port = get_http_server_port()
         if port is None:
             self.ui.label_8.setText(
@@ -1324,6 +1331,21 @@ class MainWindow(QMainWindow):
             else:
                 text += other_computers
         self.ui.label_8.setText(text)
+
+    def overlayBaseUrls(self) -> tuple[str, ...]:
+        """The HTTP server's URLs for the overlays (the network address first),
+        or () when it isn't running."""
+        port = get_http_server_port()
+        if port is None:
+            return ()
+        return http_server_urls(port, self.lanAddress)
+
+    def overlayFieldNames(self) -> list[str]:
+        """The boxes' names, in the fields list's order (for the overlays)."""
+        storage = getattr(self, "detectionTargetsStorage", None)
+        if storage is None:
+            return []
+        return [target.name for target in storage.get_data()]
 
     def setupChoiceSetting(self, combo_box, setting_name: str, values: tuple):
         """Bind a combo box whose items are values (their text may be translated)

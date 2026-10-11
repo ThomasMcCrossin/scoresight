@@ -1738,6 +1738,148 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_4.addWidget(self.label_8, 0, Qt.AlignTop)
 
+        self.groupBox_overlays = QGroupBox(self.tab_browser)
+        self.groupBox_overlays.setObjectName(u"groupBox_overlays")
+        self.formLayout_overlays = QFormLayout(self.groupBox_overlays)
+        self.formLayout_overlays.setObjectName(u"formLayout_overlays")
+        self.formLayout_overlays.setFieldGrowthPolicy(QFormLayout.AllNonFixedFieldsGrow)
+        self.formLayout_overlays.setHorizontalSpacing(6)
+        self.formLayout_overlays.setVerticalSpacing(3)
+        self.formLayout_overlays.setContentsMargins(6, 4, 6, 6)
+        self.label_overlayKind = QLabel(self.groupBox_overlays)
+        self.label_overlayKind.setObjectName(u"label_overlayKind")
+
+        self.formLayout_overlays.setWidget(0, QFormLayout.ItemRole.LabelRole, self.label_overlayKind)
+
+        self.widget_overlayKind = QWidget(self.groupBox_overlays)
+        self.widget_overlayKind.setObjectName(u"widget_overlayKind")
+        self.horizontalLayout_overlayKind = QHBoxLayout(self.widget_overlayKind)
+        self.horizontalLayout_overlayKind.setSpacing(3)
+        self.horizontalLayout_overlayKind.setObjectName(u"horizontalLayout_overlayKind")
+        self.horizontalLayout_overlayKind.setContentsMargins(0, 0, 0, 0)
+        self.comboBox_overlayKind = QComboBox(self.widget_overlayKind)
+        self.comboBox_overlayKind.setObjectName(u"comboBox_overlayKind")
+        sizePolicy11.setHeightForWidth(self.comboBox_overlayKind.sizePolicy().hasHeightForWidth())
+        self.comboBox_overlayKind.setSizePolicy(sizePolicy11)
+        self.comboBox_overlayKind.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
+        self.comboBox_overlayKind.setMinimumContentsLength(8)
+
+        self.horizontalLayout_overlayKind.addWidget(self.comboBox_overlayKind)
+
+        self.toolButton_overlaysFolder = QToolButton(self.widget_overlayKind)
+        self.toolButton_overlaysFolder.setObjectName(u"toolButton_overlaysFolder")
+        self.toolButton_overlaysFolder.setToolButtonStyle(Qt.ToolButtonIconOnly)
+
+        self.horizontalLayout_overlayKind.addWidget(self.toolButton_overlaysFolder)
+
+
+        self.formLayout_overlays.setWidget(0, QFormLayout.ItemRole.FieldRole, self.widget_overlayKind)
+
+        self.label_overlayFields = QLabel(self.groupBox_overlays)
+        self.label_overlayFields.setObjectName(u"label_overlayFields")
+
+        self.formLayout_overlays.setWidget(1, QFormLayout.ItemRole.LabelRole, self.label_overlayFields)
+
+        self.toolButton_overlayFields = QToolButton(self.groupBox_overlays)
+        self.toolButton_overlayFields.setObjectName(u"toolButton_overlayFields")
+        sizePolicy11.setHeightForWidth(self.toolButton_overlayFields.sizePolicy().hasHeightForWidth())
+        self.toolButton_overlayFields.setSizePolicy(sizePolicy11)
+        self.toolButton_overlayFields.setPopupMode(QToolButton.InstantPopup)
+        self.toolButton_overlayFields.setToolButtonStyle(Qt.ToolButtonTextOnly)
+
+        self.formLayout_overlays.setWidget(1, QFormLayout.ItemRole.FieldRole, self.toolButton_overlayFields)
+
+        self.label_overlayTheme = QLabel(self.groupBox_overlays)
+        self.label_overlayTheme.setObjectName(u"label_overlayTheme")
+
+        self.formLayout_overlays.setWidget(2, QFormLayout.ItemRole.LabelRole, self.label_overlayTheme)
+
+        self.widget_overlayLook = QWidget(self.groupBox_overlays)
+        self.widget_overlayLook.setObjectName(u"widget_overlayLook")
+        self.horizontalLayout_overlayLook = QHBoxLayout(self.widget_overlayLook)
+        self.horizontalLayout_overlayLook.setSpacing(6)
+        self.horizontalLayout_overlayLook.setObjectName(u"horizontalLayout_overlayLook")
+        self.horizontalLayout_overlayLook.setContentsMargins(0, 0, 0, 0)
+        self.comboBox_overlayTheme = QComboBox(self.widget_overlayLook)
+        self.comboBox_overlayTheme.addItem("")
+        self.comboBox_overlayTheme.addItem("")
+        self.comboBox_overlayTheme.addItem("")
+        self.comboBox_overlayTheme.addItem("")
+        self.comboBox_overlayTheme.setObjectName(u"comboBox_overlayTheme")
+        sizePolicy11.setHeightForWidth(self.comboBox_overlayTheme.sizePolicy().hasHeightForWidth())
+        self.comboBox_overlayTheme.setSizePolicy(sizePolicy11)
+        self.comboBox_overlayTheme.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
+        self.comboBox_overlayTheme.setMinimumContentsLength(5)
+
+        self.horizontalLayout_overlayLook.addWidget(self.comboBox_overlayTheme)
+
+        self.label_overlayScale = QLabel(self.widget_overlayLook)
+        self.label_overlayScale.setObjectName(u"label_overlayScale")
+
+        self.horizontalLayout_overlayLook.addWidget(self.label_overlayScale)
+
+        self.doubleSpinBox_overlayScale = QDoubleSpinBox(self.widget_overlayLook)
+        self.doubleSpinBox_overlayScale.setObjectName(u"doubleSpinBox_overlayScale")
+        self.doubleSpinBox_overlayScale.setSuffix(u"\u00d7")
+        self.doubleSpinBox_overlayScale.setDecimals(2)
+        self.doubleSpinBox_overlayScale.setMinimum(0.250000000000000)
+        self.doubleSpinBox_overlayScale.setMaximum(4.000000000000000)
+        self.doubleSpinBox_overlayScale.setSingleStep(0.250000000000000)
+        self.doubleSpinBox_overlayScale.setValue(1.000000000000000)
+
+        self.horizontalLayout_overlayLook.addWidget(self.doubleSpinBox_overlayScale)
+
+
+        self.formLayout_overlays.setWidget(2, QFormLayout.ItemRole.FieldRole, self.widget_overlayLook)
+
+        self.label_overlayHost = QLabel(self.groupBox_overlays)
+        self.label_overlayHost.setObjectName(u"label_overlayHost")
+
+        self.formLayout_overlays.setWidget(3, QFormLayout.ItemRole.LabelRole, self.label_overlayHost)
+
+        self.comboBox_overlayHost = QComboBox(self.groupBox_overlays)
+        self.comboBox_overlayHost.setObjectName(u"comboBox_overlayHost")
+        self.comboBox_overlayHost.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
+        self.comboBox_overlayHost.setMinimumContentsLength(12)
+
+        self.formLayout_overlays.setWidget(3, QFormLayout.ItemRole.FieldRole, self.comboBox_overlayHost)
+
+        self.lineEdit_overlayUrl = QLineEdit(self.groupBox_overlays)
+        self.lineEdit_overlayUrl.setObjectName(u"lineEdit_overlayUrl")
+        self.lineEdit_overlayUrl.setReadOnly(True)
+
+        self.formLayout_overlays.setWidget(4, QFormLayout.ItemRole.SpanningRole, self.lineEdit_overlayUrl)
+
+        self.widget_overlayButtons = QWidget(self.groupBox_overlays)
+        self.widget_overlayButtons.setObjectName(u"widget_overlayButtons")
+        self.horizontalLayout_overlayButtons = QHBoxLayout(self.widget_overlayButtons)
+        self.horizontalLayout_overlayButtons.setSpacing(6)
+        self.horizontalLayout_overlayButtons.setObjectName(u"horizontalLayout_overlayButtons")
+        self.horizontalLayout_overlayButtons.setContentsMargins(0, 0, 0, 0)
+        self.pushButton_copyOverlayUrl = QPushButton(self.widget_overlayButtons)
+        self.pushButton_copyOverlayUrl.setObjectName(u"pushButton_copyOverlayUrl")
+
+        self.horizontalLayout_overlayButtons.addWidget(self.pushButton_copyOverlayUrl)
+
+        self.pushButton_openOverlayUrl = QPushButton(self.widget_overlayButtons)
+        self.pushButton_openOverlayUrl.setObjectName(u"pushButton_openOverlayUrl")
+
+        self.horizontalLayout_overlayButtons.addWidget(self.pushButton_openOverlayUrl)
+
+        self.horizontalSpacer_overlayButtons = QSpacerItem(0, 0, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_overlayButtons.addItem(self.horizontalSpacer_overlayButtons)
+
+
+        self.formLayout_overlays.setWidget(5, QFormLayout.ItemRole.SpanningRole, self.widget_overlayButtons)
+
+
+        self.verticalLayout_4.addWidget(self.groupBox_overlays)
+
+        self.verticalSpacer_browser = QSpacerItem(0, 0, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+
+        self.verticalLayout_4.addItem(self.verticalSpacer_browser)
+
         self.stackedWidget_outputs.addWidget(self.tab_browser)
         self.tab_obs = QWidget()
         self.tab_obs.setObjectName(u"tab_obs")
@@ -2200,6 +2342,11 @@ class Ui_MainWindow(object):
 #if QT_CONFIG(shortcut)
         self.label.setBuddy(self.comboBox_camera_source)
         self.label_boxDisplayStyle.setBuddy(self.comboBox_boxDisplayStyle)
+        self.label_overlayKind.setBuddy(self.comboBox_overlayKind)
+        self.label_overlayFields.setBuddy(self.toolButton_overlayFields)
+        self.label_overlayTheme.setBuddy(self.comboBox_overlayTheme)
+        self.label_overlayScale.setBuddy(self.doubleSpinBox_overlayScale)
+        self.label_overlayHost.setBuddy(self.comboBox_overlayHost)
 #endif // QT_CONFIG(shortcut)
 
         self.menubar.addAction(self.menuFile.menuAction())
@@ -2782,6 +2929,58 @@ class Ui_MainWindow(object):
         self.horizontalSlider_aggsPerSecond.setToolTip(QCoreApplication.translate("MainWindow", u"How many times per second the files are written (1-10). Affects only the files.", None))
 #endif // QT_CONFIG(tooltip)
         self.label_8.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p>Use these endpoints in external software to get live data updates</p><p>HTML Scoreboard: <a href=\"http://localhost:18099/scoresight\">http://localhost:18099/scoresight</a><br/>JSON: <a href=\"http://localhost:18099/json\">http://localhost:18099/json</a> (optional: ?pivot)<br/>XML: <a href=\"http://localhost:18099/xml\">http://localhost:18099/xml</a> (optional: ?pivot)<br/>CSV: <a href=\"http://localhost:18099/csv\">http://localhost:18099/csv</a> (optional: ?pivot)</p></body></html>", None))
+#if QT_CONFIG(tooltip)
+        self.groupBox_overlays.setToolTip(QCoreApplication.translate("MainWindow", u"Transparent pages with live values, for a browser source in OBS, vMix, Wirecast, CasparCG and other production software", None))
+#endif // QT_CONFIG(tooltip)
+        self.groupBox_overlays.setTitle(QCoreApplication.translate("MainWindow", u"Browser overlays", None))
+        self.label_overlayKind.setText(QCoreApplication.translate("MainWindow", u"Overlay", None))
+#if QT_CONFIG(tooltip)
+        self.comboBox_overlayKind.setToolTip(QCoreApplication.translate("MainWindow", u"A built-in overlay, or one of yours from the overlays folder", None))
+#endif // QT_CONFIG(tooltip)
+#if QT_CONFIG(tooltip)
+        self.toolButton_overlaysFolder.setToolTip(QCoreApplication.translate("MainWindow", u"Open the overlays folder: put your own HTML overlays there", None))
+#endif // QT_CONFIG(tooltip)
+#if QT_CONFIG(accessibility)
+        self.toolButton_overlaysFolder.setAccessibleName(QCoreApplication.translate("MainWindow", u"Open the overlays folder", None))
+#endif // QT_CONFIG(accessibility)
+        self.label_overlayFields.setText(QCoreApplication.translate("MainWindow", u"Fields", None))
+#if QT_CONFIG(tooltip)
+        self.toolButton_overlayFields.setToolTip(QCoreApplication.translate("MainWindow", u"The fields the overlay shows", None))
+#endif // QT_CONFIG(tooltip)
+#if QT_CONFIG(accessibility)
+        self.toolButton_overlayFields.setAccessibleName(QCoreApplication.translate("MainWindow", u"Overlay fields", None))
+#endif // QT_CONFIG(accessibility)
+        self.label_overlayTheme.setText(QCoreApplication.translate("MainWindow", u"Theme", None))
+        self.comboBox_overlayTheme.setItemText(0, QCoreApplication.translate("MainWindow", u"Dark", None))
+        self.comboBox_overlayTheme.setItemText(1, QCoreApplication.translate("MainWindow", u"Light", None))
+        self.comboBox_overlayTheme.setItemText(2, QCoreApplication.translate("MainWindow", u"Minimal", None))
+        self.comboBox_overlayTheme.setItemText(3, QCoreApplication.translate("MainWindow", u"Bold", None))
+
+#if QT_CONFIG(tooltip)
+        self.comboBox_overlayTheme.setToolTip(QCoreApplication.translate("MainWindow", u"The overlay's colors. Minimal has no panels: white text with a shadow", None))
+#endif // QT_CONFIG(tooltip)
+        self.label_overlayScale.setText(QCoreApplication.translate("MainWindow", u"Scale", None))
+#if QT_CONFIG(tooltip)
+        self.doubleSpinBox_overlayScale.setToolTip(QCoreApplication.translate("MainWindow", u"The overlays fit the page's width (1920x1080, 1280x720...); this makes them bigger or smaller", None))
+#endif // QT_CONFIG(tooltip)
+        self.label_overlayHost.setText(QCoreApplication.translate("MainWindow", u"Address", None))
+#if QT_CONFIG(tooltip)
+        self.comboBox_overlayHost.setToolTip(QCoreApplication.translate("MainWindow", u"The network address for software on other computers, localhost for software on this one", None))
+#endif // QT_CONFIG(tooltip)
+#if QT_CONFIG(tooltip)
+        self.lineEdit_overlayUrl.setToolTip(QCoreApplication.translate("MainWindow", u"Paste this address in a browser source", None))
+#endif // QT_CONFIG(tooltip)
+#if QT_CONFIG(accessibility)
+        self.lineEdit_overlayUrl.setAccessibleName(QCoreApplication.translate("MainWindow", u"Overlay address", None))
+#endif // QT_CONFIG(accessibility)
+#if QT_CONFIG(tooltip)
+        self.pushButton_copyOverlayUrl.setToolTip(QCoreApplication.translate("MainWindow", u"Copy the overlay's address", None))
+#endif // QT_CONFIG(tooltip)
+        self.pushButton_copyOverlayUrl.setText(QCoreApplication.translate("MainWindow", u"Copy", None))
+#if QT_CONFIG(tooltip)
+        self.pushButton_openOverlayUrl.setToolTip(QCoreApplication.translate("MainWindow", u"Open the overlay in your web browser", None))
+#endif // QT_CONFIG(tooltip)
+        self.pushButton_openOverlayUrl.setText(QCoreApplication.translate("MainWindow", u"Open in browser", None))
 #if QT_CONFIG(tooltip)
         self.pushButton_connectObs.setToolTip(QCoreApplication.translate("MainWindow", u"Connect to the WebSocket server of OBS Studio", None))
 #endif // QT_CONFIG(tooltip)

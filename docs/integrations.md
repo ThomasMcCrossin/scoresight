@@ -20,6 +20,9 @@ ScoreSight's readings can reach most broadcast graphics and streaming products t
 {: .important }
 **Untested** means the setup follows the product's documentation but the ScoreSight project hasn't tried it on that product yet. If you try one, please tell us how it went (or what had to change) in a [GitHub issue](https://github.com/royshil/scoresight/issues/new/choose), so we can mark it tested.
 
+{: .note }
+**Products that can show a web page** (OBS, vMix, Wirecast, CasparCG, TriCaster Live Link, Magewell Director, Epiphan Pearl and others) can also use ScoreSight's own [browser overlays](overlays.md): a transparent scorebug, lower third, clock or field, or your own HTML, updated live as values change.
+
 ## At a glance
 
 | Product | Status | How | Guide |

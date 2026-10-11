@@ -9,6 +9,7 @@ import json
 import re
 import sys
 import textwrap
+import time
 import urllib.request
 from pathlib import Path
 
@@ -263,6 +264,47 @@ def test_parsers_read_the_http_server(http_port, make_result):
         ["Away Score", "3"],
         ["Time", "11:5.1"],
     ]
+
+
+def test_the_overlays_live_values_are_followed(http_port, make_result):
+    import http_server
+
+    timeline = e2e_test.build_timeline()
+    allowed, final = e2e_test.allowed_values(timeline), timeline[-1][0].values()
+    http_server.update_http_server(
+        [make_result("Home Score", "0"), make_result("Time", "x", "FailedFilter")]
+    )
+    status, body = app_harness.http_get(http_port, "/overlay/state")
+    assert status == 200
+    assert e2e_test.parse_overlay_state(body) == {
+        "Home Score": ("0", "Success"),
+        "Time": ("", "Empty"),
+    }
+
+    events = e2e_test.EventStreamHistory(allowed, final)
+    events.start(http_port)
+    try:
+        deadline = time.monotonic() + 5
+        while events.events < 1 and time.monotonic() < deadline:
+            time.sleep(0.02)
+        for home in ("1", "2"):
+            http_server.update_http_server(
+                [
+                    make_result("Home Score", home),
+                    make_result("Away Score", "3"),
+                    make_result("Time", "11:51"),
+                ]
+            )
+            expected = events.events + 1
+            while events.events < expected and time.monotonic() < deadline:
+                time.sleep(0.02)
+    finally:
+        http_server.stop_http_server()  # ends the stream
+        events.stop()
+    assert events.events == 3, events.error
+    assert events.sequence_seen("Home Score", ["0", "1", "2"])
+    assert events.final_seen_at is not None
+    assert all(check.passed for check in events.checks(["0", "1", "2"]))
 
 
 def test_parsers_read_the_output_files(tmp_path, make_result):

@@ -48,6 +48,18 @@ default settings, and are the default for new setups.
   source and for builds (pinned revisions, checked against SHA-256s).
 - The OCR evaluation measures the app's own PP-OCR engine (`ppocr-app`), and
   CI fails if its accuracy drops.
+- **Browser overlays** served by the HTTP server, for any software that shows
+  a web page as graphics (OBS, vMix, Wirecast, CasparCG, TriCaster, Magewell
+  Director, Epiphan Pearl...): a transparent scorebug, lower third, clock and
+  single field at `/overlay/...`, with fields, labels, theme, colours, font,
+  position, layout, scale and animation set in the address. Values are pushed
+  live (Server-Sent Events at `/events`, a JSON snapshot at `/overlay/state`
+  for polling) and the pages reconnect by themselves. Put your own HTML in the
+  `overlays` folder of the settings folder (it comes with an example): it is
+  served at `/overlay/custom/...`, and `/overlay/client.js` fills its
+  `data-field` elements and fires events. **Outputs > HTTP server** builds an
+  overlay's address with Copy and Open in browser. See
+  [Browser Overlays](docs/overlays.md).
 - **Draw a field's box on the picture.** Select a field that isn't on the
   picture: the pointer turns into a crosshair, a hint says *Drag over the
   numbers to place Home Fouls*, and a drag over the digits puts the box exactly
