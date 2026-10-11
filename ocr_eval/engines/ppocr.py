@@ -18,14 +18,17 @@ Decoding is greedy CTC (PaddleOCR's CTCLabelDecode): the classes are blank,
 the model's character dictionary and a space; repeats are merged and blanks
 dropped, and the confidence is the mean probability of the kept characters.
 
-Variants: <model>[-bin][-wl]
+Variants: <model>[-bin|-gray][-wl]
   model   v6-tiny, v6-small, v6-medium (PP-OCRv6, June 2026), v5-mobile,
           v5-server (PP-OCRv5, multilingual) and v5-en-mobile (PP-OCRv5,
           English dictionary)
   -bin    the crop is first binarized the way ScoreSight prepares a box for
           Tesseract (src/tesseract.py preprocess_patch with the field type's
           default box settings: Otsu over the crop, dilate 1), without
-          Tesseract's rescale to 35 px; otherwise the raw colour crop
+          Tesseract's rescale to 35 px
+  -gray   the crop in gray (in all three channels), as ScoreSight's capture
+          thread converts the frame before OCR (camera_thread.to_gray)
+          otherwise the raw colour crop
   -wl     decoding is limited to the characters of the field type's box
           (ocr_eval.fields.whitelist): at every time step the blank competes
           only with the allowed characters, and dictionary characters that are
@@ -38,7 +41,10 @@ onnxruntime's CPU provider (about 0.6 s per crop on all cores and 3 s on one
 thread, nearly all of it in its convolutions); ask for it by name.
 
 Set OCR_EVAL_ORT_THREADS to the number of onnxruntime intra-op threads (default
-1, comparable with Tesseract's single thread; 0 lets onnxruntime choose).
+1, comparable with Tesseract's single thread; 0 lets onnxruntime choose), and
+OCR_EVAL_ORT_SPINNING=0 to let idle pool threads sleep instead of busy-waiting
+(onnxruntime's default spinning costs CPU time with more than one thread).
+Predictions don't depend on either.
 """
 
 import importlib.metadata
@@ -112,28 +118,31 @@ MODELS: dict[str, RecModel] = {
 # not run by "--engine ppocr" (see the module docstring)
 SLOW_MODELS = ("v5-server",)
 BIN_SUFFIX = "-bin"
+GRAY_SUFFIX = "-gray"
 WHITELIST_SUFFIX = "-wl"
 THREADS_ENV = "OCR_EVAL_ORT_THREADS"
+SPINNING_ENV = "OCR_EVAL_ORT_SPINNING"
 
 # PaddleOCR's recognition input when inference.yml doesn't say otherwise
 DEFAULT_IMAGE_SHAPE = (3, 48, 320)
 
 
-def split_variant(variant: str) -> tuple[str, bool, bool]:
-    """'v6-tiny-bin-wl' -> ('v6-tiny', binarize=True, whitelist=True)."""
+def split_variant(variant: str) -> tuple[str, str, bool]:
+    """'v6-tiny-bin-wl' -> ('v6-tiny', preprocessing='-bin', whitelist=True);
+    the preprocessing is '' (the colour crop), '-bin' or '-gray'."""
     constrained = variant.endswith(WHITELIST_SUFFIX)
     if constrained:
         variant = variant[: -len(WHITELIST_SUFFIX)]
-    binarize = variant.endswith(BIN_SUFFIX)
-    if binarize:
-        variant = variant[: -len(BIN_SUFFIX)]
-    return variant, binarize, constrained
+    for suffix in (BIN_SUFFIX, GRAY_SUFFIX):
+        if variant.endswith(suffix):
+            return variant[: -len(suffix)], suffix, constrained
+    return variant, "", constrained
 
 
 def _variant_names() -> tuple[str, ...]:
     return tuple(
         f"{model}{prep}{dec}"
-        for prep in ("", BIN_SUFFIX)
+        for prep in ("", BIN_SUFFIX, GRAY_SUFFIX)
         for dec in ("", WHITELIST_SUFFIX)
         for model in MODELS
     )
@@ -287,7 +296,11 @@ class PaddleOCRRec(Engine):
 
     def __init__(self, variant: str | None = None):
         super().__init__(variant)
-        self.model_key, self.binarize, self.constrained = split_variant(self.variant)
+        self.model_key, self.preprocessing, self.constrained = split_variant(
+            self.variant
+        )
+        self.binarize = self.preprocessing == BIN_SUFFIX
+        self.gray = self.preprocessing == GRAY_SUFFIX
         self.model = MODELS[self.model_key]
         self._session = None
         self._input_name = None
@@ -299,6 +312,7 @@ class PaddleOCRRec(Engine):
         self._preprocess_patch = None
         self._global_binarization = None
         self._threads = _threads()
+        self._spinning = os.environ.get(SPINNING_ENV, "").strip() != "0"
 
     # -- loading
 
@@ -333,6 +347,9 @@ class PaddleOCRRec(Engine):
         if self._threads:
             options.intra_op_num_threads = self._threads
             options.inter_op_num_threads = 1
+        if not self._spinning:
+            # idle pool threads sleep instead of busy-waiting for work
+            options.add_session_config_entry("session.intra_op.allow_spinning", "0")
         return onnxruntime.InferenceSession(
             onnx_path, options, providers=["CPUExecutionProvider"]
         )
@@ -381,6 +398,9 @@ class PaddleOCRRec(Engine):
             if settings.get("invert_patch"):
                 patch = 255 - patch
             return cv2.cvtColor(patch, cv2.COLOR_GRAY2BGR)
+        if self.gray:
+            gray = cv2.cvtColor(crop, cv2.COLOR_BGR2GRAY)
+            return cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
         if self._rgb:
             return cv2.cvtColor(crop, cv2.COLOR_BGR2RGB)
         return crop
@@ -442,14 +462,15 @@ class PaddleOCRRec(Engine):
             size=self.model.size,
             model=self.model.repo,
             revision=self.model.revision,
-            preprocessing=(
-                "ScoreSight binarization (preprocess_patch, field type's box settings)"
-                if self.binarize
-                else "raw crop"
-            ),
+            preprocessing={
+                BIN_SUFFIX: "ScoreSight binarization (preprocess_patch, field "
+                "type's box settings)",
+                GRAY_SUFFIX: "the crop in gray (ScoreSight's to_gray)",
+            }.get(self.preprocessing, "raw crop"),
             decoding="field type's whitelist" if self.constrained else "unconstrained",
             input=f"{self._image_height} px high, padded to at least {self._min_width} px",
             intra_op_threads=self._threads or "onnxruntime default",
+            intra_op_spinning=self._spinning,
         )
         try:
             info["version"] = f"onnxruntime {importlib.metadata.version('onnxruntime')}"

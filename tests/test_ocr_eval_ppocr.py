@@ -36,19 +36,23 @@ def _readonly(image):
 
 
 def test_variants_cover_every_model_preprocessing_and_decoding():
-    assert len(PaddleOCRRec.variants) == len(MODELS) * 4
+    # the colour crop, -bin and -gray, each with and without -wl
+    assert len(PaddleOCRRec.variants) == len(MODELS) * 6
     assert len(set(PaddleOCRRec.variants)) == len(PaddleOCRRec.variants)
     for variant in PaddleOCRRec.variants:
-        model, binarize, constrained = split_variant(variant)
+        model, preprocessing, constrained = split_variant(variant)
         assert model in MODELS
         engine = PaddleOCRRec(variant)
-        assert (engine.model_key, engine.binarize, engine.constrained) == (
+        assert (engine.model_key, engine.preprocessing, engine.constrained) == (
             model,
-            binarize,
+            preprocessing,
             constrained,
         )
-    assert split_variant("v6-tiny-bin-wl") == ("v6-tiny", True, True)
-    assert split_variant("v5-en-mobile") == ("v5-en-mobile", False, False)
+        assert engine.binarize == (preprocessing == "-bin")
+        assert engine.gray == (preprocessing == "-gray")
+    assert split_variant("v6-tiny-bin-wl") == ("v6-tiny", "-bin", True)
+    assert split_variant("v6-small-gray") == ("v6-small", "-gray", False)
+    assert split_variant("v5-en-mobile") == ("v5-en-mobile", "", False)
     # the defaults read the raw crop, with and without the whitelist, with
     # every model but the slow server one
     assert set(PaddleOCRRec.default_variants) == {
@@ -325,6 +329,18 @@ def test_runs_in_the_harness(fake_engine, monkeypatch):
     assert len(record["predictions"]) == 20
     assert record["latency"]["batch_size"] == PaddleOCRRec.batch_size
     assert record["latency"]["single"]["n"] == 3
+
+
+def test_gray_variant_reads_the_crop_in_gray(fake_engine):
+    engine = fake_engine("v6-tiny-gray-wl")
+    crop = np.zeros((20, 30, 3), np.uint8)
+    crop[5:15, 10:20] = (40, 200, 230)
+    prepared = engine._prepare(_readonly(crop), "score")
+    gray = cv2.cvtColor(crop, cv2.COLOR_BGR2GRAY)
+    assert prepared.shape == (20, 30, 3)
+    for channel in range(3):
+        assert np.array_equal(prepared[:, :, channel], gray)
+    assert engine.info()["preprocessing"].startswith("the crop in gray")
 
 
 @pytest.mark.ocr
