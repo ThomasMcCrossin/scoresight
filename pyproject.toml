@@ -25,5 +25,6 @@ xfail_strict = true
 qt_api = "pyside6"
 markers = [
     "ocr: needs tesserocr and the bundled tesseract/tessdata models",
+    "ppocr: needs onnxruntime and the PP-OCR models (python scripts/fetch_models.py)",
     "qt: needs a Qt application (runs headless with QT_QPA_PLATFORM=offscreen)",
 ]

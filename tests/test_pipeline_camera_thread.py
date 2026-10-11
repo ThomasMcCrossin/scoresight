@@ -45,7 +45,7 @@ class FakeDetector:
         self.calls = []
         self.on_call = None
 
-    def detect_multi_text(self, binary, gray, rects, display=None):
+    def detect_multi_text(self, binary, gray, rects, display=None, color=None):
         self.calls.append((binary, gray, list(rects), display))
         if self.on_call is not None:
             self.on_call()
@@ -257,7 +257,7 @@ class ScriptedDetector:
     def __init__(self, script):
         self.script = list(script)
 
-    def detect_multi_text(self, binary, gray, rects, display=None):
+    def detect_multi_text(self, binary, gray, rects, display=None, color=None):
         step = self.script.pop(0)
         if step == "unchanged":
             return [

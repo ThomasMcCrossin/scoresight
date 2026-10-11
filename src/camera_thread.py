@@ -792,9 +792,9 @@ class TimerThread(QThread):
                     display = binary.copy()
                 try:
                     # binary=None: the OCR computes the global binarization
-                    # only if a box uses it
+                    # only if a box uses it; PP-OCR reads the colour frame
                     texts = self.textDetector.detect_multi_text(
-                        binary, gray, targets, display=display
+                        binary, gray, targets, display=display, color=frame_rgb
                     )
                     self._publish_results(targets, texts, display, gray)
                 except Exception as e:
@@ -819,8 +819,12 @@ class TimerThread(QThread):
                         gray = to_gray(frame_rgb)
                     if targets is None:
                         targets = self._snapshot_targets()
+                    uses_ppocr = getattr(self.textDetector, "uses_ppocr", None)
                     display = render_binary_view(
-                        global_binarization(gray), gray, targets
+                        global_binarization(gray),
+                        gray,
+                        targets,
+                        ppocr=bool(uses_ppocr and uses_ppocr()),
                     )
                 self.update_signal.emit(display)
             else:

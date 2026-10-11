@@ -5,6 +5,17 @@ class FieldType:
     TEXT = 2
 
 
+# The characters Tesseract may output for a box, by its field type (TEXT boxes
+# use GENERAL_CHAR_WHITELIST). Here rather than in tesseract.py so tools such as
+# the OCR evaluation harness (ocr_eval/) can apply them without importing
+# Tesseract.
+CHAR_WHITELISTS = {
+    FieldType.NUMBER: "0123456789",
+    FieldType.TIME: "0123456789:.",
+}
+GENERAL_CHAR_WHITELIST = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ .,;:!?-_()[]{}<>@#$%^&*+=|\\~`\"'"
+
+
 # 0 - Time MM:ss and ss.m
 # 1 - Time MM:ss
 # 2 - Time ss.m

@@ -1,4 +1,17 @@
-from defaults import FieldType
+"""OCR of the boxes: TextDetector reads every box of a frame with the selected
+engine, Tesseract (tesserocr) or PP-OCR (ppocr_engine.py), and applies the box's
+post-filters (format, confidence threshold, smoothing, leading zeros, ordinal
+suffix), so both engines produce the same TextDetectionResults.
+
+Tesseract reads each box's preprocessed patch (binarization, cleanup, vertical
+scale, skew, dilation, invert, autocrop, rescale, width normalization: the
+box's Image cleanup settings). PP-OCR reads the box's colour crop as it is,
+all boxes of a frame in one batch. The dot counter isn't OCR: it counts blobs
+in the preprocessed patch whatever the engine.
+"""
+
+from dataclasses import dataclass
+from defaults import CHAR_WHITELISTS, GENERAL_CHAR_WHITELIST
 from os import path
 from PIL import Image
 from PySide6.QtCore import QRectF
@@ -9,8 +22,9 @@ import numpy as np
 import re
 import time
 
+import ocr_models
+import ppocr_engine
 from resource_path import resource_path
-from storage import fetch_data
 from text_detection_target import (
     TextDetectionResult,
     TextDetectionTarget,
@@ -19,12 +33,6 @@ from text_detection_target import (
 from sc_logging import logger
 
 ResultState = TextDetectionTargetWithResult.ResultState
-
-CHAR_WHITELISTS = {
-    FieldType.NUMBER: "0123456789",
-    FieldType.TIME: "0123456789:.",
-}
-GENERAL_CHAR_WHITELIST = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ .,;:!?-_()[]{}<>@#$%^&*+=|\\~`\"'"
 
 # skip_similar_image: a patch is "similar" to the last one that was read (and
 # accepted) when fewer than this fraction of its foreground (text) pixels changed.
@@ -233,9 +241,16 @@ def _draw_patch(display, roi, patch):
         display[y0:y1, x0:x1] = patch
 
 
-def render_binary_view(binary, gray, rects: list[TextDetectionTarget]):
-    """A copy of the frame's global binarization with each box's preprocessed
-    patch drawn in, i.e. what the OCR sees (the "binary" preview)."""
+def reads_raw_crop(settings: dict, ppocr: bool) -> bool:
+    """Whether a box is read from its crop as it is (PP-OCR) rather than from
+    its preprocessed patch (Tesseract, and the dot counter with any engine)."""
+    return ppocr and not settings.get("dot_detector")
+
+
+def render_binary_view(binary, gray, rects: list[TextDetectionTarget], ppocr=False):
+    """A copy of the frame's global binarization with what the OCR reads of
+    each box drawn in (the "binary" preview): its preprocessed patch, or with
+    PP-OCR (ppocr=True) its crop as it is, in gray."""
     display = binary.copy()
     height, width = display.shape[:2]
     for rect in rects:
@@ -244,8 +259,13 @@ def render_binary_view(binary, gray, rects: list[TextDetectionTarget]):
         roi = clamp_rect_to_image(rect, width, height)
         if roi is None:
             continue
+        settings = rect.settings or {}
+        if reads_raw_crop(settings, ppocr):
+            x0, y0, x1, y1 = roi
+            _draw_patch(display, roi, gray[y0:y1, x0:x1])
+            continue
         try:
-            patch = preprocess_patch(rect.settings or {}, roi, gray, lambda: binary)
+            patch = preprocess_patch(settings, roi, gray, lambda: binary)
         except cv2.error:
             continue
         _draw_patch(display, roi, patch)
@@ -283,6 +303,35 @@ def text_confidence(mean_text_conf: int, symbol_confidences: list[float]) -> flo
     return float(sum(symbol_confidences) / len(symbol_confidences))
 
 
+@dataclass(frozen=True)
+class EngineStatus:
+    """What TextDetector reads with: for the status bar."""
+
+    # the model chosen (an ocr_models value)
+    model: int | str | None
+    # the PP-OCR model's state (ppocr_engine.READY, ...), None for Tesseract
+    ppocr_state: str | None = None
+    # why PP-OCR couldn't load (the boxes are then read with Tesseract)
+    ppocr_error: str | None = None
+    # PP-OCR (automatic): the model it reads with (ppocr_engine.SMALL or
+    # TINY), why (ppocr_engine.AUTO_*), accurate's time per reading in ms
+    # (measured, or estimated for the boxes read now) and the time between
+    # readings it was measured against
+    auto_model: str | None = None
+    auto_reason: str | None = None
+    auto_accurate_ms: float | None = None
+    auto_interval_ms: float | None = None
+
+    @property
+    def ppocr(self) -> bool:
+        return self.ppocr_state is not None
+
+    @property
+    def fallback(self) -> bool:
+        """PP-OCR was chosen but failed to load: Tesseract reads the boxes."""
+        return self.ppocr_state == ppocr_engine.FAILED
+
+
 class TextDetector:
     # model name enum: daktronics=0, scoreboard_general=1
     class OcrModelIndex:
@@ -297,23 +346,36 @@ class TextDetector:
         LOCAL = 2
         ADAPTIVE = 3
 
-    def __init__(self):
-        # Guards self.api. The whole Tesseract sequence for a box (SetImage,
-        # whitelist, GetUTF8Text, iterator, MeanTextConf) runs under it, and
-        # setOcrModel swaps the API under it, so a model change from the GUI
-        # thread can't land in the middle of a recognition on the OCR thread.
+    def __init__(self, model=None):
+        """model: an ocr_models value; None reads the stored choice (the
+        default for a new setup). A model that can't be used falls back to
+        General Scoreboard (Tesseract)."""
+        # Guards self.api, self.ppocr and self.model. The whole Tesseract
+        # sequence for a box (SetImage, whitelist, GetUTF8Text, iterator,
+        # MeanTextConf) runs under it, and setOcrModel swaps the model under
+        # it, so a model change from the GUI thread can't land in the middle of
+        # a recognition on the OCR thread.
         self.api_lock = Lock()
+        # the Tesseract API: the chosen Tesseract model, or with PP-OCR the
+        # fallback for when PP-OCR fails to load (None until needed)
         self.api = None
+        # what reads a chosen PP-OCR model: its ppocr_engine.Recognizer, or
+        # for PP-OCR (automatic) an AutoChooser
+        self.ppocr = None
+        # the chosen model (an ocr_models value)
+        self.model = None
+        # the time between detections (ms), which PP-OCR (automatic) keeps
+        # its reading time under; set by the capture thread
+        self.cycle_interval_ms: float | None = None
         self._box_error_log_times: dict[str, float] = {}
         self._warned_no_api = False
-        stored_model = fetch_data(
-            "scoresight.json",
-            "ocr_model",
-            TextDetector.OcrModelIndex.SCOREBOARD_GENERAL,
-        )
+        self._fallback_reported = False
+        self._ppocr_error_logged_at: float | None = None
+        if model is None:
+            model = ocr_models.stored_model()
         if (
-            not self.setOcrModel(stored_model)
-            and stored_model != TextDetector.OcrModelIndex.SCOREBOARD_GENERAL
+            not self.setOcrModel(model)
+            and model != TextDetector.OcrModelIndex.SCOREBOARD_GENERAL
         ):
             self.setOcrModel(TextDetector.OcrModelIndex.SCOREBOARD_GENERAL)
 
@@ -329,7 +391,11 @@ class TextDetector:
             return model_folder, "eng"
         if ocrModelIndex == TextDetector.OcrModelIndex.SCOREBOARD_GENERAL_LARGE:
             return model_folder, "scoreboard_general_large"
-        if isinstance(ocrModelIndex, str) and path.exists(ocrModelIndex):
+        if (
+            isinstance(ocrModelIndex, str)
+            and not ppocr_engine.is_ppocr(ocrModelIndex)
+            and path.exists(ocrModelIndex)
+        ):
             # Take the folder as the tessdata folder and the model name without
             # extension as the "language"
             return (
@@ -338,9 +404,22 @@ class TextDetector:
             )
         return None
 
+    @staticmethod
+    def _create_api(model_folder, ocr_model):
+        api = PyTessBaseAPI(path=model_folder, lang=ocr_model)
+        # single word PSM
+        api.SetPageSegMode(8)
+        api.SetVariable("load_system_dawg", "F")
+        api.SetVariable("load_freq_dawg", "F")
+        return api
+
     def setOcrModel(self, ocrModelIndex: OcrModelIndex | int | str | None = None):
-        """Load an OCR model (a model index or a .traineddata path). Returns True
-        on success; on failure the current model stays in use."""
+        """Use an OCR model: a PP-OCR model id, a Tesseract model index or a
+        .traineddata path (see ocr_models). Returns True on success; on failure
+        the current model stays in use. A PP-OCR model loads in the background
+        (see ppocr_engine); its boxes have no reading until it is ready."""
+        if ppocr_engine.is_ppocr(ocrModelIndex):
+            return self._set_ppocr_model(ocrModelIndex)
         resolved = self._resolve_model(ocrModelIndex)
         if resolved is None:
             if ocrModelIndex is not None:
@@ -354,11 +433,7 @@ class TextDetector:
         # the model loads, and so a model that fails to load (e.g. an invalid
         # custom .traineddata) leaves the current one in place.
         try:
-            api = PyTessBaseAPI(path=model_folder, lang=ocr_model)
-            # single word PSM
-            api.SetPageSegMode(8)
-            api.SetVariable("load_system_dawg", "F")
-            api.SetVariable("load_freq_dawg", "F")
+            api = self._create_api(model_folder, ocr_model)
         except Exception:
             logger.exception(
                 "Unable to load OCR model %s from %s; keeping the current model",
@@ -369,10 +444,74 @@ class TextDetector:
 
         with self.api_lock:
             old_api, self.api = self.api, api
+            self.ppocr = None
+            self.model = ocrModelIndex
             if old_api is not None:
                 old_api.End()
         self._warned_no_api = False
         return True
+
+    def _set_ppocr_model(self, model_id: str) -> bool:
+        reason = ppocr_engine.unavailable_reason(model_id)
+        if reason is not None:
+            logger.warning("Can't use the OCR model %s: %s", model_id, reason)
+            return False
+        logger.info("Setting OCR model to %s (PP-OCR)", model_id)
+        choice = ppocr_engine.create_choice(model_id)
+        choice.start_loading()
+        with self.api_lock:
+            # the Tesseract API (if any) stays as the fallback
+            self.ppocr = choice
+            self.model = model_id
+        self._fallback_reported = False
+        self._warned_no_api = False
+        return True
+
+    def uses_ppocr(self) -> bool:
+        """Whether a PP-OCR model is chosen (it may still be loading)."""
+        return self.ppocr is not None
+
+    def engine_status(self) -> EngineStatus:
+        choice = self.ppocr
+        if choice is None:
+            return EngineStatus(self.model)
+        if isinstance(choice, ppocr_engine.AutoChooser):
+            model, reason, accurate_ms = choice.status()
+            return EngineStatus(
+                self.model,
+                choice.state,
+                choice.error,
+                auto_model=model,
+                auto_reason=reason,
+                auto_accurate_ms=accurate_ms,
+                auto_interval_ms=choice.interval_ms,
+            )
+        return EngineStatus(self.model, choice.state, choice.error)
+
+    def wait_for_engine(self, timeout: float | None = None) -> bool:
+        """Wait (up to timeout seconds) until the chosen model can read: True
+        at once for Tesseract; for PP-OCR, whether it loaded."""
+        choice = self.ppocr
+        if choice is None:
+            return self.api is not None
+        return choice.wait(timeout)
+
+    def _ensure_fallback_api(self) -> None:
+        """PP-OCR failed to load: have a Tesseract model to read with (the one
+        used before PP-OCR was chosen, or General Scoreboard)."""
+        if self.api is not None:
+            return
+        model_folder, ocr_model = self._resolve_model(ocr_models.FALLBACK_MODEL)
+        try:
+            api = self._create_api(model_folder, ocr_model)
+        except Exception:
+            logger.exception("Unable to load the fallback OCR model %s", ocr_model)
+            return
+        with self.api_lock:
+            if self.api is None:
+                self.api, api = api, None
+        if api is not None:
+            api.End()
 
     def detect_text(self, image):
         if image is None:
@@ -392,15 +531,18 @@ class TextDetector:
         return text.strip()
 
     def detect_multi_text(
-        self, binary, gray, rects: list[TextDetectionTarget], display=None
+        self, binary, gray, rects: list[TextDetectionTarget], display=None, color=None
     ) -> list[TextDetectionResult]:
         """OCR each box in rects and return one result per box, in order.
 
         binary is the frame's global (Otsu) binarization, or None to compute it
-        only if a box uses GLOBAL binarization; gray is the grayscale frame.
-        Neither image nor the boxes' geometry is modified; a box partly outside
-        the frame is read from the part inside it. If display is given (e.g. a
-        copy of binary), each box's preprocessed patch is drawn into it.
+        only if a box uses GLOBAL binarization; gray is the grayscale frame;
+        color is the colour frame (BGR, the same size) that PP-OCR reads, or
+        None to read gray. Neither image nor the boxes' geometry is modified; a
+        box partly outside the frame is read from the part inside it. If
+        display is given (e.g. a copy of binary), what the OCR reads of each
+        box is drawn into it: its preprocessed patch (Tesseract), or its crop
+        in gray (PP-OCR).
         """
         frame = gray if _is_image(gray) else binary
         if not _is_image(frame):
@@ -417,6 +559,27 @@ class TextDetector:
                 global_binary = global_binarization(gray)
             return global_binary
 
+        choice = self.ppocr
+        if choice is not None:
+            recognizer = choice.active()
+            state = recognizer.state
+            if state != ppocr_engine.FAILED:
+                if not _is_image(color) or color.shape[:2] != gray.shape[:2]:
+                    color = gray
+                return self._detect_ppocr(
+                    choice,
+                    recognizer,
+                    state == ppocr_engine.READY,
+                    rects,
+                    gray,
+                    color,
+                    get_binary,
+                    width,
+                    height,
+                    display,
+                )
+            self._report_fallback(recognizer)
+
         texts = []
         for rect in rects:
             try:
@@ -428,6 +591,16 @@ class TextDetector:
                 texts.append(_empty_result())
         return texts
 
+    def _report_fallback(self, recognizer):
+        self._ensure_fallback_api()
+        if not self._fallback_reported:
+            self._fallback_reported = True
+            logger.error(
+                "PP-OCR (%s) couldn't load (%s); reading the boxes with Tesseract",
+                recognizer.model_id,
+                recognizer.error,
+            )
+
     def _log_box_error(self, rect):
         # called from an except block
         name = getattr(rect, "name", None)
@@ -436,6 +609,112 @@ class TextDetector:
         if last is None or now - last >= _BOX_ERROR_LOG_INTERVAL_S:
             self._box_error_log_times[name] = now
             logger.exception("OCR failed for box %r", name)
+
+    def _detect_ppocr(
+        self,
+        choice,
+        recognizer,
+        ready,
+        rects,
+        gray,
+        color,
+        get_binary,
+        width,
+        height,
+        display,
+    ):
+        """Read the boxes with PP-OCR: every box's crop in one batch. Dot
+        counters are counted as with Tesseract. Until the model is ready
+        (ready=False) the other boxes have no reading."""
+        results: list[TextDetectionResult | None] = [None] * len(rects)
+        # (index, box, its settings, its colour crop, its gray patch if it is
+        # remembered for skip_similar_image)
+        pending = []
+        for index, rect in enumerate(rects):
+            try:
+                if rect is None:
+                    results[index] = _empty_result()
+                    continue
+                # read the settings and geometry once: the GUI thread may
+                # replace them
+                settings = rect.settings or {}
+                if not reads_raw_crop(settings, True):
+                    results[index] = self._detect_box(
+                        rect, gray, get_binary, width, height, display
+                    )
+                    continue
+                roi = clamp_rect_to_image(rect, width, height)
+                if roi is None:
+                    results[index] = _empty_result()
+                    continue
+                x0, y0, x1, y1 = roi
+                patch = gray[y0:y1, x0:x1]
+                _draw_patch(display, roi, patch)
+                if not has_foreground(patch):
+                    # a blank box (e.g. a black frame): nothing to read
+                    results[index] = _empty_result()
+                    continue
+                skip_patch = None
+                if settings.get("skip_similar_image"):
+                    # as with Tesseract (see _recognize), compared with the
+                    # image of the last accepted read, here the crop in gray
+                    if patches_similar(rect.last_image, patch):
+                        results[index] = TextDetectionResult(
+                            "", ResultState.SameNoChange, None, unchanged_image=True
+                        )
+                        continue
+                    skip_patch = patch
+                if not ready:
+                    results[index] = _empty_result()
+                    continue
+                pending.append((index, rect, settings, color[y0:y1, x0:x1], skip_patch))
+            except Exception:
+                self._log_box_error(rect)
+                results[index] = _empty_result()
+
+        if pending:
+            try:
+                started = time.perf_counter()
+                reads = recognizer.recognize(
+                    [crop for _, _, _, crop, _ in pending],
+                    [
+                        CHAR_WHITELISTS.get(
+                            settings.get("type"), GENERAL_CHAR_WHITELIST
+                        )
+                        for _, _, settings, _, _ in pending
+                    ],
+                )
+                # PP-OCR (automatic) chooses its model from this
+                choice.record(
+                    recognizer.model_id,
+                    len(pending),
+                    time.perf_counter() - started,
+                    self.cycle_interval_ms,
+                )
+            except Exception:
+                now = time.monotonic()
+                last = self._ppocr_error_logged_at
+                if last is None or now - last >= _BOX_ERROR_LOG_INTERVAL_S:
+                    self._ppocr_error_logged_at = now
+                    logger.exception("PP-OCR failed to read the boxes")
+                reads = [None] * len(pending)
+            for (index, rect, settings, _, skip_patch), read in zip(pending, reads):
+                if read is None:
+                    results[index] = _empty_result()
+                    continue
+                text, confidence = read
+                try:
+                    results[index] = self._finish_reading(
+                        rect,
+                        settings,
+                        text.strip(),
+                        None if confidence is None else confidence * 100.0,
+                        skip_patch=skip_patch,
+                    )
+                except Exception:
+                    self._log_box_error(rect)
+                    results[index] = _empty_result()
+        return results
 
     def _detect_box(self, rect, gray, get_binary, width, height, display):
         if rect is None:
@@ -599,18 +878,55 @@ class TextDetector:
                 if want_confidence:
                     mean_conf = api.MeanTextConf()
 
+        confidence = None
+        if want_confidence and text != "":
+            confidence = text_confidence(mean_conf, symbol_confidences)
+        return self._finish_reading(
+            rect,
+            settings,
+            text,
+            confidence,
+            effectiveRect=effectiveRect,
+            extras=extras,
+            skip_patch=skip_patch,
+            wh_key=wh_key if normalize_wh_ratio else None,
+            wh_ratios=wh_ratios,
+        )
+
+    def _finish_reading(
+        self,
+        rect,
+        settings,
+        text,
+        confidence,
+        effectiveRect=None,
+        extras=None,
+        skip_patch=None,
+        wh_key=None,
+        wh_ratios=None,
+    ):
+        """The box's post-filters on a reading of either engine: its format
+        and confidence threshold (confidence in percent, None if unknown),
+        then smoothing, leading zeros and the ordinal suffix. skip_patch is
+        remembered as the box's image (skip_similar_image) if the reading is
+        accepted; wh_ratios (Tesseract) go into its width normalization."""
+        extras = {} if extras is None else extras
         textstate = ResultState.Success
         format_regex = settings.get("format_regex")
         if format_regex is not None and is_valid_regex(format_regex):
             # check the text matches the regex fully
             if not re.fullmatch(format_regex, text):
                 textstate = ResultState.FailedFilter
-        if want_confidence and text != "":
-            confidence = text_confidence(mean_conf, symbol_confidences)
-            if confidence < _conf_threshold_percent(settings["conf_thresh"]):
+        if confidence is not None and text != "":
+            # the read's confidence in percent, for tools (e.g. ocr_eval)
+            extras["confidence"] = confidence
+            conf_thresh = settings.get("conf_thresh")
+            if conf_thresh is not None and confidence < _conf_threshold_percent(
+                conf_thresh
+            ):
                 textstate = ResultState.FailedFilter
 
-        if normalize_wh_ratio and textstate == ResultState.Success and wh_ratios:
+        if wh_key is not None and textstate == ResultState.Success and wh_ratios:
             rect.add_wh_ratios(wh_key, wh_ratios)
 
         if settings.get("smoothing") and textstate == ResultState.Success:

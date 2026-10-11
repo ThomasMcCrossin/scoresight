@@ -34,7 +34,7 @@ def detector_for():
 
     def _get(model_index):
         if model_index not in detectors:
-            detector = TextDetector()
+            detector = TextDetector(model_index)
             detector.setOcrModel(model_index)
             detectors[model_index] = detector
         return detectors[model_index]
