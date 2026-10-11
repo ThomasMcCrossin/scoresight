@@ -35,6 +35,12 @@ def _runs(results: dict) -> dict:
     return {(run["dataset"], run["key"]): run for run in results["runs"]}
 
 
+# Confidences are stored with 4 decimals, and onnxruntime's kernels differ
+# slightly between CPUs: a value at a rounding edge (0.99445) comes out 0.9944
+# on one runner and 0.9945 on another.
+CONFIDENCE_TOLERANCE = 2e-4
+
+
 def _same_predictions(app_run: dict, eval_run: dict) -> list[str]:
     """The crops the two runs read differently (the app strips its text), each
     with both readings, so a failure on another machine says what it read."""
@@ -44,7 +50,7 @@ def _same_predictions(app_run: dict, eval_run: dict) -> list[str]:
     for crop_id in sorted(set(app) & set(other)):
         a, b = app[crop_id], other[crop_id]
         if (a["text"] or "") != (b["text"] or "").strip() or (
-            a["text"] and a["conf"] != b["conf"]
+            a["text"] and abs(a["conf"] - b["conf"]) > CONFIDENCE_TOLERANCE
         ):
             differences.append(
                 f"{crop_id}: app {a['text']!r} ({a['conf']}, "
