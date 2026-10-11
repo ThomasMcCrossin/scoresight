@@ -2509,7 +2509,7 @@
                          <string>Swap black and white before OCR, for dark digits on a light background. Formerly “Invert Input”.</string>
                         </property>
                         <property name="text">
-                         <string>Invert colours</string>
+                         <string>Invert colors</string>
                         </property>
                        </widget>
                       </item>

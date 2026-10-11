@@ -297,6 +297,14 @@ your outputs and sources do, and adds profiles for running several instances.
   banner over the picture shows since when (with a **Resume outputs**
   button), the values in the boxes list are marked *not sent*, the window
   title starts with ⏸ and the status bar shows how long they have been paused.
+- **The whole window is translated** into the 12 languages (German, Spanish,
+  French, Italian, Japanese, Korean, Dutch, Polish, Brazilian and European
+  Portuguese, Russian, Chinese). Before, most of it showed English in every
+  language. The new translations are machine drafts, marked for review in the
+  translation files: corrections from native speakers are welcome (see
+  `docs/development/translations.md`). The Video Settings, Logs, About and
+  stream URL window titles are translated too, and the settings panel widens
+  to fit a long language instead of cutting labels off.
 - The menus are translated, and **View > Language** lists each language
   in its own language (Deutsch, Français, 日本語, ...) with the current one
   ticked.

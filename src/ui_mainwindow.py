@@ -2468,7 +2468,7 @@ class Ui_MainWindow(object):
 #if QT_CONFIG(tooltip)
         self.checkBox_invertPatch.setToolTip(QCoreApplication.translate("MainWindow", u"Swap black and white before OCR, for dark digits on a light background. Formerly \u201cInvert Input\u201d.", None))
 #endif // QT_CONFIG(tooltip)
-        self.checkBox_invertPatch.setText(QCoreApplication.translate("MainWindow", u"Invert colours", None))
+        self.checkBox_invertPatch.setText(QCoreApplication.translate("MainWindow", u"Invert colors", None))
 #if QT_CONFIG(tooltip)
         self.checkBox_autocrop.setToolTip(QCoreApplication.translate("MainWindow", u"Crop the box to the area with bright pixels, plus a margin, before OCR. Formerly \u201cAuto Crop\u201d.", None))
 #endif // QT_CONFIG(tooltip)

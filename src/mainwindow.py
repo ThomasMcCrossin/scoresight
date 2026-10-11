@@ -831,6 +831,7 @@ class MainWindow(QMainWindow):
         self.ui.frame_source_view.setMinimumWidth(VIEWER_MIN_WIDTH)
         for index in (1, 2):
             splitter.handle(index).installEventFilter(self)
+        self.ui.scrollAreaWidgetContents_boxSettings.installEventFilter(self)
         # the size of a pane before it was hidden, to show it again at that size
         self.paneSizesBeforeHiding = {0: FIELDS_PANE_WIDTH, 2: INSPECTOR_WIDTH}
 
@@ -881,7 +882,10 @@ class MainWindow(QMainWindow):
         total = (
             window_width - margins.left() - margins.right() - 2 * splitter.handleWidth()
         )
-        fields, inspector = FIELDS_PANE_WIDTH, INSPECTOR_WIDTH
+        fields = FIELDS_PANE_WIDTH
+        inspector = max(
+            INSPECTOR_WIDTH, self.ui.tabWidget_inspector.minimumSizeHint().width()
+        )
         # what the viewer's toolbars need, beyond what it gets
         missing = self.ui.frame_source_view.minimumSizeHint().width() - (
             total - fields - inspector
@@ -1166,6 +1170,22 @@ class MainWindow(QMainWindow):
                 "or show them.",
             )
         )
+        self.fitBoxSettingsWidth()
+
+    def fitBoxSettingsWidth(self):
+        """The Box tab's settings scroll vertically only, and a scroll area
+        doesn't pass its content's minimum width on: make it as wide as its
+        content needs (a long language's labels), so that nothing is cut off
+        and the Inspector's minimum follows. Runs whenever the content's layout
+        changes (a language, a selection, Image cleanup opened)."""
+        area = self.ui.scrollArea_boxSettings
+        width = (
+            area.widget().minimumSizeHint().width()
+            + area.verticalScrollBar().sizeHint().width()
+            + 2 * area.frameWidth()
+        )
+        if area.minimumWidth() != width:
+            area.setMinimumWidth(width)
 
     def retranslateMenus(self):
         names = {
@@ -1316,7 +1336,9 @@ class MainWindow(QMainWindow):
         if self.video_settings_dialog is None:
             # open the logs dialog
             self.video_settings_dialog = VideoSettingsDialog()
-            self.video_settings_dialog.setWindowTitle("Video Settings")
+            self.video_settings_dialog.setWindowTitle(
+                QCoreApplication.translate("MainWindow", "Video Settings")
+            )
 
         self.video_settings_dialog.init_ui(self.image_viewer.getCameraCapture())
 
@@ -1367,6 +1389,11 @@ class MainWindow(QMainWindow):
                     self.itemSelected(None)
                     if viewer is not None:
                         viewer.selectBox(None)
+        elif (
+            event.type() == QEvent.Type.LayoutRequest
+            and obj is self.ui.scrollAreaWidgetContents_boxSettings
+        ):
+            self.fitBoxSettingsWidth()
         elif event.type() == QEvent.Type.Resize and obj is self.ui.widget_viewTools:
             self.updateAdjustHintVisibility()
         elif (
@@ -1841,7 +1868,9 @@ class MainWindow(QMainWindow):
         if self.log_dialog is None:
             # open the logs dialog
             self.log_dialog = LogViewerDialog()
-            self.log_dialog.setWindowTitle("Logs")
+            self.log_dialog.setWindowTitle(
+                QCoreApplication.translate("MainWindow", "Logs")
+            )
 
         # show the dialog, non modal
         self.log_dialog.show()
@@ -1884,7 +1913,9 @@ class MainWindow(QMainWindow):
         about_dialog = QDialog(self)
         about_dialog.ui = Ui_About()
         about_dialog.ui.setupUi(about_dialog)
-        about_dialog.setWindowTitle("About ScoreSight")
+        about_dialog.setWindowTitle(
+            QCoreApplication.translate("MainWindow", "About ScoreSight")
+        )
         about_dialog.ui.label_version.setText(
             QCoreApplication.translate("MainWindow", "Version {version}").format(
                 version=__version__
@@ -2941,7 +2972,9 @@ class MainWindow(QMainWindow):
             url_dialog = QDialog()
             ui_urlsource = Ui_UrlSource()
             ui_urlsource.setupUi(url_dialog)
-            url_dialog.setWindowTitle("URL Source")
+            url_dialog.setWindowTitle(
+                QCoreApplication.translate("MainWindow", "URL Source")
+            )
             # focus on url input
             ui_urlsource.lineEdit_url.setFocus()
             url_dialog.exec()  # wait for the dialog to close
