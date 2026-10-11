@@ -230,9 +230,9 @@
            </item>
            <item>
             <widget class="QWidget" name="widget_fieldsFooter" native="true">
-            <layout class="QHBoxLayout" name="horizontalLayout_fieldsFooter">
+            <layout class="QVBoxLayout" name="verticalLayout_fieldsFooter">
              <property name="spacing">
-              <number>4</number>
+              <number>2</number>
              </property>
              <property name="leftMargin">
               <number>0</number>
@@ -247,12 +247,33 @@
               <number>0</number>
              </property>
              <item>
+              <widget class="QLabel" name="label_fieldActionHint">
+               <property name="minimumSize">
+                <size>
+                 <width>1</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="wordWrap">
+                <bool>true</bool>
+               </property>
+               <property name="hint" stdset="0">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_fieldsFooter">
+             <property name="spacing">
+              <number>4</number>
+             </property>
+             <item>
               <widget class="QPushButton" name="pushButton_makeBox">
                <property name="enabled">
                 <bool>false</bool>
                </property>
                <property name="toolTip">
-                <string>Put a box for the selected field on the picture, then drag it over the value. Formerly “Add to Scene”.</string>
+                <string>Put a box for the selected field in the middle of the picture, then drag it over the value. You can also drag over the value on the picture, or double-click the field. Formerly “Add to Scene”.</string>
                </property>
                <property name="text">
                 <string>Place on picture</string>
@@ -297,6 +318,8 @@
                 <string>Delete field</string>
                </property>
               </widget>
+             </item>
+            </layout>
              </item>
             </layout>
             </widget>
@@ -825,18 +848,24 @@
          <property name="enabled">
           <bool>false</bool>
          </property>
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>18</height>
-          </size>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
          </property>
          <property name="font">
           <font>
            <pointsize>8</pointsize>
           </font>
          </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_26">
+         <layout class="QGridLayout" name="gridLayout_cropPanel">
+          <property name="horizontalSpacing">
+           <number>6</number>
+          </property>
+          <property name="verticalSpacing">
+           <number>2</number>
+          </property>
           <property name="leftMargin">
            <number>0</number>
           </property>
@@ -849,14 +878,27 @@
           <property name="bottomMargin">
            <number>0</number>
           </property>
-          <item>
+          <item row="0" column="0">
+           <widget class="QToolButton" name="toolButton_dragCrop">
+            <property name="toolTip">
+             <string>Drag around the part of the picture to keep, on the whole picture. The values next to it fine-tune the crop.</string>
+            </property>
+            <property name="text">
+             <string>Drag to crop</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
            <widget class="QLabel" name="label_16">
             <property name="text">
              <string>Left</string>
             </property>
            </widget>
           </item>
-          <item>
+          <item row="0" column="2">
            <widget class="QSpinBox" name="spinBox_leftCrop">
             <property name="toolTip">
              <string>Pixels to cut off the left edge</string>
@@ -874,18 +916,18 @@
              <string> px</string>
             </property>
             <property name="maximum">
-             <number>999</number>
+             <number>9999</number>
             </property>
            </widget>
           </item>
-          <item>
+          <item row="0" column="3">
            <widget class="QLabel" name="label_17">
             <property name="text">
              <string>Top</string>
             </property>
            </widget>
           </item>
-          <item>
+          <item row="0" column="4">
            <widget class="QSpinBox" name="spinBox_topCrop">
             <property name="toolTip">
              <string>Pixels to cut off the top edge</string>
@@ -903,18 +945,18 @@
              <string> px</string>
             </property>
             <property name="maximum">
-             <number>999</number>
+             <number>9999</number>
             </property>
            </widget>
           </item>
-          <item>
+          <item row="0" column="5">
            <widget class="QLabel" name="label_18">
             <property name="text">
              <string>Right</string>
             </property>
            </widget>
           </item>
-          <item>
+          <item row="0" column="6">
            <widget class="QSpinBox" name="spinBox_rightCrop">
             <property name="toolTip">
              <string>Pixels to cut off the right edge</string>
@@ -932,18 +974,18 @@
              <string> px</string>
             </property>
             <property name="maximum">
-             <number>999</number>
+             <number>9999</number>
             </property>
            </widget>
           </item>
-          <item>
+          <item row="0" column="7">
            <widget class="QLabel" name="label_19">
             <property name="text">
              <string>Bottom</string>
             </property>
            </widget>
           </item>
-          <item>
+          <item row="0" column="8">
            <widget class="QSpinBox" name="spinBox_bottomCrop">
             <property name="toolTip">
              <string>Pixels to cut off the bottom edge</string>
@@ -961,11 +1003,11 @@
              <string> px</string>
             </property>
             <property name="maximum">
-             <number>999</number>
+             <number>9999</number>
             </property>
            </widget>
           </item>
-          <item>
+          <item row="0" column="9">
            <spacer name="horizontalSpacer_4">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
@@ -979,6 +1021,19 @@
            </spacer>
           </item>
          </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_cropWarning">
+         <property name="minimumSize">
+          <size>
+           <width>1</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
         </widget>
        </item>
        <item>
@@ -1148,6 +1203,62 @@
            <widget class="QPushButton" name="pushButton_cancelFourCorner">
             <property name="toolTip">
              <string>Stop picking corners and keep the current correction (Esc)</string>
+            </property>
+            <property name="text">
+             <string>Cancel</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QFrame" name="frame_cropBanner">
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_cropBanner">
+          <property name="spacing">
+           <number>8</number>
+          </property>
+          <property name="leftMargin">
+           <number>8</number>
+          </property>
+          <property name="topMargin">
+           <number>4</number>
+          </property>
+          <property name="rightMargin">
+           <number>4</number>
+          </property>
+          <property name="bottomMargin">
+           <number>4</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="label_cropBanner">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>120</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Drag around the part of the picture to keep. Esc cancels and keeps the current crop.</string>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_cancelCrop">
+            <property name="toolTip">
+             <string>Stop and keep the current crop (Esc)</string>
             </property>
             <property name="text">
              <string>Cancel</string>
@@ -1440,7 +1551,7 @@
                 <item>
                  <widget class="QLabel" name="label_firstRunBoxesHint">
                   <property name="text">
-                   <string>Select a field in the list, put it on the picture and drag its box over the numbers.</string>
+                   <string>Select a field, then drag over its numbers on the picture.</string>
                   </property>
                   <property name="wordWrap">
                    <bool>true</bool>

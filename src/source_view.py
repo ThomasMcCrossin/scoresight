@@ -1,10 +1,25 @@
 import math
-from PySide6.QtCore import QCoreApplication, QPointF, QRectF, QSizeF, Qt, QTimer, Signal
+from dataclasses import dataclass
+
+from PySide6.QtCore import (
+    QCoreApplication,
+    QPoint,
+    QPointF,
+    QRect,
+    QRectF,
+    QSizeF,
+    Qt,
+    QTimer,
+    Signal,
+)
 from PySide6.QtGui import (
     QBrush,
     QColor,
+    QContextMenuEvent,
     QKeyEvent,
     QMouseEvent,
+    QPainter,
+    QPainterPath,
     QPen,
     QPolygonF,
     QTransform,
@@ -13,10 +28,17 @@ from PySide6.QtWidgets import (
     QGraphicsEllipseItem,
     QGraphicsItem,
     QGraphicsPolygonItem,
+    QGraphicsRectItem,
+    QLabel,
 )
 
 from camera_info import CameraInfo
-from camera_view import CameraView, compute_four_corner_homography
+from camera_view import (
+    OSD_MARGIN_PX,
+    OSD_STYLE,
+    CameraView,
+    compute_four_corner_homography,
+)
 from storage import (
     TextDetectionTargetMemoryStorage,
     fetch_data,
@@ -27,7 +49,13 @@ from storage import (
 )
 from text_detection_target import TextDetectionTarget, TextDetectionTargetWithResult
 from sc_logging import logger
-from resizable_rect import ResizableRectWithNameTypeAndResult, place_label
+from resizable_rect import (
+    BOX_HALO,
+    BOX_HALO_PX,
+    BOX_STROKE,
+    ResizableRectWithNameTypeAndResult,
+    place_label,
+)
 
 # Zoom steps (Ctrl+scroll, Ctrl+= and Ctrl+-) and limits, in screen pixels per
 # picture pixel; a picture fitted to the viewer may be outside the limits.
@@ -42,6 +70,16 @@ NUDGE_LARGE_PX = 10
 # A four-corner point on screen, in pixels
 CORNER_MARKER_PX = 10
 CORNER_COLOR = QColor("#FF3B30")
+
+# A drag at least this many screen pixels wide and tall draws a box (or a
+# crop); a smaller one is a click.
+DRAW_MIN_PX = 4
+# What a drag on the picture draws
+DRAW_PLACE = "place"  # the box of the selected field that has none
+DRAW_REDRAW = "redraw"  # the selected box again (Alt+drag)
+DRAW_CROP = "crop"  # the part of the picture to keep (Drag to crop)
+# Around the crop being dragged: the part of the picture that is cut off
+CROP_SHADE = QColor(0, 0, 0, 140)
 
 _NUDGE_KEYS = {
     Qt.Key.Key_Left: (-1, 0),
@@ -72,6 +110,95 @@ def sort_points_clockwise(points: list[QGraphicsItem]) -> list[QGraphicsItem]:
     return sorted_points
 
 
+def clamped_point(point: QPointF, bounds: QRectF) -> QPointF:
+    """point, moved into bounds (when bounds is valid)."""
+    if not bounds.isValid():
+        return QPointF(point)
+    return QPointF(
+        min(max(point.x(), bounds.left()), bounds.right()),
+        min(max(point.y(), bounds.top()), bounds.bottom()),
+    )
+
+
+def drawn_rect(start: QPointF, end: QPointF, bounds: QRectF) -> QRectF:
+    """The rectangle dragged from start to end (in picture pixels), within
+    bounds, its corners on whole pixels."""
+    start = clamped_point(start, bounds)
+    end = clamped_point(end, bounds)
+    return QRectF(
+        QPointF(round(start.x()), round(start.y())),
+        QPointF(round(end.x()), round(end.y())),
+    ).normalized()
+
+
+def centered_rect(
+    center: QPointF, width: float, height: float, bounds: QRectF
+) -> QRectF:
+    """A width x height rectangle centred on center, moved into bounds (and
+    made smaller to fit it, if needed), on whole pixels."""
+    if bounds.isValid():
+        width = min(width, bounds.width())
+        height = min(height, bounds.height())
+    rect = QRectF(
+        round(center.x() - width / 2), round(center.y() - height / 2), width, height
+    )
+    return nudged_rect(rect, 0, 0, bounds)
+
+
+class RubberBand(QGraphicsRectItem):
+    """The rectangle being dragged: an azure dashed outline with a dark halo
+    (visible on any picture), lightly filled. For a crop, the part of the
+    picture outside it is shaded: that part is cut off."""
+
+    def __init__(self, picture: QRectF, shade: bool):
+        super().__init__()
+        self.picture = QRectF(picture)
+        self.shade = shade
+        self.setZValue(30)
+        self.setAcceptedMouseButtons(Qt.MouseButton.NoButton)
+
+    def boundingRect(self) -> QRectF:
+        if self.shade:
+            return self.picture.united(super().boundingRect())
+        return super().boundingRect()
+
+    def paint(self, painter: QPainter, option, widget=None):
+        rect = self.rect()
+        painter.save()
+        if self.shade:
+            outside = QPainterPath()
+            outside.addRect(self.picture)
+            inside = QPainterPath()
+            inside.addRect(rect)
+            painter.fillPath(outside.subtracted(inside), CROP_SHADE)
+        halo = QPen(BOX_HALO, BOX_HALO_PX)
+        halo.setCosmetic(True)
+        painter.setPen(halo)
+        painter.setBrush(Qt.BrushStyle.NoBrush)
+        painter.drawRect(rect)
+        fill = QColor(BOX_STROKE)
+        fill.setAlpha(0 if self.shade else 45)
+        stroke = QPen(BOX_STROKE, 2, Qt.PenStyle.DashLine)
+        stroke.setCosmetic(True)
+        painter.setPen(stroke)
+        painter.setBrush(fill)
+        painter.drawRect(rect)
+        painter.restore()
+
+
+@dataclass
+class Drawing:
+    """A drag on the picture that draws a rectangle (DRAW_PLACE, ...)."""
+
+    mode: str
+    # the field whose box it draws (None for a crop)
+    name: str | None
+    # where the drag started: in the viewport and on the picture
+    view_origin: QPoint
+    scene_origin: QPointF
+    band: RubberBand
+
+
 def nudged_rect(rect: QRectF, dx: float, dy: float, bounds: QRectF) -> QRectF:
     """rect moved by (dx, dy), kept inside bounds when it fits there (a box
     larger than the picture stays where it is on that axis)."""
@@ -96,6 +223,19 @@ class ImageViewer(CameraView):
     # the four-corner picking started, got a corner or ended, or the
     # correction changed
     four_corner_changed = Signal()
+    # a box was drawn for a field: (name, rectangle in picture pixels). A
+    # field without a box gets one; the selected box (Alt+drag) is redrawn.
+    box_drawn = Signal(str, QRectF)
+    # a double-click on the picture: put the field's box there (its centre)
+    place_requested = Signal(str, QPointF)
+    # a right-click on a box (or the menu key): its name and where to show
+    # its menu (global position)
+    box_menu_requested = Signal(str, QPoint)
+    # Drag to crop: the part of the picture to keep, in pixels of the whole
+    # (rotated, uncropped) frame, and that frame's size
+    crop_drawn = Signal(QRectF, QSizeF)
+    # the crop picking (Drag to crop) started or ended
+    crop_selection_changed = Signal()
 
     def __init__(
         self,
@@ -112,6 +252,22 @@ class ImageViewer(CameraView):
         # the arrow keys move the selected box, Esc deselects it
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.fourCornerSelectionMode = False
+        # Drag to crop: a drag on the whole picture sets the crop
+        self.cropSelectionMode = False
+        # the selected field when it has no box (a drag on the picture draws
+        # its box), else None
+        self.placementField: str | None = None
+        # the drag that draws a rectangle, None when none is
+        self.drawing: Drawing | None = None
+        # where the mouse was last in the viewport (for the cursor)
+        self.lastMousePosition: QPoint | None = None
+        # "Drag over the numbers to place Home Fouls", over the picture: the
+        # same size at every zoom, at the top
+        self.placementHint = QLabel(self)
+        self.placementHint.setObjectName("label_placementHint")
+        self.placementHint.setStyleSheet(OSD_STYLE)
+        self.placementHint.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
+        self.placementHint.setVisible(False)
         self.fourCorners = []
         self.fourCornerPolygon = None
         self.fourCornersAppliedCallback = fourCornersAppliedCallback
@@ -122,6 +278,7 @@ class ImageViewer(CameraView):
         # their labels say HELD and show that value
         self.heldValues: dict[str, str] = {}
         self.first_frame_received_signal.connect(self.detectionTargetsChanged)
+        self.first_frame_received_signal.connect(self.updatePlacementHint)
         self.detectionTargetsStorage.data_changed.connect(self.detectionTargetsChanged)
         self.timerThread.ocr_result_signal.connect(self.ocrResult)
         self.zoom_changed.connect(self.layoutLabels)
@@ -146,6 +303,7 @@ class ImageViewer(CameraView):
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
+        self.placePlacementHint()
         if self._isScaling or not self.fitted:
             # scrollbars appearing while zooming, or a banner over the viewer
             # while zoomed in: keep the zoom
@@ -189,6 +347,8 @@ class ImageViewer(CameraView):
         correction (the corners are clicked on it), but the correction stays in
         effect, also for the OCR, until the 4th valid click replaces it.
         cancelFourCornerSelection() (Esc) keeps it."""
+        self.cancelCropSelection()
+        self.cancelDrawing()
         self.clearFourCornerItems()
         self.show_error_text(None)
         self.fourCornerSelectionMode = True
@@ -197,6 +357,8 @@ class ImageViewer(CameraView):
         if self.timerThread is not None:
             self.timerThread.preview_uncorrected = True
             self.timerThread.requestPreview()
+        self.updatePlacementHint()
+        self.updateCursor()
         self.four_corner_changed.emit()
 
     def cancelFourCornerSelection(self):
@@ -207,6 +369,8 @@ class ImageViewer(CameraView):
         self.clearFourCornerItems()
         self.show_error_text(None)
         self.endUncorrectedPreview()
+        self.updatePlacementHint()
+        self.updateCursor()
         self.four_corner_changed.emit()
 
     def removeFourCornerCorrection(self):
@@ -283,10 +447,82 @@ class ImageViewer(CameraView):
                 self.setFourCornersForHomography(corners)
                 store_data("scoresight.json", "four_corners", corners)
                 self.endUncorrectedPreview()
+                self.updatePlacementHint()
+                self.updateCursor()
                 self.fourCornersAppliedCallback(corners)
         self.four_corner_changed.emit()
 
+    # --- Drag to crop -----------------------------------------------------------------
+
+    def startCropSelection(self):
+        """Drag to crop: the preview shows the whole (rotated) frame, without
+        the crop, the boxes are hidden, and a drag on it sets the crop. The
+        current crop stays in effect, also for the OCR, until then;
+        cancelCropSelection() (Esc) keeps it."""
+        self.cancelFourCornerSelection()
+        self.cancelDrawing()
+        self.cropSelectionMode = True
+        # the boxes sit on the cropped picture
+        self.setBoxesSuppressed(True)
+        if self.timerThread is not None:
+            self.timerThread.preview_uncropped = True
+            self.timerThread.requestPreview()
+        self.updatePlacementHint()
+        self.updateCursor()
+        self.crop_selection_changed.emit()
+
+    def cancelCropSelection(self):
+        """Stop the crop picking; the crop stays as it was."""
+        if not self.cropSelectionMode:
+            return
+        self.cancelDrawing()
+        self.cropSelectionMode = False
+        self.setBoxesSuppressed(False)
+        if self.timerThread is not None:
+            self.timerThread.preview_uncropped = False
+            self.timerThread.requestPreview()
+        self.updatePlacementHint()
+        self.updateCursor()
+        self.crop_selection_changed.emit()
+
+    def uncroppedFrameSize(self) -> QSizeF | None:
+        """The size of the whole frame after the rotation (the crop picking's
+        picture), or None before a frame was read."""
+        thread = self.timerThread
+        if thread is None:
+            return None
+        width, height = thread.frame_size
+        if width <= 0 or height <= 0:
+            return None
+        if thread.crop.rotation in (90, 270):
+            width, height = height, width
+        return QSizeF(width, height)
+
+    def uncroppedPictureShown(self) -> bool:
+        """Whether the picture shown is the whole (uncropped) frame: right
+        after the crop picking started, the cropped one may still be shown."""
+        size = self.uncroppedFrameSize()
+        return (
+            size is not None
+            and self.hasPicture()
+            and self.scene.sceneRect().size() == size
+        )
+
     # --- boxes ------------------------------------------------------------------------
+
+    def hasPicture(self) -> bool:
+        return self.firstFrameReceived and self.scenePixmapItem is not None
+
+    def pictureRect(self) -> QRectF:
+        """The picture, in its own pixels (the scene's coordinates)."""
+        return self.scene.sceneRect() if self.scenePixmapItem is not None else QRectF()
+
+    def visiblePictureRect(self) -> QRectF:
+        """The part of the picture shown in the viewer (zoomed in, a part of
+        it), in picture pixels."""
+        shown = self.mapToScene(self.viewport().rect()).boundingRect()
+        picture = self.pictureRect()
+        return shown.intersected(picture) if picture.isValid() else shown
 
     def setBoxesSuppressed(self, suppressed: bool):
         for item in self.boxItems():
@@ -318,7 +554,9 @@ class ImageViewer(CameraView):
                     itemSelectedCallback=self.itemSelectedCallback,
                     boxDisplayStyle=self.boxDisplayStyleSetting,
                 )
-                boxFound.setSuppressed(self.fourCornerSelectionMode)
+                boxFound.setSuppressed(
+                    self.fourCornerSelectionMode or self.cropSelectionMode
+                )
                 boxFound.setSelected(detectionTarget.name == self.selectedBoxName)
                 boxFound.setHeldValue(self.heldValues.get(detectionTarget.name))
                 self.scene.addItem(boxFound)
@@ -414,39 +652,254 @@ class ImageViewer(CameraView):
         if item:
             self.scene.removeItem(item)
 
+    def boxAt(self, view_position: QPoint) -> ResizableRectWithNameTypeAndResult | None:
+        """The box a click at this point of the viewport goes to: the top one
+        there (its label and handles let clicks through)."""
+        for item in self.items(view_position):
+            if item.acceptedMouseButtons() == Qt.MouseButton.NoButton:
+                continue
+            box = item
+            while box is not None and not isinstance(
+                box, ResizableRectWithNameTypeAndResult
+            ):
+                box = box.parentItem()
+            if box is not None and box.isVisible():
+                return box
+        return None
+
     def selectBox(self, name):
         # deselect all the boxes and select the one with the name
         self.selectedBoxName = name
         for item in self.boxItems():
             item.setSelected(item.name == name)
         self.layoutLabels()
+        drawing = self.drawing
+        if drawing is not None and drawing.mode == DRAW_REDRAW and drawing.name != name:
+            self.cancelDrawing()
+
+    def selectedBoxTarget(self) -> TextDetectionTarget | None:
+        """The selected field's box, if it has one (not a template field)."""
+        if self.selectedBoxName is None or self.detectionTargetsStorage is None:
+            return None
+        target = self.detectionTargetsStorage.find_item_by_name(self.selectedBoxName)
+        if target is None or (target.settings or {}).get("templatefield"):
+            return None
+        return target
+
+    # --- drawing a box on the picture ---------------------------------------------
+
+    def setPlacementField(self, name: str | None):
+        """The selected field when it has no box (None otherwise): a drag on
+        the picture draws its box, a double-click puts it there. The cursor is
+        a crosshair and a hint says so."""
+        if name == self.placementField:
+            return
+        if self.drawing is not None and self.drawing.mode == DRAW_PLACE:
+            self.cancelDrawing()
+        self.placementField = name
+        self.updatePlacementHint()
+        self.updateCursor()
+
+    def updatePlacementHint(self, *_):
+        """Show the hint over the picture while a drag would place a box (and
+        set its text again after a language change)."""
+        hint = self.placementHint
+        show = (
+            self.placementField is not None
+            and self.hasPicture()
+            and not self.fourCornerSelectionMode
+            and not self.cropSelectionMode
+        )
+        if show:
+            hint.setText(
+                QCoreApplication.translate(
+                    "ImageViewer", "Drag over the numbers to place {name}"
+                ).format(name=self.placementField)
+            )
+            self.placePlacementHint()
+        hint.setVisible(show)
+
+    def placePlacementHint(self):
+        """At the top of the viewer, in the middle (under the statistics
+        overlay when they would overlap)."""
+        hint = self.placementHint
+        hint.adjustSize()
+        viewport = self.viewport().geometry()
+        x = viewport.left() + max(OSD_MARGIN_PX, (viewport.width() - hint.width()) // 2)
+        y = viewport.top() + OSD_MARGIN_PX
+        if self.osd.isVisible() and self.osd.geometry().intersects(
+            QRect(x, y, hint.width(), hint.height())
+        ):
+            y = self.osd.geometry().bottom() + OSD_MARGIN_PX
+        hint.move(x, y)
+        hint.raise_()
+
+    def drawModeFor(self, event: QMouseEvent) -> tuple[str, str | None] | None:
+        """What a left-button press starts drawing, (mode, field name), or None
+        for nothing: the crop while it is picked, the box of the selected
+        field that has none (a press on a box selects that box instead, unless
+        Alt is held), or with Alt the selected box again."""
+        if event.button() != Qt.MouseButton.LeftButton or not self.hasPicture():
+            return None
+        if self.fourCornerSelectionMode:
+            return None
+        if self.cropSelectionMode:
+            return (DRAW_CROP, None) if self.uncroppedPictureShown() else None
+        alt = bool(event.modifiers() & Qt.KeyboardModifier.AltModifier)
+        if self.placementField is not None and (
+            alt or self.boxAt(event.position().toPoint()) is None
+        ):
+            return DRAW_PLACE, self.placementField
+        if alt and self.selectedBoxTarget() is not None:
+            return DRAW_REDRAW, self.selectedBoxName
+        return None
+
+    def startDrawing(self, mode: str, name: str | None, view_position: QPoint):
+        self.cancelDrawing()
+        picture = self.pictureRect()
+        band = RubberBand(picture, shade=mode == DRAW_CROP)
+        band.setVisible(False)
+        self.scene.addItem(band)
+        self.drawing = Drawing(
+            mode,
+            name,
+            QPoint(view_position),
+            clamped_point(self.mapToScene(view_position), picture),
+            band,
+        )
+        self.updateCursor()
+
+    def isDrawing(self) -> bool:
+        return self.drawing is not None
+
+    def updateDrawing(self, view_position: QPoint):
+        drawing = self.drawing
+        drawing.band.setRect(
+            drawn_rect(
+                drawing.scene_origin, self.mapToScene(view_position), self.pictureRect()
+            )
+        )
+        moved = view_position - drawing.view_origin
+        drawing.band.setVisible(
+            abs(moved.x()) >= DRAW_MIN_PX or abs(moved.y()) >= DRAW_MIN_PX
+        )
+
+    def cancelDrawing(self) -> bool:
+        """Stop drawing (Esc); returns False if nothing was being drawn."""
+        drawing = self.drawing
+        if drawing is None:
+            return False
+        self.drawing = None
+        self.scene.removeItem(drawing.band)
+        self.updateCursor()
+        return True
+
+    def finishDrawing(self, view_position: QPoint):
+        """The drag ended: a box (or the crop) with the rectangle dragged. A
+        drag less than DRAW_MIN_PX wide or tall is a click: nothing is
+        drawn."""
+        drawing = self.drawing
+        picture = self.pictureRect()
+        self.cancelDrawing()
+        moved = view_position - drawing.view_origin
+        if abs(moved.x()) < DRAW_MIN_PX or abs(moved.y()) < DRAW_MIN_PX:
+            return
+        rect = drawn_rect(drawing.scene_origin, self.mapToScene(view_position), picture)
+        if rect.width() < 1 or rect.height() < 1:
+            return
+        if drawing.mode == DRAW_CROP:
+            if not self.cropSelectionMode or not self.uncroppedPictureShown():
+                return
+            self.cancelCropSelection()
+            self.crop_drawn.emit(rect, QSizeF(picture.size()))
+        else:
+            self.box_drawn.emit(drawing.name, rect)
+
+    def updateCursor(self, modifiers=None):
+        """A crosshair over the picture while a drag (or a click) draws a box
+        or the crop, or picks a corner; else the arrow. Over a box, the box's
+        own cursor (move or resize), unless a drag there draws."""
+        if self._isPanning:
+            return
+        if modifiers is None:
+            modifiers = Qt.KeyboardModifier.NoModifier
+        picking = self.fourCornerSelectionMode or self.cropSelectionMode
+        alt = bool(modifiers & Qt.KeyboardModifier.AltModifier)
+        if self.drawing is None and not picking and not alt:
+            position = self.lastMousePosition
+            if position is not None and self.boxAt(position) is not None:
+                # the box's cursor (Qt sets it while the mouse is over it)
+                return
+        crosshair = self.hasPicture() and (
+            self.drawing is not None
+            or picking
+            or self.placementField is not None
+            or (alt and self.selectedBoxTarget() is not None)
+        )
+        self.viewport().setCursor(
+            Qt.CursorShape.CrossCursor if crosshair else Qt.CursorShape.ArrowCursor
+        )
 
     # --- mouse and keyboard ----------------------------------------------------------
 
     def mousePressEvent(self, event: QMouseEvent | None) -> None:
-        if event.button() == Qt.MouseButton.MiddleButton:
+        button = event.button()
+        position = event.position().toPoint()
+        self.lastMousePosition = position
+        if button == Qt.MouseButton.MiddleButton:
             self._isPanning = True
             self._lastMousePosition = event.position()
-            self.setCursor(Qt.CursorShape.ClosedHandCursor)
-        elif (
-            self.fourCornerSelectionMode and event.button() == Qt.MouseButton.LeftButton
-        ):
-            self.addFourCornerPoint(self.mapToScene(event.position().toPoint()))
-        else:
-            # deselect all the boxes
-            self.selectBox(None)
-            self.itemSelectedCallback(None)
-            super().mousePressEvent(event)
+            self.viewport().setCursor(Qt.CursorShape.ClosedHandCursor)
+            return
+        if self.drawing is not None:
+            # another button while drawing
+            event.accept()
+            return
+        if self.fourCornerSelectionMode and button == Qt.MouseButton.LeftButton:
+            self.addFourCornerPoint(self.mapToScene(position))
+            return
+        draw = self.drawModeFor(event)
+        if draw is not None:
+            self.startDrawing(*draw, position)
+            event.accept()
+            return
+        if self.cropSelectionMode:
+            # (the whole frame isn't shown yet)
+            event.accept()
+            return
+        if button == Qt.MouseButton.RightButton:
+            box = self.boxAt(position)
+            if box is not None:
+                # its menu follows (contextMenuEvent)
+                if box.name != self.selectedBoxName:
+                    self.itemSelectedCallback(box.name)
+                event.accept()
+                return
+            if self.placementField is not None:
+                # the field stays selected, to be placed
+                event.accept()
+                return
+        # deselect all the boxes
+        self.selectBox(None)
+        self.itemSelectedCallback(None)
+        super().mousePressEvent(event)
 
     def mouseReleaseEvent(self, event: QMouseEvent | None) -> None:
+        position = event.position().toPoint()
         if event.button() == Qt.MouseButton.MiddleButton:
             self._isPanning = False
-            self.setCursor(Qt.CursorShape.ArrowCursor)
+            self.updateCursor(event.modifiers())
+        elif self.drawing is not None:
+            if event.button() == Qt.MouseButton.LeftButton:
+                self.finishDrawing(position)
+            event.accept()
         else:
             super().mouseReleaseEvent(event)
             self.detectionTargetsStorage.saveBoxesToStorage()
 
     def mouseMoveEvent(self, event: QMouseEvent | None) -> None:
+        position = event.position().toPoint()
+        self.lastMousePosition = position
         if self._isPanning:
             delta = event.position() - self._lastMousePosition
             self._lastMousePosition = event.position()
@@ -456,13 +909,65 @@ class ImageViewer(CameraView):
             self.verticalScrollBar().setValue(
                 self.verticalScrollBar().value() - delta.y()
             )
+        elif self.drawing is not None:
+            self.updateDrawing(position)
         else:
             super().mouseMoveEvent(event)
+            self.updateCursor(event.modifiers())
+
+    def mouseDoubleClickEvent(self, event: QMouseEvent | None) -> None:
+        position = event.position().toPoint()
+        if (
+            event.button() == Qt.MouseButton.LeftButton
+            and self.placementField is not None
+            and self.hasPicture()
+            and not self.fourCornerSelectionMode
+            and not self.cropSelectionMode
+            and self.boxAt(position) is None
+        ):
+            # the field's box, centred where the double-click was
+            self.cancelDrawing()
+            self.place_requested.emit(
+                self.placementField,
+                clamped_point(self.mapToScene(position), self.pictureRect()),
+            )
+            event.accept()
+            return
+        super().mouseDoubleClickEvent(event)
+
+    def contextMenuEvent(self, event: QContextMenuEvent | None) -> None:
+        """A right-click on a box (or the menu key with a box selected): the
+        box's menu, which the main window shows."""
+        if self.drawing is not None or self.fourCornerSelectionMode:
+            event.accept()
+            return
+        if event.reason() == QContextMenuEvent.Reason.Mouse:
+            box = self.boxAt(event.pos())
+            if box is not None:
+                self.box_menu_requested.emit(box.name, event.globalPos())
+                event.accept()
+                return
+        elif self.selectedBoxName is not None:
+            box = self.findBox(self.selectedBoxName)
+            if box is not None and box.isVisible():
+                corner = self.mapFromScene(box.sceneBoxRect().bottomLeft())
+                self.box_menu_requested.emit(
+                    box.name, self.viewport().mapToGlobal(corner)
+                )
+                event.accept()
+                return
+        super().contextMenuEvent(event)
 
     def keyPressEvent(self, event: QKeyEvent | None) -> None:
         key = event.key()
         if key == Qt.Key.Key_Escape:
-            if self.fourCornerSelectionMode:
+            if self.cancelDrawing():
+                # the field stays selected
+                pass
+            elif self.cropSelectionMode:
+                # the crop stays
+                self.cancelCropSelection()
+            elif self.fourCornerSelectionMode:
                 # the previous correction stays
                 self.cancelFourCornerSelection()
             else:
@@ -470,9 +975,13 @@ class ImageViewer(CameraView):
                 self.itemSelectedCallback(None)
             event.accept()
             return
+        if key == Qt.Key.Key_Alt:
+            # Alt+drag redraws the selected box: the crosshair says so
+            self.updateCursor(event.modifiers())
         modifiers = event.modifiers() & ~Qt.KeyboardModifier.KeypadModifier
         if (
             key in _NUDGE_KEYS
+            and self.drawing is None
             and not self.fourCornerSelectionMode
             and modifiers
             in (Qt.KeyboardModifier.NoModifier, Qt.KeyboardModifier.ShiftModifier)
@@ -487,6 +996,15 @@ class ImageViewer(CameraView):
                 event.accept()
                 return
         super().keyPressEvent(event)
+
+    def keyReleaseEvent(self, event: QKeyEvent | None) -> None:
+        if event.key() == Qt.Key.Key_Alt:
+            self.updateCursor(event.modifiers())
+        super().keyReleaseEvent(event)
+
+    def leaveEvent(self, event):
+        self.lastMousePosition = None
+        super().leaveEvent(event)
 
     # --- zoom --------------------------------------------------------------------------
 
