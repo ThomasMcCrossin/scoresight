@@ -67,6 +67,34 @@ def _escape(text) -> str:
     return text.replace("|", "\\|").replace("\n", " ") or "∅"
 
 
+def describe_subset(subset: dict | None) -> str:
+    """A sentence saying which crops of a dataset were run, or "" for all."""
+    if not subset:
+        return ""
+    parts = []
+    if subset.get("splits"):
+        parts.append(f"split {', '.join(subset['splits'])}")
+    if subset.get("sample") is not None:
+        parts.append(
+            f"a stratified sample (by {subset.get('stratified_by', 'field_type')}, "
+            f"seed {subset.get('seed', 0)}) of {subset['sample']} of "
+            f"{subset.get('of', '?')} crops"
+        )
+    if subset.get("limit") is not None:
+        parts.append(f"the first {subset['limit']}")
+    if subset.get("frames") is not None:
+        # ocr_eval.frames: the crops of the frames read
+        parts.append(
+            f"the crops of {subset['frames']} of {subset.get('of_frames', '?')} "
+            f"frames (seed {subset.get('seed', 0)})"
+        )
+    crops = (
+        f"{subset.get('n', '?')} of the manifest's {subset.get('manifest_n', '?')} "
+        "crops."
+    )
+    return f"Subset: {'; '.join(parts)}: {crops}" if parts else f"Subset: {crops}"
+
+
 def _breakdown_table(runs: list[dict], attribute: str, scoring: str) -> list[str]:
     groups = {}
     for run in runs:
@@ -120,6 +148,8 @@ def render_report(results: dict, max_examples: int = 25) -> str:
         lines += ["", f"## {name} ({info.get('n', '?')} crops)", ""]
         if info.get("description"):
             lines += [info["description"], ""]
+        if info.get("subset"):
+            lines += [describe_subset(info["subset"]), ""]
         runs.sort(key=lambda r: -(r["scores"]["raw"]["exact"]["value"] or 0))
         if runs:
             lines += [

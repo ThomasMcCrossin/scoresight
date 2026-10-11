@@ -203,7 +203,8 @@ def run_all(
     """Run every engine variant on every dataset. The results:
 
     {"schema", "harness_version", "created", "label", "environment",
-     "datasets": {name: {"path", "n", "manifest_sha256", "description"}},
+     "datasets": {name: {"path", "n", "manifest_sha256", "description",
+                         "subset"? (dataset.Dataset.subset, when not all crops)}},
      "runs": [{"dataset", "engine", "variant", "key", "status" (ok | skipped |
                error), "reason", "engine_info", "load_seconds",
                "latency": {"single", "batch", "batch_size", "total_seconds"},
@@ -231,6 +232,8 @@ def run_all(
             "manifest_sha256": dataset.manifest_sha256,
             "description": dataset.description,
         }
+        if dataset.subset:
+            results["datasets"][dataset.name]["subset"] = dataset.subset
         if log:
             log(f"{dataset.name}: loading {len(dataset)} crops")
         images = load_images(dataset)

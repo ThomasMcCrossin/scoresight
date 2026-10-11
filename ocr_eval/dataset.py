@@ -100,6 +100,9 @@ class Dataset:
     samples: list[Sample]
     manifest_sha256: str
     description: str = ""
+    # how samples were chosen when they aren't the whole manifest (splits, limit,
+    # stratified sample); recorded with the results. None: every sample
+    subset: dict | None = None
 
     def image_path(self, sample: Sample) -> Path:
         return self.path / sample.image
@@ -348,14 +351,66 @@ def validate_dataset(ref, strict_licenses: bool = False) -> ValidationReport:
     return read_manifest(path, strict_licenses)[1]
 
 
+def _sample_rank(seed: int, sample_id: str) -> bytes:
+    return hashlib.sha256(f"{seed}:{sample_id}".encode("utf-8")).digest()
+
+
+def stratified_sample(
+    samples: list[Sample], n: int, seed: int = 0, by: str = "field_type"
+) -> list[Sample]:
+    """n of the samples, allocated to the strata (samples with the same value of
+    the attribute `by`) in proportion to their sizes (largest remainder; every
+    stratum gets at least one when n allows), so the subset's overall accuracy
+    estimates the whole set's. Within a stratum the samples are taken in the
+    order of a seeded hash of their id: the subset is reproducible, doesn't
+    depend on the manifest's order, and a larger n keeps nearly all of a smaller
+    one's samples. Returned in the original order."""
+    if n >= len(samples):
+        return list(samples)
+    if n <= 0:
+        return []
+    strata: dict[str, list[Sample]] = {}
+    for sample in samples:
+        strata.setdefault(str(getattr(sample, by)), []).append(sample)
+    total = len(samples)
+    quotas = {key: n * len(members) / total for key, members in strata.items()}
+    counts = {key: int(quota) for key, quota in quotas.items()}
+    if n >= len(strata):
+        for key in strata:
+            counts[key] = max(1, counts[key])
+    # hand out what is left by the largest remainders (ties: the larger stratum,
+    # then the name), or take back from the smallest when the minimum of one
+    # per stratum overshot
+    order = sorted(
+        strata, key=lambda k: (-(quotas[k] - int(quotas[k])), -len(strata[k]), k)
+    )
+    while sum(counts.values()) < n:
+        for key in order:
+            if sum(counts.values()) < n and counts[key] < len(strata[key]):
+                counts[key] += 1
+    while sum(counts.values()) > n:
+        for key in reversed(order):
+            if sum(counts.values()) > n and counts[key] > 1:
+                counts[key] -= 1
+    chosen = set()
+    for key, members in strata.items():
+        ranked = sorted(members, key=lambda s: _sample_rank(seed, s.id))
+        chosen.update(s.id for s in ranked[: counts[key]])
+    return [s for s in samples if s.id in chosen]
+
+
 def load_dataset(
     ref,
     splits: list[str] | tuple[str, ...] | None = None,
     limit: int | None = None,
+    sample: int | None = None,
+    seed: int = 0,
 ) -> Dataset:
     """Load and validate a dataset; raises DatasetError if it has errors.
-    splits keeps only those splits; limit keeps the first N samples (after the
-    split filter), for quick runs."""
+    splits keeps only those splits; sample keeps a stratified sample of N
+    (stratified_sample(), by field type, with seed) and limit the first N
+    samples, both after the split filter (sample before limit), for quick or
+    expensive runs. Dataset.subset records the choice."""
     path = resolve_dataset(ref)
     samples, report, digest = read_manifest(path)
     if not report.ok:
@@ -365,11 +420,22 @@ def load_dataset(
             f"dataset {path} is invalid:\n  {shown}"
             + (f"\n  ... and {more} more" if more > 0 else "")
         )
+    subset = {}
+    total = len(samples)
     if splits:
         samples = [s for s in samples if s.split in splits]
+        subset["splits"] = list(splits)
+    if sample is not None and sample < len(samples):
+        subset.update(
+            sample=sample, seed=seed, stratified_by="field_type", of=len(samples)
+        )
+        samples = stratified_sample(samples, sample, seed)
     if limit is not None:
+        subset["limit"] = limit
         samples = samples[: max(0, limit)]
-    return Dataset(path.name, path, samples, digest, _description(path))
+    if subset:
+        subset.update(n=len(samples), manifest_n=total)
+    return Dataset(path.name, path, samples, digest, _description(path), subset or None)
 
 
 def write_manifest(path: Path, samples: list[Sample]) -> None:

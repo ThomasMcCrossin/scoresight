@@ -109,7 +109,10 @@ def cmd_run(args) -> int:
             print(f"error: unknown split {unknown[0]!r}", file=sys.stderr)
             return 2
     try:
-        datasets = [load_dataset(ref, splits, args.limit) for ref in args.dataset]
+        datasets = [
+            load_dataset(ref, splits, args.limit, args.sample, args.seed)
+            for ref in args.dataset
+        ]
     except DatasetError as e:
         print(f"error: {e}", file=sys.stderr)
         return 2
@@ -284,6 +287,14 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument(
         "--limit", type=int, help="first N crops of each dataset (quick runs)"
     )
+    p.add_argument(
+        "--sample",
+        type=int,
+        metavar="N",
+        help="a stratified sample of N crops of each dataset (by field type, in "
+        "proportion; reproducible): for slow engines",
+    )
+    p.add_argument("--seed", type=int, default=0, help="the --sample seed (default 0)")
     p.add_argument("--label", help="a name for this run, shown in the report")
     p.add_argument(
         "--single-latency-samples",

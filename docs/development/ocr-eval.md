@@ -30,7 +30,7 @@ python -m ocr_eval review commons_scoreboards             # HTML contact sheet f
 
 Run it from the repository root with the development environment (see [Building from Source](building.md)); the Tesseract engine needs nothing beyond `requirements.txt`. The harness never touches your ScoreSight settings or logs: it points `SCORESIGHT_DATA_DIR` and `SCORESIGHT_LOG_DIR` at a temporary folder unless you set them.
 
-`run` options: `--engine NAME` runs the engine's default variants, `NAME:VARIANT` (or `NAME:V1,V2`, `NAME:*`) chooses; both `--dataset` and `--engine` repeat. `--split dev` or `--split test` keeps one split, `--limit N` the first N crops (quick runs), `--label` names the run in the report. `compare` exits with 1 when a run regresses (see [CI](#continuous-integration)) and 2 on bad input; `--markdown FILE` also writes the comparison.
+`run` options: `--engine NAME` runs the engine's default variants, `NAME:VARIANT` (or `NAME:V1,V2`, `NAME:*`) chooses; both `--dataset` and `--engine` repeat. `--split dev` or `--split test` keeps one split, `--limit N` the first N crops (quick runs), `--sample N` a stratified sample of N crops (for slow engines: allocated to the field types in proportion, with at least one each, and chosen by a hash of the crop id and `--seed`, so it is reproducible and the same crops on every machine), `--label` names the run in the report. A run on a subset records it in `results.json` (`datasets.<name>.subset`) and its report says which subset it is. `compare` exits with 1 when a run regresses (see [CI](#continuous-integration)) and 2 on bad input; `--markdown FILE` also writes the comparison.
 
 ## Datasets
 
@@ -215,6 +215,108 @@ What this says:
 - The two are complementary: 49.7% of the crops are read by `eng-nobin` or `tile-digits` (an upper bound, with a perfect chooser).
 - Being Windows-only, it can't be ScoreSight's cross-platform engine; it is at most a candidate for text and clock boxes on Windows.
 
+## Vision-language models
+
+`ocr_eval/engines/vlm.py` runs small vision-language models (VLMs) on the CPU with PyTorch and Hugging Face transformers. They are optional extras, so install them in a separate virtual environment (on Linux, install PyTorch's CPU wheels first: PyPI's Linux wheels bundle CUDA, about 3 GB):
+
+```bash
+uv venv --python 3.13 .venv-vlm
+# Linux only, first:
+uv pip install --python .venv-vlm/bin/python --index-url https://download.pytorch.org/whl/cpu torch==2.14.1 torchvision==0.29.1
+uv pip install --python .venv-vlm/Scripts/python.exe -r requirements.txt -r requirements-win.txt $(python -m ocr_eval requirements qwen-vl)
+.venv-vlm/Scripts/python.exe -m ocr_eval run --dataset textocr_scoreboards --engine qwen-vl --sample 200 --out results/qwen
+```
+
+| Engine | Variants: model | Parameters (download) | License |
+|---|---|---|---|
+| `florence2` | `florence2-base`, `florence2-large`: Florence-2 with its `<OCR>` task | 0.23B (0.44 GB), 0.77B (1.5 GB) | MIT |
+| `smolvlm` | `smolvlm-256m`, `smolvlm-500m`: SmolVLM-Instruct, the cheap control | 0.26B (0.49 GB), 0.51B (0.97 GB) | Apache-2.0 |
+| `qwen-vl` | `qwen3.5-0.8b`: Qwen3.5-0.8B; `qwen3-vl-2b`: Qwen3-VL-2B-Instruct (non-thinking) | 0.9B (1.7 GB), 2.1B (4.1 GB) | Apache-2.0 |
+
+- Every model is pinned to a Hugging Face revision and downloaded into the Hugging Face cache on first use (`HF_HUB_OFFLINE=1` uses only the cache).
+- The chat models get one prompt per crop that says what the box holds (ScoreSight knows each box's field type), e.g. *"This image is cropped from a scoreboard. Read the game clock (digits with ':' or '.') shown in it. Answer with only the characters on the display, exactly as shown."* Florence-2 takes no prompt: it runs its `<OCR>` task on the crop centred on a square (variant suffix `-sq`: stretched to its square input instead).
+- Decoding is greedy (temperature 0, no repetition penalty), at most 16 tokens. The answer is cleaned up mechanically only (its first line, without quotes and a trailing period); the raw answer is kept in the prediction's `info` when that changed it. The confidence is the probability of the generated sequence.
+- Variant suffix `-wl`: decoding may only use tokens made of the field type's characters (the whitelist ScoreSight gives Tesseract), the VLM counterpart of masking a CTC decoder.
+- The chat models read 8 crops per call (left-padded batches gave the same answers as one crop at a time); latency is reported for both. `OCR_EVAL_VLM_BATCH`, `OCR_EVAL_TORCH_THREADS` and `OCR_EVAL_TORCH_DEVICE` (`cpu`, `cuda`, `mps`) change that.
+- VLMs take about a second per crop on a CPU, so `run --sample N` reads a stratified sample instead of every crop; the report says which subset it ran on. Compare engines on the same crops with `python -m ocr_eval.pairwise A.json B.json` (it pairs any two runs crop by crop, e.g. a VLM on a sample against the Tesseract baseline, which has every crop).
+
+### Results on CPU
+
+Measured on Windows 11 with an Intel Core i9-14900K (24 cores, 32 threads; PyTorch's 24 threads, fp32), torch 2.14.1 and transformers 5.18.0; no GPU. Every prediction is in `ocr_eval/baselines/vlm/`: `crops.json` (the variants run on every crop), `sample400.json` (those run on a stratified sample of 400 `textocr_scoreboards` crops, and every `synthetic_7seg` crop), `latency.json`, and `frames219.json` and `frames100.json` (whole frames, below), each with its `.md` report. They are reference results, not checked by CI; `python -m ocr_eval compare` against them checks a change to an adapter.
+
+`textocr_scoreboards`, exact match (95% CI) by field type, with ScoreSight's Tesseract pipeline from the baseline for comparison:
+
+| Engine:variant | Crops | Exact % | Clock % | Number % | Text % | CER % | Post-filter % |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| `qwen-vl:qwen3-vl-2b` | 1276 | 93.0 (91.5–94.3) | 92.8 | 92.3 | 96.8 | 5.2 | 92.6 |
+| `qwen-vl:qwen3-vl-2b-wl` | 1276 | 93.5 (92.0–94.7) | 92.8 | 92.9 | 96.8 | 4.9 | 92.9 |
+| `qwen-vl:qwen3.5-0.8b` | 1276 | 91.3 (89.6–92.7) | 88.5 | 91.0 | 95.1 | 5.8 | 90.8 |
+| `qwen-vl:qwen3.5-0.8b-wl` | 1276 | 91.5 (89.9–92.9) | 88.5 | 91.4 | 95.1 | 5.6 | 91.1 |
+| `smolvlm:smolvlm-256m` | 1276 | 67.8 (65.2–70.3) | 46.8 | 68.6 | 80.5 | 58.1 | 68.1 |
+| `smolvlm:smolvlm-256m-wl` | 1276 | 68.6 (66.0–71.1) | 54.7 | 68.5 | 80.5 | 25.0 | 68.3 |
+| `smolvlm:smolvlm-500m` | 400 | 66.2 (61.5–70.7) | 29.5 | 69.7 | 77.6 | 48.0 | 66.2 |
+| `smolvlm:smolvlm-500m-wl` | 400 | SMOL500_WL |
+| `florence2:florence2-base-wl` | 400 | FLOR_BASE_WL |
+| `florence2:florence2-base` | 400 | 56.5 (51.6–61.3) | 36.4 | 54.9 | 81.0 | 30.3 | 56.5 |
+| `florence2:florence2-base-sq` | 400 | 47.8 (42.9–52.6) | 18.2 | 47.5 | 72.4 | 40.2 | 48.0 |
+| `florence2:florence2-large` | 400 | FLOR_LARGE |
+| `florence2:florence2-large-wl` | 400 | FLOR_LARGE_WL |
+| `tesseract:eng-nobin` (baseline) | 1276 | 35.9 (33.3–38.6) | 12.2 | 40.6 | 30.3 | 55.6 | 35.9 |
+| `tesseract:scoreboard_general` (the app's default) | 1276 | 17.6 (15.6–19.7) | 4.3 | 23.0 | 0.0 | 84.8 | 17.6 |
+
+The 400-crop sample is `run --sample 400` (seed 0: 297 numbers, 58 texts, 44 clocks, 1 other); on those crops Tesseract `eng-nobin` reads 37.0% (32.4–41.8), Qwen3.5-0.8B 90.2% (86.9–92.8) and Qwen3-VL-2B 91.5% (88.4–93.9), within about a point of their full-set numbers, so the sample's rows compare with the others. On `synthetic_7seg` (56 crops): Qwen3.5-0.8B 98.2% (90.5–99.7), Qwen3-VL-2B 94.6%, SmolVLM-256M 51.8%, Florence-2-base-wl SYN_FLOR, against 58.9% for `scoreboard_general`.
+
+Head to head on the same 1,276 crops (`python -m ocr_eval.pairwise`): Qwen3.5-0.8B reads 727 crops right that `tesseract:eng-nobin` gets wrong and 20 the other way round (McNemar p < 10⁻¹⁸⁰); against the app's default model, 961 against 18. Qwen3-VL-2B beats Qwen3.5-0.8B by 1.7 points (62 crops against 40, p = 0.04).
+
+Latency per crop, measured separately on a stratified sample of 100 crops with the machine otherwise idle (`latency.json`; one crop per call, and in calls of 8 crops for the chat models):
+
+| Engine:variant | One crop: p50 / p95 ms | In batches of 8: p50 ms per crop | Load s |
+|---|---:|---:|---:|
+| `tesseract:scoreboard_general` | 1.8 / 3.7 | – | 0.1 |
+| `tesseract:eng-nobin` | 2.1 / 9.5 | – | 0.1 |
+| `smolvlm:smolvlm-256m` | 382 / 667 | 335 | 0.8 |
+| `qwen-vl:qwen3.5-0.8b` | 710 / 981 | 413 | 5.1 |
+| `qwen-vl:qwen3.5-0.8b-wl` | 622 / 901 | 390 | 2.5 |
+| `florence2:florence2-base-wl` | 663 / 703 | – | 1.0 |
+| `qwen-vl:qwen3-vl-2b` | 898 / 1325 | 704 | 3.9 |
+| `florence2:florence2-large-wl` | about 2,300 (from its accuracy run) | – | |
+
+Load times are with the model already in the Hugging Face cache (the first run downloads it); the `-wl` row was measured before the two fixes to its token mask (spaces, and periods or newlines ending an answer), which don't change what a token costs. Qwen3.5's linear-attention layers run PyTorch's reference implementation on a CPU (the fast kernels need CUDA), so it may get faster.
+
+The confidence is useful: Qwen3.5-0.8B's answers with confidence ≥ 0.5 cover 80.6% of the crops at 97.4% accuracy, ≥ 0.7 cover 68.3% at 99.2%; Qwen3-VL-2B's ≥ 0.9 cover 90.8% at 98.1%. (Tesseract `eng-nobin` at ≥ 0.5: 55.9% of the crops at 54.3%.)
+
+What this says:
+
+- Every model reads real scoreboards far better than ScoreSight's Tesseract pipeline, even the 256M control. A 0.8B model reads nine crops in ten exactly where Tesseract reads one in three at best (one in six with the app's defaults), on every field type and display technology; its weakest are incandescent bulb boards (65%) and LCDs (86.5%).
+- The cost is time and size: 0.4–0.7 s per crop against 2 ms, so about 4 s for a frame of 10 boxes on a fast desktop CPU (a laptop CPU will be slower; a GPU or Apple silicon faster, not measured here), and PyTorch plus a 1.7 GB model. That doesn't fit ScoreSight's per-frame loop as it is.
+- The errors left are small or dim digits on dot-matrix and bulb boards (a dark "0" read as "1" is the commonest), a missed clock separator, and a few crops whose truth is debatable (a neighbour's digit at the crop's edge).
+- `-wl` makes no difference to the Qwen models, which already answer with just the characters; it helps Florence-2, whose `<OCR>` output mixes up letters and digits. Florence-2 needs its crop letterboxed (stretched, it loses 8.8 points); `florence2-large` is not better than `base` here.
+
+Next steps this suggests (not measured yet): a VLM per box at a lower rate, only for boxes whose image changed (ScoreSight already detects that), with its confidence deciding whether to keep the previous value; or Tesseract every frame with a VLM checking it; Qwen3.5-0.8B on a GPU, Apple's MPS, or as a GGUF in llama.cpp, to see how fast it gets; and the VLM's readings as labels to train a small fast recognizer (PP-OCR, PARSeq) on scoreboards.
+
+### Whole frames
+
+A VLM can also look at the whole frame once and read every box in one call. `python -m ocr_eval.frames` groups a dataset's crops by the frame they were cut from (the row's `frame` or `source_image` key), finds the frame's image (the row's `frame_image`, a path in the dataset folder, or `--frames-dir FOLDER/<id>.jpg`), gives the engine the frame and every box (the crop's `source_box`, plus the row's `role`, e.g. "home score", when the dataset has one) and scores each box's reading like a crop's:
+
+```bash
+python -m ocr_eval.frames --dataset textocr_scoreboards --frames-dir CACHE/images \
+    --engine qwen-vl:qwen3.5-0.8b --mode boxes,marks --out results/frames [--frames 50]
+python -m ocr_eval.pairwise results/qwen/results.json results/frames/results.json
+```
+
+Modes: `qwen-vl` `boxes` lists the boxes' coordinates (0–1000 scale) in the prompt, `marks` draws numbered boxes on the frame; both ask for a JSON object of the boxes' texts (the start of the answer is written for the model, because the small Qwen models otherwise answer in their grounding format, which is still parsed). `florence2` `spot` runs `<OCR_WITH_REGION>` on the frame and gives each box the words centred in it. An engine reads frames if it has `frame_modes` and `read_frame(frame, fields, mode)`. `textocr_scoreboards` doesn't ship its photos; its builder's cache has them (`<cache>/images/`).
+
+On `textocr_scoreboards`'s photos (219 frames with 1 to 12 boxes, 5.8 on average; 100 of them, chosen by `--frames 100`, for the slower runs), each box's exact match, and the same boxes read as crops by the same model:
+
+| Engine:variant@mode | Frames | Boxes | Exact % | As crops % | ms per frame p50 / p95 | ms per box p50 |
+|---|---:|---:|---:|---:|---:|---:|
+| `qwen-vl:qwen3-vl-2b@frames-boxes` | 100 | 563 | 39.6 (35.6–43.7) | 90.8 | 12,182 / 20,175 | 1,817 |
+| `florence2:florence2-base@frames-spot` | 100 | 563 | 33.6 (29.8–37.6) | – | 2,625 / 9,594 | 554 |
+| `qwen-vl:qwen3.5-0.8b@frames-marks` | 100 | 563 | 32.1 (28.4–36.1) | 89.7 | 6,771 / 12,121 | 973 |
+| `qwen-vl:qwen3.5-0.8b@frames-boxes` | 219 | 1276 | 31.5 (29.0–34.1) | 91.3 | 6,534 / 12,050 | 1,012 |
+
+(Frame times come from the accuracy runs, on the same machine, mostly idle.) Reading the whole frame is much worse with these models, and not faster per box: they misplace boxes, reading a neighbour's value or repeating one value for several boxes, and a 15–30 px digit in a 1,000 px photo is a much smaller target than in its crop. The Qwen models do best on clocks, the largest text (62–64%). TextOCR has no semantic field names, so prompting by role ("home score": the rows' `role` key) is implemented but not measured; a dataset with full frames and roles (such as the Wikimedia Commons set) can measure it with the same command.
+
 ## Continuous integration
 
 `.github/workflows/ocr-eval.yml` runs on pull requests that change recognition (`src/tesseract.py`, `src/defaults.py`, `src/text_detection_target.py`, `tesseract/`, `ocr_eval/`, `requirements.txt`, the workflow) and manually. On Ubuntu 24.04 it validates the datasets, runs every Tesseract variant on the committed datasets, and compares with the baseline:
@@ -302,4 +404,4 @@ Labels that a model helped make (`label_source: model-assisted-unverified`) shou
 
 ## Results file
 
-`results.json` (schema `scoresight-ocr-eval/1`) holds the environment, the datasets (with the hash of each manifest) and one record per dataset and engine variant: `status` (`ok`, `skipped` or `error`, with a `reason`), `engine_info`, `load_seconds`, `latency` (`single`, `batch`), `scores.raw` and `scores.postfilter` (the metrics above, each with `value`, `k`, `n` and `ci95`, plus `by_field_type`, `by_display_tech` and `by_split`), and `predictions`: one line per crop with `id`, `truth`, `text`, `conf`, `ms`, `exact`, `pf_exact`, and `pf_text` and `info` when present. `HARNESS_VERSION` in `ocr_eval/__init__.py` changes when a metric's definition does.
+`results.json` (schema `scoresight-ocr-eval/1`) holds the environment, the datasets (with the hash of each manifest, and a `subset` when the run didn't read every crop: `splits`, `sample` with its `seed`, `limit`, or the `frames` of a whole-frame run) and one record per dataset and engine variant: `status` (`ok`, `skipped` or `error`, with a `reason`), `engine_info`, `load_seconds`, `latency` (`single`, `batch`), `scores.raw` and `scores.postfilter` (the metrics above, each with `value`, `k`, `n` and `ci95`, plus `by_field_type`, `by_display_tech` and `by_split`), and `predictions`: one line per crop with `id`, `truth`, `text`, `conf`, `ms`, `exact`, `pf_exact`, and `pf_text` and `info` when present. A whole-frame run (`ocr_eval.frames`) has the key `<engine>:<variant>@frames-<mode>`, `latency.frame` (per frame), `frames` (each frame's key, number of boxes, time and the engine's `info`, e.g. its raw answer) and the frame's key in each prediction. `HARNESS_VERSION` in `ocr_eval/__init__.py` changes when a metric's definition does.
