@@ -13,7 +13,7 @@ ScoreSight has built-in integrations for [OBS](obs.md), [vMix](vmix.md) and [ove
 |---|---|
 | read a text, CSV or XML file | [Text, CSV & XML Files](text-files.md) |
 | poll a URL for JSON, XML or CSV | [HTTP Server API](http_server.md) (`http://<scoresight-ip>:18099/json?pivot`) |
-| show a web page (browser source, HTML template) | An HTML page that polls the [HTTP server](http_server.md#custom-html-overlay-obs-browser-source-vmix-web-browser-input) |
+| show a web page (browser source, HTML template) | The [browser overlays](overlays.md) (built-in or your own HTML, pushed live) |
 | receive webhooks / HTTP requests | [Outbound HTTP API](out_api.md) |
 
 ## NewBlue Captivate / Titler Live
@@ -24,7 +24,7 @@ ScoreSight has no NewBlue-specific integration, but works with NewBlue through i
 
 ## CasparCG
 
-Use an HTML template that polls `http://<scoresight-ip>:18099/json?pivot` and updates its elements. The [custom HTML overlay example](http_server.md#custom-html-overlay-obs-browser-source-vmix-web-browser-input) is a good starting point. Play it with CasparCG's HTML producer.
+Play a [browser overlay](overlays.md#casparcg) with the HTML producer: `PLAY 1-20 [HTML] "http://<scoresight-ip>:18099/overlay/scorebug"`. For your own template, load `http://<scoresight-ip>:18099/overlay/client.js` in it and mark the elements with `data-field` (see [the overlay contract](overlays.md#the-overlay-contract)).
 
 ## Streamlabs Desktop and other OBS-like apps
 
