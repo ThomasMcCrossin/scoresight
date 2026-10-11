@@ -119,7 +119,7 @@ class Ui_OCRTrainingDataDialog(object):
         self.pushButton_openFolder.setText(QCoreApplication.translate("OCRTrainingDataDialog", u"Open Folder", None))
         self.pushButton_saveZipFile.setText(QCoreApplication.translate("OCRTrainingDataDialog", u"Save Zip File", None))
         self.label_2.setText(QCoreApplication.translate("OCRTrainingDataDialog", u"Max Size", None))
-        self.spinBox_maxSize.setSuffix(QCoreApplication.translate("OCRTrainingDataDialog", u"Mb", None))
+        self.spinBox_maxSize.setSuffix(QCoreApplication.translate("OCRTrainingDataDialog", u"MB", None))
         self.pushButton_openTrainingDojo.setText(QCoreApplication.translate("OCRTrainingDataDialog", u"Open OCR Training Dojo", None))
     # retranslateUi
 
