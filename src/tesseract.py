@@ -1,4 +1,4 @@
-from defaults import FieldType
+from defaults import CHAR_WHITELISTS, GENERAL_CHAR_WHITELIST
 from os import path
 from PIL import Image
 from PySide6.QtCore import QRectF
@@ -19,12 +19,6 @@ from text_detection_target import (
 from sc_logging import logger
 
 ResultState = TextDetectionTargetWithResult.ResultState
-
-CHAR_WHITELISTS = {
-    FieldType.NUMBER: "0123456789",
-    FieldType.TIME: "0123456789:.",
-}
-GENERAL_CHAR_WHITELIST = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ .,;:!?-_()[]{}<>@#$%^&*+=|\\~`\"'"
 
 # skip_similar_image: a patch is "similar" to the last one that was read (and
 # accepted) when fewer than this fraction of its foreground (text) pixels changed.
@@ -607,6 +601,8 @@ class TextDetector:
                 textstate = ResultState.FailedFilter
         if want_confidence and text != "":
             confidence = text_confidence(mean_conf, symbol_confidences)
+            # the read's confidence in percent, for tools (e.g. ocr_eval)
+            extras["confidence"] = confidence
             if confidence < _conf_threshold_percent(settings["conf_thresh"]):
                 textstate = ResultState.FailedFilter
 

@@ -1,0 +1,27 @@
+The commons_scoreboards dataset combines material under these licenses:
+
+1. Images (images/*.png, and frames/*.jpg if present). Each crop or frame is
+   an adaptation of a photograph published on Wikimedia Commons by its author
+   under the license in the "license" field of its row in manifest.jsonl and
+   frames.jsonl:
+     CC-BY-<v>     Creative Commons Attribution, version <v>,
+                   https://creativecommons.org/licenses/by/<v>/
+     CC-BY-SA-<v>  Creative Commons Attribution-ShareAlike, version <v>,
+                   https://creativecommons.org/licenses/by-sa/<v>/ ; adaptations
+                   of these photographs are shared under the same license
+     CC0-1.0       Creative Commons Zero (public domain dedication),
+                   https://creativecommons.org/publicdomain/zero/1.0/
+     PDM-1.0       in the public domain (the reason is on the file's page)
+   The author, title and source of every photograph are in the rows'
+   "author", "source_url" and "attribution" fields and in ATTRIBUTION.md.
+   Changes: crops are cut around one scoreboard field and, if taller than 160
+   pixels, downscaled; frames are downscaled. No endorsement by the authors is
+   implied.
+
+2. The labels (the boxes, texts, field types, roles and display technologies
+   in manifest.jsonl and frames.jsonl, and
+   ocr_eval/builders/commons_scoreboards_labels.json) are by the ScoreSight
+   contributors, licensed under Creative Commons Attribution 4.0
+   (https://creativecommons.org/licenses/by/4.0/).
+
+These licenses apply to this folder only; the ScoreSight code is MIT licensed.
