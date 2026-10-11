@@ -614,6 +614,9 @@ class AutoChooser:
         self.fast.start_loading()
 
     def _usable(self) -> Recognizer:
+        """The recognizer to read with: the current one, or the other one if
+        the current one failed to load and the other didn't (for good: a
+        failure is final)."""
         if (
             self.current == SMALL
             and self.accurate.state == FAILED
@@ -622,6 +625,15 @@ class AutoChooser:
             with self._lock:
                 self.current = TINY
                 self.reason = AUTO_UNAVAILABLE
+        elif (
+            self.current == TINY
+            and self.fast.state == FAILED
+            and self.accurate.state != FAILED
+        ):
+            # better slow than Tesseract
+            with self._lock:
+                self.current = SMALL
+                self.reason = AUTO_KEEPS_UP
         return self.accurate if self.current == SMALL else self.fast
 
     def active(self) -> Recognizer:
@@ -669,7 +681,10 @@ class AutoChooser:
                 if self.accurate_ms > AUTO_SLOW_SHARE * interval_ms:
                     if self._slow_since is None:
                         self._slow_since = now
-                    if now - self._slow_since >= AUTO_SLOW_SECONDS:
+                    if (
+                        now - self._slow_since >= AUTO_SLOW_SECONDS
+                        and self.fast.state != FAILED
+                    ):
                         switch = TINY
                 else:
                     self._slow_since = None

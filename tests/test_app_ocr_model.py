@@ -357,6 +357,7 @@ def test_loading_and_fallback_in_the_status_bar(running_window, ppocr_available)
     bar = window.statusBarWidgets
     window.refreshLiveStatus()
     assert bar.label_ocr.text() == "Loading PP-OCR…"
+    assert window.boxSettingsUiHandler.ppocr is True
     window.currentTextDetector().status = EngineStatus(
         "ppocr:auto", ppocr_engine.FAILED, "RuntimeError: no onnxruntime"
     )
@@ -366,6 +367,9 @@ def test_loading_and_fallback_in_the_status_bar(running_window, ppocr_available)
     )
     assert "RuntimeError: no onnxruntime" in bar.label_ocr.toolTip()
     assert bar.label_ocr.styleSheet() != ""
+    # Tesseract reads: its Image cleanup settings apply again
+    assert window.boxSettingsUiHandler.ppocr is False
+    assert not window.ui.label_imageCleanupEngineNote.isVisibleTo(window)
 
 
 # --- the hint when PP-OCR (accurate) can't keep up ---------------------------------

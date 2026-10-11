@@ -344,13 +344,17 @@ def ppocr_detector(monkeypatch):
 
 
 def scoreboard(values):
-    """A colour frame with a box per value: box i filled with value i."""
+    """A colour frame with a box per value: box i is filled with value i (its
+    top left pixel, which FakeChoice reads) and has a bright stroke whose
+    place depends on the value, so it isn't blank and its picture changes
+    with the value."""
     color = np.zeros((100, 400, 3), np.uint8)
     rects = []
     for i, value in enumerate(values):
         x = 10 + i * 90
         color[20:80, x : x + 80] = value
-        color[22, x + 5] = 255  # some contrast: the box isn't blank
+        stroke = x + 10 + value % 40
+        color[40:70, stroke : stroke + 20] = (value + 128) % 256
         rects.append((x, 20, 80, 60))
     return color, cv2.cvtColor(color, cv2.COLOR_BGR2GRAY), rects
 
@@ -642,6 +646,82 @@ def test_textdetector_reports_what_automatic_reads_with(monkeypatch, make_target
     assert status.auto_model == ppocr_engine.SMALL
     assert status.auto_interval_ms == 100.0
     assert len(small.calls) == 1 and tiny.calls == []
+
+
+# --- after the code review ----------------------------------------------------------
+
+
+def lcd(text, fg=120, bg=80):
+    """A dim display: 7-segment digits 40 gray levels above the background."""
+    gray = seven_segment(text, fg=fg, bg=bg)
+    return cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR), gray
+
+
+def test_skip_similar_sees_a_change_on_a_dim_display(ppocr_detector, make_target):
+    # the gray crops differ by only 40 levels where a digit changed, which a
+    # comparison made for binarized patches (64 levels) took for no change
+    color, gray = lcd("12")
+    box = make_target(
+        "Home Score",
+        rect=(0, 0, gray.shape[1], gray.shape[0]),
+        skip_similar_image=True,
+    )
+    [first] = ppocr_detector.detect_multi_text(None, gray, [box], color=color)
+    assert first.state == State.Success
+    [same] = ppocr_detector.detect_multi_text(None, gray, [box], color=color)
+    assert same.unchanged_image
+    color, gray = lcd("13")
+    [changed] = ppocr_detector.detect_multi_text(None, gray, [box], color=color)
+    assert not changed.unchanged_image
+    assert len(ppocr_detector.choice.calls) == 2
+
+
+def test_a_box_without_contrast_isnt_read(ppocr_detector, make_target):
+    # a switched-off display filmed by a camera: noise, nothing to read
+    rng = np.random.default_rng(0)
+    gray = np.clip(rng.normal(40, 3, (60, 120)), 0, 255).astype(np.uint8)
+    box = make_target("Home Score", rect=(0, 0, 120, 60))
+    [result] = ppocr_detector.detect_multi_text(
+        None, gray, [box], color=cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
+    )
+    assert result.state == State.Empty
+    assert ppocr_detector.choice.calls == []
+    assert tesseract.has_contrast(seven_segment("8", fg=120, bg=80))
+
+
+def test_a_failed_ppocr_no_longer_counts_as_reading(ppocr_detector):
+    assert ppocr_detector.uses_ppocr()
+    ppocr_detector.choice.state = ppocr_engine.FAILED
+    # Tesseract reads: Binary view and Image cleanup are Tesseract's again
+    assert not ppocr_detector.uses_ppocr()
+
+
+def test_a_fallback_that_fails_is_tried_once(ppocr_detector, make_target, monkeypatch):
+    attempts = []
+
+    def broken(folder, model):
+        attempts.append(model)
+        raise RuntimeError("no tessdata")
+
+    ppocr_detector.api = None
+    monkeypatch.setattr(ppocr_detector, "_create_api", broken)
+    ppocr_detector.choice.state = ppocr_engine.FAILED
+    gray = seven_segment("4")
+    box = make_target("Home Score", rect=(0, 0, gray.shape[1], gray.shape[0]))
+    for _ in range(3):
+        [result] = ppocr_detector.detect_multi_text(None, gray, [box])
+        assert result.state == State.Empty
+    assert attempts == ["scoreboard_general"]
+
+
+def test_automatic_goes_back_to_accurate_if_fast_fails(chooser):
+    feed(chooser, ppocr_engine.SMALL, 150, 4)
+    assert chooser.active() is chooser.fast
+    chooser.fast.state = ppocr_engine.FAILED
+    assert chooser.active() is chooser.accurate
+    # and doesn't try fast again (no switch, no log every 3 s)
+    feed(chooser, ppocr_engine.SMALL, 150, 10)
+    assert chooser.current == ppocr_engine.SMALL
 
 
 # --- the real models ---------------------------------------------------------------

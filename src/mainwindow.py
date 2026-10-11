@@ -1569,6 +1569,7 @@ class MainWindow(QMainWindow):
         snapshot = self.statusSnapshot(now, outputs)
         self.statusBarWidgets.update(snapshot)
         self.updateOcrModelAutoText(snapshot)
+        self.updateImageCleanupEngine(snapshot)
         self.updatePpocrCpuHint(snapshot)
         self.updateSourceHealth(snapshot.source_state)
         self.updateFirstRunCard(outputs)
@@ -2048,6 +2049,16 @@ class MainWindow(QMainWindow):
         if detector is not None and getattr(detector, "model", None) != model:
             detector.setOcrModel(model)
         self.boxSettingsUiHandler.setPpocr(ocr_models.is_ppocr(model))
+
+    def updateImageCleanupEngine(self, snapshot: StatusSnapshot):
+        """Image cleanup follows the engine that reads: Tesseract, with its
+        settings, after a PP-OCR model failed to load."""
+        if snapshot.ocr_model is None:
+            # no capture: as the chosen model (applyOcrModel)
+            return
+        ppocr = snapshot.ocr_engine_state not in (None, ppocr_engine.FAILED)
+        if ppocr != self.boxSettingsUiHandler.ppocr:
+            self.boxSettingsUiHandler.setPpocr(ppocr)
 
     def updatePpocrCpuHint(self, snapshot: StatusSnapshot):
         """Once PP-OCR (accurate) has been unable to keep up with Detections / s

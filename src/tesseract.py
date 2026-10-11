@@ -143,6 +143,30 @@ def has_foreground(patch) -> bool:
     return patch.size > 0 and int(patch.min()) != int(patch.max())
 
 
+# A PP-OCR box whose gray crop has less contrast than this (the spread between
+# its 2nd and 98th percentile gray levels) has nothing to read: a switched-off
+# display, a black frame, a box over plain background with camera noise.
+# Every labelled crop of the OCR evaluation's datasets has 37 or more.
+MIN_CROP_CONTRAST = 20
+
+
+def has_contrast(gray_patch) -> bool:
+    """Whether a gray crop has something to read (MIN_CROP_CONTRAST)."""
+    if gray_patch.size == 0:
+        return False
+    low, high = np.percentile(gray_patch, (2, 98))
+    return float(high - low) >= MIN_CROP_CONTRAST
+
+
+def similarity_patch(gray_patch):
+    """What skip_similar_image compares for a PP-OCR box: the crop thresholded
+    on its own (Otsu), so that patches_similar() sees a change of the digits
+    whatever the display's brightness and contrast, as it does on the
+    binarized patches Tesseract reads."""
+    _, binary = cv2.threshold(gray_patch, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+    return binary
+
+
 def _foreground_pixels(patch) -> int:
     # The text is the minority class, whether it is white-on-black or black-on-white.
     bright = int(np.count_nonzero(patch > 127))
@@ -370,6 +394,7 @@ class TextDetector:
         self._box_error_log_times: dict[str, float] = {}
         self._warned_no_api = False
         self._fallback_reported = False
+        self._fallback_failed = False
         self._ppocr_error_logged_at: float | None = None
         if model is None:
             model = ocr_models.stored_model()
@@ -468,8 +493,11 @@ class TextDetector:
         return True
 
     def uses_ppocr(self) -> bool:
-        """Whether a PP-OCR model is chosen (it may still be loading)."""
-        return self.ppocr is not None
+        """Whether a PP-OCR model reads the boxes (it may still be loading):
+        a PP-OCR model is chosen and didn't fail to load (then Tesseract
+        reads)."""
+        choice = self.ppocr
+        return choice is not None and choice.active().state != ppocr_engine.FAILED
 
     def engine_status(self) -> EngineStatus:
         choice = self.ppocr
@@ -499,12 +527,14 @@ class TextDetector:
     def _ensure_fallback_api(self) -> None:
         """PP-OCR failed to load: have a Tesseract model to read with (the one
         used before PP-OCR was chosen, or General Scoreboard)."""
-        if self.api is not None:
+        if self.api is not None or self._fallback_failed:
             return
         model_folder, ocr_model = self._resolve_model(ocr_models.FALLBACK_MODEL)
         try:
             api = self._create_api(model_folder, ocr_model)
         except Exception:
+            # not retried on every frame: the boxes stay empty
+            self._fallback_failed = True
             logger.exception("Unable to load the fallback OCR model %s", ocr_model)
             return
         with self.api_lock:
@@ -650,20 +680,22 @@ class TextDetector:
                 x0, y0, x1, y1 = roi
                 patch = gray[y0:y1, x0:x1]
                 _draw_patch(display, roi, patch)
-                if not has_foreground(patch):
-                    # a blank box (e.g. a black frame): nothing to read
+                if not has_contrast(patch):
+                    # a blank box (e.g. a display that is off, a black
+                    # frame): nothing to read, and a model would guess
                     results[index] = _empty_result()
                     continue
                 skip_patch = None
                 if settings.get("skip_similar_image"):
                     # as with Tesseract (see _recognize), compared with the
-                    # image of the last accepted read, here the crop in gray
-                    if patches_similar(rect.last_image, patch):
+                    # image of the last accepted read: here the crop
+                    # thresholded on its own
+                    skip_patch = similarity_patch(patch)
+                    if patches_similar(rect.last_image, skip_patch):
                         results[index] = TextDetectionResult(
                             "", ResultState.SameNoChange, None, unchanged_image=True
                         )
                         continue
-                    skip_patch = patch
                 if not ready:
                     results[index] = _empty_result()
                     continue

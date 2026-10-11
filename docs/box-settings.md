@@ -82,8 +82,8 @@ Each box is processed on its own copy of the picture, so overlapping boxes never
 With a **PP-OCR** model, ScoreSight skips the Image cleanup steps (2–6, 9 and 10) for every box but a *Count lights* box, which is processed as above. For the others it:
 
 1. takes the part of the box that is inside the processed picture, **in colour**,
-2. reports the box as `Empty` if the picture is blank (every pixel the same),
-3. skips OCR if the picture (compared in gray) hasn't changed (*Skip OCR while image is unchanged*),
+2. reports the box as `Empty` without running OCR if the picture has almost no contrast (a display that is off, a black frame, a box over plain background: less than 20 gray levels between its darkest and brightest parts, ignoring the 2% extremes), since a model would guess,
+3. skips OCR if the picture hasn't changed (*Skip OCR while image is unchanged*; the picture is compared thresholded on its own, so a change is seen on a dim display too),
 4. reads every box of the frame together with the character set of each box's *Type*,
 5. continues with steps 12–14 above: *Format*, *Minimum confidence* (PP-OCR's confidence), smoothing, leading zeros, ordinal suffix.
 
@@ -188,7 +188,7 @@ ScoreSight 0.1.x voted character by character, so a change from `12` to `9` coul
 ### Skip OCR while image is unchanged
 {: #skip-similar-image }
 
-`skip_similar_image`: compares the processed box image (with PP-OCR: the box's picture in gray) with the image of the box's last accepted (`Success`) reading. If fewer than 2% of the text pixels (the digits, not the background) changed, OCR is skipped and the box repeats its last good value as an unchanged reading (`SameNoChange`). The comparison image isn't refreshed on skipped cycles, so slow changes add up until they are read. It isn't refreshed by a rejected or empty reading either, so when the first reading of a new value fails, the box is read again on the next cycle. Resizing the box starts over. In ScoreSight 0.1.x: **Skip Similar Image**.
+`skip_similar_image`: compares the processed box image (with PP-OCR: the box's picture, thresholded on its own) with the image of the box's last accepted (`Success`) reading. If fewer than 2% of the text pixels (the digits, not the background) changed, OCR is skipped and the box repeats its last good value as an unchanged reading (`SameNoChange`). The comparison image isn't refreshed on skipped cycles, so slow changes add up until they are read. It isn't refreshed by a rejected or empty reading either, so when the first reading of a new value fails, the box is read again on the next cycle. Resizing the box starts over. In ScoreSight 0.1.x: **Skip Similar Image**.
 
 **Use**: to save CPU on values that change rarely (scores, periods). Because the change is measured against the digits, a one-digit change (for example `18` to `19`) is read. Turn it off if a very small change (a single segment of a large display) is ever missed.
 
