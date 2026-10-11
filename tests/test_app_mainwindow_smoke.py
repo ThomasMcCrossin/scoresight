@@ -3463,6 +3463,43 @@ def test_the_live_layout_fits_a_small_screen_in_every_language(
         qapp.removeTranslator(window.translator)
 
 
+def test_a_language_change_keeps_the_shortcuts_and_the_names_width(main_window, qapp):
+    ui = main_window.ui
+    zoom_in = [key.toString() for key in ui.actionZoomIn.shortcuts()]
+    hold = ui.actionHoldValue.shortcut().toString()
+    assert len(zoom_in) == 2
+    ui.tableWidget_boxes.setColumnWidth(0, 140)  # dragged by the user
+    main_window.changeLanguage("de_DE")
+    try:
+        assert [key.toString() for key in ui.actionZoomIn.shortcuts()] == zoom_in
+        assert ui.actionHoldValue.shortcut().toString() == hold
+        assert ui.tableWidget_boxes.columnWidth(0) == 140
+        # back from the Live layout: that width again
+        main_window.setLayoutMode("live")
+        main_window.setLayoutMode("setup")
+        assert ui.tableWidget_boxes.columnWidth(0) == 140
+    finally:
+        qapp.removeTranslator(main_window.translator)
+
+
+def test_the_obs_text_sources_follow_the_fields(main_window, make_target):
+    ui = main_window.ui
+    storage = main_window.detectionTargetsStorage
+    storage.add_item(make_target("Custom 1", obs_source_name="Shots"))
+    model = ui.tableView_obsSources.model()
+    first = model.item(0, 1)
+    # the user's edit doesn't rebuild the table (an editor stays open)
+    first.setText("Shot clock")
+    assert model.item(0, 1) is first
+    storage.rename_item("Custom 1", "Game Clock")
+    assert [model.item(row, 0).text() for row in range(model.rowCount())] == [
+        "Game Clock"
+    ]
+    assert model.item(0, 1).text() == "Shot clock"
+    storage.remove_item("Game Clock")
+    assert model.rowCount() == 0
+
+
 def test_a_live_output_opens_its_settings(main_window):
     ui = main_window.ui
     main_window.setLayoutMode("live")

@@ -1024,7 +1024,9 @@ class MainWindow(QMainWindow):
         self.readingDelegate.setDensity(DENSITY_LIVE if live else DENSITY_SETUP)
         table = ui.tableWidget_boxes
         header = table.horizontalHeader()
-        if live and not header.isHidden():
+        # (the header is hidden in the Live layout only)
+        was_live = header.isHidden()
+        if live and not was_live:
             self.setupNameColumnWidth = table.columnWidth(0)
         header.setHidden(live)
         table.setIconSize(QSize(20, 20) if live else QSize())
@@ -1033,7 +1035,8 @@ class MainWindow(QMainWindow):
         self.updateBoxesListHeight()
         if live:
             self.fitNameColumn()
-        else:
+        elif was_live:
+            # back from the Live layout: the width the names had
             table.setColumnWidth(0, self.setupNameColumnWidth)
         ui.label_fields.setText(
             QCoreApplication.translate("MainWindow", "Readings")
