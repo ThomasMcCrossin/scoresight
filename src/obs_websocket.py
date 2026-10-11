@@ -250,6 +250,24 @@ def update_text_source(obs_client: obs.ReqClient, source_name, text) -> None:
     _text_worker.submit((id(obs_client), source_name), (obs_client, source_name, text))
 
 
+# What create_obs_scene_from_export did with the scene
+SCENE_CREATED = "created"  # there was no scene with that name
+SCENE_RECREATED = "recreated"  # the existing scene was emptied and made again
+SCENE_KEPT = "kept"  # the scene exists and Recreate is off: left as it is
+SCENE_FAILED = "failed"  # OBS couldn't be asked or refused (see the log)
+
+
+@_locked
+def obs_scene_exists(obs_client: obs.ReqClient, scene_name) -> bool | None:
+    """Whether OBS has a scene with this name; None if OBS can't be asked."""
+    try:
+        resp = obs_client.get_scene_list()
+    except Exception:
+        logger.exception("Error: unable to get scene list")
+        return None
+    return any(scene["sceneName"] == scene_name for scene in resp.scenes)
+
+
 @_locked
 def clear_or_create_new_scene(obs_client: obs.ReqClient, scene_name) -> bool:
     # Create a new scene in OBS or clear an existing one
@@ -311,10 +329,24 @@ def clear_or_create_new_scene(obs_client: obs.ReqClient, scene_name) -> bool:
 
 
 @_locked
-def create_obs_scene_from_export(obs_client, scene_name):
+def create_obs_scene_from_export(obs_client, scene_name, recreate: bool = True) -> str:
+    """Make the ScoreSight scene (its text sources and images) in OBS. A scene
+    with this name that exists already is emptied and made again only with
+    recreate; otherwise it is kept as it is. Returns SCENE_CREATED,
+    SCENE_RECREATED, SCENE_KEPT or SCENE_FAILED."""
+    exists = obs_scene_exists(obs_client, scene_name)
+    if exists is None:
+        return SCENE_FAILED
+    if exists and not recreate:
+        logger.info(
+            "OBS scene '%s' exists and Recreate is off: it is kept as it is",
+            scene_name,
+        )
+        return SCENE_KEPT
     logger.info("creating OBS scene")
     # create a new scene in OBS
-    clear_or_create_new_scene(obs_client, scene_name)
+    if not clear_or_create_new_scene(obs_client, scene_name):
+        return SCENE_FAILED
 
     # load the scene from obs_data/test.json
     obs_data_path = resource_path("obs_data", "Scoresight_OBS_scene_collection.json")
@@ -408,3 +440,4 @@ def create_obs_scene_from_export(obs_client, scene_name):
             logger.exception(f"Unable to create input and filters. Error: {e}")
 
     logger.info("finished creating sources")
+    return SCENE_RECREATED if exists else SCENE_CREATED
