@@ -88,6 +88,12 @@ MAX_MIN_INTERVAL = 10.0
 MAX_REFRESH_INTERVAL = 3600.0
 # replies longer than this without a line break are dropped
 MAX_REPLY_LENGTH = 65536
+# A connection the receiver closes within this many seconds was closed right
+# away: the next connection waits, longer each time (up to the worker's 5 s),
+# so that a receiver that hangs up at once (another protocol's port, for
+# example) isn't flooded with reconnections
+QUICK_CLOSE = 2.0
+QUICK_CLOSE_BACKOFF = (0.5, 5.0)  # the first and the longest wait, in seconds
 
 LOG_LABEL = "TCP output"
 
@@ -428,7 +434,10 @@ class TcpConfig:
         config = replace(defaults, **values)
 
         def choice(value, allowed, default):
-            return value if value in allowed else default
+            try:
+                return value if value in allowed else default
+            except TypeError:  # e.g. a list in a hand-edited file
+                return default
 
         return replace(
             config,
@@ -479,10 +488,15 @@ def _format_settings(config: TcpConfig) -> tuple:
 
 def parse_port(value) -> int | None:
     """A port number (1-65535), or None."""
+    if isinstance(value, bool):
+        return None
     try:
-        port = int(str(value).strip())
+        number = float(str(value).strip())
     except (TypeError, ValueError):
         return None
+    if not number.is_integer():
+        return None
+    port = int(number)
     return port if 1 <= port <= 65535 else None
 
 
@@ -621,6 +635,8 @@ class ConnectionStatus:
     last_reply: str | None = None  # the receiver's last answer
     last_reply_at: float | None = None
     reply_error: str | None = None  # the last error answer, until an OK
+    # the receiver closed the last connections right away, this many in a row
+    quick_closes: int = 0
 
 
 # an AMCP-style reply: a 3-digit code first ("202 CG OK", "404 CG ERROR"),
@@ -673,9 +689,14 @@ class TcpOutput:
         self._last_reply_at: float | None = None
         self._reply_error: str | None = None
         self._reply_codes_seen = False
-        # interrupts the wait for the minimum interval when stopping
+        self._quick_closes = 0
+        # start() and stop() increment it: a send of an earlier session neither
+        # puts its batch back nor installs its connection
+        self._session = 0
+        # interrupts the waits (minimum interval, reconnecting) when stopping
         self._wake = threading.Event()
         self._reply_log = ThrottledErrorLog(LOG_LABEL)
+        self._close_log = ThrottledErrorLog(LOG_LABEL)
         self._worker = OutputWorker(
             LOG_LABEL,
             self._send,
@@ -710,6 +731,8 @@ class TcpOutput:
         self._last_queued.clear()
         self._last_full_at = None
         with self._lock:
+            self._session += 1
+            self._quick_closes = 0
             self._batch = _Batch(full=True, values=self.current_values())
         # connect right away, so the status tells whether the receiver is there
         self._worker.submit("send", None)
@@ -720,6 +743,8 @@ class TcpOutput:
         self._worker.clear()
         self._worker.reset_status()
         with self._lock:
+            self._session += 1
+            self._quick_closes = 0
             self._batch = _Batch()
             self._last_send_at = None
         self._disconnect()
@@ -735,6 +760,13 @@ class TcpOutput:
 
     def connection_status(self) -> ConnectionStatus:
         with self._lock:
+            quick_closes = self._quick_closes
+            if (
+                self._sock is not None
+                and self._connected_at is not None
+                and self._clock() - self._connected_at >= QUICK_CLOSE
+            ):
+                quick_closes = 0  # this connection stays open
             return ConnectionStatus(
                 connected=self._sock is not None,
                 connecting=self._connecting,
@@ -742,6 +774,7 @@ class TcpOutput:
                 last_reply=self._last_reply,
                 last_reply_at=self._last_reply_at,
                 reply_error=self._reply_error,
+                quick_closes=quick_closes,
             )
 
     def set_config(self, config: TcpConfig):
@@ -758,6 +791,7 @@ class TcpOutput:
             self._worker.reset_status()
             with self._lock:
                 self._last_send_at = None
+                self._quick_closes = 0
         else:
             resend_init = _init_settings(old) != _init_settings(config)
             if resend_init or _format_settings(old) != _format_settings(config):
@@ -857,13 +891,15 @@ class TcpOutput:
 
     def _send(self, _key, _item):
         config = self.config
+        with self._lock:
+            session = self._session
         if not self.running or not config.is_complete:
             raise SendSkipped()
-        self._ensure_connected(config)
+        self._ensure_connected(config, session)
         self._wait_min_interval(config)
-        if not self.running:
-            raise SendSkipped()
         with self._lock:
+            if not self.running or self._session != session:
+                raise SendSkipped()
             batch, self._batch = self._batch, _Batch(values=self._batch.values)
         messages = self._messages(config, batch)
         if not messages:
@@ -872,7 +908,16 @@ class TcpOutput:
         try:
             self._transmit(config, payloads)
         except OSError:
+            with self._lock:
+                stopped = not self.running or self._session != session
+            if stopped:
+                # stop() closed the connection: nothing to send or retry
+                raise SendSkipped() from None
             self._put_back(batch)
+            if self.config.endpoint != config.endpoint:
+                # set_config() closed it: the next send goes to the new
+                # receiver (it submitted one)
+                raise SendSkipped() from None
             self._disconnect()
             raise
         with self._lock:
@@ -926,7 +971,7 @@ class TcpOutput:
             # newer values queued meanwhile are taken after the wait
             self._wake.wait(delay)
 
-    def _ensure_connected(self, config: TcpConfig):
+    def _ensure_connected(self, config: TcpConfig, session: int):
         """Open the connection unless it's open to config's receiver. A new
         connection sends the "on connect" message and every value."""
         endpoint = config.endpoint
@@ -939,27 +984,41 @@ class TcpOutput:
         with self._lock:
             if self._sock is not None:
                 return
+            quick_closes = self._quick_closes
+        if quick_closes:
+            # the receiver hung up right away: wait before trying again
+            self._wake.wait(quick_close_delay(quick_closes))
+        with self._lock:
+            if not self.running or self._session != session:
+                raise SendSkipped()
             self._connecting = True
         try:
             sock = _open_socket(config)
         finally:
             with self._lock:
                 self._connecting = False
-        if not self.running or self.config.endpoint != endpoint:
+        with self._lock:
+            # (checked under the lock: stop() closes what is installed after)
+            current = (
+                self.running
+                and self._session == session
+                and self.config.endpoint == endpoint
+            )
+            if current:
+                self._conn_id += 1
+                conn_id = self._conn_id
+                self._sock = sock
+                self._sock_endpoint = endpoint
+                self._connected_at = self._clock()
+                self._peer_closed = False
+                self._last_reply = self._last_reply_at = self._reply_error = None
+                self._reply_codes_seen = False
+                self._batch.init = True
+                self._batch.full = True
+        if not current:
             # stopped, or another receiver, while connecting
             _close_socket(sock)
             raise SendSkipped()
-        with self._lock:
-            self._conn_id += 1
-            conn_id = self._conn_id
-            self._sock = sock
-            self._sock_endpoint = endpoint
-            self._connected_at = self._clock()
-            self._peer_closed = False
-            self._last_reply = self._last_reply_at = self._reply_error = None
-            self._reply_codes_seen = False
-            self._batch.init = True
-            self._batch.full = True
         if config.transport == TCP:
             threading.Thread(
                 target=self._read_replies,
@@ -967,7 +1026,10 @@ class TcpOutput:
                 name="tcp-output-replies",
                 daemon=True,
             ).start()
-            logger.info("%s: connected to %s", LOG_LABEL, config.target)
+            if quick_closes:
+                logger.debug("%s: connected to %s", LOG_LABEL, config.target)
+            else:
+                logger.info("%s: connected to %s", LOG_LABEL, config.target)
 
     def _transmit(self, config: TcpConfig, payloads: list[bytes]):
         with self._lock:
@@ -1019,10 +1081,28 @@ class TcpOutput:
                 )
         with self._lock:
             current = self._conn_id == conn_id
+            quick_closes = 0
             if current:
                 self._peer_closed = True
+                connected_at = self._connected_at
+                if connected_at is not None and (
+                    self._clock() - connected_at < QUICK_CLOSE
+                ):
+                    self._quick_closes += 1
+                else:
+                    self._quick_closes = 0
+                quick_closes = self._quick_closes
         if current and self.running:
-            logger.info("%s: %s closed the connection; reconnecting", LOG_LABEL, target)
+            if quick_closes:
+                self._close_log.error(
+                    f"{target} closed the connection right after it was opened "
+                    f"({quick_closes} time(s) in a row); reconnecting in "
+                    f"{quick_close_delay(quick_closes):.1f} s"
+                )
+            else:
+                logger.info(
+                    "%s: %s closed the connection; reconnecting", LOG_LABEL, target
+                )
             # reconnect (with backoff while it can't)
             self._worker.submit("send", None)
 
@@ -1050,6 +1130,13 @@ class TcpOutput:
             self._reply_log.error(f"{target} answered {line[:200]!r}")
         else:
             logger.debug("%s: %s answered %r", LOG_LABEL, target, line[:200])
+
+
+def quick_close_delay(quick_closes: int) -> float:
+    """The wait before reconnecting after quick_closes connections in a row
+    were closed right away."""
+    first, longest = QUICK_CLOSE_BACKOFF
+    return min(first * 2 ** min(max(quick_closes - 1, 0), 16), longest)
 
 
 def _open_socket(config: TcpConfig) -> socket.socket:

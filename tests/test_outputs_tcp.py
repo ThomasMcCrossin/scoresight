@@ -275,9 +275,9 @@ def test_casparcg_adds_the_template_then_updates_it(servers, make_output, make_r
         b'<componentData id=\\"AwayScore\\"><data id=\\"text\\" value=\\"7\\"/>'
         b'</componentData></templateData>"\r\n'
     )
-    assert wait_until(
-        lambda: output.connection_status().last_reply == "202 CG OK"
-    ), output.connection_status()
+    assert wait_until(lambda: output.connection_status().last_reply == "202 CG OK"), (
+        output.connection_status()
+    )
     # Play and Stop, on the same connection
     output.send_command("CG {channel}-{layer} PLAY {cg_layer}")
     server.wait_for(b"CG 1-20 PLAY 1\r\n")
@@ -515,6 +515,20 @@ def test_config_from_dict_repairs_bad_values():
     live = caspar.with_preset(LIVE_SCORE)
     assert (live.port, live.min_interval) == (None, 0.25)
     assert TcpConfig.from_dict(live.to_dict()) == live
+    # a hand-edited file: unhashable values, a port as a number
+    assert TcpConfig.from_dict({"preset": ["casparcg"], "mode": {}}) == TcpConfig()
+    assert TcpConfig.from_dict({"port": 5250.0}).port == 5250
+    assert TcpConfig.from_dict({"port": 52.5}).port is None
+    assert TcpConfig.from_dict({"port": True}).port is None
+
+
+def test_where_the_presets_come_from():
+    # Live Score's and MagicSoft's formats are known only from another
+    # vendor's public pages; the others from the products' documentation
+    second_hand = {
+        key for key, preset in tcp_output.PRESETS.items() if preset.second_hand
+    }
+    assert second_hand == {LIVE_SCORE, MAGICSOFT}
 
 
 # --- what is sent when ---------------------------------------------------------------
@@ -531,14 +545,18 @@ def test_only_changes_unless_resending_unchanged_values(
     server.wait_for(b"A=1\n")
     output.update([make_result("A", "1", "SameNoChange")])
     output.update([make_result("A", "1")])  # Success again ("update on change" off)
-    output.update([make_result("A", "x", "FailedFilter"), make_result("B", "", "Empty")])
+    output.update(
+        [make_result("A", "x", "FailedFilter"), make_result("B", "", "Empty")]
+    )
     output.update([make_result("A", "2")])
     assert server.wait_for(b"A=2\n") == b"A=1\nA=2\n"
     # a box named in resend_unchanged (after a pause) gets its value again
     output.update([make_result("A", "2", "SameNoChange")], resend_unchanged={"A"})
     server.wait_for(b"A=2\nA=2\n")
     # "Also resend unchanged values"
-    output.set_config(TcpConfig.from_dict({**output.config.to_dict(), "send_same": True}))
+    output.set_config(
+        TcpConfig.from_dict({**output.config.to_dict(), "send_same": True})
+    )
     output.update([make_result("A", "2", "SameNoChange")])
     server.wait_for(b"A=2\n" * 3)
     output.update([make_result("A", "2", "SameNoChange")])
@@ -547,9 +565,7 @@ def test_only_changes_unless_resending_unchanged_values(
 
 def test_a_field_with_an_empty_name_is_left_out(servers, make_output, make_result):
     server = servers()
-    output = make_output(
-        config_for(CUSTOM, server.port), mapping={"A": "", "B": "Bee"}
-    )
+    output = make_output(config_for(CUSTOM, server.port), mapping={"A": "", "B": "Bee"})
     output.start()
     assert wait_until(lambda: connected(output))
     output.update([make_result("A", "1"), make_result("B", "2"), make_result("C", "3")])
@@ -641,7 +657,9 @@ def test_another_port_sends_to_the_new_receiver(servers, make_output, make_resul
     output.start()
     output.update([make_result("A", "1")])
     first.wait_for(b"A=1\n")
-    output.set_config(TcpConfig.from_dict({**output.config.to_dict(), "port": second.port}))
+    output.set_config(
+        TcpConfig.from_dict({**output.config.to_dict(), "port": second.port})
+    )
     # the old connection is closed, the new receiver gets every value
     assert wait_until(lambda: first.connections[0].closed)
     assert second.wait_for(b"A=1\n") == b"A=1\n"
@@ -750,12 +768,89 @@ def test_status_transitions(servers, make_output, make_result):
     # the receiver goes away: reconnecting, then retrying
     server.close()
     assert wait_until(
-        lambda: tcp_status(output).state
-        in (output_status.SENDING, output_status.RETRYING)
+        lambda: (
+            tcp_status(output).state in (output_status.SENDING, output_status.RETRYING)
+        )
     )
     assert wait_until(lambda: tcp_status(output).state == output_status.RETRYING)
     output.stop()
     assert tcp_status(output).state == output_status.OFF
+
+
+class HangUpServer:
+    """Accepts connections and closes them at once (like a server of another
+    protocol), counting them."""
+
+    def __init__(self):
+        self.sock = socket.socket()
+        self.sock.bind(("127.0.0.1", 0))
+        self.sock.listen(8)
+        self.port = self.sock.getsockname()[1]
+        self.accepted: list[float] = []
+        threading.Thread(target=self._accept, daemon=True).start()
+
+    def _accept(self):
+        while True:
+            try:
+                client, _ = self.sock.accept()
+            except OSError:
+                return
+            self.accepted.append(time.monotonic())
+            client.close()
+
+    def close(self):
+        self.sock.close()
+
+
+def test_a_receiver_that_hangs_up_at_once_is_not_flooded(make_output, make_result):
+    server = HangUpServer()
+    try:
+        output = make_output(config_for(CUSTOM, server.port))
+        output.start()
+        output.update([make_result("A", "1")])
+        time.sleep(2.5)
+        # connections wait 0.5, 1, 2 s... after one closed right away
+        assert 2 <= len(server.accepted) <= 5, server.accepted
+        gaps = [b - a for a, b in zip(server.accepted, server.accepted[1:])]
+        assert all(gap >= 0.4 for gap in gaps), gaps
+        assert wait_until(lambda: output.connection_status().quick_closes >= 2)
+        status = tcp_status(output)
+        assert status.state == output_status.WARNING
+        assert status.detail == (
+            f"127.0.0.1:{server.port} closes the connection right away"
+        )
+        output.stop()
+        count = len(server.accepted)
+        time.sleep(0.6)
+        assert len(server.accepted) == count  # stopped: no more attempts
+        assert output.connection_status().quick_closes == 0
+    finally:
+        server.close()
+    assert tcp_output.quick_close_delay(1) == 0.5
+    assert tcp_output.quick_close_delay(3) == 2.0
+    assert tcp_output.quick_close_delay(1000) == 5.0
+
+
+def test_stopping_while_sending_keeps_nothing_for_the_next_start(
+    servers, make_output, make_result
+):
+    server = servers()
+    output = make_output(config_for(CUSTOM, server.port, min_interval=0.5))
+    output.start()
+    assert wait_until(lambda: connected(output))
+    output.update([make_result("A", "1")])
+    server.wait_for(b"A=1\n")
+    # the next send waits for the minimum interval; stop meanwhile
+    output.send_command("COMMAND")
+    output.update([make_result("A", "2")])
+    output.stop()
+    output.start()
+    server.wait_connections(2)
+    output.update([make_result("B", "3")])
+    # the new session sends its values: not the stopped session's command
+    data = server.wait_for(b"B=3\n", index=1)
+    assert b"COMMAND" not in server.all_received(), data
+    assert not output.status().failed
 
 
 def test_udp_status_before_anything_was_sent(make_output):
@@ -765,7 +860,10 @@ def test_udp_status_before_anything_was_sent(make_output):
         output.start()
         status = tcp_status(output)
         assert status.state == output_status.SENDING
-        assert status.detail == f"Waiting for readings to send to 127.0.0.1:{server.port} (UDP)"
+        assert (
+            status.detail
+            == f"Waiting for readings to send to 127.0.0.1:{server.port} (UDP)"
+        )
     finally:
         server.close()
 

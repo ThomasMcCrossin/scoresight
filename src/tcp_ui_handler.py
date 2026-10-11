@@ -541,8 +541,13 @@ class TcpUIHandler(QObject):
                 )
             )
         text = "\n".join(parts)
-        if self.ui.plainTextEdit_tcpPreview.toPlainText() != text:
-            self.ui.plainTextEdit_tcpPreview.setPlainText(text)
+        edit = self.ui.plainTextEdit_tcpPreview
+        if edit.toPlainText() != text:
+            # the values change every second: keep where it was scrolled to
+            bar = edit.verticalScrollBar()
+            position = bar.value()
+            edit.setPlainText(text)
+            bar.setValue(position)
 
     def updateReply(self):
         label = self.ui.label_tcpReply

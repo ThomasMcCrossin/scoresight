@@ -35,6 +35,7 @@ The **TCP / UDP** row of the Outputs list shows what happens:
 | ◐ *Connecting to 192.168.1.20:5250…* | Opening the connection |
 | ▲ *Can't reach 192.168.1.20:5250 · retrying* | Nothing accepts the connection. ScoreSight tries again by itself, waiting a little longer each time (up to 5 seconds) |
 | ▲ *localhost:5250 answered “404 CG ERROR”* | The receiver answered with an error code (CasparCG's AMCP answers every command) |
+| ▲ *192.168.1.20:5250 closes the connection right away* | Something accepts the connection but closes it at once, again and again: usually the wrong port (another program's, a web server's). ScoreSight connects again, waiting a little longer each time |
 | ▲ *Enter the host and port* | No port is set |
 | ○ *Off* | Not started |
 
@@ -229,6 +230,7 @@ Edit the right column to change a name; an empty name leaves the field out. Name
 ## Troubleshooting
 
 - **▲ Can't reach … · retrying**: check that the receiving program is running and listens on that port (its socket server, automation connection or input is enabled), and that the firewall of its computer allows the port.
+- **▲ … closes the connection right away**: the port belongs to something else (for example a web server), or the receiving program rejects the connection. Check the port in the receiving program.
 - **Connected, but nothing changes in the graphics**: compare the names table with the names the receiving program expects (they are case-sensitive in most programs), and check the **Preview**. Watch the log (**Tools › View log**) for the receiver's answers.
 - **An answer like `404 CG ERROR`** (CasparCG): the template isn't in the templates folder, or the name, channel or layer is wrong.
 - **Strange characters**: set the **Encoding** the receiving program expects (Chyron PRIME uses ISO-8859-1 by default).

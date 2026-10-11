@@ -2006,8 +2006,10 @@ def test_the_tcp_output_page(main_window, make_target, make_result, qtbot):
         # a template edit applies after the typing stops, and is stored
         ui.plainTextEdit_tcpTemplate.setPlainText("SCORES {json}")
         qtbot.waitUntil(
-            lambda: fetch_data("scoresight.json", "tcp_output")["template"]
-            == "SCORES {json}"
+            lambda: (
+                fetch_data("scoresight.json", "tcp_output")["template"]
+                == "SCORES {json}"
+            )
         )
         qtbot.waitUntil(
             lambda: receiver.received().endswith(
@@ -2039,9 +2041,7 @@ def test_the_tcp_output_page(main_window, make_target, make_result, qtbot):
     assert not ui.pushButton_tcpPlay.isEnabled()
 
 
-def test_the_tcp_output_keeps_its_settings_across_a_language_change(
-    main_window, qapp
-):
+def test_the_tcp_output_keeps_its_settings_across_a_language_change(main_window, qapp):
     from tcp_output import CHYRON
 
     tcp = main_window.tcpUiHandler

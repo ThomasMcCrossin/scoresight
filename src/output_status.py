@@ -1359,6 +1359,20 @@ def tcp_status(
             status, worker_problem(TCP, worker, target), _technical(worker)
         )
 
+    problem = worker_problem(TCP, worker, target)
+    if problem is None and connection.quick_closes >= 2:
+        problem = Problem(
+            WARNING,
+            QCoreApplication.translate(
+                "OutputStatus", "{target} closes the connection right away"
+            ).format(target=target),
+            QCoreApplication.translate(
+                "OutputStatus",
+                "Check the port: it must be the receiving program's input for this "
+                "protocol (not, for example, a web server's port). ScoreSight "
+                "connects again, waiting a little longer each time.",
+            ),
+        )
     if not connection.connected:
         status = DestinationStatus(
             TCP,
@@ -1368,9 +1382,7 @@ def tcp_status(
             ).format(target=target),
             enabled=True,
         )
-        return _with_problem(
-            status, worker_problem(TCP, worker, target), _technical(worker)
-        )
+        return _with_problem(status, problem, _technical(worker))
     if (
         last_sent is not None
         and connection.connected_at is not None
@@ -1400,9 +1412,8 @@ def tcp_status(
         hint=hint,
         last_activity_at=last_sent,
     )
-    problem = worker_problem(TCP, worker, target)
     if problem is None and connection.reply_error:
-        if product and config.preset == CASPARCG:
+        if config.preset == CASPARCG:
             reply_hint = QCoreApplication.translate(
                 "OutputStatus",
                 "Check the template's name (it must be in CasparCG's templates "
