@@ -48,6 +48,25 @@ default settings, and are the default for new setups.
   source and for builds (pinned revisions, checked against SHA-256s).
 - The OCR evaluation measures the app's own PP-OCR engine (`ppocr-app`), and
   CI fails if its accuracy drops.
+- **Draw a field's box on the picture.** Select a field that isn't on the
+  picture: the pointer turns into a crosshair, a hint says *Drag over the
+  numbers to place Home Fouls*, and a drag over the digits puts the box exactly
+  there, at any zoom, selected and with its settings shown. A drag of a few
+  pixels counts as a click, **Esc** cancels, and clicking another box still
+  selects that box. It works in the Setup and the Live layout.
+- A double-click on a field that isn't on the picture puts its box in the
+  middle of the part of the picture you see; a double-click on the picture
+  puts the selected field's box there. A double-click on a custom field on the
+  picture still renames it, as the fields' tooltips say.
+- **Alt+drag** (**⌥ Option+drag** on macOS) on the picture draws the selected
+  box again.
+- A right-click on a box on the picture opens its menu: **Remove from
+  picture**, **Rename...**, **Hold value...** and **Zoom to box**.
+- **Drag to crop** in the crop panel: the viewer shows the whole picture
+  (without the crop, so that it can also be made wider), and a drag around the
+  scoreboard sets the four crop values. **Esc** keeps the current crop. The
+  values stay for fine-tuning, and now go up to 9999 pixels for large
+  pictures.
 - **Works with…**: a docs page listing 21 broadcast products (Wirecast,
   NewBlue Captivate, Ross XPression, SuiteCG, TriCaster, Epiphan Pearl,
   CasparCG, Singular.live, Chyron PRIME and more), how well each works, and
@@ -86,6 +105,29 @@ default settings, and are the default for new setups.
 - **Binary view** shows a PP-OCR box's picture in gray: what PP-OCR reads.
 - `--self-test` also reads its test image with every PP-OCR choice.
 - The Windows app is 66 MB larger (onnxruntime and the two models).
+- **The boxes move with the crop.** Changing the crop's left or top edge (with
+  **Drag to crop**, the **Left** and **Top** values, or turning **Crop** on or
+  off) used to leave every box over other pixels. The boxes, and the corners of
+  a 4-corner correction, now move with it and stay over the same digits. A box
+  left entirely outside the cropped picture keeps its place (a wider crop
+  brings it back), and a line under the crop panel names it.
+- **Del** takes the selected field's box off the picture (asking first only
+  when you changed its settings, as **Remove from picture** does), in the field
+  list and on the picture. For a custom field that isn't on the picture, it
+  deletes the field, as before.
+- **Place on picture** puts the box in the middle of the picture you see
+  instead of its top-left corner. It and **Remove from picture** are now quiet
+  link-style buttons under a line that says what to do with the selected
+  field, for example *Drag on the picture to place it, or double-click the
+  field*. The first-run card's second step says *Select a field, then drag
+  over its numbers on the picture*.
+- **Help > Keyboard shortcuts** lists the new mouse actions.
+
+### Fixed
+
+- With the **All** box display style, the area read and the characters found
+  were drawn in the wrong place on a box moved with the arrow keys (and now
+  with the crop or drawn again).
 
 ### Fixed
 
