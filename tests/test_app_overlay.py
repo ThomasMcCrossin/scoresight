@@ -194,6 +194,27 @@ def test_the_all_style_draws_what_the_ocr_read(box, make_result):
     assert box.pen().isCosmetic()
 
 
+def test_the_ocr_details_follow_a_moved_box(box, make_result):
+    # The OCR gives the area read and the characters relative to the box's
+    # top-left corner: they were drawn where the box was first put once it was
+    # moved other than by dragging it (arrow keys, drawn again, the crop).
+    from text_detection_target import TextDetectionTargetWithResult
+
+    box.setBoxDisplayStyle(BOX_STYLE_ALL)
+    # (as ImageViewer moves a box to its target's new place)
+    box.setRect(300 - box.x(), 250 - box.y(), 210, 175)
+    result = TextDetectionTargetWithResult(
+        reading(make_result, "Success", "21"),
+        "21",
+        ResultState.Success,
+        QRectF(10, 20, 150, 80),
+        {"boxes": [{"x": 12, "y": 22, "w": 40, "h": 70}]},
+    )
+    box.updateResult(result)
+    assert box.mapRectToScene(box.effectiveRect.rect()) == QRectF(310, 270, 150, 80)
+    assert box.mapRectToScene(box.extraBoxes[0].rect()) == QRectF(312, 272, 40, 70)
+
+
 def test_a_label_alone(qapp):
     label = BoxLabel("Period", None)
     assert label.text() == "Period"
