@@ -10,6 +10,8 @@ description: "Zoom and pan the viewer, Binary View, 4-corner perspective correct
 
 The large viewer shows the source picture with your boxes on top. Above it are two rows:
 
+<a href="https://youtu.be/XUPebWz5Cuc" target="_blank" rel="noopener"><img src="videos/03-straighten.jpg" width="45%" alt="Video: Straighten the scoreboard picture: rotate, crop, 4-corner, stabilize (3:08)"/></a>
+
 - The **source bar**: the [source](sources.md) and, on the right, the **view tools**: **Binary View**, **Boxes:** (the box display style), **Stats**, **Fit** and the zoom level. They change only what you see.
 - **Adjust picture:** **Rotate**, **Crop**, **4-corner** and **Stabilize**. They change the picture every box is read from, so set them before you place your boxes.
 

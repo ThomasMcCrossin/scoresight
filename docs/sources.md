@@ -10,6 +10,8 @@ description: "Connect USB cameras, capture cards, NDI, RTSP/HTTP streams, screen
 
 ScoreSight reads one video source per window. Choose it from the **Source** drop-down at the top of the viewer, or, while no source is open, with the buttons of the **Open a source to begin** card in the viewer (**Camera**, **Video file…**, **Stream URL…**, **Screen…**). To read two different sources at the same time, run two instances (see [Multiple Instances & Profiles](profiles.md)).
 
+<a href="https://youtu.be/6P1K4CpHUwM" target="_blank" rel="noopener"><img src="videos/02-get-started.jpg" width="45%" alt="Video: Install ScoreSight and connect your camera, NDI, RTSP stream or screen (4:06)"/></a>
+
 <details open markdown="block">
   <summary>On this page</summary>
   {: .text-delta }

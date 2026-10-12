@@ -10,6 +10,8 @@ description: "Standard and custom fields, placing boxes, template fields with {{
 
 A **field** is a named value, such as *Home Score*, and its **box** is the rectangle over that value on the picture. ScoreSight reads every box on every detection cycle and publishes the result under the field's name.
 
+<a href="https://youtu.be/fwKIpfiTbCo" target="_blank" rel="noopener"><img src="videos/04-fields.jpg" width="45%" alt="Video: Place boxes over every score and clock (3:06)"/></a>
+
 The window has three parts: the **Fields** list on the left, the picture in the middle, and the **inspector** on the right, with a **Box** tab (the selected field's settings) and an **Outputs** tab. Drag the dividers between them to give one more room; ScoreSight remembers it. Double-click a divider (or drag it to the edge) to hide the Fields list or the inspector, and double-click it again to bring it back.
 
 <details open markdown="block">
@@ -107,6 +109,8 @@ Right-click a field for its actions:
 
 ## Setup and Live layouts
 
+<a href="https://youtu.be/1HRfxRJHBKk" target="_blank" rel="noopener"><img src="videos/06-game-day.jpg" width="45%" alt="Video: Game day: Live layout, Pause outputs and Hold value (3:06)"/></a>
+
 The window has two layouts of the same controls, in the **View** menu:
 
 - **Setup layout** (**Ctrl+1**): for placing and tuning the fields and setting up the outputs. The field list, the picture with the **Adjust picture** row, and the inspector.
@@ -131,6 +135,8 @@ When a field is selected, the **Box** tab of the inspector shows its name and it
 Every setting is described in the [Per-Box Settings reference](box-settings.md), and [Recognition Tuning](recognition-tuning.md) explains which ones to use when.
 
 ## Template fields
+
+<a href="https://youtu.be/OrIesDf_fsY" target="_blank" rel="noopener"><img src="videos/07-template-fields.jpg" width="45%" alt="Video: Template fields: combine scores and clock in one line (3:05)"/></a>
 
 A **template field** is a custom field with no box on the picture. Its value is built from other fields' values plus your own text. Use template fields to:
 

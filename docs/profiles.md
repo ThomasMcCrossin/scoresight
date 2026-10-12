@@ -11,6 +11,8 @@ description: "Run several ScoreSight windows side by side with --profile and --p
 {: .new }
 Profiles and the `--profile` / `--port` options are new in ScoreSight 0.2.0.
 
+<a href="https://youtu.be/FVqdjvmnFIU" target="_blank" rel="noopener"><img src="videos/14-profiles.jpg" width="45%" alt="Video: Two cameras, backups and troubleshooting (3:58)"/></a>
+
 One ScoreSight window reads one source. To read two cameras, for example the main scoreboard and a separately mounted shot clock, run two instances of ScoreSight. Give each instance its own **profile** (an independent set of settings) and its own **HTTP port**.
 
 <details open markdown="block">

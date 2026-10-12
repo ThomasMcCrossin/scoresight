@@ -10,6 +10,8 @@ description: "Transparent, live-updating overlay pages served by ScoreSight for 
 
 ScoreSight's [HTTP server](http_server.md) serves ready-made **overlay pages**: a scorebug, a lower third, a clock and single fields, with a transparent background, updated live as the readings change. Any production software that can show a web page as a graphics layer can use them: OBS Browser Source, vMix Web Browser input, Wirecast Web Page source, CasparCG's HTML producer, TriCaster Live Link, Magewell Director Webpage GFX, Epiphan Pearl Web Graphics and others. You can also design your own overlays in HTML and let ScoreSight serve them.
 
+<a href="https://youtu.be/2i_7QR6-yKY" target="_blank" rel="noopener"><img src="videos/09-browser-overlays.jpg" width="45%" alt="Video: Free scoreboard browser overlays for OBS, vMix and more (3:07)"/></a>
+
 <details open markdown="block">
   <summary>On this page</summary>
   {: .text-delta }

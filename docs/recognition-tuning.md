@@ -10,6 +10,8 @@ description: "A step-by-step method for accurate, stable scoreboard readings: ca
 
 Most recognition problems come from the picture, not from the OCR engine. Work through these steps in order and check **Binary View** after each change. Fixing an early step often makes later tweaks unnecessary.
 
+<a href="https://youtu.be/ZOoNYqGhmmI" target="_blank" rel="noopener"><img src="videos/05-accurate-readings.jpg" width="45%" alt="Video: Rock-solid readings: models, formats and filters (3:46)"/></a>
+
 <details open markdown="block">
   <summary>On this page</summary>
   {: .text-delta }

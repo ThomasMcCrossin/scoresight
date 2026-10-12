@@ -24,7 +24,7 @@ ScoreSight reads the scores, clocks and periods many times per second and sends 
 [**Quickstart**](https://royshil.github.io/scoresight/quickstart.html) ·
 [**Report a bug**](https://github.com/royshil/scoresight/issues/new/choose)
 
-<a href="https://youtu.be/MtctQZ2DIjU" target="_blank"><img src="docs/scoresight_getting_started.png" width="60%" alt="Watch: getting started with ScoreSight"/></a>
+<a href="https://youtu.be/21LhNHbH9gU" target="_blank"><img src="docs/videos/01-overview.jpg" width="60%" alt="Watch: ScoreSight in 3 minutes (2:20)"/></a>
 
 </div>
 
@@ -96,15 +96,25 @@ The full walkthrough is in the [Quickstart guide](https://royshil.github.io/scor
 
 ## Video tutorials
 
+A short series on the current version, from the first source to your graphics:
+
 <div>
-<a href="https://youtu.be/wMNolI0w0tE" target="_blank"><img src="docs/image-16.png" width="30%" alt="Tutorial: scoreboard OCR with ScoreSight"/></a>
-<a href="https://youtu.be/ACY4-yT3x84" target="_blank"><img src="docs/image-17.png" width="30%" alt="Tutorial: setting up ScoreSight"/></a>
-<a href="https://youtu.be/yowoYzBWrps" target="_blank"><img src="docs/image-18.png" width="30%" alt="Tutorial: ScoreSight with vMix"/></a>
-<a href="https://youtu.be/ptR-Yh5FSPg" target="_blank"><img src="docs/image-19.png" width="30%" alt="Tutorial: ScoreSight with NewBlue Captivate"/></a>
-<a href="https://youtu.be/QO76EFmJ7Ig" target="_blank"><img src="docs/image-23.png" width="30%" alt="Tutorial: collecting OCR training data"/></a>
+<a href="https://youtu.be/21LhNHbH9gU" target="_blank"><img src="docs/videos/01-overview.jpg" width="30%" alt="Video 1: ScoreSight in 3 minutes (2:20)"/></a>
+<a href="https://youtu.be/6P1K4CpHUwM" target="_blank"><img src="docs/videos/02-get-started.jpg" width="30%" alt="Video 2: Install ScoreSight and connect your camera, NDI, RTSP stream or screen (4:06)"/></a>
+<a href="https://youtu.be/XUPebWz5Cuc" target="_blank"><img src="docs/videos/03-straighten.jpg" width="30%" alt="Video 3: Straighten the scoreboard picture: rotate, crop, 4-corner, stabilize (3:08)"/></a>
+<a href="https://youtu.be/fwKIpfiTbCo" target="_blank"><img src="docs/videos/04-fields.jpg" width="30%" alt="Video 4: Place boxes over every score and clock (3:06)"/></a>
+<a href="https://youtu.be/ZOoNYqGhmmI" target="_blank"><img src="docs/videos/05-accurate-readings.jpg" width="30%" alt="Video 5: Rock-solid readings: models, formats and filters (3:46)"/></a>
+<a href="https://youtu.be/1HRfxRJHBKk" target="_blank"><img src="docs/videos/06-game-day.jpg" width="30%" alt="Video 6: Game day: Live layout, Pause outputs and Hold value (3:06)"/></a>
+<a href="https://youtu.be/OrIesDf_fsY" target="_blank"><img src="docs/videos/07-template-fields.jpg" width="30%" alt="Video 7: Template fields: combine scores and clock in one line (3:05)"/></a>
+<a href="https://youtu.be/tKA6UBqcDC0" target="_blank"><img src="docs/videos/08-outputs.jpg" width="30%" alt="Video 8: Outputs: the built-in HTTP server, JSON and text files (3:23)"/></a>
+<a href="https://youtu.be/2i_7QR6-yKY" target="_blank"><img src="docs/videos/09-browser-overlays.jpg" width="30%" alt="Video 9: Free scoreboard browser overlays for OBS, vMix and more (3:07)"/></a>
+<a href="https://youtu.be/anQl1D921O0" target="_blank"><img src="docs/videos/10-obs.jpg" width="30%" alt="Video 10: Live scoreboard scores in OBS Studio (2:44)"/></a>
+<a href="https://youtu.be/vMrr92-3LeI" target="_blank"><img src="docs/videos/12-uno.jpg" width="30%" alt="Video 12: overlays.uno and Singular.live scoreboards, updated live (3:29)"/></a>
+<a href="https://youtu.be/HaWNl92JLBE" target="_blank"><img src="docs/videos/13-broadcast.jpg" width="30%" alt="Video 13: Scoreboard data for CasparCG, Chyron, Vizrt and TriCaster (3:15)"/></a>
+<a href="https://youtu.be/FVqdjvmnFIU" target="_blank"><img src="docs/videos/14-profiles.jpg" width="30%" alt="Video 14: Two cameras, backups and troubleshooting (3:58)"/></a>
 </div>
 
-The videos show older versions. Some screens differ today, and vMix now uses port **8088** ([details](https://royshil.github.io/scoresight/vmix.html)).
+Older videos, about earlier versions of ScoreSight: [ScoreSight with vMix](https://youtu.be/yowoYzBWrps) (vMix now uses port **8088**; see the [vMix guide](https://royshil.github.io/scoresight/vmix.html)), [ScoreSight with NewBlue Captivate](https://youtu.be/ptR-Yh5FSPg) and [collecting OCR training data](https://youtu.be/QO76EFmJ7Ig).
 
 ## Documentation
 

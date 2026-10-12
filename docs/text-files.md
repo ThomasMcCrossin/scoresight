@@ -10,6 +10,8 @@ description: "Write each field to a .txt file, plus results.csv, results.xml, re
 
 The **Text files** output writes the readings to files in a folder. Almost any broadcast or office software can read them: OBS (*Text (GDI+/FreeType 2)* > *Read from file*), Wirecast, vMix Data Sources, NewBlue Captivate, Ross XPression, SuiteCG, Excel and more (see [Works with…](integrations.md)).
 
+<a href="https://youtu.be/tKA6UBqcDC0" target="_blank" rel="noopener"><img src="videos/08-outputs.jpg" width="45%" alt="Video: Outputs: the built-in HTTP server, JSON and text files (3:23)"/></a>
+
 <details open markdown="block">
   <summary>On this page</summary>
   {: .text-delta }

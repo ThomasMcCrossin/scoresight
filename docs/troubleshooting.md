@@ -9,6 +9,8 @@ description: "Fixes for common ScoreSight problems: RTSP streams, macOS freezes 
 
 Each section describes a symptom, its usual causes and the fix. The issue numbers link to the original GitHub reports. If your problem isn't covered, see the [FAQ](faq.md) or [open an issue](https://github.com/royshil/scoresight/issues/new/choose) and attach your logs.
 
+<a href="https://youtu.be/FVqdjvmnFIU" target="_blank" rel="noopener"><img src="videos/14-profiles.jpg" width="45%" alt="Video: Two cameras, backups and troubleshooting (3:58)"/></a>
+
 <details open markdown="block">
   <summary>On this page</summary>
   {: .text-delta }
