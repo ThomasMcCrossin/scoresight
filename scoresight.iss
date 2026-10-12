@@ -6,7 +6,8 @@
 ; read from src\version.py; CI passes it explicitly instead:
 ;   iscc /DAppVersion=0.2.0 /DAppVersionNumeric=0.2.0.0 scoresight.iss
 ; (AppVersionNumeric is the four-part Windows file version; it defaults to the
-; X.Y.Z of AppVersion plus ".0").
+; X.Y.Z of AppVersion plus ".0"). /DSignTool=<name> signs Setup and the
+; uninstaller with a Sign Tool defined by /S<name>=<command> (see [Setup]).
 ;
 ; The installer asks whether to install for all users (the default, needs
 ; administrator rights) or only for the current user. Unattended installs use
@@ -84,6 +85,14 @@ Compression=lzma2/max
 SolidCompression=yes
 CloseApplications=yes
 RestartApplications=no
+#ifdef SignTool
+; Sign Setup and the uninstaller with the Sign Tool of this name, which ISCC's
+; /S option defines. Signed release builds (build.yml) pass
+;   /DSignTool=artifactsigning
+;   "/Sartifactsigning=pwsh -NoProfile -NonInteractive -File $q<repository>\scripts\ci\sign_windows.ps1$q $f"
+SignTool={#SignTool}
+SignedUninstaller=yes
+#endif
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"

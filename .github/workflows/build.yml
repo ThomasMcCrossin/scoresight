@@ -12,15 +12,22 @@
 #   scoresight-<version>-macos-x64.dmg
 #   scoresight-<version>-linux-x64.tar.gz
 # <version> is src/version.py's version, plus "-<short commit>" unless this is a
-# release build. Release builds sign and notarize the macOS app when the Apple
+# release build. Release builds sign the Windows app, installer and uninstaller
+# (Azure Artifact Signing) and sign and notarize the macOS app when the
 # secrets are configured; every other build (including forks) is unsigned.
+#
+# Windows signing needs the secrets AZURE_TENANT_ID, AZURE_CLIENT_ID and
+# AZURE_CLIENT_SECRET (an app registration with the "Artifact Signing
+# Certificate Profile Signer" role) and the repository variables
+# AZURE_SIGNING_ENDPOINT, AZURE_SIGNING_ACCOUNT and AZURE_SIGNING_PROFILE; see
+# docs/development/releasing.md.
 name: Build
 
 on:
   workflow_call:
     inputs:
       release:
-        description: Release build (exact version in file names; sign and notarize macOS if the secrets exist)
+        description: Release build (exact version in file names; sign Windows and macOS, and notarize macOS, if the secrets exist)
         type: boolean
         default: false
       debug:
@@ -44,10 +51,19 @@ on:
         required: false
       APPLE_DEVELOPER_ID_TEAM:
         required: false
+      AZURE_TENANT_ID:
+        description: Microsoft Entra tenant of the app registration that signs the Windows packages
+        required: false
+      AZURE_CLIENT_ID:
+        description: Client ID of that app registration
+        required: false
+      AZURE_CLIENT_SECRET:
+        description: A client secret of that app registration
+        required: false
   workflow_dispatch:
     inputs:
       release:
-        description: Release build (exact version in file names; sign and notarize macOS if the secrets exist)
+        description: Release build (exact version in file names; sign Windows and macOS, and notarize macOS, if the secrets exist)
         type: boolean
         default: false
       debug:
@@ -117,6 +133,8 @@ jobs:
     env:
       # Secrets can't be used in `if:` conditions, so decide here.
       SIGN_MACOS: ${{ inputs.release && startsWith(matrix.target, 'macos-') && secrets.APPLE_CERTIFICATE != '' && secrets.APPLE_APP_DEVELOPER_ID != '' }}
+      # sign_windows.ps1 fails if the rest of the configuration is missing
+      SIGN_WINDOWS: ${{ inputs.release && matrix.target == 'windows-x64' && secrets.AZURE_CLIENT_SECRET != '' && vars.AZURE_SIGNING_ENDPOINT != '' }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -215,6 +233,24 @@ jobs:
           spec_args=()
           if [ "$DEBUG_BUILD" = "true" ]; then spec_args+=(-- --debug); fi
           python -m PyInstaller --clean --noconfirm scoresight.spec "${spec_args[@]}"
+
+      - name: Sign the app (Windows)
+        # before the tests, so they run the signed app; the installer and the
+        # portable zip contain it
+        if: env.SIGN_WINDOWS == 'true'
+        shell: pwsh
+        env:
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          AZURE_SIGNING_ENDPOINT: ${{ vars.AZURE_SIGNING_ENDPOINT }}
+          AZURE_SIGNING_ACCOUNT: ${{ vars.AZURE_SIGNING_ACCOUNT }}
+          AZURE_SIGNING_PROFILE: ${{ vars.AZURE_SIGNING_PROFILE }}
+        run: ./scripts/ci/sign_windows.ps1 dist/scoresight/scoresight.exe
+
+      - name: Unsigned Windows release
+        if: inputs.release && runner.os == 'Windows' && env.SIGN_WINDOWS != 'true'
+        run: echo "::warning::The Windows app and installer are not signed. Signing needs the AZURE_* secrets and variables (docs/development/releasing.md)."
 
       - name: Smoke test (--self-test)
         shell: bash
@@ -409,15 +445,32 @@ jobs:
 
       - name: Package (Windows installer)
         if: runner.os == 'Windows'
-        uses: Minionguyjpro/Inno-Setup-Action@v1.2.9
-        with:
-          path: scoresight.iss
-          # one option per line: the action passes each line to ISCC as one
-          # argument (all on one line, ISCC took them as an /O output folder)
-          options: |
-            /O+
-            /DAppVersion=${{ steps.version.outputs.label }}
-            /DAppVersionNumeric=${{ steps.version.outputs.numeric }}
+        shell: pwsh
+        env:
+          LABEL: ${{ steps.version.outputs.label }}
+          NUMERIC: ${{ steps.version.outputs.numeric }}
+          # for sign_windows.ps1, which Inno Setup runs
+          AZURE_TENANT_ID: ${{ env.SIGN_WINDOWS == 'true' && secrets.AZURE_TENANT_ID || '' }}
+          AZURE_CLIENT_ID: ${{ env.SIGN_WINDOWS == 'true' && secrets.AZURE_CLIENT_ID || '' }}
+          AZURE_CLIENT_SECRET: ${{ env.SIGN_WINDOWS == 'true' && secrets.AZURE_CLIENT_SECRET || '' }}
+          AZURE_SIGNING_ENDPOINT: ${{ vars.AZURE_SIGNING_ENDPOINT }}
+          AZURE_SIGNING_ACCOUNT: ${{ vars.AZURE_SIGNING_ACCOUNT }}
+          AZURE_SIGNING_PROFILE: ${{ vars.AZURE_SIGNING_PROFILE }}
+        run: |
+          # Inno Setup 6 is on GitHub's Windows images. ISCC runs here rather
+          # than in a third-party action, which would see the signing secret.
+          $iscc = Join-Path ${env:ProgramFiles(x86)} "Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) { throw "Inno Setup is not installed: no $iscc" }
+          $options = @("/O+", "/DAppVersion=$env:LABEL", "/DAppVersionNumeric=$env:NUMERIC")
+          if ($env:SIGN_WINDOWS -eq "true") {
+            # Inno Setup signs Setup and the uninstaller with this command
+            # ($q: a quote, $f: the quoted file)
+            $script = "$env:GITHUB_WORKSPACE\scripts\ci\sign_windows.ps1"
+            $options += "/DSignTool=artifactsigning"
+            $options += "/Sartifactsigning=pwsh -NoProfile -NonInteractive -File `$q$script`$q `$f"
+          }
+          & $iscc @options scoresight.iss
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Package (Windows portable zip) and test the installer
         if: runner.os == 'Windows'
@@ -436,6 +489,14 @@ jobs:
           $install = Start-Process $setup -Wait -PassThru -ArgumentList @(
             "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/CURRENTUSER", "/DIR=`"$app`"")
           if ($install.ExitCode -ne 0) { throw "installer exit code $($install.ExitCode)" }
+          if ($env:SIGN_WINDOWS -eq "true") {
+            # the installer, the installed app and its uninstaller are signed
+            foreach ($file in $setup, "$app\scoresight.exe", "$app\unins000.exe") {
+              $signature = Get-AuthenticodeSignature -LiteralPath $file
+              if ($signature.Status -ne "Valid") { throw "$file is not signed: $($signature.StatusMessage)" }
+              Write-Host "$file is signed by $($signature.SignerCertificate.Subject)"
+            }
+          }
           python scripts/ci/smoke_test.py "$app\scoresight.exe"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           $uninstall = Start-Process "$app\unins000.exe" -Wait -PassThru -ArgumentList @(
