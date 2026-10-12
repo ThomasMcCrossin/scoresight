@@ -41,8 +41,11 @@ def _runs(results: dict) -> dict:
 CONFIDENCE_TOLERANCE = 2e-4
 # On a Mac (arm64), onnxruntime's kernels give results that depend on the
 # batch: the app reads a frame's crops together, the evaluation in its own
-# batches, so a crop's confidence can differ (0.8861 against 0.9998 for one
-# synthetic clock) while the text is the same. There only the text is compared.
+# batches. A crop's confidence can differ (0.8861 against 0.9998 for one
+# synthetic clock), and a borderline crop can read differently ('02:37' against
+# '02:30' at 0.81; '0' at 0.17 against nothing). There the confidences aren't
+# compared and up to 1 crop in 50 may read differently: a change in how the app
+# reads would change many.
 MAC = sys.platform == "darwin"
 
 
@@ -148,7 +151,13 @@ def test_the_app_reads_like_the_evaluation(variant):
         eval_run = dict(baseline[(name, f"ppocr:{MATCHES[variant]}")])
         ids = {sample.id for sample in dataset.samples}
         eval_run["predictions"] = [p for p in eval_run["predictions"] if p["id"] in ids]
-        tolerance = None if MAC else CONFIDENCE_TOLERANCE
-        assert _same_predictions(record, eval_run, tolerance) == [], name
+        if MAC:
+            differences = _same_predictions(record, eval_run, None)
+            assert len(differences) <= max(1, len(dataset.samples) // 50), (
+                name,
+                differences,
+            )
+        else:
+            assert _same_predictions(record, eval_run) == [], name
         for prediction in record["predictions"]:
             assert prediction["info"]["state"] in ("Success", "FailedFilter", "Empty")
