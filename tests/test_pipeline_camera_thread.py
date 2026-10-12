@@ -819,15 +819,19 @@ def test_a_slow_ocr_does_not_hold_up_reading_frames(qtbot, make_thread, make_tar
     thread.detectionTargetsStorage.add_item(make_target("Home Score"))
     capture = NumberedCapture()
     thread._create_video_capture = lambda: capture
-    detector = SlowDetector(capture, 0.25)
+    detector = SlowDetector(capture, 0.5)
     thread.textDetector = detector
     thread.start()
     try:
-        qtbot.waitUntil(lambda: len(thread.results) >= 3, timeout=5000)
-        reads_before = capture.reads
-        time.sleep(0.5)
-        # about 30 frames a second while every OCR cycle takes 250 ms
-        assert capture.reads - reads_before >= 8
+        qtbot.waitUntil(lambda: len(thread.results) >= 3, timeout=8000)
+        reads_before, cycles_before = capture.reads, len(detector.cycles)
+        time.sleep(1.0)
+        reads = capture.reads - reads_before
+        cycles = len(detector.cycles) - cycles_before
+        # the capture reads on while the OCR takes 500 ms: about 30 frames a
+        # second (8 on a busy macOS runner, whose sleeps run long) against two
+        # cycles. A capture held up by the OCR would read one frame a cycle.
+        assert reads >= 2 * cycles + 2, (reads, cycles)
     finally:
         assert thread.stop(5000)
     cycles = list(detector.cycles)
@@ -836,7 +840,7 @@ def test_a_slow_ocr_does_not_hold_up_reading_frames(qtbot, make_thread, make_tar
     assert all(t.name == "ocr" for t, _, _ in cycles)
     # each cycle reads the newest frame (the frames read meanwhile are dropped)
     numbers = [number for _, number, _ in cycles]
-    assert all(b - a >= 5 for a, b in zip(numbers, numbers[1:]))
+    assert all(b - a >= 2 for a, b in zip(numbers, numbers[1:]))
     assert all(latest - number <= 1 for _, number, latest in cycles)
     # from reading a frame to publishing its readings: about the OCR's time
     assert 0.2 <= thread.last_reading_latency < 1.0

@@ -4,6 +4,8 @@ box's menu on the picture, Del, the Fields footer's hints and Drag to crop.
 The viewer is the real ImageViewer (source_view.py) without a capture thread:
 the frames are handed to it as the thread would."""
 
+import sys
+
 import numpy as np
 import pytest
 
@@ -18,6 +20,9 @@ import camera_thread  # noqa: E402
 from camera_info import CameraInfo  # noqa: E402
 from storage import fetch_data, store_data  # noqa: E402
 import test_app_mainwindow_smoke as smoke  # noqa: E402
+
+# the keys as a Mac writes them (⌥ Option, ⌦)
+MAC = sys.platform == "darwin"
 
 # the main window's fixtures (with its FakeViewer: the tests open a real viewer
 # themselves)
@@ -506,7 +511,8 @@ def test_a_double_click_places_the_box_in_the_middle_of_what_is_shown(
     assert "Drag over its numbers" in box_name_item(main_window, "Period").toolTip()
     assert "rename" in box_name_item(main_window, name).toolTip()
     assert "rename" not in box_name_item(main_window, "Time").toolTip()
-    assert "Alt+drag" in box_name_item(main_window, "Time").toolTip()
+    alt_drag = "⌥ Option+drag" if MAC else "Alt+drag"
+    assert alt_drag in box_name_item(main_window, "Time").toolTip()
 
 
 def test_a_double_click_on_the_picture_places_the_selected_field(main_window, qtbot):
@@ -657,9 +663,10 @@ def test_the_footer_says_what_to_do(main_window, qtbot):
     assert hint.text() == "Drag on the picture to place it, or double-click the field"
     assert ui.pushButton_makeBox.isVisible() and ui.pushButton_makeBox.isEnabled()
     main_window.placeOnPicture()
-    assert hint.text() == "Drag the box to move it · Del removes it"
+    delete = "⌦" if MAC else "Del"
+    assert hint.text() == f"Drag the box to move it · {delete} removes it"
     assert ui.pushButton_removeBox.isVisible()
-    assert "(Del)" in ui.pushButton_removeBox.toolTip()
+    assert f"({delete})" in ui.pushButton_removeBox.toolTip()
 
     main_window.addBox()
     ui.checkBox_templatefield.setChecked(True)
@@ -717,15 +724,21 @@ def test_esc_in_the_window_cancels_the_drawing(main_window, qtbot):
 def test_the_shortcuts_dialog_lists_the_mouse(main_window):
     rows = [row for _, group in main_window.keyboardShortcutGroups() for row in group]
     names = {name: keys for name, keys in rows}
-    assert names["Remove the selected field's box from the picture"] == "Del"
-    assert names["Delete the selected custom field (not on the picture)"] == "Del"
+    # a Mac also deletes with the key labelled "delete", which is Backspace
+    delete_keys = "⌦, ⌫" if MAC else "Del"
+    assert names["Remove the selected field's box from the picture"] == delete_keys
+    assert names["Delete the selected custom field (not on the picture)"] == (
+        delete_keys
+    )
     assert names["Put a field's box on the picture, or rename a custom field"] == (
         "Double-click the field"
     )
     assert names["Place the selected field's box"] == (
         "Drag over its numbers on the picture"
     )
-    assert names["Draw the selected box again"] == "Alt + drag on the picture"
+    assert names["Draw the selected box again"] == (
+        "⌥ + drag on the picture" if MAC else "Alt + drag on the picture"
+    )
     assert names["The selected box's actions"] == "Right-click the box"
 
 
