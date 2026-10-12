@@ -68,8 +68,11 @@ Our goal is simple: to be the best scoreboard-reading software on the planet, an
 | OBS Studio | OBS WebSocket v5, updates text sources | [OBS](https://royshil.github.io/scoresight/obs.html) |
 | vMix | vMix Web API (port 8088), `SetText` on title fields | [vMix](https://royshil.github.io/scoresight/vmix.html) |
 | overlays.uno | UNO control app API, including Essentials | [UNO](https://royshil.github.io/scoresight/uno.html) |
+| Browser overlays | Transparent scorebug, lower third and clock pages, pushed live | [Browser overlays](https://royshil.github.io/scoresight/overlays.html) |
 | Your own endpoint | HTTP POST/PUT/GET with JSON, XML or CSV | [Outbound API](https://royshil.github.io/scoresight/out_api.html) |
-| NewBlue, CasparCG, Streamlabs, Home Assistant... | via text files or the HTTP server | [Other software](https://royshil.github.io/scoresight/other-software.html) |
+| TCP / UDP | Text lines from a template, with presets for CasparCG, Chyron PRIME, Vizrt and more | [TCP / UDP](https://royshil.github.io/scoresight/tcp-output.html) |
+| Wirecast, XSplit, TriCaster, CasparCG, Chyron, XPression, Vizrt, CharacterWorks, NewBlue... | through the outputs above: 33 products, with a guide for each | [Works With…](https://royshil.github.io/scoresight/integrations.html) |
+| Streamlabs, Home Assistant, Node-RED, spreadsheets... | via text files or the HTTP server | [Other software](https://royshil.github.io/scoresight/other-software.html) |
 
 ## Install
 
@@ -122,7 +125,8 @@ The full documentation is at **[royshil.github.io/scoresight](https://royshil.gi
 
 - **Getting started**: [Installation](https://royshil.github.io/scoresight/INSTALL.html), [Quickstart](https://royshil.github.io/scoresight/quickstart.html)
 - **Guides**: [Video Sources](https://royshil.github.io/scoresight/sources.html), [Viewer & Image Tools](https://royshil.github.io/scoresight/view-tools.html), [Boxes & Templates](https://royshil.github.io/scoresight/boxes.html), [Recognition Tuning](https://royshil.github.io/scoresight/recognition-tuning.html), [Performance Tuning](https://royshil.github.io/scoresight/performance.html), [Multiple Instances & Profiles](https://royshil.github.io/scoresight/profiles.html), [OCR Training Data](https://royshil.github.io/scoresight/data_annotation.html)
-- **Outputs**: [overview](https://royshil.github.io/scoresight/outputs.html), [Text files](https://royshil.github.io/scoresight/text-files.html), [HTTP API](https://royshil.github.io/scoresight/http_server.html), [OBS](https://royshil.github.io/scoresight/obs.html), [vMix](https://royshil.github.io/scoresight/vmix.html), [UNO](https://royshil.github.io/scoresight/uno.html), [Outbound API](https://royshil.github.io/scoresight/out_api.html)
+- **Outputs**: [overview](https://royshil.github.io/scoresight/outputs.html), [Text files](https://royshil.github.io/scoresight/text-files.html), [HTTP API](https://royshil.github.io/scoresight/http_server.html), [OBS](https://royshil.github.io/scoresight/obs.html), [vMix](https://royshil.github.io/scoresight/vmix.html), [UNO](https://royshil.github.io/scoresight/uno.html), [Outbound API](https://royshil.github.io/scoresight/out_api.html), [TCP / UDP](https://royshil.github.io/scoresight/tcp-output.html), [Browser overlays](https://royshil.github.io/scoresight/overlays.html)
+- **Works With…**: [33 broadcast, streaming and graphics products](https://royshil.github.io/scoresight/integrations.html), with a setup guide for each
 - **Reference**: [Per-Box Settings](https://royshil.github.io/scoresight/box-settings.html), [Settings, Files & Command Line](https://royshil.github.io/scoresight/configuration.html), [Keyboard & Mouse](https://royshil.github.io/scoresight/keyboard-mouse.html)
 - **Help**: [Troubleshooting](https://royshil.github.io/scoresight/troubleshooting.html), [FAQ](https://royshil.github.io/scoresight/faq.html)
 - **Development**: [Developer Guide](https://royshil.github.io/scoresight/development/)

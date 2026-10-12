@@ -1,6 +1,6 @@
 ---
 title: Troubleshooting
-nav_order: 6
+nav_order: 7
 description: "Fixes for common ScoreSight problems: RTSP streams, macOS freezes and quit hangs, vMix and OBS not updating, bad recognition, low performance, missing files and more."
 ---
 

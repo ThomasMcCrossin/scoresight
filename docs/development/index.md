@@ -1,6 +1,6 @@
 ---
 title: Developer Guide
-nav_order: 8
+nav_order: 9
 has_children: true
 description: "Build ScoreSight from source, understand its architecture, run tests, translate it and cut releases."
 ---
