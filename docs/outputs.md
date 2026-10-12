@@ -9,6 +9,8 @@ description: "Overview of every ScoreSight output: text files, the HTTP server, 
 
 ScoreSight can publish its readings to several destinations at the same time. The **Outputs** tab of the inspector, on the right of the main window, lists them with a row for each one: select a row to show that output's settings under the list. Drag the divider between the list and the settings to give the settings (for example a mapping table) more room.
 
+<a href="https://youtu.be/tKA6UBqcDC0" target="_blank" rel="noopener"><img src="videos/08-outputs.jpg" width="45%" alt="Video: Outputs: the built-in HTTP server, JSON and text files (3:23)"/></a>
+
 | Output | In the Outputs list | Direction | Sends | Best for |
 |---|---|---|---|---|
 | [Text, CSV & XML files](text-files.md) | **Text files** | ScoreSight writes files | `<Box Name>.txt`, `results.csv`, `results.xml`, `results.json`, `results.txt` (key=value) | Any software that reads text files: OBS text (from file), Wirecast, vMix Data Sources, NewBlue, XPression, SuiteCG, Excel |

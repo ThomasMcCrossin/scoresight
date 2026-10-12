@@ -9,6 +9,8 @@ description: "ScoreSight's OCR engines: PP-OCR (automatic, accurate, fast) and T
 
 ScoreSight reads the boxes with one of two OCR engines:
 
+<a href="https://youtu.be/ZOoNYqGhmmI" target="_blank" rel="noopener"><img src="videos/05-accurate-readings.jpg" width="45%" alt="Video: Rock-solid readings: models, formats and filters (3:46)"/></a>
+
 - **PP-OCR**, PaddleOCR's [PP-OCRv6](https://github.com/PaddlePaddle/PaddleOCR) text recognition models (since 0.3.0, the default for new setups);
 - **Tesseract**, the [Tesseract](https://github.com/tesseract-ocr/tesseract) engine with models trained for scoreboards (the only engine before 0.3.0).
 

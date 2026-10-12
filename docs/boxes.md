@@ -10,6 +10,8 @@ description: "Standard and custom fields, placing boxes, template fields with {{
 
 A **field** is a named value, such as *Home Score*, and its **box** is the rectangle over that value on the picture. ScoreSight reads every box on every detection cycle and publishes the result under the field's name.
 
+<a href="https://youtu.be/fwKIpfiTbCo" target="_blank" rel="noopener"><img src="videos/04-fields.jpg" width="45%" alt="Video: Place boxes over every score and clock (3:06)"/></a>
+
 The window has three parts: the **Fields** list on the left, the picture in the middle, and the **inspector** on the right, with a **Box** tab (the selected field's settings) and an **Outputs** tab. Drag the dividers between them to give one more room; ScoreSight remembers it. Double-click a divider (or drag it to the edge) to hide the Fields list or the inspector, and double-click it again to bring it back.
 
 <details open markdown="block">
@@ -106,6 +108,8 @@ Right-click a field for its actions:
 **F2**, **Del** and **Ctrl+C** work while the field list has the focus (**F2** and **Del** also while the picture has it, on the selected box); **Ctrl+H** anywhere in the window.
 
 ## Setup and Live layouts
+
+<a href="https://youtu.be/1HRfxRJHBKk" target="_blank" rel="noopener"><img src="videos/06-game-day.jpg" width="45%" alt="Video: Game day: Live layout, Pause outputs and Hold value (3:06)"/></a>
 
 The window has two layouts of the same controls, in the **View** menu:
 

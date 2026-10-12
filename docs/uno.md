@@ -10,6 +10,8 @@ description: "Drive overlays.uno control apps from ScoreSight, including the Ess
 
 ScoreSight can update [overlays.uno](https://overlays.uno/) graphics directly through the UNO control app API.
 
+<a href="https://youtu.be/vMrr92-3LeI" target="_blank" rel="noopener"><img src="videos/12-uno.jpg" width="45%" alt="Video: overlays.uno and Singular.live scoreboards, updated live (3:29)"/></a>
+
 <details open markdown="block">
   <summary>On this page</summary>
   {: .text-delta }

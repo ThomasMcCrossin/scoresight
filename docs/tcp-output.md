@@ -10,6 +10,8 @@ description: "Send ScoreSight readings over TCP or UDP to CasparCG (AMCP), Chyro
 
 The **TCP / UDP** output sends the readings as text messages over a network socket. Many graphics systems take data this way: CasparCG, Chyron PRIME, Live Score, MagicSoft CG and Vizrt's Viz Engine have presets, and a template lets you speak any other simple line protocol.
 
+<a href="https://youtu.be/HaWNl92JLBE" target="_blank" rel="noopener"><img src="videos/13-broadcast.jpg" width="45%" alt="Video: Scoreboard data for CasparCG, Chyron, Vizrt and TriCaster (3:15)"/></a>
+
 <details open markdown="block">
   <summary>On this page</summary>
   {: .text-delta }

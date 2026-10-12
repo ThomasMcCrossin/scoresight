@@ -15,6 +15,8 @@ description: "Download and install ScoreSight on Windows, macOS and Linux, verif
 {:toc}
 </details>
 
+<a href="https://youtu.be/6P1K4CpHUwM" target="_blank" rel="noopener"><img src="videos/02-get-started.jpg" width="45%" alt="Video: Install ScoreSight and connect your camera, NDI, RTSP stream or screen (4:06)"/></a>
+
 ## Download
 
 Official builds are published **only** on the GitHub Releases page:

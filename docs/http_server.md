@@ -10,6 +10,8 @@ description: "Reference for ScoreSight's built-in HTTP server: /json, /xml, /csv
 
 ScoreSight includes a small web server that always serves the latest readings. Browser sources, web overlays, scripts and other software can poll it. Nothing needs to be enabled: the server starts automatically with ScoreSight.
 
+<a href="https://youtu.be/tKA6UBqcDC0" target="_blank" rel="noopener"><img src="videos/08-outputs.jpg" width="45%" alt="Video: Outputs: the built-in HTTP server, JSON and text files (3:23)"/></a>
+
 <details open markdown="block">
   <summary>On this page</summary>
   {: .text-delta }

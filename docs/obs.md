@@ -10,6 +10,8 @@ description: "Update OBS text sources from ScoreSight over the OBS WebSocket, or
 
 ScoreSight can update text sources in OBS Studio directly over the OBS WebSocket (protocol v5, built into OBS 28 and newer).
 
+<a href="https://youtu.be/anQl1D921O0" target="_blank" rel="noopener"><img src="videos/10-obs.jpg" width="45%" alt="Video: Live scoreboard scores in OBS Studio (2:44)"/></a>
+
 <details open markdown="block">
   <summary>On this page</summary>
   {: .text-delta }

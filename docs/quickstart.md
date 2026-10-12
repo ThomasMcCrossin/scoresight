@@ -10,6 +10,8 @@ description: "Read your first scoreboard with ScoreSight in about five minutes."
 
 This walkthrough takes you from a fresh install to live scores in your graphics in about five minutes.
 
+<a href="https://youtu.be/21LhNHbH9gU" target="_blank" rel="noopener"><img src="videos/01-overview.jpg" width="45%" alt="Video: ScoreSight in 3 minutes (2:20)"/></a>
+
 <details open markdown="block">
   <summary>Steps</summary>
   {: .text-delta }
