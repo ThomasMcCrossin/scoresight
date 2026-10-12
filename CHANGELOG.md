@@ -8,12 +8,23 @@ Release tags are the bare version number (for example `0.1.0`).
 
 ## [Unreleased]
 
+## [0.3.2] - 2026-10-12
+
+Signed Windows downloads, and video tutorials in the documentation.
+
+### Added
+
+- **Video tutorials.** Short videos, from installing ScoreSight to each
+  output, are at the top of the matching pages of the
+  [documentation](https://royshil.github.io/scoresight/).
+
 ### Changed
 
 - **Signed Windows downloads.** The installer, its uninstaller and
-  `scoresight.exe` (also in the portable zip) are code-signed, so Windows
-  names the publisher instead of "Unknown publisher". SmartScreen may still
-  warn about a new release until enough people have downloaded it.
+  `scoresight.exe` (also in the portable zip) are code-signed by Roy
+  Shilkrot, so Windows names the publisher instead of "Unknown publisher".
+  SmartScreen may still warn about a new release until enough people have
+  downloaded it.
 
 ## [0.3.1] - 2026-10-11
 
@@ -1012,7 +1023,8 @@ end to end on every platform before it ships. Highlights:
 
 - First open-source release of ScoreSight.
 
-[Unreleased]: https://github.com/royshil/scoresight/compare/0.3.1...HEAD
+[Unreleased]: https://github.com/royshil/scoresight/compare/0.3.2...HEAD
+[0.3.2]: https://github.com/royshil/scoresight/compare/0.3.1...0.3.2
 [0.3.1]: https://github.com/royshil/scoresight/compare/0.3.0...0.3.1
 [0.3.0]: https://github.com/royshil/scoresight/compare/0.2.0...0.3.0
 [0.2.0]: https://github.com/royshil/scoresight/compare/0.1.0...0.2.0

@@ -221,7 +221,7 @@ Run two instances with different profiles and ports, for example `--profile shot
 
 ### Antivirus or SmartScreen warnings (Windows)
 
-The Windows installer isn't code-signed yet, and unsigned PyInstaller apps are sometimes flagged as false positives. Download only from the [Releases page](https://github.com/royshil/scoresight/releases/latest) and [verify the checksum](INSTALL.md#verify-your-download-recommended). Then allow that specific file (don't disable your antivirus), and report the false positive to your antivirus vendor. See [Installation](INSTALL.md#if-your-browser-or-antivirus-blocks-the-download).
+Antivirus heuristics sometimes flag PyInstaller apps as false positives, especially unsigned ones (releases before 0.3.2, after which the installer and the app are code-signed by Roy Shilkrot) and new releases. Download only from the [Releases page](https://github.com/royshil/scoresight/releases/latest) and [verify the checksum](INSTALL.md#verify-your-download-recommended). Then allow that specific file (don't disable your antivirus), and report the false positive to your antivirus vendor. See [Installation](INSTALL.md#if-your-browser-or-antivirus-blocks-the-download).
 
 ### Linux: "Could not load the Qt platform plugin xcb"
 

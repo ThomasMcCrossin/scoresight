@@ -4,4 +4,4 @@ Read by the window title, the About dialog, the update check, the PyInstaller
 spec, the Inno Setup script and the release workflow.
 """
 
-__version__ = "0.3.1"
+__version__ = "0.3.2"

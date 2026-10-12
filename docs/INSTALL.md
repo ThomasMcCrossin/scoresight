@@ -66,7 +66,7 @@ On macOS and Linux, a good download shows `OK` next to its name. If the checksum
 
 1. Download `scoresight-<version>-windows-x64-setup.exe` from the [latest release](https://github.com/royshil/scoresight/releases/latest).
 2. Run the installer. It asks whether to install ScoreSight **for all users** (the default, in `C:\Program Files\ScoreSight`, needs administrator rights) or **only for you** (no administrator rights needed). It adds a Start menu shortcut, and a desktop shortcut if you tick that option.
-3. **SmartScreen**: the installer is not code-signed yet, so Windows may show "Windows protected your PC". Click **More info** > **Run anyway**. Do this only for a file you downloaded from the GitHub Releases page and verified.
+3. **SmartScreen**: since 0.3.2 the installer and the app are code-signed by **Roy Shilkrot**. A new release can still show "Windows protected your PC" until enough people have downloaded it. Click **More info**, check that the publisher is **Roy Shilkrot**, then click **Run anyway**. Do this only for a file you downloaded from the GitHub Releases page and verified.
 4. **Windows Firewall**: the first time ScoreSight starts, Windows may ask whether to allow it on the network. ScoreSight runs a small [HTTP server](http_server.md) on port 18099 that browsers and other software can read. Allow it on **Private networks** only, unless you need access from a public network. See [SECURITY.md](https://github.com/royshil/scoresight/blob/main/SECURITY.md).
 
 The installer refuses to run on Windows versions older than Windows 10 version 1809, which the Qt 6 framework doesn't support. If ScoreSight is running, the installer closes it first. Installing a new version over an existing ScoreSight, including 0.1.x, upgrades it in place.
@@ -79,7 +79,7 @@ Extract `scoresight-<version>-windows-x64-portable.zip` anywhere, for example to
 
 ### If your browser or antivirus blocks the download
 
-ScoreSight is packaged with PyInstaller, and unsigned PyInstaller apps are sometimes flagged by antivirus heuristics as false positives:
+ScoreSight is packaged with PyInstaller. Antivirus heuristics sometimes flag PyInstaller apps as false positives, especially unsigned ones (releases before 0.3.2) and new releases:
 
 ![A browser reporting "Couldn't download - Virus detected"](image.png)
 

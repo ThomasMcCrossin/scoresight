@@ -101,7 +101,7 @@ The client secret expires (after at most 24 months). Before it does, add a new o
 
 To sign a file on your own machine, run `az login` with an account that has the signer role. Set the three `AZURE_SIGNING_*` environment variables, then run `pwsh scripts/ci/sign_windows.ps1 <file>`.
 
-A signed download can still get SmartScreen's "Windows protected your PC" warning. Windows builds a publisher's reputation from downloads, and later releases signed by the same publisher benefit from it. So the first signed releases may still warn. Until releases stop warning, keep the SmartScreen instructions in the [installation guide](../INSTALL.md#windows).
+A signed download can still get SmartScreen's "Windows protected your PC" warning. Windows builds a publisher's reputation from downloads, and later releases signed by the same publisher benefit from it. So the first signed releases may still warn. Until releases stop warning, keep the SmartScreen instructions in the [installation guide](../INSTALL.md#windows). Releases are signed from 0.3.2 on.
 
 ## After the release
 
