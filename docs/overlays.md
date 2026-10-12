@@ -248,7 +248,7 @@ Notes: untested whether Pearl's web graphics accept a plain `http://` address wi
 
 ### Other software
 
-The same address works in other products that show web pages as graphics, for example Chyron PRIME's HTML Input (5.3 and later), wTVision R³'s web page texture and RT Software Swift's HTML5 graphics. None of these is tested. Software that takes NDI with alpha but no web pages (for example MagicSoft CG 10) can get an overlay through OBS: put the overlay in a scene and send it out with the DistroAV (NDI) plugin.
+The same address works in other products that show web pages as graphics, for example Chyron PRIME's HTML Input (5.3 and later), wTVision R³'s web page texture and RT Software Swift's HTML5 graphics. None of these is tested. XSplit Broadcaster's Webpage source and the webpage element of Livestream Studio's GFX Designer take the address too (see [Works With…](integrations.md) for every product). Software that takes NDI with alpha but no web pages (for example MagicSoft CG 10) can get an overlay through OBS: put the overlay in a scene and send it out with the DistroAV (NDI) plugin.
 
 ## Troubleshooting
 

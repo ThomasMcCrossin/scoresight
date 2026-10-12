@@ -1,6 +1,6 @@
 ---
 title: Reference
-nav_order: 5
+nav_order: 6
 has_children: true
 description: "Reference material: every per-box setting, settings files, environment variables, command-line options and keyboard/mouse controls."
 ---

@@ -119,7 +119,7 @@ Edit the template to target something else: `P\UPDATE:Program\1\*\{field}\{value
 ```
 
 {: .warning }
-This format comes from the public guide of another OCR application (scoreboard-ocr.com), not from Live Score's own documentation, and it hasn't been tested with Live Score. If it doesn't work with your version, adapt the template, and please tell us.
+This format comes from the public guide of another OCR application, not from Live Score's own documentation, and it hasn't been tested with Live Score. If it doesn't work with your version, adapt the template, and please tell us.
 
 1. In Live Score, open **Input › Scoreboard OCR › OCR Setup**. Activate the input, set a port, and note the field names the dialog lists for your sport.
 2. In ScoreSight, enter the Live Score computer's address and that port.
@@ -137,9 +137,9 @@ Every message carries every field. Live Score doesn't display ten updates a seco
 ```
 
 {: .warning }
-This format comes from the public guide of another OCR application (scoreboard-ocr.com), not from MagicSoft's documentation, and it hasn't been tested with MagicSoft CG.
+MagicSoft's help doesn't print the message syntax: this format comes from the public guide of another OCR application, and MagicSoft's own sample macro files use the same `[name]=value` lines. It hasn't been tested with MagicSoft CG.
 
-1. In MagicSoft CG, start the socket server in **Tools › Options › Socket Communication** (it should be started by default). The guide's example address is `tcp://localhost:2034`, which the preset uses.
+1. In MagicSoft CG, start the socket server in **Tools › Options › Socket Communication** (it should be started by default). The guide's example address is `tcp://localhost:2034`, which the preset uses, but MagicSoft's default configuration has port pairs between 2610 and 2643: use a free pair's port from that tab (see [MagicSoft CG](works-with/magicsoft-cg.md)).
 2. In a 2D text item, type the field's name in brackets, for example `[home_score]` or `[clock]`, then use **File › Refresh All projects**.
 3. In ScoreSight, check the names table: the preset sends lower-case names (`home_score`, `away_fouls`), and Time as `clock`, because `[time]` is reserved by MagicSoft CG.
 4. Click **Start sending**.

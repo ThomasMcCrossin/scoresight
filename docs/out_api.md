@@ -8,7 +8,7 @@ description: "Send ScoreSight's readings to your own HTTP endpoint as JSON, XML,
 # Outbound HTTP API
 {: .no_toc }
 
-The **HTTP API** output sends the readings to a URL of your choice: on every detection cycle (the default), or only when they change, all in one request or one request per field. Use it to feed your own server, a cloud function, a database, automation tools such as Node-RED, n8n or Home Assistant webhooks, or products with an HTTP interface: the **Preset** list sets it up for a [TriCaster](integrations.md#tricaster) or an [Epiphan Pearl](integrations.md#epiphan-pearl), and [Works with…](integrations.md) lists more.
+The **HTTP API** output sends the readings to a URL of your choice: on every detection cycle (the default), or only when they change, all in one request or one request per field. Use it to feed your own server, a cloud function, a database, automation tools such as Node-RED, n8n or Home Assistant webhooks, or products with an HTTP interface: the **Preset** list sets it up for a [TriCaster](works-with/tricaster.md) or an [Epiphan Pearl](works-with/epiphan-pearl.md), and [Works With…](integrations.md) lists more.
 
 <details open markdown="block">
   <summary>On this page</summary>
@@ -73,7 +73,7 @@ The **Preset** list fills in the settings for a product. You can still change ev
 | **TriCaster DataLink** | `http://admin:admin@TRICASTER-IP/v1/datalink?key={field}&value={value}` | `GET`, one request per changed field, at most 10 per second. Each field is the DataLink key with its name: `%Home Score%` in a title shows the Home Score field |
 | **Epiphan Pearl** | `http://admin:PASSWORD@PEARL-IP/admin/set_variables.cgi` | `GET` with up to 6 changed fields per request (`?home_score=21&away_score=14...`), at most 5 per second, names of letters, digits and `_` (`%(home_score)` in a Pearl layout), every value again every 10 s |
 
-Replace `TRICASTER-IP` / `PEARL-IP` with the device's IP address and the login with its user name and password. The setup on the device is in [Works with…](integrations.md#tricaster) ([Epiphan Pearl](integrations.md#epiphan-pearl)).
+Replace `TRICASTER-IP` / `PEARL-IP` with the device's IP address and the login with its user name and password. The setup on the device is in [TriCaster](works-with/tricaster.md) and [Epiphan Pearl](works-with/epiphan-pearl.md).
 
 {: .note }
 Neither preset has been tested on the hardware by the ScoreSight project yet: they follow the vendors' documentation. Tell us how they work for you in an [issue](https://github.com/royshil/scoresight/issues/new/choose).

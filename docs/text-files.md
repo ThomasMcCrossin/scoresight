@@ -8,7 +8,7 @@ description: "Write each field to a .txt file, plus results.csv, results.xml, re
 # Text, CSV & XML Files
 {: .no_toc }
 
-The **Text files** output writes the readings to files in a folder. Almost any broadcast or office software can read them: OBS (*Text (GDI+/FreeType 2)* > *Read from file*), Wirecast, vMix Data Sources, NewBlue Captivate, Ross XPression, SuiteCG, Excel and more (see [Works with…](integrations.md)).
+The **Text files** output writes the readings to files in a folder. Almost any broadcast or office software can read them: OBS (*Text (GDI+/FreeType 2)* > *Read from file*), Wirecast, vMix Data Sources, NewBlue Captivate, Ross XPression, SuiteCG, CharacterWorks, PlayBox TitleBox, Excel and more (see [Works With…](integrations.md)).
 
 <a href="https://youtu.be/tKA6UBqcDC0" target="_blank" rel="noopener"><img src="videos/08-outputs.jpg" width="45%" alt="Video: Outputs: the built-in HTTP server, JSON and text files (3:23)"/></a>
 
@@ -161,9 +161,11 @@ Use **Don't append results** for live graphics, and an append mode to log a whol
 
 - **OBS**: add a *Text (GDI+)* (Windows) or *Text (FreeType 2)* source and enable **Read from file**, pointing at `Time.txt`, for example. To update OBS without files, see [OBS Studio](obs.md).
 - **vMix**: add the CSV or XML file as a **Data Source** (Settings > Data Sources) and bind title fields to its columns. Alternatively, use the direct [vMix integration](vmix.md).
-- **Wirecast**: add a *Text* source in *File* mode with **Keep reading text file continuously** (see [Works with…](integrations.md#wirecast)).
-- **SuiteCG**: point Data Automation at `results.json` or `results.txt` (see [Works with…](integrations.md#suitecg)).
-- **NewBlue, CasparCG and others**: see [Works with…](integrations.md) and [Other Software](other-software.md).
+- **Wirecast**: add a *Text* source in *File* mode with **Keep reading text file continuously** (see [Wirecast](works-with/wirecast.md)).
+- **SuiteCG**: point Data Automation at `results.json` or `results.txt` (see [SuiteCG](works-with/suitecg.md)).
+- **CharacterWorks**: point a Key-Value data source at `results.txt` (see [CharacterWorks](works-with/characterworks.md)).
+- **PlayBox TitleBox**: link each text object to a field's `.txt` file (see [PlayBox TitleBox](works-with/playbox-titlebox.md)).
+- **Others**: see [Works With…](integrations.md) and [Other Software](other-software.md).
 
 {: .tip }
 Keep the output folder on a local disk. Network shares and cloud-synced folders (OneDrive, Dropbox, iCloud) can delay or lock files.

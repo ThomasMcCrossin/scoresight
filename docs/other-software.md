@@ -7,7 +7,7 @@ description: "Use ScoreSight with NewBlue Captivate/Titler Live, CasparCG, Strea
 
 # Other Software
 
-ScoreSight has built-in integrations for [OBS](obs.md), [vMix](vmix.md) and [overlays.uno](uno.md). Other tools can use one of the generic outputs. For broadcast products (Wirecast, NewBlue Captivate, Ross XPression, SuiteCG, TriCaster, Epiphan Pearl, CasparCG, Singular.live, Chyron PRIME and more), see [Works with…](integrations.md), which has a setup guide for each.
+ScoreSight has built-in integrations for [OBS](obs.md), [vMix](vmix.md) and [overlays.uno](uno.md). Other tools can use one of the generic outputs. For broadcast, streaming and graphics products (Wirecast, XSplit, TriCaster, CasparCG, Chyron, Ross XPression, Vizrt, CharacterWorks, NewBlue Captivate, PlayBox TitleBox and more), see [Works With…](integrations.md): 33 products, with a setup guide for each one that has a documented way in.
 
 | If your software can... | Use |
 |---|---|
@@ -19,15 +19,11 @@ ScoreSight has built-in integrations for [OBS](obs.md), [vMix](vmix.md) and [ove
 
 ## NewBlue Captivate / Titler Live
 
-ScoreSight has no NewBlue-specific integration, but works with NewBlue through its data features: ScoreSight can push the values to Captivate with the [Outbound HTTP API](out_api.md), or Captivate can read the JSON/XML from the [HTTP server](http_server.md) or the files from the [Text Files](text-files.md) output. [Works with…](integrations.md#newblue-captivate) has both setups. This video shows a complete setup:
-
-<a href="https://youtu.be/ptR-Yh5FSPg" target="_blank" rel="noopener"><img src="image-19.png" width="45%" alt="Video: ScoreSight with NewBlue Captivate"/></a>
+See [NewBlue Captivate](works-with/newblue-captivate.md) (Titler Live is its former name): ScoreSight pushes the values with the [Outbound HTTP API](out_api.md), or Captivate's JSON/XML readers poll the [HTTP server](http_server.md).
 
 ## CasparCG
 
-Use the [TCP / UDP output](tcp-output.md#casparcg) with its CasparCG preset: it loads ScoreSight's scorebug template (or your own) over AMCP and updates it as the values change.
-
-Or play a [browser overlay](overlays.md#casparcg) with the HTML producer: `PLAY 1-20 [HTML] "http://<scoresight-ip>:18099/overlay/scorebug"`. For your own template, load `http://<scoresight-ip>:18099/overlay/client.js` in it and mark the elements with `data-field` (see [the overlay contract](overlays.md#the-overlay-contract)). Or adapt the polling template in [Works with…](integrations.md#casparcg).
+See [CasparCG](works-with/casparcg.md): the [TCP / UDP output](tcp-output.md#casparcg)'s CasparCG preset loads ScoreSight's scorebug template over AMCP and updates it, or CasparCG's HTML producer plays a [browser overlay](overlays.md#casparcg).
 
 ## Streamlabs Desktop and other OBS-like apps
 

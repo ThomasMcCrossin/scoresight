@@ -8,6 +8,18 @@ Release tags are the bare version number (for example `0.1.0`).
 
 ## [Unreleased]
 
+### Changed
+
+- **Works With… covers 33 products.** The
+  [Works With…](https://royshil.github.io/scoresight/integrations.html)
+  section of the documentation is now a section of its own, with a setup
+  page for each product that has a documented way in: new guides for
+  CharacterWorks, PlayBox TitleBox, XSplit Broadcaster, Livestream Studio
+  and MagicSoft CG, and its own page for each of the earlier ones. Chyron
+  LYRIC, ClassX LiveBoard, wTVision, Nemo3D and others are listed with what
+  is known about them. The MagicSoft CG steps now say to use the port set
+  in MagicSoft's Socket communication tab (its defaults are 2610 to 2643).
+
 ## [0.3.2] - 2026-10-12
 
 Signed Windows downloads, and video tutorials in the documentation.
