@@ -136,6 +136,8 @@ Every setting is described in the [Per-Box Settings reference](box-settings.md),
 
 ## Template fields
 
+<a href="https://youtu.be/OrIesDf_fsY" target="_blank" rel="noopener"><img src="videos/07-template-fields.jpg" width="45%" alt="Video: Template fields: combine scores and clock in one line (3:05)"/></a>
+
 A **template field** is a custom field with no box on the picture. Its value is built from other fields' values plus your own text. Use template fields to:
 
 - combine values: `{% raw %}{{Home Score}} - {{Away Score}}{% endraw %}` gives `65 - 39`

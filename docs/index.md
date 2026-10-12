@@ -57,6 +57,7 @@ A short series on the current version, from the first source to your graphics. T
 <a href="https://youtu.be/fwKIpfiTbCo" target="_blank" rel="noopener"><img src="videos/04-fields.jpg" width="30%" alt="Video 4: Place boxes over every score and clock (3:06)"/></a>
 <a href="https://youtu.be/ZOoNYqGhmmI" target="_blank" rel="noopener"><img src="videos/05-accurate-readings.jpg" width="30%" alt="Video 5: Rock-solid readings: models, formats and filters (3:46)"/></a>
 <a href="https://youtu.be/1HRfxRJHBKk" target="_blank" rel="noopener"><img src="videos/06-game-day.jpg" width="30%" alt="Video 6: Game day: Live layout, Pause outputs and Hold value (3:06)"/></a>
+<a href="https://youtu.be/OrIesDf_fsY" target="_blank" rel="noopener"><img src="videos/07-template-fields.jpg" width="30%" alt="Video 7: Template fields: combine scores and clock in one line (3:05)"/></a>
 <a href="https://youtu.be/tKA6UBqcDC0" target="_blank" rel="noopener"><img src="videos/08-outputs.jpg" width="30%" alt="Video 8: Outputs: the built-in HTTP server, JSON and text files (3:23)"/></a>
 <a href="https://youtu.be/2i_7QR6-yKY" target="_blank" rel="noopener"><img src="videos/09-browser-overlays.jpg" width="30%" alt="Video 9: Free scoreboard browser overlays for OBS, vMix and more (3:07)"/></a>
 <a href="https://youtu.be/anQl1D921O0" target="_blank" rel="noopener"><img src="videos/10-obs.jpg" width="30%" alt="Video 10: Live scoreboard scores in OBS Studio (2:44)"/></a>
