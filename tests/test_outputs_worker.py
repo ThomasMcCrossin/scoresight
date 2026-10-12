@@ -730,8 +730,16 @@ def test_send_many_gets_up_to_max_batch_items_per_call(make_worker):
 
 def test_a_failed_batch_fails_or_retries_all_of_its_items(make_worker):
     attempts = []
+    holding = threading.Event()
+    gate = threading.Event()
 
     def send_many(chunk):
+        if [key for key, _ in chunk] == ["hold"]:
+            # keep the worker busy while "a" and "b" are queued, so they
+            # always go out in one batch (it would take "a" alone otherwise)
+            holding.set()
+            assert gate.wait(5)
+            return
         attempts.append([key for key, _ in chunk])
         if len(attempts) == 1:
             raise OutputError("HTTP 400", status_code=400)
@@ -745,20 +753,28 @@ def test_a_failed_batch_fails_or_retries_all_of_its_items(make_worker):
         retry_on=(requests.ConnectionError,),
         initial_backoff=0.01,
     )
+
+    def submit_together(a, b):
+        holding.clear()
+        gate.clear()
+        worker.submit("hold", a)
+        assert holding.wait(5)
+        worker.submit("a", a)
+        worker.submit("b", b)
+        gate.set()
+
     try:
-        worker.submit("a", 1)
-        worker.submit("b", 2)
+        submit_together(1, 2)
         assert worker.wait_idle(5)
         status = worker.status()
         assert (status.failing_keys, status.failed) == (2, 2)  # dropped
 
-        worker.submit("a", 3)
-        worker.submit("b", 4)
+        submit_together(3, 4)
         wait_for(lambda: len(attempts) == 3)  # refused, then retried
         assert worker.wait_idle(5)
         assert attempts == [["a", "b"], ["a", "b"], ["a", "b"]]
         status = worker.status()
-        assert (status.ok_keys, status.failing_keys) == (2, 0)
+        assert (status.ok_keys, status.failing_keys) == (3, 0)  # and "hold"
     finally:
         worker.stop(2)
 
