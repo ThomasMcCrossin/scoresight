@@ -8,6 +8,16 @@ Release tags are the bare version number (for example `0.1.0`).
 
 ## [Unreleased]
 
+### Added
+
+- **TCP server.** The TCP / UDP output can now wait for other programs to
+  connect to ScoreSight, for software that connects to its data source
+  instead of listening: choose **TCP server** next to the port. Up to 32
+  programs can connect at once; each one gets the "on connect"
+  message and every current value, then each change. The Outputs list shows
+  how many are connected, and says when the port is taken by another
+  program. Try it with `telnet` or `nc`.
+
 ### Changed
 
 - **Works With… covers 33 products.** The

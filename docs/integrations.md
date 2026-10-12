@@ -67,6 +67,7 @@ ScoreSight's readings can reach most broadcast graphics, streaming and productio
 | read a file | [Text files](text-files.md) | `<Box Name>.txt` (one value), `results.csv`, `results.xml`, `results.json` (one object), `results.txt` (`key=value` lines) |
 | receive HTTP requests | [Outbound HTTP API](out_api.md) | One request per cycle or per field, JSON/XML/CSV or GET, with headers, a rate limit and presets |
 | listen for text over TCP or UDP | [TCP / UDP output](tcp-output.md) | Text lines from a template (`{field}={value}`, JSON, CasparCG XML...), with presets |
+| connect to a data source over TCP and read text lines | [TCP / UDP output](tcp-output.md#tcp-server-programs-connect-to-scoresight) as a **TCP server** | The same text lines, to every program that connects |
 | take NDI with alpha, but no web pages | [Browser overlays](overlays.md) through OBS | Put the overlay in an OBS scene and send it out with the DistroAV (NDI) plugin |
 
 {: .tip }
@@ -99,11 +100,11 @@ ClassX's manual is for its customers, so the exact menus aren't given here. FOR-
 
 ### Grafster
 
-**Not yet.** Converge Horizons says [Grafster](https://www.convergetech.com/Products/Grafster/grafster.html)'s text fields can receive text from a TCP/IP socket (with the TCP/IP Ports option, in the Online Standard edition and up), but doesn't publish the port or the message format. ScoreSight's [TCP / UDP output](tcp-output.md) can probably send it once those are known.
+**Not yet.** Converge Horizons says [Grafster](https://www.convergetech.com/Products/Grafster/grafster.html)'s text fields can receive text from a TCP/IP socket (with the TCP/IP Ports option, in the Online Standard edition and up), but doesn't publish the port, the message format, or which side connects. ScoreSight's [TCP / UDP output](tcp-output.md) can connect to Grafster or, as a TCP server, let Grafster connect to it, so it can probably send the text once those are known.
 
 ### INTV Atlas Sport
 
-**Not yet.** INTV's [Atlas Sport](http://www.intvco.com/en/products/intv-products/atlassport) exchanges data with timing systems and other graphics systems through its Sport-Proxy option, but INTV doesn't publish the protocol. Ask INTV.
+**Not yet.** INTV's [Atlas Sport](http://www.intvco.com/en/products/intv-products/atlassport) exchanges data with timing systems and other graphics systems through its Sport-Proxy option, but INTV doesn't publish the protocol. Ask INTV what Sport-Proxy expects: if it connects to its data source over TCP and reads text lines, ScoreSight's [TCP server](tcp-output.md#tcp-server-programs-connect-to-scoresight) can be that source.
 
 ### Navis Media
 

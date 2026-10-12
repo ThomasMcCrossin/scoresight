@@ -20,7 +20,7 @@ ScoreSight can publish its readings to several destinations at the same time. Th
 | [vMix](vmix.md) | **vMix** | ScoreSight pushes to the vMix Web API | `SetText` on title fields | vMix GT titles |
 | [Overlays.uno](uno.md) | **UNO** | ScoreSight pushes to the UNO control app API | Commands / overlay fields | overlays.uno graphics |
 | [Outbound HTTP API](out_api.md) | **HTTP API** | ScoreSight pushes to your URL | JSON, XML, CSV or GET query, per cycle or per field, with presets | Your own server, cloud functions, automations, TriCaster DataLink, Epiphan Pearl, NewBlue Captivate |
-| [TCP / UDP](tcp-output.md) | **TCP / UDP** | ScoreSight pushes over a TCP connection or UDP | Text lines from a template, with presets | CasparCG (AMCP), Chyron PRIME, Live Score, MagicSoft CG, Vizrt Viz Engine, custom line protocols |
+| [TCP / UDP](tcp-output.md) | **TCP / UDP** | ScoreSight pushes over a TCP connection or UDP, or programs connect to its TCP server | Text lines from a template, with presets | CasparCG (AMCP), Chyron PRIME, Live Score, MagicSoft CG, Vizrt Viz Engine, programs that connect to their data source, custom line protocols |
 | [Works With…](integrations.md) | (uses the outputs above) | | | 33 broadcast, streaming and graphics products, with their status and setup guides |
 | [Other software](other-software.md) | (uses the outputs above) | | | NewBlue Captivate/Titler Live, CasparCG, Streamlabs, Home Assistant and more |
 

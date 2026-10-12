@@ -6,6 +6,7 @@ import socket
 import sys
 import threading
 import time
+from dataclasses import replace
 
 import pytest
 
@@ -19,6 +20,7 @@ from tcp_output import (
     MAGICSOFT,
     PER_FIELD,
     PER_FRAME,
+    TCP_SERVER,
     UDP,
     VIZRT,
     TcpConfig,
@@ -894,3 +896,280 @@ def test_per_frame_mode_sends_nothing_without_values(servers, make_output, make_
     output.update([make_result("A", "1")])
     server.wait_for(b'ALL {"A": "1"}\n')
     assert output.config.mode == PER_FRAME != PER_FIELD
+
+
+# --- TCP server: programs connect to ScoreSight ----------------------------------------
+
+
+class Client:
+    """A program connected to ScoreSight's TCP server, recording what it gets."""
+
+    def __init__(self, port: int):
+        self.sock = socket.create_connection(("127.0.0.1", port), timeout=WAIT)
+        self.data = bytearray()
+        self.closed = False
+        self._lock = threading.Lock()
+        threading.Thread(target=self._read, daemon=True).start()
+
+    def _read(self):
+        while True:
+            try:
+                data = self.sock.recv(65536)
+            except OSError:
+                data = b""
+            if not data:
+                with self._lock:
+                    self.closed = True
+                return
+            with self._lock:
+                self.data += data
+
+    def received(self) -> bytes:
+        with self._lock:
+            return bytes(self.data)
+
+    def wait_for(self, expected: bytes) -> bytes:
+        """Wait until it received expected (at the end of what it got)."""
+        assert wait_until(lambda: self.received().endswith(expected)), (
+            self.received(),
+            expected,
+        )
+        return self.received()
+
+    def close(self):
+        _close(self.sock)
+
+
+def _close(sock: socket.socket):
+    try:
+        sock.shutdown(socket.SHUT_RDWR)
+    except OSError:
+        pass
+    sock.close()
+
+
+@pytest.fixture
+def clients():
+    created = []
+
+    def _make(port: int) -> Client:
+        client = Client(port)
+        created.append(client)
+        return client
+
+    yield _make
+    for client in created:
+        client.close()
+
+
+def server_config(port: int | None, **changes) -> TcpConfig:
+    return TcpConfig.from_dict(
+        {
+            **TcpConfig().with_preset(CUSTOM).to_dict(),
+            "transport": TCP_SERVER,
+            "port": port,
+            **changes,
+        }
+    )
+
+
+def listening(output: TcpOutput) -> bool:
+    return output.connection_status().listening
+
+
+def client_count(output: TcpOutput) -> int:
+    return len(output.connection_status().clients)
+
+
+def test_server_config():
+    config = server_config(5300, host="")
+    assert config.listens and config.is_complete  # no host needed
+    assert config.target == "port 5300"
+    # the host doesn't matter to a TCP server
+    assert config.endpoint == replace(config, host="10.0.0.9").endpoint
+    assert TcpConfig.from_dict(config.to_dict()).transport == TCP_SERVER
+    assert not server_config(None).is_complete
+
+
+def test_a_program_that_connects_gets_on_connect_and_every_value_then_changes(
+    make_output, make_result, clients
+):
+    port = free_port()
+    output = make_output(server_config(port, init="HELLO"))
+    output.start()
+    assert wait_until(lambda: listening(output))
+    output.update([make_result("Home Score", "21"), make_result("Time", "3:12")])
+    client = clients(port)
+    client.wait_for(b"HELLO\nHome Score=21\nTime=3:12\n")
+    assert wait_until(lambda: client_count(output) == 1)
+    # then only what changes
+    output.update([make_result("Home Score", "22"), make_result("Time", "3:12")])
+    assert client.wait_for(b"Home Score=22\n") == (
+        b"HELLO\nHome Score=21\nTime=3:12\nHome Score=22\n"
+    )
+
+
+def test_every_program_gets_the_values(make_output, make_result, clients):
+    port = free_port()
+    output = make_output(server_config(port, init="HELLO"))
+    output.start()
+    assert wait_until(lambda: listening(output))
+    first = clients(port)
+    assert wait_until(lambda: client_count(output) == 1)
+    first.wait_for(b"HELLO\n")
+    output.update([make_result("A", "1")])
+    first.wait_for(b"A=1\n")
+    # a program connecting later gets the current values, and the others
+    # don't get the "on connect" message again
+    second = clients(port)
+    second.wait_for(b"HELLO\nA=1\n")
+    output.update([make_result("A", "2")])
+    first.wait_for(b"A=2\n")
+    second.wait_for(b"A=2\n")
+    assert first.received() == b"HELLO\nA=1\nA=2\n"
+    assert second.received() == b"HELLO\nA=1\nA=2\n"
+    assert client_count(output) == 2
+
+
+def test_one_message_with_every_field_for_each_program(
+    make_output, make_result, clients
+):
+    port = free_port()
+    output = make_output(
+        server_config(port, mode=PER_FRAME, template="{json}", escape="none")
+    )
+    output.start()
+    assert wait_until(lambda: listening(output))
+    output.update([make_result("A", "1"), make_result("B", "2")])
+    client = clients(port)
+    client.wait_for(b'{"A": "1", "B": "2"}\n')
+    output.update([make_result("A", "3"), make_result("B", "2")])
+    client.wait_for(b'{"A": "3", "B": "2"}\n')
+
+
+def test_a_program_that_disconnects_is_dropped(make_output, make_result, clients):
+    port = free_port()
+    output = make_output(server_config(port))
+    output.start()
+    assert wait_until(lambda: listening(output))
+    client = clients(port)
+    assert wait_until(lambda: client_count(output) == 1)
+    client.close()
+    assert wait_until(lambda: client_count(output) == 0)
+    # sending to nobody is fine, and the next program gets the values
+    output.update([make_result("A", "1")])
+    clients(port).wait_for(b"A=1\n")
+
+
+def test_what_programs_send_shows_as_the_last_answer(make_output, clients):
+    port = free_port()
+    output = make_output(server_config(port))
+    output.start()
+    assert wait_until(lambda: listening(output))
+    client = clients(port)
+    client.sock.sendall(b"READY\r\n")
+    assert wait_until(lambda: output.connection_status().last_reply == "READY")
+
+
+def test_stop_closes_the_port_and_the_connections(make_output, make_result, clients):
+    port = free_port()
+    output = make_output(server_config(port))
+    output.start()
+    assert wait_until(lambda: listening(output))
+    client = clients(port)
+    assert wait_until(lambda: client_count(output) == 1)
+    output.stop()
+    assert wait_until(lambda: client.closed)
+    assert not listening(output)
+    with pytest.raises(OSError):
+        socket.create_connection(("127.0.0.1", port), timeout=1).close()
+    # and it opens again
+    output.start()
+    assert wait_until(lambda: listening(output))
+    output.update([make_result("A", "1")])
+    clients(port).wait_for(b"A=1\n")
+
+
+def test_another_port_moves_the_server(make_output, make_result, clients):
+    port = free_port()
+    output = make_output(server_config(port))
+    output.start()
+    assert wait_until(lambda: listening(output))
+    client = clients(port)
+    assert wait_until(lambda: client_count(output) == 1)
+    other = free_port()
+    output.set_config(server_config(other))
+    assert wait_until(lambda: client.closed)
+    assert wait_until(lambda: listening(output))
+    output.update([make_result("A", "1")])
+    clients(other).wait_for(b"A=1\n")
+
+
+def test_a_busy_port_shows_and_is_retried(make_output, make_result, clients):
+    port = free_port()
+    blocker = tcp_output._open_server(server_config(port))
+    try:
+        output = make_output(server_config(port))
+        output.start()
+        assert wait_until(lambda: output.status().retrying)
+        status = tcp_status(output)
+        assert (status.state, status.detail) == (
+            output_status.ERROR,
+            f"Can't listen on port {port}",
+        )
+        assert "Another program uses this port" in status.hint
+    finally:
+        _close(blocker)
+    # the port is free again: ScoreSight opens it by itself
+    assert wait_until(lambda: listening(output))
+    output.update([make_result("A", "1")])
+    clients(port).wait_for(b"A=1\n")
+
+
+def test_server_status_transitions(make_output, make_result, clients):
+    output = make_output(server_config(None))
+    status = tcp_status(output)
+    assert (status.state, status.detail) == (output_status.OFF, "Off")
+    output.start()
+    assert tcp_status(output).detail == "Enter a port"
+    port = free_port()
+    output.set_config(server_config(port))
+    assert tcp_status(output, has_fields=False).detail == "No fields to send"
+    assert wait_until(lambda: listening(output))
+    status = tcp_status(output, product="")
+    assert (status.state, status.detail) == (
+        output_status.SENDING,
+        f"Listening on port {port} · nothing connected",
+    )
+    client = clients(port)
+    assert wait_until(lambda: client_count(output) == 1)
+    status = tcp_status(output, product="")
+    assert (status.state, status.detail) == (
+        output_status.OK,
+        f"Listening on port {port} · 1 program connected",
+    )
+    assert status.hint.startswith("Connected: 127.0.0.1:")
+    clients(port)
+    assert wait_until(lambda: client_count(output) == 2)
+    assert tcp_status(output, product="Test").detail == (
+        f"Test: Listening on port {port} · 2 programs connected"
+    )
+    output.update([make_result("A", "1")])
+    client.wait_for(b"A=1\n")
+    assert wait_until(lambda: tcp_status(output).last_activity_at is not None)
+    output.stop()
+    assert tcp_status(output).state == output_status.OFF
+
+
+def test_too_many_programs_are_refused(make_output, clients, monkeypatch):
+    monkeypatch.setattr(tcp_output, "MAX_CLIENTS", 2)
+    port = free_port()
+    output = make_output(server_config(port))
+    output.start()
+    assert wait_until(lambda: listening(output))
+    clients(port)
+    clients(port)
+    assert wait_until(lambda: client_count(output) == 2)
+    third = clients(port)
+    assert wait_until(lambda: third.closed)
+    assert client_count(output) == 2

@@ -2,13 +2,13 @@
 title: TCP / UDP (CasparCG, Chyron, Live Score...)
 parent: Outputs
 nav_order: 7
-description: "Send ScoreSight readings over TCP or UDP to CasparCG (AMCP), Chyron PRIME (Intelligent Interface), Live Score, MagicSoft CG, Vizrt Viz Engine (Shared Memory) or your own line protocol."
+description: "Send ScoreSight readings over TCP or UDP to CasparCG (AMCP), Chyron PRIME (Intelligent Interface), Live Score, MagicSoft CG, Vizrt Viz Engine (Shared Memory) or your own line protocol, or let other programs connect to ScoreSight's TCP server."
 ---
 
 # TCP / UDP output
 {: .no_toc }
 
-The **TCP / UDP** output sends the readings as text messages over a network socket. Many graphics systems take data this way: CasparCG, Chyron PRIME, Live Score, MagicSoft CG and Vizrt's Viz Engine have presets, and a template lets you speak any other simple line protocol.
+The **TCP / UDP** output sends the readings as text messages over a network socket. Many graphics systems take data this way: CasparCG, Chyron PRIME, Live Score, MagicSoft CG and Vizrt's Viz Engine have presets, and a template lets you speak any other simple line protocol. ScoreSight connects to the receiving program, or, as a [TCP server](#tcp-server-programs-connect-to-scoresight), waits for programs to connect to it.
 
 <a href="https://youtu.be/HaWNl92JLBE" target="_blank" rel="noopener"><img src="videos/13-broadcast.jpg" width="45%" alt="Video: Scoreboard data for CasparCG, Chyron, Vizrt and TriCaster (3:15)"/></a>
 
@@ -23,7 +23,7 @@ The **TCP / UDP** output sends the readings as text messages over a network sock
 
 1. Select **TCP / UDP** in the **Outputs** list (or click **TCP** in the status bar).
 2. Pick the receiving program in **Preset**. The preset sets the port, the template and the options for it. You can change all of them, and **Reset** sets the preset's values again.
-3. Enter the **Address** of the computer the receiving program runs on (`localhost` if it's this computer) and its **port**. Some programs have no default port: use the one set in the program (see the [presets](#presets) below).
+3. Enter the **Address** of the computer the receiving program runs on (`localhost` if it's this computer) and its **port**. Some programs have no default port: use the one set in the program (see the [presets](#presets) below). For a program that connects to its data source instead, choose **TCP server** next to the port (see [TCP server](#tcp-server-programs-connect-to-scoresight)).
 4. Check the **names** table: the name each field is sent as. An empty name leaves the field out.
 5. Click **Start sending** (or the switch of the **TCP / UDP** row).
 
@@ -42,6 +42,26 @@ The **TCP / UDP** row of the Outputs list shows what happens:
 | ○ *Off* | Not started |
 
 When the receiving program closes the connection (it was restarted, for example), ScoreSight reconnects by itself and sends the "on connect" message and every current value again.
+
+## TCP server: programs connect to ScoreSight
+
+Some programs don't wait for data: they connect to a data source themselves and read what it sends. For them, choose **TCP server** in the list next to the port. ScoreSight then listens on that port, on every network address of its computer, and up to 32 programs can connect at once:
+
+1. Choose **TCP server**. The **Address** becomes **Listen on port**: enter a free port, for example `5300`. The note under the preset says where programs connect: *other programs connect to 192.168.1.20:5300 (localhost:5300 on this computer)*.
+2. Choose the template and the options as usual (the presets set the transport back to TCP: pick **TCP server** again after a preset).
+3. Click **Start sending**.
+4. In the other program, connect to the ScoreSight computer's address and that port. Allow ScoreSight through the firewall of its computer for programs on other computers.
+
+Each program that connects gets the "on connect" message and every current value, then each change (and every value again with **Resend all every**). A program that closes its connection is dropped, and one that stops reading for 2 seconds too. What the programs send to ScoreSight is shown as their last answer.
+
+To try it, connect with a terminal: `nc localhost 5300` (macOS, Linux) or `telnet localhost 5300` (Windows, with the Telnet client turned on). The values scroll by as they change.
+
+| Status | Meaning |
+|---|---|
+| ● *Listening on port 5300 · 2 programs connected* | Programs are connected. Hover it for their addresses and the last answer |
+| ◐ *Listening on port 5300 · nothing connected* | The port is open, waiting for a program to connect |
+| ■ *Can't listen on port 5300* | Another program uses the port, or the system doesn't allow it: choose another one. ScoreSight tries again by itself |
+| ▲ *Enter a port* | No port is set |
 
 ## Presets
 
@@ -237,5 +257,7 @@ Edit the right column to change a name; an empty name leaves the field out. Name
 - **An answer like `404 CG ERROR`** (CasparCG): the template isn't in the templates folder, or the name, channel or layer is wrong.
 - **Strange characters**: set the **Encoding** the receiving program expects (Chyron PRIME uses ISO-8859-1 by default).
 - **UDP**: there is no connection, so ScoreSight can't tell whether the values arrive.
+- **■ Can't listen on port …** (TCP server): another program, or another ScoreSight, listens on that port. Choose another port, in ScoreSight and in the program that connects.
+- **◐ Listening … · nothing connected** (TCP server): the other program hasn't connected. Check the address and port it connects to, and the firewall of the ScoreSight computer.
 
 The settings are stored in `scoresight.json` under `tcp_output` and `tcp_mapping` (see [Settings, Files & Command Line](configuration.md#outputs)).

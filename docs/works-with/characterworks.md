@@ -31,6 +31,8 @@ CharacterWorks' Key-Value source can listen for TCP connections ("server" role) 
 
 The Key-Value source merges new values and never deletes a key, so a field that has no new reading keeps its last value.
 
+The other way around works too: set the Key-Value source's connection to the TCP **client** role with the ScoreSight computer's address and a port, and choose **TCP server** with that port in ScoreSight (see [TCP server](../tcp-output.md#tcp-server-programs-connect-to-scoresight)). CharacterWorks then connects to ScoreSight and gets every value on each connection.
+
 ## From ScoreSight's key=value file
 
 ScoreSight's `results.txt` is exactly the file format of a Key-Value source: a `Home Score=65` line per field.

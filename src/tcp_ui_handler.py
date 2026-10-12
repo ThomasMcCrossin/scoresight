@@ -24,6 +24,7 @@ from PySide6.QtWidgets import QFileDialog, QMessageBox, QToolTip, QWidget
 import output_status
 from resource_path import resource_path
 from sc_logging import logger
+from status_bar import primary_lan_address
 from storage import fetch_data, store_data
 from tcp_output import (
     CASPARCG,
@@ -130,6 +131,23 @@ def preset_note(key: str) -> str:
     )
 
 
+def listen_note(port: int | None, lan_address: str | None) -> str:
+    """Where other programs connect to the TCP server."""
+    port_text = "?" if port is None else str(port)
+    if lan_address:
+        return QCoreApplication.translate(
+            "TcpOutput",
+            "TCP server: other programs connect to {address}:{port} "
+            "(localhost:{port} on this computer), and each one gets the messages.",
+        ).format(address=lan_address, port=port_text)
+    return QCoreApplication.translate(
+        "TcpOutput",
+        "TCP server: other programs connect to this computer's address, port "
+        "{port} (localhost:{port} on this computer), and each one gets the "
+        "messages.",
+    ).format(port=port_text)
+
+
 def _combo_texts() -> dict[str, list[tuple[str, str]]]:
     """(text, key) of the items of each choice."""
     return {
@@ -223,6 +241,11 @@ class TcpUIHandler(QObject):
         for edit in (ui.plainTextEdit_tcpTemplate, ui.plainTextEdit_tcpPreview):
             edit.setWordWrapMode(QTextOption.WrapMode.WrapAtWordBoundaryOrAnywhere)
         ui.tableView_tcpMapping.setModel(QStandardItemModel(ui.tableView_tcpMapping))
+        # the host takes the row's width; without it (TCP server), the port and
+        # the transport stay on the left
+        row = ui.horizontalLayout_tcpAddressRow
+        row.setStretchFactor(ui.lineEdit_tcpHost, 1)
+        row.addStretch(0)
         # the scroll area doesn't give the wrapped labels the height they need
         # at its width: fitContentHeight() does, whenever the width changes
         self._viewport = ui.scrollArea_tcp.viewport()
@@ -332,6 +355,7 @@ class TcpUIHandler(QObject):
             QCoreApplication.translate("TcpOutput", "Never")
         )
         self.updateToggleText(ui.pushButton_tcpStart.isChecked())
+        self.updateAddressRow(self.widgetConfig().listens)
         self.updatePresetNote()
         self.updatePreview()
         self.updateReply()
@@ -436,8 +460,13 @@ class TcpUIHandler(QObject):
             store_data(SETTINGS_FILE, SETTINGS_KEY, config.to_dict())
             self.output.set_config(config)
         self.updateVisibility(config)
-        if config.preset != old.preset:
+        if (config.preset, config.listens, config.port) != (
+            old.preset,
+            old.listens,
+            old.port,
+        ):
             self.updatePresetNote()
+        if config.preset != old.preset:
             # the preset's default names
             self.updateMappingTable()
         self.updatePreview()
@@ -514,12 +543,42 @@ class TcpUIHandler(QObject):
         )
         self.ui.widget_tcpCasparButtons.setVisible(caspar)
         self.ui.pushButton_tcpCopyTemplate.setVisible(caspar)
+        self.updateAddressRow(config.listens)
         self.fitContentHeight()
 
+    def updateAddressRow(self, listens: bool):
+        """A TCP server needs only its port: no host."""
+        ui = self.ui
+        ui.lineEdit_tcpHost.setVisible(not listens)
+        ui.label_tcpColon.setVisible(not listens)
+        if listens:
+            ui.label_tcpAddress.setText(
+                QCoreApplication.translate("TcpOutput", "Listen on port")
+            )
+            ui.lineEdit_tcpPort.setToolTip(
+                QCoreApplication.translate(
+                    "TcpOutput",
+                    "The port ScoreSight listens on. Set the same port in the "
+                    "program that connects to ScoreSight.",
+                )
+            )
+        else:
+            ui.label_tcpAddress.setText(
+                QCoreApplication.translate("TcpOutputPage", "Address")
+            )
+            ui.lineEdit_tcpPort.setToolTip(
+                QCoreApplication.translate(
+                    "TcpOutputPage",
+                    "The port the receiving program listens on (set in that program)",
+                )
+            )
+
     def updatePresetNote(self):
-        self.ui.label_tcpPresetNote.setText(
-            preset_note(self.ui.comboBox_tcpPreset.currentData() or CUSTOM)
-        )
+        note = preset_note(self.ui.comboBox_tcpPreset.currentData() or CUSTOM)
+        config = self.widgetConfig()
+        if config.listens:
+            note += "\n" + listen_note(config.port, primary_lan_address())
+        self.ui.label_tcpPresetNote.setText(note)
         self.fitContentHeight()
 
     def previewValues(self):
