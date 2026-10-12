@@ -16,6 +16,7 @@ ScoreSight has built-in integrations for [OBS](obs.md), [vMix](vmix.md) and [ove
 | show a web page (browser source, HTML template) | The [browser overlays](overlays.md) (built-in or your own HTML, pushed live) |
 | receive webhooks / HTTP requests | [Outbound HTTP API](out_api.md) |
 | take text lines over a TCP connection or UDP | [TCP / UDP output](tcp-output.md) (presets for CasparCG, Chyron PRIME, Live Score, MagicSoft CG and Vizrt) |
+| connect to a TCP server and read text lines | The [TCP / UDP output](tcp-output.md#tcp-server-programs-connect-to-scoresight) as a **TCP server** |
 
 ## NewBlue Captivate / Titler Live
 
@@ -32,7 +33,7 @@ Use a **Text** source with "read from file" pointing at a field's `.txt` file, o
 ## Home Assistant, Node-RED and automation
 
 - **Home Assistant**: a REST sensor on `/json?pivot` (see the [example](http_server.md#home-assistant-rest-sensor)) turns any scoreboard value into a sensor you can automate on, for example to switch lights at the final buzzer.
-- **Node-RED / n8n**: either poll `/json` with an HTTP request node, or let ScoreSight push to an HTTP-in node with the [Outbound HTTP API](out_api.md).
+- **Node-RED / n8n**: either poll `/json` with an HTTP request node, or let ScoreSight push to an HTTP-in node with the [Outbound HTTP API](out_api.md). In Node-RED, a **tcp in** node set to *Connect to* the [TCP server](tcp-output.md#tcp-server-programs-connect-to-scoresight) gets each change as a line too.
 
 ## Spreadsheets and statistics
 

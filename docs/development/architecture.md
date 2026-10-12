@@ -166,7 +166,7 @@ Logging goes through `from sc_logging import logger`. It writes to `platformdirs
 | `obs_ui_handler.py` | The OBS page's table of each field's OBS text source (`obs_source_name`), saved through the box storage |
 | `vmix_output.py`, `vmix_ui_handler.py` | vMix Web API sender and its settings page |
 | `uno_output.py`, `uno_ui_handler.py` | overlays.uno sender and its settings page |
-| `tcp_output.py`, `tcp_ui_handler.py` | TCP / UDP line output: templates, escaping, presets (CasparCG, Chyron PRIME, Live Score, MagicSoft CG, Vizrt), the persistent connection with its reply reader; and its settings page (`tcp_output.ui`) |
+| `tcp_output.py`, `tcp_ui_handler.py` | TCP / UDP line output: templates, escaping, presets (CasparCG, Chyron PRIME, Live Score, MagicSoft CG, Vizrt), the persistent connection with its reply reader, or a TCP server that programs connect to; and its settings page (`tcp_output.ui`) |
 | `file_output.py` | Text, CSV and XML file output |
 | `ocr_training_data.py`, `training_dojo.py` | Training data collection and the annotation tool |
 | `log_view.py` | Log viewer dialog |

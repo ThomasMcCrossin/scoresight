@@ -32,7 +32,7 @@ from file_output import FileOutputStatus
 from http_server import HttpServerStats
 from obs_websocket import OBSConnectionLost
 from output_worker import ErrorInfo, OutputError, RetryLater, WorkerStatus
-from tcp_output import CASPARCG, UDP, ConnectionStatus, TcpConfig
+from tcp_output import CASPARCG, UDP, ConnectionStatus, ListenError, TcpConfig
 from vmix_output import DEFAULT_VMIX_PORT, VMixTCPPortError
 
 # the destinations, in the order of the list and of the output pages
@@ -1412,6 +1412,10 @@ def tcp_status(
     """The TCP / UDP output: on while started (Start sending). product is the
     preset's product ("CasparCG"...), "" for a custom protocol."""
     connection = connection or ConnectionStatus()
+    if config.listens:
+        return _tcp_server_status(
+            running, config, product, has_fields, worker, connection
+        )
     target = config.target
     transport = "UDP" if config.transport == UDP else "TCP"
     if not running:
@@ -1560,6 +1564,123 @@ def tcp_status(
             connection.reply_error,
         )
     return _with_problem(status, problem, _technical(worker))
+
+
+def _tcp_server_status(
+    running: bool,
+    config: TcpConfig,
+    product: str,
+    has_fields: bool,
+    worker: WorkerStatus | None,
+    connection: ConnectionStatus,
+) -> DestinationStatus:
+    """The TCP / UDP output as a TCP server: other programs connect to
+    ScoreSight's port and get the readings."""
+    port = config.port if config.port is not None else "?"
+    if not running:
+        return DestinationStatus(
+            TCP,
+            OFF,
+            QCoreApplication.translate("OutputStatus", "Off"),
+            hint=QCoreApplication.translate(
+                "OutputStatus",
+                "Click Start sending to let other programs connect to ScoreSight "
+                "on port {port} and get the readings.",
+            ).format(port=port),
+        )
+    if config.port is None:
+        return DestinationStatus(
+            TCP,
+            WARNING,
+            QCoreApplication.translate("OutputStatus", "Enter a port"),
+            enabled=True,
+            hint=QCoreApplication.translate(
+                "OutputStatus",
+                "Enter the port ScoreSight listens on, and the same port in the "
+                "program that connects to ScoreSight.",
+            ),
+        )
+    if not has_fields:
+        return DestinationStatus(
+            TCP,
+            WARNING,
+            QCoreApplication.translate("OutputStatus", "No fields to send"),
+            enabled=True,
+            hint=QCoreApplication.translate(
+                "OutputStatus",
+                "Place fields on the picture and give them names in the table (an "
+                "empty name leaves a field out).",
+            ),
+        )
+    if worker is not None and worker.last_error is not None:
+        if worker.retrying and _is_a(worker.last_error, ListenError):
+            return DestinationStatus(
+                TCP,
+                ERROR,
+                QCoreApplication.translate(
+                    "OutputStatus", "Can't listen on port {port}"
+                ).format(port=port),
+                enabled=True,
+                hint=QCoreApplication.translate(
+                    "OutputStatus",
+                    "Another program uses this port, or the system doesn't allow "
+                    "it. Choose another port (and set it in the program that "
+                    "connects). ScoreSight tries again by itself.",
+                ),
+                technical=_technical(worker),
+            )
+    if not connection.listening:
+        return DestinationStatus(
+            TCP,
+            SENDING,
+            QCoreApplication.translate("OutputStatus", "Opening port {port}…").format(
+                port=port
+            ),
+            enabled=True,
+        )
+    if not connection.clients:
+        return DestinationStatus(
+            TCP,
+            SENDING,
+            _with_product(
+                product,
+                QCoreApplication.translate(
+                    "OutputStatus", "Listening on port {port} · nothing connected"
+                ).format(port=port),
+            ),
+            enabled=True,
+            hint=QCoreApplication.translate(
+                "OutputStatus",
+                "Waiting for a program to connect to this computer's address, port "
+                "{port}. Allow ScoreSight through this computer's firewall for "
+                "programs on other computers.",
+            ).format(port=port),
+        )
+    count = len(connection.clients)
+    if count == 1:
+        detail = QCoreApplication.translate(
+            "OutputStatus", "Listening on port {port} · 1 program connected"
+        ).format(port=port)
+    else:
+        detail = QCoreApplication.translate(
+            "OutputStatus", "Listening on port {port} · {count} programs connected"
+        ).format(port=port, count=count)
+    hint = QCoreApplication.translate("OutputStatus", "Connected: {programs}").format(
+        programs=elide_middle(", ".join(connection.clients), 160)
+    )
+    if connection.last_reply:
+        hint += " " + QCoreApplication.translate(
+            "OutputStatus", "Last answer: {reply}"
+        ).format(reply=elide_middle(connection.last_reply, 120))
+    last_sent = worker.last_success_at if worker is not None else None
+    return DestinationStatus(
+        TCP,
+        OK,
+        _with_product(product, detail),
+        enabled=True,
+        hint=hint,
+        last_activity_at=last_sent,
+    )
 
 
 def _with_product(product: str, detail: str) -> str:

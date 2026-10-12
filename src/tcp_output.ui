@@ -221,7 +221,7 @@
              <string>Transport</string>
             </property>
             <property name="toolTip">
-             <string>TCP keeps a connection open. UDP sends each message as a datagram, without a connection.</string>
+             <string>TCP connects to the receiving program and keeps the connection open. UDP sends each message as a datagram, without a connection. TCP server: ScoreSight listens on the port, and every program that connects to it gets the messages.</string>
             </property>
             <item>
              <property name="text">
@@ -231,6 +231,11 @@
             <item>
              <property name="text">
               <string notr="true">UDP</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>TCP server</string>
              </property>
             </item>
            </widget>

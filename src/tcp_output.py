@@ -2,7 +2,8 @@
 graphics systems with a simple line protocol (CasparCG's AMCP, Chyron PRIME's
 Intelligent Interface, Live Score, MagicSoft CG, Vizrt Viz Engine's Shared
 Memory input) or to any program that reads lines from a TCP connection or UDP
-datagrams.
+datagrams. As a TCP server, ScoreSight listens on a port instead, and every
+program that connects gets the messages.
 
 What is sent comes from a template: one message per changed field
 ("[{field}]={value}") or one message with every field ('{"values":{json}}').
@@ -18,6 +19,13 @@ optional "on connect" message and every current value after each connection,
 and respects the minimum interval between sends. A reader thread reads the
 receiver's replies (CasparCG answers every command, e.g. "202 CG OK"), so the
 receiver never blocks on a full buffer, and an error reply shows in the status.
+
+As a TCP server (TCP_SERVER), the worker thread opens the listening socket
+(retrying with backoff while the port can't be used), an accept thread takes
+the connections (at most MAX_CLIENTS), and each send goes to every connected
+program: a program that just connected gets the "on connect" message and every
+current value first. A reader thread per program reads what it sends; a program
+that closes its connection, or doesn't read for SEND_TIMEOUT, is dropped.
 """
 
 import json
@@ -33,9 +41,10 @@ from sc_logging import logger
 from text_detection_target import TextDetectionTargetWithResult
 
 # transports
-TCP = "tcp"
+TCP = "tcp"  # ScoreSight connects to the receiver
 UDP = "udp"
-TRANSPORTS = (TCP, UDP)
+TCP_SERVER = "tcp-server"  # ScoreSight listens; programs connect to it
+TRANSPORTS = (TCP, UDP, TCP_SERVER)
 
 # what a message holds
 PER_FIELD = "field"  # one message per changed field
@@ -94,6 +103,11 @@ MAX_REPLY_LENGTH = 65536
 # example) isn't flooded with reconnections
 QUICK_CLOSE = 2.0
 QUICK_CLOSE_BACKOFF = (0.5, 5.0)  # the first and the longest wait, in seconds
+
+# TCP server: the most programs connected at once (more are refused), and how
+# often (seconds) the accept thread checks whether to stop
+MAX_CLIENTS = 32
+ACCEPT_POLL = 0.5
 
 LOG_LABEL = "TCP output"
 
@@ -232,9 +246,9 @@ PRESETS: dict[str, Preset] = {
         ),
         # Live Score's "Scoreboard OCR Input" (Input > Scoreboard OCR > OCR
         # Setup): Live Score listens on the port set there. The format comes
-        # from scoreboard-ocr.com/live-score-app: one JSON object per message,
-        # ended by LF; the field names are those of Live Score's OCR Setup
-        # (GameClock, ShotClock, ScoreAway... ScoreHome is inferred). It
+        # from another OCR application's public guide: one JSON object per
+        # message, ended by LF; the field names are those of Live Score's OCR
+        # Setup (GameClock, ShotClock, ScoreAway... ScoreHome is inferred). It
         # "does not support displaying data 10x a second".
         Preset(
             LIVE_SCORE,
@@ -285,9 +299,11 @@ PRESETS: dict[str, Preset] = {
             name_style=NAMES_IDENTIFIER,
         ),
         # MagicSoft CG's socket server (Tools > Options > Socket Communication),
-        # per scoreboard-ocr.com/magicsoft: "[clock]=2:45" and CR LF, example
-        # address tcp://localhost:2034. "[time]" is reserved, so Time is sent
-        # as "clock" (the page's example).
+        # per another OCR application's public guide: "[clock]=2:45" and CR LF,
+        # example address tcp://localhost:2034 (MagicSoft's own sample macros
+        # use the same "[name]=value" lines; its default configuration has port
+        # pairs from 2610 to 2643). "[time]" is reserved, so Time is sent as
+        # "clock" (the guide's example).
         Preset(
             MAGICSOFT,
             "MagicSoft CG",
@@ -391,21 +407,31 @@ class TcpConfig:
     template_name: str = "scoresight_scorebug"
 
     @property
+    def listens(self) -> bool:
+        """ScoreSight is the TCP server: programs connect to it."""
+        return self.transport == TCP_SERVER
+
+    @property
     def target(self) -> str:
-        """ "host:port" ("[::1]:5250" for an IPv6 address)."""
+        """ "host:port" ("[::1]:5250" for an IPv6 address); "port 5300" for a
+        TCP server."""
+        port = self.port if self.port is not None else "?"
+        if self.listens:
+            return f"port {port}"
         host = self.host or "?"
         if ":" in host and not host.startswith("["):
             host = f"[{host}]"
-        return f"{host}:{self.port if self.port is not None else '?'}"
+        return f"{host}:{port}"
 
     @property
     def endpoint(self) -> tuple[str, str, int | None]:
-        return (self.transport, self.host, self.port)
+        # a TCP server listens on every address: the host doesn't matter
+        return (self.transport, "" if self.listens else self.host, self.port)
 
     @property
     def is_complete(self) -> bool:
-        """A host and a port are set."""
-        return bool(self.host) and self.port is not None
+        """A host and a port are set (a TCP server needs only the port)."""
+        return (self.listens or bool(self.host)) and self.port is not None
 
     def uses_casparcg_parameters(self) -> bool:
         text = self.template + "\n" + self.init
@@ -637,6 +663,24 @@ class ConnectionStatus:
     reply_error: str | None = None  # the last error answer, until an OK
     # the receiver closed the last connections right away, this many in a row
     quick_closes: int = 0
+    # TCP server: the port is open, and the addresses of the programs connected
+    listening: bool = False
+    clients: tuple[str, ...] = ()
+
+
+class ListenError(OSError):
+    """The TCP server can't listen on its port (another program uses it, or the
+    system doesn't allow it)."""
+
+
+@dataclass(eq=False)
+class _Client:
+    """A program connected to the TCP server."""
+
+    sock: socket.socket
+    name: str  # its address, "192.168.1.20:51234"
+    welcomed: bool = False  # got the "on connect" message and every value
+    closed: bool = False
 
 
 # an AMCP-style reply: a 3-digit code first ("202 CG OK", "404 CG ERROR"),
@@ -690,6 +734,12 @@ class TcpOutput:
         self._reply_error: str | None = None
         self._reply_codes_seen = False
         self._quick_closes = 0
+        # TCP server: the listening socket and the programs connected to it;
+        # _listen_id changes when it closes (its accept thread then ends)
+        self._server: socket.socket | None = None
+        self._server_endpoint: tuple | None = None
+        self._listen_id = 0
+        self._clients: list[_Client] = []
         # start() and stop() increment it: a send of an earlier session neither
         # puts its batch back nor installs its connection
         self._session = 0
@@ -697,6 +747,7 @@ class TcpOutput:
         self._wake = threading.Event()
         self._reply_log = ThrottledErrorLog(LOG_LABEL)
         self._close_log = ThrottledErrorLog(LOG_LABEL)
+        self._accept_log = ThrottledErrorLog(LOG_LABEL)
         self._worker = OutputWorker(
             LOG_LABEL,
             self._send,
@@ -748,6 +799,7 @@ class TcpOutput:
             self._batch = _Batch()
             self._last_send_at = None
         self._disconnect()
+        self._stop_listening()
 
     def close(self):
         """Stop sending and end the worker thread."""
@@ -775,18 +827,22 @@ class TcpOutput:
                 last_reply_at=self._last_reply_at,
                 reply_error=self._reply_error,
                 quick_closes=quick_closes,
+                listening=self._server is not None,
+                clients=tuple(client.name for client in self._clients),
             )
 
     def set_config(self, config: TcpConfig):
         """Use new settings. Another host, port or transport closes the
-        connection (the next one goes to the new receiver); another format
-        resends every value; another "on connect" message (or CasparCG
-        template, channel or layer) is sent again."""
+        connection (the next one goes to the new receiver) or the TCP server's
+        port and its connections; another format resends every value; another
+        "on connect" message (or CasparCG template, channel or layer) is sent
+        again."""
         old, self.config = self.config, config
         if old == config:
             return
         if old.endpoint != config.endpoint:
             self._disconnect()
+            self._stop_listening()
             # the status (and the errors logged) are about the new receiver
             self._worker.reset_status()
             with self._lock:
@@ -895,6 +951,9 @@ class TcpOutput:
             session = self._session
         if not self.running or not config.is_complete:
             raise SendSkipped()
+        if config.listens:
+            self._send_to_clients(config, session)
+            return
         self._ensure_connected(config, session)
         self._wait_min_interval(config)
         with self._lock:
@@ -925,6 +984,110 @@ class TcpOutput:
         logger.debug(
             "%s: sent %d message(s) to %s", LOG_LABEL, len(payloads), config.target
         )
+
+    def _send_to_clients(self, config: TcpConfig, session: int):
+        """TCP server: the batch to every program connected, the "on connect"
+        message and every value first to those that just connected. A program
+        that can't be sent to is dropped (the others still get the batch)."""
+        self._ensure_listening(config, session)
+        self._wait_min_interval(config)
+        with self._lock:
+            if not self.running or self._session != session:
+                raise SendSkipped()
+            batch, self._batch = self._batch, _Batch(values=self._batch.values)
+            clients = list(self._clients)
+        if not clients:
+            # nothing is lost: a program that connects gets every value
+            raise SendSkipped()
+        messages = self._messages(config, batch)
+        welcome = self._messages(
+            config,
+            _Batch(init=True, commands=batch.commands, full=True, values=batch.values),
+        )
+        sent = 0
+        for client in clients:
+            payload = messages if client.welcomed else welcome
+            if not payload:
+                continue
+            try:
+                client.sock.sendall(
+                    b"".join(encode_message(message, config) for message in payload)
+                )
+            except OSError as e:
+                if self._remove_client(client):
+                    logger.info(
+                        "%s: dropped %s, which didn't take the data (%s)",
+                        LOG_LABEL,
+                        client.name,
+                        e,
+                    )
+                continue
+            client.welcomed = True
+            sent += 1
+        if not sent:
+            raise SendSkipped()
+        with self._lock:
+            self._last_send_at = self._clock()
+        logger.debug("%s: sent to %d program(s)", LOG_LABEL, sent)
+
+    def _ensure_listening(self, config: TcpConfig, session: int):
+        """Open the TCP server's port unless it's open already (raises
+        ListenError while it can't be used: the worker tries again)."""
+        endpoint = config.endpoint
+        with self._lock:
+            if self._server is not None and self._server_endpoint == endpoint:
+                return
+        self._stop_listening()
+        server = _open_server(config)
+        with self._lock:
+            current = (
+                self.running
+                and self._session == session
+                and self.config.endpoint == endpoint
+            )
+            if current:
+                self._listen_id += 1
+                listen_id = self._listen_id
+                self._server = server
+                self._server_endpoint = endpoint
+                self._last_reply = self._last_reply_at = self._reply_error = None
+                self._reply_codes_seen = False
+        if not current:
+            # stopped, or another port, meanwhile
+            _close_socket(server)
+            raise SendSkipped()
+        threading.Thread(
+            target=self._accept_clients,
+            args=(server, listen_id, config.encoding),
+            name="tcp-output-accept",
+            daemon=True,
+        ).start()
+        logger.info("%s: listening on port %s", LOG_LABEL, config.port)
+
+    def _stop_listening(self):
+        """Close the TCP server's port and every connection to it."""
+        with self._lock:
+            server, self._server = self._server, None
+            self._server_endpoint = None
+            self._listen_id += 1  # its accept thread stops
+            clients, self._clients = self._clients, []
+            for client in clients:
+                client.closed = True
+        if server is not None:
+            _close_socket(server)
+        for client in clients:
+            _close_socket(client.sock)
+
+    def _remove_client(self, client: _Client) -> bool:
+        """Drop a program's connection. False if it was dropped already."""
+        with self._lock:
+            present = client in self._clients
+            if present:
+                self._clients.remove(client)
+            client.closed = True
+        if present:
+            _close_socket(client.sock)
+        return present
 
     @staticmethod
     def _messages(config: TcpConfig, batch: _Batch) -> list[str]:
@@ -1106,7 +1269,9 @@ class TcpOutput:
             # reconnect (with backoff while it can't)
             self._worker.submit("send", None)
 
-    def _record_reply(self, conn_id: int, text: str, target: str):
+    def _record_reply(self, conn_id: int | None, text: str, target: str):
+        """A line the receiver sent (conn_id None: a program connected to the
+        TCP server)."""
         line = text.strip(" \t\r\n\0")
         if not line:
             return
@@ -1114,7 +1279,7 @@ class TcpOutput:
         code = int(match.group(1)) if match else None
         error = code is not None and code >= 400
         with self._lock:
-            if conn_id != self._conn_id:
+            if conn_id is not None and conn_id != self._conn_id:
                 return
             if code is not None:
                 self._reply_codes_seen = True
@@ -1130,6 +1295,85 @@ class TcpOutput:
             self._reply_log.error(f"{target} answered {line[:200]!r}")
         else:
             logger.debug("%s: %s answered %r", LOG_LABEL, target, line[:200])
+
+    # --- TCP server: accept and reader threads ------------------------------
+
+    def _accept_clients(self, server: socket.socket, listen_id: int, encoding: str):
+        while True:
+            with self._lock:
+                if self._listen_id != listen_id:
+                    return
+            try:
+                sock, address = server.accept()
+            except TimeoutError:  # nothing for ACCEPT_POLL: check again
+                continue
+            except OSError as e:
+                with self._lock:
+                    if self._listen_id != listen_id:
+                        return  # closed by _stop_listening()
+                # e.g. too many open files: don't spin
+                self._accept_log.error(f"can't accept a connection: {e}")
+                time.sleep(ACCEPT_POLL)
+                continue
+            name = _address_text(address)
+            with self._lock:
+                current = self._listen_id == listen_id
+                full = len(self._clients) >= MAX_CLIENTS
+                client = None
+                if current and not full:
+                    client = _Client(sock, name)
+                    self._clients.append(client)
+            if client is None:
+                _close_socket(sock)
+                if not current:
+                    return
+                self._accept_log.error(
+                    f"refused a connection from {name}: {MAX_CLIENTS} programs "
+                    "are connected already"
+                )
+                continue
+            sock.settimeout(SEND_TIMEOUT)
+            try:
+                sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+            except OSError:
+                pass
+            logger.info("%s: %s connected", LOG_LABEL, name)
+            threading.Thread(
+                target=self._read_client,
+                args=(client, encoding),
+                name="tcp-output-client",
+                daemon=True,
+            ).start()
+            # the "on connect" message and every value
+            self._worker.submit("send", None)
+
+    def _read_client(self, client: _Client, encoding: str):
+        """Reads what a connected program sends (so it never blocks on a full
+        buffer), until it closes the connection or is dropped."""
+        separator = "\n".encode(encoding) if encoding.startswith("utf-16") else b"\n"
+        buffer = b""
+        while True:
+            try:
+                data = client.sock.recv(4096)
+            except TimeoutError:  # nothing to read for a while
+                if client.closed:
+                    return
+                continue
+            except OSError:
+                data = b""
+            if not data:
+                break
+            buffer += data
+            *lines, buffer = buffer.split(separator)
+            if len(buffer) > MAX_REPLY_LENGTH:
+                buffer = b""
+            for line in lines:
+                if not client.closed:
+                    self._record_reply(
+                        None, line.decode(encoding, errors="replace"), client.name
+                    )
+        if self._remove_client(client):
+            logger.info("%s: %s disconnected", LOG_LABEL, client.name)
 
 
 def quick_close_delay(quick_closes: int) -> float:
@@ -1159,6 +1403,34 @@ def _open_socket(config: TcpConfig) -> socket.socket:
     except OSError:
         pass
     return sock
+
+
+def _open_server(config: TcpConfig) -> socket.socket:
+    """The TCP server's listening socket, on every address of this computer
+    (IPv6 and IPv4 where the system can, else IPv4)."""
+    try:
+        if socket.has_dualstack_ipv6():
+            server = socket.create_server(
+                ("", config.port), family=socket.AF_INET6, dualstack_ipv6=True
+            )
+        else:
+            server = socket.create_server(("", config.port))
+    except OSError as e:
+        raise ListenError(e.errno, e.strerror or str(e)) from e
+    # accept() wakes up this often to see whether to stop
+    server.settimeout(ACCEPT_POLL)
+    return server
+
+
+def _address_text(address) -> str:
+    """ "192.168.1.20:51234" ("[::1]:51234"; an IPv4 address that came over
+    IPv6 without its "::ffff:")."""
+    host, port = address[0], address[1]
+    if host.startswith("::ffff:") and "." in host:
+        host = host[len("::ffff:") :]
+    if ":" in host:
+        host = f"[{host}]"
+    return f"{host}:{port}"
 
 
 def _close_socket(sock: socket.socket):
