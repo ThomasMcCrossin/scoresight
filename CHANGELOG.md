@@ -8,6 +8,13 @@ Release tags are the bare version number (for example `0.1.0`).
 
 ## [Unreleased]
 
+### Changed
+
+- **Signed Windows downloads.** The installer, its uninstaller and
+  `scoresight.exe` (also in the portable zip) are code-signed, so Windows
+  names the publisher instead of "Unknown publisher". SmartScreen may still
+  warn about a new release until enough people have downloaded it.
+
 ## [0.3.1] - 2026-10-11
 
 The new logo, and two fixes: shot clocks that drop the leading zero are read

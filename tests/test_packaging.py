@@ -844,21 +844,59 @@ def _build_steps():
     return [step for job in workflow["jobs"].values() for step in job["steps"]]
 
 
-def test_inno_setup_options_are_one_argument_per_line():
-    # The Inno Setup action reads `options` line by line and passes each line to
-    # ISCC as one argument. On one line, ISCC read "/O+ /DAppVersion=..." as an
-    # /O<output folder> and the Windows installer build failed.
-    [step] = [s for s in _build_steps() if "Inno-Setup-Action" in s.get("uses", "")]
-    options = [line.strip() for line in step["with"]["options"].splitlines()]
-    options = [option for option in options if option]
-    # an option has no spaces (only the ${{ }} expressions in its value do)
-    for option in options:
-        assert " " not in re.sub(r"\$\{\{.*?\}\}", "x", option), option
-    assert options[0] == "/O+"
-    assert sorted(option.split("=")[0] for option in options[1:]) == [
-        "/DAppVersion",
-        "/DAppVersionNumeric",
+def test_windows_release_builds_sign_the_app_installer_and_uninstaller():
+    job = _workflow("build.yml")["jobs"]["build"]
+    gate = job["env"]["SIGN_WINDOWS"]
+    for condition in [
+        "inputs.release",
+        "matrix.target == 'windows-x64'",
+        "secrets.AZURE_CLIENT_SECRET != ''",
+    ]:
+        assert condition in gate, condition
+    steps = job["steps"]
+    names = [step.get("name") for step in steps]
+    sign = names.index("Sign the app (Windows)")
+    # the tests run the signed app, and the installer and the zip contain it
+    assert names.index("Build with PyInstaller") < sign
+    assert sign < names.index("Smoke test (--self-test)")
+    assert steps[sign]["if"] == "env.SIGN_WINDOWS == 'true'"
+    assert steps[sign]["run"] == (
+        "./scripts/ci/sign_windows.ps1 dist/scoresight/scoresight.exe"
+    )
+    assert (REPO_ROOT / "scripts" / "ci" / "sign_windows.ps1").is_file()
+
+    # Inno Setup signs Setup and the uninstaller with the same script
+    package = steps[names.index("Package (Windows installer)")]
+    assert "uses" not in package
+    assert "/DSignTool=artifactsigning" in package["run"]
+    assert (
+        "/Sartifactsigning=pwsh -NoProfile -NonInteractive -File "
+        "`$q$script`$q `$f" in package["run"]
+    )
+    assert '"$env:GITHUB_WORKSPACE\\scripts\\ci\\sign_windows.ps1"' in package["run"]
+    iss = ISS_FILE.read_text(encoding="utf-8")
+    assert re.search(
+        r"^#ifdef SignTool\n(;.*\n)*SignTool=\{#SignTool\}\nSignedUninstaller=yes\n#endif$",
+        iss,
+        re.MULTILINE,
+    )
+    # the installer test checks the signatures before it uninstalls
+    run = steps[names.index("Package (Windows portable zip) and test the installer")][
+        "run"
     ]
+    check = run.index("Get-AuthenticodeSignature")
+    assert '$setup, "$app\\scoresight.exe", "$app\\unins000.exe"' in run[:check]
+    assert check < run.index('Start-Process "$app\\unins000.exe"')
+
+
+def test_secrets_reach_only_our_own_scripts():
+    # A third-party action never gets a signing or notarization secret: those go
+    # to `run` steps (the Inno Setup action was replaced by ISCC for this).
+    for path in WORKFLOWS.glob("*.yml"):
+        for job in _workflow(path.name)["jobs"].values():
+            for step in job.get("steps", []):
+                if "uses" in step:
+                    assert "secrets." not in repr(step), (path.name, step)
 
 
 LEGACY_ASSETS = {

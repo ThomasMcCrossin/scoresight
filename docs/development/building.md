@@ -183,6 +183,8 @@ It reads the version from `src/version.py` and writes `dist\scoresight-<version>
 
 CI also zips `dist\scoresight` as `scoresight-<version>-windows-x64-portable.zip`.
 
+`/DSignTool=<name>` signs Setup and the uninstaller with a Sign Tool defined on the same command line by `/S<name>=<command>`. In the command, `$f` is the quoted file and `$q` a quote. CI's release builds sign that way, and they also sign `scoresight.exe` before packaging it, with `scripts/ci/sign_windows.ps1` (Azure Artifact Signing). See [Signing](releasing.md#signing).
+
 ### macOS disk image, signing and notarization
 
 CI copies `ScoreSight.app` and a link to `/Applications` into a compressed disk image, `scoresight-<version>-macos-arm64.dmg` or `-macos-x64.dmg`. For **release builds**, and only when the Apple secrets are configured in the repository, CI signs the app with a Developer ID certificate, notarizes and staples both the app and the disk image (`scripts/ci/notarize_macos.sh`). All other builds, including pull requests from forks, are unsigned. Run them via **System Settings** > **Privacy & Security** > **Open Anyway**, or remove the quarantine attribute with `xattr -dr com.apple.quarantine ScoreSight.app`. Entitlements are declared in `entitlements.plist`.

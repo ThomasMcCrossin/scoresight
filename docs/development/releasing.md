@@ -52,7 +52,7 @@ description: "How ScoreSight versions, changelogs, tags and the release workflow
 
 4. **The release workflow runs** (`.github/workflows/release.yml`, triggered by tags `X.Y.Z`, `X.Y.Z-beta.N` and `X.Y.Z-rc.N`). It:
    - checks that the tag equals `src/version.py` and that `CHANGELOG.md` has a `## [X.Y.Z]` section, and fails otherwise,
-   - builds Windows x64, macOS arm64, macOS x86_64 and Linux x86_64 packages with `build.yml` (signing and notarizing the macOS app and disk images when the Apple secrets are configured),
+   - builds Windows x64, macOS arm64, macOS x86_64 and Linux x86_64 packages with `build.yml` (signing the Windows app, installer and uninstaller, and signing and notarizing the macOS app and disk images, when the secrets are configured; see [Signing](#signing)),
    - runs the frozen app's `--self-test` on every platform, and on Windows also installs, self-tests and uninstalls the installer,
    - checks that all five packages exist and writes `SHA256SUMS.txt`,
    - creates a **draft** GitHub release named "ScoreSight X.Y.Z" with the packages and `SHA256SUMS.txt` attached. Its notes are this version's section from `CHANGELOG.md`, followed by a downloads table and instructions for verifying the checksums. Beta and rc tags are marked as pre-releases automatically.
@@ -77,7 +77,31 @@ The README and the [installation guide](../INSTALL.md) refer to these names. If 
 ## Signing
 
 - **macOS**: signing and notarization run only for release builds, and only when the repository secrets exist: `APPLE_CERTIFICATE` (a base64-encoded Developer ID Application `.p12`), `APPLE_CERTIFICATE_PASSWORD` and `APPLE_APP_DEVELOPER_ID` (the signing identity) for signing, plus `APPLE_DEVELOPER_ID_USER`, `APPLE_DEVELOPER_ID_PASSWORD` (an app-specific password) and `APPLE_DEVELOPER_ID_TEAM` for notarization. Pull request and manual test builds are unsigned.
-- **Windows**: the installer is not code-signed yet, so users see SmartScreen warnings. The [installation guide](../INSTALL.md#windows) explains how to verify and run it.
+- **Windows**: release builds sign `scoresight.exe` (before the tests, so the installer and the portable zip contain the signed app), the installer and its uninstaller with [Azure Artifact Signing](https://learn.microsoft.com/azure/artifact-signing/) (formerly Trusted Signing). The signatures are SHA-256 and timestamped, and `scripts/ci/sign_windows.ps1` does the signing. Signing runs only when the repository has the secrets `AZURE_TENANT_ID`, `AZURE_CLIENT_ID` and `AZURE_CLIENT_SECRET` and the variables `AZURE_SIGNING_ENDPOINT`, `AZURE_SIGNING_ACCOUNT` and `AZURE_SIGNING_PROFILE`. The installer test then checks all three signatures. A release build without them is unsigned, and the run shows a warning. Pull request builds, and manual builds without **Release build** ticked, are unsigned.
+
+### Setting up Windows signing
+
+1. In the Azure portal, open the Artifact Signing account and note three things from it: its endpoint (the **Account URI** on its overview, e.g. `https://eus.codesigning.azure.net/`), the account name and the certificate profile name.
+2. In **Microsoft Entra ID** > **App registrations**, register an app (e.g. `scoresight-signing`). Under **Certificates & secrets**, add a client secret.
+3. In the Artifact Signing account (or only its certificate profile), open **Access control (IAM)** > **Add role assignment**. Give that app the **Artifact Signing Certificate Profile Signer** role.
+4. Store the values in the repository. Each `gh secret set` asks for its value, so it never lands in your shell history:
+
+   ```sh
+   gh secret set AZURE_TENANT_ID      # Directory (tenant) ID of the app registration
+   gh secret set AZURE_CLIENT_ID      # Application (client) ID
+   gh secret set AZURE_CLIENT_SECRET  # the client secret's value
+   gh variable set AZURE_SIGNING_ENDPOINT --body https://eus.codesigning.azure.net/
+   gh variable set AZURE_SIGNING_ACCOUNT --body <account name>
+   gh variable set AZURE_SIGNING_PROFILE --body <certificate profile name>
+   ```
+
+5. Test it: **Actions** > **Build** > **Run workflow**, with **Release build** ticked. The Windows job's *Sign the app* step and its installer test print each file's signer.
+
+The client secret expires (after at most 24 months). Before it does, add a new one and run `gh secret set AZURE_CLIENT_SECRET` again.
+
+To sign a file on your own machine, run `az login` with an account that has the signer role. Set the three `AZURE_SIGNING_*` environment variables, then run `pwsh scripts/ci/sign_windows.ps1 <file>`.
+
+A signed download can still get SmartScreen's "Windows protected your PC" warning. Windows builds a publisher's reputation from downloads, and later releases signed by the same publisher benefit from it. So the first signed releases may still warn. Until releases stop warning, keep the SmartScreen instructions in the [installation guide](../INSTALL.md#windows).
 
 ## After the release
 
