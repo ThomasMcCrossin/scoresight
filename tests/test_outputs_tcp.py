@@ -1126,7 +1126,21 @@ def test_a_busy_port_shows_and_is_retried(make_output, make_result, clients):
     clients(port).wait_for(b"A=1\n")
 
 
-@pytest.mark.parametrize("address", ["0.0.0.0", "127.0.0.1", "::"])
+MAC_SHARES_IPV4_PORTS = pytest.mark.xfail(
+    sys.platform == "darwin",
+    reason="macOS lets a dual-stack socket share a port held over IPv4 (#119)",
+    strict=True,
+)
+
+
+@pytest.mark.parametrize(
+    "address",
+    [
+        pytest.param("0.0.0.0", marks=MAC_SHARES_IPV4_PORTS),
+        pytest.param("127.0.0.1", marks=MAC_SHARES_IPV4_PORTS),
+        "::",
+    ],
+)
 def test_a_port_another_program_listens_on_with_one_protocol_is_busy(address):
     # Windows lets a dual-stack socket share such a port unless it is taken
     # exclusively, and the other program then gets the IPv4 (or IPv6) clients

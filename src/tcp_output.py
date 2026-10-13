@@ -1411,7 +1411,8 @@ def _open_server(config: TcpConfig) -> socket.socket:
 
     On Windows the port is taken exclusively: otherwise Windows lets it be
     shared with a program that listens on it with IPv4 (or IPv6) alone, which
-    then gets those connections while ScoreSight says it listens."""
+    then gets those connections while ScoreSight says it listens. (macOS
+    still allows it for a port held over IPv4: #119.)"""
     dualstack = socket.has_dualstack_ipv6()
     server = socket.socket(socket.AF_INET6 if dualstack else socket.AF_INET)
     try:
