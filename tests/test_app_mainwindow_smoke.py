@@ -2532,6 +2532,12 @@ def test_every_language_fits(language, make_window, make_target, qapp, reference
         assert tcp.ui.groupBox_tcpCaspar.isVisibleTo(ui.widget_outputs)
         assert cut_off_texts(ui.widget_outputs) == [], "tcp (CasparCG)"
         tcp.ui.pushButton_tcpStart.setChecked(False)
+        # as a TCP server (stopped: no port is opened): its own address row
+        # label and the note where programs connect
+        tcp.ui.comboBox_tcpTransport.setCurrentIndex(2)
+        qapp.processEvents()
+        assert not tcp.ui.lineEdit_tcpHost.isVisibleTo(ui.widget_outputs)
+        assert cut_off_texts(ui.widget_outputs) == [], "tcp (server)"
     finally:
         qapp.removeTranslator(window.translator)
 
