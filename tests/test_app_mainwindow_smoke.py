@@ -341,6 +341,40 @@ def test_obs_updates_without_an_output_folder(main_window, patched, make_result)
     ]
 
 
+def test_the_sport_choice_follows_the_game(main_window, make_result):
+    from storage import fetch_data
+
+    ui = main_window.ui
+    assert ui.comboBox_sport.currentData() == "none"
+    assert ui.label_gameStatus.isHidden()
+    assert not ui.toolButton_newGame.isEnabled()
+    ui.comboBox_sport.setCurrentIndex(ui.comboBox_sport.findData("basketball"))
+    assert fetch_data("scoresight.json", "sport") == "basketball"
+    assert main_window.gameEngine.sport.key == "basketball"
+    assert not ui.label_gameStatus.isHidden() and ui.toolButton_newGame.isEnabled()
+    for text in ("0", "0", "2", "2"):
+        main_window.ocrResult(
+            [make_result("Home Score", text), make_result("Away Score", "0")]
+        )
+    assert [event.text() for event in main_window.gameEngine.events] == [
+        "Home +2 (2–0)"
+    ]
+    main_window.gameUiHandler.refresh()
+    assert ui.label_gameStatus.text().startswith("Follows Home Score, Away Score")
+    assert "Home +2 (2–0)" in ui.label_gameStatus.toolTip()
+    ui.toolButton_newGame.click()
+    assert main_window.gameEngine.events == ()
+
+
+def test_the_sport_is_restored(make_window):
+    from storage import store_data
+
+    store_data("scoresight.json", "sport", "soccer")
+    window = make_window()
+    assert window.ui.comboBox_sport.currentData() == "soccer"
+    assert window.gameEngine.sport.key == "soccer"
+
+
 def test_create_obs_scene_sends_every_current_value_again(
     main_window, patched, make_result, monkeypatch
 ):
@@ -2493,6 +2527,9 @@ def test_every_language_fits(language, make_window, make_target, qapp, reference
     try:
         ui.splitter_main.setSizes(window.defaultPaneSizes(window.width()))
         window.itemSelected("Home Score")
+        # a sport: its row and the game's status line under All boxes
+        ui.comboBox_sport.setCurrentIndex(ui.comboBox_sport.findData("basketball"))
+        assert not ui.label_gameStatus.isHidden()
         ui.toolButton_imageCleanup.setChecked(True)
         # the crop panel (with Drag to crop) and the crop picking's banner
         ui.toolButton_topCrop.setChecked(True)

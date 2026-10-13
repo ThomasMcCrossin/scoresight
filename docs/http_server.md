@@ -60,6 +60,7 @@ Anyone who can reach the port can read your scoreboard data. On untrusted networ
 | `GET /csv` | Every box as a CSV row with its position | `text/csv; charset=utf-8` |
 | `GET /csv?pivot` | A header row of box names and one row of good values | `text/csv; charset=utf-8` |
 | `GET /csv?pivot&all` | A header row of every box name and one row of their last good values | `text/csv; charset=utf-8` |
+| `GET /game`, `GET /game?since=<id>` | The [game](game.md#the-game-over-http) (with a sport chosen): scores, clock, period, fouls, timeouts, the points of each period and the event log | `application/json` |
 | `GET /scoresight` | A ready-made demo scoreboard page | `text/html` |
 | `GET /overlay`, `/overlay/scorebug`, `/overlay/lower-third`, `/overlay/clock`, `/overlay/field`, `/overlay/custom/...` | Transparent [browser overlays](overlays.md) that update live, and your own overlay pages | `text/html` |
 | `GET /events`, `GET /overlay/state` | The overlays' live values: [Server-Sent Events](overlays.md#live-values-for-developers) pushed on each change, or a JSON snapshot | `text/event-stream`, `application/json` |

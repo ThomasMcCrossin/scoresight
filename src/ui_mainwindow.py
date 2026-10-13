@@ -1545,6 +1545,39 @@ class Ui_MainWindow(object):
 
         self.formLayout_allBoxes.setWidget(3, QFormLayout.ItemRole.SpanningRole, self.checkBox_updateOnchange)
 
+        self.label_sport = QLabel(self.groupBox_allBoxes)
+        self.label_sport.setObjectName(u"label_sport")
+
+        self.formLayout_allBoxes.setWidget(4, QFormLayout.ItemRole.LabelRole, self.label_sport)
+
+        self.horizontalLayout_sport = QHBoxLayout()
+        self.horizontalLayout_sport.setSpacing(3)
+        self.horizontalLayout_sport.setObjectName(u"horizontalLayout_sport")
+        self.comboBox_sport = QComboBox(self.groupBox_allBoxes)
+        self.comboBox_sport.setObjectName(u"comboBox_sport")
+        sizePolicy10 = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        sizePolicy10.setHorizontalStretch(1)
+        sizePolicy10.setVerticalStretch(0)
+        sizePolicy10.setHeightForWidth(self.comboBox_sport.sizePolicy().hasHeightForWidth())
+        self.comboBox_sport.setSizePolicy(sizePolicy10)
+
+        self.horizontalLayout_sport.addWidget(self.comboBox_sport)
+
+        self.toolButton_newGame = QToolButton(self.groupBox_allBoxes)
+        self.toolButton_newGame.setObjectName(u"toolButton_newGame")
+
+        self.horizontalLayout_sport.addWidget(self.toolButton_newGame)
+
+
+        self.formLayout_allBoxes.setLayout(4, QFormLayout.ItemRole.FieldRole, self.horizontalLayout_sport)
+
+        self.label_gameStatus = QLabel(self.groupBox_allBoxes)
+        self.label_gameStatus.setObjectName(u"label_gameStatus")
+        self.label_gameStatus.setWordWrap(True)
+        self.label_gameStatus.setProperty(u"hint", True)
+
+        self.formLayout_allBoxes.setWidget(5, QFormLayout.ItemRole.SpanningRole, self.label_gameStatus)
+
 
         self.verticalLayout_boxTab.addWidget(self.groupBox_allBoxes)
 
@@ -1600,11 +1633,11 @@ class Ui_MainWindow(object):
         self.stackedWidget_outputs.setFrameShape(QFrame.StyledPanel)
         self.tab_textFiles = QWidget()
         self.tab_textFiles.setObjectName(u"tab_textFiles")
-        sizePolicy10 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
-        sizePolicy10.setHorizontalStretch(0)
-        sizePolicy10.setVerticalStretch(0)
-        sizePolicy10.setHeightForWidth(self.tab_textFiles.sizePolicy().hasHeightForWidth())
-        self.tab_textFiles.setSizePolicy(sizePolicy10)
+        sizePolicy11 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
+        sizePolicy11.setHorizontalStretch(0)
+        sizePolicy11.setVerticalStretch(0)
+        sizePolicy11.setHeightForWidth(self.tab_textFiles.sizePolicy().hasHeightForWidth())
+        self.tab_textFiles.setSizePolicy(sizePolicy11)
         self.formLayout_2 = QFormLayout(self.tab_textFiles)
         self.formLayout_2.setObjectName(u"formLayout_2")
         self.formLayout_2.setFieldGrowthPolicy(QFormLayout.ExpandingFieldsGrow)
@@ -1617,11 +1650,11 @@ class Ui_MainWindow(object):
 
         self.widget_5 = QWidget(self.tab_textFiles)
         self.widget_5.setObjectName(u"widget_5")
-        sizePolicy11 = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
-        sizePolicy11.setHorizontalStretch(0)
-        sizePolicy11.setVerticalStretch(0)
-        sizePolicy11.setHeightForWidth(self.widget_5.sizePolicy().hasHeightForWidth())
-        self.widget_5.setSizePolicy(sizePolicy11)
+        sizePolicy12 = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        sizePolicy12.setHorizontalStretch(0)
+        sizePolicy12.setVerticalStretch(0)
+        sizePolicy12.setHeightForWidth(self.widget_5.sizePolicy().hasHeightForWidth())
+        self.widget_5.setSizePolicy(sizePolicy12)
         self.horizontalLayout_6 = QHBoxLayout(self.widget_5)
         self.horizontalLayout_6.setObjectName(u"horizontalLayout_6")
         self.horizontalLayout_6.setContentsMargins(0, 0, 0, 0)
@@ -1646,8 +1679,8 @@ class Ui_MainWindow(object):
 
         self.widget_12 = QWidget(self.tab_textFiles)
         self.widget_12.setObjectName(u"widget_12")
-        sizePolicy11.setHeightForWidth(self.widget_12.sizePolicy().hasHeightForWidth())
-        self.widget_12.setSizePolicy(sizePolicy11)
+        sizePolicy12.setHeightForWidth(self.widget_12.sizePolicy().hasHeightForWidth())
+        self.widget_12.setSizePolicy(sizePolicy12)
         self.horizontalLayout_14 = QVBoxLayout(self.widget_12)
         self.horizontalLayout_14.setObjectName(u"horizontalLayout_14")
         self.horizontalLayout_14.setContentsMargins(0, 0, 0, 0)
@@ -1685,8 +1718,8 @@ class Ui_MainWindow(object):
         self.comboBox_appendMethod.addItem("")
         self.comboBox_appendMethod.addItem("")
         self.comboBox_appendMethod.setObjectName(u"comboBox_appendMethod")
-        sizePolicy11.setHeightForWidth(self.comboBox_appendMethod.sizePolicy().hasHeightForWidth())
-        self.comboBox_appendMethod.setSizePolicy(sizePolicy11)
+        sizePolicy12.setHeightForWidth(self.comboBox_appendMethod.sizePolicy().hasHeightForWidth())
+        self.comboBox_appendMethod.setSizePolicy(sizePolicy12)
 
         self.formLayout_2.setWidget(2, QFormLayout.ItemRole.FieldRole, self.comboBox_appendMethod)
 
@@ -1759,8 +1792,8 @@ class Ui_MainWindow(object):
         self.horizontalLayout_overlayKind.setContentsMargins(0, 0, 0, 0)
         self.comboBox_overlayKind = QComboBox(self.widget_overlayKind)
         self.comboBox_overlayKind.setObjectName(u"comboBox_overlayKind")
-        sizePolicy11.setHeightForWidth(self.comboBox_overlayKind.sizePolicy().hasHeightForWidth())
-        self.comboBox_overlayKind.setSizePolicy(sizePolicy11)
+        sizePolicy12.setHeightForWidth(self.comboBox_overlayKind.sizePolicy().hasHeightForWidth())
+        self.comboBox_overlayKind.setSizePolicy(sizePolicy12)
         self.comboBox_overlayKind.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
         self.comboBox_overlayKind.setMinimumContentsLength(8)
 
@@ -1782,8 +1815,8 @@ class Ui_MainWindow(object):
 
         self.toolButton_overlayFields = QToolButton(self.groupBox_overlays)
         self.toolButton_overlayFields.setObjectName(u"toolButton_overlayFields")
-        sizePolicy11.setHeightForWidth(self.toolButton_overlayFields.sizePolicy().hasHeightForWidth())
-        self.toolButton_overlayFields.setSizePolicy(sizePolicy11)
+        sizePolicy12.setHeightForWidth(self.toolButton_overlayFields.sizePolicy().hasHeightForWidth())
+        self.toolButton_overlayFields.setSizePolicy(sizePolicy12)
         self.toolButton_overlayFields.setPopupMode(QToolButton.InstantPopup)
         self.toolButton_overlayFields.setToolButtonStyle(Qt.ToolButtonTextOnly)
 
@@ -1806,8 +1839,8 @@ class Ui_MainWindow(object):
         self.comboBox_overlayTheme.addItem("")
         self.comboBox_overlayTheme.addItem("")
         self.comboBox_overlayTheme.setObjectName(u"comboBox_overlayTheme")
-        sizePolicy11.setHeightForWidth(self.comboBox_overlayTheme.sizePolicy().hasHeightForWidth())
-        self.comboBox_overlayTheme.setSizePolicy(sizePolicy11)
+        sizePolicy12.setHeightForWidth(self.comboBox_overlayTheme.sizePolicy().hasHeightForWidth())
+        self.comboBox_overlayTheme.setSizePolicy(sizePolicy12)
         self.comboBox_overlayTheme.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
         self.comboBox_overlayTheme.setMinimumContentsLength(5)
 
@@ -2342,6 +2375,7 @@ class Ui_MainWindow(object):
 #if QT_CONFIG(shortcut)
         self.label.setBuddy(self.comboBox_camera_source)
         self.label_boxDisplayStyle.setBuddy(self.comboBox_boxDisplayStyle)
+        self.label_sport.setBuddy(self.comboBox_sport)
         self.label_overlayKind.setBuddy(self.comboBox_overlayKind)
         self.label_overlayFields.setBuddy(self.toolButton_overlayFields)
         self.label_overlayTheme.setBuddy(self.comboBox_overlayTheme)
@@ -2871,6 +2905,20 @@ class Ui_MainWindow(object):
         self.checkBox_updateOnchange.setToolTip(QCoreApplication.translate("MainWindow", u"Report a reading that equals the field's last good value as unchanged (=, SameNoChange) instead of new (\u2713). vMix and UNO then don't resend unchanged values (unless their \u201cAlso resend unchanged values\u201d is on), and the HTTP server and the outbound API mark them as unchanged. OBS and the text files get a value only when it changes either way.", None))
 #endif // QT_CONFIG(tooltip)
         self.checkBox_updateOnchange.setText(QCoreApplication.translate("MainWindow", u"Update on change", None))
+#if QT_CONFIG(tooltip)
+        self.label_sport.setToolTip(QCoreApplication.translate("MainWindow", u"The sport being played: ScoreSight follows the game (the scores, the periods, the clock) from the fields named like them", None))
+#endif // QT_CONFIG(tooltip)
+        self.label_sport.setText(QCoreApplication.translate("MainWindow", u"Sport", None))
+#if QT_CONFIG(accessibility)
+        self.comboBox_sport.setAccessibleName(QCoreApplication.translate("MainWindow", u"Sport", None))
+#endif // QT_CONFIG(accessibility)
+#if QT_CONFIG(tooltip)
+        self.comboBox_sport.setToolTip(QCoreApplication.translate("MainWindow", u"The sport being played. ScoreSight then follows the game from the fields named like a score, the clock, the period, fouls or timeouts: each score, the start and end of each period, the clock starting and stopping, the final buzzer. None: it doesn't.", None))
+#endif // QT_CONFIG(tooltip)
+#if QT_CONFIG(tooltip)
+        self.toolButton_newGame.setToolTip(QCoreApplication.translate("MainWindow", u"Start following a new game: the game's events and points per period start over", None))
+#endif // QT_CONFIG(tooltip)
+        self.toolButton_newGame.setText(QCoreApplication.translate("MainWindow", u"New game", None))
         self.tabWidget_inspector.setTabText(self.tabWidget_inspector.indexOf(self.tab_box), QCoreApplication.translate("MainWindow", u"Box", None))
 #if QT_CONFIG(accessibility)
         self.listView_destinations.setAccessibleName(QCoreApplication.translate("MainWindow", u"Outputs", None))

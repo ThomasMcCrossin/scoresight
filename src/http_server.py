@@ -33,6 +33,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse, Response
 
 import startup_timing
+from game_state import GameState
 from overlay_feed import feed as overlay_feed
 from overlays import router as overlays_router
 from sc_logging import file_handler, logger
@@ -334,6 +335,24 @@ async def get_json(
     return JSONResponse(
         content=[r.to_dict() for r in _readings], headers=NO_CACHE_HEADERS
     )
+
+
+# the game, as the game-state engine follows it (MainWindow publishes it with
+# every cycle's readings: update_game_state)
+_game_state = GameState(sport="none", roles={})
+
+
+@app.get("/game")
+async def get_game(since: int = Query(0)):
+    """The game: the sport, the scores, clock, period, fouls and timeouts, the
+    points of each period, and the events (those after event id "since")."""
+    return JSONResponse(content=_game_state.to_dict(since), headers=NO_CACHE_HEADERS)
+
+
+def update_game_state(state: GameState):
+    """Publish the game's state (a snapshot) for /game."""
+    global _game_state
+    _game_state = state
 
 
 @app.get("/xml")

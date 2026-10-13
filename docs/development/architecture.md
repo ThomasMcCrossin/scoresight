@@ -154,6 +154,7 @@ Logging goes through `from sc_logging import logger`. It writes to `platformdirs
 | `box_settings_ui_handler.py` | The Inspector's Box tab: shows the selected field (a box, a field not on the picture, a template) and binds its settings, the sliders' readouts, the matching Format preset and invalid expressions, Image cleanup's changed badge and Insert field |
 | `readings_view.py` | The field table's Value column: the readings' data roles and `ReadingDelegate` (Setup and Live densities, a held value's HELD chip and Release button) |
 | `held_values.py` | Hold value: `HeldValues` (what the outputs get while a field is held and after it is released) and `HoldValueDialog` |
+| `sports.py`, `game_state.py`, `game_ui_handler.py` | Game & sports: the sport profiles and the boxes' roles (by name), the `GameEngine` that follows the game from each cycle's results (confirmed values, events, the line score; served at `/game`), and the Sport choice and status line under All boxes |
 | `keyboard_shortcuts.py` | Help > Keyboard shortcuts: the dialog, built from the actions' shortcuts |
 | `status_bar.py` | The main window's status bar (source, OCR rate, paused, collecting training data, the outputs' states, HTTP address) and the source's state |
 | `theme.py` | State and paused colours for light and dark palettes (and over the video), state glyphs, drawn icons, the tool-button style, step badges |

@@ -337,3 +337,31 @@ def test_cors_preflight_from_a_public_page(base_url):
     assert response.headers["access-control-allow-origin"] == "*"
     assert response.headers["access-control-allow-private-network"] == "true"
     assert "GET" in response.headers["access-control-allow-methods"]
+
+
+def test_game(base_url, make_result):
+    import sports
+    from game_state import GameEngine, GameState
+
+    assert get(base_url, "/game").json()["sport"] == "none"
+    engine = GameEngine(sports.BASKETBALL)
+    for score in ("0", "0", "3", "3"):
+        engine.update(
+            [
+                make_result("Home Score", score),
+                make_result("Away Score", "0"),
+                make_result("Period", "1"),
+            ]
+        )
+    http_server.update_game_state(engine.state())
+    try:
+        data = get(base_url, "/game").json()
+        assert data["sport"] == "basketball"
+        assert data["home"]["score"] == 3 and data["away"]["score"] == 0
+        assert data["period_label"] == "Q1"
+        assert [event["text"] for event in data["events"]] == ["Home +3 (3–0)"]
+        # only the events after an id
+        since = data["events"][-1]["id"]
+        assert get(base_url, f"/game?since={since}").json()["events"] == []
+    finally:
+        http_server.update_game_state(GameState(sport="none", roles={}))
