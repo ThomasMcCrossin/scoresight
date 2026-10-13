@@ -977,6 +977,54 @@ def test_the_crop_values_move_the_boxes_too(cropping_window):
     assert not ui.label_cropWarning.isVisible()
 
 
+def test_reset_crop_reads_the_whole_picture_with_the_boxes_on_their_digits(
+    cropping_window,
+):
+    window, view = cropping_window
+    ui = window.ui
+    box = window.detectionTargetsStorage.find_item_by_name("Home Score")
+    store_data(
+        "scoresight.json",
+        "four_corners",
+        [[400, 200], [900, 200], [900, 600], [400, 600]],
+    )
+    # nothing to reset yet
+    assert not ui.toolButton_resetCrop.isEnabled()
+    ui.spinBox_leftCrop.setValue(100)
+    ui.spinBox_topCrop.setValue(50)
+    ui.spinBox_rightCrop.setValue(80)
+    assert ui.toolButton_resetCrop.isEnabled()
+    assert (box.x(), box.y()) == (400, 250)
+
+    # it asks first: Cancel keeps the crop
+    asked = []
+    window.confirm = lambda title, text, action: asked.append(action) or False
+    ui.toolButton_resetCrop.click()
+    assert asked == ["Reset crop"]
+    assert window.cropValues() == (100, 50, 80, 0)
+    assert ui.toolButton_topCrop.isChecked()
+
+    window.confirm = lambda title, text, action: True
+    pick_crop(window, view)
+    ui.toolButton_resetCrop.click()
+    assert window.cropValues() == (0, 0, 0, 0)
+    assert [
+        fetch_data("scoresight.json", key, 0)
+        for key in ("left_crop", "top_crop", "right_crop", "bottom_crop", "crop_mode")
+    ] == [0, 0, 0, 0, False]
+    # the crop is off, its panel closed, and Drag to crop stopped
+    assert not ui.toolButton_topCrop.isChecked()
+    assert not ui.widget_cropPanel.isVisibleTo(window)
+    assert not view.cropSelectionMode and not ui.frame_cropBanner.isVisible()
+    # the boxes (and the 4-corner corners) are back over the same pixels
+    assert (box.x(), box.y()) == (500, 300)
+    assert fetch_data("scoresight.json", "four_corners")[0] == [400, 200]
+    assert not ui.toolButton_resetCrop.isEnabled()
+    # Crop on again starts from the whole picture
+    ui.toolButton_topCrop.click()
+    assert (box.x(), box.y()) == (500, 300)
+
+
 def test_a_box_outside_the_crop_stays_and_is_named(cropping_window):
     window, view = cropping_window
     ui = window.ui

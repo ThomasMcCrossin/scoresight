@@ -3789,10 +3789,15 @@ def test_crop_off_keeps_the_values(main_window):
     ui = main_window.ui
     main_window.setViewToolsEnabled(True)  # as with a source
     ui.toolButton_topCrop.click()
+    assert not ui.toolButton_resetCrop.isEnabled()
     ui.spinBox_leftCrop.setValue(40)
     ui.toolButton_topCrop.click()
     assert fetch_data("scoresight.json", "crop_mode") is False
     assert fetch_data("scoresight.json", "left_crop") == 40
+    # the kept values can be reset when the crop is on again
+    ui.toolButton_topCrop.click()
+    assert ui.spinBox_leftCrop.value() == 40
+    assert ui.toolButton_resetCrop.isEnabled()
     assert ui.spinBox_leftCrop.suffix() == " px"
 
 

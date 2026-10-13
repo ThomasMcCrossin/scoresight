@@ -545,11 +545,25 @@ class Ui_MainWindow(object):
         self.gridLayout_cropPanel.setHorizontalSpacing(6)
         self.gridLayout_cropPanel.setVerticalSpacing(2)
         self.gridLayout_cropPanel.setContentsMargins(0, 0, 0, 0)
-        self.toolButton_dragCrop = QToolButton(self.widget_cropPanel)
+        self.widget_cropActions = QWidget(self.widget_cropPanel)
+        self.widget_cropActions.setObjectName(u"widget_cropActions")
+        self.horizontalLayout_cropActions = QHBoxLayout(self.widget_cropActions)
+        self.horizontalLayout_cropActions.setSpacing(6)
+        self.horizontalLayout_cropActions.setObjectName(u"horizontalLayout_cropActions")
+        self.horizontalLayout_cropActions.setContentsMargins(0, 0, 0, 0)
+        self.toolButton_dragCrop = QToolButton(self.widget_cropActions)
         self.toolButton_dragCrop.setObjectName(u"toolButton_dragCrop")
         self.toolButton_dragCrop.setCheckable(True)
 
-        self.gridLayout_cropPanel.addWidget(self.toolButton_dragCrop, 0, 0, 1, 1)
+        self.horizontalLayout_cropActions.addWidget(self.toolButton_dragCrop)
+
+        self.toolButton_resetCrop = QToolButton(self.widget_cropActions)
+        self.toolButton_resetCrop.setObjectName(u"toolButton_resetCrop")
+
+        self.horizontalLayout_cropActions.addWidget(self.toolButton_resetCrop)
+
+
+        self.gridLayout_cropPanel.addWidget(self.widget_cropActions, 0, 0, 1, 1)
 
         self.label_16 = QLabel(self.widget_cropPanel)
         self.label_16.setObjectName(u"label_16")
@@ -2619,6 +2633,10 @@ class Ui_MainWindow(object):
         self.toolButton_dragCrop.setToolTip(QCoreApplication.translate("MainWindow", u"Drag around the part of the picture to keep, on the whole picture. The values next to it fine-tune the crop.", None))
 #endif // QT_CONFIG(tooltip)
         self.toolButton_dragCrop.setText(QCoreApplication.translate("MainWindow", u"Drag to crop", None))
+#if QT_CONFIG(tooltip)
+        self.toolButton_resetCrop.setToolTip(QCoreApplication.translate("MainWindow", u"Remove the crop: the whole picture is read again, and the boxes stay over the same digits", None))
+#endif // QT_CONFIG(tooltip)
+        self.toolButton_resetCrop.setText(QCoreApplication.translate("MainWindow", u"Reset crop\u2026", None))
         self.label_16.setText(QCoreApplication.translate("MainWindow", u"Left", None))
 #if QT_CONFIG(tooltip)
         self.spinBox_leftCrop.setToolTip(QCoreApplication.translate("MainWindow", u"Pixels to cut off the left edge", None))

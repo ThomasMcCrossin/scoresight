@@ -86,7 +86,7 @@ Pick corners that form a real rectangle in the world, such as the outer frame of
 
 ## Crop
 
-**Crop** opens the crop panel with **Drag to crop** and the **Left**, **Top**, **Right** and **Bottom** values in pixels. Cropping removes the parts of the picture you don't need. That reduces CPU use, makes the picture larger in the viewer and, with [Global binarization](box-settings.md#binarize), improves the black-and-white threshold because the dark surroundings are gone. Click **Crop** again to turn cropping off; the values are kept for the next time.
+**Crop** opens the crop panel with **Drag to crop** and the **Left**, **Top**, **Right** and **Bottom** values in pixels. Cropping removes the parts of the picture you don't need. That reduces CPU use, makes the picture larger in the viewer and, with [Global binarization](box-settings.md#binarize), improves the black-and-white threshold because the dark surroundings are gone. Click **Crop** again to turn cropping off; the values are kept for the next time. **Reset crop…** removes the crop: after you confirm, the four values go back to 0, cropping turns off and the whole picture is read again, with the boxes still over the same digits (see below).
 
 To crop with the mouse:
 
@@ -96,7 +96,7 @@ To crop with the mouse:
 
 **Esc** (or the banner's **Cancel**, or **Drag to crop** again) stops and keeps the current crop. A drag of a few pixels is ignored. The values can be fine-tuned afterwards. **Drag to crop** and **4-corner** picking exclude each other, and the crop panel is hidden in the Live layout.
 
-**The boxes move with the crop.** The boxes are placed on the cropped picture, so a new left or top edge would leave them over other pixels: whenever the crop's top-left corner moves (with **Drag to crop**, the **Left** and **Top** values, or turning **Crop** on or off), every box, and the corners of a 4-corner correction, move by the same amount, and stay over the same digits. (In ScoreSight 0.2.0 and earlier they stayed where they were.) A box that ends up entirely outside the cropped picture keeps its place, so a wider crop brings it back, but it reads nothing meanwhile: a line under the crop panel names those fields.
+**The boxes move with the crop.** The boxes are placed on the cropped picture, so a new left or top edge would leave them over other pixels: whenever the crop's top-left corner moves (with **Drag to crop**, the **Left** and **Top** values, **Reset crop…**, or turning **Crop** on or off), every box, and the corners of a 4-corner correction, move by the same amount, and stay over the same digits. (In ScoreSight 0.2.0 and earlier they stayed where they were.) A box that ends up entirely outside the cropped picture keeps its place, so a wider crop brings it back, but it reads nothing meanwhile: a line under the crop panel names those fields.
 
 ## Rotate
 
