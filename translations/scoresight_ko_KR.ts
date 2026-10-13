@@ -4286,57 +4286,68 @@ Resolution: {width}×{height}</source>
     <message>
         <location filename="../src/output_status.py" line="1585"/>
         <source>Click Start sending to let other programs connect to ScoreSight on port {port} and get the readings.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">전송 시작을 클릭하면 다른 프로그램이 포트 {port}에서 ScoreSight에 연결하여 판독값을 받을 수 있습니다.</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1595"/>
         <source>Enter a port</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">포트를 입력하세요</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1597"/>
         <source>Enter the port ScoreSight listens on, and the same port in the program that connects to ScoreSight.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">ScoreSight가 수신 대기할 포트를 입력하고, ScoreSight에 연결하는 프로그램에도 같은 포트를 입력하세요.</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1620"/>
         <source>Can&apos;t listen on port {port}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">포트 {port}에서 수신 대기할 수 없음</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1624"/>
         <source>Another program uses this port, or the system doesn&apos;t allow it. Choose another port (and set it in the program that connects). ScoreSight tries again by itself.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">다른 프로그램이 이 포트를 사용 중이거나 시스템이 허용하지 않습니다. 다른 포트를 선택하세요(연결하는 프로그램에도 설정하세요). ScoreSight가 자동으로 다시 시도합니다.</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1636"/>
         <source>Opening port {port}…</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">포트 {port} 여는 중…</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1647"/>
         <source>Listening on port {port} · nothing connected</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">포트 {port}에서 수신 대기 중 · 연결 없음</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1652"/>
         <source>Waiting for a program to connect to this computer&apos;s address, port {port}. Allow ScoreSight through this computer&apos;s firewall for programs on other computers.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">프로그램이 이 컴퓨터의 주소, 포트 {port}(으)로 연결하기를 기다리는 중입니다. 다른 컴퓨터의 프로그램이 연결하려면 이 컴퓨터의 방화벽에서 ScoreSight를 허용하세요.</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1661"/>
         <source>Listening on port {port} · 1 program connected</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">포트 {port}에서 수신 대기 중 · 프로그램 1개 연결됨</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1665"/>
         <source>Listening on port {port} · {count} programs connected</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">포트 {port}에서 수신 대기 중 · 프로그램 {count}개 연결됨</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1668"/>
         <source>Connected: {programs}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">연결됨: {programs}</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1690"/>
@@ -5367,12 +5378,14 @@ Click to change the folder or its size limit; Tools &gt; Collect OCR training da
     <message>
         <location filename="../src/tcp_ui_handler.py" line="138"/>
         <source>TCP server: other programs connect to {address}:{port} (localhost:{port} on this computer), and each one gets the messages.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">TCP 서버: 다른 프로그램이 {address}:{port}(이 컴퓨터에서는 localhost:{port})에 연결하며, 각 프로그램이 메시지를 받습니다.</translation>
     </message>
     <message>
         <location filename="../src/tcp_ui_handler.py" line="143"/>
         <source>TCP server: other programs connect to this computer&apos;s address, port {port} (localhost:{port} on this computer), and each one gets the messages.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">TCP 서버: 다른 프로그램이 이 컴퓨터의 주소, 포트 {port}(이 컴퓨터에서는 localhost:{port})에 연결하며, 각 프로그램이 메시지를 받습니다.</translation>
     </message>
     <message>
         <location filename="../src/tcp_ui_handler.py" line="156"/>
@@ -5443,12 +5456,14 @@ Click to change the folder or its size limit; Tools &gt; Collect OCR training da
     <message>
         <location filename="../src/tcp_ui_handler.py" line="551"/>
         <source>Listen on port</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">수신 대기 포트</translation>
     </message>
     <message>
         <location filename="../src/tcp_ui_handler.py" line="554"/>
         <source>The port ScoreSight listens on. Set the same port in the program that connects to ScoreSight.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">ScoreSight가 수신 대기하는 포트입니다. ScoreSight에 연결하는 프로그램에도 같은 포트를 설정하세요.</translation>
     </message>
     <message>
         <location filename="../src/tcp_ui_handler.py" line="597"/>
@@ -5595,12 +5610,14 @@ Click to change the folder or its size limit; Tools &gt; Collect OCR training da
     <message>
         <location filename="../src/tcp_output.ui" line="224"/>
         <source>TCP connects to the receiving program and keeps the connection open. UDP sends each message as a datagram, without a connection. TCP server: ScoreSight listens on the port, and every program that connects to it gets the messages.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">TCP는 받는 프로그램에 연결하여 연결을 열어 둡니다. UDP는 연결 없이 각 메시지를 데이터그램으로 보냅니다. TCP 서버: ScoreSight가 포트에서 수신 대기하며, 연결하는 모든 프로그램이 메시지를 받습니다.</translation>
     </message>
     <message>
         <location filename="../src/tcp_output.ui" line="238"/>
         <source>TCP server</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">TCP 서버</translation>
     </message>
     <message>
         <location filename="../src/tcp_output.ui" line="273"/>

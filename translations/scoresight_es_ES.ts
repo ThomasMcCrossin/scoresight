@@ -4303,57 +4303,68 @@ Resolución: {width}×{height}</translation>
     <message>
         <location filename="../src/output_status.py" line="1585"/>
         <source>Click Start sending to let other programs connect to ScoreSight on port {port} and get the readings.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Haga clic en Iniciar envío para que otros programas se conecten a ScoreSight en el puerto {port} y reciban las lecturas.</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1595"/>
         <source>Enter a port</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Introduzca un puerto</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1597"/>
         <source>Enter the port ScoreSight listens on, and the same port in the program that connects to ScoreSight.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Introduzca el puerto en el que escucha ScoreSight, y el mismo puerto en el programa que se conecta a ScoreSight.</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1620"/>
         <source>Can&apos;t listen on port {port}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">No se puede escuchar en el puerto {port}</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1624"/>
         <source>Another program uses this port, or the system doesn&apos;t allow it. Choose another port (and set it in the program that connects). ScoreSight tries again by itself.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Otro programa usa este puerto, o el sistema no lo permite. Elija otro puerto (y configúrelo en el programa que se conecta). ScoreSight lo vuelve a intentar solo.</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1636"/>
         <source>Opening port {port}…</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Abriendo el puerto {port}…</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1647"/>
         <source>Listening on port {port} · nothing connected</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Escuchando en el puerto {port} · nada conectado</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1652"/>
         <source>Waiting for a program to connect to this computer&apos;s address, port {port}. Allow ScoreSight through this computer&apos;s firewall for programs on other computers.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Esperando a que un programa se conecte a la dirección de este ordenador, puerto {port}. Permita ScoreSight en el cortafuegos de este ordenador para los programas de otros ordenadores.</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1661"/>
         <source>Listening on port {port} · 1 program connected</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Escuchando en el puerto {port} · 1 programa conectado</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1665"/>
         <source>Listening on port {port} · {count} programs connected</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Escuchando en el puerto {port} · {count} programas conectados</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1668"/>
         <source>Connected: {programs}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Conectados: {programs}</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1690"/>
@@ -5384,12 +5395,14 @@ Haga clic para cambiar la carpeta o su límite de tamaño; Herramientas &gt; Rec
     <message>
         <location filename="../src/tcp_ui_handler.py" line="138"/>
         <source>TCP server: other programs connect to {address}:{port} (localhost:{port} on this computer), and each one gets the messages.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Servidor TCP: otros programas se conectan a {address}:{port} (localhost:{port} en este ordenador), y cada uno recibe los mensajes.</translation>
     </message>
     <message>
         <location filename="../src/tcp_ui_handler.py" line="143"/>
         <source>TCP server: other programs connect to this computer&apos;s address, port {port} (localhost:{port} on this computer), and each one gets the messages.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Servidor TCP: otros programas se conectan a la dirección de este ordenador, puerto {port} (localhost:{port} en este ordenador), y cada uno recibe los mensajes.</translation>
     </message>
     <message>
         <location filename="../src/tcp_ui_handler.py" line="156"/>
@@ -5460,12 +5473,14 @@ Haga clic para cambiar la carpeta o su límite de tamaño; Herramientas &gt; Rec
     <message>
         <location filename="../src/tcp_ui_handler.py" line="551"/>
         <source>Listen on port</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Puerto de escucha</translation>
     </message>
     <message>
         <location filename="../src/tcp_ui_handler.py" line="554"/>
         <source>The port ScoreSight listens on. Set the same port in the program that connects to ScoreSight.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">El puerto en el que escucha ScoreSight. Configure el mismo puerto en el programa que se conecta a ScoreSight.</translation>
     </message>
     <message>
         <location filename="../src/tcp_ui_handler.py" line="597"/>
@@ -5612,12 +5627,14 @@ Haga clic para cambiar la carpeta o su límite de tamaño; Herramientas &gt; Rec
     <message>
         <location filename="../src/tcp_output.ui" line="224"/>
         <source>TCP connects to the receiving program and keeps the connection open. UDP sends each message as a datagram, without a connection. TCP server: ScoreSight listens on the port, and every program that connects to it gets the messages.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">TCP se conecta al programa receptor y mantiene la conexión abierta. UDP envía cada mensaje como un datagrama, sin conexión. Servidor TCP: ScoreSight escucha en el puerto, y cada programa que se conecta recibe los mensajes.</translation>
     </message>
     <message>
         <location filename="../src/tcp_output.ui" line="238"/>
         <source>TCP server</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Servidor TCP</translation>
     </message>
     <message>
         <location filename="../src/tcp_output.ui" line="273"/>

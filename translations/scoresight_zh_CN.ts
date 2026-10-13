@@ -4302,57 +4302,68 @@ Resolution: {width}×{height}</source>
     <message>
         <location filename="../src/output_status.py" line="1585"/>
         <source>Click Start sending to let other programs connect to ScoreSight on port {port} and get the readings.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">点击“开始发送”，让其他程序通过端口 {port} 连接到 ScoreSight 并接收读数。</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1595"/>
         <source>Enter a port</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">请输入端口</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1597"/>
         <source>Enter the port ScoreSight listens on, and the same port in the program that connects to ScoreSight.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">请输入 ScoreSight 监听的端口，并在连接 ScoreSight 的程序中设置相同的端口。</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1620"/>
         <source>Can&apos;t listen on port {port}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">无法监听端口 {port}</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1624"/>
         <source>Another program uses this port, or the system doesn&apos;t allow it. Choose another port (and set it in the program that connects). ScoreSight tries again by itself.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">另一个程序正在使用此端口，或系统不允许使用。请选择其他端口（并在连接的程序中设置）。ScoreSight 会自动重试。</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1636"/>
         <source>Opening port {port}…</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">正在打开端口 {port}…</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1647"/>
         <source>Listening on port {port} · nothing connected</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">正在监听端口 {port} · 无连接</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1652"/>
         <source>Waiting for a program to connect to this computer&apos;s address, port {port}. Allow ScoreSight through this computer&apos;s firewall for programs on other computers.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">正在等待程序连接到本机地址的端口 {port}。如需其他计算机上的程序连接，请在本机防火墙中允许 ScoreSight。</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1661"/>
         <source>Listening on port {port} · 1 program connected</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">正在监听端口 {port} · 已连接 1 个程序</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1665"/>
         <source>Listening on port {port} · {count} programs connected</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">正在监听端口 {port} · 已连接 {count} 个程序</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1668"/>
         <source>Connected: {programs}</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">已连接：{programs}</translation>
     </message>
     <message>
         <location filename="../src/output_status.py" line="1690"/>
@@ -5383,12 +5394,14 @@ Click to change the folder or its size limit; Tools &gt; Collect OCR training da
     <message>
         <location filename="../src/tcp_ui_handler.py" line="138"/>
         <source>TCP server: other programs connect to {address}:{port} (localhost:{port} on this computer), and each one gets the messages.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">TCP 服务器：其他程序连接到 {address}:{port}（在本机上为 localhost:{port}），每个程序都会收到消息。</translation>
     </message>
     <message>
         <location filename="../src/tcp_ui_handler.py" line="143"/>
         <source>TCP server: other programs connect to this computer&apos;s address, port {port} (localhost:{port} on this computer), and each one gets the messages.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">TCP 服务器：其他程序连接到本机地址的端口 {port}（在本机上为 localhost:{port}），每个程序都会收到消息。</translation>
     </message>
     <message>
         <location filename="../src/tcp_ui_handler.py" line="156"/>
@@ -5459,12 +5472,14 @@ Click to change the folder or its size limit; Tools &gt; Collect OCR training da
     <message>
         <location filename="../src/tcp_ui_handler.py" line="551"/>
         <source>Listen on port</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">监听端口</translation>
     </message>
     <message>
         <location filename="../src/tcp_ui_handler.py" line="554"/>
         <source>The port ScoreSight listens on. Set the same port in the program that connects to ScoreSight.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">ScoreSight 监听的端口。请在连接 ScoreSight 的程序中设置相同的端口。</translation>
     </message>
     <message>
         <location filename="../src/tcp_ui_handler.py" line="597"/>
@@ -5611,12 +5626,14 @@ Click to change the folder or its size limit; Tools &gt; Collect OCR training da
     <message>
         <location filename="../src/tcp_output.ui" line="224"/>
         <source>TCP connects to the receiving program and keeps the connection open. UDP sends each message as a datagram, without a connection. TCP server: ScoreSight listens on the port, and every program that connects to it gets the messages.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">TCP 连接到接收程序并保持连接打开。UDP 不建立连接，将每条消息作为数据报发送。TCP 服务器：ScoreSight 在该端口上监听，每个连接的程序都会收到消息。</translation>
     </message>
     <message>
         <location filename="../src/tcp_output.ui" line="238"/>
         <source>TCP server</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">TCP 服务器</translation>
     </message>
     <message>
         <location filename="../src/tcp_output.ui" line="273"/>
