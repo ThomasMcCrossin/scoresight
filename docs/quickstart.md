@@ -102,6 +102,7 @@ ScoreSight saves your boxes and settings automatically and reopens the last sour
 | **Update on change** | When on (default), a value that hasn't changed is marked "unchanged", and vMix and UNO don't resend it. Under **All boxes**. |
 | **Pause outputs** | At the top of the field list. Freezes all outputs at their current values, for example during a timeout or replay (**Ctrl+Shift+P**). The field list keeps updating; an orange banner and the status bar show that the outputs are paused. Click **Resume outputs** to continue. |
 | **OCR model** | The recognition model used for all boxes, under **All boxes**. See [OCR Models](ocr-models.md). |
+| **Sport** | Under **All boxes**: choose the sport and ScoreSight follows the game (each score, the periods, the clock, the final buzzer). See [Game & Sports](game.md). |
 | **Status bar** | At the bottom of the window: the source with its resolution and frame rate, how many times per second the boxes are read, **PAUSED** while the outputs are paused, and the HTTP server's address with a **Copy** button. |
 | **View > Live layout** | For the game (**Ctrl+2**): large readings and the state of every output next to the picture. **Ctrl+1** goes back to the Setup layout. See [Setup and Live layouts](boxes.md#setup-and-live-layouts). |
 | **Hold value...** | Right-click a field (or **Ctrl+H**) to send a value you type instead of its readings, for example to correct a misread, until you click **Release**. See [Hold value](boxes.md#hold-value). |
@@ -110,5 +111,6 @@ ScoreSight saves your boxes and settings automatically and reopens the last sour
 ## Where to next
 
 - [Recognition Tuning](recognition-tuning.md): get rock-solid readings.
+- [Game & Sports](game.md): choose the sport and follow the game.
 - [Outputs](outputs.md): all integrations in detail.
 - [Performance Tuning](performance.md): understand the on-screen statistics and reduce CPU use.

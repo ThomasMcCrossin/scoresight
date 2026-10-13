@@ -69,12 +69,15 @@ from destinations_view import (
     DestinationDelegate,
     DestinationsModel,
 )
+from game_state import GameEngine
+from game_ui_handler import GameUIHandler
 from get_camera_info import get_camera_info
 from held_values import RELEASE, HeldValues, HoldValueDialog
 from http_server import (
     get_http_server_port,
     http_server_stats,
     start_http_server,
+    update_game_state,
     update_http_server,
 )
 import ocr_models
@@ -370,6 +373,8 @@ class MainWindow(QMainWindow):
         # Hold value: the fields whose outputs get a value typed by the user
         # instead of their readings (not saved)
         self.heldValues = HeldValues()
+        # the game, for the sport chosen (game_state.py; None: nothing)
+        self.gameEngine = GameEngine()
         # View > Setup layout or Live layout (applied by setupLayout)
         self.layoutMode = LAYOUT_SETUP
         self.updateWindowTitle()
@@ -394,6 +399,8 @@ class MainWindow(QMainWindow):
         self.unoUiHandler = UNOUIHandler(self.ui)
         # the TCP / UDP output's page is the last of the output pages
         self.tcpUiHandler = TcpUIHandler(self.ui.stackedWidget_outputs, self)
+        # the Sport choice and the game's status line (All boxes)
+        self.gameUiHandler = GameUIHandler(self.ui, self.gameEngine)
         # the start/stop buttons show the same texts from the start as after a
         # toggle or a language change
         self.vmixUiHandler.restoreUiState()
@@ -1647,6 +1654,7 @@ class MainWindow(QMainWindow):
             self.vmixUiHandler.restoreUiState()
             self.unoUiHandler.restoreUiState()
             self.tcpUiHandler.retranslate()
+            self.gameUiHandler.retranslate()
             self.apiUiHandler.restoreUiState()
             self.applyRuntimeTexts()
 
@@ -1743,6 +1751,7 @@ class MainWindow(QMainWindow):
                 self.lanAddress = lan_address
                 self.updateBrowserEndpoints()
         outputs = self.refreshDestinations(now)
+        self.gameUiHandler.refresh()
         snapshot = self.statusSnapshot(now, outputs)
         self.statusBarWidgets.update(snapshot)
         self.updateOcrModelAutoText(snapshot)
@@ -4554,6 +4563,11 @@ class MainWindow(QMainWindow):
         # template is Success when its text changed, SameNoChange otherwise
         apply_template_fields(results)
         self.heldValues.finish_released(results)
+        # the game follows what the outputs get (held values too), also while
+        # the outputs are paused
+        events = self.gameEngine.update(results)
+        if events:
+            self.gameUiHandler.eventsHappened(events)
 
         # The boxes list: each box's last good reading (a SameNoChange is its
         # last good reading), and the state of its latest one (a rejected or
@@ -4573,6 +4587,7 @@ class MainWindow(QMainWindow):
             return
 
         update_http_server(results)
+        update_game_state(self.gameEngine.state())
 
         if self.ui.checkBox_enableOutAPI.isChecked():
             update_out_api(results)

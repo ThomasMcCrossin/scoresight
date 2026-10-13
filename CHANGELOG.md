@@ -10,6 +10,18 @@ Release tags are the bare version number (for example `0.1.0`).
 
 ### Added
 
+- **Game & sports.** Choose the sport (basketball, soccer, ice hockey,
+  American football, volleyball) under **All boxes**, and ScoreSight follows
+  the game from the scoreboard: each score (who scored and how many points),
+  the start and the end of each period, the clock starting and stopping,
+  fouls and timeouts, the final buzzer, and the points of each period. A
+  change is counted only once it is read again, and a change the sport
+  doesn't allow (a basketball score jumping by 5, a score going down) only
+  once it is read steadily for 3 seconds, so misreads make no events. The
+  game is served at `/game` on the HTTP server, with its event log. It is
+  the base for the graphics, highlights and player stats on the
+  [roadmap](https://github.com/royshil/scoresight/issues/116).
+
 - **TCP server.** The TCP / UDP output can now wait for other programs to
   connect to ScoreSight, for software that connects to its data source
   instead of listening: choose **TCP server** next to the port. Up to 32

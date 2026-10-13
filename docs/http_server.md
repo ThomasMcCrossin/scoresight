@@ -60,6 +60,7 @@ Anyone who can reach the port can read your scoreboard data. On untrusted networ
 | `GET /csv` | Every box as a CSV row with its position | `text/csv; charset=utf-8` |
 | `GET /csv?pivot` | A header row of box names and one row of good values | `text/csv; charset=utf-8` |
 | `GET /csv?pivot&all` | A header row of every box name and one row of their last good values | `text/csv; charset=utf-8` |
+| `GET /game`, `GET /game?since=<id>` | The [game](game.md#the-game-over-http) (with a sport chosen): scores, clock, period, fouls, timeouts, the points of each period and the event log | `application/json` |
 | `GET /scoresight` | A ready-made demo scoreboard page | `text/html` |
 | `GET /overlay`, `/overlay/scorebug`, `/overlay/lower-third`, `/overlay/clock`, `/overlay/field`, `/overlay/custom/...` | Transparent [browser overlays](overlays.md) that update live, and your own overlay pages | `text/html` |
 | `GET /events`, `GET /overlay/state` | The overlays' live values: [Server-Sent Events](overlays.md#live-values-for-developers) pushed on each change, or a JSON snapshot | `text/event-stream`, `application/json` |
@@ -178,6 +179,10 @@ Home Score,Away Score,Time
 ```
 
 A header row with the names of the boxes that have a good (`Success` or `SameNoChange`) reading, and one row with their values. When no box has a good reading, the response contains two empty lines. For tools that read a one-row CSV and bind by column, such as vMix Data Sources, Ross XPression DataLinq or spreadsheets, use `/csv?pivot&all`: its columns never change (see [above](#pivotall-every-box-with-its-last-good-value)).
+
+### `GET /game`
+
+With a [sport](game.md) chosen: the game as ScoreSight follows it, as JSON. It has the scores, the clock (and whether it runs), the period, fouls and timeouts, the points of each period, and the game's event log (each score, period start and end, clock start and stop, final). `/game?since=<id>` returns only the events after that event id, for polling. See [The game over HTTP](game.md#the-game-over-http) for the format. Without a sport, `sport` is `"none"` and the rest is empty.
 
 ### `GET /scoresight`
 

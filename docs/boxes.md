@@ -42,7 +42,7 @@ The OBS name is the text source each field updates in OBS (see [OBS Studio](obs.
 Use custom fields for anything else: downs, yards to go, balls/strikes/outs, sets and games, a second shot clock, team names, and so on.
 
 - **Add**: click **+** at the top of the field list (or press **Ctrl+N**). A new field named *Custom 1* (*Custom 2*, ...) appears, selected.
-- **Rename**: press **F2**, right-click it and choose **Rename...**, or (once it is on the picture) double-click it, then type a new name. Names must be unique, and names that differ only in upper and lower case count as the same (their text files would be the same file): ScoreSight says so and asks again. Choose names carefully, because they become file names, JSON keys and template placeholders.
+- **Rename**: press **F2**, right-click it and choose **Rename...**, or (once it is on the picture) double-click it, then type a new name. Names must be unique, and names that differ only in upper and lower case count as the same (their text files would be the same file): ScoreSight says so and asks again. Choose names carefully, because they become file names, JSON keys and template placeholders, and with a [sport](game.md) chosen, ScoreSight finds the scores, the clock and the period by their names.
 - **Delete**: select the field and click **Delete field** under the list (or right-click it). ScoreSight asks first. **Delete field** only shows for custom fields. **Del** (**Backspace** on a Mac) deletes a custom field that isn't on the picture; for one on the picture, the first **Del** takes its box off the picture.
 
 Custom fields start as a Number field with the *Any number* format. Change the **Type** and **Format** in the Box tab.

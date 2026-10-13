@@ -27,7 +27,7 @@ Tests are grouped with markers:
 
 | Marker | Needs | Example |
 |---|---|---|
-| (none) | Only the Python dependencies | storage, defaults, file and HTTP output formats, packaging (`tests/test_packaging.py`) |
+| (none) | Only the Python dependencies | storage, defaults, file and HTTP output formats, the game-state engine and the sport profiles (`tests/test_game_state.py`, with a fake clock), packaging (`tests/test_packaging.py`) |
 | `ocr` | `tesserocr` and the bundled models in `tesseract/tessdata` | recognition of synthetic digit images |
 | `ppocr` | onnxruntime and the PP-OCR models (`python scripts/fetch_models.py`) | the PP-OCR engine reading synthetic digits, clocks and text; the app reading like the OCR evaluation |
 | `qt` | Qt, running offscreen | widgets and dialogs |

@@ -17,3 +17,4 @@ These guides explain each part of ScoreSight in depth:
 - [Performance Tuning](performance.md): what Frames/s, Updates/s and Previews/s mean, and how to reduce CPU use.
 - [Multiple Instances & Profiles](profiles.md): run several ScoreSight windows, for example one per camera.
 - [OCR Training Data](data_annotation.md): collect and annotate samples with the built-in Training Dojo.
+- [Game & Sports](game.md): choose the sport, and ScoreSight follows the game: scores, periods, the clock, the final buzzer and the points of each period.
