@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 # Staple the notarization ticket to a notarized .app or .dmg. Right after
 # notarization, Apple's ticket service sometimes drops the connection ("The
-# network connection was lost", stapler error 68), so this tries again for a
-# few minutes before failing.
+# network connection was lost", stapler error 68), so this tries again for
+# about 9 minutes before failing.
 #
 # Usage: scripts/ci/staple_macos.sh <file>
 set -euo pipefail
 
 file="$1"
-attempts=6
+attempts=10
 for attempt in $(seq 1 "$attempts"); do
   if xcrun stapler staple "$file"; then
     exit 0
@@ -17,6 +17,6 @@ for attempt in $(seq 1 "$attempts"); do
     echo "::error::Couldn't staple the notarization ticket to $(basename "$file") after $attempts attempts"
     exit 1
   fi
-  echo "Stapling $(basename "$file") failed (attempt $attempt of $attempts); trying again in 30 s"
-  sleep 30
+  echo "Stapling $(basename "$file") failed (attempt $attempt of $attempts); trying again in 60 s"
+  sleep 60
 done
