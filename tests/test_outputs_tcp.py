@@ -1126,6 +1126,23 @@ def test_a_busy_port_shows_and_is_retried(make_output, make_result, clients):
     clients(port).wait_for(b"A=1\n")
 
 
+@pytest.mark.parametrize("address", ["0.0.0.0", "127.0.0.1", "::"])
+def test_a_port_another_program_listens_on_with_one_protocol_is_busy(address):
+    # Windows lets a dual-stack socket share such a port unless it is taken
+    # exclusively, and the other program then gets the IPv4 (or IPv6) clients
+    if ":" in address and not socket.has_dualstack_ipv6():
+        pytest.skip("no IPv6")
+    family = socket.AF_INET6 if ":" in address else socket.AF_INET
+    port = free_port()
+    blocker = socket.create_server((address, port), family=family)
+    try:
+        with pytest.raises(tcp_output.ListenError):
+            tcp_output._open_server(server_config(port))
+    finally:
+        blocker.close()
+    _close(tcp_output._open_server(server_config(port)))
+
+
 def test_server_status_transitions(make_output, make_result, clients):
     output = make_output(server_config(None))
     status = tcp_status(output)

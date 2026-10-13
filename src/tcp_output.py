@@ -1407,15 +1407,25 @@ def _open_socket(config: TcpConfig) -> socket.socket:
 
 def _open_server(config: TcpConfig) -> socket.socket:
     """The TCP server's listening socket, on every address of this computer
-    (IPv6 and IPv4 where the system can, else IPv4)."""
+    (IPv6 and IPv4 where the system can, else IPv4).
+
+    On Windows the port is taken exclusively: otherwise Windows lets it be
+    shared with a program that listens on it with IPv4 (or IPv6) alone, which
+    then gets those connections while ScoreSight says it listens."""
+    dualstack = socket.has_dualstack_ipv6()
+    server = socket.socket(socket.AF_INET6 if dualstack else socket.AF_INET)
     try:
-        if socket.has_dualstack_ipv6():
-            server = socket.create_server(
-                ("", config.port), family=socket.AF_INET6, dualstack_ipv6=True
-            )
+        if hasattr(socket, "SO_EXCLUSIVEADDRUSE"):  # Windows
+            server.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)
         else:
-            server = socket.create_server(("", config.port))
+            # as socket.create_server: reopen at once after a restart
+            server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        if dualstack:
+            server.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_V6ONLY, 0)
+        server.bind(("", config.port))
+        server.listen()
     except OSError as e:
+        server.close()
         raise ListenError(e.errno, e.strerror or str(e)) from e
     # accept() wakes up this often to see whether to stop
     server.settimeout(ACCEPT_POLL)
