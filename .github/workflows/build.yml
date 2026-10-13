@@ -403,7 +403,7 @@ jobs:
           codesign --verify --deep --strict --verbose=2 dist/ScoreSight.app
           ditto -c -k --keepParent dist/ScoreSight.app "$RUNNER_TEMP/ScoreSight.zip"
           bash scripts/ci/notarize_macos.sh "$RUNNER_TEMP/ScoreSight.zip"
-          xcrun stapler staple dist/ScoreSight.app
+          bash scripts/ci/staple_macos.sh dist/ScoreSight.app
           spctl --assess --type execute --verbose=2 dist/ScoreSight.app
 
       - name: Package (macOS disk image)
@@ -436,7 +436,7 @@ jobs:
         run: |
           codesign --sign "$APPLE_APP_DEVELOPER_ID" --timestamp "$DMG"
           bash scripts/ci/notarize_macos.sh "$DMG"
-          xcrun stapler staple "$DMG"
+          bash scripts/ci/staple_macos.sh "$DMG"
           spctl --assess --type open --context context:primary-signature --verbose=2 "$DMG"
 
       - name: Remove the signing keychain
