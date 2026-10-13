@@ -41,6 +41,8 @@ flowchart LR
     CAM & NDI & URL & SCR & FILE --> CAP
     OCR -- ocr_result_signal --> MW["MainWindow.ocrResult()"]
     MW --> TPL["template fields: apply_template_fields()"]
+    TPL --> GAME["game_state.GameEngine: events, line score"]
+    GAME --> HTTP
     TPL --> HTTP[http_server]
     TPL --> WORKERS[background output workers]
     WORKERS --> OBS[OBS WebSocket]
@@ -70,6 +72,7 @@ flowchart LR
 5. **Fan-out** (`MainWindow.ocrResult` in `mainwindow.py`, on the GUI thread):
    - applies the held values (**Hold value**): `held_values.HeldValues.apply(results)` replaces each held field's result with a copy carrying the value typed in (`Success` once, then `SameNoChange`; a held template field isn't evaluated) and makes a released field's next good reading a `Success` (`finish_released()` for template fields, after they are evaluated). Templates and every output see the held values; the capture thread doesn't know about them, so the OCR goes on unchanged. Held values are not persisted,
    - evaluates template fields: `template_fields.apply_template_fields(results)` sets each template's text from the last good readings and its state (`Success`, `SameNoChange` or `Empty`),
+   - follows the game (with a sport chosen): `game_state.GameEngine.update(results)` reads the roles of the boxes (`sports.assign_roles`, by name), counts a changed value once it is read again (a change the sport doesn't allow once it is read steadily for 3 s), and returns the events (score, period start and end, clock start and stop, fouls, timeouts, final), which `game_ui_handler` logs; its `state()` (the line score and the event log too) goes to `http_server.update_game_state` for `/game` with the other outputs. It sees the held values, runs while the outputs are paused, and doesn't change what the outputs get,
    - updates the field table: every OCR reading (not the held values) is stored in its box's Value item (`readings_view.record_reading`: the last good text, the state, the time of the last good reading, a rejected text; `set_held` adds the held value), which `readings_view.ReadingDelegate` paints,
    - publishes to `http_server.update_http_server` (which snapshots the results), the outbound API (`api_output.update_out_api`), the vMix and UNO updaters (owned by `vmix_ui_handler` / `uno_ui_handler`), the TCP / UDP output (`tcp_output.TcpOutput`, owned by `tcp_ui_handler`), OBS text sources (`obs_websocket.update_text_source`, for good values that changed) and `file_output.FileOutput` (txt/csv/xml).
    - Network outputs hand their payload to background workers (`output_worker.OutputWorker`, one daemon thread per output) that coalesce pending items per key (latest value wins), use request timeouts, back off while the target is unreachable and throttle their error logging, so the GUI thread never blocks on I/O.

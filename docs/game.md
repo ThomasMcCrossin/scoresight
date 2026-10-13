@@ -67,6 +67,7 @@ A change the sport doesn't allow counts only once it has been read **steadily fo
 - a score going up by 5 in basketball, or 21 becoming 81;
 - a score going down;
 - a period skipped;
+- fouls or timeouts changing by more than 1 (going back to 0 is fine);
 - the clock jumping.
 
 A real correction (the scorer's table fixing a score) is steady, so it still counts, as a *corrected* score. A misread isn't.
@@ -81,10 +82,10 @@ A value held with [Hold value](boxes.md#hold-value) counts as the value, so a he
 | **Start of a period** | The period went up: *Start of Q2* |
 | **End of a period** | A clock that counts down reached 0:00, or the period went up: *End of Q2 (34–30)* |
 | **Final** | The clock reached 0:00 at the end of the last period (or of an overtime), stayed there for 3 seconds, and the scores aren't tied: *Final (64–58)* |
-| **Clock started / stopped** | The clock moved after standing still, or stood still for about 2 seconds |
+| **Clock started / stopped** | The clock moved the way it counts after standing still, or stood still for about 2 seconds (longer when the boxes are read less often) |
 | **Fouls, timeouts** | A team's fouls or timeouts changed |
 
-The events go to the log (**Tools › View log**): the clock's at the debug level, because they come at every whistle.
+The events go to the log (**Tools > View log**, **Ctrl+Shift+L**): the clock's at the debug level, because they come at every whistle.
 
 Limits:
 - **Final** needs a clock that counts down, so soccer and volleyball games have no final event yet.

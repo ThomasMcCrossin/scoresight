@@ -22,6 +22,8 @@ Yes. ScoreSight is free and open source under the [MIT license](https://github.c
 
 Any scoreboard whose values you can see in a video picture: LED, LCD, 7-segment, dot-matrix and flip-digit boards, as well as TV score bugs, games, web pages and apps. The seven standard fields (scores, time, period, fouls, shot clock) suit basketball-style boards. For everything else, add [custom fields](boxes.md#custom-fields): downs and yards to go in American football ([#32](https://github.com/royshil/scoresight/issues/32)), sets and games, innings, korfball shot clocks ([#8](https://github.com/royshil/scoresight/issues/8)), and so on.
 
+For basketball, soccer, ice hockey, American football and volleyball, ScoreSight can also follow the game: choose the [sport](game.md) and it notices each score, the start and end of each period and the final buzzer.
+
 ## Can it read indicator lights, like balls, strikes and outs?
 
 Yes. Use [Count lights (dot counter)](box-settings.md#dot-counter) on a box that covers a row of lights. ScoreSight reports how many are lit ([#4](https://github.com/royshil/scoresight/issues/4)).

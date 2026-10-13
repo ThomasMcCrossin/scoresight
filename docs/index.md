@@ -33,6 +33,7 @@ ScoreSight reads text and numbers from a live video feed (a stadium scoreboard f
 | Connect a camera, NDI feed, RTSP stream, screen or video file | [Video Sources](sources.md) |
 | Get the data into OBS, vMix, UNO, a browser or my own app | [Outputs](outputs.md) |
 | Use it with Wirecast, XSplit, TriCaster, CasparCG, Chyron, XPression, Vizrt, CharacterWorks, Captivate... | [Works With…](integrations.md) |
+| Follow the game: each score, period and the final buzzer | [Game & Sports](game.md) |
 | Fix readings that are wrong or flicker | [Recognition Tuning](recognition-tuning.md) |
 | Run two scoreboards or cameras at once | [Multiple Instances & Profiles](profiles.md) |
 | Fix a problem | [Troubleshooting](troubleshooting.md) and [FAQ](faq.md) |
