@@ -36,6 +36,11 @@ connects to ScoreSight, and setup guides for 33 broadcast products.
   how many are connected, and says when the port is taken by another
   program. Try it with `telnet` or `nc`.
 
+- **Reset crop.** The crop panel has a **Reset crop…** button: after you
+  confirm, it removes the crop (its four values go back to 0 and cropping
+  turns off), so the whole picture is read again. The boxes move with it and
+  stay over the same digits.
+
 ### Changed
 
 - **Works With… covers 33 products.** The

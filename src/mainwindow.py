@@ -439,6 +439,7 @@ class MainWindow(QMainWindow):
             spin_box.valueChanged.connect(partial(self.cropValueChanged, setting))
             spin_box.setValue(fetch_data("scoresight.json", setting, 0))
         self.cropOrigin = self.currentCropOrigin()
+        self.ui.toolButton_resetCrop.setEnabled(any(self.cropValues()))
         self.ui.checkBox_enableOutAPI.toggled.connect(
             partial(self.globalSettingsChanged, "enable_out_api")
         )
@@ -1465,6 +1466,18 @@ class MainWindow(QMainWindow):
         if previous is not None and origin != previous:
             self.moveForCrop(previous[0] - origin[0], previous[1] - origin[1])
         self.updateCropWarning()
+        self.ui.toolButton_resetCrop.setEnabled(any(self.cropValues()))
+
+    def cropValues(self) -> tuple[int, int, int, int]:
+        """The crop's left, top, right and bottom values (kept while the crop
+        is off)."""
+        ui = self.ui
+        return (
+            ui.spinBox_leftCrop.value(),
+            ui.spinBox_topCrop.value(),
+            ui.spinBox_rightCrop.value(),
+            ui.spinBox_bottomCrop.value(),
+        )
 
     def moveForCrop(self, dx: int, dy: int):
         """Move the boxes and the 4-corner corners by (dx, dy) pixels."""
@@ -3914,6 +3927,7 @@ class MainWindow(QMainWindow):
         ui.pushButton_cancelFourCorner.clicked.connect(self.cancelFourCornerSelection)
         ui.frame_fourCornerBanner.hide()
         ui.toolButton_dragCrop.clicked.connect(self.dragCropClicked)
+        ui.toolButton_resetCrop.clicked.connect(self.resetCrop)
         ui.pushButton_cancelCrop.clicked.connect(self.cancelCropSelection)
         ui.frame_cropBanner.hide()
         ui.label_cropWarning.hide()
@@ -3983,12 +3997,12 @@ class MainWindow(QMainWindow):
                 labels=[ui.label_adjustPicture],
                 ignore=[ui.label_adjustHint],
             ),
-            # Drag to crop goes under the values
+            # Drag to crop and Reset crop go under the values
             source_bar.CompactToolRow(
                 ui.widget_cropPanel,
                 wraps=[
                     (
-                        ui.toolButton_dragCrop,
+                        ui.widget_cropActions,
                         (0, 0),
                         (1, 1, 1, 8, Qt.AlignmentFlag.AlignLeft),
                     )
@@ -4461,6 +4475,41 @@ class MainWindow(QMainWindow):
         if self.image_viewer is not None:
             # Fit (the cropped picture is fitted again when it arrives, if its
             # size changed)
+            self.image_viewer.resetZoom()
+
+    def resetCrop(self):
+        """Reset crop (after asking): the crop's values back to 0 and the crop
+        off, so the whole picture is read again. The boxes move with the crop
+        (cropChanged), so they stay over the same digits."""
+        if not self.confirm(
+            QCoreApplication.translate("MainWindow", "Reset the crop?"),
+            QCoreApplication.translate(
+                "MainWindow",
+                "The whole picture will be read again, and the crop's values "
+                "set to 0. The boxes move with it, so they stay over the same "
+                "digits.",
+            ),
+            QCoreApplication.translate("MainWindow", "Reset crop"),
+        ):
+            return
+        ui = self.ui
+        logger.info(
+            "Crop reset (it was: left %d, top %d, right %d, bottom %d)",
+            *self.cropValues(),
+        )
+        for spin_box in (
+            ui.spinBox_leftCrop,
+            ui.spinBox_topCrop,
+            ui.spinBox_rightCrop,
+            ui.spinBox_bottomCrop,
+        ):
+            spin_box.setValue(0)
+        if ui.toolButton_topCrop.isChecked():
+            # (it stops Drag to crop too)
+            ui.toolButton_topCrop.setChecked(False)
+            self.cropMode()
+        if self.image_viewer is not None:
+            # Fit (the whole picture is fitted again when it arrives)
             self.image_viewer.resetZoom()
 
     # Tools > Collect OCR training data

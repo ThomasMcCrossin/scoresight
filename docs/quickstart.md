@@ -37,7 +37,7 @@ Cameras and NDI sources are found in the background, so they may appear in the l
 The **Adjust picture** row above the picture helps when the camera is not square to the scoreboard:
 
 - **Rotate** turns the picture in 90° steps.
-- **Crop** removes the edges: click **Drag to crop** in the row that opens, then drag around the scoreboard on the whole picture.
+- **Crop** removes the edges: click **Drag to crop** in the row that opens, then drag around the scoreboard on the whole picture. **Reset crop…** removes the crop again.
 - **4-corner**: click it, then click the four corners of the scoreboard. ScoreSight warps the picture so the board becomes a flat rectangle.
 - **Stabilize** removes small camera bumps and drift.
 
