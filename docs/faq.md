@@ -78,6 +78,10 @@ The project doesn't currently run a central data collection. You can use the [bu
 
 See [Settings, Files & Command Line](configuration.md#where-scoresight-keeps-its-files). To move only the boxes, use **File > Export field layout...** and **Import field layout...**. To move everything, copy `scoresight.json` (or a profile's `scoresight-<name>.json`) to the same folder on the other computer.
 
+## Where can I ask a question or share an idea?
+
+In [ScoreSight's Discussions](https://github.com/royshil/scoresight/discussions) on GitHub (a free GitHub account lets you post): [Q&A](https://github.com/royshil/scoresight/discussions/categories/q-a) for questions, [Ideas](https://github.com/royshil/scoresight/discussions/categories/ideas) for features you'd like, and [Show and tell](https://github.com/royshil/scoresight/discussions/categories/show-and-tell) for your production. In the app, **Feedback** at the right end of the status bar (or **Help > Ask a question or share feedback**) opens it. Each release is announced there too.
+
 ## How do I report a bug or request a feature?
 
 Use the [issue forms on GitHub](https://github.com/royshil/scoresight/issues/new/choose). For bugs, attach your [logs](troubleshooting.md#collect-logs-first). Security issues: see [SECURITY.md](https://github.com/royshil/scoresight/blob/main/SECURITY.md).

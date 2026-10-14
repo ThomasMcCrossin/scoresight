@@ -2879,6 +2879,7 @@ def test_the_menus(main_window):
     assert menu_items(ui.menuHelp) == [
         "actionUserGuide",
         "actionKeyboardShortcuts",
+        "actionCommunity",
         "actionCheckForUpdates",
         "actionAbout",
     ]
@@ -2892,6 +2893,7 @@ def test_the_menus(main_window):
         ui.actionShowUnusedFields,
         ui.actionUserGuide,
         ui.actionKeyboardShortcuts,
+        ui.actionCommunity,
         ui.actionOpenConfigurationFolder,
         ui.actionCheckForUpdates,
     ):
@@ -2910,6 +2912,17 @@ def test_the_help_menu(main_window, monkeypatch, qapp):
     assert [url.toString() for url in opened] == [
         "https://royshil.github.io/scoresight/"
     ]
+
+    # the community: Help > Ask a question or share feedback, and the status
+    # bar's Feedback, which is always there
+    community = "https://github.com/royshil/scoresight/discussions"
+    opened.clear()
+    ui.actionCommunity.trigger()
+    feedback = main_window.statusBarWidgets.button_feedback
+    assert not feedback.isHidden()
+    assert feedback.text() == "Feedback"
+    feedback.click()
+    assert [url.toString() for url in opened] == [community, community]
 
     main_window.show()
     ui.actionKeyboardShortcuts.trigger()
@@ -3716,6 +3729,11 @@ def test_the_first_run_card(main_window, make_target, monkeypatch, no_dialogs):
     assert ui.frame_firstRun.isVisibleTo(main_window)
     assert ui.label_12.text() == "Open a source to begin"
     assert "quickstart.html" in ui.label_firstRunQuickstart.text()
+    # and where to ask
+    assert (
+        'href="https://github.com/royshil/scoresight/discussions"'
+        in ui.label_firstRunQuickstart.text()
+    )
     assert main_window.firstRunSteps() == (False, False, False)
     steps = [
         ui.label_firstRunStep1.accessibleName(),

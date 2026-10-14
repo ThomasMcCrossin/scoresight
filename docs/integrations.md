@@ -18,7 +18,7 @@ ScoreSight's readings can reach most broadcast graphics, streaming and productio
 </details>
 
 {: .important }
-**Untested** means the setup follows the product's documentation but the ScoreSight project hasn't tried it on that product yet. **Untested idea** means the vendor documents the mechanism but not every detail, so expect to adjust something. If you try one, please tell us how it went (or what had to change) in a [GitHub issue](https://github.com/royshil/scoresight/issues/new/choose), so we can mark it tested.
+**Untested** means the setup follows the product's documentation but the ScoreSight project hasn't tried it on that product yet. **Untested idea** means the vendor documents the mechanism but not every detail, so expect to adjust something. If you try one, please tell us how it went (or what had to change) in [ScoreSight's Discussions](https://github.com/royshil/scoresight/discussions/categories/show-and-tell), so we can mark it tested.
 
 ## At a glance
 
@@ -75,7 +75,7 @@ Use the `&all` variants for programs that bind to a column or a key: every field
 
 ## Products without a guide yet
 
-These products have no step-by-step guide, because their vendors don't publish how other software sends them data, or publish only part of it. If you use one and know what it accepts, please tell us in a [GitHub issue](https://github.com/royshil/scoresight/issues/new/choose).
+These products have no step-by-step guide, because their vendors don't publish how other software sends them data, or publish only part of it. If you use one and know what it accepts, please tell us in [ScoreSight's Discussions](https://github.com/royshil/scoresight/discussions/categories/show-and-tell).
 
 ### Chyron LYRIC / LyricX
 
@@ -128,4 +128,4 @@ ClassX's manual is for its customers, so the exact menus aren't given here. FOR-
 
 ## Another product?
 
-Open a [GitHub issue](https://github.com/royshil/scoresight/issues/new/choose) with the product's name and what it can receive (files, URLs, HTTP requests, TCP messages, web pages), ideally with a link to its documentation.
+Suggest it in [Ideas](https://github.com/royshil/scoresight/discussions/categories/ideas), in ScoreSight's Discussions, with the product's name and what it can receive (files, URLs, HTTP requests, TCP messages, web pages), ideally with a link to its documentation.

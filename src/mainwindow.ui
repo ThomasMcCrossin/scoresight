@@ -4839,6 +4839,7 @@
     </property>
     <addaction name="actionUserGuide"/>
     <addaction name="actionKeyboardShortcuts"/>
+    <addaction name="actionCommunity"/>
     <addaction name="separator"/>
     <addaction name="actionCheckForUpdates"/>
     <addaction name="actionAbout"/>
@@ -5158,6 +5159,17 @@
   <action name="actionKeyboardShortcuts">
    <property name="text">
     <string>Keyboard shortcuts</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionCommunity">
+   <property name="text">
+    <string>Ask a question or share feedback</string>
+   </property>
+   <property name="toolTip">
+    <string>Open ScoreSight's Discussions on GitHub in your web browser: ask a question, share an idea or show your setup</string>
    </property>
    <property name="menuRole">
     <enum>QAction::NoRole</enum>

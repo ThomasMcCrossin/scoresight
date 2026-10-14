@@ -27,7 +27,7 @@ MagicSoft's help describes the socket server and the variables but doesn't print
 
 - Which port of a pair takes the commands, the text encoding on the wire (the preset sends UTF-8, the same as ASCII for digits) and whether a variable updates on air without playing the project again aren't documented. If nothing changes, try the other port of the pair.
 - MagicSoft CG 10 inputs accept NDI with alpha, so a ScoreSight [browser overlay](../overlays.md) can also reach it through OBS: put the overlay in a scene and send it out with the DistroAV (NDI) plugin.
-- Untested by the ScoreSight project. If you try it, please tell us in a [GitHub issue](https://github.com/royshil/scoresight/issues/new/choose).
+- Untested by the ScoreSight project. If you try it, please tell us in [ScoreSight's Discussions](https://github.com/royshil/scoresight/discussions/categories/show-and-tell).
 
 ## Vendor documentation
 

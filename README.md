@@ -22,6 +22,7 @@ ScoreSight reads the scores, clocks and periods many times per second and sends 
 [**Download**](https://github.com/royshil/scoresight/releases/latest) ·
 [**Documentation**](https://royshil.github.io/scoresight/) ·
 [**Quickstart**](https://royshil.github.io/scoresight/quickstart.html) ·
+[**Ask a question**](https://github.com/royshil/scoresight/discussions) ·
 [**Report a bug**](https://github.com/royshil/scoresight/issues/new/choose)
 
 <a href="https://youtu.be/21LhNHbH9gU" target="_blank"><img src="docs/videos/01-overview.jpg" width="60%" alt="Watch: ScoreSight in 3 minutes (2:20)"/></a>
@@ -154,7 +155,8 @@ Windows needs one extra step, building the camera enumerator: `uv pip install -r
 
 Contributions are very welcome: bug reports, documentation, translations, scoreboard samples and code. Read [CONTRIBUTING.md](CONTRIBUTING.md) to get started, and follow our [Code of Conduct](CODE_OF_CONDUCT.md).
 
-- Questions and bugs: [GitHub Issues](https://github.com/royshil/scoresight/issues/new/choose) (please attach your logs)
+- Questions, ideas and your setups: [Discussions](https://github.com/royshil/scoresight/discussions). We'd love to hear what you broadcast with ScoreSight.
+- Bugs: [GitHub Issues](https://github.com/royshil/scoresight/issues/new/choose) (please attach your logs)
 - Security issues: see [SECURITY.md](SECURITY.md)
 
 If ScoreSight helps your productions, you can support its development through [GitHub Sponsors](https://github.com/sponsors/royshil) or [Patreon](https://www.patreon.com/RoyShilkrot).

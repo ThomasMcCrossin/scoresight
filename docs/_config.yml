@@ -50,6 +50,8 @@ back_to_top_text: "Back to top"
 aux_links:
   "Download":
     - "https://github.com/royshil/scoresight/releases/latest"
+  "Community":
+    - "https://github.com/royshil/scoresight/discussions"
   "GitHub":
     - "https://github.com/royshil/scoresight"
 aux_links_new_tab: true
@@ -57,6 +59,8 @@ aux_links_new_tab: true
 nav_external_links:
   - title: Changelog
     url: https://github.com/royshil/scoresight/blob/main/CHANGELOG.md
+  - title: Ask a question
+    url: https://github.com/royshil/scoresight/discussions
   - title: Report an issue
     url: https://github.com/royshil/scoresight/issues/new/choose
 

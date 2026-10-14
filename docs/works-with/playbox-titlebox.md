@@ -27,7 +27,7 @@ TitleBox's **Data Source Manager** has a **FileLink** data provider for delimite
 - ScoreSight replaces each file in one step (a temporary file renamed over it). Whether TitleBox counts that as "saved" hasn't been tested.
 - The files are UTF-8 without a byte order mark. Digits and plain letters read the same in any encoding.
 - TitleBox's network control (**Net Control** port) uses a protocol that PlayBox documents only on request, so ScoreSight can't use it yet.
-- Untested by the ScoreSight project. If you try it, please tell us in a [GitHub issue](https://github.com/royshil/scoresight/issues/new/choose).
+- Untested by the ScoreSight project. If you try it, please tell us in [ScoreSight's Discussions](https://github.com/royshil/scoresight/discussions/categories/show-and-tell).
 
 ## Vendor documentation
 

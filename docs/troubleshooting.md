@@ -236,4 +236,4 @@ Packages older than 0.2.0 may not include `libxcb-cursor0` and the other xcb lib
 
 ### Still stuck?
 
-[Open an issue](https://github.com/royshil/scoresight/issues/new/choose). The bug report form asks for your version, OS, source type, outputs and logs, which is everything needed to help you.
+Ask in [Q&A](https://github.com/royshil/scoresight/discussions/categories/q-a), in ScoreSight's Discussions: other users and the developers answer there (in the app: **Feedback**, at the right end of the status bar). If it looks like a bug, [open an issue](https://github.com/royshil/scoresight/issues/new/choose). The bug report form asks for your version, OS, source type, outputs and logs, which is everything needed to help you.

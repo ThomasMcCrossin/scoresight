@@ -76,7 +76,7 @@ The **Preset** list fills in the settings for a product. You can still change ev
 Replace `TRICASTER-IP` / `PEARL-IP` with the device's IP address and the login with its user name and password. The setup on the device is in [TriCaster](works-with/tricaster.md) and [Epiphan Pearl](works-with/epiphan-pearl.md).
 
 {: .note }
-Neither preset has been tested on the hardware by the ScoreSight project yet: they follow the vendors' documentation. Tell us how they work for you in an [issue](https://github.com/royshil/scoresight/issues/new/choose).
+Neither preset has been tested on the hardware by the ScoreSight project yet: they follow the vendors' documentation. Tell us how they work for you in [ScoreSight's Discussions](https://github.com/royshil/scoresight/discussions/categories/show-and-tell).
 
 ## Payload formats
 
