@@ -4,7 +4,8 @@
 # The tag must equal src/version.py's __version__ and CHANGELOG.md must have a
 # "## [X.Y.Z]" section; that section becomes the release notes. The release is
 # created as a DRAFT (marked pre-release for beta/rc tags) with all packages and
-# SHA256SUMS.txt attached; publish it by hand after QA.
+# SHA256SUMS.txt attached; publish it by hand after QA. Publishing it starts its
+# discussion in Announcements (announce-release.yml).
 name: Release
 run-name: Release ${{ github.ref_name }}
 
@@ -103,24 +104,11 @@ jobs:
           cat SHA256SUMS.txt
 
       - name: Release notes
+        # this version's CHANGELOG section, then the downloads table and the
+        # invitation to Discussions
         run: |
           python scripts/ci/versioning.py changelog "$VERSION" > release-notes.md
-          cat >> release-notes.md <<'EOF'
-
-          ## Downloads
-
-          | File | For |
-          |---|---|
-          | `scoresight-*-windows-x64-setup.exe` | Windows 10 (1809) or newer, 64-bit: installer |
-          | `scoresight-*-windows-x64-portable.zip` | Windows 10 (1809) or newer, 64-bit: unzip and run `scoresight.exe` |
-          | `scoresight-*-macos-arm64.dmg` | macOS 15 or newer, Apple Silicon |
-          | `scoresight-*-macos-x64.dmg` | macOS 15 or newer, Intel |
-          | `scoresight-*-linux-x64.tar.gz` | Linux x86_64 with glibc 2.35 or newer (Ubuntu 22.04+, Debian 12+): extract and run `scoresight/scoresight` |
-
-          Verify a download with `SHA256SUMS.txt`, for example `sha256sum --check --ignore-missing SHA256SUMS.txt`
-          (macOS: `shasum -a 256 --check --ignore-missing SHA256SUMS.txt`; Windows PowerShell: compare
-          `Get-FileHash <file>` with the file's line in `SHA256SUMS.txt`).
-          EOF
+          cat .github/release-notes-footer.md >> release-notes.md
           cat release-notes.md
 
       - name: Create the draft release

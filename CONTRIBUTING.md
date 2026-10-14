@@ -6,6 +6,7 @@ By participating you agree to follow our [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## Ways to contribute
 
+- **Ask questions, share ideas and show your setup** in [Discussions](https://github.com/royshil/scoresight/discussions). Answering other users' questions there helps a lot too.
 - **Report bugs** with the [bug report form](https://github.com/royshil/scoresight/issues/new/choose). Attach your log files: they are the single most useful thing for fixing a bug.
 - **Suggest features** with the feature request form. Describe the production problem you want to solve, not only the solution.
 - **Improve the documentation** in [`docs/`](docs/). Every page has an "Edit this page on GitHub" link.

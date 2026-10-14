@@ -40,7 +40,7 @@ Each field needs its own Text source. The text changes at the **Save / s** rate 
 ## Notes
 
 - Wirecast's built-in Scoreboard source can't take data from outside.
-- Neither route has been tested by the ScoreSight project. If you try one, please tell us how it went in a [GitHub issue](https://github.com/royshil/scoresight/issues/new/choose).
+- Neither route has been tested by the ScoreSight project. If you try one, please tell us how it went in [ScoreSight's Discussions](https://github.com/royshil/scoresight/discussions/categories/show-and-tell).
 
 ## Vendor documentation
 

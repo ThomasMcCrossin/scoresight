@@ -14,7 +14,7 @@ description: "Send ScoreSight's live scoreboard readings to the Live Score app (
 ```
 
 {: .warning }
-This message format doesn't come from Live Score's own documentation, and it hasn't been tested with Live Score. If it doesn't work with your version, adapt the template on the TCP / UDP page, and please tell us in a [GitHub issue](https://github.com/royshil/scoresight/issues/new/choose).
+This message format doesn't come from Live Score's own documentation, and it hasn't been tested with Live Score. If it doesn't work with your version, adapt the template on the TCP / UDP page, and please tell us in [ScoreSight's Discussions](https://github.com/royshil/scoresight/discussions/categories/show-and-tell).
 
 ## Set up
 

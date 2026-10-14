@@ -838,6 +838,37 @@ def test_build_workflow_uploads_the_packages_the_release_expects():
         assert f'"scoresight-$VERSION-{target}.dmg"' in release
 
 
+def test_the_release_notes_list_every_package_and_invite_to_discussions():
+    import source_bar
+
+    release = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
+    footer = (REPO_ROOT / ".github" / "release-notes-footer.md").read_text(
+        encoding="utf-8"
+    )
+    assert "cat .github/release-notes-footer.md >> release-notes.md" in release
+    for suffix in [
+        "windows-x64-setup.exe",
+        "windows-x64-portable.zip",
+        "macos-arm64.dmg",
+        "macos-x64.dmg",
+        "linux-x64.tar.gz",
+    ]:
+        assert f'"scoresight-$VERSION-{suffix}"' in release, suffix
+        assert f"`scoresight-*-{suffix}`" in footer, suffix
+    # where the app's Feedback goes too
+    assert f"({source_bar.COMMUNITY_URL})" in footer
+
+
+def test_a_published_release_is_announced_in_discussions():
+    workflow = _workflow("announce-release.yml")
+    # PyYAML reads the bare `on:` key as the boolean True
+    triggers = workflow.get("on", workflow.get(True))
+    assert triggers["release"]["types"] == ["published"]
+    assert "tag" in triggers["workflow_dispatch"]["inputs"]
+    assert workflow["permissions"] == {"contents": "write", "discussions": "write"}
+    assert workflow["jobs"]["announce"]["env"]["CATEGORY"] == "Announcements"
+
+
 def _build_steps():
     yaml = pytest.importorskip("yaml")
     workflow = yaml.safe_load((WORKFLOWS / "build.yml").read_text(encoding="utf-8"))

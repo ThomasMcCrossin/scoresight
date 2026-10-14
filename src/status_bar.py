@@ -15,7 +15,7 @@ from dataclasses import dataclass
 from urllib.parse import urlsplit, urlunsplit
 
 from PySide6.QtCore import QCoreApplication, QObject, QPoint, QSize, Qt, Signal
-from PySide6.QtGui import QGuiApplication
+from PySide6.QtGui import QGuiApplication, QPalette
 from PySide6.QtWidgets import (
     QHBoxLayout,
     QLabel,
@@ -499,6 +499,8 @@ class MainStatusBar(QObject):
     destination_clicked = Signal(str)
     # the "Collecting training data" chip was clicked
     training_data_clicked = Signal()
+    # Feedback was clicked: open ScoreSight's Discussions
+    feedback_clicked = Signal()
 
     def __init__(self, statusbar: QStatusBar):
         super().__init__(statusbar)
@@ -537,6 +539,17 @@ class MainStatusBar(QObject):
         self.button_copy.setObjectName("toolButton_copyHttpUrl")
         self.button_copy.setAutoRaise(True)
         self.button_copy.clicked.connect(self.copyHttpUrl)
+        # "Feedback", always there at the right end: a click opens ScoreSight's
+        # Discussions on GitHub (questions, ideas, setups to show)
+        self.button_feedback = QToolButton(statusbar)
+        self.button_feedback.setObjectName("toolButton_statusFeedback")
+        self.button_feedback.setAutoRaise(True)
+        self.button_feedback.setToolButtonStyle(
+            Qt.ToolButtonStyle.ToolButtonTextBesideIcon
+        )
+        self.button_feedback.setIconSize(QSize(14, 14))
+        self.button_feedback.clicked.connect(self.feedback_clicked)
+        self._feedback_look = None
 
         # "Outputs: ● Files ● HTTP ▲ vMix ...": a button per output
         self.widget_outputs = QWidget(statusbar)
@@ -568,6 +581,7 @@ class MainStatusBar(QObject):
         statusbar.addPermanentWidget(self.widget_outputs)
         statusbar.addPermanentWidget(self.label_http)
         statusbar.addPermanentWidget(self.button_copy)
+        statusbar.addPermanentWidget(self.button_feedback)
         self.retranslate()
 
     def retranslate(self):
@@ -589,6 +603,16 @@ class MainStatusBar(QObject):
         )
         self.button_copy.setAccessibleName(
             QCoreApplication.translate("StatusBar", "Copy the HTTP server's address")
+        )
+        self.button_feedback.setText(
+            QCoreApplication.translate("StatusBar", "Feedback")
+        )
+        self.button_feedback.setToolTip(
+            QCoreApplication.translate(
+                "StatusBar",
+                "Ask a question, share an idea or show your setup: opens "
+                "ScoreSight's Discussions on GitHub in your web browser",
+            )
         )
         self.update(self.snapshot)
 
@@ -664,6 +688,18 @@ class MainStatusBar(QObject):
             )
         self.button_copy.setVisible(bool(snapshot.http_url))
         self.updateOutputs(snapshot.outputs, snapshot.now, palette)
+        self.updateFeedbackButton(palette)
+
+    def updateFeedbackButton(self, palette):
+        """Feedback in the link colour, as it opens a web page (again when
+        the theme changes)."""
+        color = palette.color(QPalette.ColorRole.Link)
+        if self._feedback_look != color.name():
+            self._feedback_look = color.name()
+            self.button_feedback.setIcon(theme.tool_icon("chat", color, 14))
+            self.button_feedback.setStyleSheet(
+                f"QToolButton {{ color: {color.name()}; }}"
+            )
 
     def updateTrainingChip(self, snapshot: StatusSnapshot, palette):
         """ "● Collecting training data" while it is on: it fills a folder, so

@@ -50,7 +50,7 @@ A Key-Value or XML/JSON source can also read a URL periodically: `http://<scores
 ## Notes
 
 - CharacterWorks' Remote Control Server (HTTP POST of JSON commands such as `set_text`, port 5201) needs a command format that ScoreSight's outputs don't produce: use a data source.
-- None of these routes has been tested by the ScoreSight project. If you try one, please tell us in a [GitHub issue](https://github.com/royshil/scoresight/issues/new/choose).
+- None of these routes has been tested by the ScoreSight project. If you try one, please tell us in [ScoreSight's Discussions](https://github.com/royshil/scoresight/discussions/categories/show-and-tell).
 
 ## Vendor documentation
 

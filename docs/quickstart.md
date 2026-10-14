@@ -103,7 +103,7 @@ ScoreSight saves your boxes and settings automatically and reopens the last sour
 | **Pause outputs** | At the top of the field list. Freezes all outputs at their current values, for example during a timeout or replay (**Ctrl+Shift+P**). The field list keeps updating; an orange banner and the status bar show that the outputs are paused. Click **Resume outputs** to continue. |
 | **OCR model** | The recognition model used for all boxes, under **All boxes**. See [OCR Models](ocr-models.md). |
 | **Sport** | Under **All boxes**: choose the sport and ScoreSight follows the game (each score, the periods, the clock, the final buzzer). See [Game & Sports](game.md). |
-| **Status bar** | At the bottom of the window: the source with its resolution and frame rate, how many times per second the boxes are read, **PAUSED** while the outputs are paused, and the HTTP server's address with a **Copy** button. |
+| **Status bar** | At the bottom of the window: the source with its resolution and frame rate, how many times per second the boxes are read, **PAUSED** while the outputs are paused, the HTTP server's address with a **Copy** button, and **Feedback**, which opens ScoreSight's Discussions on GitHub to ask a question or share an idea. |
 | **View > Live layout** | For the game (**Ctrl+2**): large readings and the state of every output next to the picture. **Ctrl+1** goes back to the Setup layout. See [Setup and Live layouts](boxes.md#setup-and-live-layouts). |
 | **Hold value...** | Right-click a field (or **Ctrl+H**) to send a value you type instead of its readings, for example to correct a misread, until you click **Release**. See [Hold value](boxes.md#hold-value). |
 | **View > Appearance** | Switch between the System, Light and Dark colour schemes. |

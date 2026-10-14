@@ -35,7 +35,7 @@ Instead of HTTP, tick **Save .csv file** in ScoreSight's [Text files](../text-fi
 ## Notes
 
 - Untested: whether Studio refreshes faster than once a second, and whether a graphic on air updates without being pushed again. For a fast clock, try the browser overlay instead: GFX Designer's webpage element can show a ScoreSight [browser overlay](../overlays.md) address (whether it keeps the transparency isn't documented).
-- Untested by the ScoreSight project. If you try it, please tell us in a [GitHub issue](https://github.com/royshil/scoresight/issues/new/choose).
+- Untested by the ScoreSight project. If you try it, please tell us in [ScoreSight's Discussions](https://github.com/royshil/scoresight/discussions/categories/show-and-tell).
 
 ## Vendor documentation
 

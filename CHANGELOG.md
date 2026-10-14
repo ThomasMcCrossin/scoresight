@@ -8,6 +8,10 @@ Release tags are the bare version number (for example `0.1.0`).
 
 ## [Unreleased]
 
+### Added
+
+- **Feedback**, at the right end of the status bar, and **Help > Ask a question or share feedback** open [ScoreSight's Discussions](https://github.com/royshil/scoresight/discussions) on GitHub: ask a question, share an idea or show your setup. The first-run card links there too. Each release is now announced in Discussions.
+
 ## [0.3.3] - 2026-10-13
 
 ScoreSight follows the game: choose the sport, and it notices each score,

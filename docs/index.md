@@ -72,5 +72,6 @@ Older videos, about earlier versions of ScoreSight: [ScoreSight with vMix](https
 ## Getting help
 
 - Search these docs (the search box at the top) and read [Troubleshooting](troubleshooting.md).
+- Ask in [ScoreSight's Discussions](https://github.com/royshil/scoresight/discussions): questions in [Q&A](https://github.com/royshil/scoresight/discussions/categories/q-a), ideas in [Ideas](https://github.com/royshil/scoresight/discussions/categories/ideas), and your production in [Show and tell](https://github.com/royshil/scoresight/discussions/categories/show-and-tell). In the app, click **Feedback** at the right end of the status bar.
 - Look through [existing issues](https://github.com/royshil/scoresight/issues?q=is%3Aissue).
 - [Open a new issue](https://github.com/royshil/scoresight/issues/new/choose) and attach your log files. [Troubleshooting](troubleshooting.md#collect-logs-first) explains where to find them.

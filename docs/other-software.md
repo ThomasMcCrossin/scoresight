@@ -40,4 +40,4 @@ Use a **Text** source with "read from file" pointing at a field's `.txt` file, o
 Choose the **Results in .csv file** append mode in the [Text Files](text-files.md#append-modes) output to log every change during a game into `results.csv`, ready for Excel, Google Sheets or pandas.
 
 {: .tip }
-Built an integration with another tool? Share it in a [GitHub issue](https://github.com/royshil/scoresight/issues/new/choose) or contribute a page to these docs. See [CONTRIBUTING.md](https://github.com/royshil/scoresight/blob/main/CONTRIBUTING.md).
+Built an integration with another tool? Share it in [ScoreSight's Discussions](https://github.com/royshil/scoresight/discussions/categories/show-and-tell) or contribute a page to these docs. See [CONTRIBUTING.md](https://github.com/royshil/scoresight/blob/main/CONTRIBUTING.md).

@@ -114,6 +114,7 @@ def test_without_credentials():
 
 @pytest.mark.qt
 def test_the_status_bar_widgets(qapp, monkeypatch):
+    from PySide6.QtGui import QPalette
     from PySide6.QtWidgets import QApplication, QStatusBar
 
     from status_bar import MainStatusBar
@@ -137,6 +138,18 @@ def test_the_status_bar_widgets(qapp, monkeypatch):
         assert "No source" in widgets.label_source.text()
         assert "not running" in widgets.label_http.text()
         assert widgets.button_copy.isHidden()
+
+        # Feedback, always there, in the link colour (it opens a web page)
+        feedback = []
+        widgets.feedback_clicked.connect(lambda: feedback.append(True))
+        assert not widgets.button_feedback.isHidden()
+        assert widgets.button_feedback.text() == "Feedback"
+        assert "Discussions" in widgets.button_feedback.toolTip()
+        link = statusbar.palette().color(QPalette.ColorRole.Link).name()
+        assert link in widgets.button_feedback.styleSheet()
+        assert not widgets.button_feedback.icon().isNull()
+        widgets.button_feedback.click()
+        assert feedback == [True]
     finally:
         statusbar.deleteLater()
 

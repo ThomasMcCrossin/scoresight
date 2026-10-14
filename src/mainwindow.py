@@ -273,6 +273,8 @@ SHOW_UNUSED_SETTINGS = {
 SHOW_UNUSED_DEFAULTS = {LAYOUT_SETUP: True, LAYOUT_LIVE: False}
 # Help > User guide
 USER_GUIDE_URL = source_bar.DOCS_URL
+# the status bar's Feedback and Help > Ask a question or share feedback
+COMMUNITY_URL = source_bar.COMMUNITY_URL
 
 
 def apply_color_scheme(name: str | None) -> str:
@@ -649,6 +651,7 @@ class MainWindow(QMainWindow):
         self.sourceError = None
         self.statusBarWidgets = MainStatusBar(self.ui.statusbar)
         self.statusBarWidgets.destination_clicked.connect(self.showDestination)
+        self.statusBarWidgets.feedback_clicked.connect(self.openCommunity)
         self.statusTimer = QTimer(self)
         self.statusTimer.setInterval(STATUS_INTERVAL_MS)
         self.statusTimer.timeout.connect(self.refreshLiveStatus)
@@ -688,6 +691,7 @@ class MainWindow(QMainWindow):
         # Help
         ui.actionUserGuide.triggered.connect(self.openUserGuide)
         ui.actionKeyboardShortcuts.triggered.connect(self.showKeyboardShortcuts)
+        ui.actionCommunity.triggered.connect(self.openCommunity)
         ui.actionCheckForUpdates.triggered.connect(lambda: self.checkForUpdates(True))
         ui.actionAbout.triggered.connect(self.openAboutDialog)
         # the selected field's held value
@@ -3103,6 +3107,11 @@ class MainWindow(QMainWindow):
         """Help > User guide (F1): the documentation site."""
         QDesktopServices.openUrl(QUrl(USER_GUIDE_URL))
 
+    def openCommunity(self):
+        """The status bar's Feedback and Help > Ask a question or share
+        feedback: ScoreSight's Discussions on GitHub."""
+        QDesktopServices.openUrl(QUrl(COMMUNITY_URL))
+
     def keyboardShortcutGroups(self) -> list[tuple[str, list[tuple[str, str]]]]:
         """The window's keys in groups, from the actions that have them."""
         ui = self.ui
@@ -4041,7 +4050,9 @@ class MainWindow(QMainWindow):
         self.updateZoomReadout()
         self.updateFourCornerUi()
         self.updateSourceBanner()
-        self.ui.label_firstRunQuickstart.setText(source_bar.quickstart_link())
+        self.ui.label_firstRunQuickstart.setText(
+            source_bar.quickstart_link() + "<br>" + source_bar.community_link()
+        )
         for row in self.compactRows:
             # the texts' widths changed
             row.refresh()

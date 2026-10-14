@@ -55,9 +55,9 @@ description: "How ScoreSight versions, changelogs, tags and the release workflow
    - builds Windows x64, macOS arm64, macOS x86_64 and Linux x86_64 packages with `build.yml` (signing the Windows app, installer and uninstaller, and signing and notarizing the macOS app and disk images, when the secrets are configured; see [Signing](#signing)),
    - runs the frozen app's `--self-test` on every platform, and on Windows also installs, self-tests and uninstalls the installer,
    - checks that all five packages exist and writes `SHA256SUMS.txt`,
-   - creates a **draft** GitHub release named "ScoreSight X.Y.Z" with the packages and `SHA256SUMS.txt` attached. Its notes are this version's section from `CHANGELOG.md`, followed by a downloads table and instructions for verifying the checksums. Beta and rc tags are marked as pre-releases automatically.
+   - creates a **draft** GitHub release named "ScoreSight X.Y.Z" with the packages and `SHA256SUMS.txt` attached. Its notes are this version's section from `CHANGELOG.md`, followed by `.github/release-notes-footer.md`: a downloads table, instructions for verifying the checksums, and an invitation to ScoreSight's Discussions. Beta and rc tags are marked as pre-releases automatically.
 5. **QA the draft**: download each package, install it, run through the [Quickstart](../quickstart.md) with a camera or video file, and check at least one output on each platform.
-6. **Publish** the draft release on GitHub.
+6. **Publish** the draft release on GitHub. Publishing runs `announce-release.yml`, which starts the release's discussion in the **Announcements** category of Discussions, with the release notes, and links it from the release page ("Join discussion"). For a release published before, run it by hand (Actions > Announce release > Run workflow, with the tag); a release that has its discussion keeps it.
 
 If something is wrong, delete the draft and the tag, fix `main`, and tag again.
 

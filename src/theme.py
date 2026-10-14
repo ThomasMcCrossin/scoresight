@@ -177,7 +177,8 @@ def overlay_color(name: str) -> QColor:
 def tool_icon(kind: str, color: QColor, size: int = 16) -> QIcon:
     """An icon drawn in color, so it stays visible on light and dark buttons:
     "reload" (a circular arrow), "settings" (a gear), "binary" (a square half
-    filled), "stats" (bars) or "fit" (four corners)."""
+    filled), "stats" (bars), "fit" (four corners) or "chat" (a speech
+    bubble)."""
     ratio = 2.0  # sharp on high-DPI screens
     pixmap = QPixmap(round(size * ratio), round(size * ratio))
     pixmap.setDevicePixelRatio(ratio)
@@ -252,6 +253,19 @@ def tool_icon(kind: str, color: QColor, size: int = 16) -> QIcon:
             corner = QPointF(x * unit, y * unit)
             painter.drawLine(corner, corner + QPointF(3.5 * dx * unit, 0))
             painter.drawLine(corner, corner + QPointF(0, 3.5 * dy * unit))
+    elif kind == "chat":
+        painter.setPen(Qt.PenStyle.NoPen)
+        painter.setBrush(color)
+        bubble = QPainterPath()
+        bubble.addRoundedRect(
+            QRectF(1.5 * unit, 2 * unit, 13 * unit, 9.5 * unit), 2.5 * unit, 2.5 * unit
+        )
+        # the tail, at the bottom left
+        tail = QPainterPath(QPointF(4 * unit, 10.5 * unit))
+        tail.lineTo(QPointF(4 * unit, 14.5 * unit))
+        tail.lineTo(QPointF(8.5 * unit, 10.5 * unit))
+        tail.closeSubpath()
+        painter.drawPath(bubble.united(tail))
     painter.end()
     return QIcon(pixmap)
 

@@ -36,7 +36,7 @@ XSplit doesn't document how often the script reads the file again. If the clock 
 ## Notes
 
 - **Load Text from Remote URL** expects a plain-text URL with one value. ScoreSight's HTTP server has no such address for a single field, so use the files or the overlay.
-- Neither route has been tested by the ScoreSight project. If you try one, please tell us in a [GitHub issue](https://github.com/royshil/scoresight/issues/new/choose).
+- Neither route has been tested by the ScoreSight project. If you try one, please tell us in [ScoreSight's Discussions](https://github.com/royshil/scoresight/discussions/categories/show-and-tell).
 
 ## Vendor documentation
 

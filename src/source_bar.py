@@ -1,8 +1,8 @@
 """The texts of the viewer column's source bar and of the messages around the
 picture: what the source combo box shows for the open source, the source error
 banner, the four-corner picking banner, the playback speeds, the zoom readout,
-the first-run card's links, and whether macOS lets ScoreSight record the
-screen.
+the first-run card's links (the Quickstart and the community), and whether
+macOS lets ScoreSight record the screen.
 
 MainWindow owns the widgets (they are in mainwindow.ui); this module words
 and computes what they show, so it can be tested without a window.
@@ -20,6 +20,8 @@ from status_bar import without_credentials
 DOCS_URL = "https://royshil.github.io/scoresight/"
 QUICKSTART_URL = DOCS_URL + "quickstart.html"
 SOURCE_TROUBLESHOOTING_URL = DOCS_URL + "troubleshooting.html#source-problems"
+# ScoreSight's Discussions on GitHub: questions, ideas, setups to show
+COMMUNITY_URL = "https://github.com/royshil/scoresight/discussions"
 # System Settings > Privacy & Security > Screen Recording
 MACOS_SCREEN_RECORDING_SETTINGS_URL = (
     "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture"
@@ -236,6 +238,13 @@ def quickstart_link() -> str:
     return '<a href="{url}">{text}</a> ↗'.format(
         url=QUICKSTART_URL,
         text=QCoreApplication.translate("MainWindow", "5-minute Quickstart"),
+    )
+
+
+def community_link() -> str:
+    return '<a href="{url}">{text}</a> ↗'.format(
+        url=COMMUNITY_URL,
+        text=QCoreApplication.translate("MainWindow", "Questions? Ask the community"),
     )
 
 
