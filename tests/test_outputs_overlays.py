@@ -709,6 +709,51 @@ def test_overlay_url_round_trips(kind, fields):
     assert parse_qs(query)  # a well-formed query
 
 
+def test_overlay_url_with_team_names():
+    base = "http://h:1"
+    assert (
+        overlays.overlay_url(base, "scorebug", labels=["Lions", "Tigers"])
+        == f"{base}/overlay/scorebug?labels=Lions,Tigers"
+    )
+    # an empty name keeps the overlay's own; trailing ones are left out
+    assert overlays.overlay_url(base, "scorebug", labels=["", "Tigers"]) == (
+        f"{base}/overlay/scorebug?labels=,Tigers"
+    )
+    assert overlays.overlay_url(base, "scorebug", labels=[" Lions ", " "]) == (
+        f"{base}/overlay/scorebug?labels=Lions"
+    )
+    assert overlays.overlay_url(base, "scorebug", labels=["", ""]) == (
+        f"{base}/overlay/scorebug"
+    )
+
+
+@pytest.mark.parametrize(
+    "labels",
+    [
+        ["Lions", "Tigers"],
+        ["", "St. Mary's"],
+        ["Smith, Jones & Co", ""],
+        ["Ünïcødé", "50% = x"],
+    ],
+)
+def test_team_names_round_trip(labels):
+    url = overlays.overlay_url("http://h:1", "scorebug", labels=labels)
+    options = overlays.parse_options("scorebug", QueryParams(urlsplit(url).query))
+    assert options.label(0, "HOME") == (labels[0] or "HOME")
+    assert options.label(1, "AWAY") == (labels[1] or "AWAY")
+    html = overlays.render_overlay(options)
+    for name in labels:
+        assert overlays._esc(name) in html
+
+
+def test_default_team_names():
+    assert overlays.default_team_names("scorebug", ["Time"]) == ("HOME", "AWAY")
+    assert overlays.default_team_names(
+        "lower-third", overlays.DEFAULT_FIELDS["lower-third"]
+    ) == ("Home", "Away")
+    assert overlays.default_team_names("lower-third", ["Period"]) == ("Period", "")
+
+
 # --- custom overlays -------------------------------------------------------------------
 
 

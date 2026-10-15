@@ -22,7 +22,7 @@ ScoreSight's [HTTP server](http_server.md) serves ready-made **overlay pages**: 
 ## Quick start
 
 1. In ScoreSight, open the **Outputs** tab and select **HTTP server**.
-2. Under **Browser overlays**, choose an **Overlay**, its **Fields**, **Theme** and **Scale**, and the **Address**: the network address when the production software runs on another computer, `localhost` when it runs on this one. The overlay shows the fields in the order you tick them (untick and tick a field to move it last): on the scorebug the first two are the home and away scores and the third is the clock. Each overlay keeps its own theme.
+2. Under **Browser overlays**, choose an **Overlay**, its **Fields**, the **Teams** (the home and away team names; empty shows HOME and AWAY), **Theme** and **Scale**, and the **Address**: the network address when the production software runs on another computer, `localhost` when it runs on this one. The overlay shows the fields in the order you tick them (untick and tick a field to move it last): on the scorebug the first two are the home and away scores and the third is the clock. Each overlay keeps its own theme.
 3. Click **Copy** and paste the address into your software's browser source. Set the source to your video size, for example **1920×1080** or **1280×720**. **Open in browser** shows the overlay in your web browser first.
 
 ![The built-in scorebug over video](overlay-scorebug.png)
@@ -46,7 +46,7 @@ Until a field has a good reading, it shows a dash. A field keeps its last good v
 
 ### Options
 
-Add options to the address after a `?`, separated by `&`, for example `/overlay/scorebug?theme=light&scale=1.5`. The builder in ScoreSight sets **fields**, **theme** and **scale**; the others you add by hand. Unknown or invalid values are ignored (the default is used), so an overlay address never fails.
+Add options to the address after a `?`, separated by `&`, for example `/overlay/scorebug?theme=light&scale=1.5`. The builder in ScoreSight sets **fields**, **theme**, **scale** and, on the scorebug and the lower third, the first two **labels** (**Teams**); the others you add by hand. Unknown or invalid values are ignored (the default is used), so an overlay address never fails.
 
 | Option | Values | Default |
 |---|---|---|

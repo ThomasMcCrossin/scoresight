@@ -11,6 +11,7 @@ Release tags are the bare version number (for example `0.1.0`).
 ### Added
 
 - **Feedback**, at the right end of the status bar, and **Help > Ask a question or share feedback** open [ScoreSight's Discussions](https://github.com/royshil/scoresight/discussions) on GitHub: ask a question, share an idea or show your setup. The first-run card links there too. Each release is now announced in Discussions.
+- **Team names on the overlays.** The overlay builder (Outputs > HTTP server > Browser overlays) has a **Teams** row: type the home and away team names and they replace HOME and AWAY on the scorebug (and the Home and Away captions on the lower third). The copied address carries them (`labels=Lions,Tigers`), and they are kept for the next session.
 
 ## [0.3.3] - 2026-10-13
 

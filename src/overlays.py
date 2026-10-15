@@ -65,6 +65,9 @@ DEFAULT_FIELDS = {
 }
 # the scorebug's team names when no label is given
 DEFAULT_TEAM_LABELS = ("HOME", "AWAY")
+# the overlays whose first two labels name the teams (on the lower third: the
+# captions of its first two fields, the home and away scores by default)
+TEAM_KINDS = (SCOREBUG, LOWER_THIRD)
 # the captions of the standard fields when no label is given (other fields:
 # their name)
 DEFAULT_LABELS = {"Home Score": "Home", "Away Score": "Away", "Time": ""}
@@ -286,10 +289,12 @@ def overlay_url(
     fields: list[str] | tuple[str, ...] = (),
     theme: str | None = None,
     scale: float = 1.0,
+    labels: list[str] | tuple[str, ...] = (),
     **extra: str,
 ) -> str:
     """The URL of a built-in overlay (base: "http://host:port"). Parameters that
-    are the overlay's defaults are left out; spaces are sent as %20."""
+    are the overlay's defaults are left out; spaces are sent as %20. An empty
+    label keeps the overlay's own."""
     params: list[tuple[str, str]] = []
     fields = [name for name in fields if name]
     if kind == FIELD:
@@ -300,6 +305,13 @@ def overlay_url(
             params += [("field", name) for name in fields]
         else:
             params.append(("fields", ",".join(fields)))
+    labels = [label.strip() for label in labels]
+    while labels and not labels[-1]:
+        labels.pop()
+    if any("," in label for label in labels):
+        params += [("label", label) for label in labels]
+    elif labels:
+        params.append(("labels", ",".join(labels)))
     if theme and theme != DEFAULT_THEME[kind]:
         params.append(("theme", theme))
     if not math.isclose(scale, 1.0):
@@ -359,6 +371,18 @@ def _default_label(name: str) -> str:
     """A field's caption when no label is given: shorter for the standard
     fields ("Home Score" is "Home", the time needs none)."""
     return DEFAULT_LABELS.get(name, name)
+
+
+def default_team_names(
+    kind: str, fields: list[str] | tuple[str, ...]
+) -> tuple[str, str]:
+    """What a team-names overlay shows as the first two labels when none is
+    given: the scorebug's HOME and AWAY, the lower third's first two
+    captions."""
+    if kind == SCOREBUG:
+        return DEFAULT_TEAM_LABELS
+    names = (list(fields) + ["", ""])[:2]
+    return tuple(_default_label(name) for name in names)
 
 
 def _render_scorebug(options: OverlayOptions) -> str:
