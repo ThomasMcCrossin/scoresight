@@ -1839,10 +1839,38 @@ class Ui_MainWindow(object):
 
         self.formLayout_overlays.setWidget(1, QFormLayout.ItemRole.FieldRole, self.toolButton_overlayFields)
 
+        self.label_overlayTeams = QLabel(self.groupBox_overlays)
+        self.label_overlayTeams.setObjectName(u"label_overlayTeams")
+
+        self.formLayout_overlays.setWidget(2, QFormLayout.ItemRole.LabelRole, self.label_overlayTeams)
+
+        self.widget_overlayTeams = QWidget(self.groupBox_overlays)
+        self.widget_overlayTeams.setObjectName(u"widget_overlayTeams")
+        self.horizontalLayout_overlayTeams = QHBoxLayout(self.widget_overlayTeams)
+        self.horizontalLayout_overlayTeams.setSpacing(6)
+        self.horizontalLayout_overlayTeams.setObjectName(u"horizontalLayout_overlayTeams")
+        self.horizontalLayout_overlayTeams.setContentsMargins(0, 0, 0, 0)
+        self.lineEdit_overlayHomeName = QLineEdit(self.widget_overlayTeams)
+        self.lineEdit_overlayHomeName.setObjectName(u"lineEdit_overlayHomeName")
+        self.lineEdit_overlayHomeName.setMaxLength(120)
+        self.lineEdit_overlayHomeName.setClearButtonEnabled(True)
+
+        self.horizontalLayout_overlayTeams.addWidget(self.lineEdit_overlayHomeName)
+
+        self.lineEdit_overlayAwayName = QLineEdit(self.widget_overlayTeams)
+        self.lineEdit_overlayAwayName.setObjectName(u"lineEdit_overlayAwayName")
+        self.lineEdit_overlayAwayName.setMaxLength(120)
+        self.lineEdit_overlayAwayName.setClearButtonEnabled(True)
+
+        self.horizontalLayout_overlayTeams.addWidget(self.lineEdit_overlayAwayName)
+
+
+        self.formLayout_overlays.setWidget(2, QFormLayout.ItemRole.FieldRole, self.widget_overlayTeams)
+
         self.label_overlayTheme = QLabel(self.groupBox_overlays)
         self.label_overlayTheme.setObjectName(u"label_overlayTheme")
 
-        self.formLayout_overlays.setWidget(2, QFormLayout.ItemRole.LabelRole, self.label_overlayTheme)
+        self.formLayout_overlays.setWidget(3, QFormLayout.ItemRole.LabelRole, self.label_overlayTheme)
 
         self.widget_overlayLook = QWidget(self.groupBox_overlays)
         self.widget_overlayLook.setObjectName(u"widget_overlayLook")
@@ -1880,25 +1908,25 @@ class Ui_MainWindow(object):
         self.horizontalLayout_overlayLook.addWidget(self.doubleSpinBox_overlayScale)
 
 
-        self.formLayout_overlays.setWidget(2, QFormLayout.ItemRole.FieldRole, self.widget_overlayLook)
+        self.formLayout_overlays.setWidget(3, QFormLayout.ItemRole.FieldRole, self.widget_overlayLook)
 
         self.label_overlayHost = QLabel(self.groupBox_overlays)
         self.label_overlayHost.setObjectName(u"label_overlayHost")
 
-        self.formLayout_overlays.setWidget(3, QFormLayout.ItemRole.LabelRole, self.label_overlayHost)
+        self.formLayout_overlays.setWidget(4, QFormLayout.ItemRole.LabelRole, self.label_overlayHost)
 
         self.comboBox_overlayHost = QComboBox(self.groupBox_overlays)
         self.comboBox_overlayHost.setObjectName(u"comboBox_overlayHost")
         self.comboBox_overlayHost.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
         self.comboBox_overlayHost.setMinimumContentsLength(12)
 
-        self.formLayout_overlays.setWidget(3, QFormLayout.ItemRole.FieldRole, self.comboBox_overlayHost)
+        self.formLayout_overlays.setWidget(4, QFormLayout.ItemRole.FieldRole, self.comboBox_overlayHost)
 
         self.lineEdit_overlayUrl = QLineEdit(self.groupBox_overlays)
         self.lineEdit_overlayUrl.setObjectName(u"lineEdit_overlayUrl")
         self.lineEdit_overlayUrl.setReadOnly(True)
 
-        self.formLayout_overlays.setWidget(4, QFormLayout.ItemRole.SpanningRole, self.lineEdit_overlayUrl)
+        self.formLayout_overlays.setWidget(5, QFormLayout.ItemRole.SpanningRole, self.lineEdit_overlayUrl)
 
         self.widget_overlayButtons = QWidget(self.groupBox_overlays)
         self.widget_overlayButtons.setObjectName(u"widget_overlayButtons")
@@ -1921,7 +1949,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_overlayButtons.addItem(self.horizontalSpacer_overlayButtons)
 
 
-        self.formLayout_overlays.setWidget(5, QFormLayout.ItemRole.SpanningRole, self.widget_overlayButtons)
+        self.formLayout_overlays.setWidget(6, QFormLayout.ItemRole.SpanningRole, self.widget_overlayButtons)
 
 
         self.verticalLayout_4.addWidget(self.groupBox_overlays)
@@ -2395,6 +2423,7 @@ class Ui_MainWindow(object):
         self.label_sport.setBuddy(self.comboBox_sport)
         self.label_overlayKind.setBuddy(self.comboBox_overlayKind)
         self.label_overlayFields.setBuddy(self.toolButton_overlayFields)
+        self.label_overlayTeams.setBuddy(self.lineEdit_overlayHomeName)
         self.label_overlayTheme.setBuddy(self.comboBox_overlayTheme)
         self.label_overlayScale.setBuddy(self.doubleSpinBox_overlayScale)
         self.label_overlayHost.setBuddy(self.comboBox_overlayHost)
@@ -3023,6 +3052,13 @@ class Ui_MainWindow(object):
 #endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(accessibility)
         self.toolButton_overlayFields.setAccessibleName(QCoreApplication.translate("MainWindow", u"Overlay fields", None))
+#endif // QT_CONFIG(accessibility)
+        self.label_overlayTeams.setText(QCoreApplication.translate("MainWindow", u"Teams", None))
+#if QT_CONFIG(accessibility)
+        self.lineEdit_overlayHomeName.setAccessibleName(QCoreApplication.translate("MainWindow", u"Home team name", None))
+#endif // QT_CONFIG(accessibility)
+#if QT_CONFIG(accessibility)
+        self.lineEdit_overlayAwayName.setAccessibleName(QCoreApplication.translate("MainWindow", u"Away team name", None))
 #endif // QT_CONFIG(accessibility)
         self.label_overlayTheme.setText(QCoreApplication.translate("MainWindow", u"Theme", None))
         self.comboBox_overlayTheme.setItemText(0, QCoreApplication.translate("MainWindow", u"Dark", None))

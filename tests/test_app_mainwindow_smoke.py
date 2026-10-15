@@ -2349,6 +2349,48 @@ def test_the_http_page_builds_overlay_urls(make_window, make_target, monkeypatch
     assert again.ui.lineEdit_overlayUrl.text() == url.text()
 
 
+def test_the_overlay_builder_names_the_teams(make_window, monkeypatch):
+    import mainwindow
+
+    monkeypatch.setattr(mainwindow, "primary_lan_address", lambda: None)
+    window = make_window(http_port=18100)
+    ui = window.ui
+    url = ui.lineEdit_overlayUrl
+    home, away = ui.lineEdit_overlayHomeName, ui.lineEdit_overlayAwayName
+    # the placeholders show the overlay's own names
+    assert (home.placeholderText(), away.placeholderText()) == ("HOME", "AWAY")
+
+    home.setText("Lions")
+    assert url.text() == "http://localhost:18100/overlay/scorebug?labels=Lions"
+    away.setText("Tigers")
+    assert url.text().endswith("/overlay/scorebug?labels=Lions,Tigers")
+    home.clear()
+    assert url.text().endswith("/overlay/scorebug?labels=,Tigers")
+    home.setText("Smith, Jones")  # a comma: one parameter per name
+    assert url.text().endswith("?label=Smith,%20Jones&label=Tigers")
+    home.setText("Lions")
+
+    # the lower third: its first two captions
+    ui.comboBox_overlayKind.setCurrentIndex(
+        ui.comboBox_overlayKind.findText("Lower third")
+    )
+    assert home.isEnabled()
+    assert (home.placeholderText(), away.placeholderText()) == ("Home", "Away")
+    assert url.text().endswith("/overlay/lower-third?labels=Lions,Tigers")
+    # the clock and the single field have no teams
+    ui.comboBox_overlayKind.setCurrentIndex(ui.comboBox_overlayKind.findText("Clock"))
+    assert not home.isEnabled()
+    assert not ui.label_overlayTeams.isEnabled()
+    assert url.text() == "http://localhost:18100/overlay/clock"
+
+    # the names are kept
+    again = make_window(http_port=18100)
+    assert again.ui.lineEdit_overlayHomeName.text() == "Lions"
+    assert again.ui.lineEdit_overlayAwayName.text() == "Tigers"
+    again.ui.comboBox_overlayKind.setCurrentIndex(0)
+    assert again.ui.lineEdit_overlayUrl.text().endswith("?labels=Lions,Tigers")
+
+
 def test_the_http_page_lists_the_custom_overlays(make_window, data_dir, monkeypatch):
     import mainwindow
 

@@ -823,7 +823,7 @@ Resolution: {width}×{height}</source>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="94"/>
-        <location filename="../src/mainwindow.ui" line="5012"/>
+        <location filename="../src/mainwindow.ui" line="5069"/>
         <location filename="../src/mainwindow.py" line="2432"/>
         <source>Pause outputs</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
@@ -1071,20 +1071,20 @@ Resolution: {width}×{height}</source>
         <translation type="unfinished">OBS Studioのテキストソースを更新します</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3871"/>
+        <location filename="../src/mainwindow.ui" line="3928"/>
         <location filename="../src/mainwindow.py" line="3412"/>
         <source>Connect to the WebSocket server of OBS Studio</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">OBS StudioのWebSocketサーバーに接続します</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3930"/>
+        <location filename="../src/mainwindow.ui" line="3987"/>
         <source>The name of the scene Create OBS Scene makes</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">「OBSシーンを作成」で作成されるシーンの名前</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3946"/>
+        <location filename="../src/mainwindow.ui" line="4003"/>
         <source>Create a scene in OBS with a text source for each standard field</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">標準フィールドごとにテキストソースを持つシーンをOBSに作成します</translation>
@@ -1096,55 +1096,55 @@ Resolution: {width}×{height}</source>
         <translation type="unfinished">vMixのタイトルを更新します</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4036"/>
+        <location filename="../src/mainwindow.ui" line="4093"/>
         <source>Each field and the vMix title field it updates. Edit the right column.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">各フィールドと、それが更新するvMixタイトルのフィールド。右の列を編集してください。</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4088"/>
+        <location filename="../src/mainwindow.ui" line="4145"/>
         <source>vMix host</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">vMixホスト</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4091"/>
+        <location filename="../src/mainwindow.ui" line="4148"/>
         <source>The address of the vMix computer (localhost if vMix runs on this computer)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">vMixを実行しているコンピューターのアドレス（このコンピューターでvMixを実行している場合はlocalhost）</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4108"/>
+        <location filename="../src/mainwindow.ui" line="4165"/>
         <source>vMix port</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">vMixポート</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4111"/>
+        <location filename="../src/mainwindow.ui" line="4168"/>
         <source>The port of the vMix Web API (8088 by default; not 8099)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">vMix Web APIのポート（デフォルトは8088。8099ではありません）</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4133"/>
+        <location filename="../src/mainwindow.ui" line="4190"/>
         <source>Start or stop vMix</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">vMixを開始または停止</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4136"/>
+        <location filename="../src/mainwindow.ui" line="4193"/>
         <source>Start or stop sending the readings to vMix</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">vMixへの読み取り値の送信を開始または停止します</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4189"/>
+        <location filename="../src/mainwindow.ui" line="4246"/>
         <source>vMix input</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">vMix入力</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4192"/>
+        <location filename="../src/mainwindow.ui" line="4249"/>
         <source>The vMix input (number or name) of the title to update</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">更新するタイトルのvMix入力（番号または名前）</translation>
@@ -1166,38 +1166,38 @@ Resolution: {width}×{height}</source>
         <translation type="unfinished">overlays.unoのコントロールアプリを操作します</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4257"/>
-        <location filename="../src/mainwindow.ui" line="4508"/>
+        <location filename="../src/mainwindow.ui" line="4314"/>
+        <location filename="../src/mainwindow.ui" line="4565"/>
         <source>URL</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">URL</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4264"/>
+        <location filename="../src/mainwindow.ui" line="4321"/>
         <source>UNO URL</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">UNO URL</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4267"/>
+        <location filename="../src/mainwindow.ui" line="4324"/>
         <source>The API URL of the overlays.uno control app. Treat it like a password.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">overlays.unoコントロールアプリのAPI URL。パスワードと同様に扱ってください。</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4277"/>
+        <location filename="../src/mainwindow.ui" line="4334"/>
         <source>Start or stop UNO</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">UNOを開始または停止</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4280"/>
+        <location filename="../src/mainwindow.ui" line="4337"/>
         <source>Start or stop sending the readings to UNO</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">UNOへの読み取り値の送信を開始または停止します</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4283"/>
+        <location filename="../src/mainwindow.ui" line="4340"/>
         <location filename="../src/tcp_ui_handler.py" line="507"/>
         <location filename="../src/uno_ui_handler.py" line="127"/>
         <source>Start sending</source>
@@ -1205,67 +1205,67 @@ Resolution: {width}×{height}</source>
         <translation type="unfinished">送信開始</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4333"/>
+        <location filename="../src/mainwindow.ui" line="4390"/>
         <source>The overlay uses UNO Essentials content fields</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">オーバーレイはUNO Essentialsのコンテンツフィールドを使用します</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4788"/>
+        <location filename="../src/mainwindow.ui" line="4845"/>
         <source>File</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">ファイル</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4803"/>
+        <location filename="../src/mainwindow.ui" line="4860"/>
         <source>Language</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">言語</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4808"/>
+        <location filename="../src/mainwindow.ui" line="4865"/>
         <source>Appearance</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">外観</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4799"/>
+        <location filename="../src/mainwindow.ui" line="4856"/>
         <source>View</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">表示</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4826"/>
+        <location filename="../src/mainwindow.ui" line="4883"/>
         <source>Tools</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">ツール</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4873"/>
+        <location filename="../src/mainwindow.ui" line="4930"/>
         <source>Rename...</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">名前を変更...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4881"/>
+        <location filename="../src/mainwindow.ui" line="4938"/>
         <source>Delete field...</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">フィールドを削除...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4889"/>
+        <location filename="../src/mainwindow.ui" line="4946"/>
         <source>Reset settings to defaults</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">設定をデフォルトに戻す</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4894"/>
+        <location filename="../src/mainwindow.ui" line="4951"/>
         <source>Copy value</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">値をコピー</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4902"/>
+        <location filename="../src/mainwindow.ui" line="4959"/>
         <source>Zoom to box</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">ボックスにズーム</translation>
@@ -1276,7 +1276,7 @@ Resolution: {width}×{height}</source>
         <translation type="obsolete">更新を確認</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4940"/>
+        <location filename="../src/mainwindow.ui" line="4997"/>
         <source>About</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">ScoreSightについて</translation>
@@ -1307,20 +1307,20 @@ Resolution: {width}×{height}</source>
         <translation type="obsolete">OCR学習データの設定</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="5031"/>
+        <location filename="../src/mainwindow.ui" line="5088"/>
         <source>Fit picture to window</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">映像をウィンドウに合わせる</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="569"/>
-        <location filename="../src/mainwindow.ui" line="5039"/>
+        <location filename="../src/mainwindow.ui" line="5096"/>
         <source>Reload sources</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">ソースをリロード</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4342"/>
+        <location filename="../src/mainwindow.ui" line="4399"/>
         <source>Essentials</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Essentials</translation>
@@ -1696,7 +1696,7 @@ Resolution: {width}×{height}</source>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2063"/>
-        <location filename="../src/mainwindow.ui" line="4483"/>
+        <location filename="../src/mainwindow.ui" line="4540"/>
         <source>Custom</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">カスタム</translation>
@@ -2058,61 +2058,61 @@ Resolution: {width}×{height}</source>
         <translation type="obsolete">フィールドの最後の正常な値と同じ読み取り値を、新規（✓）ではなく変化なし（=、SameNoChange）として報告します。これによりvMixとUNOは変化のない値を再送信せず（「同じ値も送信？」がオンの場合を除く）、HTTPサーバーと送信APIはその値を変化なしとして示します。OBSとテキストファイルには、どちらの場合も値が変わったときにのみ送られます。</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="5085"/>
+        <location filename="../src/mainwindow.ui" line="5142"/>
         <source>Quit</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">終了</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="5102"/>
+        <location filename="../src/mainwindow.ui" line="5159"/>
         <source>Setup layout</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">設定用レイアウト</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="5105"/>
+        <location filename="../src/mainwindow.ui" line="5162"/>
         <source>For placing and tuning the fields and setting up the outputs: the field list, the picture with its adjustments, and the inspector</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">フィールドの配置と調整、出力の設定用：フィールドリスト、映像とその調整、インスペクターを表示します</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="5119"/>
+        <location filename="../src/mainwindow.ui" line="5176"/>
         <source>Live layout</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">ライブ用レイアウト</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="5122"/>
+        <location filename="../src/mainwindow.ui" line="5179"/>
         <source>For the game: large readings and the state of every output next to the picture. The inspector and the picture adjustments are hidden; the reading and the outputs work the same.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">試合中用：映像の横に、大きな読み取り値とすべての出力の状態を表示します。インスペクターと映像の調整は非表示になりますが、読み取りと出力は同じように動作します。</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="5136"/>
+        <location filename="../src/mainwindow.ui" line="5193"/>
         <source>Show unused fields</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">未使用のフィールドを表示</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="5139"/>
+        <location filename="../src/mainwindow.ui" line="5196"/>
         <source>Show the fields that aren&apos;t on the picture in the field list (remembered for each layout)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">映像に配置されていないフィールドをフィールドリストに表示します（レイアウトごとに記憶されます）</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="5147"/>
+        <location filename="../src/mainwindow.ui" line="5204"/>
         <source>User guide</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">ユーザーガイド</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="5150"/>
+        <location filename="../src/mainwindow.ui" line="5207"/>
         <source>Open the ScoreSight documentation in your web browser</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">ScoreSightのドキュメントをWebブラウザで開きます</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="5161"/>
+        <location filename="../src/mainwindow.ui" line="5218"/>
         <source>Keyboard shortcuts</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">キーボードショートカット</translation>
@@ -2287,436 +2287,454 @@ Resolution: {width}×{height}</source>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3638"/>
+        <source>Teams</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">チーム</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="3666"/>
+        <source>Home team name</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">ホームチーム名</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="3679"/>
+        <source>Away team name</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">アウェイチーム名</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.ui" line="3695"/>
         <source>Theme</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">テーマ</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3672"/>
+        <location filename="../src/mainwindow.ui" line="3729"/>
         <source>The overlay&apos;s colors. Minimal has no panels: white text with a shadow</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">オーバーレイの色。「ミニマル」はパネルなしで、影付きの白い文字です</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3692"/>
+        <location filename="../src/mainwindow.ui" line="3749"/>
         <source>Minimal</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">ミニマル</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3697"/>
+        <location filename="../src/mainwindow.ui" line="3754"/>
         <source>Bold</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">ビビッド</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3705"/>
+        <location filename="../src/mainwindow.ui" line="3762"/>
         <source>Scale</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">スケール</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3715"/>
+        <location filename="../src/mainwindow.ui" line="3772"/>
         <source>The overlays fit the page&apos;s width (1920x1080, 1280x720...); this makes them bigger or smaller</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">オーバーレイはページの幅（1920x1080、1280x720...）に合わせて表示されます。この値で大きくしたり小さくしたりできます</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3743"/>
+        <location filename="../src/mainwindow.ui" line="3800"/>
         <source>Address</source>
         <translation type="unfinished">アドレス</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3753"/>
+        <location filename="../src/mainwindow.ui" line="3810"/>
         <source>The network address for software on other computers, localhost for software on this one</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">他のコンピューターのソフトウェアにはネットワークアドレス、このコンピューターのソフトウェアにはlocalhostを使います</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3766"/>
+        <location filename="../src/mainwindow.ui" line="3823"/>
         <source>Paste this address in a browser source</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">このアドレスをブラウザソースに貼り付けてください</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3769"/>
+        <location filename="../src/mainwindow.ui" line="3826"/>
         <source>Overlay address</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">オーバーレイのアドレス</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3797"/>
+        <location filename="../src/mainwindow.ui" line="3854"/>
         <source>Copy the overlay&apos;s address</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">オーバーレイのアドレスをコピー</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3800"/>
+        <location filename="../src/mainwindow.ui" line="3857"/>
         <source>Copy</source>
         <translation type="unfinished">コピー</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3807"/>
+        <location filename="../src/mainwindow.ui" line="3864"/>
         <source>Open the overlay in your web browser</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">オーバーレイをWebブラウザで開きます</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3810"/>
+        <location filename="../src/mainwindow.ui" line="3867"/>
         <source>Open in browser</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">ブラウザで開く</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3896"/>
+        <location filename="../src/mainwindow.ui" line="3953"/>
         <source>Close the connection to OBS. ScoreSight connects to OBS again at its next start only after you connect again.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">OBSとの接続を閉じます。もう一度接続するまで、ScoreSightは次回の起動時にOBSへ接続しません。</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3905"/>
+        <location filename="../src/mainwindow.ui" line="3962"/>
         <source>Disconnect</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">切断</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3933"/>
+        <location filename="../src/mainwindow.ui" line="3990"/>
         <source>OBS scene name</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">OBSシーン名</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3962"/>
+        <location filename="../src/mainwindow.ui" line="4019"/>
         <source>If OBS already has a scene with this name, delete its sources and make it again. Off: an existing scene is kept as it is.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">OBSに同じ名前のシーンが既にある場合は、そのソースを削除して作り直します。オフ：既存のシーンはそのまま残ります。</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3985"/>
+        <location filename="../src/mainwindow.ui" line="4042"/>
         <source>&lt;b&gt;Text sources&lt;/b&gt;: the OBS text source each field updates. Double-click a name to change it; leave it empty to not send that field to OBS.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">&lt;b&gt;テキストソース&lt;/b&gt;：各フィールドが更新するOBSのテキストソース。名前をダブルクリックすると変更できます。空にすると、そのフィールドはOBSに送信されません。</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4001"/>
+        <location filename="../src/mainwindow.ui" line="4058"/>
         <source>Each field and the OBS text source it updates. Edit the right column; an empty name sends nothing to OBS.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">各フィールドと、それが更新するOBSのテキストソース。右の列を編集してください。名前が空の場合、OBSには何も送信されません。</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4004"/>
+        <location filename="../src/mainwindow.ui" line="4061"/>
         <source>OBS text sources of the fields</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">フィールドのOBSテキストソース</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4205"/>
+        <location filename="../src/mainwindow.ui" line="4262"/>
         <source>Also send a field&apos;s value when it hasn&apos;t changed (marked “same”), at every detection, for example if someone may change the title in vMix by hand. Off: vMix gets a value only when it changes. Formerly “Send Same?”.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">フィールドの値が変化していない（「変化なし」と表示される）ときも、検出のたびに値を送信します。vMixで誰かがタイトルを手動で変更する可能性がある場合などに使います。オフ：vMixには値が変わったときにのみ送られます。旧名称「同じ値も送信？」。</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4208"/>
-        <location filename="../src/mainwindow.ui" line="4326"/>
+        <location filename="../src/mainwindow.ui" line="4265"/>
+        <location filename="../src/mainwindow.ui" line="4383"/>
         <location filename="../src/tcp_ui_handler.py" line="342"/>
         <source>Also resend unchanged values</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">変化のない値も再送信</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4323"/>
+        <location filename="../src/mainwindow.ui" line="4380"/>
         <source>Also send a field&apos;s value when it hasn&apos;t changed (marked “same”), at every detection. Off: the overlay gets a value only when it changes, which keeps within overlays.uno&apos;s request limits. Formerly “Send Same?”.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">フィールドの値が変化していない（「変化なし」と表示される）ときも、検出のたびに値を送信します。オフ：オーバーレイには値が変わったときにのみ送られるため、overlays.unoのリクエスト制限内に収まります。旧名称「同じ値も送信？」。</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4373"/>
+        <location filename="../src/mainwindow.ui" line="4430"/>
         <source>Overlay ID</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">オーバーレイID</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4380"/>
+        <location filename="../src/mainwindow.ui" line="4437"/>
         <source>The ID (UUID) of the Essentials overlay</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">EssentialsオーバーレイのID（UUID）</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4392"/>
+        <location filename="../src/mainwindow.ui" line="4449"/>
         <source>aaaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeeee</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">aaaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeeee</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4411"/>
+        <location filename="../src/mainwindow.ui" line="4468"/>
         <source>Each field and the UNO command (or Essentials field ID) it drives. Edit the right column.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">各フィールドと、それが操作するUNOコマンド（またはEssentialsのフィールドID）。右の列を編集してください。</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4472"/>
+        <location filename="../src/mainwindow.ui" line="4529"/>
         <source>Preset</source>
         <translation type="unfinished">プリセット</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4479"/>
+        <location filename="../src/mainwindow.ui" line="4536"/>
         <source>Fill in the settings for a product. You can still change every setting afterwards.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">製品に合わせて設定を入力します。後からすべての設定を変更できます。</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4536"/>
+        <location filename="../src/mainwindow.ui" line="4593"/>
         <source>The URL the readings are sent to. With {field} and {value} in it, each field is sent in its own request, for example http://host/set?key={field}&amp;value={value}. For a login, put it in the URL: http://user:password@host/...</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">読み取り値の送信先URL。{field}と{value}を含めると、各フィールドが個別のリクエストで送信されます（例：http://host/set?key={field}&amp;value={value}）。ログインが必要な場合はURLに含めてください：http://user:password@host/...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4605"/>
+        <location filename="../src/mainwindow.ui" line="4662"/>
         <source>Send</source>
         <translation type="unfinished">送信</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4612"/>
+        <location filename="../src/mainwindow.ui" line="4669"/>
         <source>Send a reading only when its value changed (off: every reading on every detection cycle)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">値が変化したときだけ読み取り値を送信します（オフ：検出サイクルごとにすべての読み取り値を送信）</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4615"/>
+        <location filename="../src/mainwindow.ui" line="4672"/>
         <source>Only changes</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">変化のみ</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4622"/>
+        <location filename="../src/mainwindow.ui" line="4679"/>
         <source>Resend all</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">全体を再送信</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4629"/>
+        <location filename="../src/mainwindow.ui" line="4686"/>
         <source>With Only changes: also send every value again this often, for a receiver that forgets them when it restarts</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">「変化のみ」がオンのとき：再起動すると値を忘れる受信側のために、すべての値をこの間隔で再送信します</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4632"/>
+        <location filename="../src/mainwindow.ui" line="4689"/>
         <source>Never</source>
         <translation type="unfinished">しない</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4635"/>
+        <location filename="../src/mainwindow.ui" line="4692"/>
         <source>every </source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">間隔 </translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4655"/>
+        <location filename="../src/mainwindow.ui" line="4712"/>
         <source>How many fields one request carries: all of them (one request per detection cycle), or at most this many (a request per batch of changed fields). A URL with {field} or {value} always sends one field per request.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">1回のリクエストに含めるフィールドの数：すべて（検出サイクルごとに1リクエスト）、または最大でこの数（変化したフィールドのまとまりごとに1リクエスト）。{field}または{value}を含むURLでは、常に1リクエストにつき1フィールドを送信します。</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4658"/>
+        <location filename="../src/mainwindow.ui" line="4715"/>
         <source>All in one request</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">1リクエストにすべて</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4661"/>
+        <location filename="../src/mainwindow.ui" line="4718"/>
         <source> per request</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished"> 個/リクエスト</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4671"/>
+        <location filename="../src/mainwindow.ui" line="4728"/>
         <source>Rate</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">頻度</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4678"/>
+        <location filename="../src/mainwindow.ui" line="4735"/>
         <source>At most this many requests per second (the latest values wait for their turn)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">1秒あたりの最大リクエスト数（最新の値は順番を待ちます）</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4681"/>
+        <location filename="../src/mainwindow.ui" line="4738"/>
         <source>No limit</source>
         <translation type="unfinished">制限なし</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4684"/>
+        <location filename="../src/mainwindow.ui" line="4741"/>
         <source> requests/s</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished"> リクエスト/秒</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4701"/>
+        <location filename="../src/mainwindow.ui" line="4758"/>
         <source>Send the field names in lower case with letters, digits and _ only (&quot;Home Score&quot; as home_score), for receivers that allow no other names</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">フィールド名を小文字にし、英字・数字・_のみで送信します（「Home Score」はhome_score）。それ以外の名前を受け付けない受信側向けです</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4704"/>
+        <location filename="../src/mainwindow.ui" line="4761"/>
         <source>Letters, digits and _ only</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">英数字と_のみ</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4711"/>
+        <location filename="../src/mainwindow.ui" line="4768"/>
         <source>The names the fields are sent with</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">フィールドの送信時の名前</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4724"/>
+        <location filename="../src/mainwindow.ui" line="4781"/>
         <source>Headers</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">ヘッダー</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4737"/>
+        <location filename="../src/mainwindow.ui" line="4794"/>
         <source>Request headers</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">リクエストヘッダー</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4740"/>
+        <location filename="../src/mainwindow.ui" line="4797"/>
         <source>Extra request headers, one &quot;Name: value&quot; per line, for example an Authorization token</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">追加のリクエストヘッダー。1行に1つ「名前: 値」の形式で入力します（例：Authorizationトークン）</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4838"/>
+        <location filename="../src/mainwindow.ui" line="4895"/>
         <source>Help</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">ヘルプ</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4907"/>
+        <location filename="../src/mainwindow.ui" line="4964"/>
         <location filename="../src/mainwindow.py" line="2775"/>
         <source>Hold value...</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">値を固定...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4910"/>
+        <location filename="../src/mainwindow.ui" line="4967"/>
         <location filename="../src/mainwindow.py" line="2863"/>
         <source>Send a value you type to every output instead of this field&apos;s readings, until you release it</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">解除するまで、このフィールドの読み取り値の代わりに、入力した値をすべての出力に送信します</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4921"/>
+        <location filename="../src/mainwindow.ui" line="4978"/>
         <source>Release held value</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">固定を解除</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4924"/>
+        <location filename="../src/mainwindow.ui" line="4981"/>
         <source>Send this field&apos;s readings to the outputs again</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">このフィールドの読み取り値を再び出力に送信します</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4932"/>
+        <location filename="../src/mainwindow.ui" line="4989"/>
         <source>Check for updates...</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">更新を確認...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4948"/>
+        <location filename="../src/mainwindow.ui" line="5005"/>
         <source>View log</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">ログを表示</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4951"/>
+        <location filename="../src/mainwindow.ui" line="5008"/>
         <source>Show the log of this session as it is written</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">このセッションのログをリアルタイムで表示します</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4962"/>
+        <location filename="../src/mainwindow.ui" line="5019"/>
         <source>Import field layout...</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">フィールド配置をインポート...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4965"/>
+        <location filename="../src/mainwindow.ui" line="5022"/>
         <source>Replace the fields on the picture (their boxes and settings) with the ones saved in a file. Formerly “Import Configuration”.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">映像上のフィールド（ボックスと設定）を、ファイルに保存されたものに置き換えます。旧名称「設定をインポート」。</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4976"/>
+        <location filename="../src/mainwindow.ui" line="5033"/>
         <source>Export field layout...</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">フィールド配置をエクスポート...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4979"/>
+        <location filename="../src/mainwindow.ui" line="5036"/>
         <source>Save the fields on the picture (their boxes and settings) to a file. Formerly “Export Configuration”.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">映像上のフィールド（ボックスと設定）をファイルに保存します。旧名称「設定をエクスポート」。</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4990"/>
+        <location filename="../src/mainwindow.ui" line="5047"/>
         <source>Open settings folder</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">設定フォルダを開く</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4993"/>
+        <location filename="../src/mainwindow.ui" line="5050"/>
         <source>Open the folder with ScoreSight&apos;s settings file</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">ScoreSightの設定ファイルがあるフォルダを開きます</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="5001"/>
+        <location filename="../src/mainwindow.ui" line="5058"/>
         <source>OCR training data setup...</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">OCR学習データの設定...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="5047"/>
+        <location filename="../src/mainwindow.ui" line="5104"/>
         <source>Zoom in</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">拡大</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="5055"/>
+        <location filename="../src/mainwindow.ui" line="5112"/>
         <source>Zoom out</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">縮小</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="5066"/>
+        <location filename="../src/mainwindow.ui" line="5123"/>
         <source>Statistics overlay</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">統計オーバーレイ</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="5074"/>
+        <location filename="../src/mainwindow.ui" line="5131"/>
         <source>Collect OCR training data</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">OCR学習データを収集</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="5077"/>
+        <location filename="../src/mainwindow.ui" line="5134"/>
         <source>Save each box&apos;s picture and reading to the training data folder, for training an OCR model</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">各ボックスの画像と読み取り値を学習データフォルダに保存し、OCRモデルの学習に使います</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="5169"/>
+        <location filename="../src/mainwindow.ui" line="5226"/>
         <source>Ask a question or share feedback</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">質問・フィードバックを送る</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="5172"/>
+        <location filename="../src/mainwindow.ui" line="5229"/>
         <source>Open ScoreSight&apos;s Discussions on GitHub in your web browser: ask a question, share an idea or show your setup</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">GitHub の ScoreSight Discussions を Web ブラウザーで開きます。質問、アイデアの共有、セットアップの紹介ができます</translation>
@@ -2728,55 +2746,55 @@ Resolution: {width}×{height}</source>
         <translation type="unfinished">読み取り値をURLに送信します（送信HTTP API）</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4462"/>
+        <location filename="../src/mainwindow.ui" line="4519"/>
         <source>Send the readings to the URL below on every detection cycle</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">検出サイクルごとに、読み取り値を下のURLに送信します</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4465"/>
+        <location filename="../src/mainwindow.ui" line="4522"/>
         <source>Send out API requests to external services.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">外部サービスにAPIリクエストを送信します。</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4571"/>
+        <location filename="../src/mainwindow.ui" line="4628"/>
         <source>Encode</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">エンコード</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4578"/>
+        <location filename="../src/mainwindow.ui" line="4635"/>
         <source>The format of the readings in the requests</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">リクエストに含める読み取り値のフォーマット</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4582"/>
+        <location filename="../src/mainwindow.ui" line="4639"/>
         <source>JSON (Full)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">JSON（完全）</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4587"/>
+        <location filename="../src/mainwindow.ui" line="4644"/>
         <source>JSON (Simple key-value)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">JSON（シンプルなキーと値）</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4592"/>
+        <location filename="../src/mainwindow.ui" line="4649"/>
         <source>XML</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">XML</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4597"/>
+        <location filename="../src/mainwindow.ui" line="4654"/>
         <source>CSV</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">CSV</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4533"/>
+        <location filename="../src/mainwindow.ui" line="4590"/>
         <source>API URL</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">API URL</translation>
@@ -2787,31 +2805,31 @@ Resolution: {width}×{height}</source>
         <translation type="obsolete">読み取り値の送信先URL</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4539"/>
+        <location filename="../src/mainwindow.ui" line="4596"/>
         <source>http://</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">http://</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4546"/>
+        <location filename="../src/mainwindow.ui" line="4603"/>
         <source>The HTTP method of the requests</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">リクエストのHTTPメソッド</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4550"/>
+        <location filename="../src/mainwindow.ui" line="4607"/>
         <source>POST</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">POST</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4555"/>
+        <location filename="../src/mainwindow.ui" line="4612"/>
         <source>PUT</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">PUT</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4560"/>
+        <location filename="../src/mainwindow.ui" line="4617"/>
         <source>GET</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">GET</translation>
@@ -2893,23 +2911,23 @@ Resolution: {width}×{height}</source>
         <translation type="vanished">OBS</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3886"/>
+        <location filename="../src/mainwindow.ui" line="3943"/>
         <location filename="../src/mainwindow.py" line="3410"/>
         <source>Connect OBS</source>
         <translation>OBSに接続</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3939"/>
+        <location filename="../src/mainwindow.ui" line="3996"/>
         <source>ScoreSight Scene</source>
         <translation>ScoreSightシーン</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3952"/>
+        <location filename="../src/mainwindow.ui" line="4009"/>
         <source>Create OBS Scene</source>
         <translation>OBSシーンを作成</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3965"/>
+        <location filename="../src/mainwindow.ui" line="4022"/>
         <source>Recreate</source>
         <translation>再作成</translation>
     </message>
@@ -2918,7 +2936,7 @@ Resolution: {width}×{height}</source>
         <translation type="vanished">VMix</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4081"/>
+        <location filename="../src/mainwindow.ui" line="4138"/>
         <source>Connection</source>
         <translation>接続</translation>
     </message>
@@ -2927,7 +2945,7 @@ Resolution: {width}×{height}</source>
         <translation type="vanished">localhost</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4101"/>
+        <location filename="../src/mainwindow.ui" line="4158"/>
         <source>:</source>
         <translation>:</translation>
     </message>
@@ -2940,7 +2958,7 @@ Resolution: {width}×{height}</source>
         <translation type="vanished">開始</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4182"/>
+        <location filename="../src/mainwindow.ui" line="4239"/>
         <source>Input</source>
         <translation>入力</translation>
     </message>
@@ -2975,7 +2993,7 @@ Resolution: {width}×{height}</source>
     <message>
         <location filename="../src/mainwindow.ui" line="71"/>
         <location filename="../src/mainwindow.ui" line="3606"/>
-        <location filename="../src/mainwindow.ui" line="4648"/>
+        <location filename="../src/mainwindow.ui" line="4705"/>
         <location filename="../src/mainwindow.py" line="1106"/>
         <location filename="../src/mainwindow.py" line="3137"/>
         <source>Fields</source>
@@ -2985,7 +3003,7 @@ Resolution: {width}×{height}</source>
     <message>
         <location filename="../src/mainwindow.ui" line="110"/>
         <location filename="../src/mainwindow.ui" line="113"/>
-        <location filename="../src/mainwindow.ui" line="4855"/>
+        <location filename="../src/mainwindow.ui" line="4912"/>
         <source>New custom field</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">新しいカスタムフィールド</translation>
@@ -3009,7 +3027,7 @@ Resolution: {width}×{height}</source>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="279"/>
-        <location filename="../src/mainwindow.ui" line="4863"/>
+        <location filename="../src/mainwindow.ui" line="4920"/>
         <source>Place on picture</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">映像に配置</translation>
@@ -3022,7 +3040,7 @@ Resolution: {width}×{height}</source>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="292"/>
-        <location filename="../src/mainwindow.ui" line="4868"/>
+        <location filename="../src/mainwindow.ui" line="4925"/>
         <location filename="../src/mainwindow.py" line="2973"/>
         <source>Remove from picture</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
@@ -3089,7 +3107,7 @@ Resolution: {width}×{height}</source>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="651"/>
-        <location filename="../src/mainwindow.ui" line="5023"/>
+        <location filename="../src/mainwindow.ui" line="5080"/>
         <source>Binary View</source>
         <translation>バイナリビュー</translation>
     </message>
@@ -3133,7 +3151,7 @@ Resolution: {width}×{height}</source>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="688"/>
-        <location filename="../src/mainwindow.ui" line="4694"/>
+        <location filename="../src/mainwindow.ui" line="4751"/>
         <source>Names</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">名前</translation>
@@ -3314,14 +3332,14 @@ Resolution: {width}×{height}</source>
         <translation type="unfinished">ドラッグで「ボックス」と「出力」の設定のサイズを変更します。ダブルクリックで表示/非表示を切り替えます。</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3687"/>
+        <location filename="../src/mainwindow.ui" line="3744"/>
         <location filename="../src/mainwindow.py" line="1252"/>
         <source>Light</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">ライト</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="3682"/>
+        <location filename="../src/mainwindow.ui" line="3739"/>
         <location filename="../src/mainwindow.py" line="1253"/>
         <source>Dark</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
@@ -3780,7 +3798,7 @@ Resolution: {width}×{height}</source>
         <translation type="unfinished">vMixを停止</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.ui" line="4145"/>
+        <location filename="../src/mainwindow.ui" line="4202"/>
         <location filename="../src/vmix_ui_handler.py" line="128"/>
         <source>Start vMix</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
@@ -4955,32 +4973,56 @@ Resolution: {width}×{height}</source>
         <translation type="unfinished">単一フィールド</translation>
     </message>
     <message>
-        <location filename="../src/overlay_ui_handler.py" line="258"/>
-        <location filename="../src/overlay_ui_handler.py" line="281"/>
+        <location filename="../src/overlay_ui_handler.py" line="276"/>
+        <location filename="../src/overlay_ui_handler.py" line="299"/>
         <source>Standard fields</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">標準フィールド</translation>
     </message>
     <message>
-        <location filename="../src/overlay_ui_handler.py" line="303"/>
+        <location filename="../src/overlay_ui_handler.py" line="321"/>
         <source>The fields the overlay shows, in the order they were ticked: {fields}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">オーバーレイに表示するフィールド（チェックした順）：{fields}</translation>
     </message>
     <message>
-        <location filename="../src/overlay_ui_handler.py" line="308"/>
+        <location filename="../src/overlay_ui_handler.py" line="326"/>
         <source>Scorebug: the home score, the away score, the clock, then small cells for the others.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">スコアバグ：ホームのスコア、アウェイのスコア、時計、その後に他のフィールドの小さなセル。</translation>
     </message>
     <message>
-        <location filename="../src/overlay_ui_handler.py" line="340"/>
+        <location filename="../src/overlay_ui_handler.py" line="349"/>
+        <source>Lower third: the captions of the first two fields (the home and away scores by default).</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">ロワーサード：最初の2つのフィールドのキャプション（既定ではホームとアウェイのスコア）。</translation>
+    </message>
+    <message>
+        <location filename="../src/overlay_ui_handler.py" line="357"/>
+        <source>Only the scorebug and the lower third show team names.</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">チーム名を表示するのはスコアバグとロワーサードだけです。</translation>
+    </message>
+    <message>
+        <location filename="../src/overlay_ui_handler.py" line="364"/>
+        <source>The home team&apos;s name on the overlay (empty: the overlay&apos;s own)</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">オーバーレイに表示するホームチームの名前（空欄：オーバーレイ既定の名前）</translation>
+    </message>
+    <message>
+        <location filename="../src/overlay_ui_handler.py" line="368"/>
+        <source>The away team&apos;s name on the overlay (empty: the overlay&apos;s own)</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">オーバーレイに表示するアウェイチームの名前（空欄：オーバーレイ既定の名前）</translation>
+    </message>
+    <message>
+        <location filename="../src/overlay_ui_handler.py" line="402"/>
         <source>The HTTP server is not running</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">HTTPサーバーが動作していません</translation>
     </message>
     <message>
-        <location filename="../src/overlay_ui_handler.py" line="412"/>
+        <location filename="../src/overlay_ui_handler.py" line="474"/>
         <source>Copied</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">コピーしました</translation>

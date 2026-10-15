@@ -1,6 +1,6 @@
 """The browser overlays on the HTTP server's page (Outputs > HTTP server): pick
-an overlay (built-in or from the overlays folder), its fields, theme and scale,
-and copy or open its URL (overlays.overlay_url builds it)."""
+an overlay (built-in or from the overlays folder), its fields, the team names,
+theme and scale, and copy or open its URL (overlays.overlay_url builds it)."""
 
 from collections.abc import Callable
 
@@ -73,6 +73,11 @@ class OverlayBuilder(QObject):
         )
         self.singleField = str(stored.get("field") or "")
         self.host = str(stored.get("host") or "")
+        # the team names (the scorebug's and the lower third's first two
+        # labels; "": the overlay's own)
+        teams = stored.get("teams")
+        teams = [str(name) for name in teams] if isinstance(teams, list) else []
+        teams = (teams + ["", ""])[:2]
         # each overlay's theme (each has its own default: the single field's
         # is Minimal)
         themes = stored.get("themes")
@@ -91,6 +96,8 @@ class OverlayBuilder(QObject):
         scale = stored.get("scale")
         if isinstance(scale, (int, float)):
             ui.doubleSpinBox_overlayScale.setValue(float(scale))
+        ui.lineEdit_overlayHomeName.setText(teams[0])
+        ui.lineEdit_overlayAwayName.setText(teams[1])
 
         self.fieldsMenu = _StayOpenMenu(ui.toolButton_overlayFields)
         self.fieldsMenu.aboutToShow.connect(self.fillFieldsMenu)
@@ -102,6 +109,8 @@ class OverlayBuilder(QObject):
         ui.comboBox_overlayKind.currentIndexChanged.connect(self.kindChanged)
         ui.comboBox_overlayTheme.currentIndexChanged.connect(self.themeChanged)
         ui.doubleSpinBox_overlayScale.valueChanged.connect(self.optionsChanged)
+        ui.lineEdit_overlayHomeName.textChanged.connect(self.optionsChanged)
+        ui.lineEdit_overlayAwayName.textChanged.connect(self.optionsChanged)
         ui.comboBox_overlayHost.currentIndexChanged.connect(self.hostChanged)
         ui.toolButton_overlaysFolder.clicked.connect(self.openFolder)
         ui.pushButton_copyOverlayUrl.clicked.connect(self.copyUrl)
@@ -143,6 +152,13 @@ class OverlayBuilder(QObject):
         kind, _ = self.currentKind()
         return list(overlays.DEFAULT_FIELDS.get(kind, ()))
 
+    def teamNames(self) -> list[str]:
+        """The typed team names (home, away; "" for the overlay's own)."""
+        return [
+            self.ui.lineEdit_overlayHomeName.text().strip(),
+            self.ui.lineEdit_overlayAwayName.text().strip(),
+        ]
+
     def theme(self) -> str:
         return overlays.THEMES[max(0, self.ui.comboBox_overlayTheme.currentIndex())]
 
@@ -171,6 +187,7 @@ class OverlayBuilder(QObject):
             self.selectedFields(),
             theme=self.theme(),
             scale=self.ui.doubleSpinBox_overlayScale.value(),
+            labels=self.teamNames() if kind in overlays.TEAM_KINDS else (),
         )
 
     def save(self):
@@ -187,6 +204,7 @@ class OverlayBuilder(QObject):
                 "field": self.singleField,
                 "themes": self.themes,
                 "scale": self.ui.doubleSpinBox_overlayScale.value(),
+                "teams": self.teamNames(),
                 "host": self.host,
             },
         )
@@ -312,6 +330,49 @@ class OverlayBuilder(QObject):
             )
         button.setToolTip(tooltip)
 
+    def updateTeams(self):
+        """The team names apply to the scorebug and the lower third; their
+        placeholders show what the overlay shows without them."""
+        kind, _ = self.currentKind()
+        teams = kind in overlays.TEAM_KINDS
+        edits = (self.ui.lineEdit_overlayHomeName, self.ui.lineEdit_overlayAwayName)
+        for widget in (*edits, self.ui.label_overlayTeams):
+            widget.setEnabled(teams)
+        defaults = (
+            overlays.default_team_names(kind, self.checkedFields())
+            if teams
+            else ("", "")
+        )
+        for edit, default in zip(edits, defaults):
+            edit.setPlaceholderText(default)
+        if kind == overlays.LOWER_THIRD:
+            note = QCoreApplication.translate(
+                "OverlayBuilder",
+                "Lower third: the captions of the first two fields (the home "
+                "and away scores by default).",
+            )
+        elif teams:
+            note = ""
+        else:
+            note = QCoreApplication.translate(
+                "OverlayBuilder",
+                "Only the scorebug and the lower third show team names.",
+            )
+        for edit, side in zip(
+            edits,
+            (
+                QCoreApplication.translate(
+                    "OverlayBuilder",
+                    "The home team's name on the overlay (empty: the overlay's own)",
+                ),
+                QCoreApplication.translate(
+                    "OverlayBuilder",
+                    "The away team's name on the overlay (empty: the overlay's own)",
+                ),
+            ),
+        ):
+            edit.setToolTip(f"{side}\n{note}" if note else side)
+
     def refresh(self):
         """Update the widgets and the URL (after any change, the server's
         address or a language change)."""
@@ -328,6 +389,7 @@ class OverlayBuilder(QObject):
         ):
             widget.setEnabled(builtin)
         self.updateFieldsButton()
+        self.updateTeams()
         url = self.url()
         running = bool(url)
         line = self.ui.lineEdit_overlayUrl

@@ -3633,6 +3633,63 @@
                     </widget>
                    </item>
                    <item row="2" column="0">
+                    <widget class="QLabel" name="label_overlayTeams">
+                     <property name="text">
+                      <string>Teams</string>
+                     </property>
+                     <property name="buddy">
+                      <cstring>lineEdit_overlayHomeName</cstring>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="1">
+                    <widget class="QWidget" name="widget_overlayTeams" native="true">
+                     <layout class="QHBoxLayout" name="horizontalLayout_overlayTeams">
+                      <property name="spacing">
+                       <number>6</number>
+                      </property>
+                      <property name="leftMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="topMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="rightMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="bottomMargin">
+                       <number>0</number>
+                      </property>
+                      <item>
+                       <widget class="QLineEdit" name="lineEdit_overlayHomeName">
+                        <property name="accessibleName">
+                         <string>Home team name</string>
+                        </property>
+                        <property name="maxLength">
+                         <number>120</number>
+                        </property>
+                        <property name="clearButtonEnabled">
+                         <bool>true</bool>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QLineEdit" name="lineEdit_overlayAwayName">
+                        <property name="accessibleName">
+                         <string>Away team name</string>
+                        </property>
+                        <property name="maxLength">
+                         <number>120</number>
+                        </property>
+                        <property name="clearButtonEnabled">
+                         <bool>true</bool>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </widget>
+                   </item>
+                   <item row="3" column="0">
                     <widget class="QLabel" name="label_overlayTheme">
                      <property name="text">
                       <string>Theme</string>
@@ -3642,7 +3699,7 @@
                      </property>
                     </widget>
                    </item>
-                   <item row="2" column="1">
+                   <item row="3" column="1">
                     <widget class="QWidget" name="widget_overlayLook" native="true">
                      <layout class="QHBoxLayout" name="horizontalLayout_overlayLook">
                       <property name="spacing">
@@ -3737,7 +3794,7 @@
                      </layout>
                     </widget>
                    </item>
-                   <item row="3" column="0">
+                   <item row="4" column="0">
                     <widget class="QLabel" name="label_overlayHost">
                      <property name="text">
                       <string>Address</string>
@@ -3747,7 +3804,7 @@
                      </property>
                     </widget>
                    </item>
-                   <item row="3" column="1">
+                   <item row="4" column="1">
                     <widget class="QComboBox" name="comboBox_overlayHost">
                      <property name="toolTip">
                       <string>The network address for software on other computers, localhost for software on this one</string>
@@ -3760,7 +3817,7 @@
                      </property>
                     </widget>
                    </item>
-                   <item row="4" column="0" colspan="2">
+                   <item row="5" column="0" colspan="2">
                     <widget class="QLineEdit" name="lineEdit_overlayUrl">
                      <property name="toolTip">
                       <string>Paste this address in a browser source</string>
@@ -3773,7 +3830,7 @@
                      </property>
                     </widget>
                    </item>
-                   <item row="5" column="0" colspan="2">
+                   <item row="6" column="0" colspan="2">
                     <widget class="QWidget" name="widget_overlayButtons" native="true">
                      <layout class="QHBoxLayout" name="horizontalLayout_overlayButtons">
                       <property name="spacing">
