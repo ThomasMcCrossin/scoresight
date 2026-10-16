@@ -14,7 +14,11 @@ from game_state import (
     CLOCK_START,
     CLOCK_STOP,
     FINAL,
+    FINAL_LAP,
+    FINISH,
     FOULS,
+    LAP,
+    NEW_RACE,
     PERIOD_END,
     PERIOD_START,
     SCORE,
@@ -31,7 +35,18 @@ SETTINGS_KEY = "sport"
 # the latest events, in the status line's tooltip
 TOOLTIP_EVENTS = 12
 # events logged at INFO (the clock's at DEBUG: they come at every whistle)
-INFO_KINDS = (SCORE, PERIOD_START, PERIOD_END, FINAL, FOULS, TIMEOUTS)
+INFO_KINDS = (
+    SCORE,
+    PERIOD_START,
+    PERIOD_END,
+    FINAL,
+    FOULS,
+    TIMEOUTS,
+    LAP,
+    FINAL_LAP,
+    FINISH,
+    NEW_RACE,
+)
 
 
 def sport_names() -> dict[str, str]:
@@ -46,6 +61,7 @@ def sport_names() -> dict[str, str]:
         "hockey": QCoreApplication.translate("Sports", "Ice hockey"),
         "football": QCoreApplication.translate("Sports", "American football"),
         "volleyball": QCoreApplication.translate("Sports", "Volleyball"),
+        "racing": QCoreApplication.translate("Sports", "Racing (laps)"),
     }
 
 
@@ -101,6 +117,27 @@ def event_text(event: GameEvent) -> str:
         return QCoreApplication.translate("Game", "{team} timeouts: {count}").format(
             team=team, count=event.value
         )
+    if kind == LAP:
+        corrected = event.delta is not None and event.delta < 0
+        if event.laps_to_go is not None:
+            text = (
+                QCoreApplication.translate("Game", "Laps to go corrected to {laps}")
+                if corrected
+                else QCoreApplication.translate("Game", "Laps to go: {laps}")
+            )
+            return text.format(laps=event.laps_to_go)
+        text = (
+            QCoreApplication.translate("Game", "Laps completed corrected to {laps}")
+            if corrected
+            else QCoreApplication.translate("Game", "Laps completed: {laps}")
+        )
+        return text.format(laps=event.laps_completed)
+    if kind == FINAL_LAP:
+        return QCoreApplication.translate("Game", "Final lap")
+    if kind == FINISH:
+        return QCoreApplication.translate("Game", "Finish")
+    if kind == NEW_RACE:
+        return QCoreApplication.translate("Game", "New race")
     return kind
 
 
@@ -109,6 +146,12 @@ def status_text(state: GameState, sport: sports.SportProfile) -> str:
     if not sport.active:
         return ""
     if not state.roles:
+        if sport.counts_laps:
+            return QCoreApplication.translate(
+                "Game",
+                "No field is named like the laps: name the lap board Laps To Go "
+                "(or Laps Completed), and the race clock Time.",
+            )
         return QCoreApplication.translate(
             "Game",
             "No field is named like a score, the clock or the period: name them "
@@ -125,7 +168,28 @@ def status_text(state: GameState, sport: sports.SportProfile) -> str:
         parts.append(state.period_label)
     if state.home is not None or state.away is not None:
         parts.append(score_text(state.home, state.away))
-    if state.final:
+    if state.laps_to_go is not None:
+        parts.append(
+            QCoreApplication.translate("Game", "{laps} laps to go").format(
+                laps=state.laps_to_go
+            )
+        )
+    elif state.laps_completed is not None:
+        if state.total_laps is not None:
+            parts.append(
+                QCoreApplication.translate(
+                    "Game", "{laps} of {total} laps completed"
+                ).format(laps=state.laps_completed, total=state.total_laps)
+            )
+        else:
+            parts.append(
+                QCoreApplication.translate("Game", "{laps} laps completed").format(
+                    laps=state.laps_completed
+                )
+            )
+    if state.final and sport.counts_laps:
+        parts.append(QCoreApplication.translate("Game", "finished"))
+    elif state.final:
         parts.append(QCoreApplication.translate("Game", "final"))
     elif state.clock is not None:
         if state.clock_running:

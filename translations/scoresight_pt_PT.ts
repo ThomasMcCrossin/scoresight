@@ -305,109 +305,181 @@ Resolução: {width}×{height}</translation>
 <context>
     <name>Game</name>
     <message>
-        <location filename="../src/game_ui_handler.py" line="54"/>
+        <location filename="../src/game_ui_handler.py" line="70"/>
         <source>Home</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Casa</translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="56"/>
+        <location filename="../src/game_ui_handler.py" line="72"/>
         <source>Away</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Visitante</translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="72"/>
+        <location filename="../src/game_ui_handler.py" line="88"/>
         <source>{team} score corrected to {value} ({score})</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{team}: resultado corrigido para {value} ({score})</translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="75"/>
+        <location filename="../src/game_ui_handler.py" line="91"/>
         <source>{team} +{points} ({score})</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{team} +{points} ({score})</translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="79"/>
+        <location filename="../src/game_ui_handler.py" line="95"/>
         <source>Start of {period}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Início de {period}</translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="83"/>
+        <location filename="../src/game_ui_handler.py" line="99"/>
         <source>End of {period} ({score})</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Fim de {period} ({score})</translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="87"/>
+        <location filename="../src/game_ui_handler.py" line="103"/>
         <source>Final ({score})</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Final ({score})</translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="89"/>
+        <location filename="../src/game_ui_handler.py" line="105"/>
         <source>Clock started at {clock}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Relógio iniciado em {clock}</translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="93"/>
+        <location filename="../src/game_ui_handler.py" line="109"/>
         <source>Clock stopped at {clock}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Relógio parado em {clock}</translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="97"/>
+        <location filename="../src/game_ui_handler.py" line="113"/>
         <source>{team} fouls: {count}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{team} faltas: {count}</translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="101"/>
+        <location filename="../src/game_ui_handler.py" line="117"/>
         <source>{team} timeouts: {count}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{team} descontos de tempo: {count}</translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="112"/>
+        <location filename="../src/game_ui_handler.py" line="124"/>
+        <source>Laps to go corrected to {laps}</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Voltas em falta corrigidas para {laps}</translation>
+    </message>
+    <message>
+        <location filename="../src/game_ui_handler.py" line="126"/>
+        <source>Laps to go: {laps}</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Voltas em falta: {laps}</translation>
+    </message>
+    <message>
+        <location filename="../src/game_ui_handler.py" line="130"/>
+        <source>Laps completed corrected to {laps}</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Voltas concluídas corrigidas para {laps}</translation>
+    </message>
+    <message>
+        <location filename="../src/game_ui_handler.py" line="132"/>
+        <source>Laps completed: {laps}</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Voltas concluídas: {laps}</translation>
+    </message>
+    <message>
+        <location filename="../src/game_ui_handler.py" line="136"/>
+        <source>Final lap</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Última volta</translation>
+    </message>
+    <message>
+        <location filename="../src/game_ui_handler.py" line="138"/>
+        <source>Finish</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Chegada</translation>
+    </message>
+    <message>
+        <location filename="../src/game_ui_handler.py" line="140"/>
+        <source>New race</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Nova corrida</translation>
+    </message>
+    <message>
+        <location filename="../src/game_ui_handler.py" line="150"/>
+        <source>No field is named like the laps: name the lap board Laps To Go (or Laps Completed), and the race clock Time.</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Nenhum campo tem o nome das voltas: chame ao quadro de voltas Laps To Go (ou Laps Completed) e ao relógio da corrida Time.</translation>
+    </message>
+    <message>
+        <location filename="../src/game_ui_handler.py" line="155"/>
         <source>No field is named like a score, the clock or the period: name them like Home Score, Away Score, Time and Period.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Nenhum campo tem o nome de um resultado, do relógio ou do período: dê-lhes nomes como Home Score, Away Score, Time e Period.</translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="119"/>
+        <location filename="../src/game_ui_handler.py" line="162"/>
         <source>Follows {fields}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Acompanha: {fields}</translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="129"/>
+        <location filename="../src/game_ui_handler.py" line="173"/>
+        <source>{laps} laps to go</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">faltam {laps} voltas</translation>
+    </message>
+    <message>
+        <location filename="../src/game_ui_handler.py" line="180"/>
+        <source>{laps} of {total} laps completed</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">{laps} de {total} voltas concluídas</translation>
+    </message>
+    <message>
+        <location filename="../src/game_ui_handler.py" line="186"/>
+        <source>{laps} laps completed</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">{laps} voltas concluídas</translation>
+    </message>
+    <message>
+        <location filename="../src/game_ui_handler.py" line="191"/>
+        <source>finished</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">terminada</translation>
+    </message>
+    <message>
+        <location filename="../src/game_ui_handler.py" line="193"/>
         <source>final</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">fim do jogo</translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="132"/>
+        <location filename="../src/game_ui_handler.py" line="196"/>
         <source>clock running</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">relógio a correr</translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="134"/>
+        <location filename="../src/game_ui_handler.py" line="198"/>
         <source>clock stopped</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">relógio parado</translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="144"/>
+        <location filename="../src/game_ui_handler.py" line="208"/>
         <source>No events yet</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Ainda sem eventos</translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="145"/>
+        <location filename="../src/game_ui_handler.py" line="209"/>
         <source>Latest events:</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Últimos eventos:</translation>
@@ -5295,45 +5367,51 @@ Resolução: {width}×{height}</translation>
 <context>
     <name>Sports</name>
     <message>
-        <location filename="../src/game_ui_handler.py" line="40"/>
+        <location filename="../src/game_ui_handler.py" line="55"/>
         <source>None</source>
         <translation type="unfinished">Nenhum</translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="41"/>
+        <location filename="../src/game_ui_handler.py" line="56"/>
         <source>Basketball</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Basquetebol</translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="42"/>
+        <location filename="../src/game_ui_handler.py" line="57"/>
         <source>Basketball (halves)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Basquetebol (partes)</translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="45"/>
+        <location filename="../src/game_ui_handler.py" line="60"/>
         <source>Soccer</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Futebol</translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="46"/>
+        <location filename="../src/game_ui_handler.py" line="61"/>
         <source>Ice hockey</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Hóquei no gelo</translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="47"/>
+        <location filename="../src/game_ui_handler.py" line="62"/>
         <source>American football</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Futebol americano</translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="48"/>
+        <location filename="../src/game_ui_handler.py" line="63"/>
         <source>Volleyball</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Voleibol</translation>
+    </message>
+    <message>
+        <location filename="../src/game_ui_handler.py" line="64"/>
+        <source>Racing (laps)</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Corrida (voltas)</translation>
     </message>
 </context>
 <context>
