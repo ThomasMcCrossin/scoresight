@@ -269,92 +269,152 @@ Resolution: {width}×{height}</source>
 <context>
     <name>Game</name>
     <message>
-        <location filename="../src/game_ui_handler.py" line="54"/>
+        <location filename="../src/game_ui_handler.py" line="70"/>
         <source>Home</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="56"/>
+        <location filename="../src/game_ui_handler.py" line="72"/>
         <source>Away</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="72"/>
+        <location filename="../src/game_ui_handler.py" line="88"/>
         <source>{team} score corrected to {value} ({score})</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="75"/>
+        <location filename="../src/game_ui_handler.py" line="91"/>
         <source>{team} +{points} ({score})</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="79"/>
+        <location filename="../src/game_ui_handler.py" line="95"/>
         <source>Start of {period}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="83"/>
+        <location filename="../src/game_ui_handler.py" line="99"/>
         <source>End of {period} ({score})</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="87"/>
+        <location filename="../src/game_ui_handler.py" line="103"/>
         <source>Final ({score})</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="89"/>
+        <location filename="../src/game_ui_handler.py" line="105"/>
         <source>Clock started at {clock}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="93"/>
+        <location filename="../src/game_ui_handler.py" line="109"/>
         <source>Clock stopped at {clock}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="97"/>
+        <location filename="../src/game_ui_handler.py" line="113"/>
         <source>{team} fouls: {count}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="101"/>
+        <location filename="../src/game_ui_handler.py" line="117"/>
         <source>{team} timeouts: {count}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="112"/>
-        <source>No field is named like a score, the clock or the period: name them like Home Score, Away Score, Time and Period.</source>
+        <location filename="../src/game_ui_handler.py" line="124"/>
+        <source>Laps to go corrected to {laps}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="119"/>
-        <source>Follows {fields}</source>
+        <location filename="../src/game_ui_handler.py" line="126"/>
+        <source>Laps to go: {laps}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="129"/>
-        <source>final</source>
+        <location filename="../src/game_ui_handler.py" line="130"/>
+        <source>Laps completed corrected to {laps}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/game_ui_handler.py" line="132"/>
+        <source>Laps completed: {laps}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/game_ui_handler.py" line="136"/>
+        <source>Final lap</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/game_ui_handler.py" line="138"/>
+        <source>Finish</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/game_ui_handler.py" line="140"/>
+        <source>New race</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/game_ui_handler.py" line="150"/>
+        <source>No field is named like the laps: name the lap board Laps To Go (or Laps Completed), and the race clock Time.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/game_ui_handler.py" line="155"/>
+        <source>No field is named like a score, the clock or the period: name them like Home Score, Away Score, Time and Period.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/game_ui_handler.py" line="162"/>
+        <source>Follows {fields}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/game_ui_handler.py" line="173"/>
+        <source>{laps} laps to go</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/game_ui_handler.py" line="180"/>
+        <source>{laps} of {total} laps completed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/game_ui_handler.py" line="186"/>
+        <source>{laps} laps completed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/game_ui_handler.py" line="191"/>
+        <source>finished</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/game_ui_handler.py" line="193"/>
+        <source>final</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/game_ui_handler.py" line="196"/>
         <source>clock running</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="134"/>
+        <location filename="../src/game_ui_handler.py" line="198"/>
         <source>clock stopped</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="144"/>
+        <location filename="../src/game_ui_handler.py" line="208"/>
         <source>No events yet</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="145"/>
+        <location filename="../src/game_ui_handler.py" line="209"/>
         <source>Latest events:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4386,38 +4446,43 @@ Resolution: {width}×{height}</source>
 <context>
     <name>Sports</name>
     <message>
-        <location filename="../src/game_ui_handler.py" line="40"/>
+        <location filename="../src/game_ui_handler.py" line="55"/>
         <source>None</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="41"/>
+        <location filename="../src/game_ui_handler.py" line="56"/>
         <source>Basketball</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="42"/>
+        <location filename="../src/game_ui_handler.py" line="57"/>
         <source>Basketball (halves)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="45"/>
+        <location filename="../src/game_ui_handler.py" line="60"/>
         <source>Soccer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="46"/>
+        <location filename="../src/game_ui_handler.py" line="61"/>
         <source>Ice hockey</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="47"/>
+        <location filename="../src/game_ui_handler.py" line="62"/>
         <source>American football</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="48"/>
+        <location filename="../src/game_ui_handler.py" line="63"/>
         <source>Volleyball</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/game_ui_handler.py" line="64"/>
+        <source>Racing (laps)</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

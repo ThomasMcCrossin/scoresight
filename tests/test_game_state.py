@@ -10,7 +10,11 @@ from game_state import (
     CLOCK_START,
     CLOCK_STOP,
     FINAL,
+    FINAL_LAP,
+    FINISH,
     FOULS,
+    LAP,
+    NEW_RACE,
     PERIOD_END,
     PERIOD_START,
     SCORE,
@@ -145,6 +149,14 @@ def test_roles_from_box_names():
     assert role_of("Shot Clock") == sports.SHOT_CLOCK
     assert role_of("Home Fouls") == sports.HOME_FOULS
     assert role_of("Guest TOL") == sports.AWAY_TIMEOUTS
+    assert role_of("Laps To Go") == sports.LAPS_TO_GO
+    assert role_of("LTG") == sports.LAPS_TO_GO
+    assert role_of("laps_remaining") == sports.LAPS_TO_GO
+    assert role_of("Laps") == sports.LAPS_TO_GO
+    assert role_of("Laps Completed") == sports.LAPS_COMPLETED
+    assert role_of("Total Laps") == sports.TOTAL_LAPS
+    # the lap being raced, or the laps completed: not a role
+    assert role_of("Lap") is None
     assert role_of("Sponsor") is None
 
 
@@ -165,6 +177,14 @@ def test_assign_roles_follows_the_sport_and_takes_the_first_box():
     # soccer has no fouls on the board
     assert sports.HOME_FOULS not in sports.assign_roles(names, sports.SOCCER)
     assert sports.assign_roles(names, sports.NONE) == {}
+    # a race has no scores, a game no laps
+    names = ["Home Score", "Time", "Laps To Go", "Total Laps"]
+    assert sports.assign_roles(names, sports.RACING) == {
+        sports.CLOCK: "Time",
+        sports.LAPS_TO_GO: "Laps To Go",
+        sports.TOTAL_LAPS: "Total Laps",
+    }
+    assert sports.LAPS_TO_GO not in sports.assign_roles(names, sports.BASKETBALL)
 
 
 def test_profiles():
@@ -179,6 +199,8 @@ def test_profiles():
     assert sports.SOCCER.period_label(2) == "H2"
     assert sports.HOCKEY.period_label(3) == "P3"
     assert sports.VOLLEYBALL.period_label(5) == "Set 5"
+    assert sports.profile("racing") is sports.RACING
+    assert sports.RACING.counts_laps and not sports.BASKETBALL.counts_laps
 
 
 # --- a basketball game ----------------------------------------------------------------
@@ -436,6 +458,125 @@ def test_a_clock_counting_the_other_way_is_learned(game):
     assert g.kinds(events) == [PERIOD_END]
 
 
+# --- a lap race -----------------------------------------------------------------------
+
+
+def start_race(game, **values):
+    g = game(sports.RACING)
+    for _ in range(2):
+        assert g.read(**values) == []
+    return g
+
+
+def read_board(g, times, **values):
+    """The same readings times in a row; the events they made."""
+    events = []
+    for _ in range(times):
+        events += g.read(**values)
+    return events
+
+
+def test_a_race_counting_laps_to_go(game):
+    g = start_race(game, Laps_To_Go="3", Time="0:40")
+    events = read_board(g, 2, Laps_To_Go="2")
+    assert [(e.kind, e.delta, e.value, e.laps_to_go) for e in events] == [
+        (LAP, 1, 2, 2)
+    ]
+    assert events[0].text() == "Laps to go: 2"
+    events = read_board(g, 2, Laps_To_Go="1")
+    assert g.kinds(events) == [LAP, FINAL_LAP]
+    assert events[1].text() == "Final lap"
+    events = read_board(g, 2, Laps_To_Go="0")
+    assert g.kinds(events) == [LAP, FINISH]
+    assert events[1].text() == "Finish"
+    state = g.engine.state()
+    assert state.final and state.laps_to_go == 0
+    # the race clock counts up
+    assert g.kinds(g.read(step=1.0, Time="0:41")) == [CLOCK_START]
+
+
+def test_lap_card_misreads_make_no_events(game):
+    # what PP-OCR read off hand-flipped lap cards: a hand over the 0 (99), a
+    # card half turned (88), the gap between two cards read as a 1 (919)
+    g = start_race(game, Laps_To_Go="10")
+    for text in ("99", "99", "1", "88", "919", "919", "11", "11"):
+        assert g.read(Laps_To_Go=text) == []
+    # 10 to 09 turns both cards: 19 while only the units card is turned
+    events = read_board(g, 3, Laps_To_Go="19") + read_board(g, 2, Laps_To_Go="09")
+    assert [(e.kind, e.value) for e in events] == [(LAP, 9)]
+
+
+def test_a_lap_board_corrected(game):
+    g = start_race(game, Laps_To_Go="12")
+    # two cards turned at once: counts once read steadily for 3 s
+    assert read_board(g, 5, Laps_To_Go="10") == []
+    events = read_board(g, 3, Laps_To_Go="10")
+    assert [(e.kind, e.delta) for e in events] == [(LAP, 2)]
+    # and put back: a lap back is a correction
+    events = read_board(g, 8, Laps_To_Go="11")
+    assert [(e.kind, e.delta, e.value) for e in events] == [(LAP, -1, 11)]
+    assert events[0].text() == "Laps to go corrected to 11"
+
+
+def test_a_new_race(game):
+    g = start_race(game, Laps_To_Go="1")
+    assert g.kinds(read_board(g, 2, Laps_To_Go="0")) == [LAP, FINISH]
+    # the board set for the next race: once read steadily for 3 s
+    assert read_board(g, 4, Laps_To_Go="5") == []
+    events = read_board(g, 4, Laps_To_Go="5")
+    assert [(e.kind, e.value) for e in events] == [(NEW_RACE, 5)]
+    assert events[0].text() == "New race"
+    assert not g.engine.state().final
+    for to_go in ("4", "3", "2", "1"):
+        events = read_board(g, 2, Laps_To_Go=to_go)
+    assert g.kinds(events) == [LAP, FINAL_LAP]
+    # a race started again before the finish
+    assert g.kinds(read_board(g, 8, Laps_To_Go="20")) == [NEW_RACE]
+    assert g.kinds(read_board(g, 2, Laps_To_Go="19")) == [LAP]
+
+
+def test_a_race_counting_laps_completed(game):
+    g = start_race(game, Laps_Completed="0", Total_Laps="3")
+    events = read_board(g, 2, Laps_Completed="1", Total_Laps="3")
+    assert [(e.kind, e.delta, e.value) for e in events] == [(LAP, 1, 1)]
+    assert events[0].text() == "Laps completed: 1"
+    events = read_board(g, 2, Laps_Completed="2", Total_Laps="3")
+    assert g.kinds(events) == [LAP, FINAL_LAP]
+    events = read_board(g, 2, Laps_Completed="3", Total_Laps="3")
+    assert g.kinds(events) == [LAP, FINISH]
+    # back to 0: the next race
+    events = read_board(g, 8, Laps_Completed="0", Total_Laps="3")
+    assert g.kinds(events) == [NEW_RACE]
+    # a lap back is a correction
+    g.read(Laps_Completed="1")
+    g.read(Laps_Completed="1")
+    events = read_board(g, 8, Laps_Completed="2")
+    events = read_board(g, 8, Laps_Completed="1")
+    assert [(e.kind, e.delta) for e in events] == [(LAP, -1)]
+    assert events[0].text() == "Laps completed corrected to 1"
+
+
+def test_laps_completed_without_a_total_have_no_finish(game):
+    g = start_race(game, Laps_Completed="4")
+    for completed in ("5", "6", "7"):
+        assert g.kinds(read_board(g, 2, Laps_Completed=completed)) == [LAP]
+    assert g.engine.state().total_laps is None
+
+
+def test_both_lap_counters_make_one_lap(game):
+    g = start_race(game, Laps_To_Go="2", Laps_Completed="8")
+    events = read_board(g, 2, Laps_To_Go="1", Laps_Completed="9")
+    assert g.kinds(events) == [LAP, FINAL_LAP]
+    assert (events[0].laps_to_go, events[0].laps_completed) == (1, 9)
+    assert events[0].text() == "Laps to go: 1"
+    data = g.engine.state().to_dict()
+    assert data["sport"] == "racing"
+    assert data["laps"] == {"to_go": 1, "completed": 9, "total": None}
+    assert data["home"]["score"] is None
+    assert [e["kind"] for e in data["events"]] == ["lap", "final_lap"]
+    assert data["events"][0]["laps_to_go"] == 1
+
+
 # --- the snapshot ---------------------------------------------------------------------
 
 
@@ -450,6 +591,7 @@ def test_state_to_dict(game):
     assert data["period_label"] == "Q1"
     assert data["shot_clock"] == "14"
     assert data["roles"]["home_score"] == "Home Score"
+    assert data["laps"] == {"to_go": None, "completed": None, "total": None}
     assert data["line_score"] == [{"period": 1, "label": "Q1", "home": 3, "away": 0}]
     assert [event["text"] for event in data["events"]] == ["Home +3 (3–0)"]
     last = data["events"][-1]["id"]
@@ -511,4 +653,48 @@ def test_status_text(game, qapp):
     other.read(Sponsor="ACME")
     assert status_text(other.engine.state(), sports.BASKETBALL).startswith(
         "No field is named like a score"
+    )
+
+
+def test_the_race_texts_match_the_engine_in_english(game, qapp):
+    from game_ui_handler import event_text
+
+    to_go = start_race(game, Laps_To_Go="12")
+    read_board(to_go, 8, Laps_To_Go="10")
+    read_board(to_go, 8, Laps_To_Go="11")
+    for laps in ("10", "1", "0", "5"):
+        read_board(to_go, 8, Laps_To_Go=laps)
+    completed = start_race(game, Laps_Completed="3", Total_Laps="5")
+    for laps in ("4", "3", "5"):
+        read_board(completed, 8, Laps_Completed=laps, Total_Laps="5")
+    events = to_go.engine.events + completed.engine.events
+    assert {LAP, FINAL_LAP, FINISH, NEW_RACE} <= {e.kind for e in events}
+    texts = {e.text() for e in events}
+    assert {"Laps to go corrected to 11", "Laps completed corrected to 3"} <= texts
+    for event in events:
+        assert event_text(event) == event.text()
+
+
+def test_race_status_text(game, qapp):
+    from game_ui_handler import status_text
+
+    g = start_race(game, Time="1:02", Laps_To_Go="5")
+    assert status_text(g.engine.state(), sports.RACING) == (
+        "Follows Time, Laps To Go\n5 laps to go · clock stopped"
+    )
+    g = start_race(game, Laps_To_Go="1")
+    read_board(g, 2, Laps_To_Go="0")
+    assert status_text(g.engine.state(), sports.RACING).endswith(
+        "0 laps to go · finished"
+    )
+    g = start_race(game, Laps_Completed="7", Total_Laps="20")
+    assert status_text(g.engine.state(), sports.RACING).endswith(
+        "\n7 of 20 laps completed"
+    )
+    g = start_race(game, Laps_Completed="7")
+    assert status_text(g.engine.state(), sports.RACING).endswith("\n7 laps completed")
+    other = game(sports.RACING)
+    other.read(Home_Score="3")
+    assert status_text(other.engine.state(), sports.RACING).startswith(
+        "No field is named like the laps"
     )

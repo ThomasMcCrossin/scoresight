@@ -1,11 +1,13 @@
 """Sport profiles: what ScoreSight knows about a sport so that it can follow the
 game (game_state.py): its fields (roles), how many regular periods it has and
 what they are called, whether its clock counts down, and which score changes
-make sense (basketball scores go up by 1, 2 or 3 at a time).
+make sense (basketball scores go up by 1, 2 or 3 at a time). A lap race has a
+lap board instead of scores: laps to go and/or laps completed.
 
 A box gets its role from its name (role_of): "Home Score", "Score Home" or
-"Home" is the home score, "Time", "Clock" or "Game Clock" the clock, and so on.
-The profiles' names are English; the UI translates them (context "Sports").
+"Home" is the home score, "Time", "Clock" or "Game Clock" the clock, "Laps To
+Go" or "Laps" the laps to go, and so on. The profiles' names are English; the
+UI translates them (context "Sports").
 """
 
 import re
@@ -22,7 +24,11 @@ HOME_FOULS = "home_fouls"
 AWAY_FOULS = "away_fouls"
 HOME_TIMEOUTS = "home_timeouts"
 AWAY_TIMEOUTS = "away_timeouts"
-ROLES = (
+LAPS_TO_GO = "laps_to_go"
+LAPS_COMPLETED = "laps_completed"
+TOTAL_LAPS = "total_laps"
+# a game's roles
+GAME_ROLES = (
     HOME_SCORE,
     AWAY_SCORE,
     CLOCK,
@@ -33,6 +39,9 @@ ROLES = (
     HOME_TIMEOUTS,
     AWAY_TIMEOUTS,
 )
+# a lap race's lap board
+LAP_ROLES = (LAPS_TO_GO, LAPS_COMPLETED, TOTAL_LAPS)
+ROLES = GAME_ROLES + LAP_ROLES
 
 HOME = "home"
 AWAY = "away"
@@ -131,6 +140,28 @@ _ROLE_NAMES = {
         "visitortimeouts",
         "visitorstimeouts",
     ),
+    # a lap board counts down (lap cards, "5 to go"), so "Laps" is the laps to
+    # go; "Lap" isn't a role: "Lap 5" may be the lap being raced or the laps
+    # completed
+    LAPS_TO_GO: (
+        "lapstogo",
+        "lapsremaining",
+        "lapsleft",
+        "remaininglaps",
+        "ltg",
+        "togo",
+        "laps",
+        "lapcards",
+        "lapboard",
+    ),
+    LAPS_COMPLETED: (
+        "lapscompleted",
+        "lapscomplete",
+        "completedlaps",
+        "lapsdone",
+        "lapcount",
+    ),
+    TOTAL_LAPS: ("totallaps", "lapstotal", "racelaps", "oflaps"),
 }
 _ROLE_OF_NAME = {name: role for role, names in _ROLE_NAMES.items() for name in names}
 
@@ -166,6 +197,11 @@ class SportProfile:
         """A sport is chosen (not None)."""
         return bool(self.roles)
 
+    @property
+    def counts_laps(self) -> bool:
+        """A lap race: a lap board instead of scores."""
+        return LAPS_TO_GO in self.roles or LAPS_COMPLETED in self.roles
+
     def period_label(self, period: int | None) -> str:
         """ "Q2", "OT", "OT2", "Set 3"; "" without a period."""
         if period is None:
@@ -176,7 +212,7 @@ class SportProfile:
         return f"{self.period_prefix}{period}"
 
 
-_ALL = ROLES
+_ALL = GAME_ROLES
 NONE = SportProfile("none", "None", ())
 BASKETBALL = SportProfile(
     "basketball",
@@ -235,6 +271,15 @@ VOLLEYBALL = SportProfile(
     overtime=False,
     scores_reset_each_period=True,
 )
+# one lap board everyone races to (track cycling, motorsport, skating,
+# swimming, athletics), not a lap count per competitor
+RACING = SportProfile(
+    "racing",
+    "Racing (laps)",
+    (CLOCK, LAPS_TO_GO, LAPS_COMPLETED, TOTAL_LAPS),
+    clock_counts_down=False,
+    overtime=False,
+)
 
 PROFILES: dict[str, SportProfile] = {
     profile.key: profile
@@ -246,6 +291,7 @@ PROFILES: dict[str, SportProfile] = {
         HOCKEY,
         FOOTBALL,
         VOLLEYBALL,
+        RACING,
     )
 }
 

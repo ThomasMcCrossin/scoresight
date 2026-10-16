@@ -304,109 +304,181 @@ Resolution: {width}×{height}</source>
 <context>
     <name>Game</name>
     <message>
-        <location filename="../src/game_ui_handler.py" line="54"/>
+        <location filename="../src/game_ui_handler.py" line="70"/>
         <source>Home</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">主队</translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="56"/>
+        <location filename="../src/game_ui_handler.py" line="72"/>
         <source>Away</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">客队</translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="72"/>
+        <location filename="../src/game_ui_handler.py" line="88"/>
         <source>{team} score corrected to {value} ({score})</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{team}比分更正为 {value}（{score}）</translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="75"/>
+        <location filename="../src/game_ui_handler.py" line="91"/>
         <source>{team} +{points} ({score})</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{team} +{points}（{score}）</translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="79"/>
+        <location filename="../src/game_ui_handler.py" line="95"/>
         <source>Start of {period}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{period} 开始</translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="83"/>
+        <location filename="../src/game_ui_handler.py" line="99"/>
         <source>End of {period} ({score})</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{period} 结束（{score}）</translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="87"/>
+        <location filename="../src/game_ui_handler.py" line="103"/>
         <source>Final ({score})</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">比赛结束（{score}）</translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="89"/>
+        <location filename="../src/game_ui_handler.py" line="105"/>
         <source>Clock started at {clock}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">计时器在 {clock} 开始</translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="93"/>
+        <location filename="../src/game_ui_handler.py" line="109"/>
         <source>Clock stopped at {clock}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">计时器在 {clock} 停止</translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="97"/>
+        <location filename="../src/game_ui_handler.py" line="113"/>
         <source>{team} fouls: {count}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{team}犯规：{count}</translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="101"/>
+        <location filename="../src/game_ui_handler.py" line="117"/>
         <source>{team} timeouts: {count}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{team}暂停：{count}</translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="112"/>
+        <location filename="../src/game_ui_handler.py" line="124"/>
+        <source>Laps to go corrected to {laps}</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">剩余圈数更正为 {laps}</translation>
+    </message>
+    <message>
+        <location filename="../src/game_ui_handler.py" line="126"/>
+        <source>Laps to go: {laps}</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">剩余圈数：{laps}</translation>
+    </message>
+    <message>
+        <location filename="../src/game_ui_handler.py" line="130"/>
+        <source>Laps completed corrected to {laps}</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">已完成圈数更正为 {laps}</translation>
+    </message>
+    <message>
+        <location filename="../src/game_ui_handler.py" line="132"/>
+        <source>Laps completed: {laps}</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">已完成圈数：{laps}</translation>
+    </message>
+    <message>
+        <location filename="../src/game_ui_handler.py" line="136"/>
+        <source>Final lap</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">最后一圈</translation>
+    </message>
+    <message>
+        <location filename="../src/game_ui_handler.py" line="138"/>
+        <source>Finish</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">完赛</translation>
+    </message>
+    <message>
+        <location filename="../src/game_ui_handler.py" line="140"/>
+        <source>New race</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">新比赛</translation>
+    </message>
+    <message>
+        <location filename="../src/game_ui_handler.py" line="150"/>
+        <source>No field is named like the laps: name the lap board Laps To Go (or Laps Completed), and the race clock Time.</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">没有字段以圈数命名：请将圈数牌命名为 Laps To Go（或 Laps Completed），将比赛计时命名为 Time。</translation>
+    </message>
+    <message>
+        <location filename="../src/game_ui_handler.py" line="155"/>
         <source>No field is named like a score, the clock or the period: name them like Home Score, Away Score, Time and Period.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">没有字段以比分、计时器或节次命名：请将它们命名为 Home Score、Away Score、Time 和 Period 等。</translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="119"/>
+        <location filename="../src/game_ui_handler.py" line="162"/>
         <source>Follows {fields}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">跟踪：{fields}</translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="129"/>
+        <location filename="../src/game_ui_handler.py" line="173"/>
+        <source>{laps} laps to go</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">还剩 {laps} 圈</translation>
+    </message>
+    <message>
+        <location filename="../src/game_ui_handler.py" line="180"/>
+        <source>{laps} of {total} laps completed</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">已完成 {laps}/{total} 圈</translation>
+    </message>
+    <message>
+        <location filename="../src/game_ui_handler.py" line="186"/>
+        <source>{laps} laps completed</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">已完成 {laps} 圈</translation>
+    </message>
+    <message>
+        <location filename="../src/game_ui_handler.py" line="191"/>
+        <source>finished</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">已完赛</translation>
+    </message>
+    <message>
+        <location filename="../src/game_ui_handler.py" line="193"/>
         <source>final</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">比赛结束</translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="132"/>
+        <location filename="../src/game_ui_handler.py" line="196"/>
         <source>clock running</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">计时中</translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="134"/>
+        <location filename="../src/game_ui_handler.py" line="198"/>
         <source>clock stopped</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">计时暂停</translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="144"/>
+        <location filename="../src/game_ui_handler.py" line="208"/>
         <source>No events yet</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">暂无事件</translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="145"/>
+        <location filename="../src/game_ui_handler.py" line="209"/>
         <source>Latest events:</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">最近事件：</translation>
@@ -5294,45 +5366,51 @@ Resolution: {width}×{height}</source>
 <context>
     <name>Sports</name>
     <message>
-        <location filename="../src/game_ui_handler.py" line="40"/>
+        <location filename="../src/game_ui_handler.py" line="55"/>
         <source>None</source>
         <translation type="unfinished">无</translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="41"/>
+        <location filename="../src/game_ui_handler.py" line="56"/>
         <source>Basketball</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">篮球</translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="42"/>
+        <location filename="../src/game_ui_handler.py" line="57"/>
         <source>Basketball (halves)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">篮球（上下半场）</translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="45"/>
+        <location filename="../src/game_ui_handler.py" line="60"/>
         <source>Soccer</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">足球</translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="46"/>
+        <location filename="../src/game_ui_handler.py" line="61"/>
         <source>Ice hockey</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">冰球</translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="47"/>
+        <location filename="../src/game_ui_handler.py" line="62"/>
         <source>American football</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">美式橄榄球</translation>
     </message>
     <message>
-        <location filename="../src/game_ui_handler.py" line="48"/>
+        <location filename="../src/game_ui_handler.py" line="63"/>
         <source>Volleyball</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">排球</translation>
+    </message>
+    <message>
+        <location filename="../src/game_ui_handler.py" line="64"/>
+        <source>Racing (laps)</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">竞速（圈数）</translation>
     </message>
 </context>
 <context>

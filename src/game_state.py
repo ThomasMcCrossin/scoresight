@@ -2,7 +2,9 @@
 (sports.py). GameEngine knows the scores, the clock and whether it runs, the
 period, the fouls and timeouts, the points of each period (the line score),
 and keeps an event log: a score, the start and the end of a period, the clock
-starting and stopping, fouls and timeouts changing, the final buzzer.
+starting and stopping, fouls and timeouts changing, the final buzzer. In a
+lap race it knows the laps (to go, completed, the total) instead of scores,
+and logs each lap, the final lap, the finish and a new race.
 
 MainWindow.ocrResult calls update() with each cycle's results, after Hold value
 and the template fields (a held value counts), on the GUI thread. Each box
@@ -13,7 +15,10 @@ a reading that flickers for one cycle makes no event. A change the sport
 doesn't allow (a basketball score going up by 5 or down, 21 -> 81, a period
 skipped, the clock jumping) counts only once it has been read steadily for
 HOLD_SECONDS, which a real correction is. The clock's small moves count at
-once. Nothing here changes what the outputs get.
+once. A lap counter allows only one lap at a time, the way it counts (laps to
+go down, laps completed up); a lap board set for the next race (laps to go
+back up, laps completed back to 0) is a new race once read steadily for
+HOLD_SECONDS. Nothing here changes what the outputs get.
 """
 
 import re
@@ -32,9 +37,12 @@ from sports import (
     HOME_FOULS,
     HOME_SCORE,
     HOME_TIMEOUTS,
+    LAPS_COMPLETED,
+    LAPS_TO_GO,
     PERIOD,
     SHOT_CLOCK,
     TEAM_OF,
+    TOTAL_LAPS,
     SportProfile,
 )
 from text_detection_target import TextDetectionTargetWithResult
@@ -71,6 +79,10 @@ CLOCK_STOP = "clock_stop"
 FOULS = "fouls"
 TIMEOUTS = "timeouts"
 FINAL = "final"
+LAP = "lap"
+FINAL_LAP = "final_lap"
+FINISH = "finish"
+NEW_RACE = "new_race"
 
 # --- reading the values ----------------------------------------------------------
 
@@ -140,13 +152,32 @@ class GameEvent:
     home: int | None  # the scores then
     away: int | None
     team: str | None = None  # "home" or "away"
-    delta: int | None = None  # points, or how much fouls or timeouts changed
-    value: int | None = None  # the team's score, fouls or timeouts then
+    # points, how much fouls or timeouts changed, or laps raced (a lap: 1)
+    delta: int | None = None
+    # the team's score, fouls or timeouts then, or the lap counter's value
+    value: int | None = None
+    # the lap board then (a lap race)
+    laps_to_go: int | None = None
+    laps_completed: int | None = None
 
     def text(self) -> str:
         """In English (the log, /game); the UI has its own translated text."""
         team = (self.team or "").capitalize()
         score = _score_text(self.home, self.away)
+        if self.kind == LAP:
+            if self.laps_to_go is not None:
+                counter, laps = "Laps to go", self.laps_to_go
+            else:
+                counter, laps = "Laps completed", self.laps_completed
+            if self.delta is not None and self.delta < 0:
+                return f"{counter} corrected to {laps}"
+            return f"{counter}: {laps}"
+        if self.kind == FINAL_LAP:
+            return "Final lap"
+        if self.kind == FINISH:
+            return "Finish"
+        if self.kind == NEW_RACE:
+            return "New race"
         if self.kind == SCORE:
             if self.delta is not None and self.delta < 0:
                 return f"{team} score corrected to {self.value} ({score})"
@@ -196,6 +227,10 @@ class GameState:
     away_fouls: int | None = None
     home_timeouts: int | None = None
     away_timeouts: int | None = None
+    # the lap board, as read (a lap race)
+    laps_to_go: int | None = None
+    laps_completed: int | None = None
+    total_laps: int | None = None
     # the points scored in each period, since ScoreSight followed the game;
     # complete when it saw the game start (0-0)
     line_score: tuple[LinePeriod, ...] = ()
@@ -223,6 +258,11 @@ class GameState:
             "clock": self.clock,
             "clock_running": self.clock_running,
             "shot_clock": self.shot_clock,
+            "laps": {
+                "to_go": self.laps_to_go,
+                "completed": self.laps_completed,
+                "total": self.total_laps,
+            },
             "line_score": [asdict(period) for period in self.line_score],
             "line_score_complete": self.line_score_complete,
             "final": self.final,
@@ -319,7 +359,9 @@ class GameEngine:
         self._started_at_zero: bool | None = None
         self._ended: set[int] = set()  # periods whose end was an event
         self._last_end: tuple[int, float] | None = None  # (period, when)
+        # the game is over: the final buzzer, or the finish of a lap race
         self._final = False
+        self._final_lap = False  # the race's final lap was an event
         self._running = False
         self._direction = -1 if self.sport.clock_counts_down else 1  # -1: counts down
         self._against = 0  # clock moves against the direction, in a row
@@ -371,6 +413,14 @@ class GameEngine:
         ):
             if role in texts:
                 self._read_counter(role, kind, texts[role], now, events)
+        # the total first: the finish of a race counting laps completed needs
+        # it; the laps completed before the laps to go, whose events (with both
+        # on the board) carry them
+        if TOTAL_LAPS in texts:
+            self._read_total_laps(texts[TOTAL_LAPS], now)
+        for role in (LAPS_COMPLETED, LAPS_TO_GO):
+            if role in texts:
+                self._read_laps(role, texts[role], now, events)
         if PERIOD in texts:
             self._read_period(texts[PERIOD], now, events)
         if CLOCK in texts:
@@ -432,6 +482,67 @@ class GameEngine:
             return
         if old is not None:
             self._emit(kind, events, team=TEAM_OF[role], delta=value - old, value=value)
+
+    def _read_total_laps(self, text: str, now: float):
+        value = parse_count(text)
+        if value is None:
+            return
+        tracker = self._trackers[TOTAL_LAPS]
+        # the total doesn't change during a race: another one counts once steady
+        tracker.offer(value, text, now, tracker.value is None, CONFIRM_READINGS)
+
+    def _read_laps(self, role: str, text: str, now: float, events: list):
+        value = parse_count(text)
+        if value is None:
+            return
+        tracker = self._trackers[role]
+        old = tracker.value
+        counts_down = role == LAPS_TO_GO
+        # the laps raced by this change: a lap is 1
+        raced = None if old is None else (old - value if counts_down else value - old)
+        plausible = old is None or raced == 1
+        if not tracker.offer(value, text, now, plausible, CONFIRM_READINGS):
+            return
+        # with both counters on the board, the laps to go make the events
+        if old is None or role != self._lap_counter():
+            return
+        if raced < -1 or (not counts_down and value == 0):
+            # the board set for the next race (a lap back is a correction)
+            self._final = self._final_lap = False
+            self._emit(NEW_RACE, events, value=value)
+            return
+        self._emit(LAP, events, delta=raced, value=value)
+        to_go = self._laps_to_go()
+        if to_go is None:
+            return
+        if to_go > 0:
+            self._final = False
+        if to_go > 1:
+            self._final_lap = False
+        if to_go == 1 and not self._final_lap:
+            self._final_lap = True
+            self._emit(FINAL_LAP, events)
+        if to_go <= 0 and not self._final:
+            self._final = True
+            self._emit(FINISH, events)
+
+    def _lap_counter(self) -> str | None:
+        """The role of the lap counter that makes the events."""
+        roles = self._roles_for[1]
+        for role in (LAPS_TO_GO, LAPS_COMPLETED):
+            if role in roles:
+                return role
+        return None
+
+    def _laps_to_go(self) -> int | None:
+        """The laps to go: read, or the total less the laps completed."""
+        if self._lap_counter() == LAPS_TO_GO:
+            return self._trackers[LAPS_TO_GO].value
+        total = self._trackers[TOTAL_LAPS].value
+        completed = self._trackers[LAPS_COMPLETED].value
+        if total is None or completed is None:
+            return None
+        return total - completed
 
     def _read_period(self, text: str, now: float, events: list):
         period = parse_period(text, self.sport)
@@ -540,6 +651,8 @@ class GameEngine:
         values = {
             "home": self._trackers[HOME_SCORE].value,
             "away": self._trackers[AWAY_SCORE].value,
+            "laps_to_go": self._trackers[LAPS_TO_GO].value,
+            "laps_completed": self._trackers[LAPS_COMPLETED].value,
             **fields,
         }
         event = GameEvent(
@@ -578,6 +691,9 @@ class GameEngine:
             away_fouls=trackers[AWAY_FOULS].value,
             home_timeouts=trackers[HOME_TIMEOUTS].value,
             away_timeouts=trackers[AWAY_TIMEOUTS].value,
+            laps_to_go=trackers[LAPS_TO_GO].value,
+            laps_completed=trackers[LAPS_COMPLETED].value,
+            total_laps=trackers[TOTAL_LAPS].value,
             line_score=tuple(
                 LinePeriod(p, self.sport.period_label(p), points[0], points[1])
                 for p, points in sorted(self._line.items())
