@@ -10,7 +10,9 @@ description: "Choose the sport and ScoreSight follows the game from the scoreboa
 
 Choose the **sport** being played and ScoreSight follows the **game**, not only the readings: it notices each score (who scored and how many points), the start and the end of each period, the clock starting and stopping, fouls and timeouts changing, and the final buzzer. It keeps them in the game's **event log**, adds up the **points of each period** (the line score), and serves it all at [`/game`](#the-game-over-http). In a [lap race](#lap-races) it follows the lap board instead: each lap, the final lap and the finish.
 
-This is the first step of the [roadmap](https://github.com/royshil/scoresight/issues/116): graphics that react to the game (a goal animation, a line score, end-of-period cards), automatic highlights and player stats build on it. For now, following the game doesn't change what the outputs get.
+With a sport chosen, a change the sport doesn't allow (21 becoming 81) is [held back from the outputs](#wrong-readings-stay-off-the-air) until it is read steadily, so a misread never goes on air.
+
+This is the first step of the [roadmap](https://github.com/royshil/scoresight/issues/116): graphics that react to the game (a goal animation, a line score, end-of-period cards), automatic highlights and player stats build on it.
 
 <details open markdown="block">
   <summary>On this page</summary>
@@ -63,9 +65,9 @@ Rename a custom field to one of these names to have it followed. The sport decid
 
 The values are read as a scoreboard shows them: scores and laps `0`–`999` (`09` is 9), the clock as `12:00`, `4:32`, `45.3` or `0:09.8`, the period as `2`, `2nd`, `Q2`, `P3`, `Set 4`, `OT` or `OT2`.
 
-## Wrong readings don't make events
+## Wrong readings stay off the air
 
-A misread must not become a "score". So a changed value counts only once it has been **read twice in a row**: a reading that flickers for one cycle makes no event.
+A misread must not become a "score", on air or in the event log. So a changed value counts only once it has been **read twice in a row**: a reading that flickers for one cycle makes no event.
 
 A change the sport doesn't allow counts only once it has been read **steadily for 3 seconds**:
 - a score going up by 5 in basketball, or 21 becoming 81;
@@ -77,7 +79,12 @@ A change the sport doesn't allow counts only once it has been read **steadily fo
 
 A real correction (the scorer's table fixing a score) is steady, so it still counts, as a *corrected* score. A misread isn't.
 
-A value held with [Hold value](boxes.md#hold-value) counts as the value, so a held correction counts too. The game is followed while the outputs are paused.
+**The outputs wait too.** Until such a change counts, every output (OBS, vMix, the HTTP server and the overlays, files, the APIs, TCP / UDP) and every [template field](boxes.md#template-fields) keeps the value it had: a flickered *81* never goes on air, and a real correction goes on air about 3 seconds late. Changes the sport allows go out at once, as before. The field list still shows what was read. The log (**Tools > View log**) says what was held back and why, then whether it was sent or dropped:
+
+> Plausibility hold: Home Score read 81, 21 kept: a score going up by 60, which Basketball doesn't allow; it is sent once read steadily for a few seconds
+> Plausibility hold: Home Score back to 21, 81 dropped
+
+To put a value on air at once, use [Hold value](boxes.md#hold-value): a held value is never held back. It counts for the game as the value, so a held correction counts too. Template fields are built from the values sent and aren't held back themselves. The game is followed while the outputs are paused.
 
 ## Events
 

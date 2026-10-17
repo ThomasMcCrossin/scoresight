@@ -126,6 +126,8 @@ To send the readings again, click **Release** in the field's row, or right-click
 
 A held value isn't saved: it ends when ScoreSight closes, and when the field is taken off the picture. Renaming the field keeps it held. To freeze every output at once, use **Pause outputs** instead.
 
+With a [sport](game.md) chosen, ScoreSight also holds back on its own a change the sport doesn't allow (21 becoming 81) until it is read steadily for 3 seconds ([Wrong readings stay off the air](game.md#wrong-readings-stay-off-the-air)). A value you hold is sent as it is, at once.
+
 ## Box settings
 
 When a field is selected, the **Box** tab of the inspector shows its name and its recognition settings in three sections: **Reading** (**Type**, **Format**...), **Filtering** and **Image cleanup** (collapsed until you open it). Each box has its own settings; **Reset to defaults** restores the defaults for the selected box. With nothing selected, the Box tab explains how to select a field; for a field that isn't on the picture, it explains how to place it.
