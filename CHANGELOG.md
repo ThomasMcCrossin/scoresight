@@ -8,6 +8,12 @@ Release tags are the bare version number (for example `0.1.0`).
 
 ## [Unreleased]
 
+## [0.3.4] - 2026-10-17
+
+Misreads stay off the air: with a sport chosen, a change the sport doesn't
+allow waits until it is read steadily. Also lap races, team names on the
+overlays, and a Feedback link to ScoreSight's Discussions.
+
 ### Added
 
 - **Feedback**, at the right end of the status bar, and **Help > Ask a question or share feedback** open [ScoreSight's Discussions](https://github.com/royshil/scoresight/discussions) on GitHub: ask a question, share an idea or show your setup. The first-run card links there too. Each release is now announced in Discussions.
@@ -1075,7 +1081,8 @@ end to end on every platform before it ships. Highlights:
 
 - First open-source release of ScoreSight.
 
-[Unreleased]: https://github.com/royshil/scoresight/compare/0.3.3...HEAD
+[Unreleased]: https://github.com/royshil/scoresight/compare/0.3.4...HEAD
+[0.3.4]: https://github.com/royshil/scoresight/compare/0.3.3...0.3.4
 [0.3.3]: https://github.com/royshil/scoresight/compare/0.3.2...0.3.3
 [0.3.2]: https://github.com/royshil/scoresight/compare/0.3.1...0.3.2
 [0.3.1]: https://github.com/royshil/scoresight/compare/0.3.0...0.3.1
