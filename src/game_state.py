@@ -18,7 +18,9 @@ HOLD_SECONDS, which a real correction is. The clock's small moves count at
 once. A lap counter allows only one lap at a time, the way it counts (laps to
 go down, laps completed up); a lap board set for the next race (laps to go
 back up, laps completed back to 0) is a new race once read steadily for
-HOLD_SECONDS. Nothing here changes what the outputs get.
+HOLD_SECONDS. Nothing here changes what the outputs get: held_back() says
+which readings aren't counted yet, and plausibility_holds.py keeps them from
+the outputs until they are.
 """
 
 import re
@@ -325,6 +327,18 @@ class _Tracker:
         self.candidate = None
         return True
 
+    def holds(self, value, now: float, plausible: bool) -> bool:
+        """Whether offer() would keep the value as it is after a reading of
+        value: a change the sport doesn't allow, not read steadily for long
+        enough yet (this reading included). Changes nothing."""
+        if plausible or self.value is None or value == self.value:
+            return False
+        if self.candidate is not None and value == self.candidate:
+            count, since = self.candidate_count + 1, self.candidate_since
+        else:
+            count, since = 1, now
+        return not (count >= HOLD_READINGS and now - since >= HOLD_SECONDS)
+
 
 class GameEngine:
     """Follows a game (see the module's docstring). Called on the GUI thread."""
@@ -438,16 +452,120 @@ class GameEngine:
             self._roles_for = (names, sports.assign_roles(names, self.sport))
         return dict(self._roles_for[1])
 
-    def _read_score(self, role: str, text: str, now: float, events: list):
-        value = parse_count(text)
-        if value is None:
-            return
+    def held_back(
+        self, results: Iterable[TextDetectionTargetWithResult], skip=frozenset()
+    ) -> dict[str, str]:
+        """{box name: why} for the good readings of a cycle that change a value
+        the way the sport doesn't allow and haven't been read steadily for
+        HOLD_SECONDS yet: update() won't count them yet, so the outputs
+        shouldn't get them either (plausibility_holds.py). Call it before
+        update() with the same readings. The boxes in skip aren't judged.
+        Changes nothing."""
+        if not self.sport.active:
+            return {}
+        results = list(results)
+        now = self._clock()
+        roles = self.roles(result.name for result in results)
+        role_of = {name: role for role, name in roles.items()}
+        held: dict[str, str] = {}
+        for result in results:
+            role = role_of.get(result.name)
+            if (
+                role is None
+                or result.name in skip
+                or result.result_state not in _GOOD_STATES
+                or result.result is None
+            ):
+                continue
+            text = str(result.result).strip()
+            judged = self._judge(role, text, now) if text else None
+            if judged is None:
+                continue
+            value, plausible = judged
+            tracker = self._trackers[role]
+            if tracker.holds(value, now, plausible):
+                held[result.name] = self._hold_reason(role, tracker, value, text)
+        return held
+
+    def _hold_reason(self, role: str, tracker: "_Tracker", value, text: str) -> str:
+        """Why a change isn't allowed, in English (the log)."""
+        old = tracker.value
+        if role in (HOME_SCORE, AWAY_SCORE):
+            change = (
+                "a score going down"
+                if value < old
+                else f"a score going up by {value - old}"
+            )
+        elif role in (HOME_FOULS, AWAY_FOULS, HOME_TIMEOUTS, AWAY_TIMEOUTS):
+            change = f"a change of {value - old:+d}"
+        elif role == CLOCK:
+            change = f"the clock jumping from {tracker.text} to {text}"
+        elif role == PERIOD:
+            change = f"the period going from {tracker.text} to {text}"
+        elif role == LAPS_TO_GO:
+            change = f"the laps to go going from {old} to {value}"
+        elif role == LAPS_COMPLETED:
+            change = f"the laps completed going from {old} to {value}"
+        else:
+            change = f"the total laps changing from {old} to {value}"
+        return f"{change}, which {self.sport.name} doesn't allow"
+
+    def _judge(self, role: str, text: str, now: float):
+        """(the value read, whether the sport allows the change to it), or None
+        when the text isn't a value of the role (or the role isn't judged: the
+        shot clock, a clock in a sport without one)."""
         tracker = self._trackers[role]
         old = tracker.value
-        plausible = old is None or (
-            value - old in self.sport.score_steps
-            or (self.sport.scores_reset_each_period and value == 0)
-        )
+        if role in (HOME_SCORE, AWAY_SCORE):
+            value = parse_count(text)
+            if value is None:
+                return None
+            return value, old is None or (
+                value - old in self.sport.score_steps
+                or (self.sport.scores_reset_each_period and value == 0)
+            )
+        if role in (HOME_FOULS, AWAY_FOULS, HOME_TIMEOUTS, AWAY_TIMEOUTS):
+            value = parse_count(text)
+            if value is None:
+                return None
+            return value, old is None or abs(value - old) <= 1 or value == 0
+        if role == PERIOD:
+            value = parse_period(text, self.sport)
+            if value is None:
+                return None
+            return value, old is None or value == old + 1
+        if role == CLOCK:
+            if self.sport.clock_counts_down is None:
+                return None
+            value = parse_clock(text)
+            if value is None:
+                return None
+            return value, old is None or self._small_clock_move(
+                old, value, tracker.seen_at, now
+            )
+        if role in (LAPS_TO_GO, LAPS_COMPLETED):
+            value = parse_count(text)
+            if value is None:
+                return None
+            # one lap the way the counter counts
+            step = 1 if role == LAPS_COMPLETED else -1
+            return value, old is None or value == old + step
+        if role == TOTAL_LAPS:
+            value = parse_count(text)
+            if value is None:
+                return None
+            # the total doesn't change during a race: another one counts once
+            # steady
+            return value, old is None
+        return None
+
+    def _read_score(self, role: str, text: str, now: float, events: list):
+        judged = self._judge(role, text, now)
+        if judged is None:
+            return
+        value, plausible = judged
+        tracker = self._trackers[role]
+        old = tracker.value
         if not tracker.offer(value, text, now, plausible, CONFIRM_READINGS):
             return
         if old is None:
@@ -472,35 +590,34 @@ class GameEngine:
             self._started_at_zero = home == 0 and away == 0 and period in (None, 1)
 
     def _read_counter(self, role: str, kind: str, text: str, now: float, events):
-        value = parse_count(text)
-        if value is None:
+        judged = self._judge(role, text, now)
+        if judged is None:
             return
+        value, plausible = judged
         tracker = self._trackers[role]
         old = tracker.value
-        plausible = old is None or abs(value - old) <= 1 or value == 0
         if not tracker.offer(value, text, now, plausible, CONFIRM_READINGS):
             return
         if old is not None:
             self._emit(kind, events, team=TEAM_OF[role], delta=value - old, value=value)
 
     def _read_total_laps(self, text: str, now: float):
-        value = parse_count(text)
-        if value is None:
+        judged = self._judge(TOTAL_LAPS, text, now)
+        if judged is None:
             return
-        tracker = self._trackers[TOTAL_LAPS]
-        # the total doesn't change during a race: another one counts once steady
-        tracker.offer(value, text, now, tracker.value is None, CONFIRM_READINGS)
+        value, plausible = judged
+        self._trackers[TOTAL_LAPS].offer(value, text, now, plausible, CONFIRM_READINGS)
 
     def _read_laps(self, role: str, text: str, now: float, events: list):
-        value = parse_count(text)
-        if value is None:
+        judged = self._judge(role, text, now)
+        if judged is None:
             return
+        value, plausible = judged
         tracker = self._trackers[role]
         old = tracker.value
         counts_down = role == LAPS_TO_GO
         # the laps raced by this change: a lap is 1
         raced = None if old is None else (old - value if counts_down else value - old)
-        plausible = old is None or raced == 1
         if not tracker.offer(value, text, now, plausible, CONFIRM_READINGS):
             return
         # with both counters on the board, the laps to go make the events
@@ -545,12 +662,12 @@ class GameEngine:
         return total - completed
 
     def _read_period(self, text: str, now: float, events: list):
-        period = parse_period(text, self.sport)
-        if period is None:
+        judged = self._judge(PERIOD, text, now)
+        if judged is None:
             return
+        period, plausible = judged
         tracker = self._trackers[PERIOD]
         old = tracker.value
-        plausible = old is None or period == old + 1
         if not tracker.offer(period, text, now, plausible, CONFIRM_READINGS):
             return
         self._line.setdefault(period, [0, 0])
@@ -561,16 +678,12 @@ class GameEngine:
         self._emit(PERIOD_START, events)
 
     def _read_clock(self, text: str, now: float, events: list):
-        if self.sport.clock_counts_down is None:
+        judged = self._judge(CLOCK, text, now)
+        if judged is None:
             return
-        seconds = parse_clock(text)
-        if seconds is None:
-            return
+        seconds, small = judged
         tracker = self._trackers[CLOCK]
         old = tracker.value
-        small = old is None or self._small_clock_move(
-            old, seconds, tracker.seen_at, now
-        )
         tracker.seen_at = now
         if not tracker.offer(seconds, text, now, small, 1):
             return

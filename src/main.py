@@ -63,6 +63,7 @@ SELF_TEST_MODULES = (
     "overlay_feed",
     "overlay_ui_handler",
     "overlays",
+    "plausibility_holds",
     "ppocr_engine",
     "readings_view",
     "resizable_rect",

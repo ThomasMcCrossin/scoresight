@@ -366,6 +366,40 @@ def test_the_sport_choice_follows_the_game(main_window, make_result):
     assert main_window.gameEngine.events == ()
 
 
+def test_a_change_the_sport_does_not_allow_is_held_back(
+    main_window, patched, make_result
+):
+    client = FakeObsClient()
+    main_window.obs_websocket_client = client
+    ui = main_window.ui
+    ui.comboBox_sport.setCurrentIndex(ui.comboBox_sport.findData("basketball"))
+    clock = [1000.0]
+    main_window.gameEngine._clock = lambda: clock[0]
+
+    def read(text, state="Success"):
+        clock[0] += 0.5
+        main_window.ocrResult([make_result("Home Score", text, state)])
+
+    read("21")
+    read("21", "SameNoChange")
+    read("81")  # a flicker
+    assert "Home Score" in main_window.plausibilityHolds
+    read("21")
+    for _ in range(7):  # a correction, read steadily for 3 s
+        read("18")
+    texts = [text for _, source, text in patched["obs"] if source == "Home score"]
+    assert "81" not in texts and texts[-1] == "18"
+    # the game followed the readings themselves
+    assert [e.text() for e in main_window.gameEngine.events] == [
+        "Home score corrected to 18 (18–?)"
+    ]
+    # a value held by the operator goes out as it is
+    main_window.heldValues.hold("Home Score", "95")
+    read("18")
+    texts = [text for _, source, text in patched["obs"] if source == "Home score"]
+    assert texts[-1] == "95"
+
+
 def test_the_sport_is_restored(make_window):
     from storage import store_data
 

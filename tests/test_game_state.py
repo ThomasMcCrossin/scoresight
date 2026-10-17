@@ -698,3 +698,86 @@ def test_race_status_text(game, qapp):
     assert status_text(other.engine.state(), sports.RACING).startswith(
         "No field is named like the laps"
     )
+
+
+# --- held back from the outputs -------------------------------------------------------
+
+
+@pytest.fixture
+def cycle(game, make_result):
+    """cycle(g, step=0.5, skip=(), **values) -> (held_back, events): one cycle as
+    MainWindow.ocrResult runs it."""
+
+    def run(g, step=0.5, skip=frozenset(), **values):
+        g.clock.now += step
+        results = [
+            make_result(key.replace("_", " "), text) for key, text in values.items()
+        ]
+        held = g.engine.held_back(results, skip=skip)
+        return held, g.engine.update(results)
+
+    return run
+
+
+def test_a_change_the_sport_allows_is_not_held_back(game, cycle):
+    g = start_basketball(game, home="21")
+    assert cycle(g, Home_Score="23") == ({}, [])
+    held, events = cycle(g, Home_Score="23")
+    assert held == {} and g.kinds(events) == [SCORE]
+
+
+def test_a_flicker_is_held_back(game, cycle):
+    g = start_basketball(game, home="21")
+    held, events = cycle(g, Home_Score="81")
+    assert held == {
+        "Home Score": "a score going up by 60, which Basketball doesn't allow"
+    }
+    assert events == []
+    assert cycle(g, Home_Score="21") == ({}, [])
+    held, _ = cycle(g, Home_Score="19")
+    assert held["Home Score"].startswith("a score going down")
+
+
+def test_a_correction_is_held_back_until_the_game_counts_it(game, cycle):
+    g = start_basketball(game, home="21")
+    for _ in range(6):  # 0.5 s apart: not 3 s yet
+        held, events = cycle(g, Home_Score="18")
+        assert "Home Score" in held and events == []
+    # read steadily for 3 s: counted, and no longer held back
+    held, events = cycle(g, Home_Score="18")
+    assert held == {} and g.kinds(events) == [SCORE]
+    assert events[0].text() == "Home score corrected to 18 (18–0)"
+
+
+def test_held_back_judges_every_followed_field(game, cycle):
+    g = start_basketball(game, period="2", time="8:00")
+    held, _ = cycle(g, Period="4", Time="1:00", Home_Fouls="0", Shot_Clock="99")
+    assert held == {
+        "Period": "the period going from 2 to 4, which Basketball doesn't allow",
+        "Time": "the clock jumping from 8:00 to 1:00, which Basketball doesn't allow",
+    }
+    # the fouls are known once read twice; the shot clock isn't judged
+    cycle(g, Home_Fouls="0")
+    held, _ = cycle(g, Home_Fouls="5")
+    assert held == {"Home Fouls": "a change of +5, which Basketball doesn't allow"}
+    # a clock that runs isn't held back
+    assert cycle(g, step=1.0, Time="7:59")[0] == {}
+
+
+def test_held_back_skips_and_follows_no_sport(game, cycle, make_result):
+    g = start_basketball(game, home="21")
+    assert cycle(g, skip={"Home Score"}, Home_Score="81")[0] == {}
+    assert cycle(game(sports.NONE), Home_Score="81")[0] == {}
+    # rejected readings aren't judged
+    results = [make_result("Home Score", "8l", "FailedFilter")]
+    assert g.engine.held_back(results) == {}
+
+
+def test_lap_board_misreads_are_held_back(game, cycle):
+    g = start_race(game, Laps_To_Go="10")
+    held, _ = cycle(g, Laps_To_Go="99")
+    assert held == {
+        "Laps To Go": "the laps to go going from 10 to 99, which Racing (laps) "
+        "doesn't allow"
+    }
+    assert cycle(g, Laps_To_Go="9")[0] == {}

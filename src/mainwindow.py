@@ -100,6 +100,7 @@ from keyboard_shortcuts import (
 )
 from obs_ui_handler import OBSSourcesTable
 from overlay_ui_handler import OverlayBuilder
+from plausibility_holds import PlausibilityHolds
 from readings_view import (
     DENSITY_LIVE,
     DENSITY_SETUP,
@@ -377,6 +378,8 @@ class MainWindow(QMainWindow):
         self.heldValues = HeldValues()
         # the game, for the sport chosen (game_state.py; None: nothing)
         self.gameEngine = GameEngine()
+        # a change the sport doesn't allow goes out once the game counts it
+        self.plausibilityHolds = PlausibilityHolds()
         # View > Setup layout or Live layout (applied by setupLayout)
         self.layoutMode = LAYOUT_SETUP
         self.updateWindowTitle()
@@ -4619,13 +4622,28 @@ class MainWindow(QMainWindow):
         # them. The OCR's own readings are still shown in the boxes list.
         readings = results
         results = self.heldValues.apply(results)
+        # Plausibility holds: with a sport chosen, a change the sport doesn't
+        # allow (21 -> 81) is held back (the outputs keep their value) until
+        # the game counts it. Not a held or a template field: the operator's
+        # value goes out as it is, and a template is built from what is sent.
+        followed = results
+        held_back = self.gameEngine.held_back(
+            results,
+            skip={
+                result.name
+                for result in results
+                if result.name in self.heldValues or is_template_field(result)
+            },
+        )
+        results = self.plausibilityHolds.apply(results, held_back)
         # fill in the template fields from the boxes' last good readings; a
         # template is Success when its text changed, SameNoChange otherwise
+        # (in place: followed has the same template results)
         apply_template_fields(results)
         self.heldValues.finish_released(results)
-        # the game follows what the outputs get (held values too), also while
-        # the outputs are paused
-        events = self.gameEngine.update(results)
+        # the game follows the readings (held values and templates too, not
+        # the plausibility holds), also while the outputs are paused
+        events = self.gameEngine.update(followed)
         if events:
             self.gameUiHandler.eventsHappened(events)
 
