@@ -30,6 +30,7 @@ In the **Box** tab of the inspector, under **All boxes**, choose the **Sport**. 
 | Basketball | +1, +2, +3 | 4 quarters (Q1–Q4, then OT) | counts down |
 | Basketball (halves) | +1, +2, +3 | 2 halves (H1, H2, then OT) | counts down |
 | Soccer | +1 | 2 halves (H1, H2) | counts up |
+| Futsal | +1 (the team fouls are followed too) | 2 halves (H1, H2, then OT) | counts down |
 | Ice hockey | +1 | 3 periods (P1–P3, then OT) | counts down |
 | American football | +1, +2, +3, +6, +7, +8 | 4 quarters (Q1–Q4, then OT) | counts down |
 | Volleyball | +1 (the scores start again each set) | up to 5 sets | none |
@@ -61,7 +62,7 @@ ScoreSight finds each field by its **name**. The standard fields (*Home Score*, 
 | Laps completed | Laps Completed, Completed Laps, Laps Done, Lap Count |
 | Total laps | Total Laps, Laps Total, Race Laps |
 
-Rename a custom field to one of these names to have it followed. The sport decides which ones are used: soccer has no fouls on the board, volleyball has no clock, a race has no scores. *Lap* alone isn't followed: on some boards it is the lap being raced, on others the laps completed.
+Rename a custom field to one of these names to have it followed. The sport decides which ones are used: soccer has no fouls on the board (futsal does: its team fouls go back to 0 at halftime), volleyball has no clock, a race has no scores. *Lap* alone isn't followed: on some boards it is the lap being raced, on others the laps completed.
 
 The values are read as a scoreboard shows them: scores and laps `0`–`999` (`09` is 9), the clock as `12:00`, `4:32`, `45.3` or `0:09.8`, the period as `2`, `2nd`, `Q2`, `P3`, `Set 4`, `OT` or `OT2`.
 

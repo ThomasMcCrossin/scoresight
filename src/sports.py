@@ -241,6 +241,27 @@ SOCCER = SportProfile(
     period_prefix="H",
     clock_counts_down=False,
 )
+# the clock stops with the ball and counts down from 20:00; the team fouls
+# (accumulated fouls: from the sixth, a free kick from 10 m) go back to 0 at
+# halftime; extra time is two halves of 5 minutes
+FUTSAL = SportProfile(
+    "futsal",
+    "Futsal",
+    (
+        HOME_SCORE,
+        AWAY_SCORE,
+        CLOCK,
+        PERIOD,
+        HOME_FOULS,
+        AWAY_FOULS,
+        HOME_TIMEOUTS,
+        AWAY_TIMEOUTS,
+    ),
+    frozenset({1}),
+    periods=2,
+    period_prefix="H",
+    clock_counts_down=True,
+)
 HOCKEY = SportProfile(
     "hockey",
     "Ice hockey",
@@ -288,6 +309,7 @@ PROFILES: dict[str, SportProfile] = {
         BASKETBALL,
         BASKETBALL_HALVES,
         SOCCER,
+        FUTSAL,
         HOCKEY,
         FOOTBALL,
         VOLLEYBALL,
