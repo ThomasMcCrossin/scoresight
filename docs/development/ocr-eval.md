@@ -115,6 +115,10 @@ Settings that only matter across frames or format the output (smoothing, "skip s
 
 **`synthetic_7seg`** (56 crops): rendered 7-segment LED and LCD displays from `tests/synthetic_images.py`, CC0. A control, not a measure of real-world accuracy; `python -m ocr_eval.builders.synthetic_7seg` rebuilds it.
 
+### Whole boards: Scoreboard Fields
+
+[Scoreboard Fields](https://huggingface.co/datasets/royshilkrot/scoreboard-fields), on Hugging Face and not used by `ocr_eval`, is for finding the fields instead of reading them: 291 whole photos (232 from Wikimedia Commons, 59 from Open Images), with a box on every field, its role (`home`, `away`, `clock`, `period` or `other`) and each board's four corners, labelled by hand. It is for training models that suggest a board's boxes and its four-corner correction. It has train, validation and test splits, and the 186 photos of `commons_scoreboards` aren't in it. The labels are CC BY 4.0, and each photo keeps its own license, listed with it.
+
 ## Metrics
 
 Both the prediction and the ground truth are normalized first: Unicode NFKC (full-width digits and colons become ASCII), every space removed, and `text`/`other` compared case-insensitively. Nothing else, and in particular **a clock's separator must match**: `12:34` (minutes:seconds) and `12.34` are different readings, ScoreSight's Time formats tell them apart, and an overlay showing the wrong one is wrong.
