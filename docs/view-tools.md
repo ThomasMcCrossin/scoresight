@@ -39,6 +39,8 @@ Boxes are positioned on the **result** of steps 1–4. Change rotation, crop or 
 
 ## Auto crop and Auto layout
 
+<a href="https://youtu.be/BYQ4KhoY6eU" target="_blank" rel="noopener"><img src="videos/16-auto-layout.jpg" width="45%" alt="Video 16: What's new: Auto crop and Auto layout with AI (2:04)"/></a>
+
 The two violet buttons with a sparkle (✨) use an AI model that has learned what scoreboards look like. They give you a starting point in one click. Check the result: the model can be wrong, so adjust or undo what it did.
 
 - **✨ Auto crop** finds the scoreboard on the whole picture and crops to it, with a little room around it, as if you had used **Drag to crop**. The boxes move with the crop, so they stay over the same digits. **Reset crop…** brings back the whole picture. If no scoreboard is found, a message says so.

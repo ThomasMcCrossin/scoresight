@@ -117,6 +117,7 @@ A short series on the current version, from the first source to your graphics:
 <a href="https://youtu.be/vMrr92-3LeI" target="_blank"><img src="docs/videos/12-uno.jpg" width="30%" alt="Video 12: overlays.uno and Singular.live scoreboards, updated live (3:29)"/></a>
 <a href="https://youtu.be/HaWNl92JLBE" target="_blank"><img src="docs/videos/13-broadcast.jpg" width="30%" alt="Video 13: Scoreboard data for CasparCG, Chyron, Vizrt and TriCaster (3:15)"/></a>
 <a href="https://youtu.be/FVqdjvmnFIU" target="_blank"><img src="docs/videos/14-profiles.jpg" width="30%" alt="Video 14: Two cameras, backups and troubleshooting (3:58)"/></a>
+<a href="https://youtu.be/BYQ4KhoY6eU" target="_blank"><img src="docs/videos/16-auto-layout.jpg" width="30%" alt="Video 16: What's new: Auto crop and Auto layout with AI (2:04)"/></a>
 </div>
 
 Older videos, about earlier versions of ScoreSight: [ScoreSight with vMix](https://youtu.be/yowoYzBWrps) (vMix now uses port **8088**; see the [vMix guide](https://royshil.github.io/scoresight/vmix.html)), [ScoreSight with NewBlue Captivate](https://youtu.be/ptR-Yh5FSPg) and [collecting OCR training data](https://youtu.be/QO76EFmJ7Ig).

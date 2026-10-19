@@ -39,7 +39,7 @@ The fastest start is the two violet buttons with a sparkle (✨) at the start of
 - **Auto crop** finds the scoreboard and crops the picture to it.
 - **Auto layout** finds the home and away scores, the clock and the period, and places their boxes. Then go on with step 4.
 
-The first click downloads ScoreSight's scoreboard model (42 MB, once). It runs on your computer: the pictures aren't sent anywhere. More details: [Auto crop and Auto layout](view-tools.md#auto-crop-and-auto-layout).
+The first click downloads ScoreSight's scoreboard model (42 MB, once). It runs on your computer: the pictures aren't sent anywhere. More details: [Auto crop and Auto layout](view-tools.md#auto-crop-and-auto-layout), and a [2-minute video](https://youtu.be/BYQ4KhoY6eU).
 
 The rest of the **Adjust picture** row helps when the camera is not square to the scoreboard:
 
