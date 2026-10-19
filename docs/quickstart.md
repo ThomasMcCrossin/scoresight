@@ -34,7 +34,14 @@ Cameras and NDI sources are found in the background, so they may appear in the l
 
 ## 2. Straighten the picture (optional)
 
-The **Adjust picture** row above the picture helps when the camera is not square to the scoreboard:
+The fastest start is the two violet buttons with a sparkle (✨) at the start of the row above the picture. They use AI, so check what they did:
+
+- **Auto crop** finds the scoreboard and crops the picture to it.
+- **Auto layout** finds the home and away scores, the clock and the period, and places their boxes. Then go on with step 4.
+
+The first click downloads ScoreSight's scoreboard model (42 MB, once). It runs on your computer: the pictures aren't sent anywhere. More details: [Auto crop and Auto layout](view-tools.md#auto-crop-and-auto-layout).
+
+The rest of the **Adjust picture** row helps when the camera is not square to the scoreboard:
 
 - **Rotate** turns the picture in 90° steps.
 - **Crop** removes the edges: click **Drag to crop** in the row that opens, then drag around the scoreboard on the whole picture. **Reset crop…** removes the crop again.

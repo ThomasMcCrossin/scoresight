@@ -3898,7 +3898,9 @@ def test_crop_off_keeps_the_values(main_window):
 def test_checked_view_tools_are_filled(main_window):
     style = main_window.ui.widget_4.styleSheet()
     assert "QToolButton:checked" in style
-    assert main_window.ui.widget_viewTools.styleSheet() == style
+    # the Adjust picture row also styles its AI buttons (in their own colour)
+    adjust = main_window.ui.widget_viewTools.styleSheet()
+    assert adjust.startswith(style) and "QToolButton#toolButton_autoCrop" in adjust
 
 
 def test_the_viewer_column_fits_its_minimum_width(reference_font, make_window, qtbot):

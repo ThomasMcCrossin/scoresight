@@ -490,6 +490,20 @@ class Ui_MainWindow(object):
         self.horizontalLayout_10.setSpacing(3)
         self.horizontalLayout_10.setObjectName(u"horizontalLayout_10")
         self.horizontalLayout_10.setContentsMargins(0, 0, 0, 3)
+        self.toolButton_autoCrop = QToolButton(self.widget_viewTools)
+        self.toolButton_autoCrop.setObjectName(u"toolButton_autoCrop")
+        self.toolButton_autoCrop.setCheckable(True)
+        self.toolButton_autoCrop.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+
+        self.horizontalLayout_10.addWidget(self.toolButton_autoCrop)
+
+        self.toolButton_autoLayout = QToolButton(self.widget_viewTools)
+        self.toolButton_autoLayout.setObjectName(u"toolButton_autoLayout")
+        self.toolButton_autoLayout.setCheckable(True)
+        self.toolButton_autoLayout.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+
+        self.horizontalLayout_10.addWidget(self.toolButton_autoLayout)
+
         self.label_adjustPicture = QLabel(self.widget_viewTools)
         self.label_adjustPicture.setObjectName(u"label_adjustPicture")
 
@@ -2648,6 +2662,14 @@ class Ui_MainWindow(object):
 #if QT_CONFIG(tooltip)
         self.label_zoom.setToolTip(QCoreApplication.translate("MainWindow", u"The zoom level. Ctrl+scroll (\u2318+scroll on macOS) zooms, scrolling moves the picture and dragging with the middle mouse button pans it.", None))
 #endif // QT_CONFIG(tooltip)
+#if QT_CONFIG(tooltip)
+        self.toolButton_autoCrop.setToolTip(QCoreApplication.translate("MainWindow", u"Find the scoreboard with AI and crop the picture to it. Reset crop brings back the whole picture.", None))
+#endif // QT_CONFIG(tooltip)
+        self.toolButton_autoCrop.setText(QCoreApplication.translate("MainWindow", u"Auto crop", None))
+#if QT_CONFIG(tooltip)
+        self.toolButton_autoLayout.setToolTip(QCoreApplication.translate("MainWindow", u"Find the home and away scores, the clock and the period with AI, and place their fields' boxes on the picture", None))
+#endif // QT_CONFIG(tooltip)
+        self.toolButton_autoLayout.setText(QCoreApplication.translate("MainWindow", u"Auto layout", None))
         self.label_adjustPicture.setText(QCoreApplication.translate("MainWindow", u"Adjust picture:", None))
 #if QT_CONFIG(tooltip)
         self.toolButton_rotate.setToolTip(QCoreApplication.translate("MainWindow", u"Rotate the picture by 90 degrees clockwise", None))

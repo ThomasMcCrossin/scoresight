@@ -8,6 +8,10 @@ Release tags are the bare version number (for example `0.1.0`).
 
 ## [Unreleased]
 
+### Added
+
+- **✨ Auto crop and ✨ Auto layout.** Two new buttons with a sparkle, in violet at the start of the Adjust picture row, set up a new source in a click with AI. **Auto crop** finds the scoreboard and crops the picture to it (Reset crop undoes it). **Auto layout** finds the home and away scores, the clock and the period, and places the boxes of Home Score, Away Score, Time and Period; it asks before moving boxes you already placed. They use ScoreSight's own scoreboard model, downloaded once (42 MB, after asking) from [Hugging Face](https://huggingface.co/royshilkrot/scoreboard-layout), where its evaluation is published. It runs on your computer: the pictures aren't sent anywhere. Check what it did: it finds the scoreboard on about 9 photos in 10, and does best on close-up views.
+
 ## [0.3.4] - 2026-10-17
 
 Misreads stay off the air: with a sport chosen, a change the sport doesn't

@@ -35,6 +35,8 @@ DEFAULT_LOCALE = "en_US"
 SELF_TEST_MODULES = (
     "api_output",
     "api_ui_handler",
+    "auto_layout",
+    "auto_layout_ui",
     "base_video_capture",
     "box_settings_ui_handler",
     "camera_info",

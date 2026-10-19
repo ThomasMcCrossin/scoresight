@@ -2,7 +2,7 @@
 title: Viewer & Image Tools
 parent: Guides
 nav_order: 2
-description: "Zoom and pan the viewer, Binary View, 4-corner perspective correction, crop, rotate, stabilize, box display styles and the statistics overlay."
+description: "Zoom and pan the viewer, Auto crop and Auto layout (AI), Binary View, 4-corner perspective correction, crop, rotate, stabilize, box display styles and the statistics overlay."
 ---
 
 # Viewer & Image Tools
@@ -13,7 +13,7 @@ The large viewer shows the source picture with your boxes on top. Above it are t
 <a href="https://youtu.be/XUPebWz5Cuc" target="_blank" rel="noopener"><img src="videos/03-straighten.jpg" width="45%" alt="Video: Straighten the scoreboard picture: rotate, crop, 4-corner, stabilize (3:08)"/></a>
 
 - The **source bar**: the [source](sources.md) and, on the right, the **view tools**: **Binary View**, **Boxes:** (the box display style), **Stats**, **Fit** and the zoom level. They change only what you see.
-- **Adjust picture:** **Rotate**, **Crop**, **4-corner** and **Stabilize**. They change the picture every box is read from, so set them before you place your boxes.
+- **✨ Auto crop** and **✨ Auto layout**, which find the scoreboard and its fields with AI, then **Adjust picture:** **Rotate**, **Crop**, **4-corner** and **Stabilize**. They change the picture every box is read from, so set them before you place your boxes.
 
 In a narrow window the view tools show icons only; their tooltips name them.
 
@@ -36,6 +36,19 @@ Every frame goes through the same steps, in this order:
 6. Read every box with its own [per-box settings](box-settings.md), each on its own copy of the picture.
 
 Boxes are positioned on the **result** of steps 1–4. Change rotation, crop or 4-corner correction first, then place your boxes. A crop change moves the boxes with it, so they stay over the same digits; after a rotation or a new 4-corner correction, check that the boxes still sit on the right digits.
+
+## Auto crop and Auto layout
+
+The two violet buttons with a sparkle (✨) use an AI model that has learned what scoreboards look like. They give you a starting point in one click. Check the result: the model can be wrong, so adjust or undo what it did.
+
+- **✨ Auto crop** finds the scoreboard on the whole picture and crops to it, with a little room around it, as if you had used **Drag to crop**. The boxes move with the crop, so they stay over the same digits. **Reset crop…** brings back the whole picture. If no scoreboard is found, a message says so.
+- **✨ Auto layout** finds the **home score**, the **away score**, the **clock** and the **period** on the picture the boxes are read from, and places the boxes of **Home Score**, **Away Score**, **Time** and **Period**. Fields that already have a box are moved only if you agree: it asks **Move them**, **Keep them** (only the new ones are placed) or **Cancel**. Other fields, such as fouls or the shot clock, aren't found yet: place them by hand.
+
+While the model looks, its button is highlighted and says **Finding the scoreboard…** or **Finding the fields…**: about a second on a typical computer.
+
+**The model.** The first click asks before downloading ScoreSight's scoreboard model (42 MB) from [Hugging Face](https://huggingface.co/royshilkrot/scoreboard-layout). It is kept in ScoreSight's settings folder, under `models`, and not downloaded again. The model runs on your computer: the pictures are never sent anywhere. Set `HF_ENDPOINT` to download it from a Hugging Face mirror.
+
+**How well it works.** The model was trained on a few hundred photos of scoreboards. It finds the scoreboard on about 9 photos in 10. Close-up views of a scoreboard work best: on frames of users' videos it got all of home, away and the clock right on 5 of 7. On wide shots of a whole arena, about half the time. When it misses, Auto crop first can help, then Auto layout again, or place the boxes by hand.
 
 ## Navigating the viewer
 
