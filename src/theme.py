@@ -28,6 +28,11 @@ _COLORS = {
     "paused": ("#BC4C00", "#F0883E"),  # outputs paused
 }
 
+# (light, dark) colour of the AI features (Auto crop, Auto layout): their
+# buttons carry a sparkle in it, so it's clear the model suggests, not knows
+_AI_COLOR = ("#8250DF", "#A371F7")
+_AI_TINT = ("#FBEFFF", "#2B1D45")
+
 # (light, dark) background tint of the paused banner
 _PAUSED_TINT = ("#FFF1E5", "#3D2410")
 # (light, dark) background tints of messages about a problem, by colour name
@@ -177,8 +182,8 @@ def overlay_color(name: str) -> QColor:
 def tool_icon(kind: str, color: QColor, size: int = 16) -> QIcon:
     """An icon drawn in color, so it stays visible on light and dark buttons:
     "reload" (a circular arrow), "settings" (a gear), "binary" (a square half
-    filled), "stats" (bars), "fit" (four corners) or "chat" (a speech
-    bubble)."""
+    filled), "stats" (bars), "fit" (four corners), "chat" (a speech bubble) or
+    "sparkle" (a big and a small four-pointed star: the AI features)."""
     ratio = 2.0  # sharp on high-DPI screens
     pixmap = QPixmap(round(size * ratio), round(size * ratio))
     pixmap.setDevicePixelRatio(ratio)
@@ -266,8 +271,62 @@ def tool_icon(kind: str, color: QColor, size: int = 16) -> QIcon:
         tail.lineTo(QPointF(8.5 * unit, 10.5 * unit))
         tail.closeSubpath()
         painter.drawPath(bubble.united(tail))
+    elif kind == "sparkle":
+        painter.setPen(Qt.PenStyle.NoPen)
+        painter.setBrush(color)
+        for cx, cy, r in ((6.5, 9.0, 6.0), (12.8, 3.6, 2.9)):
+            painter.drawPath(_star(QPointF(cx * unit, cy * unit), r * unit))
     painter.end()
     return QIcon(pixmap)
+
+
+def ai_color(palette: QPalette | None = None) -> QColor:
+    """The colour of the AI features' buttons (violet)."""
+    light, dark = _AI_COLOR
+    return QColor(dark if is_dark(palette) else light)
+
+
+def ai_button_style(names, palette: QPalette | None = None) -> str:
+    """A style sheet for the AI features' tool buttons (by object name): the
+    AI colour's text and border on its light (or dark) tint, filled while
+    busy (checked). A pixel less padding than tool_button_style's on each
+    side, so that the viewer column keeps its minimum width."""
+    palette = _palette(palette)
+    role = QPalette.ColorRole
+    disabled = QPalette.ColorGroup.Disabled
+    color = ai_color(palette).name()
+    light, dark = _AI_TINT
+    background = dark if is_dark(palette) else light
+    return "".join(
+        f"QToolButton#{name} {{"
+        f" background-color: {background}; color: {color};"
+        f" border: 1px solid {color}; border-radius: 3px; padding: 2px 4px; }}"
+        f" QToolButton#{name}:hover {{ background-color: {palette.color(role.Base).name()}; }}"
+        f" QToolButton#{name}:checked {{ background-color: {color};"
+        f" color: {on_color(palette).name()}; }}"
+        f" QToolButton#{name}:disabled {{"
+        f" color: {palette.color(disabled, role.ButtonText).name()};"
+        f" border-color: {palette.color(disabled, role.Mid).name()}; }}"
+        for name in names
+    )
+
+
+def _star(center: QPointF, radius: float) -> QPainterPath:
+    """A four-pointed star with concave sides (a sparkle)."""
+    path = QPainterPath(center + QPointF(0, -radius))
+    waist = 0.18 * radius
+    for dx, dy, wx, wy in (
+        (1, 0, 1, -1),
+        (0, 1, 1, 1),
+        (-1, 0, -1, 1),
+        (0, -1, -1, -1),
+    ):
+        path.quadTo(
+            center + QPointF(wx * waist, wy * waist),
+            center + QPointF(dx * radius, dy * radius),
+        )
+    path.closeSubpath()
+    return path
 
 
 def tool_button_style(palette: QPalette | None = None) -> str:

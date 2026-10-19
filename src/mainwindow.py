@@ -53,6 +53,7 @@ from os import path
 
 from api_output import out_api_status, send_mode, update_out_api
 from api_ui_handler import APIUIHandler, OUT_API_ENCODINGS, OUT_API_METHODS
+from auto_layout_ui import AutoLayoutUI
 from box_settings_ui_handler import (
     NOT_PLACED,
     PLACED,
@@ -3985,6 +3986,8 @@ class MainWindow(QMainWindow):
             )
         for label in (ui.label_firstRunBoxesHint, ui.label_firstRunOutputsHint):
             label.setForegroundRole(QPalette.ColorRole.PlaceholderText)
+        # ✨ Auto crop and ✨ Auto layout
+        self.autoLayoutUi = AutoLayoutUI(self)
         self.compactRows = []
         self.applyViewerStyles()
         # A narrow viewer column (at least VIEWER_MIN_WIDTH): the view tools
@@ -4008,6 +4011,7 @@ class MainWindow(QMainWindow):
                 ui.widget_viewTools,
                 labels=[ui.label_adjustPicture],
                 ignore=[ui.label_adjustHint],
+                icon_buttons=[ui.toolButton_autoCrop, ui.toolButton_autoLayout],
             ),
             # Drag to crop and Reset crop go under the values
             source_bar.CompactToolRow(
@@ -4052,6 +4056,7 @@ class MainWindow(QMainWindow):
         self.updateRotateText()
         self.updateZoomReadout()
         self.updateFourCornerUi()
+        self.autoLayoutUi.applyTexts()
         self.updateSourceBanner()
         self.ui.label_firstRunQuickstart.setText(
             source_bar.quickstart_link() + "<br>" + source_bar.community_link()
@@ -4077,9 +4082,16 @@ class MainWindow(QMainWindow):
         # a checked toggle (Binary View, Stats, Crop, 4-corner, Stabilize) is
         # filled: on and off are told apart at a glance
         style = theme.tool_button_style(palette)
-        for row in (ui.widget_4, ui.widget_viewTools, ui.widget_cropPanel):
-            if row.styleSheet() != style:
-                row.setStyleSheet(style)
+        # the AI features' buttons in their own colour
+        auto_style = style + self.autoLayoutUi.styleSheet(palette)
+        for row, row_style in (
+            (ui.widget_4, style),
+            (ui.widget_viewTools, auto_style),
+            (ui.widget_cropPanel, style),
+        ):
+            if row.styleSheet() != row_style:
+                row.setStyleSheet(row_style)
+        self.autoLayoutUi.applyStyle(palette)
         icon_color = theme.button_text_color(palette)
         for button, kind in (
             (ui.pushButton_refresh_sources, "reload"),
@@ -4490,6 +4502,69 @@ class MainWindow(QMainWindow):
             # Fit (the cropped picture is fitted again when it arrives, if its
             # size changed)
             self.image_viewer.resetZoom()
+
+    # ✨ Auto crop and ✨ Auto layout (auto_layout_ui)
+
+    def applyAutoCrop(self, rect: QRectF, frame: QSizeF):
+        """Auto crop found the scoreboard: the crop around it (rect, on the
+        whole rotated picture of size frame), as if it was dragged."""
+        logger.info("Auto crop: cropping to the scoreboard")
+        self.cropDrawn(rect, frame)
+
+    def applyAutoLayout(self, fields: dict[str, QRectF]):
+        """Auto layout found fields (name: box on the picture): the fields
+        without a box get it; those with one are moved there if the user
+        says so."""
+        storage = self.detectionTargetsStorage
+        placed = [name for name in fields if storage.find_item_by_name(name)]
+        move = False
+        if placed:
+            move = self.askAutoLayoutMove(list(fields), placed)
+            if move is None:
+                return
+        changed = []
+        for name, rect in fields.items():
+            box = storage.find_item_by_name(name)
+            if box is None:
+                if self.placeFieldBox(name, rect):
+                    changed.append(name)
+            elif move and not (box.settings or {}).get("templatefield"):
+                box.setRect(rect.x(), rect.y(), rect.width(), rect.height())
+                storage.edit_item(name, box)
+                changed.append(name)
+        logger.info("Auto layout placed: %s", ", ".join(changed) or "nothing")
+
+    def askAutoLayoutMove(self, found: list[str], placed: list[str]) -> bool | None:
+        """Auto layout found fields of which some have boxes already: True to
+        move those boxes too, False to keep them, None to place nothing."""
+        box = QMessageBox(
+            QMessageBox.Icon.Question,
+            QCoreApplication.translate("MainWindow", "Move the boxes?"),
+            QCoreApplication.translate(
+                "MainWindow",
+                "Auto layout found {found}. Some of them have boxes on the "
+                "picture already ({placed}): move those boxes to what it found?",
+            ).format(found=", ".join(found), placed=", ".join(placed)),
+            parent=self,
+        )
+        move = box.addButton(
+            QCoreApplication.translate("MainWindow", "Move them"),
+            QMessageBox.ButtonRole.AcceptRole,
+        )
+        keep = box.addButton(
+            QCoreApplication.translate("MainWindow", "Keep them"),
+            QMessageBox.ButtonRole.RejectRole,
+        )
+        box.addButton(QMessageBox.StandardButton.Cancel)
+        box.setDefaultButton(move)
+        box.exec()
+        clicked = box.clickedButton()
+        box.deleteLater()
+        if clicked is move:
+            return True
+        if clicked is keep:
+            return False
+        return None
 
     def resetCrop(self):
         """Reset crop (after asking): the crop's values back to 0 and the crop

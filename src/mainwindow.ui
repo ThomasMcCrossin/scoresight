@@ -756,6 +756,38 @@
            <number>3</number>
           </property>
           <item>
+           <widget class="QToolButton" name="toolButton_autoCrop">
+            <property name="toolTip">
+             <string>Find the scoreboard with AI and crop the picture to it. Reset crop brings back the whole picture.</string>
+            </property>
+            <property name="text">
+             <string>Auto crop</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+            <property name="toolButtonStyle">
+             <enum>Qt::ToolButtonTextBesideIcon</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolButton" name="toolButton_autoLayout">
+            <property name="toolTip">
+             <string>Find the home and away scores, the clock and the period with AI, and place their fields' boxes on the picture</string>
+            </property>
+            <property name="text">
+             <string>Auto layout</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+            <property name="toolButtonStyle">
+             <enum>Qt::ToolButtonTextBesideIcon</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QLabel" name="label_adjustPicture">
             <property name="text">
              <string>Adjust picture:</string>

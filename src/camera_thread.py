@@ -567,6 +567,11 @@ class TimerThread(QThread):
         self.preview_uncropped = False
         # When the boxes last moved with the crop (boxesMoved), on _clock
         self.boxes_moved_at: float | None = None
+        # The last frame transformed (at least once a second), as read and as
+        # the boxes see it (rotated, cropped, stabilized and corrected): what
+        # Auto crop and Auto layout look at (latestRotatedFrame, latestPicture)
+        self.latest_source = None
+        self.latest_picture = None
         self.last_frame_timestamp = None
         self.last_update_timestamp = None
         self.last_emit_time = None
@@ -862,6 +867,8 @@ class TimerThread(QThread):
         source = frame_rgb
         adjusted = self.adjust_frame(frame_rgb)
         frame_rgb = self.correct_frame(adjusted)
+        self.latest_source = source
+        self.latest_picture = frame_rgb
         show_binary = self.show_binary
         targets = None
         gray = None
@@ -914,6 +921,16 @@ class TimerThread(QThread):
                 self.update_signal.emit(display)
             else:
                 self.update_signal.emit(frame_rgb)
+
+    def latestRotatedFrame(self):
+        """The last frame transformed, rotated only (the picture Drag to crop
+        shows), or None before one."""
+        source = self.latest_source
+        return None if source is None else self.rotate_frame(source)
+
+    def latestPicture(self):
+        """The last picture the boxes were read from, or None before one."""
+        return self.latest_picture
 
     def boxesMoved(self):
         """The boxes were moved to stay on the same part of the picture,

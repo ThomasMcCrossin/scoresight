@@ -273,14 +273,17 @@ class CompactToolRow(QObject):
         wraps=(),
         area: QWidget | None = None,
         ignore=(),
+        icon_buttons=(),
     ):
         """wraps: (widget, (row, column[, rowspan, colspan[, alignment]]) as
         designed, (...) wrapped) of the row's grid layout; ignore: widgets
         whose width isn't needed (they hide by themselves when there's no
-        room)."""
+        room); icon_buttons: buttons that also show their icon as designed
+        (beside their text)."""
         super().__init__(row)
         self.row = row
-        self.buttons = list(buttons)
+        self.buttons = list(buttons) + list(icon_buttons)
+        self.icon_buttons = list(icon_buttons)
         self.labels = list(labels)
         self.wraps = list(wraps)
         self.area = area if area is not None else row
@@ -356,12 +359,13 @@ class CompactToolRow(QObject):
 
     def apply(self, step: int):
         self.step = step
-        style = (
-            Qt.ToolButtonStyle.ToolButtonIconOnly
-            if step > 0
-            else Qt.ToolButtonStyle.ToolButtonTextOnly
-        )
         for button in self.buttons:
+            if step > 0:
+                style = Qt.ToolButtonStyle.ToolButtonIconOnly
+            elif button in self.icon_buttons:
+                style = Qt.ToolButtonStyle.ToolButtonTextBesideIcon
+            else:
+                style = Qt.ToolButtonStyle.ToolButtonTextOnly
             button.setToolButtonStyle(style)
         for label in self.labels:
             label.setVisible(step == 0)
