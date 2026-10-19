@@ -8,6 +8,14 @@ Release tags are the bare version number (for example `0.1.0`).
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-10-19
+
+Set up a new source in two clicks: ✨ Auto crop finds the scoreboard, and
+✨ Auto layout places the scores, the clock and the period, with ScoreSight's
+own AI model running on your computer. 0.3.4 wasn't released on its own, so
+this release also brings its changes (below): misreads held off the air, lap
+races, team names on the overlays and the Feedback link.
+
 ### Added
 
 - **✨ Auto crop and ✨ Auto layout.** Two new buttons with a sparkle, in violet at the start of the Adjust picture row, set up a new source in a click with AI. **Auto crop** finds the scoreboard and crops the picture to it (Reset crop undoes it). **Auto layout** finds the home and away scores, the clock and the period, and places the boxes of Home Score, Away Score, Time and Period; it asks before moving boxes you already placed. They use ScoreSight's own scoreboard model, downloaded once (42 MB, after asking) from [Hugging Face](https://huggingface.co/royshilkrot/scoreboard-layout), where its evaluation is published. It runs on your computer: the pictures aren't sent anywhere. Check what it did: it finds the scoreboard on about 9 photos in 10, and does best on close-up views.
@@ -1085,7 +1093,8 @@ end to end on every platform before it ships. Highlights:
 
 - First open-source release of ScoreSight.
 
-[Unreleased]: https://github.com/royshil/scoresight/compare/0.3.4...HEAD
+[Unreleased]: https://github.com/royshil/scoresight/compare/0.4.0...HEAD
+[0.4.0]: https://github.com/royshil/scoresight/compare/0.3.4...0.4.0
 [0.3.4]: https://github.com/royshil/scoresight/compare/0.3.3...0.3.4
 [0.3.3]: https://github.com/royshil/scoresight/compare/0.3.2...0.3.3
 [0.3.2]: https://github.com/royshil/scoresight/compare/0.3.1...0.3.2
