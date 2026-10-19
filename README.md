@@ -132,6 +132,7 @@ The full documentation is at **[royshil.github.io/scoresight](https://royshil.gi
 - **Reference**: [Per-Box Settings](https://royshil.github.io/scoresight/box-settings.html), [Settings, Files & Command Line](https://royshil.github.io/scoresight/configuration.html), [Keyboard & Mouse](https://royshil.github.io/scoresight/keyboard-mouse.html)
 - **Help**: [Troubleshooting](https://royshil.github.io/scoresight/troubleshooting.html), [FAQ](https://royshil.github.io/scoresight/faq.html)
 - **Development**: [Developer Guide](https://royshil.github.io/scoresight/development/)
+- **Data**: [Scoreboard Fields](https://huggingface.co/datasets/royshilkrot/scoreboard-fields) on Hugging Face, 291 photos of real scoreboards with every field boxed and named (home and away score, clock, period, other) and each board's corners marked
 
 What's new: see the [CHANGELOG](CHANGELOG.md).
 
