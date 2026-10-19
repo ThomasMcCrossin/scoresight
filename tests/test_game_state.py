@@ -458,6 +458,59 @@ def test_a_clock_counting_the_other_way_is_learned(game):
     assert g.kinds(events) == [PERIOD_END]
 
 
+def start_futsal(game, home="0", away="0", period="1", time="20:00", fouls="0"):
+    g = game(sports.FUTSAL)
+    for _ in range(2):
+        assert (
+            g.read(
+                Home_Score=home,
+                Away_Score=away,
+                Period=period,
+                Time=time,
+                Home_Fouls=fouls,
+                Away_Fouls=fouls,
+            )
+            == []
+        )
+    return g
+
+
+def test_futsal_follows_the_team_fouls_and_a_clock_counting_down(game):
+    g = start_futsal(game, home="3", away="1", time="0:02")
+    for _ in range(2):
+        events = g.read(step=1.0, Home_Fouls="1")
+    assert [(e.kind, e.team, e.value) for e in events] == [(FOULS, "home", 1)]
+    g.read(step=1.0, Time="0:01")
+    events = g.read(step=1.0, Time="0:00")
+    assert g.kinds(events) == [PERIOD_END]
+    assert events[0].text() == "End of H1 (3–1)"
+    # the second half: the team fouls go back to 0
+    for _ in range(2):
+        events = g.read(step=1.0, Period="2", Time="20:00", Home_Fouls="0")
+    assert sorted(g.kinds(events)) == [FOULS, PERIOD_START]
+
+
+def test_futsal_ends_at_0_00_of_the_second_half(game):
+    g = start_futsal(game, home="3", away="1", period="2", time="0:01")
+    for _ in range(4):
+        g.read(step=1.0, Time="0:00")
+    final = [e for e in g.engine.events if e.kind == FINAL]
+    assert len(final) == 1 and final[0].text() == "Final (3–1)"
+
+
+def test_futsal_scores_go_up_one_goal_at_a_time(game, cycle):
+    # a dot-matrix 3 misread as 9 (#136) is held back from the outputs
+    g = start_futsal(game, home="3", away="1", time="2:15")
+    held, events = cycle(g, Home_Score="9")
+    assert (
+        held == {"Home Score": "a score going up by 6, which Futsal doesn't allow"}
+        and events == []
+    )
+    assert cycle(g, Home_Score="4") == ({}, [])
+    held, events = cycle(g, Home_Score="4")
+    assert held == {} and [(e.kind, e.delta) for e in events] == [(SCORE, 1)]
+
+
 # --- a lap race -----------------------------------------------------------------------
 
 

@@ -58,6 +58,7 @@ def sport_names() -> dict[str, str]:
             "Sports", "Basketball (halves)"
         ),
         "soccer": QCoreApplication.translate("Sports", "Soccer"),
+        "futsal": QCoreApplication.translate("Sports", "Futsal"),
         "hockey": QCoreApplication.translate("Sports", "Ice hockey"),
         "football": QCoreApplication.translate("Sports", "American football"),
         "volleyball": QCoreApplication.translate("Sports", "Volleyball"),
