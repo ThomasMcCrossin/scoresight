@@ -23,6 +23,8 @@ from tcp_output import (
     TCP_SERVER,
     UDP,
     VIZRT,
+    WEBSOCKET,
+    WEBSOCKET_JSON,
     TcpConfig,
     TcpOutput,
     default_field_name,
@@ -38,7 +40,9 @@ from tcp_output import (
     snake_name,
     values_xml,
     visible_text,
+    websocket_target,
 )
+from websocket_server import WebSocketServer
 
 WAIT = 10.0  # seconds to wait for something to arrive
 
@@ -1204,3 +1208,211 @@ def test_too_many_programs_are_refused(make_output, clients, monkeypatch):
     third = clients(port)
     assert wait_until(lambda: third.closed)
     assert client_count(output) == 2
+
+
+# --- WebSocket: ScoreSight connects to a ws:// or wss:// URL ---------------------------
+
+
+@pytest.fixture
+def ws_servers():
+    created = []
+
+    def _make(**kwargs) -> WebSocketServer:
+        server = WebSocketServer(**kwargs)
+        created.append(server)
+        return server
+
+    yield _make
+    for server in created:
+        server.close()
+
+
+def websocket_config(url: str, preset: str = WEBSOCKET_JSON, **changes) -> TcpConfig:
+    return TcpConfig.from_dict(
+        {
+            **TcpConfig().with_preset(preset).to_dict(),
+            "transport": WEBSOCKET,
+            "url": url,
+            **changes,
+        }
+    )
+
+
+def test_websocket_config():
+    config = websocket_config("wss://user:pw@scores.example.com/live?token=s3cret")
+    assert config.websocket and config.is_complete
+    # the status and the log never show the login, the path or the query
+    assert config.target == "scores.example.com:443"
+    assert websocket_target("ws://127.0.0.1:8080/x") == "127.0.0.1:8080"
+    assert websocket_target("ws://[::1]/x") == "[::1]:80"
+    for url in ("", "http://example.com", "wss://", "ws://host:port/", "example.com"):
+        assert websocket_target(url) is None, url
+        assert not websocket_config(url).is_complete
+    # new headers need a new handshake: another endpoint
+    assert config.endpoint != replace(config, headers="X-Key: 1").endpoint
+    stored = TcpConfig.from_dict({**config.to_dict(), "url": "  ws://a/b  "})
+    assert (stored.url, stored.headers) == ("ws://a/b", "")
+    assert TcpConfig.from_dict({"url": 5, "headers": None}) == TcpConfig()
+    # the preset: one JSON object with every field per message
+    preset = TcpConfig(url="ws://a/b").with_preset(WEBSOCKET_JSON)
+    assert (preset.transport, preset.mode, preset.template) == (
+        WEBSOCKET,
+        PER_FRAME,
+        "{json}",
+    )
+    assert (preset.line_ending, preset.escape, preset.url) == (
+        "none",
+        "none",
+        "ws://a/b",
+    )
+    # another preset goes back to TCP (and keeps the URL)
+    assert preset.with_preset(CASPARCG).transport == "tcp"
+
+
+def test_websocket_sends_a_json_message_per_change_with_the_headers(
+    ws_servers, make_output, make_result
+):
+    server = ws_servers()
+    output = make_output(
+        websocket_config(
+            server.url("/scores?token=abc"),
+            headers="Authorization: Bearer s3cret\nnot a header",
+        )
+    )
+    output.start()
+    assert wait_until(lambda: connected(output))
+    connection = server.connections[0]
+    assert connection.path == "/scores?token=abc"
+    assert connection.headers["authorization"] == "Bearer s3cret"
+    output.update([make_result("Home Score", "21"), make_result("Time", "4:27")])
+    server.wait_for(['{"Home Score": "21", "Time": "4:27"}'])
+    output.update([make_result("Home Score", "21"), make_result("Time", "4:26")])
+    server.wait_for(
+        ['{"Home Score": "21", "Time": "4:27"}', '{"Home Score": "21", "Time": "4:26"}']
+    )
+    status = tcp_status(output, product="WebSocket (JSON)")
+    assert (status.state, status.detail) == (
+        output_status.OK,
+        f"WebSocket (JSON): Connected to 127.0.0.1:{server.port}",
+    )
+    assert "token" not in status.hint
+
+
+def test_websocket_a_message_per_field(ws_servers, make_output, make_result):
+    server = ws_servers()
+    output = make_output(
+        websocket_config(
+            server.url(),
+            preset=CUSTOM,
+            template='{"name": "{field}", "value": "{value}"}',
+            escape="json",
+            line_ending="none",
+            init='{"hello": {json}}',
+        )
+    )
+    output.start()
+    server.wait_for(['{"hello": {}}'])
+    output.update([make_result("A", 'say "hi"'), make_result("B", "2")])
+    server.wait_for(
+        [
+            '{"hello": {}}',
+            '{"name": "A", "value": "say \\"hi\\""}',
+            '{"name": "B", "value": "2"}',
+        ]
+    )
+
+
+def test_websocket_messages_from_the_server_show_as_the_last_answer(
+    ws_servers, make_output
+):
+    server = ws_servers()
+    output = make_output(websocket_config(server.url()))
+    output.start()
+    server.wait_connections(1)
+    server.connections[0].send_text('{"ok": true}')
+    assert wait_until(lambda: output.connection_status().last_reply == '{"ok": true}')
+    assert tcp_status(output).hint == 'Last answer: {"ok": true}'
+
+
+def test_websocket_reconnects_when_the_server_closes_it(
+    ws_servers, make_output, make_result
+):
+    server = ws_servers()
+    output = make_output(websocket_config(server.url(), init="HELLO"))
+    output.start()
+    output.update([make_result("A", "1")])
+    server.wait_for(["HELLO", '{"A": "1"}'])
+    server.connections[0].close()
+    # a new connection: the "on connect" message and every value again
+    server.wait_connections(2)
+    server.wait_for(["HELLO", '{"A": "1"}'], index=1)
+    output.update([make_result("A", "2")])
+    server.wait_for(["HELLO", '{"A": "1"}', '{"A": "2"}'], index=1)
+
+
+def test_websocket_stop_says_goodbye(ws_servers, make_output, make_result):
+    server = ws_servers()
+    output = make_output(websocket_config(server.url()))
+    output.start()
+    assert wait_until(lambda: connected(output))
+    output.stop()
+    connection = server.connections[0]
+    assert wait_until(lambda: connection.closed)
+    assert connection.got_close  # a close frame, not just a dropped connection
+    assert tcp_status(output).state == output_status.OFF
+
+
+def test_websocket_refused_handshake_shows_and_is_retried(
+    ws_servers, make_output, make_result
+):
+    server = ws_servers(refuse=401)
+    output = make_output(
+        websocket_config(server.url("/?token=wrong"), headers="X-Key: wrong")
+    )
+    output.start()
+    output.update([make_result("A", "1")])
+    assert wait_until(lambda: output.status().retrying)
+    status = tcp_status(output)
+    assert (status.state, status.detail) == (
+        output_status.ERROR,
+        "HTTP 401: access denied",
+    )
+    assert "Headers" in status.hint
+    assert "HTTP 401: no entry" in status.technical
+    # the token is fixed: it connects, and the value arrives
+    server.refuse = None
+    server.wait_for(['{"A": "1"}'])
+    assert wait_until(lambda: tcp_status(output).state == output_status.OK)
+
+
+def test_websocket_new_headers_reconnect(ws_servers, make_output, make_result):
+    server = ws_servers()
+    output = make_output(websocket_config(server.url(), headers="X-Key: 1"))
+    output.start()
+    output.update([make_result("A", "1")])
+    server.wait_for(['{"A": "1"}'])
+    output.set_config(replace(output.config, headers="X-Key: 2"))
+    server.wait_connections(2)
+    assert server.connections[1].headers["x-key"] == "2"
+    server.wait_for(['{"A": "1"}'], index=1)
+    assert wait_until(lambda: server.connections[0].closed)
+
+
+def test_websocket_status_without_a_url_and_when_nothing_answers(
+    make_output, make_result
+):
+    output = make_output(websocket_config(""))
+    assert "over WebSocket" in tcp_status(output).hint  # off
+    output.start()
+    status = tcp_status(output)
+    assert (status.state, status.detail) == (
+        output_status.WARNING,
+        "Enter a ws:// or wss:// URL",
+    )
+    port = free_port()  # nothing listens there
+    output.set_config(replace(output.config, url=f"ws://127.0.0.1:{port}/live"))
+    output.update([make_result("A", "1")])
+    assert wait_until(lambda: output.status().retrying)
+    assert wait_until(
+        lambda: tcp_status(output).detail == f"Can't reach 127.0.0.1:{port} · retrying"
+    )

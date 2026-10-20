@@ -72,7 +72,7 @@ Our goal is simple: to be the best scoreboard-reading software on the planet, an
 | overlays.uno | UNO control app API, including Essentials | [UNO](https://royshil.github.io/scoresight/uno.html) |
 | Browser overlays | Transparent scorebug, lower third and clock pages, pushed live | [Browser overlays](https://royshil.github.io/scoresight/overlays.html) |
 | Your own endpoint | HTTP POST/PUT/GET with JSON, XML or CSV | [Outbound API](https://royshil.github.io/scoresight/out_api.html) |
-| TCP / UDP | Text lines from a template, with presets for CasparCG, Chyron PRIME, Vizrt and more | [TCP / UDP](https://royshil.github.io/scoresight/tcp-output.html) |
+| TCP / UDP | Text lines from a template, with presets for CasparCG, Chyron PRIME, Vizrt and more, or JSON messages to your own WebSocket server | [TCP / UDP](https://royshil.github.io/scoresight/tcp-output.html) |
 | Wirecast, XSplit, TriCaster, CasparCG, Chyron, XPression, Vizrt, CharacterWorks, NewBlue... | through the outputs above: 33 products, with a guide for each | [Works With…](https://royshil.github.io/scoresight/integrations.html) |
 | Streamlabs, Home Assistant, Node-RED, spreadsheets... | via text files or the HTTP server | [Other software](https://royshil.github.io/scoresight/other-software.html) |
 

@@ -2,13 +2,13 @@
 title: TCP / UDP (CasparCG, Chyron, Live Score...)
 parent: Outputs
 nav_order: 7
-description: "Send ScoreSight readings over TCP or UDP to CasparCG (AMCP), Chyron PRIME (Intelligent Interface), Live Score, MagicSoft CG, Vizrt Viz Engine (Shared Memory) or your own line protocol, or let other programs connect to ScoreSight's TCP server."
+description: "Send ScoreSight readings over TCP or UDP to CasparCG (AMCP), Chyron PRIME (Intelligent Interface), Live Score, MagicSoft CG, Vizrt Viz Engine (Shared Memory) or your own line protocol, let other programs connect to ScoreSight's TCP server, or send JSON to your own WebSocket server (ws:// or wss://)."
 ---
 
 # TCP / UDP output
 {: .no_toc }
 
-The **TCP / UDP** output sends the readings as text messages over a network socket. Many graphics systems take data this way: CasparCG, Chyron PRIME, Live Score, MagicSoft CG and Vizrt's Viz Engine have presets, and a template lets you speak any other simple line protocol. ScoreSight connects to the receiving program, or, as a [TCP server](#tcp-server-programs-connect-to-scoresight), waits for programs to connect to it.
+The **TCP / UDP** output sends the readings as text messages over a network socket. Many graphics systems take data this way: CasparCG, Chyron PRIME, Live Score, MagicSoft CG and Vizrt's Viz Engine have presets, and a template lets you speak any other simple line protocol. ScoreSight connects to the receiving program, or, as a [TCP server](#tcp-server-programs-connect-to-scoresight), waits for programs to connect to it. It can also send the messages over a [WebSocket](#websocket-scoresight-connects-to-a-url), for example JSON to a web app of your own.
 
 <a href="https://youtu.be/HaWNl92JLBE" target="_blank" rel="noopener"><img src="videos/13-broadcast.jpg" width="45%" alt="Video: Scoreboard data for CasparCG, Chyron, Vizrt and TriCaster (3:15)"/></a>
 
@@ -23,7 +23,7 @@ The **TCP / UDP** output sends the readings as text messages over a network sock
 
 1. Select **TCP / UDP** in the **Outputs** list (or click **TCP** in the status bar).
 2. Pick the receiving program in **Preset**. The preset sets the port, the template and the options for it. You can change all of them, and **Reset** sets the preset's values again.
-3. Enter the **Address** of the computer the receiving program runs on (`localhost` if it's this computer) and its **port**. Some programs have no default port: use the one set in the program (see the [presets](#presets) below). For a program that connects to its data source instead, choose **TCP server** next to the port (see [TCP server](#tcp-server-programs-connect-to-scoresight)).
+3. Enter the **Address** of the computer the receiving program runs on (`localhost` if it's this computer) and its **port** (for a WebSocket, its **URL**: see [WebSocket](#websocket-scoresight-connects-to-a-url)). Some programs have no default port: use the one set in the program (see the [presets](#presets) below). For a program that connects to its data source instead, choose **TCP server** next to the port (see [TCP server](#tcp-server-programs-connect-to-scoresight)).
 4. Check the **names** table: the name each field is sent as. An empty name leaves the field out.
 5. Click **Start sending** (or the switch of the **TCP / UDP** row).
 
@@ -63,6 +63,53 @@ To try it, connect with a terminal: `nc localhost 5300` (macOS, Linux) or `telne
 | ■ *Can't listen on port 5300* | Another program uses the port, or the system doesn't allow it: choose another one. ScoreSight tries again by itself |
 | ▲ *Enter a port* | No port is set |
 
+## WebSocket: ScoreSight connects to a URL
+
+For a web app or a server of your own that takes [WebSocket](https://developer.mozilla.org/docs/Web/API/WebSockets_API) messages (a scoring app, a Node.js or Python server...):
+
+1. Choose the **WebSocket (JSON)** preset. It chooses **WebSocket** in the list next to the address, **One message with every field** and the template `{json}`, without a line ending.
+2. Enter the **URL** of the server: `ws://192.168.1.20:8080/scores` on your network, `wss://example.com/scores` for a secure connection (over the internet).
+3. If the server needs a token, add it in **Headers**, one `Name: value` per line, for example `Authorization: Bearer <token>`. The headers go with the WebSocket handshake. A token in the URL (`?token=...`) works too: the status and the log show only the server's address and port, never the URL's login, path or query.
+4. Click **Start sending**.
+
+Each change sends one text message with every field's last good value:
+
+```json
+{"Home Score": "21", "Time": "4:27"}
+```
+
+For a message per changed field, choose **A message per changed field**, the template `{"name": "{field}", "value": "{value}"}` and the **JSON string** escaping: `{"name": "Time", "value": "4:27"}`. Any other [template](#templates) works too, and the **On connect** message is sent after each connection (for example to say which game this is). WebSocket messages are always UTF-8, so **Encoding** is off. The **Line ending**, if any, is added to each message.
+
+ScoreSight keeps the connection open, answers the server's pings and reconnects by itself, sending the "on connect" message and every value again, when the server closes it. What the server sends shows as the last answer under the button.
+
+| Status | Meaning |
+|---|---|
+| ● *WebSocket (JSON): Connected to example.com:443* | The connection is open. The time is when a value was last sent |
+| ▲ *Enter a ws:// or wss:// URL* | No URL, or one that isn't a WebSocket address |
+| ■ *HTTP 401: access denied* | The server refused the connection: the token (in **Headers** or in the URL) is missing or wrong. *HTTP 404*: there is nothing at this path. ScoreSight tries again by itself |
+| ▲ *example.com:443 closes the connection right away* | The server accepts the connection, then closes it: check the URL's path and the token |
+
+To try it, run this test server (Python, with `pip install websockets`), set the URL to `ws://localhost:8080` and click **Start sending**. It prints each message:
+
+```python
+import asyncio
+
+from websockets.asyncio.server import serve
+
+
+async def show(websocket):
+    async for message in websocket:
+        print(message)
+
+
+async def main():
+    async with serve(show, "", 8080) as server:
+        await server.serve_forever()
+
+
+asyncio.run(main())
+```
+
 ## Presets
 
 None of the presets has been tested with the real product yet. They follow the product's documentation or, where noted, another vendor's public documentation. Everything a preset sets stays editable, so you can adapt it if your version expects something else. Reports of what works are welcome on the [issue tracker](https://github.com/royshil/scoresight/issues).
@@ -74,6 +121,7 @@ None of the presets has been tested with the real product yet. They follow the p
 | [Live Score](#live-score) | TCP, the port set in Live Score | `{"type":"ocr", "values":{...}}` with every field, LF | Another OCR vendor's public guide (untested) |
 | [MagicSoft CG](#magicsoft-cg) | TCP 2034 (the example port) | `[name]=value` per changed field, CR LF | Another OCR vendor's public guide (untested) |
 | [Vizrt (Shared Memory)](#vizrt-viz-engine) | TCP or UDP, the port set in Viz | `name|value` and a NUL per changed field | Vizrt's Viz Engine documentation |
+| [WebSocket (JSON)](#websocket-scoresight-connects-to-a-url) | WebSocket, your server's URL | `{json}` with every field, as one text message per change | |
 | Custom | Your choice | `{field}={value}` per changed field, LF, to start from | |
 
 ### CasparCG
@@ -245,7 +293,7 @@ The names table has a row for each field and the name it is sent as (`{field}`, 
 | CasparCG, Vizrt | Without spaces: `HomeScore`, `ShotClock` |
 | MagicSoft CG | Lower case with `_`: `home_score`, and `clock` for Time |
 | Live Score | `ScoreHome`, `ScoreAway`, `GameClock`, `ShotClock`; others as in ScoreSight |
-| Chyron PRIME, Custom | The field names in ScoreSight: `Home Score` |
+| Chyron PRIME, WebSocket (JSON), Custom | The field names in ScoreSight: `Home Score` |
 
 Edit the right column to change a name; an empty name leaves the field out. Names you edit are kept when you change the preset, and **Reset names** uses the preset's names for every field again.
 
@@ -257,6 +305,7 @@ Edit the right column to change a name; an empty name leaves the field out. Name
 - **An answer like `404 CG ERROR`** (CasparCG): the template isn't in the templates folder, or the name, channel or layer is wrong.
 - **Strange characters**: set the **Encoding** the receiving program expects (Chyron PRIME uses ISO-8859-1 by default).
 - **UDP**: there is no connection, so ScoreSight can't tell whether the values arrive.
+- **■ HTTP 401: access denied** (WebSocket): the server wants a token: put it in **Headers** (`Authorization: Bearer <token>`) or in the URL, as your server expects. **■ No secure connection to …**: the `wss://` server's certificate isn't trusted.
 - **■ Can't listen on port …** (TCP server): another program, or another ScoreSight, listens on that port. Choose another port, in ScoreSight and in the program that connects.
 - **◐ Listening … · nothing connected** (TCP server): the other program hasn't connected. Check the address and port it connects to, and the firewall of the ScoreSight computer.
 

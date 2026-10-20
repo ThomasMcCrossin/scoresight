@@ -68,6 +68,7 @@ ScoreSight's readings can reach most broadcast graphics, streaming and productio
 | receive HTTP requests | [Outbound HTTP API](out_api.md) | One request per cycle or per field, JSON/XML/CSV or GET, with headers, a rate limit and presets |
 | listen for text over TCP or UDP | [TCP / UDP output](tcp-output.md) | Text lines from a template (`{field}={value}`, JSON, CasparCG XML...), with presets |
 | connect to a data source over TCP and read text lines | [TCP / UDP output](tcp-output.md#tcp-server-programs-connect-to-scoresight) as a **TCP server** | The same text lines, to every program that connects |
+| take messages on a WebSocket (`ws://`, `wss://`) | [TCP / UDP output](tcp-output.md#websocket-scoresight-connects-to-a-url) over a **WebSocket** | JSON with every field (or any template), a message per change, with an Authorization header if needed |
 | take NDI with alpha, but no web pages | [Browser overlays](overlays.md) through OBS | Put the overlay in an OBS scene and send it out with the DistroAV (NDI) plugin |
 
 {: .tip }

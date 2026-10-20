@@ -17,6 +17,7 @@ ScoreSight has built-in integrations for [OBS](obs.md), [vMix](vmix.md) and [ove
 | receive webhooks / HTTP requests | [Outbound HTTP API](out_api.md) |
 | take text lines over a TCP connection or UDP | [TCP / UDP output](tcp-output.md) (presets for CasparCG, Chyron PRIME, Live Score, MagicSoft CG and Vizrt) |
 | connect to a TCP server and read text lines | The [TCP / UDP output](tcp-output.md#tcp-server-programs-connect-to-scoresight) as a **TCP server** |
+| take messages on a WebSocket (`ws://`, `wss://`) | The [TCP / UDP output](tcp-output.md#websocket-scoresight-connects-to-a-url) with the **WebSocket (JSON)** preset |
 
 ## NewBlue Captivate / Titler Live
 

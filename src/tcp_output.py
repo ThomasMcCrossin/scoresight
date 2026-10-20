@@ -3,7 +3,10 @@ graphics systems with a simple line protocol (CasparCG's AMCP, Chyron PRIME's
 Intelligent Interface, Live Score, MagicSoft CG, Vizrt Viz Engine's Shared
 Memory input) or to any program that reads lines from a TCP connection or UDP
 datagrams. As a TCP server, ScoreSight listens on a port instead, and every
-program that connects gets the messages.
+program that connects gets the messages. Over a WebSocket (WEBSOCKET),
+ScoreSight connects to a ws:// or wss:// URL (with the extra headers of the
+settings, e.g. an Authorization token, in the handshake) and sends each message
+as a text message.
 
 What is sent comes from a template: one message per changed field
 ("[{field}]={value}") or one message with every field ('{"values":{json}}').
@@ -26,6 +29,11 @@ the connections (at most MAX_CLIENTS), and each send goes to every connected
 program: a program that just connected gets the "on connect" message and every
 current value first. A reader thread per program reads what it sends; a program
 that closes its connection, or doesn't read for SEND_TIMEOUT, is dropped.
+
+A WebSocket is kept open like a TCP connection: its reader thread reads the
+server's messages (each one is an answer) and answers its pings, and a close
+from the server reconnects. A handshake the server refuses (HTTP 401...) raises
+WebSocketRefused, with the status code for the status line.
 """
 
 import json
@@ -35,7 +43,11 @@ import threading
 import time
 from collections.abc import Container, Iterable, Mapping
 from dataclasses import asdict, dataclass, field, fields, replace
+from urllib.parse import urlsplit
 
+import websocket
+
+from api_output import parse_headers
 from output_worker import OutputWorker, SendSkipped, ThrottledErrorLog
 from sc_logging import logger
 from text_detection_target import TextDetectionTargetWithResult
@@ -44,7 +56,9 @@ from text_detection_target import TextDetectionTargetWithResult
 TCP = "tcp"  # ScoreSight connects to the receiver
 UDP = "udp"
 TCP_SERVER = "tcp-server"  # ScoreSight listens; programs connect to it
-TRANSPORTS = (TCP, UDP, TCP_SERVER)
+WEBSOCKET = "websocket"  # ScoreSight connects to a ws:// or wss:// URL
+TRANSPORTS = (TCP, UDP, TCP_SERVER, WEBSOCKET)
+WEBSOCKET_SCHEMES = {"ws": 80, "wss": 443}  # and their default ports
 
 # what a message holds
 PER_FIELD = "field"  # one message per changed field
@@ -210,6 +224,7 @@ CASPARCG = "casparcg"
 MAGICSOFT = "magicsoft"
 CHYRON = "chyron"
 VIZRT = "vizrt"
+WEBSOCKET_JSON = "websocket-json"
 
 
 @dataclass(frozen=True)
@@ -365,6 +380,24 @@ PRESETS: dict[str, Preset] = {
             },
             name_style=NAMES_IDENTIFIER,
         ),
+        # a web app or server of one's own: a JSON object with every field per
+        # WebSocket message ({"Home Score": "21", "Time": "4:27"})
+        Preset(
+            WEBSOCKET_JSON,
+            "WebSocket (JSON)",
+            {
+                "port": None,
+                "transport": WEBSOCKET,
+                "mode": PER_FRAME,
+                "template": "{json}",
+                "init": "",
+                "line_ending": "none",
+                "encoding": "utf-8",
+                "escape": ESCAPE_NONE,
+                "min_interval": 0.0,
+                "refresh_interval": 0.0,
+            },
+        ),
     )
 }
 
@@ -405,6 +438,8 @@ class TcpConfig:
     layer: int = 20
     cg_layer: int = 1
     template_name: str = "scoresight_scorebug"
+    url: str = ""  # WebSocket: ws://host:port/path or wss://...
+    headers: str = ""  # WebSocket: extra handshake headers, "Name: value" lines
 
     @property
     def listens(self) -> bool:
@@ -412,9 +447,16 @@ class TcpConfig:
         return self.transport == TCP_SERVER
 
     @property
+    def websocket(self) -> bool:
+        return self.transport == WEBSOCKET
+
+    @property
     def target(self) -> str:
         """ "host:port" ("[::1]:5250" for an IPv6 address); "port 5300" for a
-        TCP server."""
+        TCP server; the URL's "host:port" for a WebSocket (never its login,
+        path or query, which may hold a token)."""
+        if self.websocket:
+            return websocket_target(self.url) or "?"
         port = self.port if self.port is not None else "?"
         if self.listens:
             return f"port {port}"
@@ -424,13 +466,19 @@ class TcpConfig:
         return f"{host}:{port}"
 
     @property
-    def endpoint(self) -> tuple[str, str, int | None]:
+    def endpoint(self) -> tuple:
+        if self.websocket:
+            # the headers go with the handshake: new ones need a new connection
+            return (self.transport, self.url, self.headers)
         # a TCP server listens on every address: the host doesn't matter
         return (self.transport, "" if self.listens else self.host, self.port)
 
     @property
     def is_complete(self) -> bool:
-        """A host and a port are set (a TCP server needs only the port)."""
+        """A host and a port are set (a TCP server needs only the port, a
+        WebSocket a ws:// or wss:// URL)."""
+        if self.websocket:
+            return websocket_target(self.url) is not None
         return (self.listens or bool(self.host)) and self.port is not None
 
     def uses_casparcg_parameters(self) -> bool:
@@ -486,6 +534,8 @@ class TcpConfig:
             layer=int(_number(config.layer, -9999, 9999, default=20)),
             cg_layer=int(_number(config.cg_layer, 0, 9999, default=1)),
             template_name=_text(config.template_name, defaults.template_name),
+            url=_text(config.url, "").strip(),
+            headers=_text(config.headers, ""),
         )
 
 
@@ -510,6 +560,22 @@ def _format_settings(config: TcpConfig) -> tuple:
         config.encoding,
         config.escape,
     ) + _init_settings(config)
+
+
+def websocket_target(url: str) -> str | None:
+    """The "host:port" of a ws:// or wss:// URL (the scheme's port if it has
+    none), or None if it isn't one."""
+    try:
+        parts = urlsplit(url.strip())
+        scheme = parts.scheme.lower()
+        host, port = parts.hostname, parts.port
+    except ValueError:  # e.g. a port that isn't a number
+        return None
+    if scheme not in WEBSOCKET_SCHEMES or not host:
+        return None
+    if ":" in host:
+        host = f"[{host}]"
+    return f"{host}:{port or WEBSOCKET_SCHEMES[scheme]}"
 
 
 def parse_port(value) -> int | None:
@@ -671,6 +737,21 @@ class ConnectionStatus:
 class ListenError(OSError):
     """The TCP server can't listen on its port (another program uses it, or the
     system doesn't allow it)."""
+
+
+class WebSocketError(ConnectionError):
+    """The WebSocket connection failed or broke (websocket-client's errors,
+    as an OSError: the worker reconnects)."""
+
+
+class WebSocketRefused(WebSocketError):
+    """The server answered the WebSocket handshake with an HTTP error status
+    (401: the token is missing or wrong, 404: no WebSocket at this path...)."""
+
+    def __init__(self, status_code: int, body: str = ""):
+        message = f"HTTP {status_code}: {body}" if body else f"HTTP {status_code}"
+        super().__init__(message)
+        self.status_code = status_code
 
 
 @dataclass(eq=False)
@@ -963,9 +1044,8 @@ class TcpOutput:
         messages = self._messages(config, batch)
         if not messages:
             raise SendSkipped()
-        payloads = [encode_message(message, config) for message in messages]
         try:
-            self._transmit(config, payloads)
+            self._transmit(config, messages)
         except OSError:
             with self._lock:
                 stopped = not self.running or self._session != session
@@ -982,7 +1062,7 @@ class TcpOutput:
         with self._lock:
             self._last_send_at = self._clock()
         logger.debug(
-            "%s: sent %d message(s) to %s", LOG_LABEL, len(payloads), config.target
+            "%s: sent %d message(s) to %s", LOG_LABEL, len(messages), config.target
         )
 
     def _send_to_clients(self, config: TcpConfig, session: int):
@@ -1180,25 +1260,36 @@ class TcpOutput:
                 self._batch.full = True
         if not current:
             # stopped, or another receiver, while connecting
-            _close_socket(sock)
+            _close_connection(sock)
             raise SendSkipped()
-        if config.transport == TCP:
+        if config.transport in (TCP, WEBSOCKET):
+            if config.websocket:
+                reader, args = self._read_websocket, (sock, conn_id, config.target)
+            else:
+                reader = self._read_replies
+                args = (sock, conn_id, config.encoding, config.target)
             threading.Thread(
-                target=self._read_replies,
-                args=(sock, conn_id, config.encoding, config.target),
-                name="tcp-output-replies",
-                daemon=True,
+                target=reader, args=args, name="tcp-output-replies", daemon=True
             ).start()
             if quick_closes:
                 logger.debug("%s: connected to %s", LOG_LABEL, config.target)
             else:
                 logger.info("%s: connected to %s", LOG_LABEL, config.target)
 
-    def _transmit(self, config: TcpConfig, payloads: list[bytes]):
+    def _transmit(self, config: TcpConfig, messages: list[str]):
         with self._lock:
             sock = self._sock
         if sock is None:
             raise ConnectionError("not connected")
+        if config.websocket:
+            # a text message per message (always UTF-8)
+            try:
+                for message in messages:
+                    sock.send(message)
+            except websocket.WebSocketException as e:
+                raise WebSocketError(str(e) or type(e).__name__) from e
+            return
+        payloads = [encode_message(message, config) for message in messages]
         if config.transport == UDP:
             # a datagram per message
             for payload in payloads:
@@ -1215,7 +1306,7 @@ class TcpOutput:
             # the reader thread of the old connection stops counting
             self._conn_id += 1
         if sock is not None:
-            _close_socket(sock)
+            _close_connection(sock)
 
     # --- reader thread ------------------------------------------------------
 
@@ -1242,6 +1333,31 @@ class TcpOutput:
                 self._record_reply(
                     conn_id, line.decode(encoding, errors="replace"), target
                 )
+        self._connection_closed(conn_id, target)
+
+    def _read_websocket(self, ws: websocket.WebSocket, conn_id: int, target: str):
+        """Reads the WebSocket server's messages (each one an answer) until it
+        closes the connection; websocket-client answers its pings."""
+        while True:
+            try:
+                opcode, data = ws.recv_data()
+            except websocket.WebSocketTimeoutException:  # nothing for a while
+                with self._lock:
+                    if self._conn_id != conn_id:
+                        return
+                continue
+            except (websocket.WebSocketException, OSError, ValueError):
+                break  # closed, or broken
+            if opcode == websocket.ABNF.OPCODE_CLOSE:
+                break
+            if isinstance(data, bytes):
+                data = data.decode("utf-8", errors="replace")
+            self._record_reply(conn_id, data[:MAX_REPLY_LENGTH], target)
+        self._connection_closed(conn_id, target)
+
+    def _connection_closed(self, conn_id: int, target: str):
+        """The receiver closed the connection (or it broke): reconnect, after a
+        wait if it closed right after it was opened."""
         with self._lock:
             current = self._conn_id == conn_id
             quick_closes = 0
@@ -1383,7 +1499,10 @@ def quick_close_delay(quick_closes: int) -> float:
     return min(first * 2 ** min(max(quick_closes - 1, 0), 16), longest)
 
 
-def _open_socket(config: TcpConfig) -> socket.socket:
+def _open_socket(config: TcpConfig):
+    """A connected socket (a websocket.WebSocket for a WebSocket)."""
+    if config.websocket:
+        return _open_websocket(config)
     if config.transport == UDP:
         family, kind, proto, _, address = socket.getaddrinfo(
             config.host, config.port, 0, socket.SOCK_DGRAM
@@ -1403,6 +1522,34 @@ def _open_socket(config: TcpConfig) -> socket.socket:
     except OSError:
         pass
     return sock
+
+
+def _open_websocket(config: TcpConfig) -> websocket.WebSocket:
+    """A WebSocket connection to config's URL, with its headers in the
+    handshake. websocket-client's errors are raised as OSErrors (the worker
+    retries those): WebSocketRefused when the server answered with an HTTP
+    error status, socket.gaierror for an unknown host, TimeoutError."""
+    headers, _ = parse_headers(config.headers)
+    try:
+        ws = websocket.create_connection(
+            config.url,
+            timeout=CONNECT_TIMEOUT,
+            header=[f"{name}: {value}" for name, value in headers.items()],
+            enable_multithread=True,  # sends and the reader thread share it
+        )
+    except websocket.WebSocketBadStatusException as e:
+        body = e.resp_body or b""
+        if isinstance(body, bytes):
+            body = body.decode("utf-8", errors="replace")
+        raise WebSocketRefused(e.status_code, " ".join(body.split())[:200]) from None
+    except websocket.WebSocketAddressException as e:
+        raise socket.gaierror(str(e)) from None
+    except websocket.WebSocketTimeoutException as e:
+        raise TimeoutError(str(e) or "timed out") from None
+    except websocket.WebSocketException as e:
+        raise WebSocketError(str(e) or type(e).__name__) from None
+    ws.settimeout(SEND_TIMEOUT)
+    return ws
 
 
 def _open_server(config: TcpConfig) -> socket.socket:
@@ -1442,6 +1589,25 @@ def _address_text(address) -> str:
     if ":" in host:
         host = f"[{host}]"
     return f"{host}:{port}"
+
+
+def _close_connection(connection):
+    if isinstance(connection, websocket.WebSocket):
+        _close_websocket(connection)
+    else:
+        _close_socket(connection)
+
+
+def _close_websocket(ws: websocket.WebSocket):
+    """Say goodbye (a close frame, if it goes out at once), then close."""
+    try:
+        if ws.sock is not None:
+            ws.sock.settimeout(0.5)
+        ws.send_close()
+    except Exception:  # broken already: nothing to say goodbye on
+        pass
+    ws.abort()  # wakes up the reader thread
+    ws.shutdown()
 
 
 def _close_socket(sock: socket.socket):

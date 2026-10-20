@@ -11,6 +11,7 @@ Release tags are the bare version number (for example `0.1.0`).
 ### Added
 
 - **Futsal.** A new sport: the clock counts down through two halves (then extra time), goals count one at a time, and the team fouls are followed (they go back to 0 at halftime). The final comes at 0:00 of the second half. A dot-matrix 3 misread as a 9 is held back from the outputs ([#136](https://github.com/royshil/scoresight/discussions/136)).
+- **WebSocket output.** The TCP / UDP output can send over a WebSocket: enter a `ws://` or `wss://` URL, and add a token in **Headers** (`Authorization: Bearer …`) or in the URL. The new **WebSocket (JSON)** preset sends a JSON object with every field each time a value changes; any template works too, for example a message per changed field. ScoreSight keeps the connection open and reconnects by itself ([#141](https://github.com/royshil/scoresight/discussions/141)).
 
 ## [0.4.0] - 2026-10-19
 
