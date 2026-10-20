@@ -3,8 +3,8 @@ stackedWidget_outputs): binds its controls to the "tcp_output" and
 "tcp_mapping" settings and to the TcpOutput that sends.
 
 The settings take effect as they are changed: a text (template, "on connect"
-message, template name) a moment after the typing stops, the host and port
-when Enter is pressed or the field is left. The preview shows what the current
+message, template name, WebSocket headers) a moment after the typing stops,
+the host, port and URL when Enter is pressed or the field is left. The preview shows what the current
 values make with the settings being edited.
 """
 
@@ -37,8 +37,11 @@ from tcp_output import (
     MODES,
     PER_FIELD,
     PRESETS,
+    TCP_SERVER,
     TRANSPORTS,
     VIZRT,
+    WEBSOCKET,
+    WEBSOCKET_JSON,
     TcpConfig,
     TcpOutput,
     default_field_name,
@@ -55,7 +58,7 @@ MAPPING_KEY = "tcp_mapping"
 CASPARCG_TEMPLATE_FILE = "scoresight_scorebug.html"
 
 # the presets in the picker: the products, then Custom
-PRESET_ORDER = (CASPARCG, CHYRON, LIVE_SCORE, MAGICSOFT, VIZRT, CUSTOM)
+PRESET_ORDER = (CASPARCG, CHYRON, LIVE_SCORE, MAGICSOFT, VIZRT, WEBSOCKET_JSON, CUSTOM)
 
 # values for the preview before the first readings
 SAMPLE_VALUES = {
@@ -123,6 +126,13 @@ def preset_note(key: str) -> str:
             "TcpOutput",
             "From Vizrt's Shared Memory documentation; not tested with Viz Engine "
             "yet. Use the Shared Memory port set in Viz Configuration.",
+        )
+    if key == WEBSOCKET_JSON:
+        return QCoreApplication.translate(
+            "TcpOutput",
+            "For your own web app or server: each time a value changes, a JSON "
+            "object with every field goes to its WebSocket URL. A token goes in "
+            "Headers (Authorization: Bearer …) or in the URL.",
         )
     return QCoreApplication.translate(
         "TcpOutput",
@@ -241,10 +251,11 @@ class TcpUIHandler(QObject):
         for edit in (ui.plainTextEdit_tcpTemplate, ui.plainTextEdit_tcpPreview):
             edit.setWordWrapMode(QTextOption.WrapMode.WrapAtWordBoundaryOrAnywhere)
         ui.tableView_tcpMapping.setModel(QStandardItemModel(ui.tableView_tcpMapping))
-        # the host takes the row's width; without it (TCP server), the port and
-        # the transport stay on the left
+        # the host (or a WebSocket's URL) takes the row's width; without it
+        # (TCP server), the port and the transport stay on the left
         row = ui.horizontalLayout_tcpAddressRow
         row.setStretchFactor(ui.lineEdit_tcpHost, 1)
+        row.setStretchFactor(ui.lineEdit_tcpUrl, 1)
         row.addStretch(0)
         # the scroll area doesn't give the wrapped labels the height they need
         # at its width: fitContentHeight() does, whenever the width changes
@@ -278,6 +289,8 @@ class TcpUIHandler(QObject):
         )
         ui.lineEdit_tcpHost.editingFinished.connect(self.applyWidgets)
         ui.lineEdit_tcpPort.editingFinished.connect(self.applyWidgets)
+        ui.lineEdit_tcpUrl.editingFinished.connect(self.applyWidgets)
+        ui.plainTextEdit_tcpHeaders.textChanged.connect(self.textEdited)
         for combo in (
             ui.comboBox_tcpTransport,
             ui.comboBox_tcpMode,
@@ -355,7 +368,7 @@ class TcpUIHandler(QObject):
             QCoreApplication.translate("TcpOutput", "Never")
         )
         self.updateToggleText(ui.pushButton_tcpStart.isChecked())
-        self.updateAddressRow(self.widgetConfig().listens)
+        self.updateAddressRow(self.widgetConfig().transport)
         self.updatePresetNote()
         self.updatePreview()
         self.updateReply()
@@ -386,6 +399,10 @@ class TcpUIHandler(QObject):
             )
             ui.lineEdit_tcpHost.setText(config.host)
             ui.lineEdit_tcpPort.setText("" if config.port is None else str(config.port))
+            ui.lineEdit_tcpUrl.setText(config.url)
+            ui.lineEdit_tcpUrl.setCursorPosition(0)  # show its start
+            if ui.plainTextEdit_tcpHeaders.toPlainText() != config.headers:
+                ui.plainTextEdit_tcpHeaders.setPlainText(config.headers)
             ui.comboBox_tcpTransport.setCurrentIndex(TRANSPORTS.index(config.transport))
             ui.comboBox_tcpMode.setCurrentIndex(MODES.index(config.mode))
             if ui.plainTextEdit_tcpTemplate.toPlainText() != config.template:
@@ -422,6 +439,8 @@ class TcpUIHandler(QObject):
                 "preset": ui.comboBox_tcpPreset.currentData() or CUSTOM,
                 "host": ui.lineEdit_tcpHost.text().strip(),
                 "port": parse_port(ui.lineEdit_tcpPort.text()),
+                "url": ui.lineEdit_tcpUrl.text().strip(),
+                "headers": ui.plainTextEdit_tcpHeaders.toPlainText(),
                 "transport": TRANSPORTS[
                     max(0, ui.comboBox_tcpTransport.currentIndex())
                 ],
@@ -543,14 +562,27 @@ class TcpUIHandler(QObject):
         )
         self.ui.widget_tcpCasparButtons.setVisible(caspar)
         self.ui.pushButton_tcpCopyTemplate.setVisible(caspar)
-        self.updateAddressRow(config.listens)
+        self.updateAddressRow(config.transport)
         self.fitContentHeight()
 
-    def updateAddressRow(self, listens: bool):
-        """A TCP server needs only its port: no host."""
+    def updateAddressRow(self, transport: str):
+        """A TCP server needs only its port: no host; a WebSocket a URL (and
+        maybe headers) instead of the host and port. WebSocket messages are
+        always UTF-8."""
         ui = self.ui
-        ui.lineEdit_tcpHost.setVisible(not listens)
-        ui.label_tcpColon.setVisible(not listens)
+        listens = transport == TCP_SERVER
+        websocket = transport == WEBSOCKET
+        ui.lineEdit_tcpUrl.setVisible(websocket)
+        ui.lineEdit_tcpHost.setVisible(not listens and not websocket)
+        ui.label_tcpColon.setVisible(not listens and not websocket)
+        ui.lineEdit_tcpPort.setVisible(not websocket)
+        ui.formLayout_tcp.setRowVisible(ui.plainTextEdit_tcpHeaders, websocket)
+        ui.comboBox_tcpEncoding.setEnabled(not websocket)
+        if websocket:
+            ui.label_tcpAddress.setText(QCoreApplication.translate("TcpOutput", "URL"))
+            ui.label_tcpAddress.setBuddy(ui.lineEdit_tcpUrl)
+            return
+        ui.label_tcpAddress.setBuddy(ui.lineEdit_tcpHost)
         if listens:
             ui.label_tcpAddress.setText(
                 QCoreApplication.translate("TcpOutput", "Listen on port")

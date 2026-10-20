@@ -1081,7 +1081,7 @@ Auflösung: {width}×{height}</translation>
         <translation type="vanished">Textdateien</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="150"/>
+        <location filename="../src/output_status.py" line="158"/>
         <source>Write the readings to .txt, .csv and .xml files</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Schreibt die Ablesungen in .txt-, .csv- und .xml-Dateien</translation>
@@ -1205,7 +1205,7 @@ Auflösung: {width}×{height}</translation>
         <translation type="vanished">Browser</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="153"/>
+        <location filename="../src/output_status.py" line="161"/>
         <source>The built-in HTTP server: a scoreboard page, JSON, XML and CSV</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Der integrierte HTTP-Server: eine Anzeigetafel-Seite, JSON, XML und CSV</translation>
@@ -1217,7 +1217,7 @@ Auflösung: {width}×{height}</translation>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Verwenden Sie diese Endpunkte in externer Software, um Live-Daten zu erhalten&lt;/p&gt;&lt;p&gt;HTML-Anzeigetafel: &lt;a href=&quot;http://localhost:18099/scoresight&quot;&gt;http://localhost:18099/scoresight&lt;/a&gt;&lt;br/&gt;JSON: &lt;a href=&quot;http://localhost:18099/json&quot;&gt;http://localhost:18099/json&lt;/a&gt; (optional: ?pivot)&lt;br/&gt;XML: &lt;a href=&quot;http://localhost:18099/xml&quot;&gt;http://localhost:18099/xml&lt;/a&gt; (optional: ?pivot)&lt;br/&gt;CSV: &lt;a href=&quot;http://localhost:18099/csv&quot;&gt;http://localhost:18099/csv&lt;/a&gt; (optional: ?pivot)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="157"/>
+        <location filename="../src/output_status.py" line="165"/>
         <source>Update text sources in OBS Studio</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Aktualisiert Textquellen in OBS Studio</translation>
@@ -1242,7 +1242,7 @@ Auflösung: {width}×{height}</translation>
         <translation type="unfinished">Erstellt in OBS eine Szene mit einer Textquelle für jedes Standardfeld</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="160"/>
+        <location filename="../src/output_status.py" line="168"/>
         <source>Update a title in vMix</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Aktualisiert einen Titel in vMix</translation>
@@ -1312,7 +1312,7 @@ Auflösung: {width}×{height}</translation>
         <translation type="obsolete">Gleiche senden?</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="161"/>
+        <location filename="../src/output_status.py" line="169"/>
         <source>Drive an overlays.uno control app</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Bedient eine Steuer-App von overlays.uno</translation>
@@ -1350,7 +1350,7 @@ Auflösung: {width}×{height}</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4372"/>
-        <location filename="../src/tcp_ui_handler.py" line="507"/>
+        <location filename="../src/tcp_ui_handler.py" line="525"/>
         <location filename="../src/uno_ui_handler.py" line="127"/>
         <source>Start sending</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
@@ -2614,7 +2614,7 @@ Auflösung: {width}×{height}</translation>
     <message>
         <location filename="../src/mainwindow.ui" line="4297"/>
         <location filename="../src/mainwindow.ui" line="4415"/>
-        <location filename="../src/tcp_ui_handler.py" line="342"/>
+        <location filename="../src/tcp_ui_handler.py" line="355"/>
         <source>Also resend unchanged values</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Auch unveränderte Werte senden</translation>
@@ -2918,7 +2918,7 @@ Auflösung: {width}×{height}</translation>
         <translation type="unfinished">Öffnet ScoreSights Discussions auf GitHub im Webbrowser: Stell eine Frage, teile eine Idee oder zeig dein Setup</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="164"/>
+        <location filename="../src/output_status.py" line="172"/>
         <source>Send the readings to a URL (outbound HTTP API)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Sendet die Ablesungen an eine URL (ausgehende HTTP-API)</translation>
@@ -4003,7 +4003,7 @@ Auflösung: {width}×{height}</translation>
         <translation type="unfinished">vMix starten</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="505"/>
+        <location filename="../src/tcp_ui_handler.py" line="523"/>
         <location filename="../src/uno_ui_handler.py" line="125"/>
         <source>Stop sending</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
@@ -4161,343 +4161,343 @@ Auflösung: {width}×{height}</translation>
 <context>
     <name>OutputStatus</name>
     <message>
-        <location filename="../src/output_status.py" line="125"/>
+        <location filename="../src/output_status.py" line="133"/>
         <source>Text files</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Textdateien</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="127"/>
+        <location filename="../src/output_status.py" line="135"/>
         <source>HTTP server</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">HTTP-Server</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="129"/>
+        <location filename="../src/output_status.py" line="137"/>
         <source>HTTP API</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">HTTP-API</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="136"/>
+        <location filename="../src/output_status.py" line="144"/>
         <source>Files</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Dateien</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="167"/>
+        <location filename="../src/output_status.py" line="175"/>
         <source>Send the readings over TCP or UDP: CasparCG, Chyron PRIME, Live Score, MagicSoft CG, Vizrt and other graphics systems</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Die Ablesungen über TCP oder UDP senden: CasparCG, Chyron PRIME, Live Score, MagicSoft CG, Vizrt und andere Grafiksysteme</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="179"/>
+        <location filename="../src/output_status.py" line="187"/>
         <source>working</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">funktioniert</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="181"/>
+        <location filename="../src/output_status.py" line="189"/>
         <source>waiting</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">wartet</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="183"/>
+        <location filename="../src/output_status.py" line="191"/>
         <source>needs attention</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">bitte prüfen</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="185"/>
+        <location filename="../src/output_status.py" line="193"/>
         <source>retrying</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">versucht erneut</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="187"/>
+        <location filename="../src/output_status.py" line="195"/>
         <source>not working</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">funktioniert nicht</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="188"/>
-        <location filename="../src/output_status.py" line="272"/>
+        <location filename="../src/output_status.py" line="196"/>
+        <location filename="../src/output_status.py" line="280"/>
         <source>off</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">aus</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="195"/>
+        <location filename="../src/output_status.py" line="203"/>
         <source>just now</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">gerade eben</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="197"/>
+        <location filename="../src/output_status.py" line="205"/>
         <source>{seconds} s ago</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">vor {seconds} s</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="201"/>
+        <location filename="../src/output_status.py" line="209"/>
         <source>{minutes} min ago</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">vor {minutes} min</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="204"/>
+        <location filename="../src/output_status.py" line="212"/>
         <source>{hours} h ago</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">vor {hours} h</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="213"/>
+        <location filename="../src/output_status.py" line="221"/>
         <source>a few seconds</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">wenigen Sekunden</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="215"/>
+        <location filename="../src/output_status.py" line="223"/>
         <source>{seconds} s</source>
         <translation type="unfinished">{seconds} s</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="219"/>
+        <location filename="../src/output_status.py" line="227"/>
         <source>{minutes} min</source>
         <translation type="unfinished">{minutes} min</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="222"/>
+        <location filename="../src/output_status.py" line="230"/>
         <source>{hours} h</source>
         <translation type="unfinished">{hours} h</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="233"/>
+        <location filename="../src/output_status.py" line="241"/>
         <source>Last written {age}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Zuletzt geschrieben {age}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="237"/>
+        <location filename="../src/output_status.py" line="245"/>
         <source>Last request {age}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Letzte Anfrage {age}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="240"/>
+        <location filename="../src/output_status.py" line="248"/>
         <source>Last sent {age}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Zuletzt gesendet {age}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="257"/>
+        <location filename="../src/output_status.py" line="265"/>
         <source>Details: {error}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Details: {error}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="270"/>
+        <location filename="../src/output_status.py" line="278"/>
         <source>on</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">ein</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="423"/>
+        <location filename="../src/output_status.py" line="431"/>
         <source>{problem} · retrying</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{problem} · versucht erneut</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="444"/>
+        <location filename="../src/output_status.py" line="452"/>
         <source>Port {port} is vMix&apos;s TCP API: use {web_port}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Port {port} ist die TCP-API von vMix: Verwenden Sie {web_port}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="447"/>
+        <location filename="../src/output_status.py" line="455"/>
         <source>ScoreSight uses the vMix Web API. Set the port to the Web Controller port (vMix Settings › Web Controller, {web_port} by default).</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">ScoreSight verwendet die vMix Web API. Stellen Sie den Port des Web Controllers ein (vMix Settings › Web Controller, standardmäßig {web_port}).</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="464"/>
+        <location filename="../src/output_status.py" line="472"/>
         <source>OBS needs a password</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">OBS benötigt ein Passwort</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="465"/>
+        <location filename="../src/output_status.py" line="473"/>
         <source>Enter the password of OBS&apos;s WebSocket server (in OBS: Tools › WebSocket Server Settings › Show Connect Info).</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Geben Sie das Passwort des WebSocket-Servers von OBS ein (in OBS: Werkzeuge › WebSocket-Servereinstellungen › Verbindungsinformationen anzeigen).</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="474"/>
+        <location filename="../src/output_status.py" line="482"/>
         <source>OBS refused the connection: check the password</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">OBS hat die Verbindung abgelehnt: Prüfen Sie das Passwort</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="477"/>
+        <location filename="../src/output_status.py" line="485"/>
         <source>The password doesn&apos;t match the one of OBS&apos;s WebSocket server (in OBS: Tools › WebSocket Server Settings › Show Connect Info).</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Das Passwort stimmt nicht mit dem des WebSocket-Servers von OBS überein (in OBS: Werkzeuge › WebSocket-Servereinstellungen › Verbindungsinformationen anzeigen).</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="491"/>
+        <location filename="../src/output_status.py" line="499"/>
         <source>OBS has no text source “{name}”</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">OBS hat keine Textquelle „{name}“</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="495"/>
+        <location filename="../src/output_status.py" line="503"/>
         <source>OBS has no text source with a field&apos;s name</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">OBS hat keine Textquelle mit dem Namen eines Felds</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="501"/>
+        <location filename="../src/output_status.py" line="509"/>
         <source>Create a text source with this name in OBS (names are case-sensitive), or use Create OBS Scene.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Erstellen Sie in OBS eine Textquelle mit diesem Namen (Groß-/Kleinschreibung beachten) oder verwenden Sie „OBS-Szene erstellen“.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="509"/>
+        <location filename="../src/output_status.py" line="517"/>
         <source>OBS refused an update (code {code})</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">OBS hat eine Aktualisierung abgelehnt (Code {code})</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="523"/>
+        <location filename="../src/output_status.py" line="534"/>
         <source>No secure connection to {target}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Keine sichere Verbindung zu {target}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="526"/>
+        <location filename="../src/output_status.py" line="537"/>
         <source>The HTTPS connection failed (for example, the server&apos;s certificate isn&apos;t trusted). Check the URL; on your own network, http:// may be what the receiver expects.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Die HTTPS-Verbindung ist fehlgeschlagen (z. B. weil dem Zertifikat des Servers nicht vertraut wird). Prüfen Sie die URL; im eigenen Netzwerk erwartet der Empfänger vielleicht http://.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="553"/>
+        <location filename="../src/output_status.py" line="564"/>
         <source>Can&apos;t find {host}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{host} nicht gefunden</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="558"/>
+        <location filename="../src/output_status.py" line="569"/>
         <source>The address {host} isn&apos;t known on this network: check it, or use the computer&apos;s IP address.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Die Adresse {host} ist in diesem Netzwerk unbekannt: Prüfen Sie sie oder verwenden Sie die IP-Adresse des Computers.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="569"/>
+        <location filename="../src/output_status.py" line="580"/>
         <source>Nothing answered within a few seconds.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Innerhalb weniger Sekunden kam keine Antwort.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="576"/>
+        <location filename="../src/output_status.py" line="587"/>
         <source>Nothing answered within a few seconds: the computer may be off, the address wrong, or a firewall may block port {port}.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Innerhalb weniger Sekunden kam keine Antwort: Der Computer ist vielleicht aus, die Adresse falsch, oder eine Firewall blockiert Port {port}.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="582"/>
+        <location filename="../src/output_status.py" line="593"/>
         <source>Nothing answered within a few seconds: check this computer&apos;s network connection.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Innerhalb weniger Sekunden kam keine Antwort: Prüfen Sie die Netzwerkverbindung dieses Computers.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="590"/>
+        <location filename="../src/output_status.py" line="601"/>
         <source>No answer from {target}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Keine Antwort von {target}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="602"/>
+        <location filename="../src/output_status.py" line="613"/>
         <source>Can&apos;t reach {target}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{target} nicht erreichbar</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="614"/>
+        <location filename="../src/output_status.py" line="625"/>
         <source>Lost the connection to OBS at {target}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Verbindung zu OBS unter {target} verloren</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="619"/>
+        <location filename="../src/output_status.py" line="630"/>
         <source>ScoreSight reconnects by itself as soon as OBS is reachable again. Check that OBS is running.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">ScoreSight verbindet sich automatisch neu, sobald OBS wieder erreichbar ist. Prüfen Sie, ob OBS läuft.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="633"/>
+        <location filename="../src/output_status.py" line="644"/>
         <source>Check that vMix is running, that its Web Controller is enabled (vMix Settings › Web Controller) on port {port}, and that the firewall of the vMix computer allows it.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Prüfen Sie, ob vMix läuft, ob sein Web Controller (vMix Settings › Web Controller) auf Port {port} aktiviert ist und ob die Firewall des vMix-Computers ihn zulässt.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="640"/>
+        <location filename="../src/output_status.py" line="651"/>
         <source>Check that OBS is running and that its WebSocket server is enabled (in OBS: Tools › WebSocket Server Settings) on port {port}.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Prüfen Sie, ob OBS läuft und sein WebSocket-Server (in OBS: Werkzeuge › WebSocket-Servereinstellungen) auf Port {port} aktiviert ist.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="646"/>
+        <location filename="../src/output_status.py" line="657"/>
         <source>Check this computer&apos;s internet connection.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Prüfen Sie die Internetverbindung dieses Computers.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="650"/>
+        <location filename="../src/output_status.py" line="661"/>
         <source>Check that the receiving program is running and accepts connections on port {port}, and that the firewall of its computer allows it.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Prüfen Sie, ob das empfangende Programm läuft und Verbindungen auf Port {port} annimmt und ob die Firewall seines Computers das zulässt.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="655"/>
+        <location filename="../src/output_status.py" line="666"/>
         <source>Nothing answers at {target}: check the URL and that the receiving program is running.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Unter {target} antwortet nichts: Prüfen Sie die URL und ob das empfangende Programm läuft.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="669"/>
+        <location filename="../src/output_status.py" line="680"/>
         <source>HTTP {code}: vMix asks for a login</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">HTTP {code}: vMix verlangt eine Anmeldung</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="672"/>
+        <location filename="../src/output_status.py" line="683"/>
         <source>In vMix Settings › Web Controller, tick “Allow access to following pages without login: API”. ScoreSight doesn&apos;t send a vMix login.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Aktivieren Sie in vMix Settings › Web Controller „Allow access to following pages without login: API“. ScoreSight sendet keine vMix-Anmeldung.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="682"/>
-        <location filename="../src/output_status.py" line="719"/>
+        <location filename="../src/output_status.py" line="693"/>
+        <location filename="../src/output_status.py" line="730"/>
         <source>HTTP {code}: check the UNO URL</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">HTTP {code}: Prüfen Sie die UNO-URL</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="685"/>
-        <location filename="../src/output_status.py" line="722"/>
+        <location filename="../src/output_status.py" line="696"/>
+        <location filename="../src/output_status.py" line="733"/>
         <source>overlays.uno refused the URL: it is wrong or no longer valid. Copy the API URL of your control app again.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">overlays.uno hat die URL abgelehnt: Sie ist falsch oder nicht mehr gültig. Kopieren Sie die API-URL Ihrer Steuer-App erneut.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="693"/>
+        <location filename="../src/output_status.py" line="704"/>
         <source>HTTP {code}: access denied</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">HTTP {code}: Zugriff verweigert</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="696"/>
+        <location filename="../src/output_status.py" line="707"/>
         <source>The endpoint refused the request. If it needs a login, put it in the URL (http://user:password@host/...); a key or token goes in the URL or in Headers.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Der Endpunkt hat die Anfrage abgelehnt. Wenn er eine Anmeldung braucht, geben Sie diese in der URL an (http://user:password@host/...); ein Schlüssel oder Token gehört in die URL oder unter „Header“.</translation>
@@ -4508,255 +4508,273 @@ Auflösung: {width}×{height}</translation>
         <translation type="obsolete">Der Endpunkt hat die Anfrage abgelehnt. Wenn er einen Schlüssel braucht, fügen Sie ihn in die URL ein.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="707"/>
+        <location filename="../src/output_status.py" line="718"/>
         <source>HTTP 404: this isn&apos;t the vMix Web API</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">HTTP 404: Das ist nicht die vMix Web API</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="710"/>
+        <location filename="../src/output_status.py" line="721"/>
         <source>Check the host and the port: vMix&apos;s Web Controller port ({port} by default).</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Prüfen Sie Host und Port: den Port des vMix Web Controllers (standardmäßig {port}).</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="730"/>
+        <location filename="../src/output_status.py" line="741"/>
         <source>HTTP 404: check the URL</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">HTTP 404: Prüfen Sie die URL</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="731"/>
+        <location filename="../src/output_status.py" line="742"/>
         <source>The endpoint has nothing at this address: check the path.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Unter dieser Adresse hat der Endpunkt nichts: Prüfen Sie den Pfad.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="738"/>
+        <location filename="../src/output_status.py" line="749"/>
         <source>HTTP 429: overlays.uno&apos;s call limit reached</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">HTTP 429: Aufruflimit von overlays.uno erreicht</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="741"/>
+        <location filename="../src/output_status.py" line="752"/>
         <source>overlays.uno limits the calls of your plan (the Free plan: about 10,000 a day). ScoreSight keeps the latest value of each field and sends it when the limit resets. To use fewer calls, keep “Also resend unchanged values” off and clear the command of fields the overlay doesn&apos;t use.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">overlays.uno begrenzt die Aufrufe Ihres Tarifs (Free-Tarif: etwa 10.000 pro Tag). ScoreSight behält den neuesten Wert jedes Felds und sendet ihn, sobald das Limit zurückgesetzt wird. Um weniger Aufrufe zu verbrauchen, lassen Sie „Auch unveränderte Werte senden“ ausgeschaltet und löschen Sie den Befehl von Feldern, die das Overlay nicht verwendet.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="753"/>
+        <location filename="../src/output_status.py" line="764"/>
         <source>The endpoint limits the requests. ScoreSight keeps the latest readings and sends them when it accepts requests again. To send fewer, turn on “Only changes”, set a “Rate”, or lower Detections / s.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Der Endpunkt begrenzt die Anfragen. ScoreSight behält die neuesten Ablesungen und sendet sie, sobald er wieder Anfragen annimmt. Um weniger zu senden, aktivieren Sie „Nur Änderungen“, begrenzen Sie die „Rate“ oder senken Sie „Erkennungen / s“.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1195"/>
+        <location filename="../src/output_status.py" line="1206"/>
         <source>{calls} calls left today</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">heute noch {calls} Aufrufe</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1248"/>
+        <location filename="../src/output_status.py" line="1259"/>
         <source>{count} field(s) have no UNO command and aren&apos;t sent: enter one in the table if the overlay has a command for them.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Ohne UNO-Befehl und daher nicht gesendet: {count} Feld(er). Tragen Sie in der Tabelle einen Befehl ein, wenn das Overlay einen dafür hat.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1281"/>
+        <location filename="../src/output_status.py" line="1292"/>
         <source>Only {calls} overlays.uno calls left today</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Heute nur noch {calls} Aufrufe bei overlays.uno</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1284"/>
+        <location filename="../src/output_status.py" line="1295"/>
         <source>Every update is a call. When none are left, overlays.uno refuses updates until the limit resets; ScoreSight then sends the latest values. To use fewer calls, keep “Also resend unchanged values” off and clear the command of fields the overlay doesn&apos;t use.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Jede Aktualisierung ist ein Aufruf. Wenn keine mehr übrig sind, lehnt overlays.uno Aktualisierungen ab, bis das Limit zurückgesetzt wird; ScoreSight sendet dann die neuesten Werte. Um weniger Aufrufe zu verbrauchen, lassen Sie „Auch unveränderte Werte senden“ ausgeschaltet und löschen Sie den Befehl von Feldern, die das Overlay nicht verwendet.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1347"/>
+        <location filename="../src/output_status.py" line="1358"/>
         <source>Enter your device&apos;s address in the URL</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Adresse Ihres Geräts in die URL eingeben</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1351"/>
+        <location filename="../src/output_status.py" line="1362"/>
         <source>Replace the capitalized placeholder in the URL (for example TRICASTER-IP) with the device&apos;s IP address, and the login with its user name and password.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Ersetzen Sie den großgeschriebenen Platzhalter in der URL (z. B. TRICASTER-IP) durch die IP-Adresse des Geräts und die Anmeldedaten durch seinen Benutzernamen und sein Passwort.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1371"/>
+        <location filename="../src/output_status.py" line="1382"/>
         <source>a request per field</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">eine Anfrage pro Feld</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1375"/>
+        <location filename="../src/output_status.py" line="1386"/>
         <source>up to {fields} fields a request</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">bis zu {fields} Felder pro Anfrage</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1380"/>
+        <location filename="../src/output_status.py" line="1391"/>
         <source>only changes</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">nur Änderungen</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1426"/>
+        <location filename="../src/output_status.py" line="1437"/>
         <source>Click Start sending to send the readings over {transport} to {target}.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Klicken Sie auf „Senden starten“, um die Ablesungen über {transport} an {target} zu senden.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1436"/>
+        <location filename="../src/output_status.py" line="1447"/>
+        <source>Enter a ws:// or wss:// URL</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">ws://- oder wss://-URL eingeben</translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1449"/>
+        <source>Enter the WebSocket address of the receiving server, for example wss://example.com/scores.</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Geben Sie die WebSocket-Adresse des empfangenden Servers ein, z. B. wss://example.com/scores.</translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1459"/>
         <source>Enter the host and port</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Host und Port eingeben</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1438"/>
+        <location filename="../src/output_status.py" line="1461"/>
         <source>Enter the address of the receiving program&apos;s computer and the port it listens on (set in that program).</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Geben Sie die Adresse des Computers mit dem empfangenden Programm und den Port ein, auf dem es lauscht (in diesem Programm eingestellt).</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1450"/>
-        <location filename="../src/output_status.py" line="1609"/>
+        <location filename="../src/output_status.py" line="1473"/>
+        <location filename="../src/output_status.py" line="1641"/>
         <source>Place fields on the picture and give them names in the table (an empty name leaves a field out).</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Platzieren Sie Felder im Bild und geben Sie ihnen in der Tabelle Namen (ein leerer Name lässt ein Feld aus).</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1462"/>
+        <location filename="../src/output_status.py" line="1485"/>
         <source>Waiting for readings to send to {target} (UDP)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Warten auf Ablesungen zum Senden an {target} (UDP)</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1473"/>
+        <location filename="../src/output_status.py" line="1496"/>
         <source>Sending to {target} (UDP)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Senden an {target} (UDP)</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1478"/>
+        <location filename="../src/output_status.py" line="1501"/>
         <source>UDP has no connection: ScoreSight can&apos;t tell whether the values arrive.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">UDP hat keine Verbindung: ScoreSight kann nicht erkennen, ob die Werte ankommen.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1493"/>
+        <location filename="../src/output_status.py" line="1515"/>
+        <source>The server accepts the WebSocket, then closes it: check the URL&apos;s path and the token (in Headers or in the URL). ScoreSight connects again, waiting a little longer each time.</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Der Server nimmt den WebSocket an und schließt ihn dann: Prüfen Sie den Pfad der URL und das Token (unter „Header“ oder in der URL). ScoreSight verbindet sich erneut und wartet jedes Mal etwas länger.</translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1530"/>
         <source>{target} closes the connection right away</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{target} schließt die Verbindung sofort</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1496"/>
+        <location filename="../src/output_status.py" line="1522"/>
         <source>Check the port: it must be the receiving program&apos;s input for this protocol (not, for example, a web server&apos;s port). ScoreSight connects again, waiting a little longer each time.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Prüfen Sie den Port: Er muss der Eingang des empfangenden Programms für dieses Protokoll sein (nicht zum Beispiel der Port eines Webservers). ScoreSight verbindet sich erneut und wartet jedes Mal etwas länger.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1520"/>
-        <location filename="../src/output_status.py" line="1672"/>
+        <location filename="../src/output_status.py" line="1552"/>
+        <location filename="../src/output_status.py" line="1704"/>
         <source>Last answer: {reply}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Letzte Antwort: {reply}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1524"/>
+        <location filename="../src/output_status.py" line="1556"/>
         <source>A field&apos;s value is sent when it changes (or every time, with “Also resend unchanged values”).</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Der Wert eines Felds wird gesendet, wenn er sich ändert (oder jedes Mal, mit „Auch unveränderte Werte senden“).</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1544"/>
+        <location filename="../src/output_status.py" line="1576"/>
         <source>Check the template&apos;s name (it must be in CasparCG&apos;s templates folder), the channel and the layer.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Prüfen Sie den Namen der Vorlage (sie muss im Vorlagenordner von CasparCG liegen), den Kanal und die Ebene.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1550"/>
+        <location filename="../src/output_status.py" line="1582"/>
         <source>The receiving program reported an error: check the template and the names in the table.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Das empfangende Programm hat einen Fehler gemeldet: Prüfen Sie die Vorlage und die Namen in der Tabelle.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1559"/>
+        <location filename="../src/output_status.py" line="1591"/>
         <source>{target} answered “{reply}”</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{target} antwortete „{reply}“</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1585"/>
+        <location filename="../src/output_status.py" line="1617"/>
         <source>Click Start sending to let other programs connect to ScoreSight on port {port} and get the readings.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Klicken Sie auf „Senden starten“, damit sich andere Programme auf Port {port} mit ScoreSight verbinden und die Ablesungen erhalten können.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1595"/>
+        <location filename="../src/output_status.py" line="1627"/>
         <source>Enter a port</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Port eingeben</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1597"/>
+        <location filename="../src/output_status.py" line="1629"/>
         <source>Enter the port ScoreSight listens on, and the same port in the program that connects to ScoreSight.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Geben Sie den Port ein, auf dem ScoreSight lauscht, und denselben Port im Programm, das sich mit ScoreSight verbindet.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1620"/>
+        <location filename="../src/output_status.py" line="1652"/>
         <source>Can&apos;t listen on port {port}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Auf Port {port} kann nicht gelauscht werden</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1624"/>
+        <location filename="../src/output_status.py" line="1656"/>
         <source>Another program uses this port, or the system doesn&apos;t allow it. Choose another port (and set it in the program that connects). ScoreSight tries again by itself.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Ein anderes Programm verwendet diesen Port, oder das System lässt ihn nicht zu. Wählen Sie einen anderen Port (und stellen Sie ihn im verbindenden Programm ein). ScoreSight versucht es automatisch erneut.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1636"/>
+        <location filename="../src/output_status.py" line="1668"/>
         <source>Opening port {port}…</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Port {port} wird geöffnet…</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1647"/>
+        <location filename="../src/output_status.py" line="1679"/>
         <source>Listening on port {port} · nothing connected</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Lauscht auf Port {port} · nichts verbunden</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1652"/>
+        <location filename="../src/output_status.py" line="1684"/>
         <source>Waiting for a program to connect to this computer&apos;s address, port {port}. Allow ScoreSight through this computer&apos;s firewall for programs on other computers.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Warten, bis sich ein Programm mit der Adresse dieses Computers, Port {port}, verbindet. Lassen Sie ScoreSight in der Firewall dieses Computers zu, damit sich Programme auf anderen Computern verbinden können.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1661"/>
+        <location filename="../src/output_status.py" line="1693"/>
         <source>Listening on port {port} · 1 program connected</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Lauscht auf Port {port} · 1 Programm verbunden</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1665"/>
+        <location filename="../src/output_status.py" line="1697"/>
         <source>Listening on port {port} · {count} programs connected</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Lauscht auf Port {port} · {count} Programme verbunden</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1668"/>
+        <location filename="../src/output_status.py" line="1700"/>
         <source>Connected: {programs}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Verbunden: {programs}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1690"/>
+        <location filename="../src/output_status.py" line="1722"/>
         <source>{product}: {detail}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{product}: {detail}</translation>
@@ -4772,264 +4790,264 @@ Auflösung: {width}×{height}</translation>
         <translation type="obsolete">Der Endpunkt begrenzt die Anfragen und verwirft den Rest: Senken Sie „Erkennungen / s“.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="750"/>
+        <location filename="../src/output_status.py" line="761"/>
         <source>HTTP 429: too many requests</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">HTTP 429: zu viele Anfragen</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="764"/>
+        <location filename="../src/output_status.py" line="775"/>
         <source>HTTP 400: overlays.uno doesn&apos;t know a command</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">HTTP 400: overlays.uno kennt einen Befehl nicht</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="767"/>
+        <location filename="../src/output_status.py" line="778"/>
         <source>Check the commands in the table against your overlay&apos;s API description, and clear the command of fields the overlay doesn&apos;t use: every call counts against your daily limit.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Vergleichen Sie die Befehle in der Tabelle mit der API-Beschreibung Ihres Overlays und löschen Sie den Befehl von Feldern, die das Overlay nicht verwendet: Jeder Aufruf zählt für Ihr Tageslimit.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="776"/>
+        <location filename="../src/output_status.py" line="787"/>
         <source>Check the Input and the vMix field names in the table (for example Home Score.Text).</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Prüfen Sie die „Eingabe“ und die vMix-Feldnamen in der Tabelle (z. B. Home Score.Text).</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="787"/>
-        <location filename="../src/output_status.py" line="804"/>
+        <location filename="../src/output_status.py" line="798"/>
+        <location filename="../src/output_status.py" line="815"/>
         <source>It answered: {text}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Antwort: {text}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="796"/>
+        <location filename="../src/output_status.py" line="807"/>
         <source>HTTP {code}: the receiver reported an error</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">HTTP {code}: Der Empfänger meldete einen Fehler</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="803"/>
+        <location filename="../src/output_status.py" line="814"/>
         <source>HTTP {code}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">HTTP {code}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="836"/>
+        <location filename="../src/output_status.py" line="847"/>
         <source>Next try in {wait}.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Nächster Versuch in {wait}.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="848"/>
+        <location filename="../src/output_status.py" line="859"/>
         <source>{failing} of {total} failing: {problem}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{failing} von {total} fehlerhaft: {problem}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="895"/>
+        <location filename="../src/output_status.py" line="906"/>
         <source>Folder not found: {folder}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Ordner nicht gefunden: {folder}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="898"/>
+        <location filename="../src/output_status.py" line="909"/>
         <source>The output folder {folder} doesn&apos;t exist any more, so no files are written. Choose a folder to write them again.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Der Ausgabeordner {folder} existiert nicht mehr, daher werden keine Dateien geschrieben. Wählen Sie einen Ordner, um sie wieder zu schreiben.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="907"/>
-        <location filename="../src/output_status.py" line="1137"/>
-        <location filename="../src/output_status.py" line="1216"/>
-        <location filename="../src/output_status.py" line="1312"/>
-        <location filename="../src/output_status.py" line="1425"/>
-        <location filename="../src/output_status.py" line="1584"/>
+        <location filename="../src/output_status.py" line="918"/>
+        <location filename="../src/output_status.py" line="1148"/>
+        <location filename="../src/output_status.py" line="1227"/>
+        <location filename="../src/output_status.py" line="1323"/>
+        <location filename="../src/output_status.py" line="1436"/>
+        <location filename="../src/output_status.py" line="1616"/>
         <source>Off</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Aus</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="908"/>
+        <location filename="../src/output_status.py" line="919"/>
         <source>Choose a folder to write the readings to files.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Wählen Sie einen Ordner, um die Ablesungen in Dateien zu schreiben.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="917"/>
+        <location filename="../src/output_status.py" line="928"/>
         <source>Waiting for readings to write to {folder}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Warten auf Ablesungen zum Schreiben in {folder}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="926"/>
+        <location filename="../src/output_status.py" line="937"/>
         <source>Can&apos;t write {file}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{file} nicht schreibbar</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="930"/>
+        <location filename="../src/output_status.py" line="941"/>
         <source>Can&apos;t write {file} and {count} more</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{file} und {count} weitere nicht schreibbar</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="938"/>
+        <location filename="../src/output_status.py" line="949"/>
         <source>Check that the folder can be written to and that no other program locks the files. ScoreSight tries again at every save.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Prüfen Sie, ob der Ordner beschreibbar ist und kein anderes Programm die Dateien sperrt. ScoreSight versucht es bei jedem Speichern erneut.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="950"/>
+        <location filename="../src/output_status.py" line="961"/>
         <source>Writing to {folder} · 1 file</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Schreiben in {folder} · 1 Datei</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="954"/>
+        <location filename="../src/output_status.py" line="965"/>
         <source>Writing to {folder} · {count} files</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Schreiben in {folder} · {count} Dateien</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="962"/>
+        <location filename="../src/output_status.py" line="973"/>
         <source>The files are in {folder}. A file is written when its value changes.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Die Dateien liegen in {folder}. Eine Datei wird geschrieben, wenn sich ihr Wert ändert.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="984"/>
+        <location filename="../src/output_status.py" line="995"/>
         <source>Not running: port {port} is in use</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Läuft nicht: Port {port} ist belegt</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="989"/>
+        <location filename="../src/output_status.py" line="1000"/>
         <source>Another program (or another ScoreSight) uses port {port}. Close it, or start ScoreSight with --port to use another port.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Ein anderes Programm (oder ein anderes ScoreSight) verwendet Port {port}. Schließen Sie es oder starten Sie ScoreSight mit --port, um einen anderen Port zu verwenden.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="998"/>
+        <location filename="../src/output_status.py" line="1009"/>
         <source>{url} · no requests yet</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{url} · noch keine Anfragen</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1002"/>
+        <location filename="../src/output_status.py" line="1013"/>
         <source>{url} · 1 client</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{url} · 1 Client</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1006"/>
+        <location filename="../src/output_status.py" line="1017"/>
         <source>{url} · {count} clients</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{url} · {count} Clients</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1010"/>
+        <location filename="../src/output_status.py" line="1021"/>
         <source>{url} · no recent requests</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{url} · zuletzt keine Anfragen</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1019"/>
+        <location filename="../src/output_status.py" line="1030"/>
         <source>Always on. Open {url}/scoresight in a browser, or read {url}/json, /xml or /csv from other software.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Immer an. Öffnen Sie {url}/scoresight in einem Browser oder lesen Sie {url}/json, /xml oder /csv mit anderer Software.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1046"/>
-        <location filename="../src/output_status.py" line="1507"/>
+        <location filename="../src/output_status.py" line="1057"/>
+        <location filename="../src/output_status.py" line="1539"/>
         <source>Connecting to {target}…</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Verbinden mit {target}…</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1056"/>
+        <location filename="../src/output_status.py" line="1067"/>
         <source>Not connected: {problem}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Nicht verbunden: {problem}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1063"/>
+        <location filename="../src/output_status.py" line="1074"/>
         <source>Then click Connect OBS.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Klicken Sie dann auf „OBS verbinden“.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1074"/>
+        <location filename="../src/output_status.py" line="1085"/>
         <source>Not connected</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Nicht verbunden</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1075"/>
+        <location filename="../src/output_status.py" line="1086"/>
         <source>Click Connect OBS to update text sources in OBS Studio.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Klicken Sie auf „OBS verbinden“, um Textquellen in OBS Studio zu aktualisieren.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1086"/>
-        <location filename="../src/output_status.py" line="1534"/>
+        <location filename="../src/output_status.py" line="1097"/>
+        <location filename="../src/output_status.py" line="1566"/>
         <source>Connected to {target}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Verbunden mit {target}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1090"/>
+        <location filename="../src/output_status.py" line="1101"/>
         <source>A text source is updated when its field&apos;s value changes.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Eine Textquelle wird aktualisiert, wenn sich der Wert ihres Felds ändert.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1099"/>
+        <location filename="../src/output_status.py" line="1110"/>
         <source>Reconnecting to OBS at {target}…</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Neue Verbindung zu OBS unter {target}…</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1102"/>
+        <location filename="../src/output_status.py" line="1113"/>
         <source>The connection to OBS was lost. ScoreSight reconnects by itself as soon as OBS is reachable again.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Die Verbindung zu OBS wurde unterbrochen. ScoreSight verbindet sich automatisch neu, sobald OBS wieder erreichbar ist.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1111"/>
+        <location filename="../src/output_status.py" line="1122"/>
         <source>Connected, but no field has an OBS text source</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Verbunden, aber kein Feld hat eine OBS-Textquelle</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1114"/>
+        <location filename="../src/output_status.py" line="1125"/>
         <source>The standard fields update OBS text sources with their names (Home score, Clock...). Place them on the picture.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Die Standardfelder aktualisieren OBS-Textquellen mit ihren Namen (Home score, Clock...). Platzieren Sie sie im Bild.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1138"/>
+        <location filename="../src/output_status.py" line="1149"/>
         <source>Click Start vMix to update input {input} at {target}.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Klicken Sie auf „vMix starten“, um Eingabe {input} unter {target} zu aktualisieren.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1146"/>
-        <location filename="../src/output_status.py" line="1238"/>
-        <location filename="../src/output_status.py" line="1448"/>
-        <location filename="../src/output_status.py" line="1607"/>
+        <location filename="../src/output_status.py" line="1157"/>
+        <location filename="../src/output_status.py" line="1249"/>
+        <location filename="../src/output_status.py" line="1471"/>
+        <location filename="../src/output_status.py" line="1639"/>
         <source>No fields to send</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Keine Felder zum Senden</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1148"/>
+        <location filename="../src/output_status.py" line="1159"/>
         <source>Place fields on the picture and enter their vMix field names (for example Home Score.Text) in the table.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Platzieren Sie Felder im Bild und tragen Sie ihre vMix-Feldnamen (z. B. Home Score.Text) in die Tabelle ein.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1159"/>
+        <location filename="../src/output_status.py" line="1170"/>
         <source>Waiting for a new value for {target}, input {input}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Warten auf neuen Wert für {target}, Eingabe {input}</translation>
@@ -5040,75 +5058,75 @@ Auflösung: {width}×{height}</translation>
         <translation type="obsolete">vMix erhält den Wert eines Felds, wenn er sich ändert (oder jedes Mal, mit „Gleiche senden?“).</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1173"/>
+        <location filename="../src/output_status.py" line="1184"/>
         <source>Sending to {target}, input {input}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Senden an {target}, Eingabe {input}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1217"/>
+        <location filename="../src/output_status.py" line="1228"/>
         <source>Click Start sending to drive your overlays.uno overlay.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Klicken Sie auf „Senden starten“, um Ihr overlays.uno-Overlay zu steuern.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1226"/>
+        <location filename="../src/output_status.py" line="1237"/>
         <source>Enter your UNO API URL</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">UNO-API-URL eingeben</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1228"/>
+        <location filename="../src/output_status.py" line="1239"/>
         <source>Copy the API URL of your overlay&apos;s control app in overlays.uno into URL.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Kopieren Sie die API-URL der Steuer-App Ihres Overlays aus overlays.uno in „URL“.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1240"/>
+        <location filename="../src/output_status.py" line="1251"/>
         <source>Place fields on the picture and enter the UNO commands in the table.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Platzieren Sie Felder im Bild und tragen Sie die UNO-Befehle in die Tabelle ein.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1261"/>
+        <location filename="../src/output_status.py" line="1272"/>
         <source>Waiting for a new value for {host}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Warten auf neuen Wert für {host}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1268"/>
+        <location filename="../src/output_status.py" line="1279"/>
         <source>Sending to {host}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Senden an {host}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1313"/>
+        <location filename="../src/output_status.py" line="1324"/>
         <source>Tick the checkbox to send the readings to a URL on every detection cycle.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Aktivieren Sie das Kontrollkästchen, um die Ablesungen bei jedem Erkennungszyklus an eine URL zu senden.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1323"/>
+        <location filename="../src/output_status.py" line="1334"/>
         <source>Enter a URL</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">URL eingeben</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1325"/>
+        <location filename="../src/output_status.py" line="1336"/>
         <source>Enter the URL to send the readings to, for example http://192.168.1.10:8091/scores.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Geben Sie die URL ein, an die die Ablesungen gesendet werden, z. B. http://192.168.1.10:8091/scores.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="541"/>
-        <location filename="../src/output_status.py" line="1335"/>
+        <location filename="../src/output_status.py" line="552"/>
+        <location filename="../src/output_status.py" line="1346"/>
         <source>The URL isn&apos;t valid</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Die URL ist ungültig</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="542"/>
-        <location filename="../src/output_status.py" line="1337"/>
+        <location filename="../src/output_status.py" line="553"/>
+        <location filename="../src/output_status.py" line="1348"/>
         <source>The URL needs a scheme and a host, for example http://192.168.1.10:8091/scores.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Die URL braucht ein Schema und einen Host, z. B. http://192.168.1.10:8091/scores.</translation>
@@ -5119,26 +5137,26 @@ Auflösung: {width}×{height}</translation>
         <translation type="obsolete">overlays.uno begrenzt, wie viele Aktualisierungen es annimmt, und verwirft den Rest. Lassen Sie „Auch unveränderte Werte senden“ aus und „Bei Änderung aktualisieren“ an.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1163"/>
-        <location filename="../src/output_status.py" line="1177"/>
+        <location filename="../src/output_status.py" line="1174"/>
+        <location filename="../src/output_status.py" line="1188"/>
         <source>vMix gets a field&apos;s value when it changes (or every time, with “Also resend unchanged values”).</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">vMix erhält den Wert eines Felds, wenn er sich ändert (oder jedes Mal, mit „Auch unveränderte Werte senden“).</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1359"/>
+        <location filename="../src/output_status.py" line="1370"/>
         <source>GET to {target}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">GET an {target}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1363"/>
+        <location filename="../src/output_status.py" line="1374"/>
         <source>{method} {encoding} to {target}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{method} {encoding} an {target}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1388"/>
+        <location filename="../src/output_status.py" line="1399"/>
         <source>Waiting for readings: {request}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Warten auf Ablesungen: {request}</translation>
@@ -5833,204 +5851,215 @@ Klicken Sie, um den Ordner oder seine Größenbegrenzung zu ändern; „Werkzeug
 <context>
     <name>TcpOutput</name>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="88"/>
+        <location filename="../src/tcp_ui_handler.py" line="91"/>
         <source>Custom</source>
         <translation type="unfinished">Benutzerdefiniert</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="95"/>
+        <location filename="../src/tcp_ui_handler.py" line="98"/>
         <source>From CasparCG&apos;s AMCP documentation; not tested with CasparCG yet. Copy the bundled template into CasparCG&apos;s templates folder.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Aus der AMCP-Dokumentation von CasparCG; noch nicht mit CasparCG getestet. Kopieren Sie die mitgelieferte Vorlage in den Vorlagenordner von CasparCG.</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="101"/>
+        <location filename="../src/tcp_ui_handler.py" line="104"/>
         <source>From Chyron&apos;s Intelligent Interface documentation; not tested with PRIME yet. Use the port of PRIME&apos;s Intelligent Interface connection, and name the scene&apos;s objects like the names below.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Aus der Intelligent-Interface-Dokumentation von Chyron; noch nicht mit PRIME getestet. Verwenden Sie den Port der Intelligent-Interface-Verbindung von PRIME und benennen Sie die Objekte der Szene wie die Namen unten.</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="108"/>
+        <location filename="../src/tcp_ui_handler.py" line="111"/>
         <source>Based on public documentation, untested: the format comes from another OCR app&apos;s guide. Use the port and the field names of Live Score&apos;s OCR Setup.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Nach öffentlicher Dokumentation, ungetestet: Das Format stammt aus der Anleitung einer anderen OCR-App. Verwenden Sie den Port und die Feldnamen aus dem OCR Setup von Live Score.</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="115"/>
+        <location filename="../src/tcp_ui_handler.py" line="118"/>
         <source>Based on public documentation, untested: the format comes from another OCR app&apos;s guide. Put [name] in a text item, then File › Refresh All projects.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Nach öffentlicher Dokumentation, ungetestet: Das Format stammt aus der Anleitung einer anderen OCR-App. Schreiben Sie [Name] in ein Textelement und wählen Sie dann File › Refresh All projects.</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="122"/>
+        <location filename="../src/tcp_ui_handler.py" line="125"/>
         <source>From Vizrt&apos;s Shared Memory documentation; not tested with Viz Engine yet. Use the Shared Memory port set in Viz Configuration.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Aus der Shared-Memory-Dokumentation von Vizrt; noch nicht mit Viz Engine getestet. Verwenden Sie den in Viz Configuration eingestellten Shared-Memory-Port.</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="127"/>
+        <location filename="../src/tcp_ui_handler.py" line="131"/>
+        <source>For your own web app or server: each time a value changes, a JSON object with every field goes to its WebSocket URL. A token goes in Headers (Authorization: Bearer …) or in the URL.</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Für Ihre eigene Web-App oder Ihren eigenen Server: Bei jeder Wertänderung geht ein JSON-Objekt mit allen Feldern an dessen WebSocket-URL. Ein Token gehört unter „Header“ (Authorization: Bearer …) oder in die URL.</translation>
+    </message>
+    <message>
+        <location filename="../src/tcp_ui_handler.py" line="137"/>
         <source>Your own protocol: edit the template and the options. The preview shows what is sent.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Ihr eigenes Protokoll: Bearbeiten Sie die Vorlage und die Optionen. Die Vorschau zeigt, was gesendet wird.</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="138"/>
+        <location filename="../src/tcp_ui_handler.py" line="148"/>
         <source>TCP server: other programs connect to {address}:{port} (localhost:{port} on this computer), and each one gets the messages.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">TCP-Server: Andere Programme verbinden sich mit {address}:{port} (localhost:{port} auf diesem Computer), und jedes erhält die Nachrichten.</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="143"/>
+        <location filename="../src/tcp_ui_handler.py" line="153"/>
         <source>TCP server: other programs connect to this computer&apos;s address, port {port} (localhost:{port} on this computer), and each one gets the messages.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">TCP-Server: Andere Programme verbinden sich mit der Adresse dieses Computers, Port {port} (localhost:{port} auf diesem Computer), und jedes erhält die Nachrichten.</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="156"/>
+        <location filename="../src/tcp_ui_handler.py" line="166"/>
         <source>A message per changed field</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Eine Nachricht pro geändertem Feld</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="160"/>
+        <location filename="../src/tcp_ui_handler.py" line="170"/>
         <source>One message with every field</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Eine Nachricht mit allen Feldern</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="169"/>
         <location filename="../src/tcp_ui_handler.py" line="179"/>
+        <location filename="../src/tcp_ui_handler.py" line="189"/>
         <source>None</source>
         <translation type="unfinished">Keine</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="180"/>
+        <location filename="../src/tcp_ui_handler.py" line="190"/>
         <source>Line breaks to spaces</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Zeilenumbrüche zu Leerzeichen</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="181"/>
+        <location filename="../src/tcp_ui_handler.py" line="191"/>
         <source>JSON string</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">JSON-Zeichenkette</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="183"/>
+        <location filename="../src/tcp_ui_handler.py" line="193"/>
         <source>AMCP (CasparCG)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">AMCP (CasparCG)</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="184"/>
+        <location filename="../src/tcp_ui_handler.py" line="194"/>
         <source>Chyron fields</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Chyron-Felder</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="185"/>
+        <location filename="../src/tcp_ui_handler.py" line="195"/>
         <source>Leave out NUL</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">NUL weglassen</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="345"/>
+        <location filename="../src/tcp_ui_handler.py" line="358"/>
         <source>Also send a field&apos;s value when it hasn&apos;t changed, at every detection. Off: a value is sent only when it changes.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Den Wert eines Felds bei jeder Erkennung senden, auch wenn er sich nicht geändert hat. Aus: Ein Wert wird nur gesendet, wenn er sich ändert.</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="352"/>
+        <location filename="../src/tcp_ui_handler.py" line="365"/>
         <source>No limit</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Keine Grenze</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="355"/>
+        <location filename="../src/tcp_ui_handler.py" line="368"/>
         <source>Never</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Nie</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="556"/>
+        <location filename="../src/tcp_ui_handler.py" line="581"/>
+        <source>URL</source>
+        <translation type="unfinished">URL</translation>
+    </message>
+    <message>
+        <location filename="../src/tcp_ui_handler.py" line="587"/>
         <source>Listen on port</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Lauscht auf Port</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="559"/>
+        <location filename="../src/tcp_ui_handler.py" line="590"/>
         <source>The port ScoreSight listens on. Set the same port in the program that connects to ScoreSight.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Der Port, auf dem ScoreSight lauscht. Stellen Sie denselben Port im Programm ein, das sich mit ScoreSight verbindet.</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="602"/>
+        <location filename="../src/tcp_ui_handler.py" line="633"/>
         <source>On connect:</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Beim Verbinden:</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="606"/>
+        <location filename="../src/tcp_ui_handler.py" line="637"/>
         <source>For a changed field:</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Für ein geändertes Feld:</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="610"/>
+        <location filename="../src/tcp_ui_handler.py" line="641"/>
         <source>When a value changes:</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Wenn sich ein Wert ändert:</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="614"/>
+        <location filename="../src/tcp_ui_handler.py" line="645"/>
         <source>(nothing)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">(nichts)</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="618"/>
+        <location filename="../src/tcp_ui_handler.py" line="649"/>
         <source>(and a message like it for each of {count} more fields)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">(und eine solche Nachricht für jedes der {count} weiteren Felder)</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="636"/>
+        <location filename="../src/tcp_ui_handler.py" line="667"/>
         <source>Last answer: {reply}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Letzte Antwort: {reply}</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="722"/>
+        <location filename="../src/tcp_ui_handler.py" line="753"/>
         <source>Choose CasparCG&apos;s templates folder</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Vorlagenordner von CasparCG wählen</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="734"/>
+        <location filename="../src/tcp_ui_handler.py" line="765"/>
         <source>Replace the template?</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Vorlage ersetzen?</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="735"/>
+        <location filename="../src/tcp_ui_handler.py" line="766"/>
         <source>{file} already exists in {folder}. Replace it?</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{file} ist in {folder} bereits vorhanden. Ersetzen?</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="746"/>
+        <location filename="../src/tcp_ui_handler.py" line="777"/>
         <source>The template wasn&apos;t copied</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Die Vorlage wurde nicht kopiert</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="747"/>
+        <location filename="../src/tcp_ui_handler.py" line="778"/>
         <source>Could not copy {file} to {folder}: {error}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{file} konnte nicht nach {folder} kopiert werden: {error}</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="756"/>
+        <location filename="../src/tcp_ui_handler.py" line="787"/>
         <source>Copied to {path}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Kopiert nach {path}</translation>
@@ -6064,38 +6093,50 @@ Klicken Sie, um den Ordner oder seine Größenbegrenzung zu ändern; „Werkzeug
     </message>
     <message>
         <location filename="../src/tcp_output.ui" line="136"/>
-        <location filename="../src/tcp_ui_handler.py" line="567"/>
+        <location filename="../src/tcp_ui_handler.py" line="598"/>
         <source>Address</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Adresse</translation>
     </message>
     <message>
         <location filename="../src/tcp_output.ui" line="170"/>
+        <source>WebSocket URL</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">WebSocket-URL</translation>
+    </message>
+    <message>
+        <location filename="../src/tcp_output.ui" line="173"/>
+        <source>The WebSocket address of the receiving server (ws:// or wss://). A token can go in the URL or in Headers</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Die WebSocket-Adresse des empfangenden Servers (ws:// oder wss://). Ein Token kann in die URL oder unter „Header“</translation>
+    </message>
+    <message>
+        <location filename="../src/tcp_output.ui" line="189"/>
         <source>Host</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Host</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="173"/>
+        <location filename="../src/tcp_output.ui" line="192"/>
         <source>The address of the receiving program&apos;s computer (localhost if it runs on this computer)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Die Adresse des Computers mit dem empfangenden Programm (localhost, wenn es auf diesem Computer läuft)</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="202"/>
-        <location filename="../src/tcp_output.ui" line="208"/>
+        <location filename="../src/tcp_output.ui" line="221"/>
+        <location filename="../src/tcp_output.ui" line="227"/>
         <source>Port</source>
         <translation type="unfinished">Port</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="205"/>
-        <location filename="../src/tcp_ui_handler.py" line="570"/>
+        <location filename="../src/tcp_output.ui" line="224"/>
+        <location filename="../src/tcp_ui_handler.py" line="601"/>
         <source>The port the receiving program listens on (set in that program)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Der Port, auf dem das empfangende Programm lauscht (in diesem Programm eingestellt)</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="221"/>
+        <location filename="../src/tcp_output.ui" line="240"/>
         <source>Transport</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Transport</translation>
@@ -6106,252 +6147,274 @@ Klicken Sie, um den Ordner oder seine Größenbegrenzung zu ändern; „Werkzeug
         <translation type="obsolete">TCP hält eine Verbindung offen. UDP sendet jede Nachricht als Datagramm, ohne Verbindung.</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="224"/>
         <source>TCP connects to the receiving program and keeps the connection open. UDP sends each message as a datagram, without a connection. TCP server: ScoreSight listens on the port, and every program that connects to it gets the messages.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
-        <translation type="unfinished">TCP verbindet sich mit dem empfangenden Programm und hält die Verbindung offen. UDP sendet jede Nachricht als Datagramm, ohne Verbindung. TCP-Server: ScoreSight lauscht auf dem Port, und jedes Programm, das sich verbindet, erhält die Nachrichten.</translation>
+        <translation type="obsolete">TCP verbindet sich mit dem empfangenden Programm und hält die Verbindung offen. UDP sendet jede Nachricht als Datagramm, ohne Verbindung. TCP-Server: ScoreSight lauscht auf dem Port, und jedes Programm, das sich verbindet, erhält die Nachrichten.</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="238"/>
+        <location filename="../src/tcp_output.ui" line="243"/>
+        <source>TCP connects to the receiving program and keeps the connection open. UDP sends each message as a datagram, without a connection. TCP server: ScoreSight listens on the port, and every program that connects to it gets the messages. WebSocket connects to a ws:// or wss:// URL and sends each message as a WebSocket message.</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">TCP verbindet sich mit dem empfangenden Programm und hält die Verbindung offen. UDP sendet jede Nachricht als Datagramm, ohne Verbindung. TCP-Server: ScoreSight lauscht auf dem Port, und jedes Programm, das sich verbindet, erhält die Nachrichten. WebSocket verbindet sich mit einer ws://- oder wss://-URL und sendet jede Nachricht als WebSocket-Nachricht.</translation>
+    </message>
+    <message>
+        <location filename="../src/tcp_output.ui" line="257"/>
         <source>TCP server</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">TCP-Server</translation>
     </message>
     <message>
         <location filename="../src/tcp_output.ui" line="273"/>
+        <source>Headers</source>
+        <translation type="unfinished">Header</translation>
+    </message>
+    <message>
+        <location filename="../src/tcp_output.ui" line="289"/>
+        <source>WebSocket headers</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">WebSocket-Header</translation>
+    </message>
+    <message>
+        <location filename="../src/tcp_output.ui" line="292"/>
+        <source>Extra headers for the WebSocket connection, one &quot;Name: value&quot; per line, for example an Authorization token</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">Zusätzliche Header für die WebSocket-Verbindung, ein „Name: Wert“ pro Zeile, z. B. ein Authorization-Token</translation>
+    </message>
+    <message>
+        <location filename="../src/tcp_output.ui" line="332"/>
         <source>Start or stop the TCP / UDP output</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">TCP/UDP-Ausgabe starten oder stoppen</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="276"/>
+        <location filename="../src/tcp_output.ui" line="335"/>
         <source>Connect and send the readings, or stop</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Verbinden und die Ablesungen senden, oder stoppen</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="342"/>
+        <location filename="../src/tcp_output.ui" line="401"/>
         <source>Channel</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Kanal</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="352"/>
+        <location filename="../src/tcp_output.ui" line="411"/>
         <source>CasparCG&apos;s video channel ({channel} in the templates)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Der Videokanal von CasparCG ({channel} in den Vorlagen)</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="365"/>
+        <location filename="../src/tcp_output.ui" line="424"/>
         <source>Layer</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Ebene</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="375"/>
+        <location filename="../src/tcp_output.ui" line="434"/>
         <source>The layer of the channel ({layer} in the templates)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Die Ebene des Kanals ({layer} in den Vorlagen)</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="388"/>
+        <location filename="../src/tcp_output.ui" line="447"/>
         <source>CG layer</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">CG-Ebene</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="398"/>
+        <location filename="../src/tcp_output.ui" line="457"/>
         <source>The template&apos;s layer inside the CG producer ({cg_layer} in the templates)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Die Ebene der Vorlage im CG-Producer ({cg_layer} in den Vorlagen)</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="408"/>
+        <location filename="../src/tcp_output.ui" line="467"/>
         <source>Template name</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Vorlagenname</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="418"/>
+        <location filename="../src/tcp_output.ui" line="477"/>
         <source>The template&apos;s file name in CasparCG&apos;s templates folder, without .html ({template} in the templates)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Der Dateiname der Vorlage im Vorlagenordner von CasparCG, ohne .html ({template} in den Vorlagen)</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="443"/>
+        <location filename="../src/tcp_output.ui" line="502"/>
         <source>Send the “on connect” message again (CG ADD: loads and plays the template)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Die Nachricht „Beim Verbinden“ erneut senden (CG ADD: lädt die Vorlage und spielt sie ab)</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="446"/>
+        <location filename="../src/tcp_output.ui" line="505"/>
         <source>Load</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Laden</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="453"/>
+        <location filename="../src/tcp_output.ui" line="512"/>
         <source>CG PLAY: show the template</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">CG PLAY: die Vorlage zeigen</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="456"/>
+        <location filename="../src/tcp_output.ui" line="515"/>
         <source>Play</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Abspielen</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="463"/>
+        <location filename="../src/tcp_output.ui" line="522"/>
         <source>CG STOP: hide the template (it animates out)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">CG STOP: die Vorlage ausblenden (mit ihrer Animation)</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="466"/>
+        <location filename="../src/tcp_output.ui" line="525"/>
         <source>Stop</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Stopp</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="476"/>
+        <location filename="../src/tcp_output.ui" line="535"/>
         <source>Copy ScoreSight&apos;s scorebug template (scoresight_scorebug.html) into CasparCG&apos;s templates folder</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Die Scorebug-Vorlage von ScoreSight (scoresight_scorebug.html) in den Vorlagenordner von CasparCG kopieren</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="479"/>
+        <location filename="../src/tcp_output.ui" line="538"/>
         <source>Copy template…</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Vorlage kopieren…</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="489"/>
+        <location filename="../src/tcp_output.ui" line="548"/>
         <source>Send</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Senden</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="499"/>
+        <location filename="../src/tcp_output.ui" line="558"/>
         <source>A message for each field whose value changed, or one message with every field</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Eine Nachricht für jedes Feld, dessen Wert sich geändert hat, oder eine Nachricht mit allen Feldern</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="512"/>
+        <location filename="../src/tcp_output.ui" line="571"/>
         <source>Template</source>
         <translation type="unfinished">Vorlage</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="534"/>
+        <location filename="../src/tcp_output.ui" line="593"/>
         <source>Each line is sent as a line. Placeholders: {field}, {value}, {json}, {xml}, and {channel}, {layer}, {cg_layer}, {template} for CasparCG. Everything else is sent as it is.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Jede Zeile wird als Zeile gesendet. Platzhalter: {field}, {value}, {json}, {xml} sowie {channel}, {layer}, {cg_layer}, {template} für CasparCG. Alles andere wird unverändert gesendet.</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="544"/>
+        <location filename="../src/tcp_output.ui" line="603"/>
         <source>On connect</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Beim Verbinden</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="554"/>
+        <location filename="../src/tcp_output.ui" line="613"/>
         <source>Sent once after each connection, before the values (for example CasparCG&apos;s CG ADD). Empty: nothing.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Wird nach jeder Verbindung einmal vor den Werten gesendet (zum Beispiel CG ADD von CasparCG). Leer: nichts.</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="561"/>
+        <location filename="../src/tcp_output.ui" line="620"/>
         <source>Preview</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Vorschau</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="583"/>
+        <location filename="../src/tcp_output.ui" line="642"/>
         <source>What is sent for the current values. ␍ is a carriage return, ␊ a line feed, ␀ a NUL character.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Was für die aktuellen Werte gesendet wird. ␍ ist ein Wagenrücklauf, ␊ ein Zeilenvorschub, ␀ ein NUL-Zeichen.</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="596"/>
+        <location filename="../src/tcp_output.ui" line="655"/>
         <source>Line ending</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Zeilenende</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="606"/>
+        <location filename="../src/tcp_output.ui" line="665"/>
         <source>What ends each line of a message</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Was jede Zeile einer Nachricht abschließt</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="619"/>
+        <location filename="../src/tcp_output.ui" line="678"/>
         <source>Encoding</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Kodierung</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="629"/>
+        <location filename="../src/tcp_output.ui" line="688"/>
         <source>The text encoding the receiving program expects. Characters it can&apos;t encode are sent as “?”.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Die Textkodierung, die das empfangende Programm erwartet. Zeichen, die sie nicht darstellen kann, werden als „?“ gesendet.</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="642"/>
+        <location filename="../src/tcp_output.ui" line="701"/>
         <source>Escaping</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Maskierung</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="652"/>
+        <location filename="../src/tcp_output.ui" line="711"/>
         <source>How the text of the placeholders is escaped, so that a value can&apos;t break the protocol</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Wie der Text der Platzhalter maskiert wird, damit ein Wert das Protokoll nicht stören kann</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="672"/>
+        <location filename="../src/tcp_output.ui" line="731"/>
         <source>At most every</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Höchstens alle</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="682"/>
+        <location filename="../src/tcp_output.ui" line="741"/>
         <source>The shortest time between two sends: the values that change meanwhile go out together, the latest ones</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Die kürzeste Zeit zwischen zwei Sendungen: Werte, die sich in der Zwischenzeit ändern, gehen zusammen hinaus, die neuesten</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="701"/>
+        <location filename="../src/tcp_output.ui" line="760"/>
         <source>Resend all every</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Alles erneut senden alle</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="711"/>
+        <location filename="../src/tcp_output.ui" line="770"/>
         <source>Send every value again this often, for a receiver that forgets them (a reloaded template, a restarted engine)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Alle Werte so oft erneut senden, für einen Empfänger, der sie vergisst (eine neu geladene Vorlage, eine neu gestartete Engine)</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="730"/>
+        <location filename="../src/tcp_output.ui" line="789"/>
         <source>The name each field is sent as ({field}). An empty name leaves the field out.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Der Name, unter dem jedes Feld gesendet wird ({field}). Ein leerer Name lässt das Feld aus.</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="746"/>
+        <location filename="../src/tcp_output.ui" line="805"/>
         <source>Each field and the name it is sent as. Edit the right column.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Jedes Feld und der Name, unter dem es gesendet wird. Bearbeiten Sie die rechte Spalte.</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="774"/>
+        <location filename="../src/tcp_output.ui" line="833"/>
         <source>Use the preset&apos;s names for every field again</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Wieder die Namen der Voreinstellung für alle Felder verwenden</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="777"/>
+        <location filename="../src/tcp_output.ui" line="836"/>
         <source>Reset names</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Namen zurücksetzen</translation>

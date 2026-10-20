@@ -2177,6 +2177,61 @@ def test_the_tcp_output_page(main_window, make_target, make_result, qtbot):
     assert not ui.pushButton_tcpPlay.isEnabled()
 
 
+def test_the_tcp_output_over_a_websocket(main_window, make_target, make_result, qtbot):
+    from tcp_output import CASPARCG, WEBSOCKET, WEBSOCKET_JSON
+    from websocket_server import WebSocketServer
+
+    tcp = main_window.tcpUiHandler
+    ui = tcp.ui
+    main_window.showDestination("tcp")
+    main_window.detectionTargetsStorage.add_item(make_target("Home Score"))
+
+    # the preset: a URL and headers instead of the host and port
+    combo = ui.comboBox_tcpPreset
+    combo.setCurrentIndex(combo.findData(WEBSOCKET_JSON))
+    combo.activated.emit(combo.currentIndex())
+    assert tcp.output.config.transport == WEBSOCKET
+    assert ui.lineEdit_tcpUrl.isVisibleTo(tcp.page)
+    assert ui.plainTextEdit_tcpHeaders.isVisibleTo(tcp.page)
+    assert not ui.lineEdit_tcpHost.isVisibleTo(tcp.page)
+    assert not ui.lineEdit_tcpPort.isVisibleTo(tcp.page)
+    assert not ui.comboBox_tcpEncoding.isEnabled()  # always UTF-8
+    assert ui.label_tcpAddress.text() == "URL"
+    assert "WebSocket" in ui.label_tcpPresetNote.text()
+
+    server = WebSocketServer()
+    try:
+        ui.lineEdit_tcpUrl.setText(server.url("/live"))
+        ui.lineEdit_tcpUrl.editingFinished.emit()
+        ui.plainTextEdit_tcpHeaders.setPlainText("Authorization: Bearer abc")
+        qtbot.waitUntil(
+            lambda: (
+                fetch_data("scoresight.json", "tcp_output")["headers"]
+                == "Authorization: Bearer abc"
+            )
+        )
+        assert fetch_data("scoresight.json", "tcp_output")["url"] == server.url("/live")
+        ui.pushButton_tcpStart.setChecked(True)
+        qtbot.waitUntil(lambda: destination_status(main_window, "tcp").state == "ok")
+        assert destination_status(main_window, "tcp").detail == (
+            f"WebSocket (JSON): Connected to 127.0.0.1:{server.port}"
+        )
+        assert server.connections[0].headers["authorization"] == "Bearer abc"
+        main_window.ocrResult([make_result("Home Score", "21")])
+        server.wait_for(['{"Home Score": "21"}'])
+        ui.pushButton_tcpStart.setChecked(False)
+    finally:
+        server.close()
+
+    # a TCP preset: the host and port again
+    combo.setCurrentIndex(combo.findData(CASPARCG))
+    combo.activated.emit(combo.currentIndex())
+    assert not ui.lineEdit_tcpUrl.isVisibleTo(tcp.page)
+    assert not ui.plainTextEdit_tcpHeaders.isVisibleTo(tcp.page)
+    assert ui.lineEdit_tcpHost.isVisibleTo(tcp.page)
+    assert ui.comboBox_tcpEncoding.isEnabled()
+
+
 def test_the_tcp_output_keeps_its_settings_across_a_language_change(main_window, qapp):
     from tcp_output import CHYRON
 

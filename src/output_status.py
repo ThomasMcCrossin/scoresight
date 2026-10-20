@@ -32,7 +32,15 @@ from file_output import FileOutputStatus
 from http_server import HttpServerStats
 from obs_websocket import OBSConnectionLost
 from output_worker import ErrorInfo, OutputError, RetryLater, WorkerStatus
-from tcp_output import CASPARCG, UDP, ConnectionStatus, ListenError, TcpConfig
+from tcp_output import (
+    CASPARCG,
+    UDP,
+    WEBSOCKET,
+    ConnectionStatus,
+    ListenError,
+    TcpConfig,
+    WebSocketRefused,
+)
 from vmix_output import DEFAULT_VMIX_PORT, VMixTCPPortError
 
 # the destinations, in the order of the list and of the output pages
@@ -514,6 +522,9 @@ def describe_error(
 
     # HTTP error statuses (the endpoint answered)
     if key in (VMIX, UNO, API) and error.code is not None and _is_a(error, OutputError):
+        return _describe_http_status(key, error, secrets)
+    # a WebSocket server refused the handshake (the TCP / UDP output)
+    if key == TCP and error.code is not None and _is_a(error, WebSocketRefused):
         return _describe_http_status(key, error, secrets)
 
     # retrying doesn't help with these
@@ -1417,7 +1428,7 @@ def tcp_status(
             running, config, product, has_fields, worker, connection
         )
     target = config.target
-    transport = "UDP" if config.transport == UDP else "TCP"
+    transport = {UDP: "UDP", WEBSOCKET: "WebSocket"}.get(config.transport, "TCP")
     if not running:
         return DestinationStatus(
             TCP,
@@ -1428,6 +1439,18 @@ def tcp_status(
                 "Click Start sending to send the readings over {transport} to "
                 "{target}.",
             ).format(transport=transport, target=target),
+        )
+    if not config.is_complete and config.websocket:
+        return DestinationStatus(
+            TCP,
+            WARNING,
+            QCoreApplication.translate("OutputStatus", "Enter a ws:// or wss:// URL"),
+            enabled=True,
+            hint=QCoreApplication.translate(
+                "OutputStatus",
+                "Enter the WebSocket address of the receiving server, for example "
+                "wss://example.com/scores.",
+            ),
         )
     if not config.is_complete:
         return DestinationStatus(
@@ -1488,17 +1511,26 @@ def tcp_status(
 
     problem = worker_problem(TCP, worker, target)
     if problem is None and connection.quick_closes >= 2:
+        if config.websocket:
+            hint = QCoreApplication.translate(
+                "OutputStatus",
+                "The server accepts the WebSocket, then closes it: check the URL's "
+                "path and the token (in Headers or in the URL). ScoreSight "
+                "connects again, waiting a little longer each time.",
+            )
+        else:
+            hint = QCoreApplication.translate(
+                "OutputStatus",
+                "Check the port: it must be the receiving program's input for this "
+                "protocol (not, for example, a web server's port). ScoreSight "
+                "connects again, waiting a little longer each time.",
+            )
         problem = Problem(
             WARNING,
             QCoreApplication.translate(
                 "OutputStatus", "{target} closes the connection right away"
             ).format(target=target),
-            QCoreApplication.translate(
-                "OutputStatus",
-                "Check the port: it must be the receiving program's input for this "
-                "protocol (not, for example, a web server's port). ScoreSight "
-                "connects again, waiting a little longer each time.",
-            ),
+            hint,
         )
     if not connection.connected:
         status = DestinationStatus(

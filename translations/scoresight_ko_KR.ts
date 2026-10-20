@@ -1084,7 +1084,7 @@ Resolution: {width}×{height}</source>
         <translation type="vanished">텍스트 파일</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="150"/>
+        <location filename="../src/output_status.py" line="158"/>
         <source>Write the readings to .txt, .csv and .xml files</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">판독값을 .txt, .csv, .xml 파일에 기록합니다</translation>
@@ -1208,7 +1208,7 @@ Resolution: {width}×{height}</source>
         <translation type="vanished">브라우저</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="153"/>
+        <location filename="../src/output_status.py" line="161"/>
         <source>The built-in HTTP server: a scoreboard page, JSON, XML and CSV</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">내장 HTTP 서버: 스코어보드 페이지, JSON, XML, CSV</translation>
@@ -1220,7 +1220,7 @@ Resolution: {width}×{height}</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;외부 소프트웨어에서 다음 엔드포인트를 사용하면 실시간 데이터 업데이트를 받을 수 있습니다&lt;/p&gt;&lt;p&gt;HTML 스코어보드: &lt;a href=&quot;http://localhost:18099/scoresight&quot;&gt;http://localhost:18099/scoresight&lt;/a&gt;&lt;br/&gt;JSON: &lt;a href=&quot;http://localhost:18099/json&quot;&gt;http://localhost:18099/json&lt;/a&gt; (선택 사항: ?pivot)&lt;br/&gt;XML: &lt;a href=&quot;http://localhost:18099/xml&quot;&gt;http://localhost:18099/xml&lt;/a&gt; (선택 사항: ?pivot)&lt;br/&gt;CSV: &lt;a href=&quot;http://localhost:18099/csv&quot;&gt;http://localhost:18099/csv&lt;/a&gt; (선택 사항: ?pivot)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="157"/>
+        <location filename="../src/output_status.py" line="165"/>
         <source>Update text sources in OBS Studio</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">OBS Studio의 텍스트 소스를 업데이트합니다</translation>
@@ -1245,7 +1245,7 @@ Resolution: {width}×{height}</source>
         <translation type="unfinished">표준 필드마다 텍스트 소스가 있는 씬을 OBS에 만듭니다</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="160"/>
+        <location filename="../src/output_status.py" line="168"/>
         <source>Update a title in vMix</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">vMix의 타이틀을 업데이트합니다</translation>
@@ -1315,7 +1315,7 @@ Resolution: {width}×{height}</source>
         <translation type="obsolete">같은 값도 전송?</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="161"/>
+        <location filename="../src/output_status.py" line="169"/>
         <source>Drive an overlays.uno control app</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">overlays.uno 컨트롤 앱을 제어합니다</translation>
@@ -1353,7 +1353,7 @@ Resolution: {width}×{height}</source>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4372"/>
-        <location filename="../src/tcp_ui_handler.py" line="507"/>
+        <location filename="../src/tcp_ui_handler.py" line="525"/>
         <location filename="../src/uno_ui_handler.py" line="127"/>
         <source>Start sending</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
@@ -2617,7 +2617,7 @@ Resolution: {width}×{height}</source>
     <message>
         <location filename="../src/mainwindow.ui" line="4297"/>
         <location filename="../src/mainwindow.ui" line="4415"/>
-        <location filename="../src/tcp_ui_handler.py" line="342"/>
+        <location filename="../src/tcp_ui_handler.py" line="355"/>
         <source>Also resend unchanged values</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">바뀌지 않은 값도 다시 보내기</translation>
@@ -2921,7 +2921,7 @@ Resolution: {width}×{height}</source>
         <translation type="unfinished">웹 브라우저에서 GitHub의 ScoreSight Discussions를 엽니다. 질문하거나, 아이디어를 나누거나, 사용 환경을 보여 주세요</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="164"/>
+        <location filename="../src/output_status.py" line="172"/>
         <source>Send the readings to a URL (outbound HTTP API)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">판독값을 URL로 전송합니다(외부 전송 HTTP API)</translation>
@@ -4006,7 +4006,7 @@ Resolution: {width}×{height}</source>
         <translation type="unfinished">vMix 시작</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="505"/>
+        <location filename="../src/tcp_ui_handler.py" line="523"/>
         <location filename="../src/uno_ui_handler.py" line="125"/>
         <source>Stop sending</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
@@ -4164,343 +4164,343 @@ Resolution: {width}×{height}</source>
 <context>
     <name>OutputStatus</name>
     <message>
-        <location filename="../src/output_status.py" line="125"/>
+        <location filename="../src/output_status.py" line="133"/>
         <source>Text files</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">텍스트 파일</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="127"/>
+        <location filename="../src/output_status.py" line="135"/>
         <source>HTTP server</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">HTTP 서버</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="129"/>
+        <location filename="../src/output_status.py" line="137"/>
         <source>HTTP API</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">HTTP API</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="136"/>
+        <location filename="../src/output_status.py" line="144"/>
         <source>Files</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">파일</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="167"/>
+        <location filename="../src/output_status.py" line="175"/>
         <source>Send the readings over TCP or UDP: CasparCG, Chyron PRIME, Live Score, MagicSoft CG, Vizrt and other graphics systems</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">TCP 또는 UDP로 판독값 보내기: CasparCG, Chyron PRIME, Live Score, MagicSoft CG, Vizrt 및 기타 그래픽 시스템</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="179"/>
+        <location filename="../src/output_status.py" line="187"/>
         <source>working</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">작동 중</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="181"/>
+        <location filename="../src/output_status.py" line="189"/>
         <source>waiting</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">대기 중</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="183"/>
+        <location filename="../src/output_status.py" line="191"/>
         <source>needs attention</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">확인 필요</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="185"/>
+        <location filename="../src/output_status.py" line="193"/>
         <source>retrying</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">재시도 중</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="187"/>
+        <location filename="../src/output_status.py" line="195"/>
         <source>not working</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">오류</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="188"/>
-        <location filename="../src/output_status.py" line="272"/>
+        <location filename="../src/output_status.py" line="196"/>
+        <location filename="../src/output_status.py" line="280"/>
         <source>off</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">꺼짐</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="195"/>
+        <location filename="../src/output_status.py" line="203"/>
         <source>just now</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">방금</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="197"/>
+        <location filename="../src/output_status.py" line="205"/>
         <source>{seconds} s ago</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{seconds}초 전</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="201"/>
+        <location filename="../src/output_status.py" line="209"/>
         <source>{minutes} min ago</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{minutes}분 전</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="204"/>
+        <location filename="../src/output_status.py" line="212"/>
         <source>{hours} h ago</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{hours}시간 전</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="213"/>
+        <location filename="../src/output_status.py" line="221"/>
         <source>a few seconds</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">몇 초</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="215"/>
+        <location filename="../src/output_status.py" line="223"/>
         <source>{seconds} s</source>
         <translation type="unfinished">{seconds}초</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="219"/>
+        <location filename="../src/output_status.py" line="227"/>
         <source>{minutes} min</source>
         <translation type="unfinished">{minutes}분</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="222"/>
+        <location filename="../src/output_status.py" line="230"/>
         <source>{hours} h</source>
         <translation type="unfinished">{hours}시간</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="233"/>
+        <location filename="../src/output_status.py" line="241"/>
         <source>Last written {age}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">마지막 기록: {age}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="237"/>
+        <location filename="../src/output_status.py" line="245"/>
         <source>Last request {age}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">마지막 요청: {age}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="240"/>
+        <location filename="../src/output_status.py" line="248"/>
         <source>Last sent {age}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">마지막 전송: {age}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="257"/>
+        <location filename="../src/output_status.py" line="265"/>
         <source>Details: {error}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">세부 정보: {error}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="270"/>
+        <location filename="../src/output_status.py" line="278"/>
         <source>on</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">켜짐</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="423"/>
+        <location filename="../src/output_status.py" line="431"/>
         <source>{problem} · retrying</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{problem} · 재시도 중</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="444"/>
+        <location filename="../src/output_status.py" line="452"/>
         <source>Port {port} is vMix&apos;s TCP API: use {web_port}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">포트 {port}은(는) vMix의 TCP API입니다: {web_port}을(를) 사용하세요</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="447"/>
+        <location filename="../src/output_status.py" line="455"/>
         <source>ScoreSight uses the vMix Web API. Set the port to the Web Controller port (vMix Settings › Web Controller, {web_port} by default).</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">ScoreSight는 vMix Web API를 사용합니다. 포트를 Web Controller 포트(vMix Settings › Web Controller, 기본값 {web_port})로 설정하세요.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="464"/>
+        <location filename="../src/output_status.py" line="472"/>
         <source>OBS needs a password</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">OBS 비밀번호가 필요합니다</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="465"/>
+        <location filename="../src/output_status.py" line="473"/>
         <source>Enter the password of OBS&apos;s WebSocket server (in OBS: Tools › WebSocket Server Settings › Show Connect Info).</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">OBS WebSocket 서버의 비밀번호를 입력하세요(OBS: 도구 › WebSocket 서버 설정 › 연결 정보 표시).</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="474"/>
+        <location filename="../src/output_status.py" line="482"/>
         <source>OBS refused the connection: check the password</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">OBS가 연결을 거부했습니다: 비밀번호를 확인하세요</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="477"/>
+        <location filename="../src/output_status.py" line="485"/>
         <source>The password doesn&apos;t match the one of OBS&apos;s WebSocket server (in OBS: Tools › WebSocket Server Settings › Show Connect Info).</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">비밀번호가 OBS WebSocket 서버의 비밀번호와 일치하지 않습니다(OBS: 도구 › WebSocket 서버 설정 › 연결 정보 표시).</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="491"/>
+        <location filename="../src/output_status.py" line="499"/>
         <source>OBS has no text source “{name}”</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">OBS에 “{name}” 텍스트 소스가 없습니다</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="495"/>
+        <location filename="../src/output_status.py" line="503"/>
         <source>OBS has no text source with a field&apos;s name</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">OBS에 필드 이름과 같은 텍스트 소스가 없습니다</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="501"/>
+        <location filename="../src/output_status.py" line="509"/>
         <source>Create a text source with this name in OBS (names are case-sensitive), or use Create OBS Scene.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">OBS에서 이 이름으로 텍스트 소스를 만들거나(이름은 대소문자를 구분함) [OBS 씬 생성]을 사용하세요.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="509"/>
+        <location filename="../src/output_status.py" line="517"/>
         <source>OBS refused an update (code {code})</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">OBS가 업데이트를 거부했습니다(코드 {code})</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="523"/>
+        <location filename="../src/output_status.py" line="534"/>
         <source>No secure connection to {target}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{target}에 보안 연결할 수 없음</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="526"/>
+        <location filename="../src/output_status.py" line="537"/>
         <source>The HTTPS connection failed (for example, the server&apos;s certificate isn&apos;t trusted). Check the URL; on your own network, http:// may be what the receiver expects.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">HTTPS 연결에 실패했습니다(예: 서버 인증서를 신뢰할 수 없음). URL을 확인하세요. 자체 네트워크에서는 수신 측이 http://를 기대할 수 있습니다.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="553"/>
+        <location filename="../src/output_status.py" line="564"/>
         <source>Can&apos;t find {host}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{host}을(를) 찾을 수 없음</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="558"/>
+        <location filename="../src/output_status.py" line="569"/>
         <source>The address {host} isn&apos;t known on this network: check it, or use the computer&apos;s IP address.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">주소 {host}을(를) 이 네트워크에서 찾을 수 없습니다. 주소를 확인하거나 컴퓨터의 IP 주소를 사용하세요.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="569"/>
+        <location filename="../src/output_status.py" line="580"/>
         <source>Nothing answered within a few seconds.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">몇 초 안에 응답이 없었습니다.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="576"/>
+        <location filename="../src/output_status.py" line="587"/>
         <source>Nothing answered within a few seconds: the computer may be off, the address wrong, or a firewall may block port {port}.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">몇 초 안에 응답이 없었습니다. 컴퓨터가 꺼져 있거나, 주소가 잘못되었거나, 방화벽이 포트 {port}을(를) 차단하고 있을 수 있습니다.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="582"/>
+        <location filename="../src/output_status.py" line="593"/>
         <source>Nothing answered within a few seconds: check this computer&apos;s network connection.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">몇 초 안에 응답이 없었습니다. 이 컴퓨터의 네트워크 연결을 확인하세요.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="590"/>
+        <location filename="../src/output_status.py" line="601"/>
         <source>No answer from {target}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{target}에서 응답 없음</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="602"/>
+        <location filename="../src/output_status.py" line="613"/>
         <source>Can&apos;t reach {target}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{target}에 연결할 수 없음</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="614"/>
+        <location filename="../src/output_status.py" line="625"/>
         <source>Lost the connection to OBS at {target}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{target}의 OBS와 연결이 끊어졌습니다</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="619"/>
+        <location filename="../src/output_status.py" line="630"/>
         <source>ScoreSight reconnects by itself as soon as OBS is reachable again. Check that OBS is running.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">OBS에 다시 연결할 수 있게 되면 ScoreSight가 자동으로 다시 연결합니다. OBS가 실행 중인지 확인하세요.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="633"/>
+        <location filename="../src/output_status.py" line="644"/>
         <source>Check that vMix is running, that its Web Controller is enabled (vMix Settings › Web Controller) on port {port}, and that the firewall of the vMix computer allows it.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">vMix가 실행 중인지, Web Controller가 포트 {port}에서 활성화되어 있는지(vMix Settings › Web Controller), vMix 컴퓨터의 방화벽이 이를 허용하는지 확인하세요.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="640"/>
+        <location filename="../src/output_status.py" line="651"/>
         <source>Check that OBS is running and that its WebSocket server is enabled (in OBS: Tools › WebSocket Server Settings) on port {port}.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">OBS가 실행 중이고 WebSocket 서버가 포트 {port}에서 활성화되어 있는지 확인하세요(OBS: 도구 › WebSocket 서버 설정).</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="646"/>
+        <location filename="../src/output_status.py" line="657"/>
         <source>Check this computer&apos;s internet connection.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">이 컴퓨터의 인터넷 연결을 확인하세요.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="650"/>
+        <location filename="../src/output_status.py" line="661"/>
         <source>Check that the receiving program is running and accepts connections on port {port}, and that the firewall of its computer allows it.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">받는 프로그램이 실행 중이고 포트 {port}에서 연결을 받는지, 그 컴퓨터의 방화벽이 이를 허용하는지 확인하세요.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="655"/>
+        <location filename="../src/output_status.py" line="666"/>
         <source>Nothing answers at {target}: check the URL and that the receiving program is running.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{target}에서 응답이 없습니다. URL을 확인하고 수신 프로그램이 실행 중인지 확인하세요.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="669"/>
+        <location filename="../src/output_status.py" line="680"/>
         <source>HTTP {code}: vMix asks for a login</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">HTTP {code}: vMix에서 로그인을 요구합니다</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="672"/>
+        <location filename="../src/output_status.py" line="683"/>
         <source>In vMix Settings › Web Controller, tick “Allow access to following pages without login: API”. ScoreSight doesn&apos;t send a vMix login.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">vMix Settings › Web Controller에서 “Allow access to following pages without login: API”를 체크하세요. ScoreSight는 vMix 로그인 정보를 보내지 않습니다.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="682"/>
-        <location filename="../src/output_status.py" line="719"/>
+        <location filename="../src/output_status.py" line="693"/>
+        <location filename="../src/output_status.py" line="730"/>
         <source>HTTP {code}: check the UNO URL</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">HTTP {code}: UNO URL을 확인하세요</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="685"/>
-        <location filename="../src/output_status.py" line="722"/>
+        <location filename="../src/output_status.py" line="696"/>
+        <location filename="../src/output_status.py" line="733"/>
         <source>overlays.uno refused the URL: it is wrong or no longer valid. Copy the API URL of your control app again.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">overlays.uno가 URL을 거부했습니다. URL이 잘못되었거나 더 이상 유효하지 않습니다. 컨트롤 앱의 API URL을 다시 복사하세요.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="693"/>
+        <location filename="../src/output_status.py" line="704"/>
         <source>HTTP {code}: access denied</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">HTTP {code}: 액세스 거부됨</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="696"/>
+        <location filename="../src/output_status.py" line="707"/>
         <source>The endpoint refused the request. If it needs a login, put it in the URL (http://user:password@host/...); a key or token goes in the URL or in Headers.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">엔드포인트가 요청을 거부했습니다. 로그인이 필요하면 URL에 넣으세요(http://user:password@host/...). 키나 토큰은 URL이나 [헤더]에 넣으세요.</translation>
@@ -4511,255 +4511,273 @@ Resolution: {width}×{height}</source>
         <translation type="obsolete">엔드포인트가 요청을 거부했습니다. 키가 필요하면 URL에 넣으세요.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="707"/>
+        <location filename="../src/output_status.py" line="718"/>
         <source>HTTP 404: this isn&apos;t the vMix Web API</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">HTTP 404: vMix Web API가 아닙니다</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="710"/>
+        <location filename="../src/output_status.py" line="721"/>
         <source>Check the host and the port: vMix&apos;s Web Controller port ({port} by default).</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">호스트와 포트를 확인하세요: vMix의 Web Controller 포트(기본값 {port}).</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="730"/>
+        <location filename="../src/output_status.py" line="741"/>
         <source>HTTP 404: check the URL</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">HTTP 404: URL을 확인하세요</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="731"/>
+        <location filename="../src/output_status.py" line="742"/>
         <source>The endpoint has nothing at this address: check the path.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">엔드포인트의 이 주소에는 아무것도 없습니다. 경로를 확인하세요.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="738"/>
+        <location filename="../src/output_status.py" line="749"/>
         <source>HTTP 429: overlays.uno&apos;s call limit reached</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">HTTP 429: overlays.uno 호출 한도에 도달함</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="741"/>
+        <location filename="../src/output_status.py" line="752"/>
         <source>overlays.uno limits the calls of your plan (the Free plan: about 10,000 a day). ScoreSight keeps the latest value of each field and sends it when the limit resets. To use fewer calls, keep “Also resend unchanged values” off and clear the command of fields the overlay doesn&apos;t use.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">overlays.uno는 요금제별로 호출 수를 제한합니다(Free 요금제: 하루 약 10,000회). ScoreSight는 각 필드의 최신 값을 보관했다가 한도가 재설정되면 보냅니다. 호출을 줄이려면 [바뀌지 않은 값도 다시 보내기]를 끈 상태로 두고, 오버레이에서 쓰지 않는 필드의 명령을 지우세요.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="753"/>
+        <location filename="../src/output_status.py" line="764"/>
         <source>The endpoint limits the requests. ScoreSight keeps the latest readings and sends them when it accepts requests again. To send fewer, turn on “Only changes”, set a “Rate”, or lower Detections / s.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">엔드포인트가 요청 수를 제한합니다. ScoreSight는 최신 판독값을 보관했다가 요청을 다시 받으면 보냅니다. 전송을 줄이려면 [변경분만]을 켜거나, [빈도]에 제한을 두거나, [감지 수 / 초]를 낮추세요.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1195"/>
+        <location filename="../src/output_status.py" line="1206"/>
         <source>{calls} calls left today</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">오늘 남은 호출 {calls}회</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1248"/>
+        <location filename="../src/output_status.py" line="1259"/>
         <source>{count} field(s) have no UNO command and aren&apos;t sent: enter one in the table if the overlay has a command for them.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">필드 {count}개에 UNO 명령이 없어 보내지 않습니다. 오버레이에 해당 명령이 있으면 표에 입력하세요.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1281"/>
+        <location filename="../src/output_status.py" line="1292"/>
         <source>Only {calls} overlays.uno calls left today</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">오늘 남은 overlays.uno 호출이 {calls}회뿐입니다</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1284"/>
+        <location filename="../src/output_status.py" line="1295"/>
         <source>Every update is a call. When none are left, overlays.uno refuses updates until the limit resets; ScoreSight then sends the latest values. To use fewer calls, keep “Also resend unchanged values” off and clear the command of fields the overlay doesn&apos;t use.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">업데이트 한 번이 호출 한 번입니다. 남은 호출이 없으면 한도가 재설정될 때까지 overlays.uno가 업데이트를 거부하며, 그 후 ScoreSight가 최신 값을 보냅니다. 호출을 줄이려면 [바뀌지 않은 값도 다시 보내기]를 끈 상태로 두고, 오버레이에서 쓰지 않는 필드의 명령을 지우세요.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1347"/>
+        <location filename="../src/output_status.py" line="1358"/>
         <source>Enter your device&apos;s address in the URL</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">URL에 장치 주소를 입력하세요</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1351"/>
+        <location filename="../src/output_status.py" line="1362"/>
         <source>Replace the capitalized placeholder in the URL (for example TRICASTER-IP) with the device&apos;s IP address, and the login with its user name and password.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">URL의 대문자 자리 표시자(예: TRICASTER-IP)를 장치의 IP 주소로, 로그인 정보를 장치의 사용자 이름과 비밀번호로 바꾸세요.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1371"/>
+        <location filename="../src/output_status.py" line="1382"/>
         <source>a request per field</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">필드마다 요청 하나</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1375"/>
+        <location filename="../src/output_status.py" line="1386"/>
         <source>up to {fields} fields a request</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">요청당 최대 필드 {fields}개</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1380"/>
+        <location filename="../src/output_status.py" line="1391"/>
         <source>only changes</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">변경분만</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1426"/>
+        <location filename="../src/output_status.py" line="1437"/>
         <source>Click Start sending to send the readings over {transport} to {target}.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">전송 시작을 클릭하면 판독값을 {transport}(으)로 {target}에 보냅니다.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1436"/>
+        <location filename="../src/output_status.py" line="1447"/>
+        <source>Enter a ws:// or wss:// URL</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">ws:// 또는 wss:// URL을 입력하세요</translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1449"/>
+        <source>Enter the WebSocket address of the receiving server, for example wss://example.com/scores.</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">받는 서버의 WebSocket 주소를 입력하세요. 예: wss://example.com/scores</translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1459"/>
         <source>Enter the host and port</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">호스트와 포트를 입력하세요</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1438"/>
+        <location filename="../src/output_status.py" line="1461"/>
         <source>Enter the address of the receiving program&apos;s computer and the port it listens on (set in that program).</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">받는 프로그램이 있는 컴퓨터의 주소와 그 프로그램이 수신 대기하는 포트(그 프로그램에서 설정)를 입력하세요.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1450"/>
-        <location filename="../src/output_status.py" line="1609"/>
+        <location filename="../src/output_status.py" line="1473"/>
+        <location filename="../src/output_status.py" line="1641"/>
         <source>Place fields on the picture and give them names in the table (an empty name leaves a field out).</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">영상에 필드를 배치하고 표에서 이름을 지정하세요(이름이 비어 있으면 그 필드는 제외됩니다).</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1462"/>
+        <location filename="../src/output_status.py" line="1485"/>
         <source>Waiting for readings to send to {target} (UDP)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{target}에 보낼 판독값 대기 중(UDP)</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1473"/>
+        <location filename="../src/output_status.py" line="1496"/>
         <source>Sending to {target} (UDP)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{target}에 보내는 중(UDP)</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1478"/>
+        <location filename="../src/output_status.py" line="1501"/>
         <source>UDP has no connection: ScoreSight can&apos;t tell whether the values arrive.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">UDP는 연결이 없어서 값이 도착하는지 ScoreSight가 알 수 없습니다.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1493"/>
+        <location filename="../src/output_status.py" line="1515"/>
+        <source>The server accepts the WebSocket, then closes it: check the URL&apos;s path and the token (in Headers or in the URL). ScoreSight connects again, waiting a little longer each time.</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">서버가 WebSocket을 수락한 뒤 바로 닫습니다. URL의 경로와 토큰(헤더 또는 URL)을 확인하세요. ScoreSight는 매번 조금씩 더 기다리며 다시 연결합니다.</translation>
+    </message>
+    <message>
+        <location filename="../src/output_status.py" line="1530"/>
         <source>{target} closes the connection right away</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{target}이(가) 연결을 바로 닫습니다</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1496"/>
+        <location filename="../src/output_status.py" line="1522"/>
         <source>Check the port: it must be the receiving program&apos;s input for this protocol (not, for example, a web server&apos;s port). ScoreSight connects again, waiting a little longer each time.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">포트를 확인하세요. 이 프로토콜용 받는 프로그램의 입력이어야 합니다(예를 들어 웹 서버의 포트가 아님). ScoreSight는 매번 조금 더 기다렸다가 다시 연결합니다.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1520"/>
-        <location filename="../src/output_status.py" line="1672"/>
+        <location filename="../src/output_status.py" line="1552"/>
+        <location filename="../src/output_status.py" line="1704"/>
         <source>Last answer: {reply}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">마지막 응답: {reply}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1524"/>
+        <location filename="../src/output_status.py" line="1556"/>
         <source>A field&apos;s value is sent when it changes (or every time, with “Also resend unchanged values”).</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">필드 값은 바뀔 때 보냅니다(“바뀌지 않은 값도 다시 보내기”를 켜면 매번).</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1544"/>
+        <location filename="../src/output_status.py" line="1576"/>
         <source>Check the template&apos;s name (it must be in CasparCG&apos;s templates folder), the channel and the layer.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">템플릿 이름(CasparCG의 템플릿 폴더에 있어야 함), 채널, 레이어를 확인하세요.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1550"/>
+        <location filename="../src/output_status.py" line="1582"/>
         <source>The receiving program reported an error: check the template and the names in the table.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">받는 프로그램이 오류를 알렸습니다. 템플릿과 표의 이름을 확인하세요.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1559"/>
+        <location filename="../src/output_status.py" line="1591"/>
         <source>{target} answered “{reply}”</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{target}의 응답: “{reply}”</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1585"/>
+        <location filename="../src/output_status.py" line="1617"/>
         <source>Click Start sending to let other programs connect to ScoreSight on port {port} and get the readings.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">전송 시작을 클릭하면 다른 프로그램이 포트 {port}에서 ScoreSight에 연결하여 판독값을 받을 수 있습니다.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1595"/>
+        <location filename="../src/output_status.py" line="1627"/>
         <source>Enter a port</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">포트를 입력하세요</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1597"/>
+        <location filename="../src/output_status.py" line="1629"/>
         <source>Enter the port ScoreSight listens on, and the same port in the program that connects to ScoreSight.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">ScoreSight가 수신 대기할 포트를 입력하고, ScoreSight에 연결하는 프로그램에도 같은 포트를 입력하세요.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1620"/>
+        <location filename="../src/output_status.py" line="1652"/>
         <source>Can&apos;t listen on port {port}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">포트 {port}에서 수신 대기할 수 없음</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1624"/>
+        <location filename="../src/output_status.py" line="1656"/>
         <source>Another program uses this port, or the system doesn&apos;t allow it. Choose another port (and set it in the program that connects). ScoreSight tries again by itself.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">다른 프로그램이 이 포트를 사용 중이거나 시스템이 허용하지 않습니다. 다른 포트를 선택하세요(연결하는 프로그램에도 설정하세요). ScoreSight가 자동으로 다시 시도합니다.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1636"/>
+        <location filename="../src/output_status.py" line="1668"/>
         <source>Opening port {port}…</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">포트 {port} 여는 중…</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1647"/>
+        <location filename="../src/output_status.py" line="1679"/>
         <source>Listening on port {port} · nothing connected</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">포트 {port}에서 수신 대기 중 · 연결 없음</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1652"/>
+        <location filename="../src/output_status.py" line="1684"/>
         <source>Waiting for a program to connect to this computer&apos;s address, port {port}. Allow ScoreSight through this computer&apos;s firewall for programs on other computers.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">프로그램이 이 컴퓨터의 주소, 포트 {port}(으)로 연결하기를 기다리는 중입니다. 다른 컴퓨터의 프로그램이 연결하려면 이 컴퓨터의 방화벽에서 ScoreSight를 허용하세요.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1661"/>
+        <location filename="../src/output_status.py" line="1693"/>
         <source>Listening on port {port} · 1 program connected</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">포트 {port}에서 수신 대기 중 · 프로그램 1개 연결됨</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1665"/>
+        <location filename="../src/output_status.py" line="1697"/>
         <source>Listening on port {port} · {count} programs connected</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">포트 {port}에서 수신 대기 중 · 프로그램 {count}개 연결됨</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1668"/>
+        <location filename="../src/output_status.py" line="1700"/>
         <source>Connected: {programs}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">연결됨: {programs}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1690"/>
+        <location filename="../src/output_status.py" line="1722"/>
         <source>{product}: {detail}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{product}: {detail}</translation>
@@ -4775,264 +4793,264 @@ Resolution: {width}×{height}</source>
         <translation type="obsolete">엔드포인트가 요청 수를 제한하며 나머지는 버립니다. [감지 수 / 초]를 낮추세요.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="750"/>
+        <location filename="../src/output_status.py" line="761"/>
         <source>HTTP 429: too many requests</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">HTTP 429: 요청이 너무 많음</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="764"/>
+        <location filename="../src/output_status.py" line="775"/>
         <source>HTTP 400: overlays.uno doesn&apos;t know a command</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">HTTP 400: overlays.uno가 알 수 없는 명령이 있습니다</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="767"/>
+        <location filename="../src/output_status.py" line="778"/>
         <source>Check the commands in the table against your overlay&apos;s API description, and clear the command of fields the overlay doesn&apos;t use: every call counts against your daily limit.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">표의 명령을 오버레이의 API 설명과 대조하고, 오버레이에서 쓰지 않는 필드의 명령을 지우세요. 모든 호출이 일일 한도에 포함됩니다.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="776"/>
+        <location filename="../src/output_status.py" line="787"/>
         <source>Check the Input and the vMix field names in the table (for example Home Score.Text).</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">[입력]과 표의 vMix 필드 이름(예: Home Score.Text)을 확인하세요.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="787"/>
-        <location filename="../src/output_status.py" line="804"/>
+        <location filename="../src/output_status.py" line="798"/>
+        <location filename="../src/output_status.py" line="815"/>
         <source>It answered: {text}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">응답: {text}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="796"/>
+        <location filename="../src/output_status.py" line="807"/>
         <source>HTTP {code}: the receiver reported an error</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">HTTP {code}: 수신 측에서 오류를 보고했습니다</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="803"/>
+        <location filename="../src/output_status.py" line="814"/>
         <source>HTTP {code}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">HTTP {code}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="836"/>
+        <location filename="../src/output_status.py" line="847"/>
         <source>Next try in {wait}.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{wait} 후에 다시 시도합니다.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="848"/>
+        <location filename="../src/output_status.py" line="859"/>
         <source>{failing} of {total} failing: {problem}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{total}개 중 {failing}개 실패: {problem}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="895"/>
+        <location filename="../src/output_status.py" line="906"/>
         <source>Folder not found: {folder}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">폴더를 찾을 수 없음: {folder}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="898"/>
+        <location filename="../src/output_status.py" line="909"/>
         <source>The output folder {folder} doesn&apos;t exist any more, so no files are written. Choose a folder to write them again.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">출력 폴더 {folder}이(가) 더 이상 없으므로 파일이 기록되지 않습니다. 다시 기록하려면 폴더를 선택하세요.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="907"/>
-        <location filename="../src/output_status.py" line="1137"/>
-        <location filename="../src/output_status.py" line="1216"/>
-        <location filename="../src/output_status.py" line="1312"/>
-        <location filename="../src/output_status.py" line="1425"/>
-        <location filename="../src/output_status.py" line="1584"/>
+        <location filename="../src/output_status.py" line="918"/>
+        <location filename="../src/output_status.py" line="1148"/>
+        <location filename="../src/output_status.py" line="1227"/>
+        <location filename="../src/output_status.py" line="1323"/>
+        <location filename="../src/output_status.py" line="1436"/>
+        <location filename="../src/output_status.py" line="1616"/>
         <source>Off</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">꺼짐</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="908"/>
+        <location filename="../src/output_status.py" line="919"/>
         <source>Choose a folder to write the readings to files.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">판독값을 파일에 기록할 폴더를 선택하세요.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="917"/>
+        <location filename="../src/output_status.py" line="928"/>
         <source>Waiting for readings to write to {folder}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{folder}에 기록할 판독값 대기 중</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="926"/>
+        <location filename="../src/output_status.py" line="937"/>
         <source>Can&apos;t write {file}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{file}에 기록할 수 없음</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="930"/>
+        <location filename="../src/output_status.py" line="941"/>
         <source>Can&apos;t write {file} and {count} more</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{file} 외 {count}개에 기록할 수 없음</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="938"/>
+        <location filename="../src/output_status.py" line="949"/>
         <source>Check that the folder can be written to and that no other program locks the files. ScoreSight tries again at every save.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">폴더에 쓰기 권한이 있는지, 다른 프로그램이 파일을 잠그고 있지 않은지 확인하세요. ScoreSight는 저장할 때마다 다시 시도합니다.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="950"/>
+        <location filename="../src/output_status.py" line="961"/>
         <source>Writing to {folder} · 1 file</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{folder}에 기록 중 · 파일 1개</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="954"/>
+        <location filename="../src/output_status.py" line="965"/>
         <source>Writing to {folder} · {count} files</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{folder}에 기록 중 · 파일 {count}개</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="962"/>
+        <location filename="../src/output_status.py" line="973"/>
         <source>The files are in {folder}. A file is written when its value changes.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">파일은 {folder}에 있습니다. 파일은 값이 바뀔 때 기록됩니다.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="984"/>
+        <location filename="../src/output_status.py" line="995"/>
         <source>Not running: port {port} is in use</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">실행 안 됨: 포트 {port} 사용 중</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="989"/>
+        <location filename="../src/output_status.py" line="1000"/>
         <source>Another program (or another ScoreSight) uses port {port}. Close it, or start ScoreSight with --port to use another port.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">다른 프로그램(또는 다른 ScoreSight)이 포트 {port}을(를) 사용하고 있습니다. 그 프로그램을 닫거나 --port 옵션으로 ScoreSight를 시작하여 다른 포트를 사용하세요.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="998"/>
+        <location filename="../src/output_status.py" line="1009"/>
         <source>{url} · no requests yet</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{url} · 아직 요청 없음</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1002"/>
+        <location filename="../src/output_status.py" line="1013"/>
         <source>{url} · 1 client</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{url} · 클라이언트 1개</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1006"/>
+        <location filename="../src/output_status.py" line="1017"/>
         <source>{url} · {count} clients</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{url} · 클라이언트 {count}개</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1010"/>
+        <location filename="../src/output_status.py" line="1021"/>
         <source>{url} · no recent requests</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{url} · 최근 요청 없음</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1019"/>
+        <location filename="../src/output_status.py" line="1030"/>
         <source>Always on. Open {url}/scoresight in a browser, or read {url}/json, /xml or /csv from other software.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">항상 켜져 있습니다. 브라우저에서 {url}/scoresight를 열거나 다른 소프트웨어에서 {url}/json, /xml 또는 /csv를 읽으세요.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1046"/>
-        <location filename="../src/output_status.py" line="1507"/>
+        <location filename="../src/output_status.py" line="1057"/>
+        <location filename="../src/output_status.py" line="1539"/>
         <source>Connecting to {target}…</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{target}에 연결 중…</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1056"/>
+        <location filename="../src/output_status.py" line="1067"/>
         <source>Not connected: {problem}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">연결 안 됨: {problem}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1063"/>
+        <location filename="../src/output_status.py" line="1074"/>
         <source>Then click Connect OBS.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">그런 다음 [OBS에 연결]을 클릭하세요.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1074"/>
+        <location filename="../src/output_status.py" line="1085"/>
         <source>Not connected</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">연결 안 됨</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1075"/>
+        <location filename="../src/output_status.py" line="1086"/>
         <source>Click Connect OBS to update text sources in OBS Studio.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">OBS Studio의 텍스트 소스를 업데이트하려면 [OBS에 연결]을 클릭하세요.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1086"/>
-        <location filename="../src/output_status.py" line="1534"/>
+        <location filename="../src/output_status.py" line="1097"/>
+        <location filename="../src/output_status.py" line="1566"/>
         <source>Connected to {target}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{target}에 연결됨</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1090"/>
+        <location filename="../src/output_status.py" line="1101"/>
         <source>A text source is updated when its field&apos;s value changes.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">텍스트 소스는 해당 필드의 값이 바뀔 때 업데이트됩니다.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1099"/>
+        <location filename="../src/output_status.py" line="1110"/>
         <source>Reconnecting to OBS at {target}…</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{target}의 OBS에 다시 연결 중…</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1102"/>
+        <location filename="../src/output_status.py" line="1113"/>
         <source>The connection to OBS was lost. ScoreSight reconnects by itself as soon as OBS is reachable again.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">OBS와 연결이 끊어졌습니다. OBS에 다시 연결할 수 있게 되면 ScoreSight가 자동으로 다시 연결합니다.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1111"/>
+        <location filename="../src/output_status.py" line="1122"/>
         <source>Connected, but no field has an OBS text source</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">연결되었지만 OBS 텍스트 소스가 있는 필드가 없습니다</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1114"/>
+        <location filename="../src/output_status.py" line="1125"/>
         <source>The standard fields update OBS text sources with their names (Home score, Clock...). Place them on the picture.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">표준 필드는 정해진 이름(Home score, Clock...)의 OBS 텍스트 소스를 업데이트합니다. 영상에 배치하세요.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1138"/>
+        <location filename="../src/output_status.py" line="1149"/>
         <source>Click Start vMix to update input {input} at {target}.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{target}의 입력 {input}을(를) 업데이트하려면 [vMix 시작]을 클릭하세요.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1146"/>
-        <location filename="../src/output_status.py" line="1238"/>
-        <location filename="../src/output_status.py" line="1448"/>
-        <location filename="../src/output_status.py" line="1607"/>
+        <location filename="../src/output_status.py" line="1157"/>
+        <location filename="../src/output_status.py" line="1249"/>
+        <location filename="../src/output_status.py" line="1471"/>
+        <location filename="../src/output_status.py" line="1639"/>
         <source>No fields to send</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">보낼 필드 없음</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1148"/>
+        <location filename="../src/output_status.py" line="1159"/>
         <source>Place fields on the picture and enter their vMix field names (for example Home Score.Text) in the table.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">영상에 필드를 배치하고 표에 vMix 필드 이름(예: Home Score.Text)을 입력하세요.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1159"/>
+        <location filename="../src/output_status.py" line="1170"/>
         <source>Waiting for a new value for {target}, input {input}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{target}, 입력 {input}의 새 값 대기 중</translation>
@@ -5043,75 +5061,75 @@ Resolution: {width}×{height}</source>
         <translation type="obsolete">vMix는 필드 값이 바뀔 때(또는 [같은 값도 전송?]이 켜져 있으면 매번) 값을 받습니다.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1173"/>
+        <location filename="../src/output_status.py" line="1184"/>
         <source>Sending to {target}, input {input}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{target}, 입력 {input}(으)로 전송 중</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1217"/>
+        <location filename="../src/output_status.py" line="1228"/>
         <source>Click Start sending to drive your overlays.uno overlay.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">overlays.uno 오버레이를 제어하려면 [전송 시작]을 클릭하세요.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1226"/>
+        <location filename="../src/output_status.py" line="1237"/>
         <source>Enter your UNO API URL</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">UNO API URL을 입력하세요</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1228"/>
+        <location filename="../src/output_status.py" line="1239"/>
         <source>Copy the API URL of your overlay&apos;s control app in overlays.uno into URL.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">overlays.uno에서 오버레이 컨트롤 앱의 API URL을 복사하여 [URL]에 붙여 넣으세요.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1240"/>
+        <location filename="../src/output_status.py" line="1251"/>
         <source>Place fields on the picture and enter the UNO commands in the table.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">영상에 필드를 배치하고 표에 UNO 명령을 입력하세요.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1261"/>
+        <location filename="../src/output_status.py" line="1272"/>
         <source>Waiting for a new value for {host}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{host}의 새 값 대기 중</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1268"/>
+        <location filename="../src/output_status.py" line="1279"/>
         <source>Sending to {host}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{host}(으)로 전송 중</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1313"/>
+        <location filename="../src/output_status.py" line="1324"/>
         <source>Tick the checkbox to send the readings to a URL on every detection cycle.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">감지 주기마다 판독값을 URL로 보내려면 확인란을 선택하세요.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1323"/>
+        <location filename="../src/output_status.py" line="1334"/>
         <source>Enter a URL</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">URL을 입력하세요</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1325"/>
+        <location filename="../src/output_status.py" line="1336"/>
         <source>Enter the URL to send the readings to, for example http://192.168.1.10:8091/scores.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">판독값을 보낼 URL을 입력하세요(예: http://192.168.1.10:8091/scores).</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="541"/>
-        <location filename="../src/output_status.py" line="1335"/>
+        <location filename="../src/output_status.py" line="552"/>
+        <location filename="../src/output_status.py" line="1346"/>
         <source>The URL isn&apos;t valid</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">URL이 올바르지 않습니다</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="542"/>
-        <location filename="../src/output_status.py" line="1337"/>
+        <location filename="../src/output_status.py" line="553"/>
+        <location filename="../src/output_status.py" line="1348"/>
         <source>The URL needs a scheme and a host, for example http://192.168.1.10:8091/scores.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">URL에는 스킴과 호스트가 필요합니다(예: http://192.168.1.10:8091/scores).</translation>
@@ -5122,26 +5140,26 @@ Resolution: {width}×{height}</source>
         <translation type="obsolete">overlays.uno는 받아들이는 업데이트 수를 제한하며 나머지는 버립니다. [바뀌지 않은 값도 다시 보내기]은 끄고 [변경 시 업데이트]는 켜 두세요.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1163"/>
-        <location filename="../src/output_status.py" line="1177"/>
+        <location filename="../src/output_status.py" line="1174"/>
+        <location filename="../src/output_status.py" line="1188"/>
         <source>vMix gets a field&apos;s value when it changes (or every time, with “Also resend unchanged values”).</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">vMix는 필드 값이 바뀔 때(또는 [바뀌지 않은 값도 다시 보내기]이 켜져 있으면 매번) 값을 받습니다.</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1359"/>
+        <location filename="../src/output_status.py" line="1370"/>
         <source>GET to {target}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{target}(으)로 GET</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1363"/>
+        <location filename="../src/output_status.py" line="1374"/>
         <source>{method} {encoding} to {target}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{target}(으)로 {method} {encoding}</translation>
     </message>
     <message>
-        <location filename="../src/output_status.py" line="1388"/>
+        <location filename="../src/output_status.py" line="1399"/>
         <source>Waiting for readings: {request}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">판독값 대기 중: {request}</translation>
@@ -5836,204 +5854,215 @@ Click to change the folder or its size limit; Tools &gt; Collect OCR training da
 <context>
     <name>TcpOutput</name>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="88"/>
+        <location filename="../src/tcp_ui_handler.py" line="91"/>
         <source>Custom</source>
         <translation type="unfinished">사용자 지정</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="95"/>
+        <location filename="../src/tcp_ui_handler.py" line="98"/>
         <source>From CasparCG&apos;s AMCP documentation; not tested with CasparCG yet. Copy the bundled template into CasparCG&apos;s templates folder.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">CasparCG의 AMCP 문서를 따릅니다. 아직 CasparCG에서 테스트하지 않았습니다. 포함된 템플릿을 CasparCG의 템플릿 폴더에 복사하세요.</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="101"/>
+        <location filename="../src/tcp_ui_handler.py" line="104"/>
         <source>From Chyron&apos;s Intelligent Interface documentation; not tested with PRIME yet. Use the port of PRIME&apos;s Intelligent Interface connection, and name the scene&apos;s objects like the names below.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Chyron의 Intelligent Interface 문서를 따릅니다. 아직 PRIME에서 테스트하지 않았습니다. PRIME의 Intelligent Interface 연결 포트를 사용하고, 장면의 개체 이름을 아래 이름과 같게 지정하세요.</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="108"/>
+        <location filename="../src/tcp_ui_handler.py" line="111"/>
         <source>Based on public documentation, untested: the format comes from another OCR app&apos;s guide. Use the port and the field names of Live Score&apos;s OCR Setup.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">공개 문서 기반, 테스트 안 됨: 형식은 다른 OCR 앱의 안내서에서 가져왔습니다. Live Score의 OCR Setup에 있는 포트와 필드 이름을 사용하세요.</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="115"/>
+        <location filename="../src/tcp_ui_handler.py" line="118"/>
         <source>Based on public documentation, untested: the format comes from another OCR app&apos;s guide. Put [name] in a text item, then File › Refresh All projects.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">공개 문서 기반, 테스트 안 됨: 형식은 다른 OCR 앱의 안내서에서 가져왔습니다. 텍스트 항목에 [이름]을 넣은 다음 File › Refresh All projects를 실행하세요.</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="122"/>
+        <location filename="../src/tcp_ui_handler.py" line="125"/>
         <source>From Vizrt&apos;s Shared Memory documentation; not tested with Viz Engine yet. Use the Shared Memory port set in Viz Configuration.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Vizrt의 Shared Memory 문서를 따릅니다. 아직 Viz Engine에서 테스트하지 않았습니다. Viz Configuration에서 설정한 Shared Memory 포트를 사용하세요.</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="127"/>
+        <location filename="../src/tcp_ui_handler.py" line="131"/>
+        <source>For your own web app or server: each time a value changes, a JSON object with every field goes to its WebSocket URL. A token goes in Headers (Authorization: Bearer …) or in the URL.</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">직접 만든 웹 앱이나 서버용: 값이 바뀔 때마다 모든 필드가 담긴 JSON 객체를 해당 WebSocket URL로 보냅니다. 토큰은 헤더(Authorization: Bearer …)나 URL에 넣습니다.</translation>
+    </message>
+    <message>
+        <location filename="../src/tcp_ui_handler.py" line="137"/>
         <source>Your own protocol: edit the template and the options. The preview shows what is sent.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">사용자 지정 프로토콜: 템플릿과 옵션을 편집하세요. 미리 보기에 보내는 내용이 표시됩니다.</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="138"/>
+        <location filename="../src/tcp_ui_handler.py" line="148"/>
         <source>TCP server: other programs connect to {address}:{port} (localhost:{port} on this computer), and each one gets the messages.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">TCP 서버: 다른 프로그램이 {address}:{port}(이 컴퓨터에서는 localhost:{port})에 연결하며, 각 프로그램이 메시지를 받습니다.</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="143"/>
+        <location filename="../src/tcp_ui_handler.py" line="153"/>
         <source>TCP server: other programs connect to this computer&apos;s address, port {port} (localhost:{port} on this computer), and each one gets the messages.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">TCP 서버: 다른 프로그램이 이 컴퓨터의 주소, 포트 {port}(이 컴퓨터에서는 localhost:{port})에 연결하며, 각 프로그램이 메시지를 받습니다.</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="156"/>
+        <location filename="../src/tcp_ui_handler.py" line="166"/>
         <source>A message per changed field</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">바뀐 필드마다 메시지 하나</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="160"/>
+        <location filename="../src/tcp_ui_handler.py" line="170"/>
         <source>One message with every field</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">모든 필드를 담은 메시지 하나</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="169"/>
         <location filename="../src/tcp_ui_handler.py" line="179"/>
+        <location filename="../src/tcp_ui_handler.py" line="189"/>
         <source>None</source>
         <translation type="unfinished">없음</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="180"/>
+        <location filename="../src/tcp_ui_handler.py" line="190"/>
         <source>Line breaks to spaces</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">줄바꿈을 공백으로</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="181"/>
+        <location filename="../src/tcp_ui_handler.py" line="191"/>
         <source>JSON string</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">JSON 문자열</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="183"/>
+        <location filename="../src/tcp_ui_handler.py" line="193"/>
         <source>AMCP (CasparCG)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">AMCP(CasparCG)</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="184"/>
+        <location filename="../src/tcp_ui_handler.py" line="194"/>
         <source>Chyron fields</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Chyron 필드</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="185"/>
+        <location filename="../src/tcp_ui_handler.py" line="195"/>
         <source>Leave out NUL</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">NUL 제외</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="345"/>
+        <location filename="../src/tcp_ui_handler.py" line="358"/>
         <source>Also send a field&apos;s value when it hasn&apos;t changed, at every detection. Off: a value is sent only when it changes.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">필드 값이 바뀌지 않았어도 감지할 때마다 보냅니다. 끔: 값은 바뀔 때만 보냅니다.</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="352"/>
+        <location filename="../src/tcp_ui_handler.py" line="365"/>
         <source>No limit</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">제한 없음</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="355"/>
+        <location filename="../src/tcp_ui_handler.py" line="368"/>
         <source>Never</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">안 함</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="556"/>
+        <location filename="../src/tcp_ui_handler.py" line="581"/>
+        <source>URL</source>
+        <translation type="unfinished">URL</translation>
+    </message>
+    <message>
+        <location filename="../src/tcp_ui_handler.py" line="587"/>
         <source>Listen on port</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">수신 대기 포트</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="559"/>
+        <location filename="../src/tcp_ui_handler.py" line="590"/>
         <source>The port ScoreSight listens on. Set the same port in the program that connects to ScoreSight.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">ScoreSight가 수신 대기하는 포트입니다. ScoreSight에 연결하는 프로그램에도 같은 포트를 설정하세요.</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="602"/>
+        <location filename="../src/tcp_ui_handler.py" line="633"/>
         <source>On connect:</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">연결할 때:</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="606"/>
+        <location filename="../src/tcp_ui_handler.py" line="637"/>
         <source>For a changed field:</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">바뀐 필드에 대해:</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="610"/>
+        <location filename="../src/tcp_ui_handler.py" line="641"/>
         <source>When a value changes:</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">값이 바뀔 때:</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="614"/>
+        <location filename="../src/tcp_ui_handler.py" line="645"/>
         <source>(nothing)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">(없음)</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="618"/>
+        <location filename="../src/tcp_ui_handler.py" line="649"/>
         <source>(and a message like it for each of {count} more fields)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">(다른 필드 {count}개에도 각각 이런 메시지)</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="636"/>
+        <location filename="../src/tcp_ui_handler.py" line="667"/>
         <source>Last answer: {reply}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">마지막 응답: {reply}</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="722"/>
+        <location filename="../src/tcp_ui_handler.py" line="753"/>
         <source>Choose CasparCG&apos;s templates folder</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">CasparCG의 템플릿 폴더 선택</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="734"/>
+        <location filename="../src/tcp_ui_handler.py" line="765"/>
         <source>Replace the template?</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">템플릿을 바꿀까요?</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="735"/>
+        <location filename="../src/tcp_ui_handler.py" line="766"/>
         <source>{file} already exists in {folder}. Replace it?</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{file}이(가) {folder}에 이미 있습니다. 바꿀까요?</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="746"/>
+        <location filename="../src/tcp_ui_handler.py" line="777"/>
         <source>The template wasn&apos;t copied</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">템플릿을 복사하지 못했습니다</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="747"/>
+        <location filename="../src/tcp_ui_handler.py" line="778"/>
         <source>Could not copy {file} to {folder}: {error}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{file}을(를) {folder}에 복사할 수 없습니다: {error}</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="756"/>
+        <location filename="../src/tcp_ui_handler.py" line="787"/>
         <source>Copied to {path}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{path}에 복사했습니다</translation>
@@ -6067,38 +6096,50 @@ Click to change the folder or its size limit; Tools &gt; Collect OCR training da
     </message>
     <message>
         <location filename="../src/tcp_output.ui" line="136"/>
-        <location filename="../src/tcp_ui_handler.py" line="567"/>
+        <location filename="../src/tcp_ui_handler.py" line="598"/>
         <source>Address</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">주소</translation>
     </message>
     <message>
         <location filename="../src/tcp_output.ui" line="170"/>
+        <source>WebSocket URL</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">WebSocket URL</translation>
+    </message>
+    <message>
+        <location filename="../src/tcp_output.ui" line="173"/>
+        <source>The WebSocket address of the receiving server (ws:// or wss://). A token can go in the URL or in Headers</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">받는 서버의 WebSocket 주소(ws:// 또는 wss://)입니다. 토큰은 URL이나 헤더에 넣을 수 있습니다</translation>
+    </message>
+    <message>
+        <location filename="../src/tcp_output.ui" line="189"/>
         <source>Host</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">호스트</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="173"/>
+        <location filename="../src/tcp_output.ui" line="192"/>
         <source>The address of the receiving program&apos;s computer (localhost if it runs on this computer)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">받는 프로그램이 있는 컴퓨터의 주소(이 컴퓨터에서 실행 중이면 localhost)</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="202"/>
-        <location filename="../src/tcp_output.ui" line="208"/>
+        <location filename="../src/tcp_output.ui" line="221"/>
+        <location filename="../src/tcp_output.ui" line="227"/>
         <source>Port</source>
         <translation type="unfinished">포트</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="205"/>
-        <location filename="../src/tcp_ui_handler.py" line="570"/>
+        <location filename="../src/tcp_output.ui" line="224"/>
+        <location filename="../src/tcp_ui_handler.py" line="601"/>
         <source>The port the receiving program listens on (set in that program)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">받는 프로그램이 수신 대기하는 포트(그 프로그램에서 설정)</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="221"/>
+        <location filename="../src/tcp_output.ui" line="240"/>
         <source>Transport</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">전송 방식</translation>
@@ -6109,252 +6150,274 @@ Click to change the folder or its size limit; Tools &gt; Collect OCR training da
         <translation type="obsolete">TCP는 연결을 열어 둡니다. UDP는 연결 없이 각 메시지를 데이터그램으로 보냅니다.</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="224"/>
         <source>TCP connects to the receiving program and keeps the connection open. UDP sends each message as a datagram, without a connection. TCP server: ScoreSight listens on the port, and every program that connects to it gets the messages.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
-        <translation type="unfinished">TCP는 받는 프로그램에 연결하여 연결을 열어 둡니다. UDP는 연결 없이 각 메시지를 데이터그램으로 보냅니다. TCP 서버: ScoreSight가 포트에서 수신 대기하며, 연결하는 모든 프로그램이 메시지를 받습니다.</translation>
+        <translation type="obsolete">TCP는 받는 프로그램에 연결하여 연결을 열어 둡니다. UDP는 연결 없이 각 메시지를 데이터그램으로 보냅니다. TCP 서버: ScoreSight가 포트에서 수신 대기하며, 연결하는 모든 프로그램이 메시지를 받습니다.</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="238"/>
+        <location filename="../src/tcp_output.ui" line="243"/>
+        <source>TCP connects to the receiving program and keeps the connection open. UDP sends each message as a datagram, without a connection. TCP server: ScoreSight listens on the port, and every program that connects to it gets the messages. WebSocket connects to a ws:// or wss:// URL and sends each message as a WebSocket message.</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">TCP는 받는 프로그램에 연결하여 연결을 열어 둡니다. UDP는 연결 없이 각 메시지를 데이터그램으로 보냅니다. TCP 서버: ScoreSight가 포트에서 수신 대기하며, 연결하는 모든 프로그램이 메시지를 받습니다. WebSocket은 ws:// 또는 wss:// URL에 연결하여 각 메시지를 WebSocket 메시지로 보냅니다.</translation>
+    </message>
+    <message>
+        <location filename="../src/tcp_output.ui" line="257"/>
         <source>TCP server</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">TCP 서버</translation>
     </message>
     <message>
         <location filename="../src/tcp_output.ui" line="273"/>
+        <source>Headers</source>
+        <translation type="unfinished">헤더</translation>
+    </message>
+    <message>
+        <location filename="../src/tcp_output.ui" line="289"/>
+        <source>WebSocket headers</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">WebSocket 헤더</translation>
+    </message>
+    <message>
+        <location filename="../src/tcp_output.ui" line="292"/>
+        <source>Extra headers for the WebSocket connection, one &quot;Name: value&quot; per line, for example an Authorization token</source>
+        <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
+        <translation type="unfinished">WebSocket 연결의 추가 헤더로, 한 줄에 &quot;이름: 값&quot; 하나씩 입력합니다. 예: Authorization 토큰</translation>
+    </message>
+    <message>
+        <location filename="../src/tcp_output.ui" line="332"/>
         <source>Start or stop the TCP / UDP output</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">TCP / UDP 출력 시작 또는 중지</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="276"/>
+        <location filename="../src/tcp_output.ui" line="335"/>
         <source>Connect and send the readings, or stop</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">연결하여 판독값 보내기, 또는 중지</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="342"/>
+        <location filename="../src/tcp_output.ui" line="401"/>
         <source>Channel</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">채널</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="352"/>
+        <location filename="../src/tcp_output.ui" line="411"/>
         <source>CasparCG&apos;s video channel ({channel} in the templates)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">CasparCG의 비디오 채널(템플릿의 {channel})</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="365"/>
+        <location filename="../src/tcp_output.ui" line="424"/>
         <source>Layer</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">레이어</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="375"/>
+        <location filename="../src/tcp_output.ui" line="434"/>
         <source>The layer of the channel ({layer} in the templates)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">채널의 레이어(템플릿의 {layer})</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="388"/>
+        <location filename="../src/tcp_output.ui" line="447"/>
         <source>CG layer</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">CG 레이어</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="398"/>
+        <location filename="../src/tcp_output.ui" line="457"/>
         <source>The template&apos;s layer inside the CG producer ({cg_layer} in the templates)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">CG 프로듀서 안에서 템플릿의 레이어(템플릿의 {cg_layer})</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="408"/>
+        <location filename="../src/tcp_output.ui" line="467"/>
         <source>Template name</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">템플릿 이름</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="418"/>
+        <location filename="../src/tcp_output.ui" line="477"/>
         <source>The template&apos;s file name in CasparCG&apos;s templates folder, without .html ({template} in the templates)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">CasparCG 템플릿 폴더에 있는 템플릿의 파일 이름, .html 제외(템플릿의 {template})</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="443"/>
+        <location filename="../src/tcp_output.ui" line="502"/>
         <source>Send the “on connect” message again (CG ADD: loads and plays the template)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">“연결할 때” 메시지 다시 보내기(CG ADD: 템플릿을 불러와 재생)</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="446"/>
+        <location filename="../src/tcp_output.ui" line="505"/>
         <source>Load</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">불러오기</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="453"/>
+        <location filename="../src/tcp_output.ui" line="512"/>
         <source>CG PLAY: show the template</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">CG PLAY: 템플릿 표시</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="456"/>
+        <location filename="../src/tcp_output.ui" line="515"/>
         <source>Play</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">재생</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="463"/>
+        <location filename="../src/tcp_output.ui" line="522"/>
         <source>CG STOP: hide the template (it animates out)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">CG STOP: 템플릿 숨기기(애니메이션으로 사라짐)</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="466"/>
+        <location filename="../src/tcp_output.ui" line="525"/>
         <source>Stop</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">중지</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="476"/>
+        <location filename="../src/tcp_output.ui" line="535"/>
         <source>Copy ScoreSight&apos;s scorebug template (scoresight_scorebug.html) into CasparCG&apos;s templates folder</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">ScoreSight의 스코어버그 템플릿(scoresight_scorebug.html)을 CasparCG의 템플릿 폴더에 복사</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="479"/>
+        <location filename="../src/tcp_output.ui" line="538"/>
         <source>Copy template…</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">템플릿 복사…</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="489"/>
+        <location filename="../src/tcp_output.ui" line="548"/>
         <source>Send</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">보내기</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="499"/>
+        <location filename="../src/tcp_output.ui" line="558"/>
         <source>A message for each field whose value changed, or one message with every field</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">값이 바뀐 필드마다 메시지 하나, 또는 모든 필드를 담은 메시지 하나</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="512"/>
+        <location filename="../src/tcp_output.ui" line="571"/>
         <source>Template</source>
         <translation type="unfinished">템플릿</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="534"/>
+        <location filename="../src/tcp_output.ui" line="593"/>
         <source>Each line is sent as a line. Placeholders: {field}, {value}, {json}, {xml}, and {channel}, {layer}, {cg_layer}, {template} for CasparCG. Everything else is sent as it is.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">각 줄은 한 줄로 보냅니다. 자리 표시자: {field}, {value}, {json}, {xml}, CasparCG용 {channel}, {layer}, {cg_layer}, {template}. 나머지는 그대로 보냅니다.</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="544"/>
+        <location filename="../src/tcp_output.ui" line="603"/>
         <source>On connect</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">연결할 때</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="554"/>
+        <location filename="../src/tcp_output.ui" line="613"/>
         <source>Sent once after each connection, before the values (for example CasparCG&apos;s CG ADD). Empty: nothing.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">연결할 때마다 값보다 먼저 한 번 보냅니다(예: CasparCG의 CG ADD). 비어 있음: 보내지 않음.</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="561"/>
+        <location filename="../src/tcp_output.ui" line="620"/>
         <source>Preview</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">미리 보기</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="583"/>
+        <location filename="../src/tcp_output.ui" line="642"/>
         <source>What is sent for the current values. ␍ is a carriage return, ␊ a line feed, ␀ a NUL character.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">현재 값으로 보내는 내용입니다. ␍은 캐리지 리턴, ␊은 줄 바꿈, ␀은 NUL 문자입니다.</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="596"/>
+        <location filename="../src/tcp_output.ui" line="655"/>
         <source>Line ending</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">줄 끝</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="606"/>
+        <location filename="../src/tcp_output.ui" line="665"/>
         <source>What ends each line of a message</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">메시지의 각 줄을 끝내는 문자</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="619"/>
+        <location filename="../src/tcp_output.ui" line="678"/>
         <source>Encoding</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">인코딩</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="629"/>
+        <location filename="../src/tcp_output.ui" line="688"/>
         <source>The text encoding the receiving program expects. Characters it can&apos;t encode are sent as “?”.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">받는 프로그램이 기대하는 텍스트 인코딩입니다. 인코딩할 수 없는 문자는 “?”로 보냅니다.</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="642"/>
+        <location filename="../src/tcp_output.ui" line="701"/>
         <source>Escaping</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">이스케이프</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="652"/>
+        <location filename="../src/tcp_output.ui" line="711"/>
         <source>How the text of the placeholders is escaped, so that a value can&apos;t break the protocol</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">값이 프로토콜을 깨뜨리지 않도록 자리 표시자의 텍스트를 이스케이프하는 방식</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="672"/>
+        <location filename="../src/tcp_output.ui" line="731"/>
         <source>At most every</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">최소 간격</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="682"/>
+        <location filename="../src/tcp_output.ui" line="741"/>
         <source>The shortest time between two sends: the values that change meanwhile go out together, the latest ones</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">두 번 보내는 사이의 최소 시간: 그동안 바뀐 값은 최신 값으로 함께 보냅니다</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="701"/>
+        <location filename="../src/tcp_output.ui" line="760"/>
         <source>Resend all every</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">전체 다시 보내기 간격</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="711"/>
+        <location filename="../src/tcp_output.ui" line="770"/>
         <source>Send every value again this often, for a receiver that forgets them (a reloaded template, a restarted engine)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">값을 잊는 받는 쪽(다시 불러온 템플릿, 다시 시작한 엔진)을 위해 이 간격마다 모든 값을 다시 보냅니다</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="730"/>
+        <location filename="../src/tcp_output.ui" line="789"/>
         <source>The name each field is sent as ({field}). An empty name leaves the field out.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">각 필드를 보낼 때의 이름({field}). 이름이 비어 있으면 필드가 제외됩니다.</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="746"/>
+        <location filename="../src/tcp_output.ui" line="805"/>
         <source>Each field and the name it is sent as. Edit the right column.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">각 필드와 보낼 때의 이름입니다. 오른쪽 열을 편집하세요.</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="774"/>
+        <location filename="../src/tcp_output.ui" line="833"/>
         <source>Use the preset&apos;s names for every field again</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">모든 필드에 사전 설정의 이름을 다시 사용</translation>
     </message>
     <message>
-        <location filename="../src/tcp_output.ui" line="777"/>
+        <location filename="../src/tcp_output.ui" line="836"/>
         <source>Reset names</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">이름 재설정</translation>

@@ -83,6 +83,13 @@ class Ui_TcpOutputPage(object):
         self.horizontalLayout_tcpAddressRow.setSpacing(3)
         self.horizontalLayout_tcpAddressRow.setObjectName(u"horizontalLayout_tcpAddressRow")
         self.horizontalLayout_tcpAddressRow.setContentsMargins(0, 0, 0, 0)
+        self.lineEdit_tcpUrl = QLineEdit(self.widget_tcpAddressRow)
+        self.lineEdit_tcpUrl.setObjectName(u"lineEdit_tcpUrl")
+        self.lineEdit_tcpUrl.setMinimumSize(QSize(60, 0))
+        self.lineEdit_tcpUrl.setPlaceholderText(u"wss://example.com/scores")
+
+        self.horizontalLayout_tcpAddressRow.addWidget(self.lineEdit_tcpUrl)
+
         self.lineEdit_tcpHost = QLineEdit(self.widget_tcpAddressRow)
         self.lineEdit_tcpHost.setObjectName(u"lineEdit_tcpHost")
         self.lineEdit_tcpHost.setMinimumSize(QSize(60, 0))
@@ -111,6 +118,7 @@ class Ui_TcpOutputPage(object):
         self.comboBox_tcpTransport.addItem(u"TCP")
         self.comboBox_tcpTransport.addItem(u"UDP")
         self.comboBox_tcpTransport.addItem("")
+        self.comboBox_tcpTransport.addItem(u"WebSocket")
         self.comboBox_tcpTransport.setObjectName(u"comboBox_tcpTransport")
         sizePolicy1.setHeightForWidth(self.comboBox_tcpTransport.sizePolicy().hasHeightForWidth())
         self.comboBox_tcpTransport.setSizePolicy(sizePolicy1)
@@ -119,6 +127,20 @@ class Ui_TcpOutputPage(object):
 
 
         self.formLayout_tcp.setWidget(2, QFormLayout.ItemRole.FieldRole, self.widget_tcpAddressRow)
+
+        self.label_tcpHeaders = QLabel(self.scrollAreaWidgetContents_tcp)
+        self.label_tcpHeaders.setObjectName(u"label_tcpHeaders")
+
+        self.formLayout_tcp.setWidget(3, QFormLayout.ItemRole.LabelRole, self.label_tcpHeaders)
+
+        self.plainTextEdit_tcpHeaders = QPlainTextEdit(self.scrollAreaWidgetContents_tcp)
+        self.plainTextEdit_tcpHeaders.setObjectName(u"plainTextEdit_tcpHeaders")
+        self.plainTextEdit_tcpHeaders.setMaximumSize(QSize(16777215, 52))
+        self.plainTextEdit_tcpHeaders.setTabChangesFocus(True)
+        self.plainTextEdit_tcpHeaders.setLineWrapMode(QPlainTextEdit.NoWrap)
+        self.plainTextEdit_tcpHeaders.setPlaceholderText(u"Authorization: Bearer \u2026")
+
+        self.formLayout_tcp.setWidget(3, QFormLayout.ItemRole.FieldRole, self.plainTextEdit_tcpHeaders)
 
         self.widget_tcpStartRow = QWidget(self.scrollAreaWidgetContents_tcp)
         self.widget_tcpStartRow.setObjectName(u"widget_tcpStartRow")
@@ -140,14 +162,14 @@ class Ui_TcpOutputPage(object):
         self.horizontalLayout_tcpStartRow.addItem(self.horizontalSpacer_tcpStart)
 
 
-        self.formLayout_tcp.setWidget(3, QFormLayout.ItemRole.SpanningRole, self.widget_tcpStartRow)
+        self.formLayout_tcp.setWidget(4, QFormLayout.ItemRole.SpanningRole, self.widget_tcpStartRow)
 
         self.label_tcpReply = QLabel(self.scrollAreaWidgetContents_tcp)
         self.label_tcpReply.setObjectName(u"label_tcpReply")
         self.label_tcpReply.setWordWrap(True)
         self.label_tcpReply.setTextInteractionFlags(Qt.TextSelectableByMouse)
 
-        self.formLayout_tcp.setWidget(4, QFormLayout.ItemRole.SpanningRole, self.label_tcpReply)
+        self.formLayout_tcp.setWidget(5, QFormLayout.ItemRole.SpanningRole, self.label_tcpReply)
 
         self.groupBox_tcpCaspar = QGroupBox(self.scrollAreaWidgetContents_tcp)
         self.groupBox_tcpCaspar.setObjectName(u"groupBox_tcpCaspar")
@@ -233,24 +255,24 @@ class Ui_TcpOutputPage(object):
         self.formLayout_tcpCaspar.setWidget(5, QFormLayout.ItemRole.SpanningRole, self.pushButton_tcpCopyTemplate)
 
 
-        self.formLayout_tcp.setWidget(5, QFormLayout.ItemRole.SpanningRole, self.groupBox_tcpCaspar)
+        self.formLayout_tcp.setWidget(6, QFormLayout.ItemRole.SpanningRole, self.groupBox_tcpCaspar)
 
         self.label_tcpMode = QLabel(self.scrollAreaWidgetContents_tcp)
         self.label_tcpMode.setObjectName(u"label_tcpMode")
 
-        self.formLayout_tcp.setWidget(6, QFormLayout.ItemRole.LabelRole, self.label_tcpMode)
+        self.formLayout_tcp.setWidget(7, QFormLayout.ItemRole.LabelRole, self.label_tcpMode)
 
         self.comboBox_tcpMode = QComboBox(self.scrollAreaWidgetContents_tcp)
         self.comboBox_tcpMode.setObjectName(u"comboBox_tcpMode")
         self.comboBox_tcpMode.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
         self.comboBox_tcpMode.setMinimumContentsLength(8)
 
-        self.formLayout_tcp.setWidget(6, QFormLayout.ItemRole.FieldRole, self.comboBox_tcpMode)
+        self.formLayout_tcp.setWidget(7, QFormLayout.ItemRole.FieldRole, self.comboBox_tcpMode)
 
         self.label_tcpTemplate = QLabel(self.scrollAreaWidgetContents_tcp)
         self.label_tcpTemplate.setObjectName(u"label_tcpTemplate")
 
-        self.formLayout_tcp.setWidget(7, QFormLayout.ItemRole.LabelRole, self.label_tcpTemplate)
+        self.formLayout_tcp.setWidget(8, QFormLayout.ItemRole.LabelRole, self.label_tcpTemplate)
 
         self.plainTextEdit_tcpTemplate = QPlainTextEdit(self.scrollAreaWidgetContents_tcp)
         self.plainTextEdit_tcpTemplate.setObjectName(u"plainTextEdit_tcpTemplate")
@@ -258,22 +280,22 @@ class Ui_TcpOutputPage(object):
         self.plainTextEdit_tcpTemplate.setMaximumSize(QSize(16777215, 72))
         self.plainTextEdit_tcpTemplate.setTabChangesFocus(True)
 
-        self.formLayout_tcp.setWidget(7, QFormLayout.ItemRole.FieldRole, self.plainTextEdit_tcpTemplate)
+        self.formLayout_tcp.setWidget(8, QFormLayout.ItemRole.FieldRole, self.plainTextEdit_tcpTemplate)
 
         self.label_tcpInit = QLabel(self.scrollAreaWidgetContents_tcp)
         self.label_tcpInit.setObjectName(u"label_tcpInit")
 
-        self.formLayout_tcp.setWidget(8, QFormLayout.ItemRole.LabelRole, self.label_tcpInit)
+        self.formLayout_tcp.setWidget(9, QFormLayout.ItemRole.LabelRole, self.label_tcpInit)
 
         self.lineEdit_tcpInit = QLineEdit(self.scrollAreaWidgetContents_tcp)
         self.lineEdit_tcpInit.setObjectName(u"lineEdit_tcpInit")
 
-        self.formLayout_tcp.setWidget(8, QFormLayout.ItemRole.FieldRole, self.lineEdit_tcpInit)
+        self.formLayout_tcp.setWidget(9, QFormLayout.ItemRole.FieldRole, self.lineEdit_tcpInit)
 
         self.label_tcpPreview = QLabel(self.scrollAreaWidgetContents_tcp)
         self.label_tcpPreview.setObjectName(u"label_tcpPreview")
 
-        self.formLayout_tcp.setWidget(9, QFormLayout.ItemRole.LabelRole, self.label_tcpPreview)
+        self.formLayout_tcp.setWidget(10, QFormLayout.ItemRole.LabelRole, self.label_tcpPreview)
 
         self.plainTextEdit_tcpPreview = QPlainTextEdit(self.scrollAreaWidgetContents_tcp)
         self.plainTextEdit_tcpPreview.setObjectName(u"plainTextEdit_tcpPreview")
@@ -282,54 +304,54 @@ class Ui_TcpOutputPage(object):
         self.plainTextEdit_tcpPreview.setTabChangesFocus(True)
         self.plainTextEdit_tcpPreview.setReadOnly(True)
 
-        self.formLayout_tcp.setWidget(9, QFormLayout.ItemRole.FieldRole, self.plainTextEdit_tcpPreview)
+        self.formLayout_tcp.setWidget(10, QFormLayout.ItemRole.FieldRole, self.plainTextEdit_tcpPreview)
 
         self.label_tcpLineEnding = QLabel(self.scrollAreaWidgetContents_tcp)
         self.label_tcpLineEnding.setObjectName(u"label_tcpLineEnding")
 
-        self.formLayout_tcp.setWidget(10, QFormLayout.ItemRole.LabelRole, self.label_tcpLineEnding)
+        self.formLayout_tcp.setWidget(11, QFormLayout.ItemRole.LabelRole, self.label_tcpLineEnding)
 
         self.comboBox_tcpLineEnding = QComboBox(self.scrollAreaWidgetContents_tcp)
         self.comboBox_tcpLineEnding.setObjectName(u"comboBox_tcpLineEnding")
         self.comboBox_tcpLineEnding.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
         self.comboBox_tcpLineEnding.setMinimumContentsLength(8)
 
-        self.formLayout_tcp.setWidget(10, QFormLayout.ItemRole.FieldRole, self.comboBox_tcpLineEnding)
+        self.formLayout_tcp.setWidget(11, QFormLayout.ItemRole.FieldRole, self.comboBox_tcpLineEnding)
 
         self.label_tcpEncoding = QLabel(self.scrollAreaWidgetContents_tcp)
         self.label_tcpEncoding.setObjectName(u"label_tcpEncoding")
 
-        self.formLayout_tcp.setWidget(11, QFormLayout.ItemRole.LabelRole, self.label_tcpEncoding)
+        self.formLayout_tcp.setWidget(12, QFormLayout.ItemRole.LabelRole, self.label_tcpEncoding)
 
         self.comboBox_tcpEncoding = QComboBox(self.scrollAreaWidgetContents_tcp)
         self.comboBox_tcpEncoding.setObjectName(u"comboBox_tcpEncoding")
         self.comboBox_tcpEncoding.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
         self.comboBox_tcpEncoding.setMinimumContentsLength(8)
 
-        self.formLayout_tcp.setWidget(11, QFormLayout.ItemRole.FieldRole, self.comboBox_tcpEncoding)
+        self.formLayout_tcp.setWidget(12, QFormLayout.ItemRole.FieldRole, self.comboBox_tcpEncoding)
 
         self.label_tcpEscape = QLabel(self.scrollAreaWidgetContents_tcp)
         self.label_tcpEscape.setObjectName(u"label_tcpEscape")
 
-        self.formLayout_tcp.setWidget(12, QFormLayout.ItemRole.LabelRole, self.label_tcpEscape)
+        self.formLayout_tcp.setWidget(13, QFormLayout.ItemRole.LabelRole, self.label_tcpEscape)
 
         self.comboBox_tcpEscape = QComboBox(self.scrollAreaWidgetContents_tcp)
         self.comboBox_tcpEscape.setObjectName(u"comboBox_tcpEscape")
         self.comboBox_tcpEscape.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
         self.comboBox_tcpEscape.setMinimumContentsLength(8)
 
-        self.formLayout_tcp.setWidget(12, QFormLayout.ItemRole.FieldRole, self.comboBox_tcpEscape)
+        self.formLayout_tcp.setWidget(13, QFormLayout.ItemRole.FieldRole, self.comboBox_tcpEscape)
 
         self.checkBox_tcpSendSame = QCheckBox(self.scrollAreaWidgetContents_tcp)
         self.checkBox_tcpSendSame.setObjectName(u"checkBox_tcpSendSame")
         self.checkBox_tcpSendSame.setText(u"Also resend unchanged values")
 
-        self.formLayout_tcp.setWidget(13, QFormLayout.ItemRole.SpanningRole, self.checkBox_tcpSendSame)
+        self.formLayout_tcp.setWidget(14, QFormLayout.ItemRole.SpanningRole, self.checkBox_tcpSendSame)
 
         self.label_tcpMinInterval = QLabel(self.scrollAreaWidgetContents_tcp)
         self.label_tcpMinInterval.setObjectName(u"label_tcpMinInterval")
 
-        self.formLayout_tcp.setWidget(14, QFormLayout.ItemRole.LabelRole, self.label_tcpMinInterval)
+        self.formLayout_tcp.setWidget(15, QFormLayout.ItemRole.LabelRole, self.label_tcpMinInterval)
 
         self.doubleSpinBox_tcpMinInterval = QDoubleSpinBox(self.scrollAreaWidgetContents_tcp)
         self.doubleSpinBox_tcpMinInterval.setObjectName(u"doubleSpinBox_tcpMinInterval")
@@ -338,12 +360,12 @@ class Ui_TcpOutputPage(object):
         self.doubleSpinBox_tcpMinInterval.setMaximum(10.000000000000000)
         self.doubleSpinBox_tcpMinInterval.setSingleStep(0.050000000000000)
 
-        self.formLayout_tcp.setWidget(14, QFormLayout.ItemRole.FieldRole, self.doubleSpinBox_tcpMinInterval)
+        self.formLayout_tcp.setWidget(15, QFormLayout.ItemRole.FieldRole, self.doubleSpinBox_tcpMinInterval)
 
         self.label_tcpRefresh = QLabel(self.scrollAreaWidgetContents_tcp)
         self.label_tcpRefresh.setObjectName(u"label_tcpRefresh")
 
-        self.formLayout_tcp.setWidget(15, QFormLayout.ItemRole.LabelRole, self.label_tcpRefresh)
+        self.formLayout_tcp.setWidget(16, QFormLayout.ItemRole.LabelRole, self.label_tcpRefresh)
 
         self.doubleSpinBox_tcpRefresh = QDoubleSpinBox(self.scrollAreaWidgetContents_tcp)
         self.doubleSpinBox_tcpRefresh.setObjectName(u"doubleSpinBox_tcpRefresh")
@@ -352,13 +374,13 @@ class Ui_TcpOutputPage(object):
         self.doubleSpinBox_tcpRefresh.setMaximum(3600.000000000000000)
         self.doubleSpinBox_tcpRefresh.setSingleStep(1.000000000000000)
 
-        self.formLayout_tcp.setWidget(15, QFormLayout.ItemRole.FieldRole, self.doubleSpinBox_tcpRefresh)
+        self.formLayout_tcp.setWidget(16, QFormLayout.ItemRole.FieldRole, self.doubleSpinBox_tcpRefresh)
 
         self.label_tcpNames = QLabel(self.scrollAreaWidgetContents_tcp)
         self.label_tcpNames.setObjectName(u"label_tcpNames")
         self.label_tcpNames.setWordWrap(True)
 
-        self.formLayout_tcp.setWidget(16, QFormLayout.ItemRole.SpanningRole, self.label_tcpNames)
+        self.formLayout_tcp.setWidget(17, QFormLayout.ItemRole.SpanningRole, self.label_tcpNames)
 
         self.tableView_tcpMapping = QTableView(self.scrollAreaWidgetContents_tcp)
         self.tableView_tcpMapping.setObjectName(u"tableView_tcpMapping")
@@ -366,7 +388,7 @@ class Ui_TcpOutputPage(object):
         self.tableView_tcpMapping.horizontalHeader().setVisible(False)
         self.tableView_tcpMapping.horizontalHeader().setStretchLastSection(True)
 
-        self.formLayout_tcp.setWidget(17, QFormLayout.ItemRole.SpanningRole, self.tableView_tcpMapping)
+        self.formLayout_tcp.setWidget(18, QFormLayout.ItemRole.SpanningRole, self.tableView_tcpMapping)
 
         self.widget_tcpNamesButtons = QWidget(self.scrollAreaWidgetContents_tcp)
         self.widget_tcpNamesButtons.setObjectName(u"widget_tcpNamesButtons")
@@ -383,7 +405,7 @@ class Ui_TcpOutputPage(object):
         self.horizontalLayout_tcpNamesButtons.addItem(self.horizontalSpacer_tcpNames)
 
 
-        self.formLayout_tcp.setWidget(18, QFormLayout.ItemRole.SpanningRole, self.widget_tcpNamesButtons)
+        self.formLayout_tcp.setWidget(19, QFormLayout.ItemRole.SpanningRole, self.widget_tcpNamesButtons)
 
         self.scrollArea_tcp.setWidget(self.scrollAreaWidgetContents_tcp)
 
@@ -392,6 +414,7 @@ class Ui_TcpOutputPage(object):
 #if QT_CONFIG(shortcut)
         self.label_tcpPreset.setBuddy(self.comboBox_tcpPreset)
         self.label_tcpAddress.setBuddy(self.lineEdit_tcpHost)
+        self.label_tcpHeaders.setBuddy(self.plainTextEdit_tcpHeaders)
         self.label_tcpChannel.setBuddy(self.spinBox_tcpChannel)
         self.label_tcpLayer.setBuddy(self.spinBox_tcpLayer)
         self.label_tcpCgLayer.setBuddy(self.spinBox_tcpCgLayer)
@@ -423,6 +446,12 @@ class Ui_TcpOutputPage(object):
         self.toolButton_tcpResetPreset.setText(QCoreApplication.translate("TcpOutputPage", u"Reset", None))
         self.label_tcpAddress.setText(QCoreApplication.translate("TcpOutputPage", u"Address", None))
 #if QT_CONFIG(accessibility)
+        self.lineEdit_tcpUrl.setAccessibleName(QCoreApplication.translate("TcpOutputPage", u"WebSocket URL", None))
+#endif // QT_CONFIG(accessibility)
+#if QT_CONFIG(tooltip)
+        self.lineEdit_tcpUrl.setToolTip(QCoreApplication.translate("TcpOutputPage", u"The WebSocket address of the receiving server (ws:// or wss://). A token can go in the URL or in Headers", None))
+#endif // QT_CONFIG(tooltip)
+#if QT_CONFIG(accessibility)
         self.lineEdit_tcpHost.setAccessibleName(QCoreApplication.translate("TcpOutputPage", u"Host", None))
 #endif // QT_CONFIG(accessibility)
 #if QT_CONFIG(tooltip)
@@ -441,7 +470,14 @@ class Ui_TcpOutputPage(object):
         self.comboBox_tcpTransport.setAccessibleName(QCoreApplication.translate("TcpOutputPage", u"Transport", None))
 #endif // QT_CONFIG(accessibility)
 #if QT_CONFIG(tooltip)
-        self.comboBox_tcpTransport.setToolTip(QCoreApplication.translate("TcpOutputPage", u"TCP connects to the receiving program and keeps the connection open. UDP sends each message as a datagram, without a connection. TCP server: ScoreSight listens on the port, and every program that connects to it gets the messages.", None))
+        self.comboBox_tcpTransport.setToolTip(QCoreApplication.translate("TcpOutputPage", u"TCP connects to the receiving program and keeps the connection open. UDP sends each message as a datagram, without a connection. TCP server: ScoreSight listens on the port, and every program that connects to it gets the messages. WebSocket connects to a ws:// or wss:// URL and sends each message as a WebSocket message.", None))
+#endif // QT_CONFIG(tooltip)
+        self.label_tcpHeaders.setText(QCoreApplication.translate("TcpOutputPage", u"Headers", None))
+#if QT_CONFIG(accessibility)
+        self.plainTextEdit_tcpHeaders.setAccessibleName(QCoreApplication.translate("TcpOutputPage", u"WebSocket headers", None))
+#endif // QT_CONFIG(accessibility)
+#if QT_CONFIG(tooltip)
+        self.plainTextEdit_tcpHeaders.setToolTip(QCoreApplication.translate("TcpOutputPage", u"Extra headers for the WebSocket connection, one \"Name: value\" per line, for example an Authorization token", None))
 #endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(accessibility)
         self.pushButton_tcpStart.setAccessibleName(QCoreApplication.translate("TcpOutputPage", u"Start or stop the TCP / UDP output", None))

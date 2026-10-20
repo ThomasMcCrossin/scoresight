@@ -159,6 +159,25 @@
            <number>0</number>
           </property>
           <item>
+           <widget class="QLineEdit" name="lineEdit_tcpUrl">
+            <property name="minimumSize">
+             <size>
+              <width>60</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="accessibleName">
+             <string>WebSocket URL</string>
+            </property>
+            <property name="toolTip">
+             <string>The WebSocket address of the receiving server (ws:// or wss://). A token can go in the URL or in Headers</string>
+            </property>
+            <property name="placeholderText">
+             <string notr="true">wss://example.com/scores</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QLineEdit" name="lineEdit_tcpHost">
             <property name="minimumSize">
              <size>
@@ -221,7 +240,7 @@
              <string>Transport</string>
             </property>
             <property name="toolTip">
-             <string>TCP connects to the receiving program and keeps the connection open. UDP sends each message as a datagram, without a connection. TCP server: ScoreSight listens on the port, and every program that connects to it gets the messages.</string>
+             <string>TCP connects to the receiving program and keeps the connection open. UDP sends each message as a datagram, without a connection. TCP server: ScoreSight listens on the port, and every program that connects to it gets the messages. WebSocket connects to a ws:// or wss:// URL and sends each message as a WebSocket message.</string>
             </property>
             <item>
              <property name="text">
@@ -238,12 +257,52 @@
               <string>TCP server</string>
              </property>
             </item>
+            <item>
+             <property name="text">
+              <string notr="true">WebSocket</string>
+             </property>
+            </item>
            </widget>
           </item>
          </layout>
         </widget>
        </item>
-       <item row="3" column="0" colspan="2">
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_tcpHeaders">
+         <property name="text">
+          <string>Headers</string>
+         </property>
+         <property name="buddy">
+          <cstring>plainTextEdit_tcpHeaders</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QPlainTextEdit" name="plainTextEdit_tcpHeaders">
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>52</height>
+          </size>
+         </property>
+         <property name="accessibleName">
+          <string>WebSocket headers</string>
+         </property>
+         <property name="toolTip">
+          <string>Extra headers for the WebSocket connection, one "Name: value" per line, for example an Authorization token</string>
+         </property>
+         <property name="tabChangesFocus">
+          <bool>true</bool>
+         </property>
+         <property name="lineWrapMode">
+          <enum>QPlainTextEdit::NoWrap</enum>
+         </property>
+         <property name="placeholderText">
+          <string notr="true">Authorization: Bearer …</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0" colspan="2">
         <widget class="QWidget" name="widget_tcpStartRow" native="true">
          <layout class="QHBoxLayout" name="horizontalLayout_tcpStartRow">
           <property name="spacing">
@@ -299,7 +358,7 @@
          </layout>
         </widget>
        </item>
-       <item row="4" column="0" colspan="2">
+       <item row="5" column="0" colspan="2">
         <widget class="QLabel" name="label_tcpReply">
          <property name="wordWrap">
           <bool>true</bool>
@@ -309,7 +368,7 @@
          </property>
         </widget>
        </item>
-       <item row="5" column="0" colspan="2">
+       <item row="6" column="0" colspan="2">
         <widget class="QGroupBox" name="groupBox_tcpCaspar">
          <property name="title">
           <string notr="true">CasparCG</string>
@@ -483,7 +542,7 @@
          </layout>
         </widget>
        </item>
-       <item row="6" column="0">
+       <item row="7" column="0">
         <widget class="QLabel" name="label_tcpMode">
          <property name="text">
           <string>Send</string>
@@ -493,7 +552,7 @@
          </property>
         </widget>
        </item>
-       <item row="6" column="1">
+       <item row="7" column="1">
         <widget class="QComboBox" name="comboBox_tcpMode">
          <property name="toolTip">
           <string>A message for each field whose value changed, or one message with every field</string>
@@ -506,7 +565,7 @@
          </property>
         </widget>
        </item>
-       <item row="7" column="0">
+       <item row="8" column="0">
         <widget class="QLabel" name="label_tcpTemplate">
          <property name="text">
           <string>Template</string>
@@ -516,7 +575,7 @@
          </property>
         </widget>
        </item>
-       <item row="7" column="1">
+       <item row="8" column="1">
         <widget class="QPlainTextEdit" name="plainTextEdit_tcpTemplate">
          <property name="minimumSize">
           <size>
@@ -538,7 +597,7 @@
          </property>
         </widget>
        </item>
-       <item row="8" column="0">
+       <item row="9" column="0">
         <widget class="QLabel" name="label_tcpInit">
          <property name="text">
           <string>On connect</string>
@@ -548,14 +607,14 @@
          </property>
         </widget>
        </item>
-       <item row="8" column="1">
+       <item row="9" column="1">
         <widget class="QLineEdit" name="lineEdit_tcpInit">
          <property name="toolTip">
           <string>Sent once after each connection, before the values (for example CasparCG's CG ADD). Empty: nothing.</string>
          </property>
         </widget>
        </item>
-       <item row="9" column="0">
+       <item row="10" column="0">
         <widget class="QLabel" name="label_tcpPreview">
          <property name="text">
           <string>Preview</string>
@@ -565,7 +624,7 @@
          </property>
         </widget>
        </item>
-       <item row="9" column="1">
+       <item row="10" column="1">
         <widget class="QPlainTextEdit" name="plainTextEdit_tcpPreview">
          <property name="minimumSize">
           <size>
@@ -590,7 +649,7 @@
          </property>
         </widget>
        </item>
-       <item row="10" column="0">
+       <item row="11" column="0">
         <widget class="QLabel" name="label_tcpLineEnding">
          <property name="text">
           <string>Line ending</string>
@@ -600,7 +659,7 @@
          </property>
         </widget>
        </item>
-       <item row="10" column="1">
+       <item row="11" column="1">
         <widget class="QComboBox" name="comboBox_tcpLineEnding">
          <property name="toolTip">
           <string>What ends each line of a message</string>
@@ -613,7 +672,7 @@
          </property>
         </widget>
        </item>
-       <item row="11" column="0">
+       <item row="12" column="0">
         <widget class="QLabel" name="label_tcpEncoding">
          <property name="text">
           <string>Encoding</string>
@@ -623,7 +682,7 @@
          </property>
         </widget>
        </item>
-       <item row="11" column="1">
+       <item row="12" column="1">
         <widget class="QComboBox" name="comboBox_tcpEncoding">
          <property name="toolTip">
           <string>The text encoding the receiving program expects. Characters it can't encode are sent as “?”.</string>
@@ -636,7 +695,7 @@
          </property>
         </widget>
        </item>
-       <item row="12" column="0">
+       <item row="13" column="0">
         <widget class="QLabel" name="label_tcpEscape">
          <property name="text">
           <string>Escaping</string>
@@ -646,7 +705,7 @@
          </property>
         </widget>
        </item>
-       <item row="12" column="1">
+       <item row="13" column="1">
         <widget class="QComboBox" name="comboBox_tcpEscape">
          <property name="toolTip">
           <string>How the text of the placeholders is escaped, so that a value can't break the protocol</string>
@@ -659,14 +718,14 @@
          </property>
         </widget>
        </item>
-       <item row="13" column="0" colspan="2">
+       <item row="14" column="0" colspan="2">
         <widget class="QCheckBox" name="checkBox_tcpSendSame">
          <property name="text">
           <string notr="true">Also resend unchanged values</string>
          </property>
         </widget>
        </item>
-       <item row="14" column="0">
+       <item row="15" column="0">
         <widget class="QLabel" name="label_tcpMinInterval">
          <property name="text">
           <string>At most every</string>
@@ -676,7 +735,7 @@
          </property>
         </widget>
        </item>
-       <item row="14" column="1">
+       <item row="15" column="1">
         <widget class="QDoubleSpinBox" name="doubleSpinBox_tcpMinInterval">
          <property name="toolTip">
           <string>The shortest time between two sends: the values that change meanwhile go out together, the latest ones</string>
@@ -695,7 +754,7 @@
          </property>
         </widget>
        </item>
-       <item row="15" column="0">
+       <item row="16" column="0">
         <widget class="QLabel" name="label_tcpRefresh">
          <property name="text">
           <string>Resend all every</string>
@@ -705,7 +764,7 @@
          </property>
         </widget>
        </item>
-       <item row="15" column="1">
+       <item row="16" column="1">
         <widget class="QDoubleSpinBox" name="doubleSpinBox_tcpRefresh">
          <property name="toolTip">
           <string>Send every value again this often, for a receiver that forgets them (a reloaded template, a restarted engine)</string>
@@ -724,7 +783,7 @@
          </property>
         </widget>
        </item>
-       <item row="16" column="0" colspan="2">
+       <item row="17" column="0" colspan="2">
         <widget class="QLabel" name="label_tcpNames">
          <property name="text">
           <string>The name each field is sent as ({field}). An empty name leaves the field out.</string>
@@ -734,7 +793,7 @@
          </property>
         </widget>
        </item>
-       <item row="17" column="0" colspan="2">
+       <item row="18" column="0" colspan="2">
         <widget class="QTableView" name="tableView_tcpMapping">
          <property name="minimumSize">
           <size>
@@ -753,7 +812,7 @@
          </attribute>
         </widget>
        </item>
-       <item row="18" column="0" colspan="2">
+       <item row="19" column="0" colspan="2">
         <widget class="QWidget" name="widget_tcpNamesButtons" native="true">
          <layout class="QHBoxLayout" name="horizontalLayout_tcpNamesButtons">
           <property name="leftMargin">
