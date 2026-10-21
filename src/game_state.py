@@ -18,7 +18,9 @@ HOLD_SECONDS, which a real correction is. The clock's small moves count at
 once. A lap counter allows only one lap at a time, the way it counts (laps to
 go down, laps completed up); a lap board set for the next race (laps to go
 back up, laps completed back to 0) is a new race once read steadily for
-HOLD_SECONDS. Nothing here changes what the outputs get: held_back() says
+HOLD_SECONDS. A lap board of hand-turned cards shows another number while a
+lap turns two of them (20 to 19 shows 10 or 29 with one card turned): such a
+number counts only once read steadily for CARD_TURN_HOLD_SECONDS. Nothing here changes what the outputs get: held_back() says
 which readings aren't counted yet, and plausibility_holds.py keeps them from
 the outputs until they are.
 """
@@ -59,6 +61,10 @@ CONFIRM_READINGS = 2
 # a change the sport doesn't allow counts once read this long and this often
 HOLD_SECONDS = 3.0
 HOLD_READINGS = 3
+# a lap board showing the next lap with only some of the cards it turns turned
+# (20 to 19: 10 or 29) counts once read this long: a hand takes a few seconds
+# to turn the next card, and the next lap is then counted at once
+CARD_TURN_HOLD_SECONDS = 15.0
 # the clock is stopped when it hasn't changed for this long (at least; longer
 # when the boxes are read less often)
 CLOCK_STOP_SECONDS = 1.6
@@ -137,6 +143,26 @@ def parse_period(text: str, sport: SportProfile) -> int | None:
 
 
 # --- the game ---------------------------------------------------------------------
+
+
+def half_turned(old: int, new: int) -> set[int]:
+    """The numbers a board of digit cards shows while it changes from old to
+    new with some of the cards that change turned and not the others (10 to 9:
+    00 and 19)."""
+    if old < 0 or new < 0:
+        return set()
+    width = max(len(str(old)), len(str(new)))
+    before, after = str(old).zfill(width), str(new).zfill(width)
+    changed = [i for i in range(width) if before[i] != after[i]]
+    values = set()
+    # every set of turned cards but none and all
+    for turned in range(1, 2 ** len(changed) - 1):
+        digits = list(before)
+        for bit, i in enumerate(changed):
+            if turned >> bit & 1:
+                digits[i] = after[i]
+        values.add(int("".join(digits)))
+    return values
 
 
 def _score_text(home: int | None, away: int | None) -> str:
@@ -297,11 +323,17 @@ class _Tracker:
         self.candidate_count = 0
 
     def offer(
-        self, value, text: str, now: float, plausible: bool, confirm: int
+        self,
+        value,
+        text: str,
+        now: float,
+        plausible: bool,
+        confirm: int,
+        hold_seconds: float = HOLD_SECONDS,
     ) -> bool:
         """A reading of value. True when it becomes the value: the first one,
         or a change read confirm times in a row (a change the sport doesn't
-        allow: HOLD_READINGS times over HOLD_SECONDS)."""
+        allow: HOLD_READINGS times over hold_seconds)."""
         if value == self.value:
             self.text = text
             self.candidate = None
@@ -316,7 +348,7 @@ class _Tracker:
         if self.value is not None and not plausible:
             ready = (
                 self.candidate_count >= HOLD_READINGS
-                and now - self.candidate_since >= HOLD_SECONDS
+                and now - self.candidate_since >= hold_seconds
             )
         else:
             ready = self.candidate_count >= confirm
@@ -327,7 +359,9 @@ class _Tracker:
         self.candidate = None
         return True
 
-    def holds(self, value, now: float, plausible: bool) -> bool:
+    def holds(
+        self, value, now: float, plausible: bool, hold_seconds: float = HOLD_SECONDS
+    ) -> bool:
         """Whether offer() would keep the value as it is after a reading of
         value: a change the sport doesn't allow, not read steadily for long
         enough yet (this reading included). Changes nothing."""
@@ -337,7 +371,7 @@ class _Tracker:
             count, since = self.candidate_count + 1, self.candidate_since
         else:
             count, since = 1, now
-        return not (count >= HOLD_READINGS and now - since >= HOLD_SECONDS)
+        return not (count >= HOLD_READINGS and now - since >= hold_seconds)
 
 
 class GameEngine:
@@ -483,7 +517,7 @@ class GameEngine:
                 continue
             value, plausible = judged
             tracker = self._trackers[role]
-            if tracker.holds(value, now, plausible):
+            if tracker.holds(value, now, plausible, self._hold_seconds(role, value)):
                 held[result.name] = self._hold_reason(role, tracker, value, text)
         return held
 
@@ -502,10 +536,11 @@ class GameEngine:
             change = f"the clock jumping from {tracker.text} to {text}"
         elif role == PERIOD:
             change = f"the period going from {tracker.text} to {text}"
-        elif role == LAPS_TO_GO:
-            change = f"the laps to go going from {old} to {value}"
-        elif role == LAPS_COMPLETED:
-            change = f"the laps completed going from {old} to {value}"
+        elif role in (LAPS_TO_GO, LAPS_COMPLETED):
+            counter = "laps to go" if role == LAPS_TO_GO else "laps completed"
+            change = f"the {counter} going from {old} to {value}"
+            if self._hold_seconds(role, value) != HOLD_SECONDS:
+                change += " (a lap card turned, not yet the other)"
         else:
             change = f"the total laps changing from {old} to {value}"
         return f"{change}, which {self.sport.name} doesn't allow"
@@ -618,7 +653,10 @@ class GameEngine:
         counts_down = role == LAPS_TO_GO
         # the laps raced by this change: a lap is 1
         raced = None if old is None else (old - value if counts_down else value - old)
-        if not tracker.offer(value, text, now, plausible, CONFIRM_READINGS):
+        hold_seconds = self._hold_seconds(role, value)
+        if not tracker.offer(
+            value, text, now, plausible, CONFIRM_READINGS, hold_seconds
+        ):
             return
         # with both counters on the board, the laps to go make the events
         if old is None or role != self._lap_counter():
@@ -642,6 +680,18 @@ class GameEngine:
         if to_go <= 0 and not self._final:
             self._final = True
             self._emit(FINISH, events)
+
+    def _hold_seconds(self, role: str, value) -> float:
+        """How long a change the sport doesn't allow to value must be read
+        steadily to count: longer for a lap board with only some of the cards
+        of the next lap turned."""
+        if role in (LAPS_TO_GO, LAPS_COMPLETED):
+            old = self._trackers[role].value
+            if old is not None:
+                step = -1 if role == LAPS_TO_GO else 1
+                if value in half_turned(old, old + step):
+                    return CARD_TURN_HOLD_SECONDS
+        return HOLD_SECONDS
 
     def _lap_counter(self) -> str | None:
         """The role of the lap counter that makes the events."""
