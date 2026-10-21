@@ -559,6 +559,54 @@ def test_lap_card_misreads_make_no_events(game):
     assert [(e.kind, e.value) for e in events] == [(LAP, 9)]
 
 
+def test_numbers_of_half_turned_lap_cards():
+    assert game_state.half_turned(20, 19) == {10, 29}
+    assert game_state.half_turned(10, 9) == {0, 19}
+    assert game_state.half_turned(9, 10) == {19, 0}
+    assert game_state.half_turned(100, 99) == {0, 190, 109, 90, 9, 199}
+    # one card turned for the lap: nothing in between
+    assert game_state.half_turned(12, 11) == set()
+    assert game_state.half_turned(0, -1) == set()
+
+
+def test_a_lap_turning_two_cards_one_at_a_time(game):
+    # #125's 45-lap video, read by PP-OCR every 0.2 s: 20 to 19 showed 10
+    # (the tens card turned first) for 3.2 s, then the units card turning
+    g = start_race(game, Laps_To_Go="20")
+    events = []
+    for _ in range(17):
+        events += g.read(step=0.2, Laps_To_Go="10")
+    for text in ("13", "15"):
+        events += g.read(step=0.2, Laps_To_Go=text)
+    assert events == []
+    events = read_board(g, 2, Laps_To_Go="19")
+    assert [(e.kind, e.delta, e.value) for e in events] == [(LAP, 1, 19)]
+    # 10 to 09 showed 00 (a finish!) for about 2 s; a slower hand: 10 s
+    g = start_race(game, Laps_To_Go="10")
+    assert read_board(g, 20, Laps_To_Go="00") == []
+    events = read_board(g, 2, Laps_To_Go="09")
+    assert [(e.kind, e.value) for e in events] == [(LAP, 9)]
+    assert not g.engine.state().final
+    # the units card turned first: 19
+    g = start_race(game, Laps_To_Go="10")
+    assert read_board(g, 20, Laps_To_Go="19") == []
+    assert g.kinds(read_board(g, 2, Laps_To_Go="09")) == [LAP]
+    # laps completed: 19 to 20 shows 10 or 29
+    g = start_race(game, Laps_Completed="19")
+    assert read_board(g, 20, Laps_Completed="10") == []
+    assert read_board(g, 20, Laps_Completed="29") == []
+    events = read_board(g, 2, Laps_Completed="20")
+    assert [(e.kind, e.delta, e.value) for e in events] == [(LAP, 1, 20)]
+
+
+def test_a_lap_card_left_half_turned_counts_after_a_while(game):
+    g = start_race(game, Laps_To_Go="20")
+    seconds = game_state.CARD_TURN_HOLD_SECONDS
+    assert read_board(g, int(seconds / 0.5), Laps_To_Go="10") == []
+    events = read_board(g, 2, Laps_To_Go="10")
+    assert [(e.kind, e.delta, e.value) for e in events] == [(LAP, 10, 10)]
+
+
 def test_a_lap_board_corrected(game):
     g = start_race(game, Laps_To_Go="12")
     # two cards turned at once: counts once read steadily for 3 s
@@ -834,3 +882,16 @@ def test_lap_board_misreads_are_held_back(game, cycle):
         "doesn't allow"
     }
     assert cycle(g, Laps_To_Go="9")[0] == {}
+
+
+def test_a_half_turned_lap_board_is_held_back_longer(game, cycle):
+    # the outputs mustn't get 10 while 20 to 19 is turned one card at a time
+    g = start_race(game, Laps_To_Go="20")
+    for _ in range(12):
+        held, events = cycle(g, Laps_To_Go="10")
+        assert events == []
+    assert held == {
+        "Laps To Go": "the laps to go going from 20 to 10 (a lap card turned, not "
+        "yet the other), which Racing (laps) doesn't allow"
+    }
+    assert cycle(g, Laps_To_Go="19") == ({}, [])

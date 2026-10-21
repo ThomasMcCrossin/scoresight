@@ -13,6 +13,10 @@ Release tags are the bare version number (for example `0.1.0`).
 - **Futsal.** A new sport: the clock counts down through two halves (then extra time), goals count one at a time, and the team fouls are followed (they go back to 0 at halftime). The final comes at 0:00 of the second half. A dot-matrix 3 misread as a 9 is held back from the outputs ([#136](https://github.com/royshil/scoresight/discussions/136)).
 - **WebSocket output.** The TCP / UDP output can send over a WebSocket: enter a `ws://` or `wss://` URL, and add a token in **Headers** (`Authorization: Bearer …`) or in the URL. The new **WebSocket (JSON)** preset sends a JSON object with every field each time a value changes; any template works too, for example a message per changed field. ScoreSight keeps the connection open and reconnects by itself ([#141](https://github.com/royshil/scoresight/discussions/141)).
 
+### Fixed
+
+- **Lap races: a lap that turns two lap cards.** Between 20 and 19 laps to go, a board of hand-turned cards shows *10* (or *29*) until the second card is turned. When that took over 3 seconds, ScoreSight counted 10 laps at once, sent *10* to the outputs, then took 19 for a new race; from 10 to 09, the *00* in between could have made a **finish** at 10 laps to go. Such a number now counts only if the board stays that way for 15 seconds, and the next lap counts as soon as the second card is turned. Found on a velodrome's 45-lap countdown, which now gives every lap, the final lap and the finish ([#125](https://github.com/royshil/scoresight/discussions/125)).
+
 ## [0.4.0] - 2026-10-19
 
 Set up a new source in two clicks: ✨ Auto crop finds the scoreboard, and

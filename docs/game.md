@@ -123,6 +123,7 @@ Box the lap board and name the field **Laps To Go** (if it counts down) or **Lap
 | &nbsp;&nbsp;forward more than one lap (laps missed, or a card turned too far) | A **lap**, as far as the board says |
 | &nbsp;&nbsp;back one lap | A *corrected* lap |
 | &nbsp;&nbsp;back more than one lap, or laps completed back to 0 | A **new race** |
+| A lap that turns two cards, with only one turned (*10* or *29* between 20 and 19), read steadily for 15 seconds | As any other change, above |
 
 With both laps to go and laps completed on the board, the laps to go make the events.
 
@@ -133,7 +134,7 @@ Plastic lap cards turned by hand, as at a velodrome, read well with **PP-OCR (ac
 - **Draw one box over both cards** and name it **Laps To Go**.
 - **Set the Format to `^\d{1,2}$`** (two digits at most): the gap between two cards is sometimes read as a *1* (*919* for *99*), most often by PP-OCR (fast), and the format rejects those readings.
 - A hand over a card, or a card half turned, is read for a moment as another number (*99* for *09*, *88* for *89*). One lap down is the only change counted at once, so these never count.
-- Turning two cards for one lap (10 to 09) shows *19* or *00* for a moment: they don't count either.
+- Turning two cards for one lap shows another number until the second card is turned: *10* or *29* from 20 to 19, *00* or *19* from 10 to 09. On a 45-lap countdown, the board showed *10* for 3 seconds. Such a number counts only if the board stays that way for **15 seconds**, and the next lap counts as soon as the second card is turned, so a slow hand makes no event and the outputs keep the last lap until then.
 - Hold the camera steady, or turn on [Stabilize](view-tools.md#stabilize), so the cards stay in the box.
 
 ## The game over HTTP
