@@ -174,6 +174,12 @@ Screen capture is not available on Linux. Use a capture card, NDI, or OBS's virt
 
 Install the new version over the old one (Windows), replace the app in Applications (macOS), or extract the new archive (Linux). Your boxes and settings live in a separate settings folder, so they carry over. See [Settings, Files & Command Line](configuration.md#where-scoresight-keeps-its-files).
 
+### Update now (Windows)
+
+When ScoreSight was installed with the Windows installer, the update dialog has an **Update now** button. ScoreSight downloads the new version's installer from the GitHub release and checks it: its SHA-256 must match the release's `SHA256SUMS.txt`, and it must be signed by the same publisher as the ScoreSight you run. It then runs the installer and closes. The new version is installed in the same folder and starts by itself. Windows may ask whether to allow the installer to make changes (an installation for all users): choose **Yes**. If you choose **No**, or something fails, ScoreSight keeps running and offers the release page.
+
+While a source is open, ScoreSight asks first: the outputs stop until the new version runs. The portable zip, macOS and Linux don't have Update now: download the new version from the release page.
+
 {: .new }
 When ScoreSight 0.2.0 first opens the settings of an older version, it changes a saved vMix port of `8099` to `8088` (the port of vMix's Web API), and it sets the **Minimum confidence** (in 0.1.x: **Conf. Th**) of every box to 0 (off), because that setting had no effect before. Both changes happen once and are written to the log. See [One-time upgrades](configuration.md#one-time-upgrades-of-older-settings).
 

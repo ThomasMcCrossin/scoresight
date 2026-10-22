@@ -44,7 +44,7 @@ No. Reading the scoreboard and all local outputs (files, the HTTP server, OBS, v
 
 Your readings go only to the outputs you configure. ScoreSight has no accounts, no cloud service of its own and no analytics.
 
-The only other connection is the update check: at startup, and when you choose **Help > Check for updates...**, ScoreSight asks GitHub (`api.github.com`) for the latest ScoreSight release. The request carries nothing but the ScoreSight version. At startup, a dialog appears only when a newer version exists. To turn off the startup check, tick **Don't check for updates at startup** in the update dialog (open it with **Help > Check for updates...**).
+The only other connection is the update check: at startup, and when you choose **Help > Check for updates...**, ScoreSight asks GitHub (`api.github.com`) for the latest ScoreSight release. The request carries nothing but the ScoreSight version. At startup, a dialog appears only when a newer version exists. To turn off the startup check, tick **Don't check for updates at startup** in the update dialog (open it with **Help > Check for updates...**). **Update now** (Windows, [installed](INSTALL.md#update-now-windows)) downloads the new installer from GitHub only when you click it.
 
 ## How many boxes can I use?
 

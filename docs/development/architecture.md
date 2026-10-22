@@ -176,6 +176,7 @@ Logging goes through `from sc_logging import logger`. It writes to `platformdirs
 | `ocr_training_data.py`, `training_dojo.py` | Training data collection and the annotation tool |
 | `log_view.py` | Log viewer dialog |
 | `update_check.py` | Update check against GitHub Releases (semantic-version comparison, runs on a worker thread) |
+| `app_update.py`, `app_update_ui.py` | Update now (an installed Windows build): download the release's installer, check its SHA-256 and its signer (the running app's publisher), run it unattended, and close once Setup says it is installing (a ready file; Setup waits for the app's mutex, then relaunches it: `scoresight.iss`'s `[Code]`) |
 | `ui_*.py` | **Generated** from `*.ui` by `scripts/compile_ui.py`. Never edit by hand |
 
 ## Packaging gotchas

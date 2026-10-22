@@ -72,7 +72,7 @@ If something is wrong, delete the draft and the tag, fix `main`, and tag again.
 | `scoresight-X.Y.Z-linux-x64.tar.gz` | Linux x86_64, glibc 2.35+ |
 | `SHA256SUMS.txt` | Checksums of the five packages |
 
-The README and the [installation guide](../INSTALL.md) refer to these names. If they change, update both.
+The README and the [installation guide](../INSTALL.md) refer to these names. If they change, update both, and `src/app_update.py` (`INSTALLER_NAME`, `SUMS_NAME`): **Update now** finds the Windows installer and its checksum in the release by these names, so a release without them can only be downloaded by hand. Update now runs the new version's installer, so its `[Code]` (the update handshake) must keep working; `scripts/ci/update_test.py` tests it in every Windows build.
 
 ## Signing
 
