@@ -49,6 +49,13 @@ def wait_for(condition, timeout: float, interval: float = 0.25) -> bool:
     return condition()
 
 
+def same_file(a, b) -> bool:
+    try:
+        return os.path.samefile(a, b)
+    except OSError:
+        return False
+
+
 def processes_of(exe: Path) -> list[int]:
     """The ids of the running processes of this executable."""
     psapi = ctypes.WinDLL("psapi")
@@ -58,7 +65,6 @@ def processes_of(exe: Path) -> list[int]:
     size = wintypes.DWORD()
     psapi.EnumProcesses(ids, ctypes.sizeof(ids), ctypes.byref(size))
     found = []
-    target = os.path.normcase(str(exe.resolve()))
     for pid in ids[: size.value // ctypes.sizeof(wintypes.DWORD)]:
         # PROCESS_QUERY_LIMITED_INFORMATION
         handle = kernel32.OpenProcess(0x1000, False, pid)
@@ -71,7 +77,9 @@ def processes_of(exe: Path) -> list[int]:
                 kernel32.QueryFullProcessImageNameW(
                     handle, 0, buffer, ctypes.byref(length)
                 )
-                and os.path.normcase(buffer.value) == target
+                # the same file, whatever the path's form (CI's temporary
+                # folder is a short 8.3 path, the image name a long one)
+                and same_file(buffer.value, exe)
             ):
                 found.append(pid)
         finally:
