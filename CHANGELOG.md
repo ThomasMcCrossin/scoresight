@@ -8,11 +8,17 @@ Release tags are the bare version number (for example `0.1.0`).
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-10-22
+
+Futsal, a WebSocket output, and Update now: from this version on, an
+installed Windows ScoreSight updates itself to the next release in a click
+(this one is still installed by hand). Lap races no longer miscount a lap
+that turns two lap cards.
+
 ### Added
 
 - **Futsal.** A new sport: the clock counts down through two halves (then extra time), goals count one at a time, and the team fouls are followed (they go back to 0 at halftime). The final comes at 0:00 of the second half. A dot-matrix 3 misread as a 9 is held back from the outputs ([#136](https://github.com/royshil/scoresight/discussions/136)).
 - **WebSocket output.** The TCP / UDP output can send over a WebSocket: enter a `ws://` or `wss://` URL, and add a token in **Headers** (`Authorization: Bearer …`) or in the URL. The new **WebSocket (JSON)** preset sends a JSON object with every field each time a value changes; any template works too, for example a message per changed field. ScoreSight keeps the connection open and reconnects by itself ([#141](https://github.com/royshil/scoresight/discussions/141)).
-
 - **Update now (Windows).** When a new version is out, the update dialog of an installed ScoreSight has an **Update now** button: ScoreSight downloads the new installer, checks it (its SHA-256 against the release's, and that it is signed by ScoreSight's publisher), installs it and starts again, with the same settings. Windows may ask to allow the installer; if you decline, or anything fails, ScoreSight keeps running. While a source is open, it asks first. The portable zip, macOS and Linux still download new versions by hand.
 
 ### Fixed
@@ -1104,7 +1110,8 @@ end to end on every platform before it ships. Highlights:
 
 - First open-source release of ScoreSight.
 
-[Unreleased]: https://github.com/royshil/scoresight/compare/0.4.0...HEAD
+[Unreleased]: https://github.com/royshil/scoresight/compare/0.4.1...HEAD
+[0.4.1]: https://github.com/royshil/scoresight/compare/0.4.0...0.4.1
 [0.4.0]: https://github.com/royshil/scoresight/compare/0.3.4...0.4.0
 [0.3.4]: https://github.com/royshil/scoresight/compare/0.3.3...0.3.4
 [0.3.3]: https://github.com/royshil/scoresight/compare/0.3.2...0.3.3
