@@ -2,6 +2,66 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="ja_JP">
 <context>
+    <name>AppUpdate</name>
+    <message>
+        <location filename="../src/app_update_ui.py" line="65"/>
+        <source>Update ScoreSight now?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/app_update_ui.py" line="66"/>
+        <source>ScoreSight will close to install version {version}, then start again. The source and the outputs stop until then.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/app_update_ui.py" line="71"/>
+        <source>Update now</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/app_update_ui.py" line="78"/>
+        <source>Update</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/app_update_ui.py" line="80"/>
+        <source>Downloading ScoreSight {version}…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/app_update_ui.py" line="128"/>
+        <source>Checking the download…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/app_update_ui.py" line="167"/>
+        <source>Starting the installer… If Windows asks whether to allow it to make changes, choose Yes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/app_update_ui.py" line="195"/>
+        <source>The installer ended before installing the new version (it may not have been allowed to make changes).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/app_update_ui.py" line="208"/>
+        <source>ScoreSight wasn&apos;t updated</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/app_update_ui.py" line="209"/>
+        <source>{reason}
+
+ScoreSight keeps running. You can download the new version from the release page instead.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/app_update_ui.py" line="217"/>
+        <source>Open the release page</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>AutoLayout</name>
     <message>
         <location filename="../src/auto_layout_ui.py" line="30"/>
@@ -102,7 +162,7 @@
     </message>
     <message>
         <location filename="../src/box_settings_ui_handler.py" line="427"/>
-        <location filename="../src/mainwindow.py" line="2737"/>
+        <location filename="../src/mainwindow.py" line="2753"/>
         <source>This field is built from other fields (see Template): it has no box on the picture and no reading settings.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">このフィールドは他のフィールドから作成されます（「テンプレート」を参照）。映像上のボックスも読み取り設定もありません。</translation>
@@ -975,7 +1035,7 @@ Resolution: {width}×{height}</source>
     <message>
         <location filename="../src/mainwindow.ui" line="94"/>
         <location filename="../src/mainwindow.ui" line="5101"/>
-        <location filename="../src/mainwindow.py" line="2436"/>
+        <location filename="../src/mainwindow.py" line="2452"/>
         <source>Pause outputs</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">出力を一時停止</translation>
@@ -1223,7 +1283,7 @@ Resolution: {width}×{height}</source>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3960"/>
-        <location filename="../src/mainwindow.py" line="3416"/>
+        <location filename="../src/mainwindow.py" line="3432"/>
         <source>Connect to the WebSocket server of OBS Studio</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">OBS StudioのWebSocketサーバーに接続します</translation>
@@ -1349,7 +1409,7 @@ Resolution: {width}×{height}</source>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4372"/>
-        <location filename="../src/tcp_ui_handler.py" line="525"/>
+        <location filename="../src/tcp_ui_handler.py" line="526"/>
         <location filename="../src/uno_ui_handler.py" line="127"/>
         <source>Start sending</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
@@ -1627,7 +1687,7 @@ Resolution: {width}×{height}</source>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="823"/>
-        <location filename="../src/mainwindow.py" line="4434"/>
+        <location filename="../src/mainwindow.py" line="4450"/>
         <source>Correct the perspective: click the 4 corners of the scoreboard</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">遠近を補正：スコアボードの4隅をクリックします</translation>
@@ -1722,7 +1782,7 @@ Resolution: {width}×{height}</source>
     <message>
         <location filename="../src/mainwindow.ui" line="1271"/>
         <location filename="../src/mainwindow.ui" line="1327"/>
-        <location filename="../src/mainwindow.py" line="4380"/>
+        <location filename="../src/mainwindow.py" line="4396"/>
         <source>Cancel</source>
         <translation type="unfinished">キャンセル</translation>
     </message>
@@ -2316,7 +2376,7 @@ Resolution: {width}×{height}</source>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1617"/>
-        <location filename="../src/mainwindow.py" line="2743"/>
+        <location filename="../src/mainwindow.py" line="2759"/>
         <source>Select a field, then drag over its numbers on the picture.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">フィールドを選択し、映像上でその数字を囲むようにドラッグします。</translation>
@@ -2342,7 +2402,7 @@ Resolution: {width}×{height}</source>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2996"/>
-        <location filename="../src/mainwindow.py" line="2204"/>
+        <location filename="../src/mainwindow.py" line="2208"/>
         <source>The OCR model that reads every box, not only the selected one. PP-OCR (automatic) reads with PP-OCR (accurate) while this computer keeps up, and with PP-OCR (fast), which needs about a fifth of the CPU, when it doesn&apos;t. The Tesseract models use the boxes&apos; Image cleanup settings; Load external Tesseract model... reads a .traineddata file.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">選択したボックスだけでなく、すべてのボックスを読み取るOCRモデル。PP-OCR（自動）は、このコンピューターの処理が追いつく間はPP-OCR（高精度）で、追いつかないときはCPU使用量が約5分の1のPP-OCR（高速）で読み取ります。Tesseractモデルはボックスの「画像クリーンアップ」設定を使用します。「外部Tesseractモデルを読み込む...」で.traineddataファイルを読み込みます。</translation>
@@ -2790,14 +2850,14 @@ Resolution: {width}×{height}</source>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4996"/>
-        <location filename="../src/mainwindow.py" line="2779"/>
+        <location filename="../src/mainwindow.py" line="2795"/>
         <source>Hold value...</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">値を固定...</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4999"/>
-        <location filename="../src/mainwindow.py" line="2867"/>
+        <location filename="../src/mainwindow.py" line="2883"/>
         <source>Send a value you type to every output instead of this field&apos;s readings, until you release it</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">解除するまで、このフィールドの読み取り値の代わりに、入力した値をすべての出力に送信します</translation>
@@ -3031,7 +3091,7 @@ Resolution: {width}×{height}</source>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="521"/>
-        <location filename="../src/mainwindow.py" line="4191"/>
+        <location filename="../src/mainwindow.py" line="4207"/>
         <source>The video source: a camera, capture card or NDI source, a video file, a stream URL or a screen capture</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">ビデオソース：カメラ、キャプチャカード、NDIソース、動画ファイル、ストリームURL、または画面キャプチャ</translation>
@@ -3089,7 +3149,7 @@ Resolution: {width}×{height}</source>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3975"/>
-        <location filename="../src/mainwindow.py" line="3414"/>
+        <location filename="../src/mainwindow.py" line="3430"/>
         <source>Connect OBS</source>
         <translation>OBSに接続</translation>
     </message>
@@ -3171,8 +3231,8 @@ Resolution: {width}×{height}</source>
         <location filename="../src/mainwindow.ui" line="71"/>
         <location filename="../src/mainwindow.ui" line="3638"/>
         <location filename="../src/mainwindow.ui" line="4737"/>
-        <location filename="../src/mainwindow.py" line="1110"/>
-        <location filename="../src/mainwindow.py" line="3141"/>
+        <location filename="../src/mainwindow.py" line="1114"/>
+        <location filename="../src/mainwindow.py" line="3157"/>
         <source>Fields</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">フィールド</translation>
@@ -3218,7 +3278,7 @@ Resolution: {width}×{height}</source>
     <message>
         <location filename="../src/mainwindow.ui" line="292"/>
         <location filename="../src/mainwindow.ui" line="4957"/>
-        <location filename="../src/mainwindow.py" line="2977"/>
+        <location filename="../src/mainwindow.py" line="2993"/>
         <source>Remove from picture</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">映像から外す</translation>
@@ -3237,7 +3297,7 @@ Resolution: {width}×{height}</source>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="318"/>
-        <location filename="../src/mainwindow.py" line="2994"/>
+        <location filename="../src/mainwindow.py" line="3010"/>
         <source>Delete field</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">フィールドを削除</translation>
@@ -3263,7 +3323,7 @@ Resolution: {width}×{height}</source>
         <translation type="obsolete">画面キャプチャ</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1424"/>
+        <location filename="../src/mainwindow.py" line="1428"/>
         <source>Video Settings</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">ビデオ設定</translation>
@@ -3440,7 +3500,7 @@ Resolution: {width}×{height}</source>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1377"/>
-        <location filename="../src/mainwindow.py" line="2434"/>
+        <location filename="../src/mainwindow.py" line="2450"/>
         <source>Resume outputs</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">出力を再開</translation>
@@ -3450,43 +3510,43 @@ Resolution: {width}×{height}</source>
         <translation type="vanished">### カメラを開くかファイルを読み込む</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1335"/>
+        <location filename="../src/mainwindow.py" line="1339"/>
         <source>&lt;p&gt;The HTTP server is not running: port {port} is already in use or not available.&lt;/p&gt;&lt;p&gt;Close the other program, or start ScoreSight with &lt;b&gt;--port&lt;/b&gt; to use a different port. The log has the details.&lt;/p&gt;</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">&lt;p&gt;HTTPサーバーが動作していません：ポート{port}は既に使用中か、利用できません。&lt;/p&gt;&lt;p&gt;他のプログラムを閉じるか、&lt;b&gt;--port&lt;/b&gt;を指定してScoreSightを起動し、別のポートを使用してください。詳細はログに記録されています。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2388"/>
+        <location filename="../src/mainwindow.py" line="2404"/>
         <source>Version {version}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">バージョン {version}</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1255"/>
+        <location filename="../src/mainwindow.py" line="1259"/>
         <source>System</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">システム</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="299"/>
+        <location filename="../src/mainwindow.py" line="301"/>
         <source>⌥ Option</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">⌥ Option</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="300"/>
+        <location filename="../src/mainwindow.py" line="302"/>
         <source>Alt</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Alt</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1108"/>
+        <location filename="../src/mainwindow.py" line="1112"/>
         <source>Readings</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">読み取り値</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1188"/>
+        <location filename="../src/mainwindow.py" line="1192"/>
         <source>Fields not on the picture: {count} hidden. &lt;a href=&quot;#show&quot;&gt;Show them&lt;/a&gt;</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">映像に未配置のフィールド：{count}件を非表示。&lt;a href=&quot;#show&quot;&gt;表示する&lt;/a&gt;</translation>
@@ -3497,497 +3557,497 @@ Resolution: {width}×{height}</source>
         <translation type="obsolete">外部モデルを読み込む...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1224"/>
+        <location filename="../src/mainwindow.py" line="1228"/>
         <source>Drag to resize the fields list. Double-click to hide or show it.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">ドラッグでフィールドリストのサイズを変更します。ダブルクリックで表示/非表示を切り替えます。</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1230"/>
+        <location filename="../src/mainwindow.py" line="1234"/>
         <source>Drag to resize the Box and Outputs settings. Double-click to hide or show them.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">ドラッグで「ボックス」と「出力」の設定のサイズを変更します。ダブルクリックで表示/非表示を切り替えます。</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3776"/>
-        <location filename="../src/mainwindow.py" line="1256"/>
+        <location filename="../src/mainwindow.py" line="1260"/>
         <source>Light</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">ライト</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3771"/>
-        <location filename="../src/mainwindow.py" line="1257"/>
+        <location filename="../src/mainwindow.py" line="1261"/>
         <source>Dark</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">ダーク</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1287"/>
+        <location filename="../src/mainwindow.py" line="1291"/>
         <source>Zoom with Ctrl+scroll or {zoom_in} and {zoom_out}; drag with the middle mouse button to move the picture.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Ctrl+スクロール、または{zoom_in}と{zoom_out}でズームします。マウスの中ボタンでドラッグすると映像を移動できます。</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1350"/>
+        <location filename="../src/mainwindow.py" line="1354"/>
         <source>&lt;p&gt;From other computers on your network, use {url} instead of http://localhost:{port}.&lt;/p&gt;</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">&lt;p&gt;ネットワーク上の他のコンピューターからは、http://localhost:{port} の代わりに {url} を使用してください。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1560"/>
+        <location filename="../src/mainwindow.py" line="1564"/>
         <source>Outside the cropped picture: {names}. They read nothing: widen the crop, or remove them from the picture and place them again.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">トリミング後の映像の外側：{names}。これらは何も読み取りません。トリミング範囲を広げるか、映像から外して配置し直してください。</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1750"/>
-        <location filename="../src/mainwindow.py" line="1753"/>
+        <location filename="../src/mainwindow.py" line="1754"/>
+        <location filename="../src/mainwindow.py" line="1757"/>
         <source>{value} /s</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{value} /秒</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2109"/>
+        <location filename="../src/mainwindow.py" line="2113"/>
         <source>Load external Tesseract model...</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">外部Tesseractモデルを読み込む...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2117"/>
+        <location filename="../src/mainwindow.py" line="2121"/>
         <source>Read the boxes with a Tesseract .traineddata file</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Tesseractの.traineddataファイルでボックスを読み取ります</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2127"/>
+        <location filename="../src/mainwindow.py" line="2131"/>
         <source>A Tesseract model: the boxes&apos; Image cleanup settings prepare their images for it</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Tesseractモデル：ボックスの「画像クリーンアップ」設定で、このモデル用に画像を整えます</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2137"/>
+        <location filename="../src/mainwindow.py" line="2141"/>
         <source>PaddleOCR PP-OCRv6: accurate while it keeps up with Detections / s on this computer, fast when it doesn&apos;t. The status bar says which one reads and why.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">PaddleOCR PP-OCRv6：このコンピューターで「検出数 / 秒」に追いつける間は高精度モデル、追いつけないときは高速モデルを使います。どちらで読み取っているかとその理由はステータスバーに表示されます。</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2145"/>
+        <location filename="../src/mainwindow.py" line="2149"/>
         <source>PP-OCR (accurate)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">PP-OCR（高精度）</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2147"/>
+        <location filename="../src/mainwindow.py" line="2151"/>
         <source>PaddleOCR PP-OCRv6 small: reads the most values right, always. It needs about five times the CPU of PP-OCR (fast): on a laptop, 10 boxes read 5 times a second can need more than a core.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">PaddleOCR PP-OCRv6 small：常に最も多くの値を正しく読み取ります。CPU使用量はPP-OCR（高速）の約5倍で、ノートPCでは10個のボックスを1秒に5回読み取ると1コアを超えることがあります。</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2155"/>
+        <location filename="../src/mainwindow.py" line="2159"/>
         <source>PP-OCR (fast)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">PP-OCR（高速）</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2157"/>
+        <location filename="../src/mainwindow.py" line="2161"/>
         <source>PaddleOCR PP-OCRv6 tiny: about a fifth of PP-OCR (accurate)&apos;s CPU, for many boxes, a high Detections / s or a slow computer; it misreads more of the hard displays (clocks, bulbs, LCDs).</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">PaddleOCR PP-OCRv6 tiny：CPU使用量はPP-OCR（高精度）の約5分の1。ボックスが多い、「検出数 / 秒」が高い、コンピューターが遅いといった場合に向いています。読み取りにくい表示（時計、電球式、LCD）では誤読が増えます。</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2165"/>
+        <location filename="../src/mainwindow.py" line="2169"/>
         <source>The PP-OCR models aren&apos;t installed. Download them with: {command}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">PP-OCRモデルがインストールされていません。次のコマンドでダウンロードしてください：{command}</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2170"/>
+        <location filename="../src/mainwindow.py" line="2174"/>
         <source>PP-OCR needs onnxruntime, which isn&apos;t installed (pip install -r requirements.txt).</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">PP-OCRにはonnxruntimeが必要ですが、インストールされていません（pip install -r requirements.txt）。</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2185"/>
+        <location filename="../src/mainwindow.py" line="2189"/>
         <source>PP-OCR (automatic: accurate)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">PP-OCR（自動：高精度）</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2189"/>
+        <location filename="../src/mainwindow.py" line="2193"/>
         <source>PP-OCR (automatic: fast)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">PP-OCR（自動：高速）</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2190"/>
+        <location filename="../src/mainwindow.py" line="2194"/>
         <source>PP-OCR (automatic)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">PP-OCR（自動）</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2299"/>
+        <location filename="../src/mainwindow.py" line="2303"/>
         <source>The OCR can&apos;t keep up</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">OCRの処理が追いついていません</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2302"/>
+        <location filename="../src/mainwindow.py" line="2306"/>
         <source>The boxes are read {rate} times per second instead of {target}.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">ボックスの読み取りは1秒あたり{target}回ではなく{rate}回です。</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2312"/>
+        <location filename="../src/mainwindow.py" line="2316"/>
         <source>Use PP-OCR (fast)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">PP-OCR（高速）を使用</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2316"/>
+        <location filename="../src/mainwindow.py" line="2320"/>
         <source>Keep PP-OCR (accurate)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">PP-OCR（高精度）のままにする</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2340"/>
+        <location filename="../src/mainwindow.py" line="2344"/>
         <source>Logs</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">ログ</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2385"/>
+        <location filename="../src/mainwindow.py" line="2401"/>
         <source>About ScoreSight</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">ScoreSightについて</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2463"/>
+        <location filename="../src/mainwindow.py" line="2479"/>
         <source>&lt;b&gt;Outputs paused&lt;/b&gt; since {time}. Your graphics show the last values sent; the readings here keep updating.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{time}から&lt;b&gt;出力を一時停止中&lt;/b&gt;。グラフィックには最後に送信された値が表示されています。ここの読み取り値は更新され続けます。</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2685"/>
+        <location filename="../src/mainwindow.py" line="2701"/>
         <source>Not on the picture yet. Drag over its numbers on the picture, or double-click here to put its box in the middle of the picture.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">まだ映像に配置されていません。映像上でその数字を囲むようにドラッグするか、ここをダブルクリックしてボックスを映像の中央に配置します。</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2691"/>
+        <location filename="../src/mainwindow.py" line="2707"/>
         <source>Built from other fields: it has no box.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">他のフィールドから作成されます。ボックスはありません。</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2695"/>
+        <location filename="../src/mainwindow.py" line="2711"/>
         <source>On the picture: drag its box to move it, or {alt}+drag on the picture to draw it again. Right-click for its actions.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">映像に配置済み：ボックスをドラッグすると移動、映像上で{alt}+ドラッグすると描き直せます。右クリックで操作を表示します。</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2702"/>
+        <location filename="../src/mainwindow.py" line="2718"/>
         <source>F2 renames it.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">F2キーで名前を変更します。</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2704"/>
+        <location filename="../src/mainwindow.py" line="2720"/>
         <source>Double-click to rename it.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">ダブルクリックで名前を変更します。</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2727"/>
+        <location filename="../src/mainwindow.py" line="2743"/>
         <source>Drag on the picture to place it, or double-click the field</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">映像上でドラッグして配置するか、フィールドをダブルクリックします</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2732"/>
+        <location filename="../src/mainwindow.py" line="2748"/>
         <source>Drag the box to move it · {delete} removes it</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">ボックスをドラッグして移動 · {delete}で外す</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2777"/>
+        <location filename="../src/mainwindow.py" line="2793"/>
         <source>Change held value...</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">固定値を変更...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2861"/>
+        <location filename="../src/mainwindow.py" line="2877"/>
         <source>Only custom fields can be renamed or deleted</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">名前の変更や削除ができるのはカスタムフィールドのみです</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2873"/>
+        <location filename="../src/mainwindow.py" line="2889"/>
         <source>Place the field on the picture first</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">まずフィールドを映像に配置してください</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2978"/>
+        <location filename="../src/mainwindow.py" line="2994"/>
         <source>Remove “{name}” from the picture? Its settings go back to the defaults, so the settings you changed are lost.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">「{name}」を映像から外しますか？設定はデフォルトに戻るため、変更した設定は失われます。</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2983"/>
+        <location filename="../src/mainwindow.py" line="2999"/>
         <source>Remove</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">外す</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2995"/>
+        <location filename="../src/mainwindow.py" line="3011"/>
         <source>Delete the field “{name}”? Its box and its settings are deleted too.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">フィールド「{name}」を削除しますか？ボックスと設定も削除されます。</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2999"/>
+        <location filename="../src/mainwindow.py" line="3015"/>
         <source>Delete</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">削除</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3125"/>
+        <location filename="../src/mainwindow.py" line="3141"/>
         <source>Window</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">ウィンドウ</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3153"/>
+        <location filename="../src/mainwindow.py" line="3169"/>
         <source>Remove the selected field&apos;s box from the picture</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">選択したフィールドのボックスを映像から外す</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3160"/>
+        <location filename="../src/mainwindow.py" line="3176"/>
         <source>Delete the selected custom field (not on the picture)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">選択したカスタムフィールドを削除（映像に未配置）</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3167"/>
+        <location filename="../src/mainwindow.py" line="3183"/>
         <source>Put a field&apos;s box on the picture, or rename a custom field</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">フィールドのボックスを映像に配置、またはカスタムフィールドの名前を変更</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3172"/>
+        <location filename="../src/mainwindow.py" line="3188"/>
         <source>Double-click the field</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">フィールドをダブルクリック</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3179"/>
+        <location filename="../src/mainwindow.py" line="3195"/>
         <source>Picture</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">映像</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3219"/>
+        <location filename="../src/mainwindow.py" line="3235"/>
         <source>Connect to OBS</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">OBSに接続</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3281"/>
-        <location filename="../src/mainwindow.py" line="3407"/>
+        <location filename="../src/mainwindow.py" line="3297"/>
+        <location filename="../src/mainwindow.py" line="3423"/>
         <source>Connecting...</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">接続中...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3328"/>
+        <location filename="../src/mainwindow.py" line="3344"/>
         <source>Cannot connect to OBS</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">OBSに接続できません</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3398"/>
+        <location filename="../src/mainwindow.py" line="3414"/>
         <source>Change connection...</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">接続を変更...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3401"/>
+        <location filename="../src/mainwindow.py" line="3417"/>
         <source>Connected to OBS at {target}. Click to connect to another OBS.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{target}のOBSに接続済み。クリックすると別のOBSに接続します。</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3409"/>
+        <location filename="../src/mainwindow.py" line="3425"/>
         <source>Connecting to OBS at {target}...</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{target}のOBSに接続中...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3681"/>
+        <location filename="../src/mainwindow.py" line="3697"/>
         <source>URL Source</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">URLソース</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3701"/>
+        <location filename="../src/mainwindow.py" line="3717"/>
         <source>Screen Capture Selection</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">画面キャプチャの選択</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3708"/>
+        <location filename="../src/mainwindow.py" line="3724"/>
         <source>Capture the entire screen</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">画面全体をキャプチャ</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4203"/>
+        <location filename="../src/mainwindow.py" line="4219"/>
         <source>Video settings: the resolution, frame rate and format of the camera or capture card</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">ビデオ設定：カメラまたはキャプチャカードの解像度、フレームレート、フォーマット</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4209"/>
+        <location filename="../src/mainwindow.py" line="4225"/>
         <source>Video settings: only for cameras and capture cards</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">ビデオ設定：カメラとキャプチャカード専用</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4375"/>
+        <location filename="../src/mainwindow.py" line="4391"/>
         <source>Redo corners…</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">4隅をやり直す…</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4377"/>
+        <location filename="../src/mainwindow.py" line="4393"/>
         <source>Remove correction…</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">補正を解除…</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4393"/>
+        <location filename="../src/mainwindow.py" line="4409"/>
         <source>Remove the 4-corner correction?</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">4隅補正を解除しますか？</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4394"/>
+        <location filename="../src/mainwindow.py" line="4410"/>
         <source>The picture will no longer be corrected. The boxes were placed on the corrected picture, so they may have to be moved.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">映像は補正されなくなります。ボックスは補正後の映像に配置されているため、移動が必要になる場合があります。</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4422"/>
+        <location filename="../src/mainwindow.py" line="4438"/>
         <source>Picking the corners: click the 4 corners of the scoreboard. Click here or press Esc to cancel.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">隅を選択中：スコアボードの4隅をクリックしてください。キャンセルするには、ここをクリックするかEscキーを押します。</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4428"/>
+        <location filename="../src/mainwindow.py" line="4444"/>
         <source>The perspective is corrected. Click to redo the corners or to remove the correction.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">遠近は補正済みです。クリックすると、4隅をやり直すか補正を解除できます。</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4542"/>
+        <location filename="../src/mainwindow.py" line="4558"/>
         <source>Move the boxes?</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">ボックスを移動しますか？</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4543"/>
+        <location filename="../src/mainwindow.py" line="4559"/>
         <source>Auto layout found {found}. Some of them have boxes on the picture already ({placed}): move those boxes to what it found?</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">自動配置で{found}が見つかりました。そのうち一部は既に映像上にボックスがあります（{placed}）。それらのボックスを検出した位置に移動しますか？</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4551"/>
+        <location filename="../src/mainwindow.py" line="4567"/>
         <source>Move them</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">移動する</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4555"/>
+        <location filename="../src/mainwindow.py" line="4571"/>
         <source>Keep them</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">そのままにする</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4574"/>
+        <location filename="../src/mainwindow.py" line="4590"/>
         <source>Reset the crop?</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">トリミングをリセットしますか？</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4575"/>
+        <location filename="../src/mainwindow.py" line="4591"/>
         <source>The whole picture will be read again, and the crop&apos;s values set to 0. The boxes move with it, so they stay over the same digits.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">映像全体が再び読み取られ、トリミングの値は 0 になります。ボックスも一緒に移動するため、同じ数字の上に残ります。</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4581"/>
+        <location filename="../src/mainwindow.py" line="4597"/>
         <source>Reset crop</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">トリミングをリセット</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4628"/>
+        <location filename="../src/mainwindow.py" line="4644"/>
         <source>No camera found</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">カメラが見つかりません</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4678"/>
+        <location filename="../src/mainwindow.py" line="4694"/>
         <source>Step {number}: done</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">ステップ{number}：完了</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4680"/>
+        <location filename="../src/mainwindow.py" line="4696"/>
         <source>Step {number}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">ステップ{number}</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4890"/>
+        <location filename="../src/mainwindow.py" line="4906"/>
         <source>Rename field</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">フィールド名を変更</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4896"/>
+        <location filename="../src/mainwindow.py" line="4912"/>
         <source>New name:</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">新しい名前：</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4908"/>
+        <location filename="../src/mainwindow.py" line="4924"/>
         <source>There is already a field named “{name}”. Choose another name.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">「{name}」という名前のフィールドは既にあります。別の名前を選んでください。</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="5036"/>
+        <location filename="../src/mainwindow.py" line="5052"/>
         <source>Created the scene “{name}” in OBS.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">OBSにシーン「{name}」を作成しました。</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="5039"/>
+        <location filename="../src/mainwindow.py" line="5055"/>
         <source>Made the scene “{name}” again: its sources were replaced.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">シーン「{name}」を作り直しました。ソースは置き換えられました。</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="5043"/>
+        <location filename="../src/mainwindow.py" line="5059"/>
         <source>OBS already has a scene “{name}”: it was kept as it is. Tick Recreate to make it again.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">OBSには既にシーン「{name}」があるため、そのまま残しました。作り直すには「再作成」にチェックを入れてください。</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="5048"/>
+        <location filename="../src/mainwindow.py" line="5064"/>
         <source>Couldn&apos;t create the scene “{name}”. Tools &gt; View log has the details.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">シーン「{name}」を作成できませんでした。詳細は「ツール &gt; ログを表示」で確認できます。</translation>
@@ -4006,7 +4066,7 @@ Resolution: {width}×{height}</source>
         <translation type="unfinished">vMixを開始</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="523"/>
+        <location filename="../src/tcp_ui_handler.py" line="524"/>
         <location filename="../src/uno_ui_handler.py" line="125"/>
         <source>Stop sending</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
@@ -5979,90 +6039,90 @@ Click to change the folder or its size limit; Tools &gt; Collect OCR training da
         <translation type="unfinished">しない</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="581"/>
+        <location filename="../src/tcp_ui_handler.py" line="582"/>
         <source>URL</source>
         <translation type="unfinished">URL</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="587"/>
+        <location filename="../src/tcp_ui_handler.py" line="588"/>
         <source>Listen on port</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">待ち受けポート</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="590"/>
+        <location filename="../src/tcp_ui_handler.py" line="591"/>
         <source>The port ScoreSight listens on. Set the same port in the program that connects to ScoreSight.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">ScoreSightが待ち受けるポートです。ScoreSightに接続するプログラムにも同じポートを設定してください。</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="633"/>
+        <location filename="../src/tcp_ui_handler.py" line="634"/>
         <source>On connect:</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">接続時：</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="637"/>
+        <location filename="../src/tcp_ui_handler.py" line="638"/>
         <source>For a changed field:</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">変化したフィールドに対して：</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="641"/>
+        <location filename="../src/tcp_ui_handler.py" line="642"/>
         <source>When a value changes:</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">値が変化したとき：</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="645"/>
+        <location filename="../src/tcp_ui_handler.py" line="646"/>
         <source>(nothing)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">（なし）</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="649"/>
+        <location filename="../src/tcp_ui_handler.py" line="650"/>
         <source>(and a message like it for each of {count} more fields)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">（ほかの{count}個のフィールドにも同様のメッセージ）</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="667"/>
+        <location filename="../src/tcp_ui_handler.py" line="668"/>
         <source>Last answer: {reply}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">最後の応答：{reply}</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="753"/>
+        <location filename="../src/tcp_ui_handler.py" line="754"/>
         <source>Choose CasparCG&apos;s templates folder</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">CasparCGのテンプレートフォルダーを選択</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="765"/>
+        <location filename="../src/tcp_ui_handler.py" line="766"/>
         <source>Replace the template?</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">テンプレートを置き換えますか？</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="766"/>
+        <location filename="../src/tcp_ui_handler.py" line="767"/>
         <source>{file} already exists in {folder}. Replace it?</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{file}は{folder}にすでにあります。置き換えますか？</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="777"/>
+        <location filename="../src/tcp_ui_handler.py" line="778"/>
         <source>The template wasn&apos;t copied</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">テンプレートはコピーされませんでした</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="778"/>
+        <location filename="../src/tcp_ui_handler.py" line="779"/>
         <source>Could not copy {file} to {folder}: {error}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{file}を{folder}にコピーできませんでした：{error}</translation>
     </message>
     <message>
-        <location filename="../src/tcp_ui_handler.py" line="787"/>
+        <location filename="../src/tcp_ui_handler.py" line="788"/>
         <source>Copied to {path}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{path}にコピーしました</translation>
@@ -6096,7 +6156,7 @@ Click to change the folder or its size limit; Tools &gt; Collect OCR training da
     </message>
     <message>
         <location filename="../src/tcp_output.ui" line="136"/>
-        <location filename="../src/tcp_ui_handler.py" line="598"/>
+        <location filename="../src/tcp_ui_handler.py" line="599"/>
         <source>Address</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">アドレス</translation>
@@ -6133,7 +6193,7 @@ Click to change the folder or its size limit; Tools &gt; Collect OCR training da
     </message>
     <message>
         <location filename="../src/tcp_output.ui" line="224"/>
-        <location filename="../src/tcp_ui_handler.py" line="601"/>
+        <location filename="../src/tcp_ui_handler.py" line="602"/>
         <source>The port the receiving program listens on (set in that program)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">受信側プログラムが待ち受けるポート（そのプログラムで設定）</translation>
@@ -6483,28 +6543,33 @@ Click to change the folder or its size limit; Tools &gt; Collect OCR training da
 <context>
     <name>UpdateCheck</name>
     <message>
-        <location filename="../src/update_check.py" line="213"/>
+        <location filename="../src/update_check.py" line="222"/>
         <source>ScoreSight Update Available</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">ScoreSightの更新が利用可能</translation>
     </message>
     <message>
-        <location filename="../src/update_check.py" line="215"/>
+        <location filename="../src/update_check.py" line="224"/>
         <source>ScoreSight Update Check</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">ScoreSightの更新確認</translation>
     </message>
     <message>
-        <location filename="../src/update_check.py" line="217"/>
+        <location filename="../src/update_check.py" line="226"/>
         <source>Installed version: {current}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">インストール済みバージョン：{current}</translation>
     </message>
     <message>
-        <location filename="../src/update_check.py" line="221"/>
+        <location filename="../src/update_check.py" line="230"/>
         <source>Latest release: {latest}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">最新リリース：{latest}</translation>
+    </message>
+    <message>
+        <location filename="../src/update_check.py" line="243"/>
+        <source>Update now</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

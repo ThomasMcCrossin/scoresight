@@ -114,3 +114,51 @@ Name: "{autodesktop}\{#AppName}"; Filename: "{app}\{#AppExeName}"; Tasks: deskto
 
 [Run]
 Filename: "{app}\{#AppExeName}"; Description: "{cm:LaunchProgram,{#AppName}}"; Flags: nowait postinstall skipifsilent
+; after ScoreSight's Update now: the new version, as the user (not elevated)
+Filename: "{app}\{#AppExeName}"; Flags: nowait runasoriginaluser; Check: RelaunchAfterUpdate
+
+[Code]
+// ScoreSight's Update now (src\app_update.py) runs Setup with
+//   /SILENT /SUPPRESSMSGBOXES /NORESTART /CLOSEAPPLICATIONS
+//   /UPDATEREADY=<file>  written once Setup runs with the rights it needs (after
+//                        the UAC prompt): ScoreSight then closes
+//   /UPDATEMUTEX=<name>  held by ScoreSight until it has quit: Setup waits for it
+//                        before replacing the files
+//   /RELAUNCH=1          start the new version once installed
+// Without them (a manual install) none of this happens.
+
+// how long Setup waits for ScoreSight to quit, then closes it (CloseApplications)
+const
+  UpdateWaitMs = 60000;
+
+function PrepareToInstall(var NeedsRestart: Boolean): String;
+var
+  ReadyFile, Mutex: String;
+  Waited: Integer;
+begin
+  Result := '';
+  ReadyFile := ExpandConstant('{param:UPDATEREADY|}');
+  Mutex := ExpandConstant('{param:UPDATEMUTEX|}');
+  if ReadyFile <> '' then
+    if not SaveStringToFile(ReadyFile, 'installing', False) then
+      Log('Could not write ' + ReadyFile);
+  if Mutex <> '' then
+  begin
+    Waited := 0;
+    while CheckForMutexes(Mutex) and (Waited < UpdateWaitMs) do
+    begin
+      Sleep(250);
+      Waited := Waited + 250;
+    end;
+    if Waited >= UpdateWaitMs then
+      Log('ScoreSight did not quit in time')
+    else
+      // the mutex goes with the process, its files a moment later
+      Sleep(1000);
+  end;
+end;
+
+function RelaunchAfterUpdate: Boolean;
+begin
+  Result := WizardSilent and (ExpandConstant('{param:RELAUNCH|0}') = '1');
+end;

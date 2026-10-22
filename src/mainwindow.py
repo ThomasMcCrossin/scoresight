@@ -167,6 +167,8 @@ from template_fields import apply_template_fields, is_template_field
 from text_detection_target import TextDetectionTarget, TextDetectionTargetWithResult
 from sc_logging import logger
 from uno_ui_handler import UNOUIHandler
+import app_update
+from app_update_ui import AppUpdater
 from update_check import (
     UpdateCheckResult,
     check_for_updates,
@@ -393,6 +395,13 @@ class MainWindow(QMainWindow):
         self.update_check_manual_pending = False
         self.update_dialog = None
         self.update_check_finished.connect(self.updateCheckFinished)
+        # Update now (installed on Windows)
+        self.appUpdater = AppUpdater(self)
+        if self.appUpdater.available():
+            # what an earlier Update now downloaded (the new version runs now)
+            run_in_background(
+                "removing update downloads", app_update.remove_downloads, lambda _: None
+            )
         self.setupMenus()
 
         # handle the Escape key (deselect the current box)
@@ -2375,7 +2384,11 @@ class MainWindow(QMainWindow):
                 self.update_dialog.close()
             except RuntimeError:
                 pass  # already closed (and deleted)
-        self.update_dialog = show_update_dialog(result, self)
+        self.update_dialog = show_update_dialog(
+            result,
+            self,
+            self.appUpdater.start if self.appUpdater.available() else None,
+        )
 
     def createAboutDialog(self) -> QDialog:
         about_dialog = QDialog(self)

@@ -84,6 +84,7 @@ on:
       - scripts/fetch_models.py
       - ocr_models/**
       - src/main.py
+      - src/app_update.py
       - src/resource_path.py
       - src/version.py
       - src/win32DeviceEnum/**
@@ -505,6 +506,15 @@ jobs:
           # the uninstaller finishes from a temporary copy of itself
           for ($i = 0; $i -lt 60 -and (Test-Path "$app\scoresight.exe"); $i++) { Start-Sleep -Seconds 1 }
           if (Test-Path "$app\scoresight.exe") { throw "the uninstaller left $app\scoresight.exe behind" }
+
+      - name: Test Update now (the installer run as an update)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        env:
+          LABEL: ${{ steps.version.outputs.label }}
+        # Setup writes the ready file, waits for the app's mutex, installs and
+        # starts the app again with its environment (src/app_update.py)
+        run: python scripts/ci/update_test.py "dist\scoresight-$env:LABEL-windows-x64-setup.exe"
 
       - name: Package (Linux archive)
         if: runner.os == 'Linux'

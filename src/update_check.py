@@ -15,8 +15,9 @@ from typing import Callable
 
 import requests
 from PySide6.QtCore import QCoreApplication, Qt
-from PySide6.QtWidgets import QDialog, QWidget
+from PySide6.QtWidgets import QDialog, QDialogButtonBox, QWidget
 
+from app_update import InstallerAsset, installer_asset
 from sc_logging import logger
 from storage import fetch_data, store_data
 from ui_update_available import Ui_Dialog as Ui_UpdateAvailable
@@ -96,6 +97,8 @@ class UpdateCheckResult:
     release_url: str = LATEST_RELEASE_PAGE_URL
     update_available: bool = False
     error: str | None = None
+    # the new version's Windows installer, for Update now (app_update.py)
+    installer: InstallerAsset | None = None
 
 
 def _release_version(release) -> tuple[Version, dict] | None:
@@ -180,6 +183,8 @@ def check_for_updates(
         # /releases/latest never points at a prerelease: link to the release
         result.release_url = html_url
     result.update_available = is_newer_version(result.latest_version, current_version)
+    if result.update_available:
+        result.installer = installer_asset(release)
     logger.info(
         "Current version: %s, latest release: %s, update available: %s",
         current_version,
@@ -195,9 +200,13 @@ def update_checks_enabled() -> bool:
 
 
 def create_update_dialog(
-    result: UpdateCheckResult, parent: QWidget | None = None
+    result: UpdateCheckResult,
+    parent: QWidget | None = None,
+    update_now: Callable[[UpdateCheckResult], None] | None = None,
 ) -> QDialog:
-    """The dialog that reports an update check result (not shown yet)."""
+    """The dialog that reports an update check result (not shown yet). With
+    update_now, a new version with a Windows installer gets an Update now
+    button, which closes the dialog and calls update_now(result)."""
     dialog = QDialog(parent)
     ui = Ui_UpdateAvailable()
     ui.setupUi(dialog)
@@ -229,6 +238,20 @@ def create_update_dialog(
             )
         )
 
+    if update_now is not None and result.update_available and result.installer:
+        button = ui.buttonBox.addButton(
+            QCoreApplication.translate("UpdateCheck", "Update now"),
+            QDialogButtonBox.ButtonRole.ActionRole,
+        )
+        button.setDefault(True)
+
+        def clicked():
+            dialog.accept()
+            update_now(result)
+
+        button.clicked.connect(clicked)
+        dialog.update_now_button = button
+
     ui.checkBox_disableUpdateChecks.setChecked(not update_checks_enabled())
     ui.checkBox_disableUpdateChecks.toggled.connect(
         lambda value: store_data("scoresight.json", DISABLE_UPDATE_CHECKS_KEY, value)
@@ -237,10 +260,12 @@ def create_update_dialog(
 
 
 def show_update_dialog(
-    result: UpdateCheckResult, parent: QWidget | None = None
+    result: UpdateCheckResult,
+    parent: QWidget | None = None,
+    update_now: Callable[[UpdateCheckResult], None] | None = None,
 ) -> QDialog:
     """Show the result dialog without blocking (window-modal over parent)."""
-    dialog = create_update_dialog(result, parent)
+    dialog = create_update_dialog(result, parent, update_now)
     dialog.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
     dialog.open()
     return dialog
