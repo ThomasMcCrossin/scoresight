@@ -12,9 +12,11 @@ by hand, from the release page.
    the running scoresight.exe. A build that isn't signed (from a pull request,
    say) can only check the SHA-256.
 3. start_installer() runs Setup unattended (/SILENT: its progress window, not
-   the wizard). Setup asks for administrator rights itself (UAC) when the
-   installation is for all users, and installs the new version over the old
-   one, in the same folder and for the same users.
+   the wizard), told to install over the running copy: its folder (/DIR) and
+   whether it was installed for all users (install_mode(): /ALLUSERS or
+   /CURRENTUSER). Otherwise Setup would update the installation registered
+   last, which isn't the running one when there are two. Setup asks for
+   administrator rights itself (UAC) for an installation for all users.
 4. Setup (scoresight.iss, PrepareToInstall) writes the ready file once it runs
    with those rights: ScoreSight then closes as when its window is closed. Setup
    waits until ScoreSight has quit (the mutex the app holds, hold_mutex()),
@@ -46,6 +48,11 @@ INSTALLER_NAME = "scoresight-{version}-windows-x64-setup.exe"
 SUMS_NAME = "SHA256SUMS.txt"
 # the installer's uninstaller, in the installation folder
 UNINSTALLER_NAME = "unins000.exe"
+# the installer's uninstall entry (AppId ScoreSight), under HKCU for an
+# installation for the current user, under HKLM for all users
+UNINSTALL_KEY = r"Software\Microsoft\Windows\CurrentVersion\Uninstall\ScoreSight_is1"
+ALL_USERS = "/ALLUSERS"
+CURRENT_USER = "/CURRENTUSER"
 # the downloads, in the temporary folder (removed when the next update starts)
 DOWNLOAD_FOLDER_NAME = "scoresight-update"
 
@@ -114,6 +121,29 @@ def installed_folder() -> str | None:
     if not os.path.isfile(os.path.join(folder, UNINSTALLER_NAME)):
         return None
     return folder
+
+
+def install_mode(folder: str, key: str = UNINSTALL_KEY) -> str | None:
+    """How the installation in folder was made: ALL_USERS or CURRENT_USER,
+    from the installer's uninstall entry that names it; None if none does."""
+    if sys.platform != "win32":
+        return None
+    import winreg
+
+    for root, mode in (
+        (winreg.HKEY_CURRENT_USER, CURRENT_USER),
+        (winreg.HKEY_LOCAL_MACHINE, ALL_USERS),
+    ):
+        # a 64-bit installation's entry, or a 32-bit one's (0.1.x)
+        for view in (winreg.KEY_WOW64_64KEY, winreg.KEY_WOW64_32KEY):
+            try:
+                with winreg.OpenKey(root, key, 0, winreg.KEY_READ | view) as entry:
+                    location, _ = winreg.QueryValueEx(entry, "InstallLocation")
+                if os.path.samefile(location, folder):
+                    return mode
+            except OSError:
+                continue
+    return None
 
 
 def download_folder() -> str:
@@ -284,9 +314,16 @@ def hold_mutex(name: str):
 
 
 def installer_arguments(
-    ready_file: str, mutex: str, log_file: str | None = None
+    ready_file: str,
+    mutex: str,
+    log_file: str | None = None,
+    folder: str | None = None,
+    mode: str | None = None,
 ) -> list[str]:
-    """Setup's command line options for an update (see scoresight.iss)."""
+    """Setup's command line options for an update (see scoresight.iss). With
+    the running app's folder and install mode, Setup updates that installation:
+    otherwise it updates the one registered last (another one, if there are
+    two)."""
     arguments = [
         "/SILENT",
         "/SUPPRESSMSGBOXES",
@@ -296,6 +333,10 @@ def installer_arguments(
         f"/UPDATEREADY={ready_file}",
         f"/UPDATEMUTEX={mutex}",
     ]
+    if folder:
+        arguments.append(f"/DIR={folder}")
+    if mode:
+        arguments.append(mode)
     if log_file:
         arguments.append(f"/LOG={log_file}")
     return arguments
@@ -306,11 +347,16 @@ def start_installer(
     ready_file: str,
     mutex: str,
     log_file: str | None = None,
+    folder: str | None = None,
+    mode: str | None = None,
     popen: Callable = subprocess.Popen,
 ):
     """Start Setup (it asks for administrator rights itself when it needs
     them); returns its process. Raises UpdateError if it can't start."""
-    command = [installer, *installer_arguments(ready_file, mutex, log_file)]
+    command = [
+        installer,
+        *installer_arguments(ready_file, mutex, log_file, folder, mode),
+    ]
     logger.info("Starting the installer: %s", subprocess.list2cmdline(command))
     try:
         return popen(command, close_fds=True)

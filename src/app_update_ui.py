@@ -151,9 +151,12 @@ class AppUpdater(QObject):
             if os.path.isdir(log_dir)
             else None
         )
+        # this installation, not another one Setup would find first
+        folder = self._installed_folder()
+        mode = app_update.install_mode(folder) if folder else None
         try:
             self.process = app_update.start_installer(
-                outcome, self.ready_file, mutex, log_file
+                outcome, self.ready_file, mutex, log_file, folder, mode
             )
         except app_update.UpdateError as e:
             logger.warning("Update now failed: %s", e)

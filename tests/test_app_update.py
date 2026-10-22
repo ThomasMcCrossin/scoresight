@@ -321,6 +321,10 @@ def test_the_installers_command_line(tmp_path):
         "/LOG=C:\\l.log",
     ]
     assert "/LOG" not in " ".join(app_update.installer_arguments(ready, "m"))
+    # this installation, and how it was installed
+    assert app_update.installer_arguments(
+        ready, "m", folder=r"C:\Program Files\ScoreSight", mode="/ALLUSERS"
+    )[-2:] == [r"/DIR=C:\Program Files\ScoreSight", "/ALLUSERS"]
     commands = []
     app_update.start_installer(
         "setup.exe", ready, "m", popen=lambda command, **kw: commands.append(command)
@@ -332,6 +336,30 @@ def test_the_installers_command_line(tmp_path):
 
     with pytest.raises(UpdateError, match="couldn't start: refused"):
         app_update.start_installer("setup.exe", ready, "m", popen=refused)
+
+
+@pytest.mark.skipif(sys.platform != "win32", reason="the Windows registry")
+def test_the_install_mode_of_a_folder(tmp_path):
+    import winreg
+
+    # a throw-away key, not the real installation's entry
+    key = rf"Software\ScoreSight-test-{os.getpid()}\Uninstall\ScoreSight_is1"
+    folder = tmp_path / "ScoreSight"
+    folder.mkdir()
+    assert app_update.install_mode(str(folder), key) is None
+    with winreg.CreateKey(winreg.HKEY_CURRENT_USER, key) as entry:
+        # as Inno Setup writes it, with a trailing backslash
+        winreg.SetValueEx(entry, "InstallLocation", 0, winreg.REG_SZ, f"{folder}\\")
+    try:
+        assert app_update.install_mode(str(folder), key) == app_update.CURRENT_USER
+        # another installation's folder
+        other = tmp_path / "other"
+        other.mkdir()
+        assert app_update.install_mode(str(other), key) is None
+    finally:
+        parts = key.split("\\")
+        for depth in range(len(parts), 1, -1):
+            winreg.DeleteKey(winreg.HKEY_CURRENT_USER, "\\".join(parts[:depth]))
 
 
 def test_the_mutex_names_the_process():
@@ -425,14 +453,18 @@ def updater(qapp, monkeypatch, tmp_path):
 
     process = FakeProcess()
 
-    def start(path, ready_file, mutex, log_file=None):
+    def start(path, ready_file, mutex, log_file=None, folder=None, mode=None):
         calls["start"].append((path, ready_file, mutex, log_file))
+        calls["installation"] = (folder, mode)
         return process
 
     monkeypatch.setattr(app_update, "download_installer", download)
     monkeypatch.setattr(app_update, "check_signature", calls["signature"].append)
     monkeypatch.setattr(app_update, "start_installer", start)
     monkeypatch.setattr(app_update, "hold_mutex", lambda name: None)
+    monkeypatch.setattr(
+        app_update, "install_mode", lambda folder: f"/CURRENTUSER for {folder}"
+    )
     monkeypatch.setattr(
         QMessageBox, "exec", lambda box: calls["messages"].append(box.text()) or 0
     )
@@ -450,6 +482,8 @@ def test_update_now_closes_the_app_once_setup_installs(updater, qtbot):
     assert appUpdater.busy
     qtbot.waitUntil(lambda: bool(calls["start"]), timeout=5000)
     path, ready_file, mutex, log_file = calls["start"][0]
+    # the running installation is updated
+    assert calls["installation"] == ("C:\\x", "/CURRENTUSER for C:\\x")
     assert calls["signature"] == [path]
     assert os.path.dirname(ready_file) == os.path.dirname(path)
     assert mutex == app_update.mutex_name()

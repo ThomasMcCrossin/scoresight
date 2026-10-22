@@ -165,7 +165,14 @@ def run(setup: Path, work: Path):
     if not handle:
         fail("the mutex couldn't be created")
     ready = work / "installing.txt"
-    process = app_update.start_installer(str(setup), str(ready), mutex, str(setup_log))
+    # as Update now does: this installation (another one may be registered:
+    # build.yml installs 0.1.0 for all users before)
+    mode = app_update.install_mode(str(app))
+    if mode != app_update.CURRENT_USER:
+        fail(f"the installation's mode is {mode}, not {app_update.CURRENT_USER}")
+    process = app_update.start_installer(
+        str(setup), str(ready), mutex, str(setup_log), str(app), mode
+    )
     if not wait_for(lambda: ready.exists() or process.poll() is not None, TIMEOUT):
         fail("Setup didn't write the ready file", setup_log)
     if not ready.exists():
