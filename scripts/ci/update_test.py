@@ -56,44 +56,74 @@ def same_file(a, b) -> bool:
         return False
 
 
-def processes_of(exe: Path) -> list[int]:
-    """The ids of the running processes of this executable."""
+_kernel32 = ctypes.WinDLL("kernel32", use_last_error=True) if os.name == "nt" else None
+if _kernel32 is not None:
+    _kernel32.OpenProcess.argtypes = (wintypes.DWORD, wintypes.BOOL, wintypes.DWORD)
+    _kernel32.OpenProcess.restype = wintypes.HANDLE
+    _kernel32.QueryFullProcessImageNameW.argtypes = (
+        wintypes.HANDLE,
+        wintypes.DWORD,
+        wintypes.LPWSTR,
+        ctypes.POINTER(wintypes.DWORD),
+    )
+    _kernel32.TerminateProcess.argtypes = (wintypes.HANDLE, wintypes.UINT)
+    _kernel32.CloseHandle.argtypes = (wintypes.HANDLE,)
+
+PROCESS_TERMINATE = 0x0001
+PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
+
+
+def image_of(pid: int) -> tuple[str | None, str]:
+    """(the process's executable, or None; why not)."""
+    handle = _kernel32.OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, False, pid)
+    if not handle:
+        return None, f"OpenProcess error {ctypes.get_last_error()}"
+    try:
+        buffer = ctypes.create_unicode_buffer(32768)
+        length = wintypes.DWORD(len(buffer))
+        if not _kernel32.QueryFullProcessImageNameW(
+            handle, 0, buffer, ctypes.byref(length)
+        ):
+            return None, f"QueryFullProcessImageNameW error {ctypes.get_last_error()}"
+        return buffer.value, ""
+    finally:
+        _kernel32.CloseHandle(handle)
+
+
+def all_processes() -> list[int]:
     psapi = ctypes.WinDLL("psapi")
-    kernel32 = ctypes.WinDLL("kernel32")
-    kernel32.OpenProcess.restype = wintypes.HANDLE
-    ids = (wintypes.DWORD * 4096)()
+    ids = (wintypes.DWORD * 8192)()
     size = wintypes.DWORD()
     psapi.EnumProcesses(ids, ctypes.sizeof(ids), ctypes.byref(size))
+    return list(ids[: size.value // ctypes.sizeof(wintypes.DWORD)])
+
+
+def processes_of(exe: Path) -> list[int]:
+    """The ids of the running processes of this executable (the same file,
+    whatever the path's form: CI's temporary folder is a short 8.3 path)."""
     found = []
-    for pid in ids[: size.value // ctypes.sizeof(wintypes.DWORD)]:
-        # PROCESS_QUERY_LIMITED_INFORMATION
-        handle = kernel32.OpenProcess(0x1000, False, pid)
-        if not handle:
-            continue
-        try:
-            buffer = ctypes.create_unicode_buffer(1024)
-            length = wintypes.DWORD(len(buffer))
-            if (
-                kernel32.QueryFullProcessImageNameW(
-                    handle, 0, buffer, ctypes.byref(length)
-                )
-                # the same file, whatever the path's form (CI's temporary
-                # folder is a short 8.3 path, the image name a long one)
-                and same_file(buffer.value, exe)
-            ):
-                found.append(pid)
-        finally:
-            kernel32.CloseHandle(handle)
+    for pid in all_processes():
+        image, _ = image_of(pid)
+        if image is not None and same_file(image, exe):
+            found.append(pid)
+    return found
+
+
+def scoresight_processes() -> list[str]:
+    """Every running scoresight.exe, for a failure's message."""
+    found = []
+    for pid in all_processes():
+        image, _ = image_of(pid)
+        if image is not None and os.path.basename(image).lower() == "scoresight.exe":
+            found.append(f"{pid}: {image}")
     return found
 
 
 def kill(pid: int):
-    kernel32 = ctypes.WinDLL("kernel32")
-    kernel32.OpenProcess.restype = wintypes.HANDLE
-    handle = kernel32.OpenProcess(0x0001, False, pid)  # PROCESS_TERMINATE
+    handle = _kernel32.OpenProcess(PROCESS_TERMINATE, False, pid)
     if handle:
-        kernel32.TerminateProcess(handle, 1)
-        kernel32.CloseHandle(handle)
+        _kernel32.TerminateProcess(handle, 1)
+        _kernel32.CloseHandle(handle)
 
 
 def run(setup: Path, work: Path):
@@ -145,7 +175,7 @@ def run(setup: Path, work: Path):
     if process.poll() is not None:
         fail("Setup didn't wait for the app to quit", setup_log)
     # the app quits
-    ctypes.WinDLL("kernel32").CloseHandle(wintypes.HANDLE(handle))
+    _kernel32.CloseHandle(handle)
     try:
         code = process.wait(TIMEOUT)
     except subprocess.TimeoutExpired:
@@ -166,11 +196,17 @@ def run(setup: Path, work: Path):
     print(f"The new version started: {json.dumps(data)[:200]}", flush=True)
     if not set((work / "logs").glob("scoresight_*.log")) - logs_before:
         fail("the relaunched app didn't log to the updating app's log folder")
-    pids = processes_of(exe)
-    if not pids:
-        fail(f"no {exe} is running")
-    for pid in pids:
-        kill(pid)
+    # the relaunched app, by the id in its report
+    pid = data.get("pid")
+    image, why = image_of(pid) if isinstance(pid, int) else (None, "no pid")
+    if image is None or not same_file(image, exe):
+        fail(
+            f"the started app (pid {pid}) isn't {exe}: {image or why}; running: "
+            f"{scoresight_processes() or 'no scoresight.exe'}",
+            setup_log,
+        )
+    print(f"It is the installed app: {image}", flush=True)
+    kill(pid)
     wait_for(lambda: not processes_of(exe), 30)
     print("UPDATE TEST OK", flush=True)
 
