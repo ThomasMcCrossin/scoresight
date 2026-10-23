@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import hashlib
 import os
+import ssl
 import threading
 import time
 import urllib.error
@@ -23,6 +24,7 @@ import urllib.request
 from collections.abc import Callable
 from dataclasses import dataclass
 
+import certifi
 import cv2
 import numpy as np
 
@@ -140,9 +142,18 @@ def download_model(
     raise OSError(f"could not download the layout model from {url}: {error}")
 
 
+def _tls_context() -> ssl.SSLContext:
+    """Trusts certifi's certificates, like requests (the update check): the
+    Python of the macOS app finds none of its own, so urllib's default
+    failed there with CERTIFICATE_VERIFY_FAILED (#140)."""
+    return ssl.create_default_context(cafile=certifi.where())
+
+
 def _download(url, part, progress, cancelled):
     request = urllib.request.Request(url, headers={"User-Agent": "ScoreSight"})
-    with urllib.request.urlopen(request, timeout=TIMEOUT_S) as response:
+    with urllib.request.urlopen(
+        request, timeout=TIMEOUT_S, context=_tls_context()
+    ) as response:
         total = int(response.headers.get("Content-Length") or MODEL_SIZE)
         done = 0
         with open(part, "wb") as f:
