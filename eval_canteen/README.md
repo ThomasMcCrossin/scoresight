@@ -93,6 +93,25 @@ The reference is keyed on media time; `ADT_SEGMENT_START` in `truth.py` maps a
 clip's name to its segment start, and the journal's `media_pts_seconds` is
 used directly where present.
 
+## Checking a wrong reading on a frame
+
+```sh
+nice -n 15 python eval_canteen/frame_check.py \
+  --clip .../20261023T091022.mkv --at 496 1042 1255 --out /tmp/eval_frames --scale 630:360
+```
+
+writes one PNG per media time (and `montage.png`), which is how the reference
+entries in `truth/20261023_game.json` were verified.
+
+## Comparing runs
+
+```sh
+nice -n 15 python eval_canteen/compare.py eval_canteen/reports/*.json
+```
+
+puts the field accuracies and transition counts of several reports side by
+side, so a ScoreSight change is compared against the run it should improve.
+
 ## Adding a clip
 
 1. Add the clip's segment start to `ADT_SEGMENT_START` in `truth.py` if the
