@@ -135,3 +135,45 @@ transitions the same way, or running a reader over it to produce a journal.
    under `clips.<file name>`.
 3. Run the harness. The report lists every wrong reading with its media time,
    which is what to re-check on a frame.
+
+## Picture levels: the `levels` variant
+
+The live feed suppresses a board's ghost segments in ffmpeg (the `filtered`
+variant's lut). The fork can do it inside ScoreSight instead, in
+`TimerThread.adjust_frame`, and `levels` measures that: the recorder's crop goes
+in untouched and the profile carries
+
+```json
+"picture_levels": true, "picture_black_point": 150,
+"picture_white_point": 221, "picture_gamma": 1.0
+```
+
+which is the affine stretch `clip((v-150)*255/(221-150),0,255)` -- the ffmpeg
+lut's `*3.6` to within 0.2% (the white point where `clip((v-150)*3.6)` reaches
+255 is 220.8). Measured on the 09:10 clip at six times, the in-app table and
+the ffmpeg lut differ by at most one gray level (mean absolute difference
+0.018, 98% of pixels identical), so the two variants see the same picture and a
+difference between their runs is not the levels themselves.
+
+A build without picture levels cannot run this variant: the harness imports the
+build's own `defaults` and `camera_thread` and refuses rather than silently
+scoring `raw`.
+
+## Replaying the 10:10 hour
+
+`replay_1010.py` runs a slice of a clip against any checkout (`--build`) with
+the same feed variants, records every `/json` and `/game` poll with the media
+time ffmpeg reported for it, and `check_incidents.py` answers the incidents the
+live logs raised. Neither scores anything: with no reader journal for that
+segment there is no per-field reference, so the checks are readings of the
+record against facts verified on frames.
+
+Two details matter for a replay to be believable:
+
+* The feed seeks with `-ss` before `-i`, so ffmpeg's `out_time` restarts at 0:
+  media = `--start` + `out_time`. The progress file is watched while the feed
+  runs, because its lines carry no timestamp of their own.
+* ScoreSight, a URL source, opens the stream once. If the feed's first frames
+  are not decodable yet, OpenCV times out ("Stream timeout triggered") and the
+  app never reopens, so the run waits for a live `/json` reading before taking
+  the window, feeding `--lead-in` seconds first (discarded from the record).

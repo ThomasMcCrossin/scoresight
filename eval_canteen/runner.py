@@ -5,11 +5,17 @@ rather than opened as a File source: a File source is consumed as fast as the
 capture loop can read it, so /game's clock timings and the detection latencies
 would be measured against a source running many times faster than the board.
 
-Two preprocessing variants, matching the live deployment:
+Three preprocessing variants:
 
 * ``filtered`` -- ``format=gray,lut=y='clip((val-150)*3.6,0,255)'``, the
   ghost-segment suppression the live feed applies before ScoreSight sees it.
 * ``raw`` -- the recorder's crop, untouched.
+* ``levels`` -- the recorder's crop untouched, with the same ghost-segment
+  suppression done inside ScoreSight (its picture levels): black point 150,
+  white point 221 and gamma 1.0 in the profile, which is the affine stretch
+  ``clip((v-150)*255/(221-150),0,255)`` -- the ffmpeg lut's ``*3.6`` to
+  within 0.2%. Only the fork has picture levels; ``levels`` refuses to run
+  against a build without them, so it can never silently equal ``raw``.
 """
 
 from __future__ import annotations
@@ -25,13 +31,38 @@ import urllib.error
 import urllib.request
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-SCORESIGHT_ROOT = os.path.dirname(HERE)
+# the build under test: this harness's own tree, unless configure() picks another
+# (the qualification replays upstream 0.4.1 from a throwaway worktree with the
+# same harness)
+SCORESIGHT_ROOT = os.environ.get("SCORESIGHT_BUILD_ROOT") or os.path.dirname(HERE)
 VENV_PYTHON = os.path.join(SCORESIGHT_ROOT, ".venv", "bin", "python")
 MAKE_PROFILE = os.path.expanduser("~/.local/share/canteen-scoresight/make_profile.py")
+
+
+def configure(build_root=None):
+    """Point the harness at another ScoreSight checkout (its src/ and .venv)."""
+    global SCORESIGHT_ROOT, VENV_PYTHON
+    SCORESIGHT_ROOT = os.path.abspath(build_root or os.path.dirname(HERE))
+    VENV_PYTHON = os.path.join(SCORESIGHT_ROOT, ".venv", "bin", "python")
+    return SCORESIGHT_ROOT
 
 # the live deployment's frame preprocessing (feed.sh)
 FILTERED_VF = "format=gray,lut=y='clip((val-150)*3.6\\,0\\,255)',format=yuv420p"
 RAW_VF = "format=yuv420p"
+
+# the ffmpeg lut as ScoreSight's picture levels: black point 150, and the white
+# point where clip((v-150)*3.6) reaches 255 (150 + 255/3.6 = 220.8), gamma 1
+LEVELS_SETTINGS = {
+    "picture_levels": True,
+    "picture_black_point": 150,
+    "picture_white_point": 221,
+    "picture_gamma": 1.0,
+}
+VARIANTS = {
+    "filtered": FILTERED_VF,
+    "raw": RAW_VF,
+    "levels": RAW_VF,
+}
 
 BOXES = ("Time", "Home Score", "Away Score", "Period")
 
@@ -44,6 +75,41 @@ ENGINES = {
 
 class RunError(RuntimeError):
     pass
+
+
+def _require_picture_levels():
+    """Refuse the ``levels`` variant on a build without picture levels.
+
+    Upstream (0.4.1) has no adjust_frame levels at all, so a profile asking for
+    them would be ignored and the run would silently measure ``raw``. The
+    check imports the build's own camera_thread and defaults, the way the app
+    does, and requires both the setting names and the lookup-table builder.
+    """
+    probe = (
+        "import sys\n"
+        "import defaults, camera_thread\n"
+        "names = ('PICTURE_LEVELS_ENABLED', 'PICTURE_BLACK_POINT', "
+        "'PICTURE_WHITE_POINT', 'PICTURE_GAMMA')\n"
+        "missing = [n for n in names if not hasattr(defaults, n)]\n"
+        "assert not missing, 'no picture-level settings: %s' % missing\n"
+        "assert hasattr(camera_thread, 'picture_levels_lut'), "
+        "'no picture_levels_lut'\n"
+        "assert hasattr(camera_thread, 'PictureLevels'), 'no PictureLevels'\n"
+        "print('ok')\n"
+    )
+    source = os.path.join(SCORESIGHT_ROOT, "src")
+    result = subprocess.run(
+        ["nice", "-n", "15", VENV_PYTHON, "-c", probe],
+        cwd=source,
+        env=dict(os.environ, PYTHONPATH=source),
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        raise RunError(
+            "the levels variant needs a build with picture levels "
+            f"({SCORESIGHT_ROOT}); {result.stderr.strip() or result.stdout.strip()}"
+        )
 
 
 def free_port():
@@ -61,17 +127,19 @@ def _http(port, path, timeout=5.0):
 class Feed:
     """ffmpeg pushing a clip to a local UDP port at real-time pace."""
 
-    def __init__(self, clip, port, variant, start=0.0, duration=None):
+    def __init__(self, clip, port, variant, start=0.0, duration=None, progress=None):
         self.clip = clip
         self.port = port
         self.variant = variant
         self.start = start
         self.duration = duration
+        self.progress = progress
         self.process = None
+        self.started_wall = None
 
     @property
     def vf(self):
-        return FILTERED_VF if self.variant == "filtered" else RAW_VF
+        return VARIANTS[self.variant]
 
     def start_feed(self):
         cmd = [
@@ -79,6 +147,12 @@ class Feed:
             "-nostdin",
             "-loglevel",
             "error",
+        ]
+        if self.progress:
+            # out_time vs wall clock, for a media-time mapping of the run's
+            # readings without a journal reference
+            cmd += ["-progress", self.progress, "-stats_period", "0.5"]
+        cmd += [
             "-ss",
             f"{self.start:.3f}",
         ]
@@ -143,6 +217,8 @@ class ScoreSight:
     def write_profile(self):
         os.makedirs(self.data_dir, exist_ok=True)
         os.makedirs(self.log_dir, exist_ok=True)
+        if self.variant == "levels":
+            _require_picture_levels()
         cmd = [
             VENV_PYTHON,
             MAKE_PROFILE,
@@ -169,11 +245,13 @@ class ScoreSight:
         settings["update_on_change"] = True
         settings["sport"] = "hockey"
         settings["disable_update_checks"] = True
+        if self.variant == "levels":
+            settings.update(LEVELS_SETTINGS)
         with open(profile, "w") as handle:
             json.dump(settings, handle, indent=2)
         return profile
 
-    def start(self, timeout=45.0):
+    def start(self, timeout=150.0):
         self.write_profile()
         env = dict(os.environ)
         env.update(

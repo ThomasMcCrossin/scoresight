@@ -46,7 +46,7 @@ def parse_args(argv=None):
     parser.add_argument("--clip", default=DEFAULT_CLIP, help="recording to evaluate")
     parser.add_argument(
         "--variant",
-        choices=("raw", "filtered"),
+        choices=tuple(runner.VARIANTS),
         default="filtered",
         help="frame preprocessing (filtered = the live feed's lut)",
     )

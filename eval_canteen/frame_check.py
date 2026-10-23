@@ -7,6 +7,10 @@
 Writes one PNG per time, plus a montage of all of them (``montage.png``) when
 there is more than one. The frame is taken at the clip's own resolution; view
 it to see what the board showed at that instant.
+
+``--boxes`` crops to the profile's four reading boxes (the recorder crop's
+coordinates) and scales them up, so the digits can be read without squinting;
+the montage then has one row per time (Time, Home, Away, Period).
 """
 
 from __future__ import annotations
@@ -16,10 +20,41 @@ import os
 import subprocess
 import sys
 
+# make_profile.py's boxes, in the recorder crop's coordinates (420x240)
+BOXES = (
+    ("Time", 179, 68, 82, 36),
+    ("Home", 73, 87, 44, 33),
+    ("Away", 322, 93, 42, 33),
+    ("Period", 211, 124, 20, 26),
+)
+BOX_SCALE = 4
 
-def grab(clip, media, out, scale=None):
+
+def grab(clip, media, out, scale=None, boxes=False):
     os.makedirs(out, exist_ok=True)
     path = os.path.join(out, f"t{media:08.2f}.png")
+    if boxes:
+        pieces = []
+        for _, x, y, w, h in BOXES:
+            pieces.append(
+                f"crop={w}:{h}:{x}:{y},scale={w * BOX_SCALE}:{h * BOX_SCALE}"
+                ":flags=neighbor"
+            )
+        # side by side, with a black gap so the boxes stay apart
+        chain = [f"[0:v]{pieces[0]}[b0]"]
+        for index, piece in enumerate(pieces[1:], start=1):
+            chain.append(f"[0:v]{piece}[b{index}]")
+        chain.append(
+            "[b0][b1][b2][b3]hstack=inputs=4:fill=black[out]"
+        )
+        vf = ";".join(chain)
+        cmd = [
+            "nice", "-n", "15", "ffmpeg", "-nostdin", "-loglevel", "error",
+            "-ss", f"{media:.3f}", "-i", clip, "-frames:v", "1",
+            "-filter_complex", vf, "-map", "[out]", "-y", path,
+        ]
+        subprocess.run(cmd, check=True)
+        return path
     vf = f"scale={scale}:flags=neighbor" if scale else None
     cmd = [
         "nice",
@@ -97,8 +132,16 @@ def main(argv=None):
     parser.add_argument(
         "--scale", default=None, help="scale WIDTH:HEIGHT (e.g. 630:360)"
     )
+    parser.add_argument(
+        "--boxes",
+        action="store_true",
+        help="crop to the four reading boxes and scale them up",
+    )
     args = parser.parse_args(argv)
-    paths = [grab(args.clip, media, args.out, args.scale) for media in args.at]
+    paths = [
+        grab(args.clip, media, args.out, args.scale, args.boxes)
+        for media in args.at
+    ]
     for path in paths:
         print(path)
     montage_path = montage(paths, args.out)
