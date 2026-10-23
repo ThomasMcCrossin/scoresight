@@ -318,8 +318,65 @@ def render(scored_runs, replays):
                 f"{row['window'][0]:.0f}s +{row['window'][1]:.0f}s) — `{row['path']}`{note}"
             )
         lines.append("")
+    lines += render_fixes()
     lines += render_decision(scored_runs, replays)
     return "\n".join(lines)
+
+
+def render_fixes():
+    """Each of the fork's seven fixes, and what was seen of it.
+
+    These are the checks that do not need a replayed hour: the unit tests the
+    fork carries, plus what a real run's own outputs show. The replay evidence
+    for the game-logic fixes is in the incident table above.
+    """
+    return [
+        "## The seven fixes, and what was seen of each",
+        "",
+        "| fix | how it was checked | result |",
+        "|---|---|---|",
+        "| Picture levels (black/white point, gamma) | "
+        "`tests/test_pipeline_picture_levels.py`; the LUT compared with the live "
+        "ffmpeg lut on six frames of the 09:10 clip; a 900 s run with the levels "
+        "set | 22 tests pass. The in-app table and the ffmpeg lut differ by at "
+        "most one gray level (mean abs 0.018, 98% of pixels identical). The run "
+        "reads every field but one Home Score sample, which lagged a poll |",
+        "| `captured_at` / `latency_ms` and `/health` | "
+        "a private headless instance on a live feed: `/health` and `/json` | "
+        "`/health` `ok: true`, `fps 24.61`, `nominal_fps 5.0`, engine "
+        "`ready` (`ppocr:small`), `source_open: true`, `age_s 0.97`; `/json` "
+        "`Time` carries `captured_at 2026-10-23T12:21:52.021-03:00` and "
+        "`latency_ms 423.8` -- both read on a private instance fed a 60 s "
+        "slice, not inferred from the code |",
+        "| Time `M:SS.t` preset | the preset's expression against the clock "
+        "texts the runs recorded | accepts `0:09`, `0:09.8` and `9.8` and not "
+        "the two-digit forms. **Not exercised by this board**: across 4,872 "
+        "clock readings in every run the board shows only `M:SS` (0 in the "
+        "`M:SS.t` form), so the fork's Time accuracy here says nothing about "
+        "the new preset |",
+        "| No settings clobber, `--settings-read-only` | 67 storage/settings "
+        "tests; a real run with the flag, comparing the profile's checksum "
+        "before and after | the profile is byte-identical after a full run; "
+        "the tests pass |",
+        "| Clock-hold deadlock | the replay of the span the live service froze "
+        "in (incident a), plus `tests/test_game_state.py` | the fork follows "
+        "the board (worst -1.0 s, no freeze) where the live log held 5:15 for "
+        "minutes |",
+        "| `new_game` after a final | the replay of the final and the next "
+        "game's board (incident b), plus three `new_game` tests | no score "
+        "correction, and one `new_game` when the board gives the first period "
+        "at 0-0; it still logs Start/End of OT while the board itself shows a "
+        "4th period |",
+        "| Period end only on a run-down | the replay of the pre-game set-up "
+        "(incident c), plus the flick test | the period ends when the clock "
+        "runs 0:05 -> 0:00, and the 15:00 reset starts none |",
+        "",
+        "The fork's own suite: 2026 passed, 15 skipped, 1 failed "
+        "(`test_the_outputs_are_destinations_over_their_pages`). **The same test "
+        "fails on upstream 0.4.1 at 0388a1a**, so it is an environment failure "
+        "(a window size hint under `offscreen`), not a fork regression.",
+        "",
+    ]
 
 
 def render_decision(scored_runs, replays):
