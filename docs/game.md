@@ -179,6 +179,8 @@ Like the other endpoints, `/game` doesn't change while the outputs are paused.
 
 After the final, ScoreSight keeps the finished game until you tell it otherwise: **New game** forgets it (see above), and so does setting the board up for the next game. Once the game is final, a board showing its **first period** with **both scores 0**, read steadily, starts a new game: the event log, the line score and the values start over, and the game logs one `new_game` event, without an overtime period or a score correction. That is what the board for a new game looks like; a board set back to the first period in the middle of a game is not one (the game is still following it).
 
+A period ends at `0:00` only when the clock **ran down** to it: a clock set straight to `0:00` from anywhere else (a jump between periods, or a board being set up) doesn't end the period, so setting the board up never logs the end of a period that wasn't played.
+
 ## Settings
 
 The sport is saved as `sport` in the settings file (see [Settings, Files & Command Line](configuration.md)). The game itself isn't saved: a new session starts a new game.

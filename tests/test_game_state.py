@@ -1099,3 +1099,28 @@ def test_a_mid_game_board_is_not_a_new_game(game):
     g = start_basketball(game, home="2", away="0", period="1")
     events = read_board(g, 2, Home_Score="0", Away_Score="0", Period="1")
     assert NEW_GAME not in g.kinds(events)
+
+
+# --- the period ends at zero only when the clock ran down to it ----------------------
+
+
+def test_a_clock_that_runs_down_to_zero_ends_the_period(game):
+    g = start_basketball(game, time="0:04")
+    events = []
+    for tenths in (35, 30, 25, 20, 10, 0):
+        events += g.read(step=0.5, Time=f"0:{tenths // 10:02d}.{tenths % 10}")
+    assert PERIOD_END in g.kinds(events)
+
+
+def test_a_clock_jumped_to_zero_does_not_end_the_period(game):
+    """The operator flicked the clock 15:00 -> 0:00 -> 15:00 while setting the
+    board up: a jump, not the end of a period that was played."""
+    g = start_basketball(game, time="15:00")
+    # the 0:00 read steadily for longer than the hold needs to count it ...
+    events = read_board(g, 14, step=0.5, Time="0:00")
+    assert PERIOD_END not in g.kinds(events)
+    assert g.engine.state().clock == "0:00"
+    # ... and the clock set back to its full length
+    events = read_board(g, 14, step=0.5, Time="15:00")
+    assert PERIOD_END not in g.kinds(events)
+    assert g.engine.state().period == 1

@@ -21,6 +21,7 @@ Release tags are the bare version number (for example `0.1.0`).
 
 ### Fixed
 
+- **Setting the board up no longer ends a period.** A period ended whenever the clock read 0:00, so an operator flicking the clock 15:00 -> 0:00 -> 15:00 while setting the board up logged "End of P1". A period now ends at 0:00 only when the clock ran down to it: the reading was a move the clock could have made, or the value before it was already within a few seconds of zero.
 - **The game keeps following a running clock after a held misread.** A clock reading the sport doesn't allow is held back until it has been read steadily, but the allowed move was measured from the last reading of *any* value, so a running clock (a new value every reading) could never be read steadily and the game stopped following it until play stopped. The move is now measured from when the clock's own value was last read or accepted, so the game picks the board up again within a few readings (5:15 held at a misread 5:11, the board running on: followed again at about 5:07) while a wild misread (5:15 to 1:11) is still held back.
 
 ## [0.4.1] - 2026-10-22

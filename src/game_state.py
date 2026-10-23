@@ -80,6 +80,9 @@ CLOCK_SLACK = 1.5
 CLOCK_TURN_MOVES = 3
 # the final buzzer: the last period ended this long ago, with different scores
 FINAL_SETTLE_SECONDS = 3.0
+# a clock this close to zero when it is read has run down to it: a board set
+# to 0:00 from anywhere else is a jump, not the end of the period
+CLOCK_ZERO_MARGIN = 5.0
 # a board set for a new game after the final (the first period, 0-0) starts a
 # new game once it has been read this many times in a row
 NEW_GAME_READINGS = 2
@@ -813,8 +816,18 @@ class GameEngine:
             if not self._running and (seconds - old) * self._direction > 0:
                 self._running = True
                 self._emit(CLOCK_START, events)
-        if seconds == 0 and self._direction < 0:
+        if seconds == 0 and self._direction < 0 and self._ran_down(old, small):
             self._end_period(self._trackers[PERIOD].value, now, events, at_zero=True)
+
+    @staticmethod
+    def _ran_down(old, small: bool) -> bool:
+        """Whether a clock at 0 got there by running: this reading was a move
+        the clock could have made, or the value before it was already within
+        CLOCK_ZERO_MARGIN of zero. A board set straight to 0:00 (between
+        periods, or one being set up) doesn't end the period."""
+        if small:
+            return True
+        return old is not None and old <= CLOCK_ZERO_MARGIN
 
     def _small_clock_move(self, old: float, new: float, seen_at, now: float) -> bool:
         """The clock ran (either way) for about the time since it was last
