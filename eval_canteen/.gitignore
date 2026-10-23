@@ -1,0 +1,4 @@
+# run artifacts: local only, regenerate by running run_eval.py
+scratch/
+reports/work/
+__pycache__/

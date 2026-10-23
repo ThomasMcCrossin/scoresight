@@ -1,0 +1,271 @@
+{
+ "meta": {
+  "name": "game0910_filtered_ppocr",
+  "clip": "20261023T091022.mkv",
+  "clip_path": "/home/canteenhub/.local/share/canteen-ops/scoreboard-camera/crop/20261023T091022.mkv",
+  "variant": "filtered",
+  "engine": "ppocr",
+  "cadence": 2.0,
+  "start_media": 0.0,
+  "duration": 900.0,
+  "samples_file": "/home/canteenhub/worktrees/scoresight/eval/eval_canteen/reports/work/game0910_filtered_ppocr/samples.json",
+  "rescored_at": "2026-10-23T10:51:25-0300",
+  "samples": 903,
+  "offset_seconds": 2.0,
+  "aligned_clock_samples": 895
+ },
+ "result": {
+  "offset_seconds": 2.0,
+  "aligned_clock_samples": 895,
+  "samples": 903,
+  "start_media": 0.0,
+  "duration": 900.0,
+  "end_media": 900.0,
+  "fields": {
+   "period": {
+    "name": "Period",
+    "correct": 897,
+    "wrong": 0,
+    "unknown": 2,
+    "no_reference": 0,
+    "accuracy": 1.0,
+    "unknown_rate": 0.002224694104560623
+   },
+   "home": {
+    "name": "Home Score",
+    "correct": 897,
+    "wrong": 0,
+    "unknown": 2,
+    "no_reference": 0,
+    "accuracy": 1.0,
+    "unknown_rate": 0.002224694104560623
+   },
+   "away": {
+    "name": "Away Score",
+    "correct": 897,
+    "wrong": 0,
+    "unknown": 2,
+    "no_reference": 0,
+    "accuracy": 1.0,
+    "unknown_rate": 0.002224694104560623
+   },
+   "clock": {
+    "name": "Time",
+    "correct": 787,
+    "wrong": 0,
+    "unknown": 5,
+    "no_reference": 107,
+    "accuracy": 1.0,
+    "unknown_rate": 0.006313131313131313
+   }
+  },
+  "transitions": {
+   "clock_start": {
+    "expected": 11,
+    "detected": 11,
+    "missed": 0,
+    "false": 1,
+    "mean_latency": -0.020909090909090912,
+    "max_latency": 0.51,
+    "latencies": [
+     0.19,
+     0.22,
+     -0.05,
+     -0.08,
+     -0.24,
+     -0.07,
+     -0.28,
+     0.11,
+     0.51,
+     -0.28,
+     -0.26
+    ]
+   },
+   "clock_stop": {
+    "expected": 11,
+    "detected": 11,
+    "missed": 0,
+    "false": 1,
+    "mean_latency": 1.5827272727272728,
+    "max_latency": 1.95,
+    "latencies": [
+     1.62,
+     1.63,
+     1.53,
+     1.92,
+     1.77,
+     1.95,
+     1.7,
+     1.73,
+     0.54,
+     1.51,
+     1.51
+    ]
+   },
+   "score_home": {
+    "expected": 1,
+    "detected": 1,
+    "missed": 0,
+    "false": 0,
+    "mean_latency": 0.81,
+    "max_latency": 0.81,
+    "latencies": [
+     0.81
+    ]
+   }
+  },
+  "wrong_readings": [],
+  "game_events": [
+   {
+    "media": 161.42,
+    "kind": "clock_stop",
+    "value": 1,
+    "text": "Clock stopped at 8:51"
+   },
+   {
+    "media": 188.99,
+    "kind": "clock_start",
+    "value": 1,
+    "text": "Clock started at 8:50"
+   },
+   {
+    "media": 233.43,
+    "kind": "clock_stop",
+    "value": 1,
+    "text": "Clock stopped at 8:07"
+   },
+   {
+    "media": 255.02,
+    "kind": "clock_start",
+    "value": 1,
+    "text": "Clock started at 8:06"
+   },
+   {
+    "media": 352.33,
+    "kind": "clock_stop",
+    "value": 1,
+    "text": "Clock stopped at 6:30"
+   },
+   {
+    "media": 386.55,
+    "kind": "clock_start",
+    "value": 1,
+    "text": "Clock started at 6:29"
+   },
+   {
+    "media": 462.72,
+    "kind": "clock_stop",
+    "value": 1,
+    "text": "Clock stopped at 5:15"
+   },
+   {
+    "media": 483.72,
+    "kind": "clock_start",
+    "value": 1,
+    "text": "Clock started at 5:14"
+   },
+   {
+    "media": 490.97,
+    "kind": "clock_stop",
+    "value": 1,
+    "text": "Clock stopped at 5:09"
+   },
+   {
+    "media": 496.31,
+    "kind": "score_home",
+    "value": 2,
+    "text": "Home +1 (2\u20130)"
+   },
+   {
+    "media": 521.56,
+    "kind": "clock_start",
+    "value": 1,
+    "text": "Clock started at 5:08"
+   },
+   {
+    "media": 607.35,
+    "kind": "clock_stop",
+    "value": 1,
+    "text": "Clock stopped at 3:45"
+   },
+   {
+    "media": 630.73,
+    "kind": "clock_start",
+    "value": 1,
+    "text": "Clock started at 3:44"
+   },
+   {
+    "media": 659.52,
+    "kind": "clock_stop",
+    "value": 1,
+    "text": "Clock stopped at 3:17"
+   },
+   {
+    "media": 660.13,
+    "kind": "clock_start",
+    "value": 1,
+    "text": "Clock started at 3:15"
+   },
+   {
+    "media": 703.3,
+    "kind": "clock_stop",
+    "value": 1,
+    "text": "Clock stopped at 2:33"
+   },
+   {
+    "media": 743.52,
+    "kind": "clock_start",
+    "value": 1,
+    "text": "Clock started at 2:32"
+   },
+   {
+    "media": 786.13,
+    "kind": "clock_stop",
+    "value": 1,
+    "text": "Clock stopped at 1:51"
+   },
+   {
+    "media": 814.91,
+    "kind": "clock_start",
+    "value": 1,
+    "text": "Clock started at 1:50"
+   },
+   {
+    "media": 837.14,
+    "kind": "clock_stop",
+    "value": 1,
+    "text": "Clock stopped at 1:29"
+   },
+   {
+    "media": 838.31,
+    "kind": "clock_start",
+    "value": 1,
+    "text": "Clock started at 1:28"
+   },
+   {
+    "media": 844.31,
+    "kind": "clock_stop",
+    "value": 1,
+    "text": "Clock stopped at 1:23"
+   },
+   {
+    "media": 874.32,
+    "kind": "clock_start",
+    "value": 1,
+    "text": "Clock started at 1:22"
+   },
+   {
+    "media": 880.31,
+    "kind": "clock_stop",
+    "value": 1,
+    "text": "Clock stopped at 1:18"
+   },
+   {
+    "media": 896.54,
+    "kind": "clock_start",
+    "value": 1,
+    "text": "Clock started at 1:17"
+   }
+  ]
+ }
+}

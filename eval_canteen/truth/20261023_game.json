@@ -1,0 +1,162 @@
+{
+  "_comment": "Hand-verified ground truth for the 2026-10-23 Amherst Stadium U11 game. Every entry was checked by extracting the frame with `ffmpeg -ss <media> -i <clip> -frames:v 1` and viewing it. media = seconds into the recording (the segment's first frame is 0.0).",
+  "game": {
+    "date": "2026-10-23",
+    "venue": "Amherst Stadium",
+    "home": "U11A/B Shediac/Cap-Pele Predators",
+    "away": "Cumberland Ramblers",
+    "grayjay_id": 135965,
+    "source": "https://www.grayjay.app (Bluenose board data.json), the homegrown reader journal, and reviewed frames"
+  },
+  "clips": {
+    "20261023T091022.mkv": {
+      "segment_start_adt": "2026-10-23T09:10:22.000-03:00",
+      "transitions": [
+        {
+          "kind": "score_home",
+          "media": 495.5,
+          "value": 2,
+          "verified": true,
+          "note": "home 1 at 495.4, 2 at 495.6 (frames 495.2/495.4/495.6/495.8/496.0); the board clock stays 5:09 through the stoppage"
+        },
+        {
+          "kind": "score_home",
+          "media": 1254.1,
+          "value": 3,
+          "verified": true,
+          "note": "home 2 at 1254.0, 3 at 1254.2 (frames)"
+        },
+        {
+          "kind": "period_start",
+          "media": 1042.6,
+          "value": 2,
+          "verified": true,
+          "note": "P1 0.0 at 1042.4, P2 15.00 at 1042.6 (frames); the journal's P2 '15:00 at 1043.2' is ~0.5 s later"
+        },
+        {
+          "kind": "clock_stop",
+          "media": 1042.6,
+          "value": 0,
+          "verified": true,
+          "note": "P1's clock reaches 0.0 and the board switches to P2 at 1042.6; the clock then holds at 15:00"
+        },
+        {
+          "kind": "clock_start",
+          "media": 1141.0,
+          "value": 900,
+          "verified": true,
+          "note": "P2's clock counts from 14:59 at 1141.4 (frames); the journal's 15:00 at 1143.2 is stale"
+        },
+        {
+          "kind": "clock_stop",
+          "media": 836.6,
+          "value": 89,
+          "verified": true,
+          "note": "short stoppage: 1:29 at media 836 and 837 (frames), 1:28 at 838; the board held 1.5 s"
+        },
+        {
+          "kind": "clock_start",
+          "media": 837.8,
+          "value": 88,
+          "verified": true,
+          "note": "the clock resumes at 1:28 (frame at 838)"
+        }
+      ],
+      "clock_stops": [
+        [
+          159.8,
+          188.8
+        ],
+        [
+          231.8,
+          254.8
+        ],
+        [
+          350.8,
+          386.6
+        ],
+        [
+          460.8,
+          483.8
+        ],
+        [
+          489.2,
+          521.8
+        ],
+        [
+          605.4,
+          630.8
+        ],
+        [
+          701.6,
+          743.8
+        ],
+        [
+          784.4,
+          814.8
+        ],
+        [
+          836.6,
+          837.8
+        ],
+        [
+          842.8,
+          874.6
+        ],
+        [
+          878.8,
+          896.8
+        ],
+        [
+          1042.6,
+          1141.0
+        ],
+        [
+          1194.6,
+          1227.8
+        ],
+        [
+          1254.6,
+          1283.8
+        ],
+        [
+          1292.4,
+          1321.8
+        ],
+        [
+          1381.8,
+          1405.8
+        ],
+        [
+          1538.8,
+          1565.4
+        ],
+        [
+          1639.6,
+          1678.8
+        ],
+        [
+          1737.8,
+          1778.4
+        ]
+      ],
+      "clock_stop_note": "Derived from journal gaps where the clock moved <=1 s across >=6 s of media (the clock runs 1:1 elsewhere in the journal), and spot-checked on frames at 170, 240, 365, 470, 505, 615, 720, 795, 855, 1160, 1200, 1240, 1300, 1390, 1550, 1650 and 1750 s (all showing a standing clock). The 489-522 s span was merged across the 5:09 goal stoppage. The P2 clock holding at 15:00 from media 1042 to 1141 (frames at 1060, 1090, 1120, 1138: all 15:00; 14:59 at 1142) is a stop too, although the journal shows no poll there.",
+      "excluded_gaps": [
+        {
+          "span": [
+            913.6,
+            1041.8
+          ],
+          "why": "intermission: the board clock is blank, then counts down the warm-up (18.0 at media 1000)"
+        },
+        {
+          "span": [
+            13.8,
+            16.8
+          ],
+          "why": "clock moved 3 s across a 3 s gap: running"
+        }
+      ]
+    }
+  }
+}
