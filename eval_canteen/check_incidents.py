@@ -121,14 +121,6 @@ def _score(game, side):
     return value.get("score") if isinstance(value, dict) else value
 
 
-def _period_number(label):
-    """The period number a "Start of P1"/"End of P3" label names, or None."""
-    match = re.search(r"(?:^|\b)(?:P|Q|H|OT|SET)\s*(\d*)", label or "", re.I)
-    if not match:
-        return None
-    return int(match.group(1)) if match.group(1) else "OT"
-
-
 def check_a(report):
     span = INCIDENTS["a"]
     rows = []
