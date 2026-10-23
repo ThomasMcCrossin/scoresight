@@ -37,7 +37,11 @@ from game_state import GameState
 from overlay_feed import feed as overlay_feed
 from overlays import router as overlays_router
 from sc_logging import file_handler, logger
-from text_detection_target import TextDetectionTargetWithResult
+from text_detection_target import (
+    TextDetectionTargetWithResult,
+    captured_at_text,
+    latency_ms_value,
+)
 
 DEFAULT_PORT = 18099
 HOST = "0.0.0.0"
@@ -57,6 +61,10 @@ class Reading(NamedTuple):
     y: float
     width: float
     height: float
+    # when the frame it was read from was captured (ISO-8601, with its UTC
+    # offset), and how long from reading that frame to publishing this reading
+    captured_at: str | None = None
+    latency_ms: float | None = None
 
     @property
     def is_good(self) -> bool:
@@ -74,6 +82,8 @@ class Reading(NamedTuple):
                 "width": self.width,
                 "height": self.height,
             },
+            "captured_at": self.captured_at,
+            "latency_ms": self.latency_ms,
         }
 
 
@@ -412,6 +422,8 @@ def update_http_server(results: list[TextDetectionTargetWithResult]):
             y=r.y(),
             width=r.width(),
             height=r.height(),
+            captured_at=captured_at_text(getattr(r, "captured_at", None)),
+            latency_ms=latency_ms_value(getattr(r, "latency_ms", None)),
         )
         for r in results
     )
@@ -426,6 +438,94 @@ def update_http_server(results: list[TextDetectionTargetWithResult]):
     _last_good_values = tuple((r.name, _last_good.get(r.name, "")) for r in readings)
     # the overlays' live values (pushes only what changed)
     overlay_feed.publish(_readings)
+
+
+# --- /health ------------------------------------------------------------------
+
+# A ScoreSight that hasn't processed a frame for longer than this (or than
+# HEALTH_STALE_INTERVALS detection intervals, if that is longer) is stale.
+HEALTH_STALE_SECONDS = 5.0
+HEALTH_STALE_INTERVALS = 3.0
+
+
+@dataclass(frozen=True)
+class HealthSnapshot:
+    """What /health reports, from the window's own knowledge: updated once a
+    second (MainWindow.publishHealth) and when a source opens or closes."""
+
+    # the last OCR cycle that published readings, when it ran (ISO-8601), and
+    # on the monotonic clock (the request handler computes its age)
+    last_cycle_at: str | None = None
+    last_cycle_monotonic: float | None = None
+    # the capture loop's frame rate, the source's own, failed reads in a row
+    fps: float | None = None
+    nominal_fps: float | None = None
+    retry_count: int = 0
+    # the time between detections (from Detections / s): what makes a reading
+    # stale
+    detection_interval_s: float | None = None
+    # {"model": ..., "state": ..., "error": ..., "auto_model": ...}
+    engine: dict | None = None
+    source_open: bool = False
+    source_error: str | None = None
+
+
+# Replaced as a whole by update_health() (GUI thread); the request handlers
+# only read it.
+_health = HealthSnapshot()
+
+
+def update_health(snapshot: HealthSnapshot) -> None:
+    """Publish what /health reports."""
+    global _health
+    _health = snapshot
+
+
+def stale_after_seconds(snapshot: HealthSnapshot) -> float:
+    """How long without a processed frame makes the readings stale: the larger
+    of HEALTH_STALE_SECONDS and HEALTH_STALE_INTERVALS detection intervals."""
+    interval = snapshot.detection_interval_s
+    if not interval or interval <= 0:
+        return HEALTH_STALE_SECONDS
+    return max(HEALTH_STALE_SECONDS, HEALTH_STALE_INTERVALS * interval)
+
+
+def health_dict(snapshot: HealthSnapshot | None = None, now: float | None = None):
+    """The /health body for a snapshot (the latest one by default)."""
+    snapshot = _health if snapshot is None else snapshot
+    now = time.monotonic() if now is None else now
+    age = None
+    if snapshot.last_cycle_monotonic is not None:
+        age = round(max(0.0, now - snapshot.last_cycle_monotonic), 3)
+    stale_after = stale_after_seconds(snapshot)
+    stale = age is None or age > stale_after
+    ok = bool(snapshot.source_open) and not stale and not snapshot.source_error
+    return {
+        "ok": ok,
+        "last_cycle_at": snapshot.last_cycle_at,
+        "age_s": age,
+        "stale": stale,
+        "stale_after_s": round(stale_after, 3),
+        "fps": None if snapshot.fps is None else round(float(snapshot.fps), 2),
+        "nominal_fps": (
+            None
+            if snapshot.nominal_fps is None
+            else round(float(snapshot.nominal_fps), 2)
+        ),
+        "retry_count": snapshot.retry_count,
+        "engine": dict(snapshot.engine) if snapshot.engine else None,
+        "source_open": snapshot.source_open,
+        "source_error": snapshot.source_error,
+    }
+
+
+@app.get("/health")
+async def get_health():
+    """Whether ScoreSight is reading: whether a source is open, when the last
+    reading cycle ran (and how long ago), the frame rates, the failed reads in a
+    row and the OCR engine's state. "ok" is false while the readings are stale,
+    the source failed or no source is open."""
+    return JSONResponse(content=health_dict(), headers=NO_CACHE_HEADERS)
 
 
 # --- server lifecycle -----------------------------------------------------

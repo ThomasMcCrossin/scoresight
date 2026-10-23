@@ -156,10 +156,13 @@ Plastic lap cards turned by hand, as at a velodrome, read well with **PP-OCR (ac
   ],
   "line_score_complete": true,
   "final": false,
+  "captured_at": "2026-10-23T09:10:22.500-03:00",
+  "latency_ms": 38.4,
   "events": [
     {"id": 41, "kind": "score", "text": "Home +3 (24–21)", "team": "home", "delta": 3,
      "value": 24, "home": 24, "away": 21, "laps_to_go": null, "laps_completed": null,
-     "period": 2, "period_label": "Q2", "clock": "4:32", "at": 1760300000.5}
+     "period": 2, "period_label": "Q2", "clock": "4:32", "at": 1760300000.5,
+     "captured_at": "2026-10-23T09:10:22.500-03:00", "latency_ms": 38.4}
   ]
 }
 ```
@@ -168,6 +171,7 @@ Plastic lap cards turned by hand, as at a velodrome, read well with **PP-OCR (ac
 - `kind` is one of `score`, `period_start`, `period_end`, `final`, `clock_start`, `clock_stop`, `fouls` or `timeouts`, and in a lap race `lap`, `final_lap`, `finish` or `new_race`. A `lap` event's `delta` is the laps raced (1, or negative for a correction) and its `value` the lap counter's; every event has the lap board then in `laps_to_go` and `laps_completed`.
 - `laps` is the lap board as read (`null` for what isn't on it), and `final` is `true` once a race has finished, until the next race.
 - `at` is the time in seconds since 1970 (UTC).
+- `captured_at` is when the frame that carried the cycle's values was captured, as an ISO-8601 time with its UTC offset, and `latency_ms` is how long from reading that frame to publishing the readings. The game's own `captured_at`/`latency_ms` are the last cycle it followed; each event carries the ones of the cycle that made it. Both are `null` before the first cycle.
 
 Like the other endpoints, `/game` doesn't change while the outputs are paused.
 

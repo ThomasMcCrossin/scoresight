@@ -49,7 +49,11 @@ from sports import (
     TOTAL_LAPS,
     SportProfile,
 )
-from text_detection_target import TextDetectionTargetWithResult
+from text_detection_target import (
+    TextDetectionTargetWithResult,
+    captured_at_text,
+    latency_ms_value,
+)
 
 _GOOD_STATES = (
     TextDetectionTargetWithResult.ResultState.Success,
@@ -187,6 +191,10 @@ class GameEvent:
     # the lap board then (a lap race)
     laps_to_go: int | None = None
     laps_completed: int | None = None
+    # the cycle that made the event: when its frame was captured (ISO-8601,
+    # with its offset) and how long from reading it to publishing it
+    captured_at: str | None = None
+    latency_ms: float | None = None
 
     def text(self) -> str:
         """In English (the log, /game); the UI has its own translated text."""
@@ -264,6 +272,10 @@ class GameState:
     line_score: tuple[LinePeriod, ...] = ()
     line_score_complete: bool = False
     final: bool = False
+    # the last cycle the game followed: when its frame was captured (ISO-8601,
+    # with its offset) and how long from reading it to publishing it
+    captured_at: str | None = None
+    latency_ms: float | None = None
     events: tuple[GameEvent, ...] = ()
 
     def to_dict(self, since: int = 0) -> dict:
@@ -294,6 +306,8 @@ class GameState:
             "line_score": [asdict(period) for period in self.line_score],
             "line_score_complete": self.line_score_complete,
             "final": self.final,
+            "captured_at": self.captured_at,
+            "latency_ms": self.latency_ms,
             "events": [event.to_dict() for event in self.events if event.id > since],
         }
 
@@ -415,6 +429,9 @@ class GameEngine:
         self._against = 0  # clock moves against the direction, in a row
         self._last_update_at: float | None = None
         self._interval: float | None = None  # between updates (average)
+        # the last cycle's capture time (ISO-8601) and reading latency (ms)
+        self._captured_at: str | None = None
+        self._latency_ms: float | None = None
         self._roles_for: tuple[tuple[str, ...], dict[str, str]] = ((), {})
 
     # --- the readings ---------------------------------------------------------
@@ -433,6 +450,12 @@ class GameEngine:
                 gap if self._interval is None else (0.8 * self._interval + 0.2 * gap)
             )
         self._last_update_at = now
+        for result in results:
+            captured = captured_at_text(getattr(result, "captured_at", None))
+            if captured is not None:
+                self._captured_at = captured
+                self._latency_ms = latency_ms_value(getattr(result, "latency_ms", None))
+                break
         roles = self.roles(result.name for result in results)
         by_name = {result.name: result for result in results}
         texts: dict[str, str] = {}
@@ -825,6 +848,8 @@ class GameEngine:
             period=period,
             period_label=self.sport.period_label(period),
             clock=self._trackers[CLOCK].text,
+            captured_at=self._captured_at,
+            latency_ms=self._latency_ms,
             **values,
         )
         self._next_id += 1
@@ -863,5 +888,7 @@ class GameEngine:
             ),
             line_score_complete=bool(self._started_at_zero),
             final=self._final,
+            captured_at=self._captured_at,
+            latency_ms=self._latency_ms,
             events=tuple(self._events),
         )

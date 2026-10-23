@@ -76,10 +76,12 @@ from game_ui_handler import GameUIHandler
 from get_camera_info import get_camera_info
 from held_values import RELEASE, HeldValues, HoldValueDialog
 from http_server import (
+    HealthSnapshot,
     get_http_server_port,
     http_server_stats,
     start_http_server,
     update_game_state,
+    update_health,
     update_http_server,
 )
 import ocr_models
@@ -165,7 +167,11 @@ from obs_websocket import (
 import startup_timing
 from tcp_ui_handler import TcpUIHandler
 from template_fields import apply_template_fields, is_template_field
-from text_detection_target import TextDetectionTarget, TextDetectionTargetWithResult
+from text_detection_target import (
+    TextDetectionTarget,
+    TextDetectionTargetWithResult,
+    iso_from_timestamp,
+)
 from sc_logging import logger
 from uno_ui_handler import UNOUIHandler
 import app_update
@@ -1797,6 +1803,7 @@ class MainWindow(QMainWindow):
         self.gameUiHandler.refresh()
         snapshot = self.statusSnapshot(now, outputs)
         self.statusBarWidgets.update(snapshot)
+        self.publishHealth(snapshot)
         self.updateOcrModelAutoText(snapshot)
         self.updateImageCleanupEngine(snapshot)
         self.updatePpocrCpuHint(snapshot)
@@ -1806,6 +1813,38 @@ class MainWindow(QMainWindow):
         # stale after 20 detection cycles (at least 10 s)
         self.readingDelegate.setStaleAfter(20.0 / max(cadence, 0.1))
         self.ui.tableWidget_boxes.viewport().update()
+
+    def publishHealth(self, snapshot: StatusSnapshot):
+        """Publish what GET /health reports. Once a second is enough: only the
+        age of the last reading changes while nothing else does."""
+        viewer = self.image_viewer
+        thread = getattr(viewer, "timerThread", None) if viewer is not None else None
+        engine = None
+        if snapshot.ocr_model is not None or snapshot.ocr_engine_state is not None:
+            engine = {
+                "model": snapshot.ocr_model,
+                "state": snapshot.ocr_engine_state,
+                "error": snapshot.ocr_engine_error,
+                "auto_model": snapshot.ocr_auto_model,
+            }
+        interval_ms = getattr(thread, "update_frame_interval", None)
+        update_health(
+            HealthSnapshot(
+                last_cycle_at=iso_from_timestamp(
+                    getattr(thread, "last_cycle_wall_time", None)
+                ),
+                last_cycle_monotonic=getattr(thread, "last_cycle_time", None),
+                fps=getattr(thread, "fps", None),
+                nominal_fps=getattr(thread, "nominal_fps", None),
+                retry_count=getattr(thread, "retry_count", 0) or 0,
+                detection_interval_s=(
+                    None if not interval_ms else float(interval_ms) / 1000.0
+                ),
+                engine=engine,
+                source_open=viewer is not None,
+                source_error=str(self.sourceError) if self.sourceError else None,
+            )
+        )
 
     def statusSnapshot(
         self,

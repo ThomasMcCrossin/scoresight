@@ -63,14 +63,126 @@ def test_json(base_url, publish):
             "text": "12",
             "state": "Success",
             "rect": {"x": 10.0, "y": 20.0, "width": 30.0, "height": 40.0},
+            "captured_at": None,
+            "latency_ms": None,
         },
         {
             "name": "Time",
             "text": "SIM",
             "state": "FailedFilter",
             "rect": {"x": 1.0, "y": 2.0, "width": 3.0, "height": 4.0},
+            "captured_at": None,
+            "latency_ms": None,
         },
     ]
+
+
+def test_json_carries_when_each_frame_was_captured_and_how_late(base_url, make_result):
+    """captured_at is the wall-clock time of the frame the readings came from
+    (ISO-8601 with its offset) and latency_ms is how long from reading that
+    frame to publishing them, so a consumer can tell what it is looking at and
+    how old it is."""
+    from datetime import datetime, timezone
+
+    captured = datetime(2026, 10, 23, 9, 10, 22, 500_000, tzinfo=timezone.utc)
+    http_server.update_http_server(
+        [make_result("Home Score", "12", captured_at=captured, latency_ms=42.25)]
+    )
+    try:
+        [reading] = get(base_url, "/json").json()
+        assert reading["captured_at"] == "2026-10-23T09:10:22.500+00:00"
+        assert reading["latency_ms"] == 42.2
+        # a reading with no provenance says so
+        http_server.update_http_server([make_result("Away Score", "3")])
+        [reading] = get(base_url, "/json").json()
+        assert reading["captured_at"] is None
+        assert reading["latency_ms"] is None
+    finally:
+        http_server.update_http_server([])
+
+
+# --- /health ----------------------------------------------------------------------
+
+
+def test_health_is_not_ok_without_a_source(base_url):
+    http_server.update_health(http_server.HealthSnapshot())
+    try:
+        body = get(base_url, "/health").json()
+        assert body["ok"] is False
+        assert body["source_open"] is False
+        assert body["stale"] is True
+        assert body["age_s"] is None
+        assert body["engine"] is None
+    finally:
+        http_server.update_health(http_server.HealthSnapshot())
+
+
+def test_health_reports_a_fresh_running_source(base_url):
+    import time
+
+    now = time.monotonic()
+    http_server.update_health(
+        http_server.HealthSnapshot(
+            last_cycle_at="2026-10-23T09:10:22.500+00:00",
+            last_cycle_monotonic=now,
+            fps=5.0,
+            nominal_fps=5.0,
+            retry_count=0,
+            detection_interval_s=0.5,
+            engine={"model": "ppocr:auto", "state": "ready"},
+            source_open=True,
+        )
+    )
+    try:
+        body = get(base_url, "/health").json()
+        assert body["ok"] is True
+        assert body["stale"] is False
+        assert 0 <= body["age_s"] < 1
+        assert body["fps"] == 5.0 and body["nominal_fps"] == 5.0
+        assert body["retry_count"] == 0
+        assert body["last_cycle_at"] == "2026-10-23T09:10:22.500+00:00"
+        assert body["engine"] == {"model": "ppocr:auto", "state": "ready"}
+    finally:
+        http_server.update_health(http_server.HealthSnapshot())
+
+
+def test_health_is_not_ok_when_the_readings_are_stale():
+    """No processed frame for more than 3 detection intervals (or 5 s, if that
+    is longer) is stale: the source delivers nothing ScoreSight can read."""
+    import time
+
+    now = time.monotonic()
+    # 10 detections per second: the floor of 5 s applies
+    snapshot = http_server.HealthSnapshot(
+        last_cycle_monotonic=now - 4.0, detection_interval_s=0.1, source_open=True
+    )
+    assert http_server.health_dict(snapshot, now)["ok"] is True
+    assert http_server.health_dict(snapshot, now)["stale_after_s"] == 5.0
+    stale = http_server.HealthSnapshot(
+        last_cycle_monotonic=now - 6.0, detection_interval_s=0.1, source_open=True
+    )
+    body = http_server.health_dict(stale, now)
+    assert body["ok"] is False and body["stale"] is True
+    # 0.1 detections per second: 3 intervals (30 s) is the limit
+    slow = http_server.HealthSnapshot(
+        last_cycle_monotonic=now - 20.0, detection_interval_s=10.0, source_open=True
+    )
+    assert http_server.health_dict(slow, now)["ok"] is True
+    assert http_server.health_dict(slow, now)["stale_after_s"] == 30.0
+
+
+def test_health_is_not_ok_when_the_source_failed():
+    import time
+
+    body = http_server.health_dict(
+        http_server.HealthSnapshot(
+            last_cycle_monotonic=time.monotonic(),
+            source_open=True,
+            source_error="Error: Unable to play video stream",
+        )
+    )
+    assert body["ok"] is False
+    assert body["source_error"] == "Error: Unable to play video stream"
 
 
 def test_pivot_variants_contain_only_good_readings(base_url, publish):

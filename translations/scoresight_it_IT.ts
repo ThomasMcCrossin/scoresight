@@ -162,7 +162,7 @@ ScoreSight keeps running. You can download the new version from the release page
     </message>
     <message>
         <location filename="../src/box_settings_ui_handler.py" line="429"/>
-        <location filename="../src/mainwindow.py" line="2763"/>
+        <location filename="../src/mainwindow.py" line="2802"/>
         <source>This field is built from other fields (see Template): it has no box on the picture and no reading settings.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Questo campo è composto da altri campi (vedi Modello): non ha un riquadro sull&apos;immagine né impostazioni di lettura.</translation>
@@ -661,31 +661,31 @@ Risoluzione: {width}×{height}</translation>
 <context>
     <name>HoldValue</name>
     <message>
-        <location filename="../src/held_values.py" line="175"/>
+        <location filename="../src/held_values.py" line="181"/>
         <source>Hold value: {name}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Fissa valore: {name}</translation>
     </message>
     <message>
-        <location filename="../src/held_values.py" line="181"/>
+        <location filename="../src/held_values.py" line="187"/>
         <source>Every output gets this value instead of the readings of “{name}”, until you release it. The readings go on in the background.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Ogni uscita riceve questo valore al posto delle letture di “{name}”, finché non lo rilasci. Le letture continuano in background.</translation>
     </message>
     <message>
-        <location filename="../src/held_values.py" line="193"/>
+        <location filename="../src/held_values.py" line="199"/>
         <source>Value to send</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Valore da inviare</translation>
     </message>
     <message>
-        <location filename="../src/held_values.py" line="199"/>
+        <location filename="../src/held_values.py" line="205"/>
         <source>Hold</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Fissa</translation>
     </message>
     <message>
-        <location filename="../src/held_values.py" line="205"/>
+        <location filename="../src/held_values.py" line="211"/>
         <source>Release</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Rilascia</translation>
@@ -1086,7 +1086,7 @@ Risoluzione: {width}×{height}</translation>
     <message>
         <location filename="../src/mainwindow.ui" line="94"/>
         <location filename="../src/mainwindow.ui" line="5101"/>
-        <location filename="../src/mainwindow.py" line="2462"/>
+        <location filename="../src/mainwindow.py" line="2501"/>
         <source>Pause outputs</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Sospendi uscite</translation>
@@ -1334,7 +1334,7 @@ Risoluzione: {width}×{height}</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3959"/>
-        <location filename="../src/mainwindow.py" line="3442"/>
+        <location filename="../src/mainwindow.py" line="3481"/>
         <source>Connect to the WebSocket server of OBS Studio</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Connettiti al server WebSocket di OBS Studio</translation>
@@ -1738,7 +1738,7 @@ Risoluzione: {width}×{height}</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="823"/>
-        <location filename="../src/mainwindow.py" line="4460"/>
+        <location filename="../src/mainwindow.py" line="4499"/>
         <source>Correct the perspective: click the 4 corners of the scoreboard</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Correggi la prospettiva: fai clic sui 4 angoli del tabellone</translation>
@@ -1833,7 +1833,7 @@ Risoluzione: {width}×{height}</translation>
     <message>
         <location filename="../src/mainwindow.ui" line="1271"/>
         <location filename="../src/mainwindow.ui" line="1327"/>
-        <location filename="../src/mainwindow.py" line="4406"/>
+        <location filename="../src/mainwindow.py" line="4445"/>
         <source>Cancel</source>
         <translation type="unfinished">Annulla</translation>
     </message>
@@ -2424,7 +2424,7 @@ Risoluzione: {width}×{height}</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1617"/>
-        <location filename="../src/mainwindow.py" line="2769"/>
+        <location filename="../src/mainwindow.py" line="2808"/>
         <source>Select a field, then drag over its numbers on the picture.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Seleziona un campo, poi trascina sui suoi numeri nell&apos;immagine.</translation>
@@ -2477,7 +2477,7 @@ Risoluzione: {width}×{height}</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="2995"/>
-        <location filename="../src/mainwindow.py" line="2226"/>
+        <location filename="../src/mainwindow.py" line="2265"/>
         <source>The OCR model that reads every box, not only the selected one. PP-OCR (automatic) reads with PP-OCR (accurate) while this computer keeps up, and with PP-OCR (fast), which needs about a fifth of the CPU, when it doesn&apos;t. The Tesseract models use the boxes&apos; Image cleanup settings; Load external Tesseract model... reads a .traineddata file.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Il modello OCR che legge ogni riquadro, non solo quello selezionato. PP-OCR (automatico) legge con PP-OCR (preciso) finché questo computer sta al passo, altrimenti con PP-OCR (veloce), che richiede circa un quinto della CPU. I modelli Tesseract usano le impostazioni Pulizia immagine dei riquadri; Carica modello Tesseract esterno... legge un file .traineddata.</translation>
@@ -2925,14 +2925,14 @@ Risoluzione: {width}×{height}</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4996"/>
-        <location filename="../src/mainwindow.py" line="2805"/>
+        <location filename="../src/mainwindow.py" line="2844"/>
         <source>Hold value...</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Fissa valore...</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="4999"/>
-        <location filename="../src/mainwindow.py" line="2893"/>
+        <location filename="../src/mainwindow.py" line="2932"/>
         <source>Send a value you type to every output instead of this field&apos;s readings, until you release it</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Invia a ogni uscita un valore che digiti al posto delle letture di questo campo, finché non lo rilasci</translation>
@@ -3176,7 +3176,7 @@ Risoluzione: {width}×{height}</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="521"/>
-        <location filename="../src/mainwindow.py" line="4217"/>
+        <location filename="../src/mainwindow.py" line="4256"/>
         <source>The video source: a camera, capture card or NDI source, a video file, a stream URL or a screen capture</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">La sorgente video: una telecamera, una scheda di acquisizione o una sorgente NDI, un file video, l&apos;URL di uno stream o una cattura dello schermo</translation>
@@ -3234,7 +3234,7 @@ Risoluzione: {width}×{height}</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3974"/>
-        <location filename="../src/mainwindow.py" line="3440"/>
+        <location filename="../src/mainwindow.py" line="3479"/>
         <source>Connect OBS</source>
         <translation>Connetti OBS</translation>
     </message>
@@ -3316,8 +3316,8 @@ Risoluzione: {width}×{height}</translation>
         <location filename="../src/mainwindow.ui" line="71"/>
         <location filename="../src/mainwindow.ui" line="3637"/>
         <location filename="../src/mainwindow.ui" line="4736"/>
-        <location filename="../src/mainwindow.py" line="1132"/>
-        <location filename="../src/mainwindow.py" line="3167"/>
+        <location filename="../src/mainwindow.py" line="1138"/>
+        <location filename="../src/mainwindow.py" line="3206"/>
         <source>Fields</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Campi</translation>
@@ -3363,7 +3363,7 @@ Risoluzione: {width}×{height}</translation>
     <message>
         <location filename="../src/mainwindow.ui" line="292"/>
         <location filename="../src/mainwindow.ui" line="4957"/>
-        <location filename="../src/mainwindow.py" line="3003"/>
+        <location filename="../src/mainwindow.py" line="3042"/>
         <source>Remove from picture</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Rimuovi dall&apos;immagine</translation>
@@ -3382,7 +3382,7 @@ Risoluzione: {width}×{height}</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="318"/>
-        <location filename="../src/mainwindow.py" line="3020"/>
+        <location filename="../src/mainwindow.py" line="3059"/>
         <source>Delete field</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Elimina campo</translation>
@@ -3404,7 +3404,7 @@ Risoluzione: {width}×{height}</translation>
         <translation type="vanished">Cattura Schermo</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1446"/>
+        <location filename="../src/mainwindow.py" line="1452"/>
         <source>Video Settings</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Impostazioni Video</translation>
@@ -3581,7 +3581,7 @@ Risoluzione: {width}×{height}</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="1377"/>
-        <location filename="../src/mainwindow.py" line="2460"/>
+        <location filename="../src/mainwindow.py" line="2499"/>
         <source>Resume outputs</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Riprendi uscite</translation>
@@ -3591,43 +3591,43 @@ Risoluzione: {width}×{height}</translation>
         <translation type="vanished">### Apri una Fotocamera o Carica un File</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1357"/>
+        <location filename="../src/mainwindow.py" line="1363"/>
         <source>&lt;p&gt;The HTTP server is not running: port {port} is already in use or not available.&lt;/p&gt;&lt;p&gt;Close the other program, or start ScoreSight with &lt;b&gt;--port&lt;/b&gt; to use a different port. The log has the details.&lt;/p&gt;</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">&lt;p&gt;Il server HTTP non è in esecuzione: la porta {port} è già in uso o non disponibile.&lt;/p&gt;&lt;p&gt;Chiudi l&apos;altro programma, o avvia ScoreSight con &lt;b&gt;--port&lt;/b&gt; per usare un&apos;altra porta. Il log contiene i dettagli.&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2414"/>
+        <location filename="../src/mainwindow.py" line="2453"/>
         <source>Version {version}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Versione {version}</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1277"/>
+        <location filename="../src/mainwindow.py" line="1283"/>
         <source>System</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Sistema</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="304"/>
+        <location filename="../src/mainwindow.py" line="310"/>
         <source>⌥ Option</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">⌥ Opzione</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="305"/>
+        <location filename="../src/mainwindow.py" line="311"/>
         <source>Alt</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Alt</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1130"/>
+        <location filename="../src/mainwindow.py" line="1136"/>
         <source>Readings</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Letture</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1210"/>
+        <location filename="../src/mainwindow.py" line="1216"/>
         <source>Fields not on the picture: {count} hidden. &lt;a href=&quot;#show&quot;&gt;Show them&lt;/a&gt;</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Campi non sull&apos;immagine nascosti: {count}. &lt;a href=&quot;#show&quot;&gt;Mostrali&lt;/a&gt;</translation>
@@ -3638,518 +3638,518 @@ Risoluzione: {width}×{height}</translation>
         <translation type="obsolete">Carica modello esterno...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1246"/>
+        <location filename="../src/mainwindow.py" line="1252"/>
         <source>Drag to resize the fields list. Double-click to hide or show it.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Trascina per ridimensionare l&apos;elenco dei campi. Fai doppio clic per nasconderlo o mostrarlo.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1252"/>
+        <location filename="../src/mainwindow.py" line="1258"/>
         <source>Drag to resize the Box and Outputs settings. Double-click to hide or show them.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Trascina per ridimensionare le impostazioni Riquadro e Uscite. Fai doppio clic per nasconderle o mostrarle.</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3775"/>
-        <location filename="../src/mainwindow.py" line="1278"/>
+        <location filename="../src/mainwindow.py" line="1284"/>
         <source>Light</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Chiaro</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="3770"/>
-        <location filename="../src/mainwindow.py" line="1279"/>
+        <location filename="../src/mainwindow.py" line="1285"/>
         <source>Dark</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Scuro</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1309"/>
+        <location filename="../src/mainwindow.py" line="1315"/>
         <source>Zoom with Ctrl+scroll or {zoom_in} and {zoom_out}; drag with the middle mouse button to move the picture.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Usa Ctrl+rotellina o {zoom_in} e {zoom_out} per lo zoom; trascina con il tasto centrale del mouse per spostare l&apos;immagine.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1372"/>
+        <location filename="../src/mainwindow.py" line="1378"/>
         <source>&lt;p&gt;From other computers on your network, use {url} instead of http://localhost:{port}.&lt;/p&gt;</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">&lt;p&gt;Dagli altri computer della tua rete, usa {url} invece di http://localhost:{port}.&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1582"/>
+        <location filename="../src/mainwindow.py" line="1588"/>
         <source>Outside the cropped picture: {names}. They read nothing: widen the crop, or remove them from the picture and place them again.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Fuori dall&apos;immagine ritagliata: {names}. Non vengono letti: allarga il ritaglio, o rimuovili dall&apos;immagine e posizionali di nuovo.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="1772"/>
-        <location filename="../src/mainwindow.py" line="1775"/>
+        <location filename="../src/mainwindow.py" line="1778"/>
+        <location filename="../src/mainwindow.py" line="1781"/>
         <source>{value} /s</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">{value} /s</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2131"/>
+        <location filename="../src/mainwindow.py" line="2170"/>
         <source>Load external Tesseract model...</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Carica modello Tesseract esterno...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2139"/>
+        <location filename="../src/mainwindow.py" line="2178"/>
         <source>Read the boxes with a Tesseract .traineddata file</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Leggi i riquadri con un file .traineddata di Tesseract</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2149"/>
+        <location filename="../src/mainwindow.py" line="2188"/>
         <source>A Tesseract model: the boxes&apos; Image cleanup settings prepare their images for it</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Un modello Tesseract: le impostazioni Pulizia immagine dei riquadri ne preparano le immagini</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2159"/>
+        <location filename="../src/mainwindow.py" line="2198"/>
         <source>PaddleOCR PP-OCRv6: accurate while it keeps up with Detections / s on this computer, fast when it doesn&apos;t. The status bar says which one reads and why.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">PaddleOCR PP-OCRv6: preciso finché su questo computer sta al passo con Rilevazioni / s, veloce altrimenti. La barra di stato indica quale legge e perché.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2167"/>
+        <location filename="../src/mainwindow.py" line="2206"/>
         <source>PP-OCR (accurate)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">PP-OCR (preciso)</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2169"/>
+        <location filename="../src/mainwindow.py" line="2208"/>
         <source>PaddleOCR PP-OCRv6 small: reads the most values right, always. It needs about five times the CPU of PP-OCR (fast): on a laptop, 10 boxes read 5 times a second can need more than a core.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">PaddleOCR PP-OCRv6 small: legge correttamente il maggior numero di valori, sempre. Richiede circa cinque volte la CPU di PP-OCR (veloce): su un portatile, 10 riquadri letti 5 volte al secondo possono richiedere più di un core.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2177"/>
+        <location filename="../src/mainwindow.py" line="2216"/>
         <source>PP-OCR (fast)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">PP-OCR (veloce)</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2179"/>
+        <location filename="../src/mainwindow.py" line="2218"/>
         <source>PaddleOCR PP-OCRv6 tiny: about a fifth of PP-OCR (accurate)&apos;s CPU, for many boxes, a high Detections / s or a slow computer; it misreads more of the hard displays (clocks, bulbs, LCDs).</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">PaddleOCR PP-OCRv6 tiny: circa un quinto della CPU di PP-OCR (preciso), per molti riquadri, Rilevazioni / s alte o un computer lento; legge male più spesso i display difficili (cronometri, lampadine, LCD).</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2187"/>
+        <location filename="../src/mainwindow.py" line="2226"/>
         <source>The PP-OCR models aren&apos;t installed. Download them with: {command}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">I modelli PP-OCR non sono installati. Scaricali con: {command}</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2192"/>
+        <location filename="../src/mainwindow.py" line="2231"/>
         <source>PP-OCR needs onnxruntime, which isn&apos;t installed (pip install -r requirements.txt).</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">PP-OCR richiede onnxruntime, che non è installato (pip install -r requirements.txt).</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2207"/>
+        <location filename="../src/mainwindow.py" line="2246"/>
         <source>PP-OCR (automatic: accurate)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">PP-OCR (automatico: preciso)</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2211"/>
+        <location filename="../src/mainwindow.py" line="2250"/>
         <source>PP-OCR (automatic: fast)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">PP-OCR (automatico: veloce)</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2212"/>
+        <location filename="../src/mainwindow.py" line="2251"/>
         <source>PP-OCR (automatic)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">PP-OCR (automatico)</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2321"/>
+        <location filename="../src/mainwindow.py" line="2360"/>
         <source>The OCR can&apos;t keep up</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">L&apos;OCR non riesce a stare al passo</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2324"/>
+        <location filename="../src/mainwindow.py" line="2363"/>
         <source>The boxes are read {rate} times per second instead of {target}.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">I riquadri vengono letti {rate} volte al secondo invece di {target}.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2334"/>
+        <location filename="../src/mainwindow.py" line="2373"/>
         <source>Use PP-OCR (fast)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Usa PP-OCR (veloce)</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2338"/>
+        <location filename="../src/mainwindow.py" line="2377"/>
         <source>Keep PP-OCR (accurate)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Mantieni PP-OCR (preciso)</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2362"/>
+        <location filename="../src/mainwindow.py" line="2401"/>
         <source>Logs</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Log</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2411"/>
+        <location filename="../src/mainwindow.py" line="2450"/>
         <source>About ScoreSight</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Informazioni su ScoreSight</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2489"/>
+        <location filename="../src/mainwindow.py" line="2528"/>
         <source>&lt;b&gt;Outputs paused&lt;/b&gt; since {time}. Your graphics show the last values sent; the readings here keep updating.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">&lt;b&gt;Uscite sospese&lt;/b&gt; dalle {time}. La grafica mostra gli ultimi valori inviati; le letture qui continuano ad aggiornarsi.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2711"/>
+        <location filename="../src/mainwindow.py" line="2750"/>
         <source>Not on the picture yet. Drag over its numbers on the picture, or double-click here to put its box in the middle of the picture.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Non ancora sull&apos;immagine. Trascina sui suoi numeri nell&apos;immagine, o fai doppio clic qui per mettere il suo riquadro al centro dell&apos;immagine.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2717"/>
+        <location filename="../src/mainwindow.py" line="2756"/>
         <source>Built from other fields: it has no box.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Composto da altri campi: non ha un riquadro.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2721"/>
+        <location filename="../src/mainwindow.py" line="2760"/>
         <source>On the picture: drag its box to move it, or {alt}+drag on the picture to draw it again. Right-click for its actions.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Sull&apos;immagine: trascina il suo riquadro per spostarlo, o {alt}+trascina sull&apos;immagine per ridisegnarlo. Clic destro per le sue azioni.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2728"/>
+        <location filename="../src/mainwindow.py" line="2767"/>
         <source>F2 renames it.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">F2 lo rinomina.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2730"/>
+        <location filename="../src/mainwindow.py" line="2769"/>
         <source>Double-click to rename it.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Fai doppio clic per rinominarlo.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2753"/>
+        <location filename="../src/mainwindow.py" line="2792"/>
         <source>Drag on the picture to place it, or double-click the field</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Trascina sull&apos;immagine per posizionarlo, o fai doppio clic sul campo</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2758"/>
+        <location filename="../src/mainwindow.py" line="2797"/>
         <source>Drag the box to move it · {delete} removes it</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Trascina il riquadro per spostarlo · {delete} lo rimuove</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2803"/>
+        <location filename="../src/mainwindow.py" line="2842"/>
         <source>Change held value...</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Cambia valore fissato...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2887"/>
+        <location filename="../src/mainwindow.py" line="2926"/>
         <source>Only custom fields can be renamed or deleted</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Solo i campi personalizzati possono essere rinominati o eliminati</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="2899"/>
+        <location filename="../src/mainwindow.py" line="2938"/>
         <source>Place the field on the picture first</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Prima posiziona il campo sull&apos;immagine</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3004"/>
+        <location filename="../src/mainwindow.py" line="3043"/>
         <source>Remove “{name}” from the picture? Its settings go back to the defaults, so the settings you changed are lost.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Rimuovere “{name}” dall&apos;immagine? Le sue impostazioni tornano ai valori predefiniti, quindi le modifiche che hai fatto vanno perse.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3009"/>
+        <location filename="../src/mainwindow.py" line="3048"/>
         <source>Remove</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Rimuovi</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3021"/>
+        <location filename="../src/mainwindow.py" line="3060"/>
         <source>Delete the field “{name}”? Its box and its settings are deleted too.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Eliminare il campo “{name}”? Vengono eliminati anche il suo riquadro e le sue impostazioni.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3025"/>
+        <location filename="../src/mainwindow.py" line="3064"/>
         <source>Delete</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Elimina</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3151"/>
+        <location filename="../src/mainwindow.py" line="3190"/>
         <source>Window</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Finestra</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3179"/>
+        <location filename="../src/mainwindow.py" line="3218"/>
         <source>Remove the selected field&apos;s box from the picture</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Rimuovi dall&apos;immagine il riquadro del campo selezionato</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3186"/>
+        <location filename="../src/mainwindow.py" line="3225"/>
         <source>Delete the selected custom field (not on the picture)</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Elimina il campo personalizzato selezionato (non sull&apos;immagine)</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3193"/>
+        <location filename="../src/mainwindow.py" line="3232"/>
         <source>Put a field&apos;s box on the picture, or rename a custom field</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Metti il riquadro di un campo sull&apos;immagine, o rinomina un campo personalizzato</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3198"/>
+        <location filename="../src/mainwindow.py" line="3237"/>
         <source>Double-click the field</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Doppio clic sul campo</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3205"/>
+        <location filename="../src/mainwindow.py" line="3244"/>
         <source>Picture</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Immagine</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3245"/>
+        <location filename="../src/mainwindow.py" line="3284"/>
         <source>Connect to OBS</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Connetti a OBS</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3307"/>
-        <location filename="../src/mainwindow.py" line="3433"/>
+        <location filename="../src/mainwindow.py" line="3346"/>
+        <location filename="../src/mainwindow.py" line="3472"/>
         <source>Connecting...</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Connessione...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3354"/>
+        <location filename="../src/mainwindow.py" line="3393"/>
         <source>Cannot connect to OBS</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Impossibile connettersi a OBS</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3424"/>
+        <location filename="../src/mainwindow.py" line="3463"/>
         <source>Change connection...</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Cambia connessione...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3427"/>
+        <location filename="../src/mainwindow.py" line="3466"/>
         <source>Connected to OBS at {target}. Click to connect to another OBS.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Connesso a OBS su {target}. Fai clic per connetterti a un altro OBS.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3435"/>
+        <location filename="../src/mainwindow.py" line="3474"/>
         <source>Connecting to OBS at {target}...</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Connessione a OBS su {target}...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3707"/>
+        <location filename="../src/mainwindow.py" line="3746"/>
         <source>URL Source</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Sorgente URL</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3727"/>
+        <location filename="../src/mainwindow.py" line="3766"/>
         <source>Screen Capture Selection</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Selezione Cattura Schermo</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="3734"/>
+        <location filename="../src/mainwindow.py" line="3773"/>
         <source>Capture the entire screen</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Cattura l&apos;intero schermo</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4229"/>
+        <location filename="../src/mainwindow.py" line="4268"/>
         <source>Video settings: the resolution, frame rate and format of the camera or capture card</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Impostazioni video: risoluzione, frequenza dei fotogrammi e formato della telecamera o della scheda di acquisizione</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4235"/>
+        <location filename="../src/mainwindow.py" line="4274"/>
         <source>Video settings: only for cameras and capture cards</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Impostazioni video: solo per telecamere e schede di acquisizione</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4401"/>
+        <location filename="../src/mainwindow.py" line="4440"/>
         <source>Redo corners…</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Rifai gli angoli…</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4403"/>
+        <location filename="../src/mainwindow.py" line="4442"/>
         <source>Remove correction…</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Rimuovi correzione…</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4419"/>
+        <location filename="../src/mainwindow.py" line="4458"/>
         <source>Remove the 4-corner correction?</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Rimuovere la correzione 4 angoli?</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4420"/>
+        <location filename="../src/mainwindow.py" line="4459"/>
         <source>The picture will no longer be corrected. The boxes were placed on the corrected picture, so they may have to be moved.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">L&apos;immagine non sarà più corretta. I riquadri sono stati posizionati sull&apos;immagine corretta, quindi potrebbe essere necessario spostarli.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4448"/>
+        <location filename="../src/mainwindow.py" line="4487"/>
         <source>Picking the corners: click the 4 corners of the scoreboard. Click here or press Esc to cancel.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Scelta degli angoli: fai clic sui 4 angoli del tabellone. Fai clic qui o premi Esc per annullare.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4454"/>
+        <location filename="../src/mainwindow.py" line="4493"/>
         <source>The perspective is corrected. Click to redo the corners or to remove the correction.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">La prospettiva è corretta. Fai clic per rifare gli angoli o rimuovere la correzione.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4568"/>
+        <location filename="../src/mainwindow.py" line="4607"/>
         <source>Move the boxes?</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Spostare i riquadri?</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4569"/>
+        <location filename="../src/mainwindow.py" line="4608"/>
         <source>Auto layout found {found}. Some of them have boxes on the picture already ({placed}): move those boxes to what it found?</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Posizionamento automatico ha trovato {found}. Alcuni hanno già un riquadro sull&apos;immagine ({placed}): spostare quei riquadri su ciò che ha trovato?</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4577"/>
+        <location filename="../src/mainwindow.py" line="4616"/>
         <source>Move them</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Spostali</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4581"/>
+        <location filename="../src/mainwindow.py" line="4620"/>
         <source>Keep them</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Mantienili</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4600"/>
+        <location filename="../src/mainwindow.py" line="4639"/>
         <source>Reset the crop?</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Reimpostare il ritaglio?</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4601"/>
+        <location filename="../src/mainwindow.py" line="4640"/>
         <source>The whole picture will be read again, and the crop&apos;s values set to 0. The boxes move with it, so they stay over the same digits.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">L&apos;immagine intera verrà di nuovo letta e i valori del ritaglio saranno riportati a 0. I riquadri si spostano con il ritaglio, quindi restano sulle stesse cifre.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4607"/>
+        <location filename="../src/mainwindow.py" line="4646"/>
         <source>Reset crop</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Reimposta ritaglio</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4654"/>
+        <location filename="../src/mainwindow.py" line="4693"/>
         <source>No camera found</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Nessuna telecamera trovata</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4704"/>
+        <location filename="../src/mainwindow.py" line="4743"/>
         <source>Step {number}: done</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Passo {number}: completato</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4706"/>
+        <location filename="../src/mainwindow.py" line="4745"/>
         <source>Step {number}</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Passo {number}</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4916"/>
+        <location filename="../src/mainwindow.py" line="4955"/>
         <source>Rename field</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Rinomina campo</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4922"/>
+        <location filename="../src/mainwindow.py" line="4961"/>
         <source>New name:</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Nuovo nome:</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="4934"/>
+        <location filename="../src/mainwindow.py" line="4973"/>
         <source>There is already a field named “{name}”. Choose another name.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Esiste già un campo chiamato “{name}”. Scegli un altro nome.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="5062"/>
+        <location filename="../src/mainwindow.py" line="5101"/>
         <source>Created the scene “{name}” in OBS.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Scena “{name}” creata in OBS.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="5065"/>
+        <location filename="../src/mainwindow.py" line="5104"/>
         <source>Made the scene “{name}” again: its sources were replaced.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Scena “{name}” ricreata: le sue sorgenti sono state sostituite.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="5069"/>
+        <location filename="../src/mainwindow.py" line="5108"/>
         <source>OBS already has a scene “{name}”: it was kept as it is. Tick Recreate to make it again.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">OBS ha già una scena “{name}”: è stata lasciata com&apos;è. Spunta Ricrea per crearla di nuovo.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="5074"/>
+        <location filename="../src/mainwindow.py" line="5113"/>
         <source>Couldn&apos;t create the scene “{name}”. Tools &gt; View log has the details.</source>
         <translatorcomment>Machine-drafted translation; please review.</translatorcomment>
         <translation type="unfinished">Impossibile creare la scena “{name}”. I dettagli sono in Strumenti &gt; Visualizza log.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="5117"/>
+        <location filename="../src/mainwindow.py" line="5156"/>
         <source>Close ScoreSight?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="5121"/>
+        <location filename="../src/mainwindow.py" line="5160"/>
         <source>Reading stops, and vMix, OBS, the overlays and the other outputs are no longer updated.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="5128"/>
+        <location filename="../src/mainwindow.py" line="5167"/>
         <source>Close</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.py" line="5134"/>
+        <location filename="../src/mainwindow.py" line="5173"/>
         <source>Don&apos;t ask again</source>
         <translation type="unfinished"></translation>
     </message>

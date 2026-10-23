@@ -1,8 +1,60 @@
 from collections import Counter, deque
+from datetime import datetime
 import enum
 
 import numpy as np
 from PySide6.QtCore import QRectF
+
+
+def iso_datetime(value: datetime | None) -> str | None:
+    """value as an ISO-8601 string with its UTC offset ("2026-10-23T09:10:22.500-03:00"),
+    or None. A naive value is taken as local time and given an offset."""
+    if value is None:
+        return None
+    try:
+        if value.tzinfo is None:
+            value = value.astimezone()
+        return value.isoformat(timespec="milliseconds")
+    except (OverflowError, OSError, ValueError):
+        return None
+
+
+def iso_from_timestamp(timestamp: float | None) -> str | None:
+    """A wall-clock time.time() value as an ISO-8601 string with the local UTC
+    offset, or None."""
+    if timestamp is None:
+        return None
+    try:
+        return (
+            datetime.fromtimestamp(timestamp)
+            .astimezone()
+            .isoformat(timespec="milliseconds")
+        )
+    except (OverflowError, OSError, ValueError):
+        return None
+
+
+def captured_at_text(value) -> str | None:
+    """The captured_at of a reading as served: an ISO-8601 string with its
+    offset, or None."""
+    if value is None:
+        return None
+    if isinstance(value, str):
+        return value
+    if isinstance(value, datetime):
+        return iso_datetime(value)
+    return None
+
+
+def latency_ms_value(value) -> float | None:
+    """The latency_ms of a reading as served: milliseconds to one decimal, or
+    None."""
+    if value is None:
+        return None
+    try:
+        return round(max(0.0, float(value)), 1)
+    except (TypeError, ValueError):
+        return None
 
 
 class OCRResultPerCharacterSmoother:
@@ -98,6 +150,8 @@ class TextDetectionTargetWithResult(TextDetectionTarget):
         result_state: ResultState,
         effectiveRect=None,
         extras=None,
+        captured_at: datetime | None = None,
+        latency_ms: float | None = None,
     ):
         super().__init__(
             detection_target.x(),
@@ -111,6 +165,12 @@ class TextDetectionTargetWithResult(TextDetectionTarget):
         self.result_state = result_state
         self.effectiveRect = effectiveRect
         self.extras = extras
+        # When the frame these readings came from was captured (wall clock, so
+        # it can be compared with another program's timestamps) and how long
+        # from reading it to publishing these readings. None when the caller
+        # doesn't know (results made outside a capture cycle).
+        self.captured_at = captured_at
+        self.latency_ms = latency_ms
 
     def to_dict(self):
         return {
@@ -123,6 +183,8 @@ class TextDetectionTargetWithResult(TextDetectionTarget):
                 "width": self.width(),
                 "height": self.height(),
             },
+            "captured_at": captured_at_text(self.captured_at),
+            "latency_ms": latency_ms_value(self.latency_ms),
         }
 
 

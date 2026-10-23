@@ -61,6 +61,7 @@ Anyone who can reach the port can read your scoreboard data. On untrusted networ
 | `GET /csv?pivot` | A header row of box names and one row of good values | `text/csv; charset=utf-8` |
 | `GET /csv?pivot&all` | A header row of every box name and one row of their last good values | `text/csv; charset=utf-8` |
 | `GET /game`, `GET /game?since=<id>` | The [game](game.md#the-game-over-http) (with a sport chosen): scores, clock, period, fouls, timeouts, the points of each period and the event log | `application/json` |
+| `GET /health` | Whether ScoreSight is reading: the last cycle's time and how long ago, the frame rates, the failed reads in a row, the OCR engine's state, the source's error, and `ok` | `application/json` |
 | `GET /scoresight` | A ready-made demo scoreboard page | `text/html` |
 | `GET /overlay`, `/overlay/scorebug`, `/overlay/lower-third`, `/overlay/clock`, `/overlay/field`, `/overlay/custom/...` | Transparent [browser overlays](overlays.md) that update live, and your own overlay pages | `text/html` |
 | `GET /events`, `GET /overlay/state` | The overlays' live values: [Server-Sent Events](overlays.md#live-values-for-developers) pushed on each change, or a JSON snapshot | `text/event-stream`, `application/json` |
@@ -93,18 +94,56 @@ For display, use readings in the `Success` or `SameNoChange` state. The `?pivot`
     "name": "Home Score",
     "text": "65",
     "state": "SameNoChange",
-    "rect": {"x": 525.9, "y": 638.4, "width": 214.6, "height": 175.3}
+    "rect": {"x": 525.9, "y": 638.4, "width": 214.6, "height": 175.3},
+    "captured_at": "2026-10-23T09:10:22.500-03:00",
+    "latency_ms": 38.4
   },
   {
     "name": "Time",
     "text": "4:27",
     "state": "Success",
-    "rect": {"x": 843.6, "y": 663.0, "width": 359.1, "height": 207.2}
+    "rect": {"x": 843.6, "y": 663.0, "width": 359.1, "height": 207.2},
+    "captured_at": "2026-10-23T09:10:22.500-03:00",
+    "latency_ms": 38.4
   }
 ]
 ```
 
 `rect` is the box position in pixels on the processed picture (after rotation, crop and 4-corner correction).
+
+`captured_at` is when the frame these readings came from was captured, as an ISO-8601 time with its UTC offset, and `latency_ms` is how long from reading that frame to publishing these readings (milliseconds, one decimal). Every box of a cycle carries the same two values. They are `null` for readings made outside a capture cycle, so a program can tell when what it got was taken and how old it is. The other endpoints' shapes don't change: `?pivot` values are still plain text.
+
+### `GET /health`
+
+Whether ScoreSight is reading, for monitoring pages and watchdog scripts:
+
+```json
+{
+  "ok": true,
+  "last_cycle_at": "2026-10-23T09:10:22.500-03:00",
+  "age_s": 0.4,
+  "stale": false,
+  "stale_after_s": 5.0,
+  "fps": 5.0,
+  "nominal_fps": 5.0,
+  "retry_count": 0,
+  "engine": {"model": "ppocr:auto", "state": "ready", "error": null, "auto_model": "ppocr:small"},
+  "source_open": true,
+  "source_error": null
+}
+```
+
+| Field | Meaning |
+|---|---|
+| `ok` | Whether readings are coming in: a source is open, the last reading cycle is fresh and the source hasn't failed |
+| `last_cycle_at` | When the last reading cycle ran, as an ISO-8601 time with its UTC offset (`null` before the first) |
+| `age_s` | How long ago that was, in seconds |
+| `stale` | Whether there was no processed frame for longer than `stale_after_s` |
+| `stale_after_s` | The age that makes the readings stale: 3 detection intervals (from **Detections / s**), or 5 seconds if that is longer |
+| `fps`, `nominal_fps` | The capture loop's frame rate, and the source's own when it reports one |
+| `retry_count` | Failed reads in a row (with a source that keeps failing, ScoreSight reconnects or gives up) |
+| `engine` | The OCR engine's state: the model chosen, its state and error, and under PP-OCR (automatic) the model it is reading with. `null` before a source opens |
+| `source_open`, `source_error` | Whether a source is open, and why it failed if it did |
 
 ### `GET /json?pivot`
 

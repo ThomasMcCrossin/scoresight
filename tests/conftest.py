@@ -145,14 +145,23 @@ def make_target():
 def make_result(make_target):
     """Factory for TextDetectionTargetWithResult OCR results.
 
-    make_result("Home Score", "12", state="Success", rect=(x, y, w, h))
+    make_result("Home Score", "12", state="Success", rect=(x, y, w, h),
+                captured_at=<datetime>, latency_ms=12.5)
     """
     from text_detection_target import TextDetectionTargetWithResult
 
     def _make(name, text, state="Success", rect=(1, 2, 3, 4), **settings):
+        provenance = {
+            key: settings.pop(key)
+            for key in ("captured_at", "latency_ms")
+            if key in settings
+        }
         target = make_target(name, rect=rect, **settings)
         return TextDetectionTargetWithResult(
-            target, text, TextDetectionTargetWithResult.ResultState[state]
+            target,
+            text,
+            TextDetectionTargetWithResult.ResultState[state],
+            **provenance,
         )
 
     return _make

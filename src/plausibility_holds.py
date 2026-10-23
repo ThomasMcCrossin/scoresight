@@ -32,7 +32,13 @@ def _replaced(
 ) -> TextDetectionTargetWithResult:
     """A copy of result with another text and state."""
     return TextDetectionTargetWithResult(
-        result, text, state, result.effectiveRect, result.extras
+        result,
+        text,
+        state,
+        result.effectiveRect,
+        result.extras,
+        captured_at=result.captured_at,
+        latency_ms=result.latency_ms,
     )
 
 

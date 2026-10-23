@@ -4619,3 +4619,21 @@ def test_the_close_question(make_window, monkeypatch, button, dont_ask, answer):
     monkeypatch.setattr(QMessageBox, "exec", answer_it)
     assert window.askToClose() == answer
     assert seen == {"question": "Close ScoreSight?", "default": "Cancel"}
+
+
+# --- /health ---------------------------------------------------------------------------
+
+
+def test_the_window_publishes_health(main_window, patched, make_result):
+    """/health comes from what the window knows: no source yet means not ok."""
+    import http_server
+
+    try:
+        main_window.refreshLiveStatus()
+        body = http_server.health_dict()
+        assert body["ok"] is False
+        assert body["source_open"] is False
+        assert body["engine"] is None
+    finally:
+        http_server.update_health(http_server.HealthSnapshot())
+        main_window.close()

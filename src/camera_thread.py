@@ -30,7 +30,7 @@ from storage import (
     unsubscribe_from_data,
 )
 from tesseract import TextDetector, global_binarization, render_binary_view
-from text_detection_target import TextDetectionTargetWithResult
+from text_detection_target import TextDetectionTargetWithResult, iso_from_timestamp
 from sc_logging import logger
 from frame_stabilizer import FrameStabilizer
 from ocr_training_data import ocr_training_data_options, snapshot_training_samples
@@ -578,9 +578,9 @@ class OcrWorker:
         with self._condition:
             return self._pending is None and not self._busy and not self._stopping
 
-    def submit(self, frame, frame_time: float):
+    def submit(self, frame, frame_time: float, captured_at=None):
         with self._condition:
-            self._pending = (frame, frame_time)
+            self._pending = (frame, frame_time, captured_at)
             self._condition.notify()
 
     def stop(self, timeout: float | None = None) -> bool:
@@ -601,11 +601,11 @@ class OcrWorker:
                     self._condition.wait()
                 if self._stopping:
                     return
-                frame, frame_time = self._pending
+                frame, frame_time, captured_at = self._pending
                 self._pending = None
                 self._busy = True
             try:
-                self.owner.run_ocr_cycle(frame, frame_time)
+                self.owner.run_ocr_cycle(frame, frame_time, captured_at=captured_at)
             except Exception:
                 # run_ocr_cycle reports its own errors; this is a last resort
                 logger.exception("OCR cycle failed")
@@ -640,8 +640,16 @@ class TimerThread(QThread):
         self.framestabilizer = FrameStabilizer()
         self.video_capture: BaseVideoCapture | None = None
         self.should_stop = False
-        # monotonic clock (seconds); replaceable in tests
+        # monotonic clock (seconds) and wall clock; replaceable in tests
         self._clock = time.monotonic
+        self._wall_clock = time.time
+        # when the frame last read was captured (wall clock): what /json and
+        # /game report as captured_at
+        self.last_captured_at = None
+        # the last OCR cycle that published readings: on the monotonic clock
+        # (its age, for /health) and on the wall clock (when it ran)
+        self.last_cycle_time: float | None = None
+        self.last_cycle_wall_time: float | None = None
         self.frame_interval = 30
         self.update_frame_interval = cadence_to_interval_ms(
             fetch_data(SETTINGS_FILE, "detection_cadence", DEFAULT_DETECTION_CADENCE)
@@ -946,6 +954,10 @@ class TimerThread(QThread):
         dropped (they may still be previewed). Without a running capture (the
         tests) the OCR runs here, on the calling thread."""
         now = self._clock()
+        # the frame was just read: its wall-clock capture time (beside the
+        # monotonic frame_time, which measures the readings' latency), what
+        # /json and /game report as captured_at
+        self.last_captured_at = self._wall_clock()
         self.frame_size = (frame_rgb.shape[1], frame_rgb.shape[0])
 
         # calculate the frame rate
@@ -992,11 +1004,15 @@ class TimerThread(QThread):
                         + (1.0 - self.fps_alpha) * self.ups
                     )
             self.last_update_timestamp = now
+            captured_at = self.last_captured_at
             if worker is not None:
-                worker.submit(frame_rgb, now)
+                worker.submit(frame_rgb, now, captured_at)
             else:
                 targets, gray, display = self.run_ocr_cycle(
-                    frame_rgb, now, want_display=show_binary and preview_due
+                    frame_rgb,
+                    now,
+                    want_display=show_binary and preview_due,
+                    captured_at=captured_at,
                 )
 
         if preview_due:
@@ -1052,9 +1068,12 @@ class TimerThread(QThread):
         moved = self.boxes_moved_at
         return moved is not None and frame_time is not None and frame_time <= moved
 
-    def run_ocr_cycle(self, frame_rgb, frame_time, want_display=False):
-        """Read the boxes of a (transformed) frame read at frame_time and
-        publish the results. Returns (the boxes, the gray frame, the binary
+    def run_ocr_cycle(
+        self, frame_rgb, frame_time, want_display=False, captured_at=None
+    ):
+        """Read the boxes of a (transformed) frame read at frame_time (on the
+        monotonic clock; captured_at is the wall clock time it was captured)
+        and publish the results. Returns (the boxes, the gray frame, the binary
         view with what the OCR read drawn in, if want_display or OCR training
         data is collected; else None)."""
         # One snapshot of the boxes per frame: the GUI thread may add or
@@ -1076,7 +1095,9 @@ class TimerThread(QThread):
             texts = self.textDetector.detect_multi_text(
                 binary, gray, targets, display=display, color=frame_rgb
             )
-            self._publish_results(targets, texts, display, gray, frame_time)
+            self._publish_results(
+                targets, texts, display, gray, frame_time, captured_at
+            )
         except Exception as e:
             # the preview is still emitted
             self._report_processing_error(e)
@@ -1154,19 +1175,33 @@ class TimerThread(QThread):
         target.ocrResultPerCharacterSmoother.clear()
         return "", ResultState.Success
 
-    def _publish_results(self, targets, texts, display, gray, frame_time=None):
+    def _publish_results(
+        self, targets, texts, display, gray, frame_time=None, captured_at=None
+    ):
         if len(texts) == 0 or len(targets) != len(texts):
             return
         if self.readBeforeBoxesMoved(frame_time):
             # the boxes moved with the crop while this frame was read
             return
+        # how long from reading the frame to publishing its readings
+        latency_ms = (
+            None
+            if frame_time is None
+            else max(0.0, self._clock() - frame_time) * 1000.0
+        )
         # augment the text detection targets with the results
         results = []
         for target, result in zip(targets, texts):
             text, state = self._published_reading(target, result)
             results.append(
                 TextDetectionTargetWithResult(
-                    target, text, state, result.rect, result.extra
+                    target,
+                    text,
+                    state,
+                    result.rect,
+                    result.extra,
+                    captured_at=iso_from_timestamp(captured_at),
+                    latency_ms=latency_ms,
                 )
             )
 
@@ -1185,6 +1220,8 @@ class TimerThread(QThread):
                 else self.fps_alpha * latency
                 + (1.0 - self.fps_alpha) * self.reading_latency
             )
+        self.last_cycle_time = self._clock()
+        self.last_cycle_wall_time = self._wall_clock()
         self.ocr_result_signal.emit(results)
 
         if samples:

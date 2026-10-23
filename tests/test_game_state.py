@@ -895,3 +895,59 @@ def test_a_half_turned_lap_board_is_held_back_longer(game, cycle):
         "yet the other), which Racing (laps) doesn't allow"
     }
     assert cycle(g, Laps_To_Go="19") == ({}, [])
+
+
+# --- capture provenance ----------------------------------------------------------------
+
+
+def _cycle(g, make_result, home, captured, latency_ms=31.5, cycles=1):
+    """cycles readings of a scoreboard, all from the frame captured at captured."""
+    events = []
+    for _ in range(cycles):
+        g.clock.now += 0.5
+        events += g.engine.update(
+            [
+                make_result(
+                    "Home Score", home, captured_at=captured, latency_ms=latency_ms
+                ),
+                make_result(
+                    "Away Score", "0", captured_at=captured, latency_ms=latency_ms
+                ),
+                make_result("Period", "1", captured_at=captured, latency_ms=latency_ms),
+            ]
+        )
+    return events
+
+
+def test_the_game_and_its_events_carry_when_they_were_read(game, make_result):
+    """captured_at is the wall-clock time of the frame the values came from and
+    latency_ms is how long from reading it to publishing them, so /game can be
+    compared with another program's clock."""
+    from datetime import datetime, timezone
+
+    g = game(sports.BASKETBALL)
+    captured = datetime(2026, 10, 23, 13, 6, 12, 250_000, tzinfo=timezone.utc)
+    # the game is learned from two readings, then a score is read twice
+    assert _cycle(g, make_result, "0", captured, cycles=2) == []
+    later = datetime(2026, 10, 23, 13, 6, 13, 250_000, tzinfo=timezone.utc)
+    events = _cycle(g, make_result, "2", later, latency_ms=28.0, cycles=2)
+    assert [event.kind for event in events] == [SCORE]
+    # served as ISO-8601 with the offset, to the millisecond
+    expected = "2026-10-23T13:06:13.250+00:00"
+    state = g.engine.state()
+    assert state.captured_at == expected
+    assert state.latency_ms == 28.0
+    data = state.to_dict()
+    assert data["captured_at"] == expected
+    assert data["latency_ms"] == 28.0
+    [event] = data["events"]
+    assert event["captured_at"] == expected
+    assert event["latency_ms"] == 28.0
+
+
+def test_a_reading_without_provenance_leaves_the_game_provenance_alone(game):
+    g = start_basketball(game)
+    for _ in range(3):
+        g.read(Home_Score="2", Away_Score="0", Period="1")
+    [event] = g.engine.state().to_dict()["events"]
+    assert event["captured_at"] is None and event["latency_ms"] is None

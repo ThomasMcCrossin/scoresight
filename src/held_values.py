@@ -46,7 +46,13 @@ def _replaced(
     if not as_template and is_template_field(result):
         settings = dict(settings, templatefield=False)
     copy = TextDetectionTargetWithResult(
-        result, text, state, result.effectiveRect, result.extras
+        result,
+        text,
+        state,
+        result.effectiveRect,
+        result.extras,
+        captured_at=result.captured_at,
+        latency_ms=result.latency_ms,
     )
     copy.settings = settings
     return copy

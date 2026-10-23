@@ -1014,3 +1014,42 @@ def test_the_ocr_gets_the_detection_interval(make_thread, make_target):
     thread.detectionTargetsStorage.add_item(make_target("Home Score"))
     thread.process_frame(color_frame())
     assert thread.textDetector.cycle_interval_ms == 250.0
+
+
+# --- capture provenance (captured_at, latency_ms) --------------------------------------
+
+
+def test_readings_carry_when_their_frame_was_captured(make_thread, make_target):
+    thread = make_thread(cadence=10)
+    thread.detectionTargetsStorage.add_item(make_target("Home Score"))
+    thread._wall_clock = lambda: 1_800_000_000.0
+    thread.process_frame(color_frame())
+    [results] = thread.results
+    captured = results[0].captured_at
+    assert captured is not None
+    assert len(captured) == 29 and captured[4] == "-" and captured[10] == "T"
+    # an ISO-8601 timestamp with its own UTC offset, as /json serves it
+    assert captured.endswith(("+00:00", "-00:00")) or captured[-6] in "+-"
+    from datetime import datetime
+
+    parsed = datetime.fromisoformat(captured)
+    assert parsed.tzinfo is not None
+    assert abs(parsed.timestamp() - 1_800_000_000.0) < 1.0
+
+
+def test_readings_carry_the_reading_latency(make_thread, make_target):
+    thread = make_thread(cadence=10)
+    thread.detectionTargetsStorage.add_item(make_target("Home Score"))
+
+    def slow_read(binary, gray, rects, display=None, color=None):
+        # 200 ms of OCR after the frame was read
+        thread._clock.now += 0.2
+        return [TextDetectionResult(rect.name, SUCCESS) for rect in rects]
+
+    thread.textDetector.detect_multi_text = slow_read
+    thread.process_frame(color_frame())
+    [results] = thread.results
+    assert results[0].latency_ms == pytest.approx(200.0)
+    # and the thread remembers when the cycle ran, which /health reports
+    assert thread.last_cycle_time == thread._clock.now
+    assert thread.last_cycle_wall_time is not None
