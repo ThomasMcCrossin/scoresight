@@ -46,6 +46,20 @@
           "value": 900,
           "verified": true,
           "note": "P2's clock counts from 14:59 at 1141.4 (frames); the journal's 15:00 at 1143.2 is stale"
+        },
+        {
+          "kind": "clock_stop",
+          "media": 836.6,
+          "value": 89,
+          "verified": true,
+          "note": "short stoppage: 1:29 at media 836 and 837 (frames), 1:28 at 838; the board held 1.5 s"
+        },
+        {
+          "kind": "clock_start",
+          "media": 837.8,
+          "value": 88,
+          "verified": true,
+          "note": "the clock resumes at 1:28 (frame at 838)"
         }
       ],
       "clock_stops": [
@@ -80,6 +94,10 @@
         [
           784.4,
           814.8
+        ],
+        [
+          836.6,
+          837.8
         ],
         [
           842.8,

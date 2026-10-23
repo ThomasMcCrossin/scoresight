@@ -93,22 +93,23 @@ def _clock_text(seconds):
 def test_transition_latency_is_measured_in_media_time():
     truth = _truth()
     timeline = scoring.Timeline(truth)
-    # a run over media 600-610 (a running clock), whose engine detected the
-    # media-605.4 clock stop 2 s "early" in media terms
+    # a run over media 596-606 (a running clock), whose engine detected the
+    # media-605.4 clock stop 2 s "early" in media terms. The event is past the
+    # settling window (SETTLE_SECONDS after the run's first sample).
     samples = [
-        _sample(1000.0 + i, clock=_clock_text(timeline.predicted(600 + i)[3]))
-        for i in range(10)
+        _sample(1000.0 + i, clock=_clock_text(timeline.predicted(596 + i)[3]))
+        for i in range(12)
     ]
     events = [
         {
             "id": 1,
             "kind": "clock_stop",
-            "at": 1000.0 + 2.0,
+            "at": 1000.0 + 6.0,
             "period": 1,
             "text": "Clock stopped at 4:47",
         }
     ]
-    result = scoring.score(samples, truth, events, 600.0, 10.0)
+    result = scoring.score(samples, truth, events, 596.0, 12.0)
     row = result["transitions"]["clock_stop"]
     assert row["detected"] == 1
     assert row["false"] == 0

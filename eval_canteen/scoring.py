@@ -30,6 +30,8 @@ CLOCK_TOLERANCE = 1.0  # seconds: the board shows whole seconds above a minute
 # reference clock edge: a restart's timing is what the transition latency
 # measures, and the journal's own resolution is one second
 EDGE_GRACE = 2.5
+# transitions are not judged this long after the harness started watching
+SETTLE_SECONDS = 3.0
 # a verified clock anchor replaces journal polls this close to it
 VERIFIED_WINDOW = 3.0
 FIELDS = (
@@ -395,8 +397,10 @@ def score(samples, truth, game_events, start_media, duration):
     # learn the board's state, and they emit a start-of-period and a
     # clock-start that are not detections) and to the end of the media it
     # played (the feed's end stops the clock, which is not a real stop).
-    # +1 s: the engine's first cycle(s) learn the board's state
-    observed_from = media_of(samples[0], t0, start_media, offset) + 1.0
+    # a settling window: the engine's first cycles learn the board's state
+    # (and the harness never saw the board before the clip), so transitions in
+    # the first seconds cannot be judged either way
+    observed_from = media_of(samples[0], t0, start_media, offset) + SETTLE_SECONDS
     # --- per-sample field scoring -----------------------------------------
     for sample in samples:
         media = media_of(sample, t0, start_media, offset)
