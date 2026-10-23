@@ -44,14 +44,16 @@ SEGMENT_START = {
 # ("Home +1") say so. The brief called the 10:31 onward goals "Hawks", which
 # is the same team -- not the away score.
 GOALS = {
-    "20261023T091022.mkv": [(3545.0, "home", 5, "10:09:24 live")],
+    "20261023T091022.mkv": [
+        (3539.0, "home", 5, "frames: 4 at 3535, 5 at 3540 (live logged 10:09:24)")
+    ],
     "20261023T101023.mkv": [
         (359.0, "home", 6, "10:16:22 live"),
         (408.0, "home", 7, "10:17:11 live, a ~8 s late detection"),
-        (1280.0, "home", 1, "10:31:43 live; GUEST stays 0 on the frames"),
-        (1412.0, "home", 2, "10:33:56 live; GUEST stays 0 on the frames"),
-        (1812.0, "home", 3, "10:40:43 live; frames 2 at 1808, 3 at 1812"),
-        (2237.0, "home", 4, "10:47:51 live; frames 3 at 2234, 4 at 2237"),
+        (1263.5, "home", 1, "frames: 0 at 1260, 1 at 1264; GUEST stays 0"),
+        (1410.0, "home", 2, "frames: 1 at 1409, 2 at 1411"),
+        (1781.5, "home", 3, "frames: 2 at 1778, 3 at 1782 (live logged 10:40:43)"),
+        (2207.5, "home", 4, "frames: 3 at 2205, 4 at 2208 (live logged 10:47:51)"),
     ],
 }
 
