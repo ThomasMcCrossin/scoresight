@@ -318,7 +318,83 @@ def render(scored_runs, replays):
                 f"{row['window'][0]:.0f}s +{row['window'][1]:.0f}s) — `{row['path']}`{note}"
             )
         lines.append("")
+    lines += render_decision(scored_runs, replays)
     return "\n".join(lines)
+
+
+def render_decision(scored_runs, replays):
+    """The recommendation, with the settings it assumes, kept in one place so a
+    change to the numbers is a change to the text beside them."""
+    fork_f = next(
+        (r for r in scored_runs
+         if r["variant"] == "filtered" and r["build"] == "fork"), None
+    )
+    fork_l = next((r for r in scored_runs if r["variant"] == "levels"), None)
+    up = merged_verdict(replays, "upstream")
+    fk = merged_verdict(replays, "fork")
+    lines = ["## Recommendation", ""]
+
+    def ok(value):
+        return "PASS" if value else "FAIL"
+
+    if fork_f and fork_l:
+        # name the fields that fell behind, rather than hedging
+        behind = [
+            key for key in FIELDS
+            if (fork_l["fields"][key]["accuracy"] or 0)
+            < (fork_f["fields"][key]["accuracy"] or 0) - 1e-9
+        ]
+        lat = latency_check(
+            {"transitions": fork_f["transitions"], "fields": fork_f["fields"]},
+            fork_l,
+        )
+        lines += [
+            f"- **Feed**: keep the ffmpeg lut. `levels` needs the profile keys "
+            f"below and, on this footage, is no better: "
+            f"{('it falls below the filtered run on ' + ', '.join(behind) + '. ') if behind else ''}"
+            f"{('Its mean latencies exceed the filtered run by more than '
+               f'{LATENCY_SLACK:g} s on ' + ', '.join(sorted({f.split()[0] for f in lat})) + '. ') if lat else ''}"
+            f"Nothing measured argues for moving the suppression into the app.",
+            "- **Deploy the fork as the live service** on the filtered feed, "
+            "with the profile unchanged apart from the new keys the fork adds "
+            "(they default to off).",
+            "- **Do not enable picture levels in production yet.** The variant "
+            "is sound and its LUT matches the ffmpeg lut to one gray level, but "
+            "on this footage it bought nothing and cost one lagging score "
+            "reading, so switching the feed to raw + in-app levels is a change "
+            "with no measured benefit.",
+            "",
+            "The check the fork does not fully pass is incident b's overtime: "
+            "it still logs Start of OT / End of OT when the board itself shows "
+            "a 4th period, which is the board's state and not a fork invention. "
+            "It no longer logs the score correction, and it does start a new "
+            "game when the board gives it the first period at 0-0.",
+            "",
+        ]
+    lines += [
+        "### Profile settings",
+        "",
+        "The live profile (`~/.local/share/canteen-scoresight/data/scoresight-stadium.json`),",
+        "unchanged by the fork:",
+        "",
+        "```json",
+        '{ "source_selected": {"type": "URL", "value": "udp://127.0.0.1:23000"},',
+        '  "detection_cadence": 2.0, "sport": "hockey", "ocr_model": "ppocr:auto",',
+        '  "update_on_change": true, "disable_update_checks": true,',
+        '  "boxes": Time 179,68,82,36 / Home 73,87,44,33 / Away 322,93,42,33 / Period 211,124,20,26 }',
+        "```",
+        "",
+        "Picture levels stay off (absent from the profile):",
+        "`picture_levels: false` (or absent), `picture_black_point: 0`,",
+        "`picture_white_point: 255`, `picture_gamma: 1.0`.",
+        "",
+        "If the feed is ever switched to the recorder's crop without the lut,",
+        "set the levels that reproduce it exactly: `picture_levels: true`,",
+        "`picture_black_point: 150`, `picture_white_point: 221`,",
+        "`picture_gamma: 1.0`.",
+        "",
+    ]
+    return lines
 
 
 def main(argv=None):
