@@ -101,11 +101,13 @@ class Watch:
         return self.rows
 
 
-def media_of(wall, progress, start):
+def media_of(wall, progress, feed_start):
     """The media time of a wall-clock instant, by ffmpeg's own progress.
 
     The feed seeks with -ss before -i and does not copy timestamps, so ffmpeg's
-    out_time restarts at 0 at the seek: media = start + out_time.
+    out_time restarts at 0 at the seek: media = feed_start + out_time. It is
+    the feed's start (window start - lead-in), not the window start: using the
+    window start shifted every recorded media time by the lead-in.
     """
     if not progress:
         return None
@@ -115,8 +117,8 @@ def media_of(wall, progress, start):
             before = (at_wall, media)
         else:
             # between two progress reports: the earlier one's media time
-            return start + (before[1] if before else media)
-    return start + (before[1] if before else progress[-1][1])
+            return feed_start + (before[1] if before else media)
+    return feed_start + (before[1] if before else progress[-1][1])
 
 
 def wait_reading(app, timeout=300.0, poll=2.0):
@@ -141,7 +143,8 @@ def wait_reading(app, timeout=300.0, poll=2.0):
     return False
 
 
-def run(build, variant, start, duration, name, out, keep_work=True, lead_in=20.0):
+def run(build, variant, start, duration, name, out, keep_work=True, lead_in=20.0,
+        clip=None):
     runner.configure(build)
     if not os.path.exists(runner.VENV_PYTHON):
         raise SystemExit(f"build venv missing: {runner.VENV_PYTHON}")
@@ -152,8 +155,9 @@ def run(build, variant, start, duration, name, out, keep_work=True, lead_in=20.0
     # the feed starts a little before the window so the app has frames to open
     # and lock onto; the window's own samples are the record
     feed_start = max(0.0, start - lead_in)
+    clip = clip or CLIP
     feed = runner.Feed(
-        CLIP, feed_port, variant, feed_start, duration + lead_in, progress=progress_path
+        clip, feed_port, variant, feed_start, duration + lead_in, progress=progress_path
     )
     app = runner.ScoreSight(name, variant, "ppocr", 2.0, workdir, feed_url)
     samples = []
@@ -205,7 +209,7 @@ def run(build, variant, start, duration, name, out, keep_work=True, lead_in=20.0
         progress = watch.stop()
     for sample in samples:
         if "wall" in sample:
-            sample["media"] = media_of(sample["wall"], progress, start)
+            sample["media"] = media_of(sample["wall"], progress, feed_start)
     # the record is the window; the lead-in only opened the stream
     samples = [
         sample
@@ -215,7 +219,7 @@ def run(build, variant, start, duration, name, out, keep_work=True, lead_in=20.0
     report = {
         "build": runner.SCORESIGHT_ROOT,
         "variant": variant,
-        "clip": os.path.basename(CLIP),
+        "clip": os.path.basename(clip),
         "start_media": start,
         "duration": duration,
         "name": name,
@@ -245,6 +249,7 @@ def parse_args(argv=None):
     parser.add_argument("--start", type=float, default=0.0)
     parser.add_argument("--duration", type=float, default=900.0)
     parser.add_argument("--name", required=True)
+    parser.add_argument("--clip", default=CLIP, help="recording to replay")
     parser.add_argument("--out", default=REPORTS)
     parser.add_argument("--no-keep-work", action="store_true")
     return parser.parse_args(argv)
@@ -260,6 +265,7 @@ def main(argv=None):
         args.name,
         args.out,
         not args.no_keep_work,
+        clip=os.path.abspath(os.path.expanduser(args.clip)),
     )
     return 0
 

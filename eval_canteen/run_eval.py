@@ -72,6 +72,18 @@ def parse_args(argv=None):
         default=3.0,
         help="seconds to let the first frames decode before sampling",
     )
+    parser.add_argument(
+        "--build",
+        default=None,
+        help="ScoreSight checkout to run (default: this harness's tree)",
+    )
+    parser.add_argument(
+        "--feed-start",
+        type=float,
+        default=None,
+        help="media second to begin feeding (default: --start); a lead-in lets "
+        "the app open the stream before the window, and its samples are dropped",
+    )
     parser.add_argument("--out", default=REPORTS)
     parser.add_argument("--name", default=None, help="report basename")
     parser.add_argument(
@@ -123,6 +135,8 @@ def main(argv=None):
     if args.rescore:
         return _rescore(args, clip, media_id, truth, name)
 
+    if args.build:
+        runner.configure(args.build)
     if not os.path.exists(runner.VENV_PYTHON):
         raise SystemExit(f"ScoreSight venv missing: {runner.VENV_PYTHON}")
 
@@ -131,7 +145,11 @@ def main(argv=None):
 
     feed_port = runner.free_port()
     feed_url = f"udp://127.0.0.1:{feed_port}"
-    feed = runner.Feed(clip, feed_port, args.variant, args.start, args.duration)
+    feed_start = args.start if args.feed_start is None else args.feed_start
+    lead_in = args.start - feed_start
+    feed = runner.Feed(
+        clip, feed_port, args.variant, feed_start, args.duration + lead_in
+    )
     run = runner.ScoreSight(
         name, args.variant, args.engine, args.cadence, workdir, feed_url
     )
@@ -165,11 +183,14 @@ def main(argv=None):
         run.stop()
         feed.stop()
 
+    if lead_in > 0:
+        samples = _drop_lead_in(samples, args.start, lead_in)
     result = scoring.score(samples, truth, _events(samples), args.start, args.duration)
     meta = {
         "name": name,
         "clip": media_id,
         "clip_path": clip,
+        "build": runner.SCORESIGHT_ROOT,
         "variant": args.variant,
         "engine": args.engine,
         "cadence": args.cadence,
@@ -208,6 +229,7 @@ def _rescore(args, clip, media_id, truth, name):
         "name": name,
         "clip": media_id,
         "clip_path": clip,
+        "build": runner.SCORESIGHT_ROOT,
         "variant": args.variant,
         "engine": args.engine,
         "cadence": args.cadence,
@@ -216,12 +238,28 @@ def _rescore(args, clip, media_id, truth, name):
         "samples_file": path,
         "rescored_at": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
     }
+    if lead_in > 0:
+        samples = _drop_lead_in(samples, args.start, lead_in)
     result = scoring.score(samples, truth, _events(samples), args.start, args.duration)
     meta["samples"] = result.get("samples", len(samples))
     meta["offset_seconds"] = result.get("offset_seconds")
     meta["aligned_clock_samples"] = result.get("aligned_clock_samples")
     _write_reports(args, meta, result, truth)
     return 0
+
+
+def _drop_lead_in(samples, start, lead_in, interval=1.0):
+    """Drop the lead-in's samples from the record.
+
+    The harness samples at 1 Hz, so the lead-in is the first ``lead_in``
+    seconds of samples. Dropping them keeps the feed's warm-up frames out of
+    the field counts; the scorer fits the wall-clock offset itself, so nothing
+    that scores depends on where the list begins.
+    """
+    drop = int(round(lead_in / interval))
+    if drop <= 0:
+        return samples
+    return samples[drop:]
 
 
 def _events(samples):
