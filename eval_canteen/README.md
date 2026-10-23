@@ -37,6 +37,7 @@ nice -n 15 .venv/bin/python eval_canteen/run_eval.py \
 | `--start`, `--duration` | media seconds to play (played in real time) |
 | `--out` | report directory (default `eval_canteen/reports`) |
 | `--keep-work` | keep the run's data dir, ScoreSight log, samples and feed command |
+| `--rescore SAMPLES` | score a saved `samples.json` with the current scorer, without running ScoreSight (the clip, `--start` and `--duration` still come from the arguments) |
 
 Output: `<out>/<name>.json` (full detail), `<out>/<name>.md` (short report) and,
 with `--keep-work`, `<out>/work/<name>/` (samples, reference dump, the exact
