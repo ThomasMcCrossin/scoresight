@@ -80,6 +80,9 @@ CLOCK_SLACK = 1.5
 CLOCK_TURN_MOVES = 3
 # the final buzzer: the last period ended this long ago, with different scores
 FINAL_SETTLE_SECONDS = 3.0
+# a board set for a new game after the final (the first period, 0-0) starts a
+# new game once it has been read this many times in a row
+NEW_GAME_READINGS = 2
 MAX_EVENTS = 5000
 
 # event kinds
@@ -91,6 +94,7 @@ CLOCK_STOP = "clock_stop"
 FOULS = "fouls"
 TIMEOUTS = "timeouts"
 FINAL = "final"
+NEW_GAME = "new_game"
 LAP = "lap"
 FINAL_LAP = "final_lap"
 FINISH = "finish"
@@ -214,6 +218,8 @@ class GameEvent:
             return "Finish"
         if self.kind == NEW_RACE:
             return "New race"
+        if self.kind == NEW_GAME:
+            return "New game"
         if self.kind == SCORE:
             if self.delta is not None and self.delta < 0:
                 return f"{team} score corrected to {self.value} ({score})"
@@ -424,6 +430,8 @@ class GameEngine:
         # the game is over: the final buzzer, or the finish of a lap race
         self._final = False
         self._final_lap = False  # the race's final lap was an event
+        # readings in a row of a board set for a new game (after the final)
+        self._new_game_readings = 0
         self._running = False
         self._direction = -1 if self.sport.clock_counts_down else 1  # -1: counts down
         self._against = 0  # clock moves against the direction, in a row
@@ -471,6 +479,20 @@ class GameEngine:
             if text:
                 texts[role] = text
         events: list[GameEvent] = []
+        # A board set for a new game after the final (the first period, 0-0)
+        # starts the game over, instead of being held back as a period going
+        # backwards and scores being corrected. It has to be read
+        # NEW_GAME_READINGS times in a row: the readings below then learn the
+        # new game's values, and the event follows them (see the end of this
+        # method).
+        new_game = False
+        if self._final and self._is_new_game_board(texts):
+            self._new_game_readings += 1
+            if self._new_game_readings >= NEW_GAME_READINGS:
+                self.new_game()
+                new_game = True
+        else:
+            self._new_game_readings = 0
         # the scores first: a score read with a new period still counts for
         # the period it was scored in
         for role in (HOME_SCORE, AWAY_SCORE):
@@ -500,7 +522,20 @@ class GameEngine:
             self._trackers[SHOT_CLOCK].text = texts[SHOT_CLOCK]
         self._check_clock_stopped(now, events)
         self._check_final(now, events)
+        if new_game:
+            # the readings above learned the new game: the event says so
+            self._emit(NEW_GAME, events)
         return events
+
+    def _is_new_game_board(self, texts: dict) -> bool:
+        """Whether the readings the roles' texts hold are a board set for a new
+        game: the sport's first period and both scores 0."""
+        period = parse_period(texts.get(PERIOD, ""), self.sport)
+        if period != 1:
+            return False
+        return parse_count(texts.get(HOME_SCORE, "")) == 0 and (
+            parse_count(texts.get(AWAY_SCORE, "")) == 0
+        )
 
     def roles(self, names: Iterable[str]) -> dict[str, str]:
         """{role: box name} for these boxes."""

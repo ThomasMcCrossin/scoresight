@@ -14,6 +14,8 @@ from game_state import (
     FINISH,
     FOULS,
     LAP,
+    NEW_GAME,
+    NEW_GAME_READINGS,
     NEW_RACE,
     PERIOD_END,
     PERIOD_START,
@@ -1040,3 +1042,60 @@ def test_a_wild_clock_misread_is_still_held(game, cycle):
         }
         assert events == []
     assert g.engine.state().clock == "5:15"
+
+
+# --- a board set for a new game after the final ---------------------------------------
+
+
+def play_to_the_final(g, home="7", away="0", period="3", time="0:04"):
+    """A hockey game followed to its final buzzer: the last period ending at
+    0:00 with the scores different. Returns the events, the final one included."""
+    g.engine.set_sport(sports.HOCKEY)
+    for _ in range(2):
+        assert g.read(Home_Score=home, Away_Score=away, Period=period, Time=time) == []
+    events = []
+    for tenths in (30, 20, 10, 0):
+        events += g.read(step=0.5, Time=f"0:{tenths // 10:02d}.{tenths % 10}")
+    # the final comes once the period has ended and settled (FINAL_SETTLE_SECONDS)
+    for _ in range(8):
+        if g.engine.state().final:
+            break
+        events += g.read(step=1.0, Time="0:00.0")
+    assert g.engine.state().final is True, "the game never reached its final"
+    return events
+
+
+def test_a_board_set_for_a_new_game_starts_one(game):
+    """After the final, the operator sets the board for the next game: the
+    first period, 0-0, the clock back at its full length. That is a new game,
+    not an overtime with the scores corrected."""
+    g = game(sports.HOCKEY)
+    events = play_to_the_final(g)
+    assert FINAL in g.kinds(events)
+
+    # the board for the next game, read steadily
+    new_game = []
+    for _ in range(NEW_GAME_READINGS + 1):
+        new_game += g.read(
+            step=0.5, Home_Score="0", Away_Score="0", Period="1", Time="15:00"
+        )
+    # exactly one event, and it is a new game: no overtime, no corrections
+    assert g.kinds(new_game) == [NEW_GAME]
+    assert new_game[0].text() == "New game"
+    state = g.engine.state()
+    assert state.final is False
+    assert state.period == 1
+    assert (state.home, state.away) == (0, 0)
+    # the old game's line score is gone: only the new game's first period
+    assert [(p.period, p.home, p.away) for p in state.line_score] == [(1, 0, 0)]
+    # and the game follows the new one from there
+    assert g.kinds(read_board(g, 2, Home_Score="1")) == [SCORE]
+    assert g.engine.state().home == 1
+
+
+def test_a_mid_game_board_is_not_a_new_game(game):
+    """Only after the final: a period 1 with 0-0 during a game is what a period
+    reset looks like, and it is still held back like any other change."""
+    g = start_basketball(game, home="2", away="0", period="1")
+    events = read_board(g, 2, Home_Score="0", Away_Score="0", Period="1")
+    assert NEW_GAME not in g.kinds(events)
