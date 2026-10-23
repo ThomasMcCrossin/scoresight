@@ -255,8 +255,9 @@ def test_main_window_constructs_shows_and_closes(make_window, patched, qapp):
     main_window.close()
     qapp.processEvents()
     assert not main_window.isVisible()
-    # closing persists the boxes
-    assert isinstance(fetch_data("scoresight.json", "boxes"), list)
+    # closing writes nothing when the boxes weren't changed (see "the settings
+    # file is not rewritten at shutdown unless the boxes changed" below)
+    assert fetch_data("scoresight.json", "boxes") is None
     # nothing (e.g. a server or capture thread) was left running
     leftover = [t for t in set(threading.enumerate()) - threads_before if not t.daemon]
     assert leftover == []

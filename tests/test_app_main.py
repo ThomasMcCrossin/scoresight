@@ -42,12 +42,16 @@ def test_settings_read_only_is_a_flag_and_an_environment_variable(monkeypatch):
     assert qt_args == []
     # the flag sets the variable the storage layer reads, before any of it is
     # imported
+    import os
+
     import storage
 
+    # record the variable as it was for monkeypatch to restore (once: a second
+    # delenv would record the value the flag sets as the one to restore)
     monkeypatch.delenv(storage.READ_ONLY_ENV, raising=False)
     main.apply_settings_read_only(True)
     assert storage.settings_are_read_only() is True
-    monkeypatch.delenv(storage.READ_ONLY_ENV, raising=False)
+    os.environ.pop(storage.READ_ONLY_ENV, None)
     main.apply_settings_read_only(False)
     assert storage.settings_are_read_only() is False
     monkeypatch.setenv(storage.READ_ONLY_ENV, "1")
