@@ -58,6 +58,80 @@ format_prefixes = [
 ]
 
 
+# --- picture levels (the source's black point, white point and gamma) -------------
+# A source-level black point, white point and optional gamma, applied to every
+# frame once it is rotated and cropped (camera_thread.TimerThread.adjust_frame),
+# before stabilization and the four-corner correction: the preview, the binary
+# view and the OCR all see the same picture. It suppresses what a dim LED or LCD
+# display shows for the segments that are off (ghosting): raising the black
+# point past them makes them black, and the white point brings the lit segments
+# back to full white. Off by default, so nothing changes for existing settings.
+PICTURE_LEVELS_ENABLED = "picture_levels"
+PICTURE_BLACK_POINT = "picture_black_point"
+PICTURE_WHITE_POINT = "picture_white_point"
+PICTURE_GAMMA = "picture_gamma"
+
+# The stored values' defaults and limits (a gray level of 0-255 each, a gamma
+# above 0; 1.0 leaves the midtones alone). Stored next to the other global
+# settings (video_settings.py, storage.store_data).
+PICTURE_LEVELS_DEFAULTS = {
+    PICTURE_LEVELS_ENABLED: False,
+    PICTURE_BLACK_POINT: 0,
+    PICTURE_WHITE_POINT: 255,
+    PICTURE_GAMMA: 1.0,
+}
+MIN_PICTURE_GAMMA = 0.1
+MAX_PICTURE_GAMMA = 10.0
+
+
+def _clamp_gray_level(value, default: int, low: int, high: int) -> int:
+    try:
+        value = int(round(float(value)))
+    except (TypeError, ValueError):
+        return default
+    return min(max(value, low), high)
+
+
+def normalize_picture_levels(settings: dict | None) -> dict:
+    """The canonical picture-level settings: every key present, the gray levels
+    clamped to 0-255 with the white point above the black point, and the gamma
+    within its limits. An unknown or unusable value falls back to its default."""
+    settings = settings or {}
+    enabled = settings.get(
+        PICTURE_LEVELS_ENABLED, PICTURE_LEVELS_DEFAULTS[PICTURE_LEVELS_ENABLED]
+    )
+    black = _clamp_gray_level(
+        settings.get(PICTURE_BLACK_POINT),
+        PICTURE_LEVELS_DEFAULTS[PICTURE_BLACK_POINT],
+        0,
+        254,
+    )
+    white = _clamp_gray_level(
+        settings.get(PICTURE_WHITE_POINT),
+        PICTURE_LEVELS_DEFAULTS[PICTURE_WHITE_POINT],
+        1,
+        255,
+    )
+    if white <= black:
+        # a black point at or above the white point would leave nothing: keep
+        # the one gray level above the black point
+        white = black + 1
+    try:
+        gamma = float(
+            settings.get(PICTURE_GAMMA, PICTURE_LEVELS_DEFAULTS[PICTURE_GAMMA])
+        )
+    except (TypeError, ValueError):
+        gamma = PICTURE_LEVELS_DEFAULTS[PICTURE_GAMMA]
+    if not (MIN_PICTURE_GAMMA <= gamma <= MAX_PICTURE_GAMMA):
+        gamma = PICTURE_LEVELS_DEFAULTS[PICTURE_GAMMA]
+    return {
+        PICTURE_LEVELS_ENABLED: bool(enabled),
+        PICTURE_BLACK_POINT: black,
+        PICTURE_WHITE_POINT: white,
+        PICTURE_GAMMA: gamma,
+    }
+
+
 # Default values for the scoreboard
 default_boxes = [
     {

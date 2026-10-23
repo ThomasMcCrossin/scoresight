@@ -382,11 +382,61 @@ Resolution: {width}×{height}</source>
     </message>
     <message>
         <location filename="../src/video_settings.ui" line="133"/>
+        <source>Picture levels</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/video_settings.ui" line="136"/>
+        <source>Cut what a dim LED or LCD display shows for the segments that are off (ghosting), and stretch the lit segments back to full white. Applies to the whole picture: the preview, Binary View and the OCR.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/video_settings.ui" line="142"/>
+        <source>Apply a black point, a white point and a gamma to every frame. Off by default.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/video_settings.ui" line="145"/>
+        <source>Apply black point and white point</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/video_settings.ui" line="152"/>
+        <source>Black point</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/video_settings.ui" line="159"/>
+        <source>Every gray level up to this one becomes black. Raise it past the level the display shows for segments that are off (the ghosting), and below the lit segments.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/video_settings.ui" line="169"/>
+        <source>White point</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/video_settings.ui" line="176"/>
+        <source>Every gray level from this one up becomes white. Keep it at or below the brightest lit segments.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/video_settings.ui" line="192"/>
+        <source>Gamma</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/video_settings.ui" line="199"/>
+        <source>Brightens (above 1) or darkens (below 1) the midtones after the levels. 1.00 leaves them as they are.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/video_settings.ui" line="224"/>
         <source>Capture Backend</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/video_settings.ui" line="141"/>
+        <location filename="../src/video_settings.ui" line="232"/>
         <source>Default / Any</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5519,7 +5569,7 @@ Click to change the folder or its size limit; Tools &gt; Collect OCR training da
 <context>
     <name>VideoSettingsDialog</name>
     <message>
-        <location filename="../src/video_settings.py" line="96"/>
+        <location filename="../src/video_settings.py" line="177"/>
         <source>The video source is not open.</source>
         <translation type="unfinished"></translation>
     </message>

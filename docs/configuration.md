@@ -122,6 +122,8 @@ You normally never edit this file: everything is set through the UI. This list h
 | `box_display_style` | `0` No Box, `1` Outline, `2` Names, `3` All |
 | `show_osd` | The statistics overlay (**Stats**) on or off. Settings without it (a first start) get `false`, settings from 0.2.0 and before `true`, as it always showed then |
 | `fps`, `width`, `height`, `fourcc`, `backend` | Camera [Video Settings](sources.md#cameras-and-capture-cards), applied whenever a camera opens. Only the settings you changed in the dialog are stored |
+| `picture_levels` | [Picture levels](sources.md#picture-levels) on or off (`false` by default) |
+| `picture_black_point`, `picture_white_point`, `picture_gamma` | The levels' gray levels (0–255; the white point above the black point) and gamma (`1.0` leaves the midtones alone) |
 
 ### Recognition
 

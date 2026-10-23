@@ -9,11 +9,19 @@ import platform
 import sys
 import time
 import cv2
+import numpy as np
 import threading
 
 from base_video_capture import BaseVideoCapture
 from camera_info import CameraInfo
 from defaults import CLEAR_AFTER_SECONDS, CLEAR_BLANK_OR_ZERO, CLEAR_NEVER
+from defaults import (
+    PICTURE_BLACK_POINT,
+    PICTURE_GAMMA,
+    PICTURE_LEVELS_ENABLED,
+    PICTURE_WHITE_POINT,
+    normalize_picture_levels,
+)
 from storage import (
     SETTINGS_FILE,
     TextDetectionTargetMemoryStorage,
@@ -164,6 +172,35 @@ def _positive(value):
     return value
 
 
+def picture_levels_lut(black_point: int, white_point: int, gamma: float = 1.0):
+    """A 256-entry lookup table that maps the gray levels of a frame to
+    black_point..white_point stretched back over 0-255 (and the optional gamma).
+
+    Every level at or below the black point becomes 0 and every one at or above
+    the white point becomes 255, so what a dim LED or LCD display shows for the
+    segments that are off (ghosting) is cut away and the lit segments reach full
+    white. This is the same result as ffmpeg's
+    ``lutrgb=lut=clip((val-black)*255/(white-black))`` (with gamma 1), applied to
+    each channel of a colour frame or to a gray one.
+    """
+    black_point = min(max(int(black_point), 0), 254)
+    white_point = min(max(int(white_point), black_point + 1), 255)
+    span = white_point - black_point
+    levels = [min(max((level - black_point) / span, 0.0), 1.0) for level in range(256)]
+    gamma = 1.0 if not gamma or gamma <= 0 else float(gamma)
+    if gamma != 1.0:
+        levels = [level ** (1.0 / gamma) for level in levels]
+    return np.array([int(round(level * 255)) for level in levels], np.uint8)
+
+
+def apply_picture_levels(frame, lut):
+    """Map every pixel of frame (gray or colour) through lut. Returns frame
+    itself when there is nothing to map: the identity levels."""
+    if lut is None or frame is None or frame.size == 0:
+        return frame
+    return cv2.LUT(frame, lut)
+
+
 # Function to set the resolution
 def set_resolution(cap, width, height):
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
@@ -270,6 +307,65 @@ class FrameCropAndRotation:
 
     def setRotation(self, rotation):
         self.rotation = rotation
+
+
+class PictureLevels:
+    """Follows the picture levels (defaults.PICTURE_LEVELS_*) and keeps the
+    lookup table they make (camera_thread.picture_levels_lut), which
+    adjust_frame applies to every frame. Off (a None table) until the settings
+    say otherwise."""
+
+    def __init__(self):
+        self.lut = None
+        self.settings = normalize_picture_levels({})
+        self._subscriptions = [
+            (PICTURE_LEVELS_ENABLED, self.set_enabled),
+            (PICTURE_BLACK_POINT, self.set_black_point),
+            (PICTURE_WHITE_POINT, self.set_white_point),
+            (PICTURE_GAMMA, self.set_gamma),
+        ]
+        self.settings = normalize_picture_levels(
+            {
+                name: fetch_data(SETTINGS_FILE, name, default)
+                for name, default in self.settings.items()
+            }
+        )
+        self._rebuild()
+        for document_name, callback in self._subscriptions:
+            subscribe_to_data(SETTINGS_FILE, document_name, callback)
+
+    def close(self):
+        """Stop following the picture-level settings."""
+        for document_name, callback in self._subscriptions:
+            unsubscribe_from_data(SETTINGS_FILE, document_name, callback)
+
+    def _rebuild(self):
+        settings = normalize_picture_levels(self.settings)
+        self.settings = settings
+        if not settings[PICTURE_LEVELS_ENABLED]:
+            self.lut = None
+            return
+        self.lut = picture_levels_lut(
+            settings[PICTURE_BLACK_POINT],
+            settings[PICTURE_WHITE_POINT],
+            settings[PICTURE_GAMMA],
+        )
+
+    def set_enabled(self, enabled):
+        self.settings = dict(self.settings, **{PICTURE_LEVELS_ENABLED: enabled})
+        self._rebuild()
+
+    def set_black_point(self, black_point):
+        self.settings = dict(self.settings, **{PICTURE_BLACK_POINT: black_point})
+        self._rebuild()
+
+    def set_white_point(self, white_point):
+        self.settings = dict(self.settings, **{PICTURE_WHITE_POINT: white_point})
+        self._rebuild()
+
+    def set_gamma(self, gamma):
+        self.settings = dict(self.settings, **{PICTURE_GAMMA: gamma})
+        self._rebuild()
 
 
 class OpenCVVideoCaptureWithSettings(BaseVideoCapture):
@@ -560,6 +656,8 @@ class TimerThread(QThread):
         self.fps_alpha = 0.1  # Smoothing factor
         self.updateOnChange = True
         self.crop = FrameCropAndRotation()
+        # the source-level black point, white point and gamma (off by default)
+        self.picture_levels = PictureLevels()
         self.speed = 1
         # (width, height) of the last frame read from the source
         self.frame_size = (0, 0)
@@ -648,6 +746,7 @@ class TimerThread(QThread):
             SETTINGS_FILE, "detection_cadence", self.setUpdateFrameInterval
         )
         self.crop.close()
+        self.picture_levels.close()
 
     def _create_video_capture(self) -> BaseVideoCapture:
         camera_type = self.camera_info.type
@@ -1114,7 +1213,7 @@ class TimerThread(QThread):
         return frame_rgb
 
     def adjust_frame(self, frame_rgb):
-        """Apply the rotation, crop and stabilization."""
+        """Apply the rotation, crop, picture levels and stabilization."""
         crop = self.crop
         frame_rgb = self.rotate_frame(frame_rgb)
 
@@ -1123,6 +1222,11 @@ class TimerThread(QThread):
             frame_rgb = crop_frame(
                 frame_rgb, crop.cropTop, crop.cropBottom, crop.cropLeft, crop.cropRight
             )
+
+        # The source's levels (black point, white point, gamma) go here, after
+        # the crop and before stabilization: the preview, the binary view and
+        # the OCR all read this picture.
+        frame_rgb = apply_picture_levels(frame_rgb, self.picture_levels.lut)
 
         # Stabilize the frame
         if self.stabilizationEnabled:

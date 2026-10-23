@@ -30,12 +30,13 @@ Every frame goes through the same steps, in this order:
 
 1. **Rotate** (0°, 90°, 180°, 270°)
 2. **Crop** (left / top / right / bottom pixels)
-3. **Stabilize** (if enabled)
-4. **4-corner correction** (perspective warp, if set)
-5. Convert to grayscale, plus one black-and-white version of the whole picture if a box uses [Global binarization](box-settings.md#binarize).
-6. Read every box with its own [per-box settings](box-settings.md), each on its own copy of the picture.
+3. **Picture levels** (a black point, a white point and a gamma, if on: see [Picture levels](sources.md#picture-levels) below)
+4. **Stabilize** (if enabled)
+5. **4-corner correction** (perspective warp, if set)
+6. Convert to grayscale, plus one black-and-white version of the whole picture if a box uses [Global binarization](box-settings.md#binarize).
+7. Read every box with its own [per-box settings](box-settings.md), each on its own copy of the picture.
 
-Boxes are positioned on the **result** of steps 1–4. Change rotation, crop or 4-corner correction first, then place your boxes. A crop change moves the boxes with it, so they stay over the same digits; after a rotation or a new 4-corner correction, check that the boxes still sit on the right digits.
+Boxes are positioned on the **result** of steps 1–5. Change rotation, crop or 4-corner correction first, then place your boxes. A crop change moves the boxes with it, so they stay over the same digits; after a rotation or a new 4-corner correction, check that the boxes still sit on the right digits.
 
 ## Auto crop and Auto layout
 

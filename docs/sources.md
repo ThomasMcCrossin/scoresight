@@ -68,6 +68,25 @@ Click **OK** to apply the settings you changed to the running camera. They are s
 {: .new }
 In ScoreSight 0.1.x, saved Video Settings were not applied when a camera opened, and pressing **OK** could reopen the camera and lose them ([#20](https://github.com/royshil/scoresight/issues/20)). This is fixed in 0.2.0.
 
+### Picture levels
+
+**Video settings** also has **Picture levels**: a **black point**, a **white point** and an optional **gamma** that ScoreSight applies to every frame, whatever the source. They are off by default.
+
+| Setting | Use it to |
+|---|---|
+| **Black point** | Make every gray level up to it black. Raise it just past what the display shows for the segments that are **off**: a dim LED or LCD panel still lights them a little, and that ghost reads as extra digits (a board showing `0` that reads as `80`). |
+| **White point** | Make every gray level from it up white. Keep it at or below the brightest lit segments, so the digits stay solid white. |
+| **Gamma** | Brighten (above `1.00`) or darken (below `1.00`) the midtones after the levels. `1.00` leaves them alone. |
+
+Between the two points the picture is stretched back over the full black-to-white range, so raising the black point doesn't make the digits dimmer.
+
+Unlike the other Video Settings, which are requests to a camera device, the levels apply to **every** source: cameras, NDI, URL streams, screen capture and video files. They are applied to the whole picture after the crop and before stabilization and the 4-corner correction, so the preview, **Binary View** and the OCR all see the same picture. A change takes effect as soon as you make it, without waiting for **OK**.
+
+To set them, open **Video settings**, turn on **Apply black point and white point**, and raise **Black point** until the ghosting disappears from the digits in the preview. If the digits then look thin or eaten away, lower it a little; if some of the ghost is left, raise **White point** towards the lit segments' brightness. The levels are saved with your other settings, and one value serves all sources.
+
+{: .tip }
+The ffmpeg equivalent of a black point of `150` and a white point of `221` on the gray levels is `lutrgb=lut=clip((val-150)*255/(221-150))`, with `lutrgb`/`lutyuv` and `format=gray` for a gray picture; adding `gamma` to the chain matches the Gamma setting.
+
 {: .tip }
 Most USB cameras can be used by only one application at a time. Close OBS, Zoom, Teams or any other app that is using the camera, or share the feed through NDI or OBS's Virtual Camera instead.
 

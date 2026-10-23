@@ -3,8 +3,16 @@ import platform
 
 from PySide6.QtWidgets import QDialog
 from camera_thread import OpenCVVideoCaptureWithSettings
+from defaults import (
+    PICTURE_BLACK_POINT,
+    PICTURE_GAMMA,
+    PICTURE_LEVELS_DEFAULTS,
+    PICTURE_LEVELS_ENABLED,
+    PICTURE_WHITE_POINT,
+    normalize_picture_levels,
+)
 from ui_video_settings import Ui_Dialog as Ui_VideoSettingsDialog
-from storage import store_data
+from storage import fetch_data, store_data
 
 
 def fourcc_to_str(fourcc):
@@ -86,6 +94,79 @@ class VideoSettingsDialog(QDialog):
         self.ui.buttonBox.rejected.connect(self.close)
         self.cap = None
         self.initial_values = {}
+        self.picture_levels_initial = {}
+        # The picture levels apply to every source (the capture thread reads
+        # them from the settings), so a change here shows on the picture at
+        # once, without waiting for OK.
+        self.ui.checkBox_pictureLevels.toggled.connect(self.pictureLevelsChanged)
+        for widget in (
+            self.ui.spinBox_blackPoint,
+            self.ui.spinBox_whitePoint,
+            self.ui.doubleSpinBox_gamma,
+        ):
+            widget.valueChanged.connect(self.pictureLevelsChanged)
+        self.init_picture_levels()
+        self.update_picture_levels_enabled()
+
+    def init_picture_levels(self):
+        """Show the stored picture levels."""
+        levels = normalize_picture_levels(
+            {
+                name: fetch_data("scoresight.json", name, default)
+                for name, default in PICTURE_LEVELS_DEFAULTS.items()
+            }
+        )
+        self.picture_levels_initial = dict(levels)
+        widgets = (
+            self.ui.checkBox_pictureLevels,
+            self.ui.spinBox_blackPoint,
+            self.ui.spinBox_whitePoint,
+            self.ui.doubleSpinBox_gamma,
+        )
+        for widget in widgets:
+            widget.blockSignals(True)
+        self.ui.checkBox_pictureLevels.setChecked(levels[PICTURE_LEVELS_ENABLED])
+        self.ui.spinBox_blackPoint.setValue(levels[PICTURE_BLACK_POINT])
+        self.ui.spinBox_whitePoint.setValue(levels[PICTURE_WHITE_POINT])
+        self.ui.doubleSpinBox_gamma.setValue(levels[PICTURE_GAMMA])
+        for widget in widgets:
+            widget.blockSignals(False)
+
+    def update_picture_levels_enabled(self):
+        # the levels mean nothing while they are off
+        enabled = self.ui.checkBox_pictureLevels.isChecked()
+        for widget in (
+            self.ui.spinBox_blackPoint,
+            self.ui.spinBox_whitePoint,
+            self.ui.doubleSpinBox_gamma,
+        ):
+            widget.setEnabled(enabled)
+
+    def pictureLevels(self) -> dict:
+        return normalize_picture_levels(
+            {
+                PICTURE_LEVELS_ENABLED: self.ui.checkBox_pictureLevels.isChecked(),
+                PICTURE_BLACK_POINT: self.ui.spinBox_blackPoint.value(),
+                PICTURE_WHITE_POINT: self.ui.spinBox_whitePoint.value(),
+                PICTURE_GAMMA: self.ui.doubleSpinBox_gamma.value(),
+            }
+        )
+
+    def pictureLevelsChanged(self, *_):
+        self.update_picture_levels_enabled()
+        # the black point can't reach the white point: keep it below, so the
+        # picture never goes blank while a setting is dragged
+        levels = self.pictureLevels()
+        if self.ui.spinBox_blackPoint.value() >= self.ui.spinBox_whitePoint.value():
+            self.ui.spinBox_whitePoint.blockSignals(True)
+            self.ui.spinBox_whitePoint.setValue(
+                min(255, self.ui.spinBox_blackPoint.value() + 1)
+            )
+            self.ui.spinBox_whitePoint.blockSignals(False)
+            levels = self.pictureLevels()
+        for name, value in levels.items():
+            store_data("scoresight.json", name, value)
+        self.picture_levels_initial = dict(levels)
 
     def init_ui(self, cap: OpenCVVideoCaptureWithSettings | None):
         self.cap = cap

@@ -71,6 +71,41 @@ def seven_segment(
     return image
 
 
+def ghosted_display(
+    lit: str,
+    ghosted: str,
+    height: int = 80,
+    lit_gray: int = 255,
+    ghost_gray: int = 60,
+    bg: int = 0,
+    pad: int = 20,
+):
+    """A 7-segment display showing lit, still glowing the segments of ghosted.
+
+    A dim LED or LCD panel lights the segments that are off a little, so what
+    it showed before keeps showing dimly: a board that goes from 80 to 0 reads
+    as 80 while the 8's segments still glow. The two strings are aligned on
+    the right (a space in lit is a cell that shows only the ghost); neither may
+    contain ':' or '.'."""
+    cells = max(len(lit), len(ghosted))
+    lit, ghosted = lit.rjust(cells), ghosted.rjust(cells)
+    # a digit's width and the gap after it, as seven_segment renders them
+    cell_width = height // 2 + (height // 2) // 2
+
+    def cell(char, gray):
+        if char == " ":
+            return np.full((height, cell_width), bg, np.uint8)
+        return seven_segment(char, height=height, fg=gray, bg=bg, pad=0)
+
+    image = np.hstack(
+        [
+            np.maximum(cell(ghost_char, ghost_gray), cell(lit_char, lit_gray))
+            for ghost_char, lit_char in zip(ghosted, lit)
+        ]
+    )
+    return cv2.copyMakeBorder(image, pad, pad, pad, pad, cv2.BORDER_CONSTANT, value=bg)
+
+
 def hershey(
     text: str,
     font: int = cv2.FONT_HERSHEY_SIMPLEX,

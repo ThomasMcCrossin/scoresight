@@ -74,6 +74,57 @@ class Ui_Dialog(object):
 
         self.formLayout.setWidget(5, QFormLayout.ItemRole.FieldRole, self.plainTextEdit_videoProps)
 
+        self.groupBox_pictureLevels = QGroupBox(self.widget)
+        self.groupBox_pictureLevels.setObjectName(u"groupBox_pictureLevels")
+        self.formLayout_pictureLevels = QFormLayout(self.groupBox_pictureLevels)
+        self.formLayout_pictureLevels.setObjectName(u"formLayout_pictureLevels")
+        self.checkBox_pictureLevels = QCheckBox(self.groupBox_pictureLevels)
+        self.checkBox_pictureLevels.setObjectName(u"checkBox_pictureLevels")
+
+        self.formLayout_pictureLevels.setWidget(0, QFormLayout.ItemRole.SpanningRole, self.checkBox_pictureLevels)
+
+        self.label_blackPoint = QLabel(self.groupBox_pictureLevels)
+        self.label_blackPoint.setObjectName(u"label_blackPoint")
+
+        self.formLayout_pictureLevels.setWidget(1, QFormLayout.ItemRole.LabelRole, self.label_blackPoint)
+
+        self.spinBox_blackPoint = QSpinBox(self.groupBox_pictureLevels)
+        self.spinBox_blackPoint.setObjectName(u"spinBox_blackPoint")
+        self.spinBox_blackPoint.setMaximum(254)
+
+        self.formLayout_pictureLevels.setWidget(1, QFormLayout.ItemRole.FieldRole, self.spinBox_blackPoint)
+
+        self.label_whitePoint = QLabel(self.groupBox_pictureLevels)
+        self.label_whitePoint.setObjectName(u"label_whitePoint")
+
+        self.formLayout_pictureLevels.setWidget(2, QFormLayout.ItemRole.LabelRole, self.label_whitePoint)
+
+        self.spinBox_whitePoint = QSpinBox(self.groupBox_pictureLevels)
+        self.spinBox_whitePoint.setObjectName(u"spinBox_whitePoint")
+        self.spinBox_whitePoint.setMinimum(1)
+        self.spinBox_whitePoint.setMaximum(255)
+        self.spinBox_whitePoint.setValue(255)
+
+        self.formLayout_pictureLevels.setWidget(2, QFormLayout.ItemRole.FieldRole, self.spinBox_whitePoint)
+
+        self.label_gamma = QLabel(self.groupBox_pictureLevels)
+        self.label_gamma.setObjectName(u"label_gamma")
+
+        self.formLayout_pictureLevels.setWidget(3, QFormLayout.ItemRole.LabelRole, self.label_gamma)
+
+        self.doubleSpinBox_gamma = QDoubleSpinBox(self.groupBox_pictureLevels)
+        self.doubleSpinBox_gamma.setObjectName(u"doubleSpinBox_gamma")
+        self.doubleSpinBox_gamma.setDecimals(2)
+        self.doubleSpinBox_gamma.setMinimum(0.100000000000000)
+        self.doubleSpinBox_gamma.setMaximum(10.000000000000000)
+        self.doubleSpinBox_gamma.setSingleStep(0.100000000000000)
+        self.doubleSpinBox_gamma.setValue(1.000000000000000)
+
+        self.formLayout_pictureLevels.setWidget(3, QFormLayout.ItemRole.FieldRole, self.doubleSpinBox_gamma)
+
+
+        self.formLayout.setWidget(6, QFormLayout.ItemRole.SpanningRole, self.groupBox_pictureLevels)
+
         self.label_4 = QLabel(self.widget)
         self.label_4.setObjectName(u"label_4")
 
@@ -112,6 +163,26 @@ class Ui_Dialog(object):
         self.label_3.setText(QCoreApplication.translate("Dialog", u"Resolution", None))
         self.comboBox_resolution.setItemText(0, QCoreApplication.translate("Dialog", u"Default", None))
 
+        self.groupBox_pictureLevels.setTitle(QCoreApplication.translate("Dialog", u"Picture levels", None))
+#if QT_CONFIG(tooltip)
+        self.groupBox_pictureLevels.setToolTip(QCoreApplication.translate("Dialog", u"Cut what a dim LED or LCD display shows for the segments that are off (ghosting), and stretch the lit segments back to full white. Applies to the whole picture: the preview, Binary View and the OCR.", None))
+#endif // QT_CONFIG(tooltip)
+#if QT_CONFIG(tooltip)
+        self.checkBox_pictureLevels.setToolTip(QCoreApplication.translate("Dialog", u"Apply a black point, a white point and a gamma to every frame. Off by default.", None))
+#endif // QT_CONFIG(tooltip)
+        self.checkBox_pictureLevels.setText(QCoreApplication.translate("Dialog", u"Apply black point and white point", None))
+        self.label_blackPoint.setText(QCoreApplication.translate("Dialog", u"Black point", None))
+#if QT_CONFIG(tooltip)
+        self.spinBox_blackPoint.setToolTip(QCoreApplication.translate("Dialog", u"Every gray level up to this one becomes black. Raise it past the level the display shows for segments that are off (the ghosting), and below the lit segments.", None))
+#endif // QT_CONFIG(tooltip)
+        self.label_whitePoint.setText(QCoreApplication.translate("Dialog", u"White point", None))
+#if QT_CONFIG(tooltip)
+        self.spinBox_whitePoint.setToolTip(QCoreApplication.translate("Dialog", u"Every gray level from this one up becomes white. Keep it at or below the brightest lit segments.", None))
+#endif // QT_CONFIG(tooltip)
+        self.label_gamma.setText(QCoreApplication.translate("Dialog", u"Gamma", None))
+#if QT_CONFIG(tooltip)
+        self.doubleSpinBox_gamma.setToolTip(QCoreApplication.translate("Dialog", u"Brightens (above 1) or darkens (below 1) the midtones after the levels. 1.00 leaves them as they are.", None))
+#endif // QT_CONFIG(tooltip)
         self.label_4.setText(QCoreApplication.translate("Dialog", u"Capture Backend", None))
         self.comboBox_captureBackend.setItemText(0, QCoreApplication.translate("Dialog", u"Default / Any", None))
 
