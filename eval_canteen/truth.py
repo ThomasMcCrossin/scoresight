@@ -313,9 +313,10 @@ def load_truth(media_id, strict_frames=True):
         ]
         transitions.append(trans)
 
-    # Clock stops: the journal gaps classified as stops, plus the spans the
-    # frames verified (verified wins where they overlap).
-    stops = _merge_spans(sorted(frame_stops or stops))
+    # Clock stops: the journal gaps classified as stops, plus every span the
+    # frames verified (verified ones refine the journal's, they don't replace
+    # the rest).
+    stops = _merge_spans(sorted(list(stops) + list(frame_stops)))
 
     # Every stop contributes clock_stop / clock_start transitions; a stop that
     # a verified transition already names (the same edge within 3 s) is not

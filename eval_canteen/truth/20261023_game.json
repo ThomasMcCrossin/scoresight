@@ -14,38 +14,38 @@
       "transitions": [
         {
           "kind": "score_home",
-          "media": 496.0,
+          "media": 495.5,
           "value": 2,
           "verified": true,
-          "note": "home 1 at media 495 (clock 5:09), 2 at 496; board clock frozen at 5:09 for the stoppage"
+          "note": "home 1 at 495.4, 2 at 495.6 (frames 495.2/495.4/495.6/495.8/496.0); the board clock stays 5:09 through the stoppage"
         },
         {
           "kind": "score_home",
-          "media": 1255.0,
+          "media": 1254.1,
           "value": 3,
           "verified": true,
-          "note": "home 2 at media 1254 (clock 14:04), 3 at 1255"
+          "note": "home 2 at 1254.0, 3 at 1254.2 (frames)"
         },
         {
           "kind": "period_start",
-          "media": 1042.0,
+          "media": 1042.6,
           "value": 2,
           "verified": true,
-          "note": "period 1 with 0.0 at media 1041, period 2 with 15:00 at 1042"
+          "note": "P1 0.0 at 1042.4, P2 15.00 at 1042.6 (frames); the journal's P2 '15:00 at 1043.2' is ~0.5 s later"
         },
         {
           "kind": "clock_stop",
-          "media": 1041.8,
+          "media": 1042.6,
           "value": 0,
           "verified": true,
-          "note": "the board clock reaches 0.0 at the end of P1 (media 1041, frame) and holds there through the intermission"
+          "note": "P1's clock reaches 0.0 and the board switches to P2 at 1042.6; the clock then holds at 15:00"
         },
         {
           "kind": "clock_start",
-          "media": 1142.0,
+          "media": 1141.0,
           "value": 900,
           "verified": true,
-          "note": "P2's clock holds at 15:00 from media 1042 to 1141, then counts (14:59 at 1142, 14:58 at 1143); frames confirm the hold"
+          "note": "P2's clock counts from 14:59 at 1141.4 (frames); the journal's 15:00 at 1143.2 is stale"
         }
       ],
       "clock_stops": [
@@ -90,8 +90,8 @@
           896.8
         ],
         [
-          1043.2,
-          1141.6
+          1042.6,
+          1141.0
         ],
         [
           1194.6,

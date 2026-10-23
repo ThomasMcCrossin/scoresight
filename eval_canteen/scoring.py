@@ -26,6 +26,12 @@ from truth import Transition, parse_clock
 
 GOOD_STATES = ("Success", "SameNoChange")
 CLOCK_TOLERANCE = 1.0  # seconds: the board shows whole seconds above a minute
+# per-sample clock accuracy is not judged within this many seconds of a
+# reference clock edge: a restart's timing is what the transition latency
+# measures, and the journal's own resolution is one second
+EDGE_GRACE = 2.5
+# a verified clock anchor replaces journal polls this close to it
+VERIFIED_WINDOW = 3.0
 FIELDS = (
     ("period", "Period"),
     ("home", "Home Score"),
@@ -103,13 +109,65 @@ class TransitionScore:
 
 
 class Timeline:
-    """The reference, interpolated: what the board shows at any media time."""
+    """The reference, interpolated: what the board shows at any media time.
+
+    Scores and the period are the journal's last value; the clock is modelled
+    with **runs**: sequences of journal polls where it moves about as much as
+    the media does. Inside a run it is interpolated 1:1; outside one it holds
+    (a stoppage, the intermission, a reader gap). A hand-verified clock start
+    corrects a run whose first poll came late (the board showed 15:00 while
+    the reader still reported 14:59's predecessor).
+    """
 
     def __init__(self, truth):
         self.truth = truth
         self.observations = truth.observations
         self.stops = truth.clock_stops
         self._times = [obs.media for obs in self.observations]
+        self.runs = self._build_runs()
+
+    def _build_runs(self):
+        runs = []
+        current = None
+        for obs in self.observations:
+            if obs.clock_s is None:
+                current = None
+                continue
+            if current is not None:
+                span = obs.media - current["end_media"]
+                moved = current["end_seconds"] - obs.clock_s
+                if 0 < span <= 4.0 and 0 <= moved <= span + 2.0:
+                    current["end_media"] = obs.media
+                    current["end_seconds"] = obs.clock_s
+                    continue
+                runs.append(current)
+            current = {
+                "start_media": obs.media,
+                "start_seconds": obs.clock_s,
+                "end_media": obs.media,
+                "end_seconds": obs.clock_s,
+            }
+        if current is not None:
+            runs.append(current)
+        # a verified clock start pulls the following run's start back to when
+        # the board actually started
+        for trans in self.truth.transitions:
+            if trans.kind != "clock_start" or not trans.verified:
+                continue
+            if trans.value is None:
+                continue
+            media, seconds = trans.media, float(trans.value)
+            for run in runs:
+                delta = run["start_media"] - media
+                if 0 <= delta <= VERIFIED_WINDOW + 2.0:
+                    if abs(run["start_seconds"] - seconds) >= 1.0:
+                        run["start_media"] = media
+                        run["start_seconds"] = seconds
+                    break
+        return [
+            (r["start_media"], r["start_seconds"], r["end_media"], r["end_seconds"])
+            for r in runs
+        ]
 
     def _around(self, media):
         # bisect: an hour of samples against ~1000 polls must stay cheap
@@ -121,50 +179,113 @@ class Timeline:
     def _in_stop(self, media):
         return any(start - 2.0 <= media <= end + 2.0 for start, end in self.stops)
 
+    def pred_clock(self, media):
+        """The clock's seconds at media: 1:1 inside a run, held outside one."""
+        if not self.runs:
+            return None
+        # a recorded stop first: the board holds through it. It holds the
+        # value it stopped on, except across a period change, where it is
+        # already reset for the next period (0.0 becomes 15:00 during the
+        # intermission).
+        for stop_start, stop_end in self.stops:
+            if stop_start <= media <= stop_end:
+                period_change = any(
+                    t.kind == "period_start"
+                    and stop_start - 1.5 <= t.media <= stop_end + 1.5
+                    for t in self.truth.transitions
+                    if t.verified
+                )
+                if period_change:
+                    following = [
+                        start_seconds
+                        for start_media, start_seconds, _, _ in self.runs
+                        if start_media >= stop_end - 1.5
+                    ]
+                    if following:
+                        return following[0]
+                held = None
+                for _, _, end_media, end_seconds in self.runs:
+                    if end_media <= stop_start + 1.5:
+                        held = end_seconds
+                if held is not None:
+                    return held
+        for start_media, start_seconds, end_media, end_seconds in self.runs:
+            if start_media <= media <= end_media:
+                if end_media > start_media:
+                    slope = (end_seconds - start_seconds) / (end_media - start_media)
+                    value = start_seconds + slope * (media - start_media)
+                else:
+                    value = start_seconds
+                # the board shows whole seconds: 684.0, not 684.02
+                return float(round(value))
+        if media < self.runs[0][0]:
+            return self.runs[0][1]
+        held = None
+        for _, _, end_media, end_seconds in self.runs:
+            if end_media <= media:
+                held = end_seconds
+        return held
+
+    def near_edge(self, media):
+        """True within EDGE_GRACE of a clock start, stop or period change."""
+        edges = [start for start, _ in self.stops] + [end for _, end in self.stops]
+        edges += [
+            t.media
+            for t in self.truth.transitions
+            if t.kind in ("clock_start", "clock_stop", "period_start")
+        ]
+        return any(abs(media - edge) <= EDGE_GRACE for edge in edges)
+
+    def scores_at(self, media):
+        """(home, away, period) the board shows at media.
+
+        The journal's last value, except that a hand-verified score or period
+        change counts from its verified instant: the journal polled after the
+        board flipped and still shows the old value for up to a second.
+        """
+        before, _ = self._around(media)
+        if before is None:
+            return None, None, None
+        home, away, period = before.home, before.away, before.period
+        for trans in self.truth.transitions:
+            if not trans.verified or trans.media > media or trans.value is None:
+                continue
+            if trans.kind == "score_home":
+                home = int(trans.value)
+            elif trans.kind == "score_away":
+                away = int(trans.value)
+            elif trans.kind == "period_start":
+                period = int(trans.value)
+        return home, away, period
+
     def predicted(self, media):
         """(home, away, period, clock_seconds) the board shows at media."""
-        before, after = self._around(media)
-        if before is None:
-            return None, None, None, None
-        clock = None
-        if before.clock_s is None:
-            pass
-        elif self._in_stop(media):
-            # the clock stands still through the stop: it holds the last value
-            # read before the reading stopped
-            clock = before.clock_s
-        elif after is not None and after.clock_s is not None:
-            span = after.media - before.media
-            drop = before.clock_s - after.clock_s
-            if 0 <= drop <= span + 2.0:
-                clock = before.clock_s - (media - before.media)
-            else:
-                clock = before.clock_s
-        else:
-            clock = before.clock_s
-        return before.home, before.away, before.period, clock
+        home, away, period = self.scores_at(media)
+        return home, away, period, self.pred_clock(media)
 
     def has_reference(self, media, field_name):
         before, after = self._around(media)
         if before is None:
             return False
         if field_name == "clock":
-            # The journal blanks the clock under a minute (the board switches
-            # to tenths, "59.7", which it does not read): it cannot judge
-            # those, so they are not scored.
-            if before.clock_s is None:
+            # the journal blanks the clock under a minute (the board shows
+            # tenths, "59.7", which it does not read)
+            if before.clock_s is None and not self._in_stop(media):
                 return False
-            if before.clock_s <= 61.0 and after is not None and after.clock_s is None:
-                return False
+            if before.clock_s is not None and before.clock_s <= 61.0:
+                if (
+                    after is not None
+                    and after.clock_s is None
+                    and not self._in_stop(media)
+                ):
+                    return False
+            return self.pred_clock(media) is not None
         if self._in_stop(media):
-            # a stop is a recorded fact: the board is unchanged through it
-            value = {
+            return {
                 "home": before.home,
                 "away": before.away,
                 "period": before.period,
-                "clock": before.clock_s,
-            }[field_name]
-            return value is not None
+            }[field_name] is not None
         # a long journal gap that is not a stop (intermission, a reader hole):
         # nothing is known inside it
         if after is not None:
@@ -173,13 +294,11 @@ class Timeline:
                 gap > 20.0 and media - before.media > 6.0 and after.media - media > 6.0
             ):
                 return False
-        if field_name == "home":
-            return before.home is not None
-        if field_name == "away":
-            return before.away is not None
-        if field_name == "period":
-            return before.period is not None
-        return False
+        return {
+            "home": before.home,
+            "away": before.away,
+            "period": before.period,
+        }[field_name] is not None
 
 
 def _int(text):
@@ -207,7 +326,10 @@ def fit_offset(samples, truth, start_media, span=40.0, step=0.25):
         candidates.append((sample["wall"], clock))
     if not candidates:
         return 0.0, 0
-    best_offset, best_score = 0.0, -1
+    # Whole-second clocks can't resolve an offset better than about a second,
+    # so the best score is a plateau of many offsets: take the middle of it
+    # (the median) rather than an edge of it.
+    scores = []
     offset = -span
     while offset <= span + 1e-9:
         score = 0
@@ -216,13 +338,11 @@ def fit_offset(samples, truth, start_media, span=40.0, step=0.25):
             predicted = timeline.predicted(media)[3]
             if predicted is not None and abs(predicted - clock) <= CLOCK_TOLERANCE:
                 score += 1
-        # on a tie prefer the offset closest to zero: a run whose clock stood
-        # still (or a clip full of stops) aligns everywhere
-        if score > best_score or (
-            score == best_score and abs(offset) < abs(best_offset)
-        ):
-            best_offset, best_score = offset, score
+        scores.append((round(offset, 3), score))
         offset += step
+    best_score = max(score for _, score in scores)
+    plateau = sorted(offset for offset, score in scores if score == best_score)
+    best_offset = plateau[len(plateau) // 2]
     return best_offset, best_score
 
 
@@ -308,6 +428,10 @@ def score(samples, truth, game_events, start_media, duration):
             else:
                 got = _int(text)
                 ok = got is not None and got == expected
+            if key == "clock" and timeline.near_edge(media):
+                # a restart's exact second is the transition's latency
+                score_row.no_reference += 1
+                continue
             if ok:
                 score_row.correct += 1
             else:
@@ -340,12 +464,15 @@ def score(samples, truth, game_events, start_media, duration):
         window = MATCH_WINDOW.get(want.kind, 25.0)
         row = transition_scores[want.kind]
         match = None
+        best = window + 1e-9
         for index, got in enumerate(detected):
             if index in used or got.kind != want.kind:
                 continue
-            if abs(got.media - want.media) <= window:
+            distance = abs(got.media - want.media)
+            # the nearest detection in the window, not the first one
+            if distance < best:
                 match = (index, got)
-                break
+                best = distance
         if match is None:
             continue
         index, got = match
