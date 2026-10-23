@@ -1,0 +1,41 @@
+{
+ "name": "fork_d12_1250_1460",
+ "build": "/home/canteenhub/worktrees/scoresight/qualify",
+ "variant": "filtered",
+ "clip": "20261023T101023.mkv",
+ "start_media": 1250.0,
+ "duration": 210.0,
+ "samples": 233,
+ "verdict": {
+  "d": {
+   "matched": 2,
+   "wanted": 2,
+   "false_scores": 0
+  }
+ },
+ "detail": {
+  "d": {
+   "wanted": 2,
+   "matched": 2,
+   "goals": [
+    {
+     "want": "home 1 at 1264s (frames: 0 at 1260, 1 at 1264; GUEST stays 0)",
+     "detected_media": 1264.8,
+     "detected_adt": "10:31:27",
+     "delta_s": 1.3,
+     "detected_value": 1,
+     "ok": true
+    },
+    {
+     "want": "home 2 at 1410s (frames: 1 at 1409, 2 at 1411)",
+     "detected_media": 1410.6,
+     "detected_adt": "10:33:53",
+     "delta_s": 0.6,
+     "detected_value": 2,
+     "ok": true
+    }
+   ],
+   "false_scores": []
+  }
+ }
+}

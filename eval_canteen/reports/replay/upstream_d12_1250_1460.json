@@ -1,0 +1,41 @@
+{
+ "name": "upstream_d12_1250_1460",
+ "build": "/home/canteenhub/worktrees/scoresight/upstream-0388a1a",
+ "variant": "filtered",
+ "clip": "20261023T101023.mkv",
+ "start_media": 1250.0,
+ "duration": 210.0,
+ "samples": 213,
+ "verdict": {
+  "d": {
+   "matched": 2,
+   "wanted": 2,
+   "false_scores": 0
+  }
+ },
+ "detail": {
+  "d": {
+   "wanted": 2,
+   "matched": 2,
+   "goals": [
+    {
+     "want": "home 1 at 1264s (frames: 0 at 1260, 1 at 1264; GUEST stays 0)",
+     "detected_media": 1264.2,
+     "detected_adt": "10:31:27",
+     "delta_s": 0.7,
+     "detected_value": 1,
+     "ok": true
+    },
+    {
+     "want": "home 2 at 1410s (frames: 1 at 1409, 2 at 1411)",
+     "detected_media": 1410.0,
+     "detected_adt": "10:33:53",
+     "delta_s": 0.0,
+     "detected_value": 2,
+     "ok": true
+    }
+   ],
+   "false_scores": []
+  }
+ }
+}

@@ -1,0 +1,33 @@
+{
+ "name": "fork_d5_3400_3600",
+ "build": "/home/canteenhub/worktrees/scoresight/qualify",
+ "variant": "filtered",
+ "clip": "20261023T091022.mkv",
+ "start_media": 3400.0,
+ "duration": 200.0,
+ "samples": 200,
+ "verdict": {
+  "d": {
+   "matched": 1,
+   "wanted": 1,
+   "false_scores": 0
+  }
+ },
+ "detail": {
+  "d": {
+   "wanted": 1,
+   "matched": 1,
+   "goals": [
+    {
+     "want": "home 5 at 3539s (frames: 4 at 3535, 5 at 3540 (live logged 10:09:24))",
+     "detected_media": 3545.4,
+     "detected_adt": "10:09:27",
+     "delta_s": 6.4,
+     "detected_value": 5,
+     "ok": true
+    }
+   ],
+   "false_scores": []
+  }
+ }
+}

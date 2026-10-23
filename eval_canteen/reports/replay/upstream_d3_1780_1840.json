@@ -1,0 +1,33 @@
+{
+ "name": "upstream_d3_1780_1840",
+ "build": "/home/canteenhub/worktrees/scoresight/upstream-0388a1a",
+ "variant": "filtered",
+ "clip": "20261023T101023.mkv",
+ "start_media": 1780.0,
+ "duration": 60.0,
+ "samples": 63,
+ "verdict": {
+  "d": {
+   "matched": 1,
+   "wanted": 1,
+   "false_scores": 0
+  }
+ },
+ "detail": {
+  "d": {
+   "wanted": 1,
+   "matched": 1,
+   "goals": [
+    {
+     "want": "home 3 at 1782s (frames: 2 at 1778, 3 at 1782 (live logged 10:40:43))",
+     "detected_media": 1786.4,
+     "detected_adt": "10:40:09",
+     "delta_s": 4.9,
+     "detected_value": 3,
+     "ok": true
+    }
+   ],
+   "false_scores": []
+  }
+ }
+}

@@ -11,9 +11,11 @@ fall inside the run's window, a verdict that can be checked against the frames:
   whether any of them is an overtime period (a period label with OT) or a score
   correction, both of which the live service logged while the operator set the
   board up for the next game.
-* **c** the clock set up before the game: a period ended (or the period moved)
-  between the run-down to 0:00 and the reset to 15:00, which is the live
-  service's "End of P1" at 10:27:51.
+* **c** the clock set up before the game: the brief calls the live service's
+  "End of P1" at 10:27:51 a flick (15:00 -> 0:00 -> 15:00). On the frames the
+  clock runs down 0:44 -> 0:00 at about a second a second, holds 0:00 for six
+  seconds, then resets to 15:00, so a period end there is correct and the
+  check is that each build logs exactly one, at the 0:00 and not at the reset.
 * **d** every goal: each detected score event against the list verified on
   frames, and the false ones.
 
@@ -64,7 +66,16 @@ INCIDENTS = {
     # "End of P1" was media 1048 (10:27:51)
     "a": {"label": "clock frozen at 5:15 while the board ran", "from": 330, "to": 650},
     "b": {"label": "final, then a board set for the next game", "from": 660, "to": 845},
-    "c": {"label": "clock set up before the game", "from": 1028, "to": 1065},
+    # The brief calls this a flick (15:00 -> 0:00 -> 15:00) and expects no
+    # period end. The footage shows the clock actually running down: 0:44 at
+    # media 1008, a second a second, 0:00 at 1052.4, then the 15:00 reset at
+    # 1058.4 (frames in evidence/incident_c_rundown.png). A period end there is
+    # the correct event and both builds emit exactly one, so the window spans
+    # the whole run-down and reset and reports what the period end was caused
+    # by rather than assuming it was wrong.
+    # the window starts at 1010, where the replay was fed from; the samples
+    # collected in its 2 s lead-in put the board at 0:44 from media 1008
+    "c": {"label": "the pre-game clock run-down and reset", "from": 1010, "to": 1065},
 }
 GOAL_WINDOW = 25.0
 _CLOCK = re.compile(r"(?:(\d{1,3}):)?(\d{1,2})(?:[.,](\d{1,2}))?")
@@ -436,6 +447,12 @@ def main(argv=None):
     parser.add_argument("--report", required=True)
     parser.add_argument("--md", action="store_true")
     parser.add_argument("--json", action="store_true", help="print the full detail")
+    parser.add_argument(
+        "--summary",
+        default=None,
+        help="write a compact tracked summary (window + verdict + detail) here; "
+        "the full sample report it reads is gitignored and regenerable",
+    )
     args = parser.parse_args(argv)
     with open(args.report) as handle:
         report = json.load(handle)
@@ -444,6 +461,22 @@ def main(argv=None):
                       "build": os.path.basename(os.path.dirname(report.get("build", ""))),
                       "verdict": verdict,
                       **({"detail": results} if args.json else {})}, indent=1))
+    if args.summary:
+        summary = {
+            "name": report.get("name"),
+            "build": report.get("build"),
+            "variant": report.get("variant"),
+            "clip": report.get("clip"),
+            "start_media": report.get("start_media"),
+            "duration": report.get("duration"),
+            "samples": len(report.get("samples") or []),
+            "verdict": verdict,
+            "detail": results,
+        }
+        os.makedirs(os.path.dirname(args.summary) or ".", exist_ok=True)
+        with open(args.summary, "w") as handle:
+            json.dump(summary, handle, indent=1)
+        print(f"[incidents] written {args.summary}", file=sys.stderr)
     if args.md:
         path = os.path.splitext(args.report)[0] + ".md"
         with open(path, "w") as handle:

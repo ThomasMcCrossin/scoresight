@@ -86,6 +86,16 @@ def transition_row(transitions, kind):
     )
 
 
+def tracked_summary(name):
+    """The committed one-window summary for a run, if it was written.
+
+    The full report (every sample, ~0.5 MB) is gitignored: it is a run artifact
+    that a rerun regenerates. The summary beside the page is what a reader in
+    the repo can open, so the list cites it when it exists."""
+    path = os.path.join(REPORTS, "replay", f"{name}.json")
+    return path if os.path.exists(path) else None
+
+
 def replay_files():
     return sorted(glob.glob(os.path.join(REPORTS, "work", "replay", "*.json")))
 
@@ -104,7 +114,10 @@ def replay_rows(paths):
                     "variant": report.get("variant"),
                     "window": [report.get("start_media"), report.get("duration")],
                     "clip": report.get("clip"),
-                    "path": os.path.relpath(path, os.path.dirname(REPORTS)),
+                    "path": os.path.relpath(
+                        tracked_summary(report.get("name")) or path,
+                        os.path.dirname(REPORTS),
+                    ),
                     "verdict": {},
                     "detail": {},
                     "empty": True,
@@ -119,7 +132,10 @@ def replay_rows(paths):
                 "variant": report.get("variant"),
                 "window": [report.get("start_media"), report.get("duration")],
                 "clip": report.get("clip"),
-                "path": os.path.relpath(path, os.path.dirname(REPORTS)),
+                "path": os.path.relpath(
+                    tracked_summary(report.get("name")) or path,
+                    os.path.dirname(REPORTS),
+                ),
                 "verdict": verdict,
                 "detail": results,
             }
@@ -301,12 +317,16 @@ def render(scored_runs, replays):
             wanted = sum(g["wanted"] for g in v["goals"])
             return f"{matched}/{wanted} goals, {len(v['false'])} false"
 
-        lines.append(f"| a clock followed | {a_text(up['a'])} | {a_text(fk['a'])} | frames |")
+        lines.append(
+            f"| a clock followed (not reproduced by either) "
+            f"| {a_text(up['a'])} | {a_text(fk['a'])} | frames + /game |"
+        )
         lines.append(
             f"| b new game, no OT/correction | {b_text(up['b'])} | {b_text(fk['b'])} | frames |"
         )
         lines.append(
-            f"| c no period end on a flick | {c_text(up['c'])} | {c_text(fk['c'])} | frames + /game |"
+            f"| c one period end on the run-down, none on the reset "
+            f"| {c_text(up['c'])} | {c_text(fk['c'])} | frames + /game |"
         )
         lines.append(f"| d goals | {d_text(up)} | {d_text(fk)} | frames |")
         lines.append("")
@@ -358,17 +378,21 @@ def render_fixes():
         "before and after | the profile is byte-identical after a full run; "
         "the tests pass |",
         "| Clock-hold deadlock | the replay of the span the live service froze "
-        "in (incident a), plus `tests/test_game_state.py` | the fork follows "
-        "the board (worst -1.0 s, no freeze) where the live log held 5:15 for "
-        "minutes |",
+        "in (incident a), plus `tests/test_game_state.py` | the replay does "
+        "**not** reproduce the live freeze on either build: upstream 0.4.1 "
+        "also follows the board across media 330-650 (worst 0.0 s, no freeze), "
+        "so the deadlock needs conditions this clip does not carry. The fix "
+        "rests on the unit tests and on reading the code path, not on replay |",
         "| `new_game` after a final | the replay of the final and the next "
         "game's board (incident b), plus three `new_game` tests | no score "
         "correction, and one `new_game` when the board gives the first period "
         "at 0-0; it still logs Start/End of OT while the board itself shows a "
         "4th period |",
-        "| Period end only on a run-down | the replay of the pre-game set-up "
-        "(incident c), plus the flick test | the period ends when the clock "
-        "runs 0:05 -> 0:00, and the 15:00 reset starts none |",
+        "| Period end only on a run-down | the replay of the pre-game clock "
+        "(incident c), plus the flick test | the board runs 0:44 -> 0:00 at "
+        "about a second a second, holds 0:00 for 6 s, then resets to 15:00; "
+        "both builds log one period end at the 0:00 and no period start at "
+        "the reset, which is the correct reading of that board |",
         "",
         "The fork's own suite: 2026 passed, 15 skipped, 1 failed "
         "(`test_the_outputs_are_destinations_over_their_pages`). **The same test "

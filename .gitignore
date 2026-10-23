@@ -42,3 +42,4 @@ htmlcov/
 /ocr_models/ppocr/*
 !/ocr_models/ppocr/LICENSE
 !/ocr_models/ppocr/NOTICE
+.venv

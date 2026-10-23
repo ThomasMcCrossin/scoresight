@@ -1,0 +1,33 @@
+{
+ "name": "fork_d4_2210_2260",
+ "build": "/home/canteenhub/worktrees/scoresight/qualify",
+ "variant": "filtered",
+ "clip": "20261023T101023.mkv",
+ "start_media": 2210.0,
+ "duration": 50.0,
+ "samples": 53,
+ "verdict": {
+  "d": {
+   "matched": 1,
+   "wanted": 1,
+   "false_scores": 0
+  }
+ },
+ "detail": {
+  "d": {
+   "wanted": 1,
+   "matched": 1,
+   "goals": [
+    {
+     "want": "home 4 at 2208s (frames: 3 at 2205, 4 at 2208 (live logged 10:47:51))",
+     "detected_media": 2212.2,
+     "detected_adt": "10:47:15",
+     "delta_s": 4.7,
+     "detected_value": 4,
+     "ok": true
+    }
+   ],
+   "false_scores": []
+  }
+ }
+}

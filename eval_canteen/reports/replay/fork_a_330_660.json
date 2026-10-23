@@ -1,0 +1,57 @@
+{
+ "name": "fork_a_330_660",
+ "build": "/home/canteenhub/worktrees/scoresight/qualify",
+ "variant": "filtered",
+ "clip": "20261023T101023.mkv",
+ "start_media": 330.0,
+ "duration": 330.0,
+ "samples": 355,
+ "verdict": {
+  "a": {
+   "engine_vs_board": -1.0,
+   "longest_freeze_s": 0.0
+  },
+  "d": {
+   "matched": 2,
+   "wanted": 2,
+   "false_scores": 0
+  }
+ },
+ "detail": {
+  "a": {
+   "samples": 320,
+   "worst_engine_vs_board_s": {
+    "media": 572.2,
+    "adt": "10:19:55",
+    "engine": 80.0,
+    "board": 81.0,
+    "difference_s": -1.0
+   },
+   "longest_freeze_s": 0.0,
+   "freeze_span": null
+  },
+  "d": {
+   "wanted": 2,
+   "matched": 2,
+   "goals": [
+    {
+     "want": "home 6 at 359s (10:16:22 live)",
+     "detected_media": 361.6,
+     "detected_adt": "10:16:24",
+     "delta_s": 2.6,
+     "detected_value": 6,
+     "ok": true
+    },
+    {
+     "want": "home 7 at 408s (10:17:11 live, a ~8 s late detection)",
+     "detected_media": 412.6,
+     "detected_adt": "10:17:15",
+     "delta_s": 4.6,
+     "detected_value": 7,
+     "ok": true
+    }
+   ],
+   "false_scores": []
+  }
+ }
+}

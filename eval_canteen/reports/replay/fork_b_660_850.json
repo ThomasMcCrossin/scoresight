@@ -1,0 +1,94 @@
+{
+ "name": "fork_b_660_850",
+ "build": "/home/canteenhub/worktrees/scoresight/qualify",
+ "variant": "filtered",
+ "clip": "20261023T101023.mkv",
+ "start_media": 660.0,
+ "duration": 190.0,
+ "samples": 213,
+ "verdict": {
+  "b": {
+   "new_game": 1,
+   "overtime_events": 2,
+   "score_corrections": 0
+  },
+  "d": {
+   "matched": 0,
+   "wanted": 0,
+   "false_scores": 0
+  }
+ },
+ "detail": {
+  "b": {
+   "events": [
+    {
+     "media": 658.0,
+     "adt": "10:21:21",
+     "kind": "clock_start",
+     "period": "P3",
+     "text": "Clock started at 5.9"
+    },
+    {
+     "media": 658.0,
+     "adt": "10:21:21",
+     "kind": "period_end",
+     "period": "P3",
+     "text": "End of P3 (7\u20130)"
+    },
+    {
+     "media": 658.0,
+     "adt": "10:21:21",
+     "kind": "clock_stop",
+     "period": "P3",
+     "text": "Clock stopped at 0.0"
+    },
+    {
+     "media": 658.0,
+     "adt": "10:21:21",
+     "kind": "final",
+     "period": "P3",
+     "text": "Final (7\u20130)"
+    },
+    {
+     "media": 764.8,
+     "adt": "10:23:07",
+     "kind": "period_start",
+     "period": "OT",
+     "text": "Start of OT"
+    },
+    {
+     "media": 772.0,
+     "adt": "10:23:15",
+     "kind": "period_end",
+     "period": "OT",
+     "text": "End of OT (7\u20130)"
+    },
+    {
+     "media": 772.0,
+     "adt": "10:23:15",
+     "kind": "period_start",
+     "period": "P1",
+     "text": "Start of P1"
+    },
+    {
+     "media": 773.2,
+     "adt": "10:23:16",
+     "kind": "new_game",
+     "period": "",
+     "text": "New game"
+    }
+   ],
+   "final": 1,
+   "new_game": 1,
+   "overtime_events": 2,
+   "score_corrections": 0,
+   "period_starts": 2
+  },
+  "d": {
+   "wanted": 0,
+   "matched": 0,
+   "goals": [],
+   "false_scores": []
+  }
+ }
+}

@@ -1,0 +1,57 @@
+{
+ "name": "upstream_a_330_660",
+ "build": "/home/canteenhub/worktrees/scoresight/upstream-0388a1a",
+ "variant": "filtered",
+ "clip": "20261023T101023.mkv",
+ "start_media": 330.0,
+ "duration": 330.0,
+ "samples": 333,
+ "verdict": {
+  "a": {
+   "engine_vs_board": 0.0,
+   "longest_freeze_s": 0.0
+  },
+  "d": {
+   "matched": 2,
+   "wanted": 2,
+   "false_scores": 0
+  }
+ },
+ "detail": {
+  "a": {
+   "samples": 320,
+   "worst_engine_vs_board_s": {
+    "media": 330.4,
+    "adt": "10:15:53",
+    "engine": 322.0,
+    "board": 322.0,
+    "difference_s": 0.0
+   },
+   "longest_freeze_s": 0.0,
+   "freeze_span": null
+  },
+  "d": {
+   "wanted": 2,
+   "matched": 2,
+   "goals": [
+    {
+     "want": "home 6 at 359s (10:16:22 live)",
+     "detected_media": 362.8,
+     "detected_adt": "10:16:25",
+     "delta_s": 3.8,
+     "detected_value": 6,
+     "ok": true
+    },
+    {
+     "want": "home 7 at 408s (10:17:11 live, a ~8 s late detection)",
+     "detected_media": 412.6,
+     "detected_adt": "10:17:15",
+     "delta_s": 4.6,
+     "detected_value": 7,
+     "ok": true
+    }
+   ],
+   "false_scores": []
+  }
+ }
+}

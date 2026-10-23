@@ -1,0 +1,80 @@
+{
+ "name": "upstream_b_660_850",
+ "build": "/home/canteenhub/worktrees/scoresight/upstream-0388a1a",
+ "variant": "filtered",
+ "clip": "20261023T101023.mkv",
+ "start_media": 660.0,
+ "duration": 190.0,
+ "samples": 214,
+ "verdict": {
+  "b": {
+   "new_game": 0,
+   "overtime_events": 2,
+   "score_corrections": 1
+  },
+  "d": {
+   "matched": 0,
+   "wanted": 0,
+   "false_scores": 0
+  }
+ },
+ "detail": {
+  "b": {
+   "events": [
+    {
+     "media": 658.6,
+     "adt": "10:21:21",
+     "kind": "period_end",
+     "period": "P3",
+     "text": "End of P3 (7\u20130)"
+    },
+    {
+     "media": 659.2,
+     "adt": "10:21:22",
+     "kind": "final",
+     "period": "P3",
+     "text": "Final (7\u20130)"
+    },
+    {
+     "media": 764.2,
+     "adt": "10:23:07",
+     "kind": "period_start",
+     "period": "OT",
+     "text": "Start of OT"
+    },
+    {
+     "media": 771.4,
+     "adt": "10:23:14",
+     "kind": "period_end",
+     "period": "OT",
+     "text": "End of OT (7\u20130)"
+    },
+    {
+     "media": 771.4,
+     "adt": "10:23:14",
+     "kind": "period_start",
+     "period": "P1",
+     "text": "Start of P1"
+    },
+    {
+     "media": 775.6,
+     "adt": "10:23:18",
+     "kind": "score",
+     "period": "P1",
+     "text": "Home score corrected to 0 (0\u20130)"
+    }
+   ],
+   "final": 1,
+   "new_game": 0,
+   "overtime_events": 2,
+   "score_corrections": 1,
+   "period_starts": 2
+  },
+  "d": {
+   "wanted": 0,
+   "matched": 0,
+   "goals": [],
+   "false_scores": []
+  }
+ }
+}
