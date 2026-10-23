@@ -77,7 +77,34 @@ def parse_args(argv=None):
     parser.add_argument(
         "--keep-work", action="store_true", help="keep the run's data/log directory"
     )
+    parser.add_argument(
+        "--rescore",
+        metavar="SAMPLES",
+        default=None,
+        help="score a saved samples.json instead of running ScoreSight "
+        "(the clip, --start and --duration still come from the arguments)",
+    )
     return parser.parse_args(argv)
+
+
+def _write_reports(args, meta, result, truth):
+    json_path = os.path.join(args.out, f"{meta['name']}.json")
+    md_path = os.path.join(args.out, f"{meta['name']}.md")
+    os.makedirs(args.out, exist_ok=True)
+    with open(json_path, "w") as handle:
+        json.dump({"meta": meta, "result": result}, handle, indent=1)
+    with open(md_path, "w") as handle:
+        handle.write(scoring.render_markdown(meta, result, truth))
+    print(f"[eval] written {json_path}")
+    print(f"[eval] written {md_path}")
+    for key, _ in scoring.FIELDS:
+        row = result["fields"][key]
+        acc = "n/a" if row["accuracy"] is None else f"{100 * row['accuracy']:.1f}%"
+        print(
+            f"[eval] {row['name']:<11} correct {row['correct']:>4} "
+            f"wrong {row['wrong']:>3} unknown {row['unknown']:>4} accuracy {acc}",
+            flush=True,
+        )
 
 
 def main(argv=None):
@@ -85,8 +112,6 @@ def main(argv=None):
     clip = os.path.abspath(os.path.expanduser(args.clip))
     if not os.path.exists(clip):
         raise SystemExit(f"clip not found: {clip}")
-    if not os.path.exists(runner.VENV_PYTHON):
-        raise SystemExit(f"ScoreSight venv missing: {runner.VENV_PYTHON}")
 
     media_id = media_id_of(clip)
     truth = truth_mod.load_truth(media_id)
@@ -94,6 +119,13 @@ def main(argv=None):
         raise SystemExit(f"no reference observations for {media_id}")
 
     name = args.name or f"{os.path.splitext(media_id)[0]}_{args.variant}_{args.engine}"
+
+    if args.rescore:
+        return _rescore(args, clip, media_id, truth, name)
+
+    if not os.path.exists(runner.VENV_PYTHON):
+        raise SystemExit(f"ScoreSight venv missing: {runner.VENV_PYTHON}")
+
     workdir = runner.make_run_dir(os.path.join(args.out, "work"), name)
     os.makedirs(args.out, exist_ok=True)
 
@@ -133,16 +165,16 @@ def main(argv=None):
         run.stop()
         feed.stop()
 
-    duration = args.duration
-    result = scoring.score(samples, truth, _events(samples), args.start, duration)
+    result = scoring.score(samples, truth, _events(samples), args.start, args.duration)
     meta = {
+        "name": name,
         "clip": media_id,
         "clip_path": clip,
         "variant": args.variant,
         "engine": args.engine,
         "cadence": args.cadence,
         "start_media": args.start,
-        "duration": duration,
+        "duration": args.duration,
         "samples": result.get("samples", len(samples)),
         "offset_seconds": result.get("offset_seconds"),
         "aligned_clock_samples": result.get("aligned_clock_samples"),
@@ -156,14 +188,6 @@ def main(argv=None):
     with open(os.path.join(workdir, "samples.json"), "w") as handle:
         json.dump(samples, handle, indent=1)
 
-    report = {"meta": meta, "result": result}
-    json_path = os.path.join(args.out, f"{name}.json")
-    md_path = os.path.join(args.out, f"{name}.md")
-    with open(json_path, "w") as handle:
-        json.dump(report, handle, indent=1)
-    with open(md_path, "w") as handle:
-        handle.write(scoring.render_markdown(meta, result, truth))
-
     if not args.keep_work:
         import shutil
 
@@ -171,16 +195,32 @@ def main(argv=None):
         meta["scoresight_log"] = None
         meta["samples_file"] = None
 
-    print(f"[eval] written {json_path}")
-    print(f"[eval] written {md_path}")
-    for key, _ in scoring.FIELDS:
-        row = result["fields"][key]
-        acc = "n/a" if row["accuracy"] is None else f"{100 * row['accuracy']:.1f}%"
-        print(
-            f"[eval] {row['name']:<11} correct {row['correct']:>4} wrong {row['wrong']:>3} "
-            f"unknown {row['unknown']:>4} accuracy {acc}",
-            flush=True,
-        )
+    _write_reports(args, meta, result, truth)
+    return 0
+
+
+def _rescore(args, clip, media_id, truth, name):
+    """Score a saved samples.json with the current scorer (no ScoreSight run)."""
+    path = os.path.abspath(os.path.expanduser(args.rescore))
+    with open(path) as handle:
+        samples = json.load(handle)
+    meta = {
+        "name": name,
+        "clip": media_id,
+        "clip_path": clip,
+        "variant": args.variant,
+        "engine": args.engine,
+        "cadence": args.cadence,
+        "start_media": args.start,
+        "duration": args.duration,
+        "samples_file": path,
+        "rescored_at": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
+    }
+    result = scoring.score(samples, truth, _events(samples), args.start, args.duration)
+    meta["samples"] = result.get("samples", len(samples))
+    meta["offset_seconds"] = result.get("offset_seconds")
+    meta["aligned_clock_samples"] = result.get("aligned_clock_samples")
+    _write_reports(args, meta, result, truth)
     return 0
 
 
