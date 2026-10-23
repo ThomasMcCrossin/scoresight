@@ -38,6 +38,7 @@ uv pip install --python .venv\Scripts\python.exe -r requirements-dev.txt -r requ
 | `SCORESIGHT_DEBUG` | Any value mirrors logs to the console and turns on uvicorn debug and access logging (env or `.env`). |
 | `SCORESIGHT_PPOCR_THREADS` | onnxruntime intra-op threads of the PP-OCR engine (default 2; 0 = onnxruntime's default, every core). |
 | `SCORESIGHT_STARTUP_REPORT` | A path: once the app is ready, `startup_timing` writes the startup milestones there as JSON (used by the boot benchmark). |
+| `SCORESIGHT_SETTINGS_READ_ONLY` | Any value (or `--settings-read-only`): `storage.store_data`/`remove_data` write and notify nothing, so the settings file is never touched for the run. |
 
 ## Architecture
 
@@ -75,7 +76,7 @@ The window is three panes in `splitter_main` (the side panes can be hidden), in 
 ### Detection boxes and their settings
 
 - `TextDetectionTarget` (in `text_detection_target.py`) subclasses `QRectF` and adds a `name`, a `settings` dict, optional `mini_rects` and runtime OCR state (`last_text`, `last_image`, smoothing and W/H history; not persisted).
-- All boxes live in `storage.TextDetectionTargetMemoryStorage`, a singleton `QObject` whose `data_changed` signal drives both the main window's box table and the viewer overlay. `MainWindow` loads the boxes once at startup and saves them 500 ms after any change (and on close).
+- All boxes live in `storage.TextDetectionTargetMemoryStorage`, a singleton `QObject` whose `data_changed` signal drives both the main window's box table and the viewer overlay. `MainWindow` loads the boxes once at startup and saves them 500 ms after any change; at close it saves them **only if they changed since loading** (`modified_since_load`: a mutation or `edit_item` sets it, a load or save clears it, so a profile edited while the window ran is never overwritten from memory).
 - The predefined boxes (Home Score, Away Score, Time and others) and their regex presets are in `defaults.py`. Every other name is a "custom" box.
 - **To add a per-box setting**, update `defaults.normalize_settings_dict` (the canonical keys and defaults; `getBoxesForStorage` serializes exactly its output, and `tests/test_storage.py` checks that), `box_settings_ui_handler.py` (the UI binding, `settingsWidgets()`, and `IMAGE_CLEANUP_SETTINGS` for an Image cleanup setting) and `tesseract.py`, if the setting affects processing (both engines' post-filters are in `_finish_reading`). If a stored value's meaning changes, bump `storage.BOXES_SCHEMA_VERSION` and extend `storage.migrate_boxes`: boxes are stored with `"boxes_schema_version"` (next to `"boxes"` in the settings file, and in exported files, which are `{"boxes_schema_version": N, "boxes": [...]}`); older ones are migrated once on load (version 2 turned 0.1.x's ineffective `conf_thresh` off).
 

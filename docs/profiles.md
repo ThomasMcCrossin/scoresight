@@ -40,8 +40,15 @@ The folder is listed in [Settings, Files & Command Line](configuration.md#where-
 |---|---|
 | `--profile NAME` | Use the settings file `scoresight-NAME.json`. The environment variable `SCORESIGHT_PROFILE=NAME` does the same. |
 | `--port N` | Serve the [HTTP API](http_server.md) on port `N` instead of 18099. |
+| `--settings-read-only` | Never write the settings file: the profile you start with stays exactly as it is, whatever you change in the window (the changes apply while it runs). The environment variable `SCORESIGHT_SETTINGS_READ_ONLY=1` does the same. Useful for a profile kept in a shared folder, under version control, or written by another program ([Read-only settings](#read-only-settings)). |
 
 Two instances cannot share an HTTP port. If the port is already taken, the second instance logs `HTTP server: port ... is already in use or not available` and runs without its HTTP server. Closing one instance never stops another instance's server. Give every instance a different `--port`. The **HTTP server** page of each instance (in its **Outputs** list) shows the links for its own port, and its HTTP server row shows ■ *Not running: port ... is in use* if its port was taken.
+
+## Read-only settings
+
+Start ScoreSight with `--settings-read-only` (or `SCORESIGHT_SETTINGS_READ_ONLY=1`) when the profile's file isn't yours to change: a shared profile on a network drive, one kept in version control, or one another program writes. Nothing is written to the settings file for the whole run: not the boxes, not the sport, not the source. Everything you change applies while ScoreSight runs and is gone when it closes.
+
+ScoreSight also leaves a profile **as it is when you changed nothing**: it writes the boxes at close only if you edited them while it ran (a box moved, added, renamed, or its settings changed), so a file edited by another program while ScoreSight was open is not overwritten with the boxes it read at startup. Read-only mode goes further and writes nothing at all.
 
 ## Starting a second instance
 

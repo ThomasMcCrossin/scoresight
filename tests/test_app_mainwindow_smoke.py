@@ -4637,3 +4637,61 @@ def test_the_window_publishes_health(main_window, patched, make_result):
     finally:
         http_server.update_health(http_server.HealthSnapshot())
         main_window.close()
+
+
+# --- the settings file is not rewritten at shutdown unless the boxes changed -----------
+
+
+def test_closing_without_an_edit_leaves_the_profile_as_it_is(make_window, data_dir):
+    """A window that changed nothing writes nothing: the file may have been
+    edited by someone else while it ran (a profile you manage by hand)."""
+    import json
+
+    import storage
+
+    path = data_dir / "scoresight.json"
+    edited = {
+        "boxes": [
+            {
+                "name": "Home Score",
+                "rect": {"x": 1, "y": 2, "width": 30, "height": 40},
+                "settings": {},
+                "mini_rects": [],
+            }
+        ],
+        "boxes_schema_version": storage.BOXES_SCHEMA_VERSION,
+    }
+    window = make_window()
+    # while the window runs, the file is replaced (another process, an editor)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(edited))
+    window.close()
+    QCoreApplication.processEvents()
+    assert json.loads(path.read_text()) == edited
+
+
+def test_closing_after_an_edit_stores_the_boxes(make_window, make_target):
+    from storage import fetch_data
+
+    window = make_window()
+    window.detectionTargetsStorage.add_item(make_target("Home Team Score"))
+    assert window.detectionTargetsStorage.modified_since_load is True
+    window.close()
+    QCoreApplication.processEvents()
+    names = [box["name"] for box in fetch_data("scoresight.json", "boxes")]
+    assert "Home Team Score" in names
+
+
+def test_settings_read_only_writes_nothing_at_all(
+    make_window, data_dir, monkeypatch, make_target
+):
+    import storage
+
+    monkeypatch.setenv(storage.READ_ONLY_ENV, "1")
+    window = make_window()
+    window.detectionTargetsStorage.add_item(make_target("Home Team Score"))
+    window.globalSettingsChanged("sport", "hockey")
+    window.close()
+    QCoreApplication.processEvents()
+    assert not (data_dir / "scoresight.json").exists()
+    assert fetch_data("scoresight.json", "boxes") is None

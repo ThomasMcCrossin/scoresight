@@ -828,3 +828,77 @@ def test_true_is_not_a_tesseract_index():
 
     assert not ocr_models.is_builtin_tesseract(True)
     assert ocr_models.choice_name(True) is None
+
+
+# --- the settings file a running profile must not lose --------------------------------
+
+PROFILE = "canteen-profile"
+
+
+def write_profile_boxes(data_dir, boxes):
+    """Write a profile's settings file the way another process would: here, a
+    box the running window never had."""
+    path = data_dir / f"scoresight-{PROFILE}.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps({"boxes": boxes, "boxes_schema_version": 3}))
+    return path
+
+
+def a_box(name="Home Score"):
+    return {
+        "name": name,
+        "rect": {"x": 1, "y": 2, "width": 30, "height": 40},
+        "settings": {"format_regex": format_prefixes[6]},
+        "mini_rects": [],
+    }
+
+
+def test_a_loaded_profile_is_tracked_as_modifications(
+    data_dir, memory_storage, monkeypatch
+):
+    monkeypatch.setenv("SCORESIGHT_PROFILE", PROFILE)
+    write_profile_boxes(data_dir, [a_box()])
+    assert memory_storage.loadBoxesFromStorage() is True
+    assert memory_storage.modified_since_load is False
+    memory_storage.add_item(TextDetectionTarget(0, 0, 10, 10, "Time", {}, []))
+    assert memory_storage.modified_since_load is True
+
+
+def test_an_edit_marks_the_boxes_modified(data_dir, memory_storage, monkeypatch):
+    monkeypatch.setenv("SCORESIGHT_PROFILE", PROFILE)
+    write_profile_boxes(data_dir, [a_box()])
+    memory_storage.loadBoxesFromStorage()
+    item = memory_storage.find_item_by_name("Home Score")
+    moved = TextDetectionTarget(5, 5, 30, 40, "Home Score", dict(item.settings), [])
+    memory_storage.edit_item("Home Score", moved)
+    assert memory_storage.modified_since_load is True
+
+
+def test_a_save_leaves_the_boxes_unmodified(data_dir, memory_storage, monkeypatch):
+    monkeypatch.setenv("SCORESIGHT_PROFILE", PROFILE)
+    write_profile_boxes(data_dir, [a_box()])
+    memory_storage.loadBoxesFromStorage()
+    memory_storage.add_item(TextDetectionTarget(0, 0, 10, 10, "Time", {}, []))
+    memory_storage.saveBoxesToStorage()
+    assert memory_storage.modified_since_load is False
+
+
+def test_settings_read_only_writes_nothing(data_dir, monkeypatch):
+    monkeypatch.setenv(storage.READ_ONLY_ENV, "1")
+    store_data(SETTINGS, "boxes", [a_box()])
+    assert fetch_data(SETTINGS, "boxes") is None
+    assert not (data_dir / SETTINGS).exists()
+    # and removes nothing
+    monkeypatch.delenv(storage.READ_ONLY_ENV)
+    store_data(SETTINGS, "boxes", [a_box()])
+    monkeypatch.setenv(storage.READ_ONLY_ENV, "1")
+    remove_data(SETTINGS, "boxes")
+    assert fetch_data(SETTINGS, "boxes") == [a_box()]
+
+
+def test_settings_read_only_notifies_no_subscriber(data_dir, monkeypatch):
+    calls = []
+    subscribe_to_data(SETTINGS, "sport", calls.append)
+    monkeypatch.setenv(storage.READ_ONLY_ENV, "1")
+    store_data(SETTINGS, "sport", "hockey")
+    assert calls == []

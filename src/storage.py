@@ -39,6 +39,18 @@ _reported_corrupt_files: dict[tuple[str, int, int], bool] = {}
 
 _PROFILE_UNSAFE_CHARS = re.compile(r"[^A-Za-z0-9._-]")
 
+# SCORESIGHT_SETTINGS_READ_ONLY (and main.py's --settings-read-only) makes the
+# settings file read-only for this run: nothing is written to it, so a profile
+# someone else manages (a shared or checked-out one) is never touched. Reads
+# work as usual, and the settings the app changes while it runs stay in memory.
+READ_ONLY_ENV = "SCORESIGHT_SETTINGS_READ_ONLY"
+
+
+def settings_are_read_only() -> bool:
+    """Whether this run must not write the settings file."""
+    return bool(os.environ.get(READ_ONLY_ENV))
+
+
 # Version of the stored box format, kept next to "boxes" in the settings file
 # and in exported configuration files. Boxes without it (saved by ScoreSight
 # 0.1.x) or with an older version are migrated once (see migrate_boxes).
@@ -269,7 +281,11 @@ def clear_subscribers():
 def store_data(file_path: str, document_name: str, data):
     """Store data as document_name in file_path (relative to the data dir), then
     notify the document's subscribers. The write is atomic; a corrupt existing
-    file is backed up rather than overwritten."""
+    file is backed up rather than overwritten. In read-only mode (see
+    settings_are_read_only) nothing is written or notified."""
+    if settings_are_read_only():
+        logger.debug("Settings are read-only: not storing %r", document_name)
+        return
     path = get_storage_path(file_path)
     with _storage_lock:
         documents = _load_documents(path, for_write=True)
@@ -279,7 +295,11 @@ def store_data(file_path: str, document_name: str, data):
 
 
 def remove_data(file_path: str, document_name: str):
-    """Remove document_name from file_path, then notify its subscribers with None."""
+    """Remove document_name from file_path, then notify its subscribers with None.
+    In read-only mode nothing is removed or notified."""
+    if settings_are_read_only():
+        logger.debug("Settings are read-only: not removing %r", document_name)
+        return
     path = get_storage_path(file_path)
     with _storage_lock:
         if not os.path.exists(path):
@@ -416,22 +436,37 @@ class TextDetectionTargetMemoryStorage(QObject):
         if not hasattr(self, "_initialized"):
             super().__init__()
             self._data: list[TextDetectionTarget] = []
+            # whether the boxes changed since they were loaded (or saved): a
+            # load that found nothing and a window that closed without an edit
+            # must not write them back (which would rewrite the file from
+            # memory and lose what another process stored meanwhile)
+            self._modified_since_load = False
             self._initialized = True
+
+    @property
+    def modified_since_load(self) -> bool:
+        """Whether the boxes changed since they were loaded from (or saved to)
+        the settings file."""
+        return self._modified_since_load
+
+    def _touched(self):
+        self._modified_since_load = True
+        self.data_changed.emit(self._data)
 
     def add_item(self, item: TextDetectionTarget):
         self._data.append(item)
-        self.data_changed.emit(self._data)
+        self._touched()
 
     def remove_item(self, item_name: str):
         for i, item in enumerate(self._data):
             if item.name == item_name:
                 del self._data[i]
                 break
-        self.data_changed.emit(self._data)
+        self._touched()
 
     def clear(self):
         self._data.clear()
-        self.data_changed.emit(self._data)
+        self._touched()
 
     def edit_item(self, item_name: str, new_item: TextDetectionTarget):
         for i, item in enumerate(self._data):
@@ -440,7 +475,7 @@ class TextDetectionTargetMemoryStorage(QObject):
                     new_item.x(), new_item.y(), new_item.width(), new_item.height()
                 )
                 self._data[i].settings = new_item.settings
-                self.data_changed.emit(self._data)
+                self._touched()
                 return
         logger.warning("unable to find item to edit in storage: " + item_name)
 
@@ -454,7 +489,7 @@ class TextDetectionTargetMemoryStorage(QObject):
                 item.translate(dx, dy)
                 moved = True
         if moved:
-            self.data_changed.emit(self._data)
+            self._touched()
 
     def rename_item(self, old_name: str, new_name: str):
         for i, item in enumerate(self._data):
@@ -557,6 +592,8 @@ class TextDetectionTargetMemoryStorage(QObject):
                 if "is_custom" in box["settings"] and box["settings"]["is_custom"]:
                     store_custom_box_name(box["name"])
             logger.debug("loaded boxes")
+            # what the file has: nothing to write back until an edit
+            self._modified_since_load = False
             self.data_changed.emit(self._data)
         except Exception as e:
             logger.error("error loading boxes: " + str(e))
@@ -607,6 +644,7 @@ class TextDetectionTargetMemoryStorage(QObject):
 
     def saveBoxesToStorage(self):
         boxes = self.getBoxesForStorage()
+        self._modified_since_load = False
         with _storage_lock:
             store_data(SETTINGS_FILE, "boxes", boxes)
             # The marker is written after the boxes: an interrupted save can

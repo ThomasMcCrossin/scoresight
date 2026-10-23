@@ -34,6 +34,26 @@ def test_options():
     assert qt_args == []
 
 
+def test_settings_read_only_is_a_flag_and_an_environment_variable(monkeypatch):
+    args, qt_args = main.parse_args([])
+    assert args.settings_read_only is False
+    args, _ = main.parse_args(["--settings-read-only"])
+    assert args.settings_read_only is True
+    assert qt_args == []
+    # the flag sets the variable the storage layer reads, before any of it is
+    # imported
+    import storage
+
+    monkeypatch.delenv(storage.READ_ONLY_ENV, raising=False)
+    main.apply_settings_read_only(True)
+    assert storage.settings_are_read_only() is True
+    monkeypatch.delenv(storage.READ_ONLY_ENV, raising=False)
+    main.apply_settings_read_only(False)
+    assert storage.settings_are_read_only() is False
+    monkeypatch.setenv(storage.READ_ONLY_ENV, "1")
+    assert storage.settings_are_read_only() is True
+
+
 def test_qt_options_are_passed_through():
     args, qt_args = main.parse_args(
         ["-platform", "offscreen", "--port=18101", "-psn_0_12345"]

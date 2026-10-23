@@ -2677,6 +2677,16 @@ class MainWindow(QMainWindow):
         self.boxesSaveTimer.stop()
         self.detectionTargetsStorage.saveBoxesToStorage()
 
+    def saveBoxesIfModified(self):
+        """Save the boxes at close only when they changed since they were
+        loaded: otherwise the file is left exactly as it is (another process
+        may have written it while this window ran)."""
+        self.boxesSaveTimer.stop()
+        if not self.detectionTargetsStorage.modified_since_load:
+            logger.debug("Boxes unchanged since loading: not saving them")
+            return
+        self.detectionTargetsStorage.saveBoxesToStorage()
+
     def listItemClicked(self, item):
         # a click on a reading selects its box
         if item.column() != 0:
@@ -5197,9 +5207,12 @@ class MainWindow(QMainWindow):
             if dialog is not None:
                 dialog.close()
 
-        # write pending file outputs and store the boxes to scoresight.json
+        # write pending file outputs and, if the boxes changed while this
+        # window ran, store them to scoresight.json: a profile edited while
+        # ScoreSight is closed stays as it is (saving the boxes from memory
+        # would rewrite it and lose that edit)
         self.flushFileOutputs()
-        self.saveBoxes()
+        self.saveBoxesIfModified()
         # ignore OBS connection attempts that are still running
         self.obs_connect_attempt += 1
         if self.obs_websocket_client:

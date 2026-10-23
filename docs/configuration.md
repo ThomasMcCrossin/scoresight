@@ -93,6 +93,7 @@ python src/main.py --self-test
 | `SCORESIGHT_PROFILE` | Same as `--profile`: use `scoresight-<value>.json`. |
 | `SCORESIGHT_DATA_DIR` | Use this folder instead of the default settings folder. |
 | `SCORESIGHT_LOG_DIR` | Write logs to this folder instead of the default log folder. |
+| `SCORESIGHT_SETTINGS_READ_ONLY` | Same as `--settings-read-only`: never write the settings file ([Read-only settings](profiles.md#read-only-settings)). |
 | `SCORESIGHT_DEBUG` | If set (to any value), also print the log to the console, log more detail, and log every request to the HTTP server. |
 | `SCORESIGHT_STARTUP_REPORT` | A file path. Once ScoreSight is ready, it writes how long each startup phase took to this file as JSON (the same times as the `Startup:` line in the log, see [Troubleshooting](troubleshooting.md#slow-start)). Used by the boot time tests. |
 | `OPENCV_FFMPEG_CAPTURE_OPTIONS` | Options for OpenCV's FFmpeg backend, used by URL sources. If it isn't set, ScoreSight sets it to `rtsp_flags;prefer_tcp`: RTSP over TCP first, falling back to UDP ([RTSP over TCP](sources.md#rtsp-over-tcp)). Set it to `rtsp_transport;udp` to force UDP for cameras that only support RTSP over UDP. |

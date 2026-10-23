@@ -3,6 +3,7 @@
 Command-line options:
   --profile NAME  use the settings file scoresight-NAME.json (SCORESIGHT_PROFILE)
   --port N        serve the HTTP API on port N (default 18099)
+  --settings-read-only  never write the settings file (SCORESIGHT_SETTINGS_READ_ONLY)
   --self-test     check the installation headlessly, print SELF-TEST OK, exit 0
 
 Qt's own options (for example -platform offscreen or -style fusion) are passed
@@ -168,6 +169,12 @@ def build_arg_parser() -> argparse.ArgumentParser:
         help=f"HTTP server port (default {DEFAULT_HTTP_PORT})",
     )
     parser.add_argument(
+        "--settings-read-only",
+        action="store_true",
+        help="never write the settings file, so a profile you manage stays as "
+        "it is (SCORESIGHT_SETTINGS_READ_ONLY does the same)",
+    )
+    parser.add_argument(
         "--self-test",
         action="store_true",
         help="check the installation without opening a window, then exit",
@@ -179,6 +186,17 @@ def parse_args(argv: list[str]) -> tuple[argparse.Namespace, list[str]]:
     """Parse ScoreSight's options from argv (without the program name). Returns
     the options and the remaining arguments, which are meant for Qt."""
     return build_arg_parser().parse_known_args(argv)
+
+
+def apply_settings_read_only(read_only: bool):
+    """Make the settings file read-only for this run. Must run before
+    storage-dependent modules are imported (storage is imported here for that
+    reason: importing it reads settings)."""
+    if not read_only:
+        return
+    from storage import READ_ONLY_ENV
+
+    os.environ[READ_ONLY_ENV] = "1"
 
 
 def apply_profile(profile: str | None):
@@ -622,6 +640,7 @@ def run_self_test() -> int:
 def main(argv: list[str] | None = None) -> int:
     args, qt_args = parse_args(sys.argv[1:] if argv is None else argv)
     apply_profile(args.profile)
+    apply_settings_read_only(args.settings_read_only)
     startup_timing.mark("args_parsed")
     close_splash_screen()
     if args.self_test:
