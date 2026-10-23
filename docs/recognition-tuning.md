@@ -90,6 +90,7 @@ Even a good picture produces an occasional wrong reading, for example while digi
   | Time mm:ss.d | `12:34` or `9.5` (clocks that switch to tenths in the last minute) |
   | Time mm:ss | `12:34`, `0:59` |
   | Time ss.d | `9.5`, `45.1` |
+  | Time M:SS.t | `0:09.8`, `59.9`, `9.8` (a board that shows tenths in the last minute) |
   | Time 0-59 | `0` to `59`, with or without a leading zero (`7` or `07`) |
   | Shotclock 0-39 | `0` to `39`, with or without a leading zero (`7` or `07`) |
   | Score 1dd | 1–2 digits, or 3 digits starting with 1 (`0`–`199`) |

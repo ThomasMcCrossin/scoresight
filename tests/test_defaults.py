@@ -109,7 +109,9 @@ def test_default_info_for_box_name():
 
 
 def test_format_prefixes_compile():
-    assert len(format_prefixes) == 13
+    # 12 presets and Custom. The presets' indexes are stable (the Format list
+    # shows them in this order): a new preset goes before Custom.
+    assert len(format_prefixes) == 14
     for pattern in format_prefixes:
         re.compile(pattern)
 
@@ -146,6 +148,17 @@ def test_format_prefixes_compile():
         (10, "anything at all", True),
         (11, "", True),
         (11, "12a", False),
+        # Time M:SS.t: minutes and seconds, with the tenths of the last minute
+        (12, "0:09", True),
+        (12, "0:09.8", True),
+        (12, "9.8", True),
+        (12, "59.9", True),
+        (12, "12:00", True),
+        (12, "1:05.4", True),
+        (12, "4:72", False),
+        (12, "9.85", False),
+        (12, "", False),
+        (13, "anything at all", True),
     ],
 )
 def test_format_prefix_presets(index, text, matches):

@@ -2092,6 +2092,11 @@
                        </item>
                        <item>
                         <property name="text">
+                         <string>Time M:SS.t</string>
+                        </property>
+                       </item>
+                       <item>
+                        <property name="text">
                          <string>Custom</string>
                         </property>
                        </item>

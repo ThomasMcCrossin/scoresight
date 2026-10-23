@@ -126,11 +126,18 @@ The **Format** list shows the preset whose expression is in the field under it, 
 | Alphanumeric | `^[A-Za-z0-9]*$` | |
 | Any text | `^.*$` | |
 | Any number | `^\d*$` | Home Fouls, Away Fouls, custom fields |
+| Time M:SS.t | `M:SS`, `M:SS.t` or `SS.t` (expression below), for a board that shows tenths in the last minute | |
 
 The *Time mm:ss.d* expression is:
 
 ```
 ^(?:(?:[0-5]?\d:[0-5]\d)|(?:[0-5]?\d\.\d))$
+```
+
+The *Time M:SS.t* expression accepts the minutes and seconds with the tenths of the last minute (`0:09.8`), and the tenths alone once the minutes are gone (`59.9`, `9.8`), which is what a board that shows tenths under a minute does:
+
+```
+^(?:[0-5]?\d:[0-5]?\d(?:\.\d)?|[0-5]?\d\.\d)$
 ```
 
 **Use**: always. A tight format is the most effective protection against wrong values reaching your graphics. Examples of custom formats: `^[0-3]?\d$` (shot clock with or without a leading zero), `^(1[0-2]|[1-9]):[0-5]\d$` (12-minute quarters), `^[0-4]$` (downs).

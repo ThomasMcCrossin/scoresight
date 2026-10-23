@@ -951,3 +951,37 @@ def test_a_reading_without_provenance_leaves_the_game_provenance_alone(game):
         g.read(Home_Score="2", Away_Score="0", Period="1")
     [event] = g.engine.state().to_dict()["events"]
     assert event["captured_at"] is None and event["latency_ms"] is None
+
+
+# --- reading the clock: the tenths a board shows in the last minute ------------------
+
+
+@pytest.mark.parametrize(
+    "text, seconds",
+    [
+        # the Time M:SS.t format preset: what a board shows in the last minute
+        ("0:09.8", 9.8),
+        ("9.8", 9.8),
+        ("59.9", 59.9),
+        ("1:05.4", 65.4),
+        # and with the minutes still showing, as boards do
+        ("0:09", 9.0),
+        ("14:06", 846.0),
+    ],
+)
+def test_the_tenths_a_board_shows_in_its_last_minute(text, seconds):
+    """The clock a board shows with tenths (0:09.8, 9.8) is read as the seconds
+    it is, so a game follows the last minute as well as the rest."""
+    assert parse_clock(text) == pytest.approx(seconds)
+
+
+def test_a_running_clock_with_tenths_counts_down_to_zero(game):
+    """The last minute of a period: the game follows a board that shows tenths
+    (0:11.5, 0:09.8, ...) and ends the period when the clock reaches 0:00.0."""
+    g = start_basketball(game, home="1", away="0", time="0:12.0")
+    events = []
+    # read every half second, as the clock runs down: each move is small
+    for tenths in range(115, -1, -5):
+        events += g.read(Time=f"0:{tenths // 10:02d}.{tenths % 10}")
+    assert PERIOD_END in g.kinds(events)
+    assert g.engine.state().clock == "0:00.0"

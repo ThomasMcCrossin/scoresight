@@ -36,7 +36,7 @@ In the **Box** tab of the inspector, under **All boxes**, choose the **Sport**. 
 | Volleyball | +1 (the scores start again each set) | up to 5 sets | none |
 | Racing (laps) | no scores: one lap at a time on the lap board (see [Lap races](#lap-races)) | none | counts up (optional) |
 
-A clock that counts the other way (a youth soccer board counting down, for example) is noticed after a few seconds.
+A clock that counts the other way (a youth soccer board counting down, for example) is noticed after a few seconds. A clock that shows tenths in its last minute (`0:09.8`) is followed too: give its box the **Time M:SS.t** [format preset](box-settings.md#format).
 
 Under the sport, a line says which fields ScoreSight follows and where the game is, for example:
 

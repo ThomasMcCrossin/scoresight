@@ -38,7 +38,8 @@ CLEAR_AFTER_SECONDS = 2.0
 # 9 - Alphanumeric
 # 10 - Any text
 # 11 - Any number
-# 12 - Custom
+# 12 - Time M:SS, M:SS.t and SS.t (tenths)
+# 13 - Custom
 format_prefixes = [
     "^(?:(?:[0-5]?\\d:[0-5]\\d)|(?:[0-5]?\\d\\.\\d))$",  # Time MM:ss and ss.m
     "^[0-5]?\\d:[0-5]\\d$",  # Time MM:ss
@@ -54,6 +55,10 @@ format_prefixes = [
     "^[A-Za-z0-9]*$",  # Alphanumeric
     "^.*$",  # Any text
     "^\\d*$",  # Any number
+    # a clock in minutes and seconds with tenths: M:SS ("0:09"), M:SS.t
+    # ("0:09.8") or SS.t ("9.8") - the last minute of a period, where boards
+    # switch to tenths while the minutes go on showing
+    "^(?:[0-5]?\\d:[0-5]\\d(?:\\.\\d)?|[0-5]?\\d\\.\\d)$",  # Time M:SS.t
     "^.*$",  # Custom
 ]
 
