@@ -32,6 +32,7 @@ BOX_SCALE = 4
 
 def grab(clip, media, out, scale=None, boxes=False):
     os.makedirs(out, exist_ok=True)
+    os.makedirs(out, exist_ok=True)
     path = os.path.join(out, f"t{media:08.2f}.png")
     if boxes:
         pieces = []

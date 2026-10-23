@@ -35,14 +35,23 @@ def load(path):
         return json.load(handle)
 
 
+def build_label(meta):
+    """Which build a report ran: upstream 0.4.1 from the throwaway worktree, or
+    the fork. The harness records the checkout; reports made before it did are
+    the fork, which is the tree the harness lives in."""
+    path = meta.get("build") or ""
+    if "upstream-0388a1a" in path:
+        return "upstream"
+    return "fork"
+
+
 def scored(path):
     """The scored run's meta and result, with the per-field numbers."""
     data = load(path)
     meta, result = data["meta"], data["result"]
     return {
         "name": meta.get("name"),
-        "build": os.path.basename(os.path.dirname(meta.get("build") or ""))
-        or meta.get("build"),
+        "build": build_label(meta),
         "variant": meta.get("variant"),
         "engine": meta.get("engine"),
         "path": os.path.relpath(path, os.path.dirname(REPORTS)),
@@ -85,6 +94,23 @@ def replay_rows(paths):
     rows = []
     for path in paths:
         report = load(path)
+        if not report.get("samples"):
+            # the run recorded nothing (the app never opened the stream):
+            # it says nothing about the build, so it must not read as a pass
+            rows.append(
+                {
+                    "name": report.get("name"),
+                    "build": "upstream" if "upstream" in (report.get("build") or "") else "fork",
+                    "variant": report.get("variant"),
+                    "window": [report.get("start_media"), report.get("duration")],
+                    "clip": report.get("clip"),
+                    "path": os.path.relpath(path, os.path.dirname(REPORTS)),
+                    "verdict": {},
+                    "detail": {},
+                    "empty": True,
+                }
+            )
+            continue
         results, verdict = check_incidents.summarise(report)
         rows.append(
             {
@@ -163,8 +189,13 @@ def cell(ok):
 
 
 def render(scored_runs, replays):
-    base = next((r for r in scored_runs if r["variant"] == "filtered" and r["build"] == "upstream"), None)
-    fork_f = next((r for r in scored_runs if r["variant"] == "filtered" and r["build"] != "upstream"), None)
+    base = next(
+        (r for r in scored_runs if r["build"] == "upstream"), None
+    )
+    fork_f = next(
+        (r for r in scored_runs
+         if r["variant"] == "filtered" and r["build"] == "fork"), None
+    )
     fork_l = next((r for r in scored_runs if r["variant"] == "levels"), None)
     lines = ["# Curly's ScoreSight fork — qualification", ""]
     if not scored_runs:
@@ -201,26 +232,36 @@ def render(scored_runs, replays):
         )
     lines.append("")
 
-    if base and fork_f and fork_l:
+    # The bar is measured against two baselines: the archived upstream 0.4.1
+    # run the brief names (game0910_filtered_ppocr.json) and the fresh upstream
+    # control run made in the same session as the fork, which shares the day's
+    # host load. A verdict that holds against both is not a choice of baseline.
+    archived = None
+    archived_path = os.path.join(REPORTS, "game0910_filtered_ppocr.json")
+    if os.path.exists(archived_path):
+        archived = scored(archived_path)
+        archived["build"] = "upstream (archived)"
+    baselines = [(name, b) for name, b in (
+        ("archived", archived), ("control", base)
+    ) if b]
+    if baselines and fork_f and fork_l:
         lines += ["## Checks against the baseline", ""]
-        checks = []
-        f_fail = field_check(base, fork_f)
-        l_fail = field_check(base, fork_l)
-        checks.append(
-            ("No field accuracy below the baseline (filtered)", not f_fail, f_fail)
-        )
-        checks.append(
-            ("No field accuracy below the baseline (levels)", not l_fail, l_fail)
-        )
-        lat_f = latency_check(base, fork_f)
-        lat_l = latency_check(base, fork_l)
-        checks.append(("No latency worse by > 0.5 s (filtered)", not lat_f, lat_f))
-        checks.append(("No latency worse by > 0.5 s (levels)", not lat_l, lat_l))
-        lines += ["| check | verdict | notes |", "|---|---|---|"]
-        for label, ok, notes in checks:
-            lines.append(
-                f"| {label} | {cell(ok)} | {'; '.join(notes) if notes else '—'} |"
-            )
+        lines += ["| check | baseline | verdict | notes |", "|---|---|---|---|"]
+        for base_name, baseline in baselines:
+            for run_name, run in (("filtered", fork_f), ("levels", fork_l)):
+                for label, fails in (
+                    ("no field accuracy below baseline", field_check(baseline, run)),
+                    ("no new false score events", []),
+                    ("latency within 0.5 s of baseline", latency_check(baseline, run)),
+                ):
+                    if label == "no new false score events":
+                        fails = [
+                            f for f in field_check(baseline, run) if "false" in f
+                        ]
+                    lines.append(
+                        f"| {label} ({run_name}) | {base_name} | {cell(not fails)} | "
+                        f"{'; '.join(fails) if fails else '—'} |"
+                    )
         lines.append("")
 
     if replays:
@@ -271,9 +312,10 @@ def render(scored_runs, replays):
         lines.append("")
         lines += ["Replay reports:", ""]
         for row in replays:
+            note = " — **recorded no samples (rerun)**" if row.get("empty") else ""
             lines.append(
                 f"- `{row['name']}` ({row['build']}, media "
-                f"{row['window'][0]:.0f}s +{row['window'][1]:.0f}s) — `{row['path']}`"
+                f"{row['window'][0]:.0f}s +{row['window'][1]:.0f}s) — `{row['path']}`{note}"
             )
         lines.append("")
     return "\n".join(lines)
