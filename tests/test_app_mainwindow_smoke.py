@@ -4609,7 +4609,8 @@ def test_the_close_question(make_window, monkeypatch, button, dont_ask, answer):
     seen = {}
 
     def answer_it(box):
-        seen["title"] = box.windowTitle()
+        # the question is the text: macOS shows no title (Qt clears it there)
+        seen["question"] = box.text()
         seen["default"] = box.defaultButton().text()
         box.checkBox().setChecked(dont_ask)
         [clicked] = [b for b in box.buttons() if b.text() == button]
@@ -4617,4 +4618,4 @@ def test_the_close_question(make_window, monkeypatch, button, dont_ask, answer):
 
     monkeypatch.setattr(QMessageBox, "exec", answer_it)
     assert window.askToClose() == answer
-    assert seen == {"title": "Close ScoreSight?", "default": "Cancel"}
+    assert seen == {"question": "Close ScoreSight?", "default": "Cancel"}
