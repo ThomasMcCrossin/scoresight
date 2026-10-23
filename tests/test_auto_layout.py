@@ -4,6 +4,7 @@ crop and the fields made from them, and its download."""
 import hashlib
 import io
 import os
+import ssl
 
 import numpy as np
 import pytest
@@ -114,7 +115,8 @@ def fake_model(monkeypatch):
     monkeypatch.setattr(auto_layout.time, "sleep", lambda s: None)
     urls = []
 
-    def urlopen(request, timeout):
+    def urlopen(request, timeout, context):
+        assert context.verify_mode == ssl.CERT_REQUIRED and context.check_hostname
         urls.append(request.full_url)
         return FakeResponse(data)
 
@@ -152,6 +154,13 @@ def test_a_model_that_doesnt_match_its_hash_is_not_kept(fake_model, monkeypatch)
     folder = os.path.dirname(auto_layout.model_path())
     assert os.listdir(folder) == []
     assert not auto_layout.model_available()
+
+
+def test_the_download_trusts_certifis_certificates():
+    # not the Python's own (the macOS app's has none, #140)
+    context = auto_layout._tls_context()
+    assert context.verify_mode == ssl.CERT_REQUIRED
+    assert len(context.get_ca_certs()) > 50
 
 
 def test_a_cancelled_download_leaves_nothing(fake_model):
