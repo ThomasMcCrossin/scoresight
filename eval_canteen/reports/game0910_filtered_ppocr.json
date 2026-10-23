@@ -9,7 +9,7 @@
   "start_media": 0.0,
   "duration": 900.0,
   "samples_file": "/home/canteenhub/worktrees/scoresight/eval/eval_canteen/reports/work/game0910_filtered_ppocr/samples.json",
-  "rescored_at": "2026-10-23T10:48:36-0300",
+  "rescored_at": "2026-10-23T10:51:25-0300",
   "samples": 903,
   "offset_seconds": 2.0,
   "aligned_clock_samples": 895
