@@ -261,6 +261,17 @@ def _score_transitions(observations):
     return transitions
 
 
+def _merge_spans(spans, slack=3.0):
+    """Overlapping or touching spans merged, sorted."""
+    merged = []
+    for start, end in sorted(spans):
+        if merged and start <= merged[-1][1] + slack:
+            merged[-1] = (merged[-1][0], max(merged[-1][1], end))
+        else:
+            merged.append((start, end))
+    return merged
+
+
 def load_truth(media_id, strict_frames=True):
     """The reference for a clip: journal observations plus verified frames."""
     observations = _load_journal(media_id)
@@ -302,13 +313,22 @@ def load_truth(media_id, strict_frames=True):
         ]
         transitions.append(trans)
 
-    # The clock stopping is not in the journal; take the frames' spans.
-    stops = sorted(frame_stops or stops)
+    # Clock stops: the journal gaps classified as stops, plus the spans the
+    # frames verified (verified wins where they overlap).
+    stops = _merge_spans(sorted(frame_stops or stops))
 
-    # Every stop contributes clock_stop / clock_start transitions.
+    # Every stop contributes clock_stop / clock_start transitions; a stop that
+    # a verified transition already names (the same edge within 3 s) is not
+    # counted twice.
     for start, end in stops:
-        transitions.append(Transition("clock_stop", start, None, "clock gap", True))
-        transitions.append(Transition("clock_start", end, None, "clock gap", True))
+        if not any(
+            t.kind == "clock_stop" and abs(t.media - start) <= 3.0 for t in transitions
+        ):
+            transitions.append(Transition("clock_stop", start, None, "clock gap", True))
+        if not any(
+            t.kind == "clock_start" and abs(t.media - end) <= 3.0 for t in transitions
+        ):
+            transitions.append(Transition("clock_start", end, None, "clock gap", True))
 
     transitions.sort(key=lambda t: t.media)
     truth = Truth(
@@ -317,11 +337,16 @@ def load_truth(media_id, strict_frames=True):
         transitions=transitions,
         clock_stops=stops,
     )
+    real_holes = [
+        (a, b, why)
+        for a, b, why in holes
+        if not any(start - 3.0 <= a and b <= end + 3.0 for start, end in stops)
+    ]
     truth.notes = [
         f"{len(observations)} journal polls, {len(runs)} clock runs",
-        f"{len(stops)} clock stops ({', '.join(f'{a:.0f}-{b:.0f}s' for a, b in stops)})",
-        f"{len(holes)} clock gaps treated as journal holes: "
-        + "; ".join(f"{a:.0f}-{b:.0f}s ({why})" for a, b, why in holes),
+        f"{len(stops)} clock stops {', '.join(f'{a:.0f}-{b:.0f}s' for a, b in stops)}",
+        f"{len(real_holes)} clock gaps with no reference inside: "
+        + "; ".join(f"{a:.0f}-{b:.0f}s ({why})" for a, b, why in real_holes),
     ]
     return truth
 
