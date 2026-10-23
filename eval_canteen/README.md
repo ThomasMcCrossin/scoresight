@@ -61,6 +61,11 @@ Each sample for each field lands in one bucket:
 
 `accuracy = correct / (correct + wrong)`; `unknown rate = unknown / (correct + wrong + unknown)`.
 
+Samples are taken at 1 Hz from `/json`, which is what a consumer polling the
+live server sees; a misread that lasts under a second between polls is not
+counted as wrong (but a misread that reaches `/game`'s event log still shows
+up as a false transition).
+
 Transitions are matched within `MATCH_WINDOW` (25 s for scores and period
 changes, 20 s for clock start/stop) and reported with the signed latency
 (detected media time minus reference media time). The run is judged only from
