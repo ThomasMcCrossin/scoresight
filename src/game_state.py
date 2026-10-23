@@ -757,8 +757,17 @@ class GameEngine:
         seconds, small = judged
         tracker = self._trackers[CLOCK]
         old = tracker.value
-        tracker.seen_at = now
-        if not tracker.offer(seconds, text, now, small, 1):
+        accepted = tracker.offer(seconds, text, now, small, 1)
+        # The time the clock may have run is measured from when its value was
+        # last read or accepted, so a reading the hold rejects must not move it
+        # forward: a running clock gives a new value every cycle, so refreshing
+        # it on each reading would keep the allowed move at CLOCK_MARGIN while
+        # the held value stood still, and the clock would never be read steadily
+        # long enough to be released (the game would stop following it until
+        # play stopped). held_back() judges with the same seen_at.
+        if accepted or seconds == old:
+            tracker.seen_at = now
+        if not accepted:
             return
         if old is None:
             return

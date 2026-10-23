@@ -985,3 +985,58 @@ def test_a_running_clock_with_tenths_counts_down_to_zero(game):
         events += g.read(Time=f"0:{tenths // 10:02d}.{tenths % 10}")
     assert PERIOD_END in g.kinds(events)
     assert g.engine.state().clock == "0:00.0"
+
+
+# --- a held clock reading must not stop the game following the clock -----------------
+
+# A board counting down, read every half second: what a live hockey board gives.
+# The clock's value changes on every reading, so a hold that never releases
+# leaves the game stuck at the held value until play stops.
+
+
+def test_a_misread_clock_does_not_stop_the_game_following_the_board(game, cycle):
+    """5:15 is held when one reading says 5:11 (a jump the sport doesn't
+    allow), but the board runs on from there: the game must follow it again
+    within a few readings, not stay stuck at 5:15 until the clock stops."""
+    g = start_basketball(game, time="5:15")
+    held, events = cycle(g, Time="5:11")
+    assert held == {
+        "Time": "the clock jumping from 5:15 to 5:11, which Basketball doesn't allow"
+    }
+    assert events == []
+    # the board runs on at a second a second, read every half second
+    followed_at = None
+    for reading in range(1, 25):
+        tenths = 3110 - reading * 5  # half a second of board per reading
+        text = f"{tenths // 600}:{tenths % 600 // 10:02d}.{tenths % 10}"
+        held, events = cycle(g, Time=text)
+        if not held:
+            followed_at = reading
+            break
+    assert followed_at is not None, "the game never followed the clock again"
+    # the allowed move grows from when 5:15 was last read, so this takes a few
+    # readings, never much longer than the clock's own lag behind the held value
+    assert followed_at <= 12
+    assert g.engine.state().clock == text
+
+
+def test_a_clock_reading_after_a_gap_is_followed(game, cycle):
+    """The clock ran for a few seconds between readings (a frame dropped, the
+    OCR was busy): the game follows it."""
+    g = start_basketball(game, time="5:15")
+    held, events = cycle(g, step=4.0, Time="5:11")
+    assert held == {}
+    assert g.engine.state().clock == "5:11"
+
+
+def test_a_wild_clock_misread_is_still_held(game, cycle):
+    """A reading 4 minutes off is not a clock that ran: it stays held back from
+    the outputs instead of being sent."""
+    g = start_basketball(game, time="5:15")
+    for _ in range(3):
+        held, events = cycle(g, Time="1:11")
+        assert held == {
+            "Time": "the clock jumping from 5:15 to 1:11, which Basketball doesn't allow"
+        }
+        assert events == []
+    assert g.engine.state().clock == "5:15"

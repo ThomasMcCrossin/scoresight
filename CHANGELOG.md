@@ -18,6 +18,10 @@ Release tags are the bare version number (for example `0.1.0`).
 - **Ask before closing.** Closing ScoreSight while a source is open now asks first, in both layouts, since it stops the reading and the outputs. **Don't ask again** in the question, or **File > Ask before closing**, turns it off. Stopping a headless ScoreSight (Ctrl+C, SIGTERM) and **Update now** don't ask ([#140](https://github.com/royshil/scoresight/discussions/140)).
 
 
+### Fixed
+
+- **The game keeps following a running clock after a held misread.** A clock reading the sport doesn't allow is held back until it has been read steadily, but the allowed move was measured from the last reading of *any* value, so a running clock (a new value every reading) could never be read steadily and the game stopped following it until play stopped. The move is now measured from when the clock's own value was last read or accepted, so the game picks the board up again within a few readings (5:15 held at a misread 5:11, the board running on: followed again at about 5:07) while a wild misread (5:15 to 1:11) is still held back.
+
 ## [0.4.1] - 2026-10-22
 
 Futsal, a WebSocket output, and Update now: from this version on, an
