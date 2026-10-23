@@ -184,6 +184,8 @@ class AppUpdater(QObject):
             if self.progress_dialog is not None:
                 self.progress_dialog.close()
                 self.progress_dialog = None
+            # it asked already (start)
+            self.window.close_without_asking = True
             self.window.close()
             return
         if self.process is None:

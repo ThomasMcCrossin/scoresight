@@ -9,6 +9,7 @@ import time
 from typing import Callable
 from PySide6.QtWidgets import (
     QApplication,
+    QCheckBox,
     QDialog,
     QFileDialog,
     QHeaderView,
@@ -252,6 +253,8 @@ STATUS_INTERVAL_MS = 1000
 SHOW_OSD_SETTING = "show_osd"
 # Tools > Collect OCR training data (ocr_training_data reads it too)
 COLLECT_TRAINING_DATA_SETTING = "save_ocr_training_data"
+# File > Ask before closing (while a source is open)
+ASK_BEFORE_CLOSING_SETTING = "ask_before_closing"
 # The boxes list is at least this many rows tall (it gets the pane's height).
 BOXES_LIST_MIN_ROWS = 3
 # The outputs list is at least this many rows tall (it scrolls when shorter).
@@ -576,6 +579,8 @@ class MainWindow(QMainWindow):
         self.sourceWindowTitle: str | None = None
         self.sources_discovery_running = False
         self.closing = False
+        # set by a quit signal and Update now: close without asking first
+        self.close_without_asking = False
         self.updateOCRResults = True
         self.log_dialog = None
         if fetch_data("scoresight.json", "open_on_startup", False):
@@ -697,6 +702,14 @@ class MainWindow(QMainWindow):
         ui.actionImportConfiguration.triggered.connect(self.importConfiguration)
         ui.actionExportConfiguration.triggered.connect(self.exportConfiguration)
         ui.actionOpenConfigurationFolder.triggered.connect(self.openConfigurationFolder)
+        ui.actionAskBeforeClosing.setChecked(
+            fetch_data("scoresight.json", ASK_BEFORE_CLOSING_SETTING, True) is not False
+        )
+        ui.actionAskBeforeClosing.toggled.connect(
+            lambda checked: self.globalSettingsChanged(
+                ASK_BEFORE_CLOSING_SETTING, bool(checked)
+            )
+        )
         ui.actionQuit.triggered.connect(self.close)
         # Tools
         ui.actionOCRTrainingDataSetup.triggered.connect(self.openOCRTrainingDataDialog)
@@ -5071,8 +5084,66 @@ class MainWindow(QMainWindow):
         label.setStyleSheet(f"color: {color.name()};" if problem else "")
         label.show()
 
+    def closeConfirmed(self) -> bool:
+        """Whether to go on closing. With File > Ask before closing, closing
+        while a source is open asks first, because it stops the reading and
+        the outputs (discussion #140: the window closed by accident during a
+        broadcast). A quit signal and Update now close without asking
+        (close_without_asking), and so do an offscreen app (nobody could
+        answer) and the end of the user's session."""
+        if (
+            self.closing
+            or self.close_without_asking
+            or self.image_viewer is None
+            or not self.ui.actionAskBeforeClosing.isChecked()
+            or not self.canAskBeforeClosing()
+        ):
+            return True
+        close, ask_again = self.askToClose()
+        if not close:
+            logger.info("Closing cancelled")
+        elif not ask_again:
+            self.ui.actionAskBeforeClosing.setChecked(False)
+        return close
+
+    def canAskBeforeClosing(self) -> bool:
+        app = QGuiApplication.instance()
+        return QGuiApplication.platformName() != "offscreen" and not (
+            app is not None and app.isSavingSession()
+        )
+
+    def askToClose(self) -> tuple[bool, bool]:
+        """Ask whether to close ScoreSight: (close, ask again next time)."""
+        question = QCoreApplication.translate("MainWindow", "Close ScoreSight?")
+        # the question in the text too: macOS doesn't show the title
+        box = QMessageBox(QMessageBox.Icon.Question, question, question, parent=self)
+        box.setInformativeText(
+            QCoreApplication.translate(
+                "MainWindow",
+                "Reading stops, and vMix, OBS, the overlays and the other "
+                "outputs are no longer updated.",
+            )
+        )
+        close = box.addButton(
+            QCoreApplication.translate("MainWindow", "Close"),
+            QMessageBox.ButtonRole.DestructiveRole,
+        )
+        box.addButton(QMessageBox.StandardButton.Cancel)
+        box.setDefaultButton(QMessageBox.StandardButton.Cancel)
+        dont_ask = QCheckBox(
+            QCoreApplication.translate("MainWindow", "Don't ask again")
+        )
+        box.setCheckBox(dont_ask)
+        box.exec()
+        answer = box.clickedButton() is close, not dont_ask.isChecked()
+        box.deleteLater()
+        return answer
+
     # on destroy, close the OBS connection
     def closeEvent(self, event):
+        if not self.closeConfirmed():
+            event.ignore()
+            return
         logger.info("Closing")
         self.closing = True
         self.statusTimer.stop()

@@ -270,6 +270,8 @@ def install_quit_signal_handlers(app, window):
     from PySide6.QtCore import QTimer
 
     def close_window(signum, frame):
+        # without File > Ask before closing's question (MainWindow)
+        window.close_without_asking = True
         # queued: the handler may run in the middle of another Python slot
         QTimer.singleShot(0, window.close)
         # a dialog without a parent (Video Settings, Connect to OBS, a modal

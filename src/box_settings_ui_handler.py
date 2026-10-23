@@ -29,6 +29,7 @@ from PySide6.QtWidgets import QFormLayout, QMenu
 
 import theme
 from defaults import (
+    CLEAR_VALUES,
     default_info_for_box_name,
     normalize_settings_dict,
     format_prefixes,
@@ -57,7 +58,6 @@ IMAGE_CLEANUP_SETTINGS = (
     "rescale_patch",
     "normalize_wh_ratio",
     "composite_box",
-    "skip_empty",
 )
 # whether the Image cleanup section is open
 IMAGE_CLEANUP_SETTING = "image_cleanup_expanded"
@@ -201,7 +201,7 @@ class BoxSettingsUIHandler:
             ui.lineEdit_format,
             ui.comboBox_fieldType,
             ui.checkBox_smoothing,
-            ui.checkBox_skip_empty,
+            ui.comboBox_clearValue,
             ui.horizontalSlider_conf_thresh,
             ui.checkBox_autocrop,
             ui.checkBox_skip_similar_image,
@@ -271,6 +271,10 @@ class BoxSettingsUIHandler:
             "cleanup_thresh", float(self.ui.horizontalSlider_cleanup.value()) / 100.0
         )
 
+    def clearValueChanged(self, index):
+        if 0 <= index < len(CLEAR_VALUES):
+            self.genericSettingsChanged("clear_value", CLEAR_VALUES[index])
+
     def formatPrefixChanged(self, index):
         if index == CUSTOM_PRESET_INDEX:
             # "Custom": type an expression
@@ -294,9 +298,7 @@ class BoxSettingsUIHandler:
         self.ui.checkBox_smoothing.toggled.connect(
             partial(self.genericSettingsChanged, "smoothing")
         )
-        self.ui.checkBox_skip_empty.toggled.connect(
-            partial(self.genericSettingsChanged, "skip_empty")
-        )
+        self.ui.comboBox_clearValue.currentIndexChanged.connect(self.clearValueChanged)
         self.ui.horizontalSlider_conf_thresh.valueChanged.connect(
             self.confThreshChanged
         )
@@ -512,7 +514,9 @@ class BoxSettingsUIHandler:
         ui.lineEdit_format.setText(settings["format_regex"])
         ui.comboBox_fieldType.setCurrentIndex(settings["type"])
         ui.checkBox_smoothing.setChecked(settings["smoothing"])
-        ui.checkBox_skip_empty.setChecked(settings["skip_empty"])
+        ui.comboBox_clearValue.setCurrentIndex(
+            CLEAR_VALUES.index(settings["clear_value"])
+        )
         # stored as a fraction of the OCR's confidence %; a value above 1
         # (hand-edited) is already a percentage, as in tesseract.py
         conf_thresh = float(settings["conf_thresh"])

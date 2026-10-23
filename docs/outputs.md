@@ -62,7 +62,7 @@ Every detection cycle produces one reading per box, in one of four **states**:
 | `FailedFilter` | Something was read but it failed the box's Format or confidence threshold | **!** (amber) |
 | `Empty` | Nothing was read | **∅** (red; 0.2.0 showed `EMP`) |
 
-`Success` and `SameNoChange` are the **good** readings. [Template fields](boxes.md#template-fields) follow the same rules: `Success` when their text changes, `SameNoChange` when it doesn't, and `Empty` until every box they use has had a good reading.
+`Success` and `SameNoChange` are the **good** readings. An `Empty` reading isn't sent, so the outputs keep the box's last value while the board blanks out; for a value that should disappear from the outputs when it disappears from the board (a penalty timer), set the box's [When blank](box-settings.md#when-blank) to *Clear the value*. [Template fields](boxes.md#template-fields) follow the same rules: `Success` when their text changes, `SameNoChange` when it doesn't, and `Empty` until every box they use has had a good reading.
 
 Each output treats states differently:
 

@@ -1172,6 +1172,30 @@ def test_an_imported_layout_replaces_the_placed_fields(
     assert not ui.pushButton_makeBox.isHidden()
 
 
+def test_when_blank_is_stored_per_box(make_window, make_target):
+    window = make_window()
+    ui = window.ui
+    storage = window.detectionTargetsStorage
+    storage.add_item(make_target("Home Score"))
+    storage.add_item(make_target("Away Score", clear_value="blank"))
+    combo = ui.comboBox_clearValue
+    assert [combo.itemText(i) for i in range(combo.count())] == [
+        "Keep the last value",
+        "Clear the value",
+        "Clear the value, also at zero",
+    ]
+    window.itemSelected("Home Score")
+    assert combo.currentIndex() == 0
+    combo.setCurrentIndex(2)
+    assert storage.find_item_by_name("Home Score").settings["clear_value"] == (
+        "blank_or_zero"
+    )
+    window.itemSelected("Away Score")
+    assert combo.currentIndex() == 1
+    window.itemSelected("Home Score")
+    assert combo.currentIndex() == 2
+
+
 def test_the_image_cleanup_section(make_window, make_target):
     window = make_window()
     ui = window.ui
@@ -1189,7 +1213,8 @@ def test_the_image_cleanup_section(make_window, make_target):
         "This box",
         "Adaptive",
     ]
-    assert "no effect" in ui.label_skipEmptyHint.text()
+    # 0.1.x's Skip empty values had no effect since 0.2.0: gone
+    assert not hasattr(ui, "checkBox_skip_empty")
 
     # how many of its settings were changed
     storage.add_item(make_target("Home Score", dilate=2, binarization_method=2))
@@ -2986,6 +3011,7 @@ def test_the_menus(main_window):
         "actionImportConfiguration",
         "actionExportConfiguration",
         "actionOpenConfigurationFolder",
+        "actionAskBeforeClosing",
         "actionQuit",
     ]
     assert menu_items(ui.menuView) == [
@@ -3019,6 +3045,7 @@ def test_the_menus(main_window):
     assert ui.actionAbout.menuRole() == QAction.MenuRole.AboutRole
     assert ui.actionQuit.menuRole() == QAction.MenuRole.QuitRole
     for action in (
+        ui.actionAskBeforeClosing,
         ui.actionSetupLayout,
         ui.actionLiveLayout,
         ui.actionShowUnusedFields,
@@ -4503,3 +4530,91 @@ def test_the_hold_value_dialog(main_window):
     held.releaseButton.click()
     assert held.result() == RELEASE
     held.deleteLater()
+
+
+# --- Ask before closing ------------------------------------------------------------
+
+
+@pytest.fixture
+def source_window(make_window):
+    """A window with a source open: a stand-in viewer, taken away before the
+    window is closed (closing a window closes its viewer)."""
+    window = make_window()
+    window.image_viewer = object()
+    yield window
+    window.image_viewer = None
+
+
+def test_closing_with_a_source_open_asks_first(source_window, monkeypatch):
+    # discussion #140: the window closed by accident during a broadcast
+    window = source_window
+    action = window.ui.actionAskBeforeClosing
+    assert action.isChecked()
+    asked = []
+    answers = []
+    monkeypatch.setattr(window, "canAskBeforeClosing", lambda: True)
+    monkeypatch.setattr(
+        window, "askToClose", lambda: asked.append(True) or answers.pop(0)
+    )
+    # no source open: nothing stops
+    viewer, window.image_viewer = window.image_viewer, None
+    assert window.closeConfirmed() and not asked
+    window.image_viewer = viewer
+    # Cancel: the window stays open
+    answers.append((False, True))
+    assert window.close() is False
+    assert not window.closing and len(asked) == 1
+    # Close
+    answers.append((True, True))
+    assert window.closeConfirmed() and len(asked) == 2
+    assert action.isChecked()
+    # Close with "Don't ask again"
+    answers.append((True, False))
+    assert window.closeConfirmed() and len(asked) == 3
+    assert not action.isChecked()
+    assert fetch_data("scoresight.json", "ask_before_closing") is False
+    assert window.closeConfirmed() and len(asked) == 3
+    # back on in the File menu
+    action.setChecked(True)
+    assert fetch_data("scoresight.json", "ask_before_closing") is True
+    # a quit signal or Update now doesn't ask
+    window.close_without_asking = True
+    assert window.closeConfirmed() and len(asked) == 3
+
+
+def test_ask_before_closing_is_remembered(make_window):
+    store_data("scoresight.json", "ask_before_closing", False)
+    assert not make_window().ui.actionAskBeforeClosing.isChecked()
+
+
+def test_an_offscreen_app_closes_without_asking(source_window, monkeypatch):
+    # a headless instance (the e2e test) is stopped with Ctrl+C or SIGTERM,
+    # and nobody could answer
+    window = source_window
+    assert not window.canAskBeforeClosing()
+    monkeypatch.setattr(window, "askToClose", lambda: pytest.fail("asked"))
+    assert window.closeConfirmed()
+
+
+@pytest.mark.parametrize(
+    ("button", "dont_ask", "answer"),
+    [
+        ("Close", False, (True, True)),
+        ("Close", True, (True, False)),
+        ("Cancel", False, (False, True)),
+    ],
+)
+def test_the_close_question(make_window, monkeypatch, button, dont_ask, answer):
+    window = make_window()
+    seen = {}
+
+    def answer_it(box):
+        seen["title"] = box.windowTitle()
+        seen["default"] = box.defaultButton().text()
+        box.checkBox().setChecked(dont_ask)
+        [clicked] = [b for b in box.buttons() if b.text() == button]
+        clicked.click()
+
+    monkeypatch.setattr(QMessageBox, "exec", answer_it)
+    assert window.askToClose() == answer
+    assert seen == {"title": "Close ScoreSight?", "default": "Cancel"}

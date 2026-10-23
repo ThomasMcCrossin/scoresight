@@ -17,7 +17,7 @@ CANONICAL_SETTINGS = {
     "format_regex": format_prefixes[11],
     "type": FieldType.NUMBER,
     "smoothing": False,
-    "skip_empty": True,
+    "clear_value": "never",
     "conf_thresh": 0.0,
     "cleanup_thresh": 0,
     "dilate": 1,

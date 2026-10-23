@@ -15,6 +15,16 @@ CHAR_WHITELISTS = {
 }
 GENERAL_CHAR_WHITELIST = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ .,;:!?-_()[]{}<>@#$%^&*+=|\\~`\"'"
 
+# "When blank" (the box setting clear_value): what the outputs get once the box
+# has been blank (or, with CLEAR_BLANK_OR_ZERO, has shown zero: 0, 00, 0:00)
+# for CLEAR_AFTER_SECONDS: its last value (CLEAR_NEVER) or an empty value. In
+# the order of comboBox_clearValue's items.
+CLEAR_NEVER = "never"
+CLEAR_BLANK = "blank"
+CLEAR_BLANK_OR_ZERO = "blank_or_zero"
+CLEAR_VALUES = (CLEAR_NEVER, CLEAR_BLANK, CLEAR_BLANK_OR_ZERO)
+CLEAR_AFTER_SECONDS = 2.0
+
 
 # 0 - Time MM:ss and ss.m
 # 1 - Time MM:ss
@@ -184,7 +194,11 @@ def normalize_settings_dict(settings, box_info):
         ),
         "type": (settings["type"] if "type" in settings else box_info["type"]),
         "smoothing": (settings["smoothing"] if "smoothing" in settings else False),
-        "skip_empty": (settings["skip_empty"] if "skip_empty" in settings else True),
+        "clear_value": (
+            settings["clear_value"]
+            if settings.get("clear_value") in CLEAR_VALUES
+            else CLEAR_NEVER
+        ),
         # minimum Tesseract confidence, as a fraction (slider % / 100); 0 = off
         "conf_thresh": (settings["conf_thresh"] if "conf_thresh" in settings else 0.0),
         "cleanup_thresh": (

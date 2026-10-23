@@ -129,6 +129,11 @@ class Ui_MainWindow(object):
         self.actionQuit.setShortcut(u"Ctrl+Q")
 #endif // QT_CONFIG(shortcut)
         self.actionQuit.setMenuRole(QAction.QuitRole)
+        self.actionAskBeforeClosing = QAction(MainWindow)
+        self.actionAskBeforeClosing.setObjectName(u"actionAskBeforeClosing")
+        self.actionAskBeforeClosing.setCheckable(True)
+        self.actionAskBeforeClosing.setChecked(True)
+        self.actionAskBeforeClosing.setMenuRole(QAction.NoRole)
         self.actionSetupLayout = QAction(MainWindow)
         self.actionSetupLayout.setObjectName(u"actionSetupLayout")
         self.actionSetupLayout.setCheckable(True)
@@ -1212,6 +1217,19 @@ class Ui_MainWindow(object):
 
         self.formLayout_filtering.setLayout(3, QFormLayout.ItemRole.SpanningRole, self.horizontalLayout_skipSimilarImage)
 
+        self.label_clearValue = QLabel(self.groupBox_target_settings)
+        self.label_clearValue.setObjectName(u"label_clearValue")
+
+        self.formLayout_filtering.setWidget(4, QFormLayout.ItemRole.LabelRole, self.label_clearValue)
+
+        self.comboBox_clearValue = QComboBox(self.groupBox_target_settings)
+        self.comboBox_clearValue.addItem("")
+        self.comboBox_clearValue.addItem("")
+        self.comboBox_clearValue.addItem("")
+        self.comboBox_clearValue.setObjectName(u"comboBox_clearValue")
+
+        self.formLayout_filtering.setWidget(4, QFormLayout.ItemRole.FieldRole, self.comboBox_clearValue)
+
 
         self.verticalLayout_targetSettings.addLayout(self.formLayout_filtering)
 
@@ -1429,26 +1447,6 @@ class Ui_MainWindow(object):
 
 
         self.formLayout_imageCleanup.setLayout(10, QFormLayout.ItemRole.SpanningRole, self.horizontalLayout_compositeBox)
-
-        self.horizontalLayout_skipEmpty = QHBoxLayout()
-        self.horizontalLayout_skipEmpty.setSpacing(6)
-        self.horizontalLayout_skipEmpty.setObjectName(u"horizontalLayout_skipEmpty")
-        self.checkBox_skip_empty = QCheckBox(self.frame_imageCleanup)
-        self.checkBox_skip_empty.setObjectName(u"checkBox_skip_empty")
-
-        self.horizontalLayout_skipEmpty.addWidget(self.checkBox_skip_empty)
-
-        self.label_skipEmptyHint = QLabel(self.frame_imageCleanup)
-        self.label_skipEmptyHint.setObjectName(u"label_skipEmptyHint")
-        self.label_skipEmptyHint.setWordWrap(True)
-        sizePolicy3.setHeightForWidth(self.label_skipEmptyHint.sizePolicy().hasHeightForWidth())
-        self.label_skipEmptyHint.setSizePolicy(sizePolicy3)
-        self.label_skipEmptyHint.setProperty(u"hint", True)
-
-        self.horizontalLayout_skipEmpty.addWidget(self.label_skipEmptyHint)
-
-
-        self.formLayout_imageCleanup.setLayout(11, QFormLayout.ItemRole.SpanningRole, self.horizontalLayout_skipEmpty)
 
 
         self.verticalLayout_targetSettings.addWidget(self.frame_imageCleanup)
@@ -2452,6 +2450,7 @@ class Ui_MainWindow(object):
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionOpenConfigurationFolder)
         self.menuFile.addSeparator()
+        self.menuFile.addAction(self.actionAskBeforeClosing)
         self.menuFile.addAction(self.actionQuit)
         self.menuView.addAction(self.actionSetupLayout)
         self.menuView.addAction(self.actionLiveLayout)
@@ -2538,6 +2537,10 @@ class Ui_MainWindow(object):
         self.actionCollectTrainingData.setToolTip(QCoreApplication.translate("MainWindow", u"Save each box's picture and reading to the training data folder, for training an OCR model", None))
 #endif // QT_CONFIG(tooltip)
         self.actionQuit.setText(QCoreApplication.translate("MainWindow", u"Quit", None))
+        self.actionAskBeforeClosing.setText(QCoreApplication.translate("MainWindow", u"Ask before closing", None))
+#if QT_CONFIG(tooltip)
+        self.actionAskBeforeClosing.setToolTip(QCoreApplication.translate("MainWindow", u"Ask before closing ScoreSight while a source is open: closing stops the reading and the outputs", None))
+#endif // QT_CONFIG(tooltip)
         self.actionSetupLayout.setText(QCoreApplication.translate("MainWindow", u"Setup layout", None))
 #if QT_CONFIG(tooltip)
         self.actionSetupLayout.setToolTip(QCoreApplication.translate("MainWindow", u"For placing and tuning the fields and setting up the outputs: the field list, the picture with its adjustments, and the inspector", None))
@@ -2848,6 +2851,20 @@ class Ui_MainWindow(object):
         self.checkBox_skip_similar_image.setText(QCoreApplication.translate("MainWindow", u"Skip OCR while image is unchanged", None))
         self.label_skipSimilarImageHint.setText(QCoreApplication.translate("MainWindow", u"saves CPU", None))
 #if QT_CONFIG(tooltip)
+        self.label_clearValue.setToolTip(QCoreApplication.translate("MainWindow", u"What the outputs get when the box has shown nothing for 2 seconds (a penalty timer that goes out, a lap board taken away): its last value, or an empty value, which clears the text in vMix, OBS, the overlays and the other outputs. \u201cAlso at zero\u201d clears it when the box reads zero too (0, 00, 0:00).", None))
+#endif // QT_CONFIG(tooltip)
+        self.label_clearValue.setText(QCoreApplication.translate("MainWindow", u"When blank", None))
+        self.comboBox_clearValue.setItemText(0, QCoreApplication.translate("MainWindow", u"Keep the last value", None))
+        self.comboBox_clearValue.setItemText(1, QCoreApplication.translate("MainWindow", u"Clear the value", None))
+        self.comboBox_clearValue.setItemText(2, QCoreApplication.translate("MainWindow", u"Clear the value, also at zero", None))
+
+#if QT_CONFIG(accessibility)
+        self.comboBox_clearValue.setAccessibleName(QCoreApplication.translate("MainWindow", u"When blank", None))
+#endif // QT_CONFIG(accessibility)
+#if QT_CONFIG(tooltip)
+        self.comboBox_clearValue.setToolTip(QCoreApplication.translate("MainWindow", u"What the outputs get when the box has shown nothing for 2 seconds (a penalty timer that goes out, a lap board taken away): its last value, or an empty value, which clears the text in vMix, OBS, the overlays and the other outputs. \u201cAlso at zero\u201d clears it when the box reads zero too (0, 00, 0:00).", None))
+#endif // QT_CONFIG(tooltip)
+#if QT_CONFIG(tooltip)
         self.toolButton_imageCleanup.setToolTip(QCoreApplication.translate("MainWindow", u"Show or hide the settings that clean up the box's image before a Tesseract model reads it. Binary view shows the result.", None))
 #endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(accessibility)
@@ -2935,11 +2952,6 @@ class Ui_MainWindow(object):
 #endif // QT_CONFIG(tooltip)
         self.checkBox_compositeBox.setText(QCoreApplication.translate("MainWindow", u"Per-character sub-boxes", None))
         self.label_compositeBoxHint.setText(QCoreApplication.translate("MainWindow", u"not used for reading yet", None))
-#if QT_CONFIG(tooltip)
-        self.checkBox_skip_empty.setToolTip(QCoreApplication.translate("MainWindow", u"Never write an empty value to the box's text file or OBS text source. Since 0.2.0 they only ever get good readings, so this has no effect. Formerly \u201cSkip Empty Values\u201d.", None))
-#endif // QT_CONFIG(tooltip)
-        self.checkBox_skip_empty.setText(QCoreApplication.translate("MainWindow", u"Skip empty values", None))
-        self.label_skipEmptyHint.setText(QCoreApplication.translate("MainWindow", u"no effect since 0.2.0", None))
         self.label_sectionTemplate.setText(QCoreApplication.translate("MainWindow", u"Template", None))
 #if QT_CONFIG(tooltip)
         self.checkBox_templatefield.setToolTip(QCoreApplication.translate("MainWindow", u"Make this custom field a template: its value is built from other fields, for example {{Home Score}} - {{Away Score}}. Formerly \u201cTemplate Field\u201d.", None))
