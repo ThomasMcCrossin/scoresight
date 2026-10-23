@@ -117,6 +117,15 @@ nice -n 15 python eval_canteen/compare.py eval_canteen/reports/*.json
 puts the field accuracies and transition counts of several reports side by
 side, so a ScoreSight change is compared against the run it should improve.
 
+## Coverage today
+
+Only `20261023T091022.mkv` (the game hour) has reference coverage: the reader
+journal holds 1025 polls for that segment and none for the 08:10 warm-up or the
+10:10 file. `run_eval.py` refuses a clip with no observations in
+`truth/20261023_game.json` under `clips.<file name>`. Adding the 10:10 hour (home 4
+by ~10:00, P3 from 10:05, home 5 at 10:09:24) means writing its verified
+transitions the same way, or running a reader over it to produce a journal.
+
 ## Adding a clip
 
 1. Add the clip's segment start to `ADT_SEGMENT_START` in `truth.py` if the
