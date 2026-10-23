@@ -60,14 +60,9 @@ _INVALID_XML_CHARS = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f￾￿]")
 
 
 def is_good_reading(result: TextDetectionTargetWithResult) -> bool:
-    """A reading worth publishing: Success or SameNoChange with a text, and not
-    an empty text on a box with "Skip Empty Values" on."""
-    if result.result is None or result.result_state not in GOOD_STATES:
-        return False
-    settings = result.settings or {}
-    if settings.get("skip_empty", False) and len(result.result) == 0:
-        return False
-    return True
+    """A reading worth publishing: Success or SameNoChange with a text (an
+    empty one from a box that "When blank" cleared)."""
+    return result.result is not None and result.result_state in GOOD_STATES
 
 
 def text_file_name(box_name: str) -> str:

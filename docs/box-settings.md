@@ -41,6 +41,7 @@ For a task-oriented guide, see [Recognition Tuning](recognition-tuning.md).
 | [Minimum confidence](#conf-th-confidence-threshold) (Conf. Th) | `conf_thresh` | 0.00–0.99 (slider 0–99 = the OCR model's confidence in %) | 0 (off) |
 | [Smooth over last 5 readings](#average-output) (Average Output) | `smoothing` | on/off | off |
 | [Skip OCR while image is unchanged](#skip-similar-image) (Skip Similar Image) | `skip_similar_image` | on/off | off |
+| [When blank](#when-blank) | `clear_value` | `never` Keep the last value, `blank` Clear the value, `blank_or_zero` Clear the value, also at zero | `never` |
 | **Image cleanup** (Tesseract models and the dot counter) | | | |
 | [Black & white](#binarize) (Binarize) | `binarization_method` | `0` Whole picture, `1` None, `2` This box, `3` Adaptive | `0` Whole picture |
 | [Remove specks](#cleanup) (Cleanup) | `cleanup_thresh` | 0.00–0.99 (slider 0–99) | 0 (off) |
@@ -52,7 +53,6 @@ For a task-oriented guide, see [Recognition Tuning](recognition-tuning.md).
 | [Resize to 35 px](#rescale-input) (Rescale Input) | `rescale_patch` | on/off | on |
 | [Normalize digit width](#normalize-w-h-ratio) (Normalize W-H Ratio) | `normalize_wh_ratio` | on/off | off |
 | [Per-character sub-boxes](#composite-per-character) (Composite) | `composite_box` | on/off | off |
-| [Skip empty values](#skip-empty-values) (Skip Empty Values) | `skip_empty` | on/off | on |
 | **Template** | | | |
 | [Build from other fields](#template-field) (Template Field) | `templatefield`, `templatefield_text` | on/off, text | off, empty |
 | (not shown) | `is_custom` | true/false | true for fields you added with **+** |
@@ -195,6 +195,22 @@ ScoreSight 0.1.x voted character by character, so a change from `12` to `9` coul
 {: .new }
 ScoreSight 0.1.x measured the change against the whole box, so a one-digit change could be skipped, and it reported skipped cycles as a yellow `SIM` reading. It also compared with the image of the last reading, even a rejected or empty one, so a new value whose first reading failed wasn't read again until the image changed once more.
 
+### When blank
+{: #when-blank }
+
+`clear_value`: what the outputs get when the box shows nothing (it is read as `Empty`) for 2 seconds:
+
+- **Keep the last value** (`never`, the default): they keep showing the box's last good reading. A board that blanks out for a moment (a flickering LED, a person walking in front of the board, a camera flash) changes nothing on air.
+- **Clear the value** (`blank`): they get an empty value, which clears the text in vMix, OBS, the overlays, the files and every other output. While the box stays blank, the empty value is its unchanged reading (`SameNoChange`), so *Also resend unchanged values* resends it too. The next value the board shows goes out at once.
+- **Clear the value, also at zero** (`blank_or_zero`): the same, and a box that reads zero (`0`, `00`, `0:00`, `00:00`, `0.0`) for 2 seconds is cleared too. The zero goes out first.
+
+A blank shorter than 2 seconds keeps the value.
+
+**Use**: for a value that disappears from the board when it no longer applies, such as a handball or hockey penalty timer that goes out (or stops at `0:00`) when the penalty ends, a player number, or a lap board taken away. Leave it on *Keep the last value* for scores and the clock.
+
+{: .new }
+Added in ScoreSight 0.4.2 ([discussion #140](https://github.com/royshil/scoresight/discussions/140)). It replaces *Skip empty values* (`skip_empty`), which had no effect since 0.2.0.
+
 ## Image cleanup
 
 These settings prepare the box's picture for a **Tesseract** model, and for the dot counter (*Count lights*) with any model. While a PP-OCR model reads the boxes they are disabled, and kept for when you go back to Tesseract.
@@ -274,19 +290,12 @@ In ScoreSight 0.1.x, Dilate changed the Binary View but didn't reach the OCR wit
 
 ### Experimental and legacy settings
 
-The last two settings of **Image cleanup**, under *Experimental / legacy*, don't change how the box is read.
+The last setting of **Image cleanup**, under *Experimental / legacy*, doesn't change how the box is read.
 
 #### Per-character sub-boxes
 {: #composite-per-character }
 
 `composite_box` (with the per-character sub-boxes stored as `mini_rects`): experimental. Lets you draw one sub-box per character. The sub-boxes are saved, but in this release recognition still reads the whole box (*not used for reading yet*). See [Composite boxes](boxes.md#composite-per-character-boxes-experimental). In ScoreSight 0.1.x: **Composite (Per-Character)**.
-
-#### Skip empty values
-{: #skip-empty-values }
-
-`skip_empty`: never write an empty value to the box's text file or OBS text source. In ScoreSight 0.1.x: **Skip Empty Values**.
-
-**Use**: none any more (*no effect since 0.2.0*), it's kept for one more release. In ScoreSight 0.2.0, text files and OBS text sources receive only good readings, and an empty reading is never a good one, so they keep showing the last value when the board blanks out for a moment (a flickering LED, a person walking in front of the board, a camera flash), whether this option is on or off.
 
 ## Template
 

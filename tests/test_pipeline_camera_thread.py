@@ -21,6 +21,7 @@ from camera_thread import (  # noqa: E402
     TimerThread,
     cadence_to_interval_ms,
     crop_frame,
+    is_zero_text,
 )
 from storage import store_data  # noqa: E402
 from synthetic_images import seven_segment  # noqa: E402
@@ -275,11 +276,12 @@ class ScriptedDetector:
         ]
 
 
-def published(thread, make_target, script, update_on_change=True):
+def published(thread, make_target, script, update_on_change=True, **settings):
+    """What the box publishes for each scripted reading, one second apart."""
     thread.textDetector = ScriptedDetector(script)
     thread.updateOnChange = update_on_change
     thread.detectionTargetsStorage.clear()
-    thread.detectionTargetsStorage.add_item(make_target("Home Score"))
+    thread.detectionTargetsStorage.add_item(make_target("Home Score", **settings))
     for _ in script:
         thread._clock.now += 1.0
         thread.process_frame(color_frame())
@@ -332,6 +334,144 @@ def test_an_unchanged_image_repeats_the_last_good_reading(make_thread, make_targ
     assert published(make_thread(), make_target, script) == expected
     # the same without "update on change"
     assert published(make_thread(), make_target, script, False) == expected
+
+
+def test_a_box_blank_for_2_seconds_is_cleared(make_thread, make_target):
+    # discussion #140: a handball penalty timer goes out at the end of the
+    # penalty, and vMix kept showing its last value
+    script = [
+        ("0:01", "Success"),
+        ("", "Empty"),  # blank since now
+        ("", "Empty"),  # for 1 s: a flicker, the value is kept
+        ("", "Empty"),  # for 2 s: cleared
+        ("", "Empty"),
+        ("8B", "FailedFilter"),
+        ("", "Empty"),
+        ("2:00", "Success"),
+    ]
+    expected = [
+        ("0:01", "Success"),
+        ("", "Empty"),
+        ("", "Empty"),
+        ("", "Success"),  # the outputs get the empty value once
+        ("", "SameNoChange"),  # and then as the unchanged good reading
+        ("8B", "FailedFilter"),
+        ("", "SameNoChange"),  # still cleared
+        ("2:00", "Success"),
+    ]
+    assert published(make_thread(), make_target, script, clear_value="blank") == (
+        expected
+    )
+    assert (
+        published(make_thread(), make_target, script, False, clear_value="blank")
+        == expected
+    )
+
+
+def test_a_short_blank_keeps_the_value(make_thread, make_target):
+    script = [
+        ("12", "Success"),
+        ("", "Empty"),
+        ("12", "Success"),
+        ("", "Empty"),
+        ("", "Empty"),
+        "unchanged",  # not blank
+        ("", "Empty"),
+        ("", "Empty"),
+        ("12", "Success"),
+    ]
+    assert [
+        state
+        for _, state in published(
+            make_thread(), make_target, script, clear_value="blank"
+        )
+    ] == [
+        "Success",
+        "Empty",
+        "SameNoChange",
+        "Empty",
+        "Empty",
+        "SameNoChange",
+        "Empty",
+        "Empty",
+        "SameNoChange",
+    ]
+
+
+def test_keep_the_last_value_never_clears(make_thread, make_target):
+    script = [("12", "Success")] + [("", "Empty")] * 5
+    assert (
+        published(make_thread(), make_target, script)
+        == [("12", "Success")] + [("", "Empty")] * 5
+    )
+
+
+def test_also_at_zero_clears_a_timer_at_zero(make_thread, make_target):
+    script = [
+        ("0:01", "Success"),
+        ("0:00", "Success"),
+        ("0:00", "Success"),
+        ("0:00", "Success"),
+        ("0:00", "Success"),
+        ("", "Empty"),
+        ("2:00", "Success"),
+    ]
+    assert published(
+        make_thread(), make_target, script, clear_value="blank_or_zero"
+    ) == [
+        ("0:01", "Success"),
+        ("0:00", "Success"),  # zero goes on air first
+        ("0:00", "SameNoChange"),
+        ("", "Success"),  # zero for 2 s: cleared
+        ("", "SameNoChange"),
+        ("", "SameNoChange"),
+        ("2:00", "Success"),
+    ]
+    # without "also at zero", zero is a value like any other
+    assert published(make_thread(), make_target, script[:5], clear_value="blank") == [
+        ("0:01", "Success"),
+        ("0:00", "Success"),
+        ("0:00", "SameNoChange"),
+        ("0:00", "SameNoChange"),
+        ("0:00", "SameNoChange"),
+    ]
+
+
+def test_clearing_forgets_the_image_and_the_smoothing(make_thread, make_target):
+    thread = make_thread()
+    thread.textDetector = ScriptedDetector([("", "Empty")] * 3)
+    target = make_target("Home Score", clear_value="blank")
+    target.last_text = "5"
+    target.last_image = np.zeros((4, 4), np.uint8)
+    target.ocrResultPerCharacterSmoother.get_smoothed_result("5")
+    thread.detectionTargetsStorage.add_item(target)
+    for _ in range(3):
+        thread._clock.now += 1.0
+        thread.process_frame(color_frame())
+    assert [r[0].result_state.name for r in thread.results][-1] == "Success"
+    # the board showing 5 again is read, and isn't smoothed with the old 5s
+    assert target.last_text == ""
+    assert target.last_image is None
+    assert not target.ocrResultPerCharacterSmoother.history
+
+
+@pytest.mark.parametrize(
+    ("text", "zero"),
+    [
+        ("0", True),
+        ("00", True),
+        ("0:00", True),
+        ("00:00", True),
+        ("0.0", True),
+        (":00", True),  # 00:00 without its leading zeros
+        ("", False),
+        ("10", False),
+        ("0:01", False),
+        ("O", False),
+    ],
+)
+def test_is_zero_text(text, zero):
+    assert is_zero_text(text) is zero
 
 
 def test_training_data_is_snapshotted_before_the_results_are_emitted(

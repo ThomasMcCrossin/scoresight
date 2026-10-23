@@ -58,6 +58,8 @@ class TextDetectionTarget(QRectF):
         self.ocrResultPerCharacterSmoother = OCRResultPerCharacterSmoother()
         self.last_image = None
         self.last_text = None
+        # when the box started to be blank ("When blank", camera_thread)
+        self.blank_since = None
         self.mini_rects: list[QRectF] = mini_rects if mini_rects is not None else []
         # Runtime OCR state for normalize_wh_ratio (not persisted): the recent
         # character width/height ratios and the settings they were measured with.

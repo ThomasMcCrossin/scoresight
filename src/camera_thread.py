@@ -4,6 +4,7 @@ import atexit
 import ctypes
 import math
 import os
+import re
 import platform
 import sys
 import time
@@ -12,6 +13,7 @@ import threading
 
 from base_video_capture import BaseVideoCapture
 from camera_info import CameraInfo
+from defaults import CLEAR_AFTER_SECONDS, CLEAR_BLANK_OR_ZERO, CLEAR_NEVER
 from storage import (
     SETTINGS_FILE,
     TextDetectionTargetMemoryStorage,
@@ -217,6 +219,14 @@ def set_camera_highest_resolution(cap):
     # Set the highest resolution
     logger.info("Setting camera resolution to: %d x %d", highest_res[0], highest_res[1])
     set_resolution(cap, *highest_res)
+
+
+# a reading of zero: 0, 00, 0:00, 0.0 (with "When blank": blank or zero)
+_ZERO_TEXT = re.compile(r"[0:.,'\s]*0[0:.,'\s]*")
+
+
+def is_zero_text(text: str) -> bool:
+    return _ZERO_TEXT.fullmatch(text) is not None
 
 
 class FrameCropAndRotation:
@@ -989,7 +999,14 @@ class TimerThread(QThread):
         So a rejected reading (FailedFilter, e.g. text that fails the box's
         format) is never repeated as SameNoChange, which the outputs treat as
         a good reading.
+
+        With "When blank" set (clear_value), a box that has been blank (or
+        zero) for CLEAR_AFTER_SECONDS is read as an empty good reading: a
+        Success "" once, then SameNoChange "" while it stays blank.
         """
+        cleared = self._cleared_reading(target, result)
+        if cleared is not None:
+            return cleared
         if result.unchanged_image:
             if target.last_text is None:
                 return "", ResultState.Empty
@@ -1000,6 +1017,43 @@ class TimerThread(QThread):
             return result.text, ResultState.SameNoChange
         target.last_text = result.text
         return result.text, ResultState.Success
+
+    def _cleared_reading(self, target, result) -> tuple[str, ResultState] | None:
+        """The empty reading of a box that "When blank" clears, or None to
+        publish the reading as usual. A blank box is one read as Empty (or,
+        with CLEAR_BLANK_OR_ZERO, as zero); a box blank for less than
+        CLEAR_AFTER_SECONDS (a flicker, a hand in front of the board) keeps
+        its value."""
+        clear = (target.settings or {}).get("clear_value", CLEAR_NEVER)
+        if clear == CLEAR_NEVER:
+            target.blank_since = None
+            return None
+        blank = not result.unchanged_image and (
+            result.state == ResultState.Empty
+            or (
+                clear == CLEAR_BLANK_OR_ZERO
+                and result.state == ResultState.Success
+                and is_zero_text(result.text)
+            )
+        )
+        if not blank:
+            target.blank_since = None
+            return None
+        now = self._clock()
+        if target.blank_since is None:
+            target.blank_since = now
+        if target.last_text == "":
+            # cleared already
+            return "", ResultState.SameNoChange
+        if now - target.blank_since < CLEAR_AFTER_SECONDS:
+            return None
+        target.last_text = ""
+        # the value cleared is forgotten: when the board shows it again, it is
+        # read (skip similar image would repeat the empty value) and isn't
+        # smoothed with the readings before
+        target.last_image = None
+        target.ocrResultPerCharacterSmoother.clear()
+        return "", ResultState.Success
 
     def _publish_results(self, targets, texts, display, gray, frame_time=None):
         if len(texts) == 0 or len(targets) != len(texts):

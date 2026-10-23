@@ -60,9 +60,10 @@ def test_is_good_reading(make_result, state, text, good):
     assert is_good_reading(make_result("Home Score", text, state)) is good
 
 
-def test_empty_text_is_good_only_without_skip_empty(make_result):
-    assert not is_good_reading(make_result("Home Score", "", skip_empty=True))
-    assert is_good_reading(make_result("Home Score", "", skip_empty=False))
+def test_empty_text_is_good(make_result):
+    # a box that "When blank" cleared; the 0.1.x setting skip_empty is ignored
+    assert is_good_reading(make_result("Home Score", ""))
+    assert is_good_reading(make_result("Home Score", "", skip_empty=True))
 
 
 def test_text_file_name_replaces_invalid_characters():

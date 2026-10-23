@@ -102,7 +102,7 @@ See [OCR Training Data](data_annotation.md).
 
 On Windows and Linux, the menus are at the top of the main window. On macOS they are in the system menu bar. Menu items show their shortcuts.
 
-**File**: **Import field layout...** (Ctrl+O) and **Export field layout...** (Ctrl+Shift+S) (in 0.1.x: Import/Export Configuration, see [Import and export layouts](boxes.md#import-and-export-layouts)), **Open settings folder** and **Quit** (Ctrl+Q).
+**File**: **Import field layout...** (Ctrl+O) and **Export field layout...** (Ctrl+Shift+S) (in 0.1.x: Import/Export Configuration, see [Import and export layouts](boxes.md#import-and-export-layouts)), **Open settings folder**, **Ask before closing** and **Quit** (Ctrl+Q). With **Ask before closing** on (the default), closing ScoreSight while a source is open asks first, because it stops the reading and the outputs; **Don't ask again** in that question turns it off. Ctrl+C or a `kill` of a headless ScoreSight, and **Update now**, close without asking.
 
 **View**:
 

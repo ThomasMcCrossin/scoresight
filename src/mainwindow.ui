@@ -2344,6 +2344,41 @@
                        </item>
                       </layout>
                      </item>
+                     <item row="4" column="0">
+                      <widget class="QLabel" name="label_clearValue">
+                       <property name="toolTip">
+                        <string>What the outputs get when the box has shown nothing for 2 seconds (a penalty timer that goes out, a lap board taken away): its last value, or an empty value, which clears the text in vMix, OBS, the overlays and the other outputs. “Also at zero” clears it when the box reads zero too (0, 00, 0:00).</string>
+                       </property>
+                       <property name="text">
+                        <string>When blank</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="4" column="1">
+                      <widget class="QComboBox" name="comboBox_clearValue">
+                       <property name="accessibleName">
+                        <string>When blank</string>
+                       </property>
+                       <property name="toolTip">
+                        <string>What the outputs get when the box has shown nothing for 2 seconds (a penalty timer that goes out, a lap board taken away): its last value, or an empty value, which clears the text in vMix, OBS, the overlays and the other outputs. “Also at zero” clears it when the box reads zero too (0, 00, 0:00).</string>
+                       </property>
+                       <item>
+                        <property name="text">
+                         <string>Keep the last value</string>
+                        </property>
+                       </item>
+                       <item>
+                        <property name="text">
+                         <string>Clear the value</string>
+                        </property>
+                       </item>
+                       <item>
+                        <property name="text">
+                         <string>Clear the value, also at zero</string>
+                        </property>
+                       </item>
+                      </widget>
+                     </item>
                     </layout>
                    </item>
                    <item>
@@ -2759,42 +2794,6 @@
                          <widget class="QLabel" name="label_compositeBoxHint">
                           <property name="text">
                            <string>not used for reading yet</string>
-                          </property>
-                          <property name="wordWrap">
-                           <bool>true</bool>
-                          </property>
-                          <property name="sizePolicy">
-                           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                           </sizepolicy>
-                          </property>
-                          <property name="hint" stdset="0">
-                           <bool>true</bool>
-                          </property>
-                         </widget>
-                        </item>
-                       </layout>
-                      </item>
-                      <item row="11" column="0" colspan="2">
-                       <layout class="QHBoxLayout" name="horizontalLayout_skipEmpty">
-                        <property name="spacing">
-                         <number>6</number>
-                        </property>
-                        <item>
-                         <widget class="QCheckBox" name="checkBox_skip_empty">
-                          <property name="toolTip">
-                           <string>Never write an empty value to the box's text file or OBS text source. Since 0.2.0 they only ever get good readings, so this has no effect. Formerly “Skip Empty Values”.</string>
-                          </property>
-                          <property name="text">
-                           <string>Skip empty values</string>
-                          </property>
-                         </widget>
-                        </item>
-                        <item>
-                         <widget class="QLabel" name="label_skipEmptyHint">
-                          <property name="text">
-                           <string>no effect since 0.2.0</string>
                           </property>
                           <property name="wordWrap">
                            <bool>true</bool>
@@ -4881,6 +4880,7 @@
     <addaction name="separator"/>
     <addaction name="actionOpenConfigurationFolder"/>
     <addaction name="separator"/>
+    <addaction name="actionAskBeforeClosing"/>
     <addaction name="actionQuit"/>
    </widget>
    <widget class="QMenu" name="menuView">
@@ -5178,6 +5178,23 @@
    </property>
    <property name="menuRole">
     <enum>QAction::QuitRole</enum>
+   </property>
+  </action>
+  <action name="actionAskBeforeClosing">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Ask before closing</string>
+   </property>
+   <property name="toolTip">
+    <string>Ask before closing ScoreSight while a source is open: closing stops the reading and the outputs</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::NoRole</enum>
    </property>
   </action>
   <action name="actionSetupLayout">

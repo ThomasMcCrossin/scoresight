@@ -274,7 +274,7 @@ def test_image_cleanup_is_disabled_while_ppocr_reads(
     } <= names
     # the legacy settings aren't Tesseract's
     assert "checkBox_compositeBox" not in names
-    assert "checkBox_skip_empty" not in names
+    assert "comboBox_clearValue" not in names
     assert not any(widget.isEnabled() for widget in widgets)
     note = ui.label_imageCleanupEngineNote
     assert note.isVisibleTo(window)
