@@ -349,11 +349,10 @@ def render_fixes():
         "`latency_ms 423.8` -- both read on a private instance fed a 60 s "
         "slice, not inferred from the code |",
         "| Time `M:SS.t` preset | the preset's expression against the clock "
-        "texts the runs recorded | accepts `0:09`, `0:09.8` and `9.8` and not "
-        "the two-digit forms. **Not exercised by this board**: across 4,872 "
-        "clock readings in every run the board shows only `M:SS` (0 in the "
-        "`M:SS.t` form), so the fork's Time accuracy here says nothing about "
-        "the new preset |",
+        "texts the board shows under a minute | accepts `0:09`, `0:09.8` and "
+        "`9.8`. **Not exercised by this board**: across 4,872 clock readings "
+        "in every run the board shows only `M:SS` (0 in the `M:SS.t` form), so "
+        "the fork's Time accuracy here says nothing about the new preset |",
         "| No settings clobber, `--settings-read-only` | 67 storage/settings "
         "tests; a real run with the flag, comparing the profile's checksum "
         "before and after | the profile is byte-identical after a full run; "
