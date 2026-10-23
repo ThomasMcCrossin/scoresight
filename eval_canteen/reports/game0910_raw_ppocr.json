@@ -1,0 +1,7284 @@
+{
+ "meta": {
+  "name": "game0910_raw_ppocr",
+  "clip": "20261023T091022.mkv",
+  "clip_path": "/home/canteenhub/.local/share/canteen-ops/scoreboard-camera/crop/20261023T091022.mkv",
+  "variant": "raw",
+  "engine": "ppocr",
+  "cadence": 2.0,
+  "start_media": 0.0,
+  "duration": 900.0,
+  "samples_file": "/home/canteenhub/worktrees/scoresight/eval/eval_canteen/reports/work/game0910_raw_ppocr/samples.json",
+  "rescored_at": "2026-10-23T10:55:41-0300",
+  "samples": 902,
+  "offset_seconds": 0.0,
+  "aligned_clock_samples": 703
+ },
+ "result": {
+  "offset_seconds": 0.0,
+  "aligned_clock_samples": 703,
+  "samples": 902,
+  "start_media": 0.0,
+  "duration": 900.0,
+  "end_media": 900.0,
+  "fields": {
+   "period": {
+    "name": "Period",
+    "correct": 811,
+    "wrong": 0,
+    "unknown": 88,
+    "no_reference": 1,
+    "accuracy": 1.0,
+    "unknown_rate": 0.09788654060066741
+   },
+   "home": {
+    "name": "Home Score",
+    "correct": 438,
+    "wrong": 395,
+    "unknown": 66,
+    "no_reference": 1,
+    "accuracy": 0.5258103241296519,
+    "unknown_rate": 0.07341490545050056
+   },
+   "away": {
+    "name": "Away Score",
+    "correct": 458,
+    "wrong": 439,
+    "unknown": 2,
+    "no_reference": 1,
+    "accuracy": 0.5105908584169454,
+    "unknown_rate": 0.002224694104560623
+   },
+   "clock": {
+    "name": "Time",
+    "correct": 631,
+    "wrong": 81,
+    "unknown": 105,
+    "no_reference": 83,
+    "accuracy": 0.8862359550561798,
+    "unknown_rate": 0.12851897184822522
+   }
+  },
+  "transitions": {
+   "clock_start": {
+    "expected": 11,
+    "detected": 11,
+    "missed": 0,
+    "false": 19,
+    "mean_latency": -0.8454545454545456,
+    "max_latency": 0.88,
+    "latencies": [
+     -0.66,
+     -0.24,
+     -0.28,
+     -0.33,
+     -0.47,
+     -0.45,
+     -0.71,
+     0.88,
+     0.16,
+     -0.13,
+     -7.07
+    ]
+   },
+   "clock_stop": {
+    "expected": 11,
+    "detected": 9,
+    "missed": 2,
+    "false": 21,
+    "mean_latency": 0.31777777777777777,
+    "max_latency": 1.9,
+    "latencies": [
+     1.35,
+     1.53,
+     1.9,
+     1.48,
+     1.32,
+     -3.49,
+     0.13,
+     1.11,
+     -2.47
+    ]
+   },
+   "score_away": {
+    "expected": 0,
+    "detected": 0,
+    "missed": 0,
+    "false": 40,
+    "mean_latency": null,
+    "max_latency": null,
+    "latencies": []
+   },
+   "score_home": {
+    "expected": 1,
+    "detected": 1,
+    "missed": 0,
+    "false": 24,
+    "mean_latency": 3.04,
+    "max_latency": 3.04,
+    "latencies": [
+     3.04
+    ]
+   }
+  },
+  "wrong_readings": [
+   {
+    "media": 3.0,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "Success"
+   },
+   {
+    "media": 4.0,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "Success"
+   },
+   {
+    "media": 5.0,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 6.0,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 7.0,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 9.0,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 10.0,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "Success"
+   },
+   {
+    "media": 11.0,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 12.0,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 13.0,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 14.0,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 15.0,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 16.0,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 17.0,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 18.0,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 19.0,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 20.0,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 21.0,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 22.0,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 22.0,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 23.0,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "Success"
+   },
+   {
+    "media": 23.0,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 24.0,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 24.0,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 25.0,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "Success"
+   },
+   {
+    "media": 25.0,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 26.0,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 26.0,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 27.0,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 28.0,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 29.0,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 30.0,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 31.0,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 32.0,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 32.0,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 33.0,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 34.0,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 35.0,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 35.0,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 36.0,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 36.0,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 37.0,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "Success"
+   },
+   {
+    "media": 37.0,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 38.0,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 38.0,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 39.0,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 39.0,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 40.0,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 41.0,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 42.0,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 43.0,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 44.0,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 45.0,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 46.0,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 47.0,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "Success"
+   },
+   {
+    "media": 48.0,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 49.0,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 50.01,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 51.0,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 52.0,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 53.0,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 54.0,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 55.0,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "Success"
+   },
+   {
+    "media": 56.0,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 57.0,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 58.0,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 59.01,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 60.0,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 61.0,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 62.0,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 64.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 65.0,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 65.0,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 66.0,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 66.0,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 67.0,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 67.0,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 68.0,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "Success"
+   },
+   {
+    "media": 68.0,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 69.0,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 69.0,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 70.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 71.01,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 71.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 72.0,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 72.0,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 73.01,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 73.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 74.01,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 74.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 75.01,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 75.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 76.0,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 76.0,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 77.01,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 77.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 78.01,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 78.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 79.01,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "Success"
+   },
+   {
+    "media": 79.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 80.01,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 80.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 81.01,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 81.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 82.01,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 82.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 83.01,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 83.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 84.01,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "Success"
+   },
+   {
+    "media": 84.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 85.01,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 85.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 86.01,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 86.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 87.01,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 87.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 88.01,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 88.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 89.01,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 89.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 90.01,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 90.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 91.01,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 91.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 92.01,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 92.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 93.01,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 93.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 94.01,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 94.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 95.01,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 95.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 96.02,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 96.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 97.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 98.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 99.01,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 99.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 100.01,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "Success"
+   },
+   {
+    "media": 100.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 101.01,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 101.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 102.01,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 102.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 103.01,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 103.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 104.01,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "Success"
+   },
+   {
+    "media": 104.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 105.01,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 105.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 106.01,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 106.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 107.01,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 107.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 108.01,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 108.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 109.01,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 109.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 110.01,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 110.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 111.01,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "Success"
+   },
+   {
+    "media": 112.01,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 113.01,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 114.02,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 115.01,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 116.01,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 117.01,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 118.01,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "Success"
+   },
+   {
+    "media": 119.01,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 120.01,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 121.01,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 122.01,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 123.01,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 124.01,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 125.01,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "Success"
+   },
+   {
+    "media": 126.01,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 127.01,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 128.01,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 129.01,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 130.01,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 131.01,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 132.01,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 133.01,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "Success"
+   },
+   {
+    "media": 134.01,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 135.01,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 136.01,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 137.01,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "Success"
+   },
+   {
+    "media": 138.01,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 140.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 141.01,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 141.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 142.01,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 142.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 143.01,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "Success"
+   },
+   {
+    "media": 143.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 144.01,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 144.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 145.01,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 145.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 146.01,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 146.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 147.01,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 147.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 148.01,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "Success"
+   },
+   {
+    "media": 148.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 149.01,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 149.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 150.01,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 150.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 151.01,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 151.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 152.01,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "Success"
+   },
+   {
+    "media": 152.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 153.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 154.01,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "Success"
+   },
+   {
+    "media": 154.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 155.01,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 155.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 156.01,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 156.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 157.01,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 157.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 158.01,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 158.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 159.01,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 159.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 160.01,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 160.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 161.01,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 161.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 162.01,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 162.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 163.01,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 163.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 164.01,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 165.01,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 166.02,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 167.01,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 168.02,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 169.01,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 170.02,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 171.02,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 172.01,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 173.02,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 174.01,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 174.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 175.02,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 175.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 176.01,
+    "field": "Home Score",
+    "read": "8",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 176.01,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 177.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 177.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 178.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 178.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 179.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 179.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 180.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 180.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 181.02,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "Success"
+   },
+   {
+    "media": 181.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 182.02,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 182.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 183.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 183.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 184.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 185.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 186.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 186.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 187.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 187.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 188.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 188.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 189.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 189.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 190.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 190.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 191.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 191.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 192.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 192.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 193.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 193.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 194.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 194.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 195.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 195.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 196.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "Success"
+   },
+   {
+    "media": 196.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 197.04,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "Success"
+   },
+   {
+    "media": 197.04,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 198.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 198.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 199.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 199.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 200.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 200.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 201.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 202.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 203.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 203.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 204.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 204.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 205.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 205.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 206.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 206.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 207.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 208.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 208.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 209.02,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 210.02,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "Success"
+   },
+   {
+    "media": 211.02,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 212.02,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 213.02,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 214.02,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 215.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 216.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 217.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 218.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 219.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 219.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 220.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 220.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 221.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 221.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 222.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 222.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 223.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 223.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 224.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 224.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 225.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 225.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 226.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "Success"
+   },
+   {
+    "media": 226.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 227.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 227.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 228.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 228.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 229.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 229.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 230.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 230.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 231.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 231.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 232.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 233.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 233.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 234.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "Success"
+   },
+   {
+    "media": 234.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 235.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 235.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 236.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 236.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 237.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 237.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 238.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 238.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 239.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 239.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 240.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 240.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 241.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "Success"
+   },
+   {
+    "media": 241.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 242.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 242.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 243.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 245.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 246.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 247.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "Success"
+   },
+   {
+    "media": 248.02,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 249.02,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 254.02,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "Success"
+   },
+   {
+    "media": 255.02,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 255.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 256.02,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "Success"
+   },
+   {
+    "media": 256.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 257.02,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 257.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 258.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 259.02,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 259.02,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 260.02,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 261.02,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 262.02,
+    "field": "Home Score",
+    "read": "2",
+    "expected": 1,
+    "state": "Success"
+   },
+   {
+    "media": 263.02,
+    "field": "Home Score",
+    "read": "2",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 264.02,
+    "field": "Home Score",
+    "read": "2",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 265.02,
+    "field": "Home Score",
+    "read": "2",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 266.02,
+    "field": "Home Score",
+    "read": "2",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 267.03,
+    "field": "Home Score",
+    "read": "2",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 268.02,
+    "field": "Home Score",
+    "read": "2",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 269.02,
+    "field": "Home Score",
+    "read": "2",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 270.02,
+    "field": "Home Score",
+    "read": "2",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 271.03,
+    "field": "Home Score",
+    "read": "2",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 272.02,
+    "field": "Home Score",
+    "read": "2",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 273.02,
+    "field": "Home Score",
+    "read": "2",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 274.02,
+    "field": "Home Score",
+    "read": "2",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 275.02,
+    "field": "Home Score",
+    "read": "2",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 277.03,
+    "field": "Home Score",
+    "read": "2",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 278.03,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "Success"
+   },
+   {
+    "media": 279.03,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 280.03,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 281.03,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 282.03,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 283.03,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "Success"
+   },
+   {
+    "media": 284.03,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 285.03,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 286.04,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 287.03,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 288.03,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 289.03,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 289.03,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 290.03,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 290.03,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 291.03,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 291.03,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 292.03,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 292.03,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 293.03,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 294.03,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 295.03,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 295.03,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 296.03,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 296.03,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 297.03,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 297.03,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 298.03,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 298.03,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 299.03,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 299.03,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 300.03,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 300.03,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 301.03,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 301.03,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 302.03,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 302.03,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 303.03,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 303.03,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 304.03,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 304.03,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 305.03,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 305.03,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 306.07,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 306.07,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 307.03,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 307.03,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 308.03,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 308.03,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 309.03,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 309.03,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 310.04,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 310.04,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 311.03,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 311.03,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 312.03,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 312.03,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 313.03,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 313.03,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 314.03,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "Success"
+   },
+   {
+    "media": 314.03,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 315.03,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 315.03,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 316.04,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 316.04,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 317.03,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 317.03,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 318.04,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 318.04,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 319.03,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 319.03,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 320.03,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 320.03,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 321.03,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 321.03,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 322.03,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 323.03,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 324.03,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 325.03,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 326.03,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 327.04,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "Success"
+   },
+   {
+    "media": 328.04,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 330.03,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 331.03,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 332.08,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "Success"
+   },
+   {
+    "media": 334.04,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 335.04,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 336.04,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 337.04,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "Success"
+   },
+   {
+    "media": 338.04,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 339.04,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 340.04,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 341.04,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "Success"
+   },
+   {
+    "media": 341.04,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 342.04,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 342.04,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 343.04,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 343.04,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 344.05,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 345.04,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 345.04,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 346.04,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 346.04,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 347.04,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 347.04,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 348.05,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 349.04,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 350.05,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 351.04,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 352.04,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 353.04,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 354.04,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 355.04,
+    "field": "Home Score",
+    "read": "88",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 357.04,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 358.04,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 359.05,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 360.04,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 361.04,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 362.04,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 363.05,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 364.05,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 365.04,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 366.04,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 367.04,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 368.04,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 371.05,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 372.04,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 373.05,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 374.05,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 375.05,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 376.05,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 377.05,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "Success"
+   },
+   {
+    "media": 378.05,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 379.05,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 380.05,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 381.05,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "Success"
+   },
+   {
+    "media": 382.05,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 383.05,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 384.05,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 385.05,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 386.05,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 387.05,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 388.05,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 389.05,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 390.05,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 391.05,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 393.05,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 394.05,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 397.05,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 404.05,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "Success"
+   },
+   {
+    "media": 405.05,
+    "field": "Home Score",
+    "read": "80",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 406.05,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "Success"
+   },
+   {
+    "media": 409.05,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 411.05,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 412.05,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 413.05,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 414.05,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 415.05,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "Success"
+   },
+   {
+    "media": 416.05,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 417.06,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 418.05,
+    "field": "Time",
+    "read": "6:00",
+    "expected": 358.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 419.05,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 419.05,
+    "field": "Time",
+    "read": "6:00",
+    "expected": 357.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 420.05,
+    "field": "Time",
+    "read": "6:00",
+    "expected": 356.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 421.12,
+    "field": "Time",
+    "read": "6:00",
+    "expected": 355.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 422.06,
+    "field": "Time",
+    "read": "6:00",
+    "expected": 354.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 423.07,
+    "field": "Time",
+    "read": "6:00",
+    "expected": 353.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 424.06,
+    "field": "Time",
+    "read": "6:00",
+    "expected": 352.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 425.06,
+    "field": "Time",
+    "read": "6:00",
+    "expected": 351.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 426.06,
+    "field": "Time",
+    "read": "6:00",
+    "expected": 350.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 427.07,
+    "field": "Time",
+    "read": "6:00",
+    "expected": 349.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 428.07,
+    "field": "Time",
+    "read": "6:00",
+    "expected": 348.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 429.06,
+    "field": "Time",
+    "read": "6:00",
+    "expected": 347.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 430.07,
+    "field": "Time",
+    "read": "6:00",
+    "expected": 346.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 431.07,
+    "field": "Time",
+    "read": "6:00",
+    "expected": 345.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 432.07,
+    "field": "Time",
+    "read": "6:00",
+    "expected": 344.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 433.07,
+    "field": "Time",
+    "read": "6:00",
+    "expected": 343.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 434.07,
+    "field": "Time",
+    "read": "6:00",
+    "expected": 342.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 435.07,
+    "field": "Time",
+    "read": "6:00",
+    "expected": 341.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 436.07,
+    "field": "Time",
+    "read": "6:00",
+    "expected": 340.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 437.07,
+    "field": "Time",
+    "read": "6:00",
+    "expected": 339.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 438.07,
+    "field": "Time",
+    "read": "6:00",
+    "expected": 338.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 439.07,
+    "field": "Time",
+    "read": "6:00",
+    "expected": 337.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 440.07,
+    "field": "Time",
+    "read": "6:00",
+    "expected": 336.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 441.07,
+    "field": "Time",
+    "read": "6:00",
+    "expected": 335.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 442.07,
+    "field": "Time",
+    "read": "6:00",
+    "expected": 334.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 443.07,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 443.07,
+    "field": "Time",
+    "read": "6:00",
+    "expected": 333.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 444.07,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 444.07,
+    "field": "Time",
+    "read": "6:00",
+    "expected": 332.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 445.07,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 445.07,
+    "field": "Time",
+    "read": "6:00",
+    "expected": 331.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 446.07,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 446.07,
+    "field": "Time",
+    "read": "6:00",
+    "expected": 330.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 447.07,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 447.07,
+    "field": "Time",
+    "read": "6:00",
+    "expected": 329.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 448.07,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 448.07,
+    "field": "Time",
+    "read": "6:00",
+    "expected": 328.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 449.07,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 449.07,
+    "field": "Time",
+    "read": "6:00",
+    "expected": 327.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 450.07,
+    "field": "Time",
+    "read": "6:00",
+    "expected": 326.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 451.07,
+    "field": "Time",
+    "read": "6:00",
+    "expected": 325.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 452.07,
+    "field": "Time",
+    "read": "6:00",
+    "expected": 324.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 453.07,
+    "field": "Time",
+    "read": "6:00",
+    "expected": 323.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 454.07,
+    "field": "Time",
+    "read": "6:00",
+    "expected": 322.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 455.07,
+    "field": "Time",
+    "read": "6:00",
+    "expected": 321.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 456.07,
+    "field": "Time",
+    "read": "6:00",
+    "expected": 320.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 457.08,
+    "field": "Time",
+    "read": "6:00",
+    "expected": 319.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 458.07,
+    "field": "Home Score",
+    "read": "0",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 458.07,
+    "field": "Time",
+    "read": "6:00",
+    "expected": 318.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 467.08,
+    "field": "Home Score",
+    "read": "0",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 468.08,
+    "field": "Home Score",
+    "read": "0",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 474.08,
+    "field": "Home Score",
+    "read": "0",
+    "expected": 1,
+    "state": "Success"
+   },
+   {
+    "media": 475.11,
+    "field": "Home Score",
+    "read": "0",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 476.08,
+    "field": "Home Score",
+    "read": "0",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 476.08,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 477.08,
+    "field": "Home Score",
+    "read": "0",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 477.08,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 478.08,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "Success"
+   },
+   {
+    "media": 478.08,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 479.08,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 479.08,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 480.08,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 480.08,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 481.08,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 481.08,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 482.08,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 483.08,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 483.08,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 484.08,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 484.08,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 485.08,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 485.08,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 486.08,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 486.08,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 487.08,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 487.08,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 488.08,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 489.08,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "Success"
+   },
+   {
+    "media": 489.08,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 490.08,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 490.08,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 491.08,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 491.08,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 492.08,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 492.08,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 493.08,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 493.08,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 494.09,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 1,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 494.09,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 495.09,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 496.09,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 2,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 496.09,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 497.09,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 2,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 497.09,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 498.09,
+    "field": "Home Score",
+    "read": "81",
+    "expected": 2,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 498.09,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 499.09,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 500.09,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 501.09,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 502.09,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 503.09,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 504.09,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 505.09,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 506.09,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 507.09,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 508.09,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 509.09,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 510.09,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 511.09,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 512.09,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 513.09,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 519.09,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 520.09,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 521.09,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 522.09,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 523.09,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 524.09,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 525.09,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 526.09,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 527.09,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 536.11,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 537.12,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 538.16,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 539.11,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 540.15,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 546.24,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 547.12,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 548.12,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 549.12,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 550.12,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 551.12,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 552.13,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 553.12,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 554.14,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 555.19,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 556.12,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 557.14,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 558.13,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 559.12,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 560.64,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 561.57,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 562.58,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 562.58,
+    "field": "Time",
+    "read": "4:30",
+    "expected": 268.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 563.58,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 563.58,
+    "field": "Time",
+    "read": "4:30",
+    "expected": 267.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 564.59,
+    "field": "Time",
+    "read": "4:30",
+    "expected": 266.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 565.59,
+    "field": "Time",
+    "read": "4:30",
+    "expected": 265.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 566.59,
+    "field": "Time",
+    "read": "4:30",
+    "expected": 264.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 567.59,
+    "field": "Time",
+    "read": "4:30",
+    "expected": 263.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 568.59,
+    "field": "Time",
+    "read": "4:30",
+    "expected": 262.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 569.62,
+    "field": "Time",
+    "read": "4:30",
+    "expected": 261.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 570.59,
+    "field": "Time",
+    "read": "4:30",
+    "expected": 260.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 571.59,
+    "field": "Time",
+    "read": "4:30",
+    "expected": 259.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 572.59,
+    "field": "Time",
+    "read": "4:30",
+    "expected": 258.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 573.59,
+    "field": "Time",
+    "read": "4:30",
+    "expected": 257.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 574.59,
+    "field": "Time",
+    "read": "4:30",
+    "expected": 256.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 575.59,
+    "field": "Time",
+    "read": "4:30",
+    "expected": 255.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 576.59,
+    "field": "Time",
+    "read": "4:30",
+    "expected": 254.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 577.59,
+    "field": "Time",
+    "read": "4:30",
+    "expected": 253.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 578.59,
+    "field": "Time",
+    "read": "4:30",
+    "expected": 252.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 579.59,
+    "field": "Time",
+    "read": "4:30",
+    "expected": 251.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 584.59,
+    "field": "Time",
+    "read": "4:30",
+    "expected": 246.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 585.59,
+    "field": "Time",
+    "read": "4:30",
+    "expected": 245.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 586.59,
+    "field": "Time",
+    "read": "4:30",
+    "expected": 244.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 587.59,
+    "field": "Time",
+    "read": "4:30",
+    "expected": 243.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 588.59,
+    "field": "Time",
+    "read": "4:30",
+    "expected": 242.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 589.59,
+    "field": "Time",
+    "read": "4:30",
+    "expected": 241.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 591.59,
+    "field": "Time",
+    "read": "4:30",
+    "expected": 239.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 592.67,
+    "field": "Time",
+    "read": "4:30",
+    "expected": 238.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 593.59,
+    "field": "Time",
+    "read": "4:30",
+    "expected": 237.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 594.59,
+    "field": "Time",
+    "read": "4:30",
+    "expected": 236.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 595.59,
+    "field": "Time",
+    "read": "4:30",
+    "expected": 235.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 596.59,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 596.59,
+    "field": "Time",
+    "read": "4:30",
+    "expected": 234.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 597.59,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 597.59,
+    "field": "Time",
+    "read": "4:30",
+    "expected": 233.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 598.59,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 598.59,
+    "field": "Time",
+    "read": "4:30",
+    "expected": 232.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 599.59,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 599.59,
+    "field": "Time",
+    "read": "4:30",
+    "expected": 231.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 600.59,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 600.59,
+    "field": "Time",
+    "read": "4:30",
+    "expected": 230.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 601.59,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 601.59,
+    "field": "Time",
+    "read": "4:30",
+    "expected": 229.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 602.59,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 603.59,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 604.6,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 605.59,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 606.59,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 607.59,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 608.6,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 608.6,
+    "field": "Time",
+    "read": "4:30",
+    "expected": 225.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 609.6,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 610.6,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 611.59,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 612.59,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 613.59,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 614.59,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 615.59,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 616.59,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 617.59,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 618.59,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 619.59,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 620.59,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 621.59,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 622.59,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 623.59,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 624.6,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 625.6,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 626.6,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 627.7,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 628.67,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 629.66,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 630.6,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 631.64,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 632.63,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 633.61,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 634.6,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 635.6,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 636.6,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 637.6,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 638.6,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 639.6,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 640.61,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 641.6,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 642.6,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 643.6,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 644.64,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 645.82,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 646.61,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 671.83,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 672.87,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 673.84,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 674.85,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 675.83,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 676.84,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 677.85,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 678.85,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 679.84,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 680.84,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 681.86,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 682.85,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 683.85,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 684.85,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 685.85,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 686.85,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 687.87,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 688.88,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 689.85,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 690.92,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 691.85,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 692.85,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 693.85,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 694.85,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 695.85,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 696.85,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 725.06,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 725.99,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 726.97,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 727.95,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 728.95,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 729.96,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 730.98,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 731.98,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 732.99,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 733.96,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 734.96,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 735.96,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 736.95,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 737.96,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 738.99,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 739.96,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 740.96,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 741.96,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 742.96,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 743.96,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 744.96,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 745.96,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 746.96,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 747.96,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 748.96,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 761.96,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 762.96,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 763.97,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 764.97,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 781.2,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 782.16,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 783.16,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 784.17,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 785.17,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 786.17,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 787.19,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 788.17,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 789.17,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 790.17,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 791.17,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 792.22,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 793.17,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 794.18,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 795.17,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 802.2,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 803.17,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 804.17,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 805.17,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 806.18,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 807.18,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 808.18,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 809.17,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 810.18,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 811.17,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 812.18,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 813.17,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 814.17,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 815.17,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 816.17,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 817.17,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 818.17,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 819.17,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 820.18,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 821.18,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 822.18,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 823.17,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 824.17,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 825.18,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 826.18,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 827.18,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 828.18,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 829.18,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 830.18,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 831.17,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 832.18,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 833.18,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 834.18,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 835.18,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 836.18,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 837.2,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 838.18,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 839.18,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 840.18,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 841.18,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 842.18,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 843.18,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 844.18,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "Success"
+   },
+   {
+    "media": 845.18,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 846.18,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 847.18,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 848.18,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 849.18,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 850.18,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 851.18,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 852.18,
+    "field": "Away Score",
+    "read": "80",
+    "expected": 0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 882.29,
+    "field": "Time",
+    "read": "1:22",
+    "expected": 78.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 883.29,
+    "field": "Time",
+    "read": "1:22",
+    "expected": 78.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 885.29,
+    "field": "Time",
+    "read": "1:22",
+    "expected": 78.0,
+    "state": "SameNoChange"
+   },
+   {
+    "media": 886.29,
+    "field": "Time",
+    "read": "1:22",
+    "expected": 78.0,
+    "state": "SameNoChange"
+   }
+  ],
+  "game_events": [
+   {
+    "media": 3.37,
+    "kind": "clock_start",
+    "value": 1,
+    "text": "Clock started at 11:28"
+   },
+   {
+    "media": 9.93,
+    "kind": "score_home",
+    "value": 80,
+    "text": "Home +72 (80\u20130)"
+   },
+   {
+    "media": 21.99,
+    "kind": "score_away",
+    "value": 80,
+    "text": "Away +80 (80\u201380)"
+   },
+   {
+    "media": 26.27,
+    "kind": "score_away",
+    "value": 0,
+    "text": "Away score corrected to 0 (80\u20130)"
+   },
+   {
+    "media": 31.08,
+    "kind": "score_away",
+    "value": 80,
+    "text": "Away +80 (80\u201380)"
+   },
+   {
+    "media": 39.53,
+    "kind": "score_away",
+    "value": 0,
+    "text": "Away score corrected to 0 (80\u20130)"
+   },
+   {
+    "media": 44.42,
+    "kind": "score_home",
+    "value": 8,
+    "text": "Home score corrected to 8 (8\u20130)"
+   },
+   {
+    "media": 63.56,
+    "kind": "score_away",
+    "value": 80,
+    "text": "Away +80 (8\u201380)"
+   },
+   {
+    "media": 67.55,
+    "kind": "score_home",
+    "value": 88,
+    "text": "Home +80 (88\u201380)"
+   },
+   {
+    "media": 78.95,
+    "kind": "score_home",
+    "value": 81,
+    "text": "Home score corrected to 81 (81\u201380)"
+   },
+   {
+    "media": 83.81,
+    "kind": "score_home",
+    "value": 80,
+    "text": "Home score corrected to 80 (80\u201380)"
+   },
+   {
+    "media": 85.0,
+    "kind": "score_home",
+    "value": 81,
+    "text": "Home +1 (81\u201380)"
+   },
+   {
+    "media": 103.64,
+    "kind": "score_home",
+    "value": 8,
+    "text": "Home score corrected to 8 (8\u201380)"
+   },
+   {
+    "media": 110.13,
+    "kind": "score_away",
+    "value": 0,
+    "text": "Away score corrected to 0 (8\u20130)"
+   },
+   {
+    "media": 139.76,
+    "kind": "score_away",
+    "value": 80,
+    "text": "Away +80 (8\u201380)"
+   },
+   {
+    "media": 147.94,
+    "kind": "score_home",
+    "value": 80,
+    "text": "Home +72 (80\u201380)"
+   },
+   {
+    "media": 158.82,
+    "kind": "score_home",
+    "value": 81,
+    "text": "Home +1 (81\u201380)"
+   },
+   {
+    "media": 161.15,
+    "kind": "clock_stop",
+    "value": 1,
+    "text": "Clock stopped at 8:51"
+   },
+   {
+    "media": 163.08,
+    "kind": "score_away",
+    "value": 0,
+    "text": "Away score corrected to 0 (81\u20130)"
+   },
+   {
+    "media": 170.14,
+    "kind": "score_home",
+    "value": 8,
+    "text": "Home score corrected to 8 (8\u20130)"
+   },
+   {
+    "media": 173.16,
+    "kind": "score_away",
+    "value": 80,
+    "text": "Away +80 (8\u201380)"
+   },
+   {
+    "media": 176.13,
+    "kind": "score_home",
+    "value": 80,
+    "text": "Home +72 (80\u201380)"
+   },
+   {
+    "media": 188.14,
+    "kind": "clock_start",
+    "value": 1,
+    "text": "Clock started at 8:50"
+   },
+   {
+    "media": 208.98,
+    "kind": "score_away",
+    "value": 0,
+    "text": "Away score corrected to 0 (80\u20130)"
+   },
+   {
+    "media": 218.96,
+    "kind": "score_away",
+    "value": 80,
+    "text": "Away +80 (80\u201380)"
+   },
+   {
+    "media": 233.33,
+    "kind": "clock_stop",
+    "value": 1,
+    "text": "Clock stopped at 8:07"
+   },
+   {
+    "media": 243.54,
+    "kind": "score_away",
+    "value": 0,
+    "text": "Away score corrected to 0 (80\u20130)"
+   },
+   {
+    "media": 248.96,
+    "kind": "score_home",
+    "value": 81,
+    "text": "Home +1 (81\u20130)"
+   },
+   {
+    "media": 253.74,
+    "kind": "score_home",
+    "value": 88,
+    "text": "Home +7 (88\u20130)"
+   },
+   {
+    "media": 254.56,
+    "kind": "clock_start",
+    "value": 1,
+    "text": "Clock started at 8:06"
+   },
+   {
+    "media": 254.97,
+    "kind": "score_away",
+    "value": 80,
+    "text": "Away +80 (88\u201380)"
+   },
+   {
+    "media": 259.22,
+    "kind": "score_away",
+    "value": 0,
+    "text": "Away score corrected to 0 (88\u20130)"
+   },
+   {
+    "media": 261.65,
+    "kind": "score_home",
+    "value": 2,
+    "text": "Home score corrected to 2 (2\u20130)"
+   },
+   {
+    "media": 270.01,
+    "kind": "clock_stop",
+    "value": 1,
+    "text": "Clock stopped at 7:52"
+   },
+   {
+    "media": 270.63,
+    "kind": "clock_start",
+    "value": 1,
+    "text": "Clock started at 7:50"
+   },
+   {
+    "media": 277.77,
+    "kind": "score_home",
+    "value": 81,
+    "text": "Home +79 (81\u20130)"
+   },
+   {
+    "media": 287.55,
+    "kind": "score_away",
+    "value": 80,
+    "text": "Away +80 (81\u201380)"
+   },
+   {
+    "media": 300.07,
+    "kind": "score_home",
+    "value": 80,
+    "text": "Home score corrected to 80 (80\u201380)"
+   },
+   {
+    "media": 300.07,
+    "kind": "clock_stop",
+    "value": 1,
+    "text": "Clock stopped at 7:22"
+   },
+   {
+    "media": 300.64,
+    "kind": "clock_start",
+    "value": 1,
+    "text": "Clock started at 7:20"
+   },
+   {
+    "media": 302.62,
+    "kind": "clock_stop",
+    "value": 1,
+    "text": "Clock stopped at 7:20"
+   },
+   {
+    "media": 303.19,
+    "kind": "clock_start",
+    "value": 1,
+    "text": "Clock started at 7:18"
+   },
+   {
+    "media": 313.41,
+    "kind": "score_home",
+    "value": 88,
+    "text": "Home +8 (88\u201380)"
+   },
+   {
+    "media": 319.34,
+    "kind": "clock_stop",
+    "value": 1,
+    "text": "Clock stopped at 7:03"
+   },
+   {
+    "media": 320.01,
+    "kind": "clock_start",
+    "value": 1,
+    "text": "Clock started at 07:01"
+   },
+   {
+    "media": 321.11,
+    "kind": "score_away",
+    "value": 0,
+    "text": "Away score corrected to 0 (88\u20130)"
+   },
+   {
+    "media": 340.18,
+    "kind": "score_away",
+    "value": 80,
+    "text": "Away +80 (88\u201380)"
+   },
+   {
+    "media": 347.73,
+    "kind": "score_away",
+    "value": 0,
+    "text": "Away score corrected to 0 (88\u20130)"
+   },
+   {
+    "media": 352.7,
+    "kind": "clock_stop",
+    "value": 1,
+    "text": "Clock stopped at 6:30"
+   },
+   {
+    "media": 356.34,
+    "kind": "score_home",
+    "value": 81,
+    "text": "Home score corrected to 81 (81\u20130)"
+   },
+   {
+    "media": 386.32,
+    "kind": "clock_start",
+    "value": 1,
+    "text": "Clock started at 6:29"
+   },
+   {
+    "media": 397.12,
+    "kind": "score_home",
+    "value": 1,
+    "text": "Home score corrected to 1 (1\u20130)"
+   },
+   {
+    "media": 403.69,
+    "kind": "score_home",
+    "value": 80,
+    "text": "Home +79 (80\u20130)"
+   },
+   {
+    "media": 406.08,
+    "kind": "score_home",
+    "value": 81,
+    "text": "Home +1 (81\u20130)"
+   },
+   {
+    "media": 416.87,
+    "kind": "clock_stop",
+    "value": 1,
+    "text": "Clock stopped at 6:00"
+   },
+   {
+    "media": 419.26,
+    "kind": "score_home",
+    "value": 1,
+    "text": "Home score corrected to 1 (1\u20130)"
+   },
+   {
+    "media": 442.76,
+    "kind": "score_away",
+    "value": 80,
+    "text": "Away +80 (1\u201380)"
+   },
+   {
+    "media": 449.9,
+    "kind": "score_away",
+    "value": 0,
+    "text": "Away score corrected to 0 (1\u20130)"
+   },
+   {
+    "media": 457.2,
+    "kind": "score_home",
+    "value": 0,
+    "text": "Home score corrected to 0 (0\u20130)"
+   },
+   {
+    "media": 475.1,
+    "kind": "score_away",
+    "value": 80,
+    "text": "Away +80 (0\u201380)"
+   },
+   {
+    "media": 478.07,
+    "kind": "score_home",
+    "value": 81,
+    "text": "Home +81 (81\u201380)"
+   },
+   {
+    "media": 483.47,
+    "kind": "clock_start",
+    "value": 1,
+    "text": "Clock started at 5:14"
+   },
+   {
+    "media": 490.68,
+    "kind": "clock_stop",
+    "value": 1,
+    "text": "Clock stopped at 5:09"
+   },
+   {
+    "media": 498.54,
+    "kind": "score_home",
+    "value": 2,
+    "text": "Home score corrected to 2 (2\u201380)"
+   },
+   {
+    "media": 513.46,
+    "kind": "score_away",
+    "value": 0,
+    "text": "Away score corrected to 0 (2\u20130)"
+   },
+   {
+    "media": 518.31,
+    "kind": "score_away",
+    "value": 80,
+    "text": "Away +80 (2\u201380)"
+   },
+   {
+    "media": 521.33,
+    "kind": "clock_start",
+    "value": 1,
+    "text": "Clock started at 5:08"
+   },
+   {
+    "media": 527.92,
+    "kind": "score_away",
+    "value": 0,
+    "text": "Away score corrected to 0 (2\u20130)"
+   },
+   {
+    "media": 534.49,
+    "kind": "clock_stop",
+    "value": 1,
+    "text": "Clock stopped at 4:57"
+   },
+   {
+    "media": 534.83,
+    "kind": "clock_start",
+    "value": 1,
+    "text": "Clock started at 04:55"
+   },
+   {
+    "media": 535.39,
+    "kind": "score_away",
+    "value": 80,
+    "text": "Away +80 (2\u201380)"
+   },
+   {
+    "media": 540.2,
+    "kind": "score_away",
+    "value": 0,
+    "text": "Away score corrected to 0 (2\u20130)"
+   },
+   {
+    "media": 545.58,
+    "kind": "score_away",
+    "value": 80,
+    "text": "Away +80 (2\u201380)"
+   },
+   {
+    "media": 550.9,
+    "kind": "clock_stop",
+    "value": 1,
+    "text": "Clock stopped at 4:40"
+   },
+   {
+    "media": 551.47,
+    "kind": "clock_start",
+    "value": 1,
+    "text": "Clock started at 04:38"
+   },
+   {
+    "media": 553.84,
+    "kind": "clock_stop",
+    "value": 1,
+    "text": "Clock stopped at 4:37"
+   },
+   {
+    "media": 554.38,
+    "kind": "clock_start",
+    "value": 1,
+    "text": "Clock started at 4:36"
+   },
+   {
+    "media": 556.88,
+    "kind": "clock_stop",
+    "value": 1,
+    "text": "Clock stopped at 4:35"
+   },
+   {
+    "media": 558.51,
+    "kind": "clock_start",
+    "value": 1,
+    "text": "Clock started at 4:31"
+   },
+   {
+    "media": 561.02,
+    "kind": "clock_stop",
+    "value": 1,
+    "text": "Clock stopped at 4:30"
+   },
+   {
+    "media": 563.76,
+    "kind": "score_away",
+    "value": 0,
+    "text": "Away score corrected to 0 (2\u20130)"
+   },
+   {
+    "media": 596.12,
+    "kind": "score_away",
+    "value": 80,
+    "text": "Away +80 (2\u201380)"
+   },
+   {
+    "media": 630.35,
+    "kind": "clock_start",
+    "value": 1,
+    "text": "Clock started at 3:44"
+   },
+   {
+    "media": 633.97,
+    "kind": "clock_stop",
+    "value": 1,
+    "text": "Clock stopped at 3:42"
+   },
+   {
+    "media": 635.75,
+    "kind": "clock_start",
+    "value": 1,
+    "text": "Clock started at 3:39"
+   },
+   {
+    "media": 641.69,
+    "kind": "clock_stop",
+    "value": 1,
+    "text": "Clock stopped at 3:34"
+   },
+   {
+    "media": 644.08,
+    "kind": "clock_start",
+    "value": 1,
+    "text": "Clock started at 3:30"
+   },
+   {
+    "media": 647.4,
+    "kind": "score_away",
+    "value": 0,
+    "text": "Away score corrected to 0 (2\u20130)"
+   },
+   {
+    "media": 654.7,
+    "kind": "clock_stop",
+    "value": 1,
+    "text": "Clock stopped at 3:22"
+   },
+   {
+    "media": 656.4,
+    "kind": "clock_start",
+    "value": 1,
+    "text": "Clock started at 3:18"
+   },
+   {
+    "media": 658.12,
+    "kind": "clock_stop",
+    "value": 1,
+    "text": "Clock stopped at 3:18"
+   },
+   {
+    "media": 659.34,
+    "kind": "clock_start",
+    "value": 1,
+    "text": "Clock started at 3:15"
+   },
+   {
+    "media": 662.94,
+    "kind": "clock_stop",
+    "value": 1,
+    "text": "Clock stopped at 3:13"
+   },
+   {
+    "media": 664.12,
+    "kind": "clock_start",
+    "value": 1,
+    "text": "Clock started at 3:10"
+   },
+   {
+    "media": 671.33,
+    "kind": "score_away",
+    "value": 80,
+    "text": "Away +80 (2\u201380)"
+   },
+   {
+    "media": 696.96,
+    "kind": "score_away",
+    "value": 0,
+    "text": "Away score corrected to 0 (2\u20130)"
+   },
+   {
+    "media": 702.92,
+    "kind": "clock_stop",
+    "value": 1,
+    "text": "Clock stopped at 2:33"
+   },
+   {
+    "media": 724.06,
+    "kind": "score_away",
+    "value": 80,
+    "text": "Away +80 (2\u201380)"
+   },
+   {
+    "media": 743.09,
+    "kind": "clock_start",
+    "value": 1,
+    "text": "Clock started at 2:32"
+   },
+   {
+    "media": 749.68,
+    "kind": "score_away",
+    "value": 0,
+    "text": "Away score corrected to 0 (2\u20130)"
+   },
+   {
+    "media": 761.72,
+    "kind": "score_away",
+    "value": 80,
+    "text": "Away +80 (2\u201380)"
+   },
+   {
+    "media": 761.72,
+    "kind": "clock_stop",
+    "value": 1,
+    "text": "Clock stopped at 2:15"
+   },
+   {
+    "media": 762.32,
+    "kind": "clock_start",
+    "value": 1,
+    "text": "Clock started at 2:13"
+   },
+   {
+    "media": 765.92,
+    "kind": "score_away",
+    "value": 0,
+    "text": "Away score corrected to 0 (2\u20130)"
+   },
+   {
+    "media": 780.91,
+    "kind": "score_away",
+    "value": 80,
+    "text": "Away +80 (2\u201380)"
+   },
+   {
+    "media": 780.91,
+    "kind": "clock_stop",
+    "value": 1,
+    "text": "Clock stopped at 1:56"
+   },
+   {
+    "media": 787.01,
+    "kind": "clock_start",
+    "value": 1,
+    "text": "Clock started at 1:51"
+   },
+   {
+    "media": 788.76,
+    "kind": "clock_stop",
+    "value": 1,
+    "text": "Clock stopped at 1:51"
+   },
+   {
+    "media": 795.92,
+    "kind": "score_away",
+    "value": 0,
+    "text": "Away score corrected to 0 (2\u20130)"
+   },
+   {
+    "media": 802.0,
+    "kind": "score_away",
+    "value": 80,
+    "text": "Away +80 (2\u201380)"
+   },
+   {
+    "media": 815.68,
+    "kind": "clock_start",
+    "value": 1,
+    "text": "Clock started at 1:49"
+   },
+   {
+    "media": 827.87,
+    "kind": "clock_stop",
+    "value": 1,
+    "text": "Clock stopped at 1:38"
+   },
+   {
+    "media": 828.33,
+    "kind": "clock_start",
+    "value": 1,
+    "text": "Clock started at 1:36"
+   },
+   {
+    "media": 831.31,
+    "kind": "clock_stop",
+    "value": 1,
+    "text": "Clock stopped at 1:35"
+   },
+   {
+    "media": 834.26,
+    "kind": "clock_start",
+    "value": 1,
+    "text": "Clock started at 1:30"
+   },
+   {
+    "media": 836.73,
+    "kind": "clock_stop",
+    "value": 1,
+    "text": "Clock stopped at 1:29"
+   },
+   {
+    "media": 837.96,
+    "kind": "clock_start",
+    "value": 1,
+    "text": "Clock started at 1:28"
+   },
+   {
+    "media": 839.72,
+    "kind": "clock_stop",
+    "value": 1,
+    "text": "Clock stopped at 1:28"
+   },
+   {
+    "media": 840.27,
+    "kind": "clock_start",
+    "value": 1,
+    "text": "Clock started at 1:25"
+   },
+   {
+    "media": 843.91,
+    "kind": "clock_stop",
+    "value": 1,
+    "text": "Clock stopped at 1:23"
+   },
+   {
+    "media": 852.26,
+    "kind": "score_away",
+    "value": 0,
+    "text": "Away score corrected to 0 (2\u20130)"
+   },
+   {
+    "media": 874.47,
+    "kind": "clock_start",
+    "value": 1,
+    "text": "Clock started at 1:22"
+   },
+   {
+    "media": 876.33,
+    "kind": "clock_stop",
+    "value": 1,
+    "text": "Clock stopped at 1:22"
+   },
+   {
+    "media": 889.73,
+    "kind": "clock_start",
+    "value": 1,
+    "text": "Clock started at 1:18"
+   },
+   {
+    "media": 891.52,
+    "kind": "clock_stop",
+    "value": 1,
+    "text": "Clock stopped at 1:18"
+   }
+  ]
+ }
+}
