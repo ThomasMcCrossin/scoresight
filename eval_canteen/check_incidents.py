@@ -91,18 +91,27 @@ def parse_clock(text):
 
 
 def events_of(samples):
-    """Every event once, oldest first, with the media time it was first seen."""
-    seen = {}
+    """Every event once, oldest first, with the media time it first appeared.
+
+    The replay polls /game with since=0 every second, so each poll re-lists
+    every event; and a new_game resets the log, so ids restart at 1 and cannot
+    key a dictionary. An event is new when it was not in the poll before it
+    (same id, kind and text): that catches both the re-listing and the reset.
+    """
+    events = []
+    previous = set()
     for sample in samples:
-        for event in sample.get("events") or (sample.get("game") or {}).get(
-            "events"
-        ) or []:
-            key = event.get("id")
-            if key is not None and key not in seen:
+        listed = sample.get("events") or (sample.get("game") or {}).get("events") or []
+        current = set()
+        for event in listed:
+            key = (event.get("id"), event.get("kind"), event.get("text"))
+            current.add(key)
+            if key not in previous:
                 event = dict(event)
                 event["media"] = sample.get("media")
-                seen[key] = event
-    return [seen[key] for key in sorted(seen)]
+                events.append(event)
+        previous = current
+    return events
 
 
 def _score(game, side):

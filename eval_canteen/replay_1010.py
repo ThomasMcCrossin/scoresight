@@ -216,6 +216,18 @@ def run(build, variant, start, duration, name, out, keep_work=True, lead_in=20.0
         for sample in samples
         if sample.get("media") is None or sample["media"] >= start - 2.0
     ]
+    # Once the feed ends, every later poll maps to the same final out_time;
+    # those repeats are not a second of media and would read as a frozen
+    # engine, so only the first sample at each media time is kept.
+    deduped = []
+    seen_media = set()
+    for sample in samples:
+        media = sample.get("media")
+        if media is not None and media in seen_media:
+            continue
+        seen_media.add(media)
+        deduped.append(sample)
+    samples = deduped
     report = {
         "build": runner.SCORESIGHT_ROOT,
         "variant": variant,
