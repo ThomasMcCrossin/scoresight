@@ -268,7 +268,10 @@ def check_c(report):
             for e in events
         ],
         "period_end": period_ends["count"],
+        # a period end is a defect only when the clock was flicked to zero;
+        # after a run-down it is the correct event
         "period_end_after_a_flick": len(period_ends["real"]),
+        "clock_ran_down": period_ends["count"] - len(period_ends["real"]),
         "period_start": sum(1 for e in events if e.get("kind") == "period_start"),
         "clock_start": sum(1 for e in events if e.get("kind") == "clock_start"),
     }
