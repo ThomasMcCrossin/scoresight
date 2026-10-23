@@ -559,7 +559,7 @@ def render_markdown(meta, result, truth):
     lines.append("## Field accuracy")
     lines.append("")
     lines.append(
-        "| field | correct | wrong | unknown | no reference | accuracy | unknown rate |"
+        "| field | correct | wrong | unknown | not judged | accuracy | unknown rate |"
     )
     lines.append("|---|---|---|---|---|---|---|")
     for key, _ in FIELDS:
@@ -574,6 +574,13 @@ def render_markdown(meta, result, truth):
             f"| {row['name']} | {row['correct']} | {row['wrong']} | {row['unknown']} "
             f"| {row['no_reference']} | {acc} | {unk} |"
         )
+    lines.append("")
+    lines.append(
+        "*not judged*: samples the reference cannot score — a clock within "
+        f"{EDGE_GRACE:g} s of a start/stop (its timing is the transition "
+        "latency's job), the board's blank clock under a minute, the "
+        "intermission."
+    )
     lines.append("")
     lines.append("## Transitions")
     lines.append("")

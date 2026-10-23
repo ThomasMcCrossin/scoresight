@@ -14,12 +14,14 @@
 
 ## Field accuracy
 
-| field | correct | wrong | unknown | no reference | accuracy | unknown rate |
+| field | correct | wrong | unknown | not judged | accuracy | unknown rate |
 |---|---|---|---|---|---|---|
 | Period | 897 | 0 | 2 | 0 | 100.0% | 0.2% |
 | Home Score | 897 | 0 | 2 | 0 | 100.0% | 0.2% |
 | Away Score | 897 | 0 | 2 | 0 | 100.0% | 0.2% |
 | Time | 787 | 0 | 5 | 107 | 100.0% | 0.6% |
+
+*not judged*: samples the reference cannot score — a clock within 2.5 s of a start/stop (its timing is the transition latency's job), the board's blank clock under a minute, the intermission.
 
 ## Transitions
 
